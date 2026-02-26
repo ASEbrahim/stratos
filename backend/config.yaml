@@ -12,20 +12,36 @@ discovery:
   rising_multiplier: 3.0
 market:
   tickers:
-  - symbol: NVDA
-    name: NVIDIA
-  - symbol: AAPL
-    name: Apple
-  - symbol: MSFT
-    name: Microsoft
-  - symbol: AMZN
-    name: Amazon
-  - symbol: GOOGL
-    name: Google
-  - symbol: META
-    name: Meta
-  - symbol: TSLA
-    name: Tesla
+  - symbol: XOM
+    name: XOM
+    category: custom
+  - symbol: CVX
+    name: CVX
+    category: custom
+  - symbol: BP
+    name: BP
+    category: custom
+  - symbol: TOT
+    name: TOT
+    category: custom
+  - symbol: BTC-USD
+    name: BTC-USD
+    category: custom
+  - symbol: ETH-USD
+    name: ETH-USD
+    category: custom
+  - symbol: GC=F
+    name: GC=F
+    category: custom
+  - symbol: CL=F
+    name: CL=F
+    category: custom
+  - symbol: EURUSD=X
+    name: EURUSD=X
+    category: custom
+  - symbol: ^GSPC
+    name: ^GSPC
+    category: custom
   intervals: {}
   alert_threshold_percent: 5.0
 news:
@@ -74,11 +90,11 @@ scoring:
     avg_cap: 60
   fallback_score: 3.0
 search:
-  google_api_key: ${GOOGLE_API_KEY}
+  google_api_key: AIzaSyAYmzOV-kl1m60gidsKAhXKiDM92F4qGmY
   google_cx: 52d68e3fc17d74e9a
   provider: serper
-  serper_api_key: ${SERPER_API_KEY}
-  serper_credits: 191
+  serper_api_key: 1b9db98fe96029b315309b101464641e4955b7d4
+  serper_credits: 2500
 system:
   database_file: strat_os.db
   frontend_port: 8080
@@ -86,101 +102,91 @@ system:
   max_news_items: 100
   output_file: output/news_data.json
 profile:
-  role: Computer Engineer
+  role: 'Petroleum Engineering Professor at Kuwait University and Consultant for Seisnetics '
   location: Kuwait
-  context: 'Track: As a computer engineer in Kuwait, focus on local tech companies
-    like Zain and Ooredoo, as well as emerging startups in the Gulf region. Monitor
-    developments in cloud computing, AI integration, and cybersecurity, especially
-    as these fields grow within Kuwait''s digital transformation initiatives. Keep
-    an eye on government-led tech projects and infrastructure upgrades that could
-    influence demand for engineering solutions. Deprioritize: Avoid topics unrelated
-    to your field, such as oil and gas exploration or traditional construction projects,
-    unless they involve smart infrastructure or IoT applications.'
+  context: Petroleum engineering professor and consultant focused on academic research,
+    industry R&D, and global energy technology trends with emphasis on Kuwait and
+    GCC policy developments.
   interests: []
   name: Ahmad
   avatar: AE
   email: Kirissie@gmail.com
 dynamic_categories:
-- id: ktech
-  label: Kuwait Tech Employers
-  icon: briefcase
+- id: kuniv
+  label: Kuwait Academic & Research Employers
+  icon: building-2
   items:
-  - Zain
-  - Ooredoo
-  - STC Kuwait
-  - KNET
-  - Alghanim
-  - Huawei
-  - SAP
-  - Kuwait Digital Authority
-  - Kuwait Telecommunications Regulatory Authority (KTRA), Kuwait
+  - Kuwait University
+  - KISR
+  - KFUPM
+  - Kuwait Institute for Scientific Research
+  - Kuwait Foundation for Advancement of Sciences
+  - Kuwait Petroleum Research Center
+  - Seisnetics
+  - Schlumberger Kuwait
   enabled: true
   scorer_type: career
   root: kuwait
-- id: gulftech
-  label: Gulf Tech Startups
-  icon: globe
+- id: oiltech
+  label: Petroleum Engineering & Tech Trends
+  icon: cpu
   items:
-  - Arabian Gulf University Tech
-  - Gulf Startups
-  - Smart Dubai
-  - Abu Dhabi AI Lab
-  - Qatar AI
-  - Bahrain FinTech
-  - Oman Tech Park
-  - Kuwait Innovation Lab
-  - Kuwait AI Startup Hub, Gulf Cybersecurity
+  - digital oilfield
+  - AI in reservoir modeling
+  - subsurface imaging
+  - seismic data analytics
+  - carbon capture tech
+  - enhanced oil recovery
+  - well automation
+  - digital twin for oil assets
+  enabled: true
+  scorer_type: tech
+  root: global
+- id: govpol
+  label: Government & Industry Policy
+  icon: gavel
+  items:
+  - Kuwait Energy Policy
+  - GCC oil regulations
+  - KOC R&D initiatives
+  - Kuwait National Petroleum Strategy
+  - Ministry of Energy projects
+  - Kuwait Sustainability Goals
+  - OPEC+ production agreements
+  - Kuwait Energy Efficiency Framework
   enabled: true
   scorer_type: regional
   root: regional
-- id: cloudai
-  label: Cloud & AI Trends
-  icon: cpu
+- id: certev
+  label: Career & Professional Certifications
+  icon: award
   items:
-  - cloud computing
-  - AI integration
-  - machine learning
-  - edge computing
-  - AI in healthcare
-  - AI in logistics
-  - digital transformation
-  - smart infrastructure
-  - Microsoft Azure for Government, AWS GovCloud,
+  - SPE certification
+  - Petroleum Engineering PhD programs
+  - Reservoir Simulation training
+  - Well Logging certification
+  - Geophysical Interpretation courses
+  - AI for Oil & Gas workshops
+  - ISO 50001 energy management
+  - Kuwait University research grants
   enabled: true
-  scorer_type: tech
-  root: global
-- id: cybersec
-  label: Cybersecurity Developments
-  icon: shield
-  items:
-  - cybersecurity
-  - data protection
-  - network security
-  - AI in threat detection
-  - cloud security
-  - IoT security
-  - government cybersecurity
-  - cyber regulations
-  - ISO/IEC 27001, NIST Cybersecurity Framework, CIS
-  enabled: true
-  scorer_type: tech
-  root: global
-- id: govtech
-  label: Government Tech Projects
-  icon: building-2
-  items:
-  - Kuwait Digital Transformation
-  - Smart Kuwait
-  - Kuwait National AI Strategy
-  - Kuwait Smart Cities
-  - Kuwait 2035 Vision
-  - GCC Tech Initiatives
-  - Kuwait Cybersecurity Strategy
-  - Kuwait AI Lab
-  - Kuwait National Cybersecurity Center (KNCC), Kuwait
-  enabled: true
-  scorer_type: regional
+  scorer_type: career
   root: kuwait
+- id: confer
+  label: Conferences & Academic Events
+  icon: target
+  items:
+  - SPE Annual Technical Conference
+  - IADC Middle East
+  - Kuwait University Petroleum Symposium
+  - World Petroleum Congress
+  - AI in Oil & Gas Summit
+  - KISR Research Forum
+  - GCC Energy Innovation Expo
+  - Petroleum Engineering Workshops
+  enabled: true
+  scorer_type: auto
+  root: global
 extra_feeds_finance:
   cnbc_top: false
   cnbc_finance: false
