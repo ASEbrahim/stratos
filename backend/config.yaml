@@ -74,10 +74,10 @@ scoring:
     avg_cap: 60
   fallback_score: 3.0
 search:
-  google_api_key: REDACTED_GOOGLE_KEY
+  google_api_key: ${GOOGLE_API_KEY}
   google_cx: 52d68e3fc17d74e9a
   provider: serper
-  serper_api_key: REDACTED_SERPER_KEY
+  serper_api_key: ${SERPER_API_KEY}
   serper_credits: 193
 system:
   database_file: strat_os.db

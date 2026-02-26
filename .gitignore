@@ -58,3 +58,4 @@ data/corrections.db
 backend/strat_os.db
 backend/strat_os.db-shm
 backend/strat_os.db-wal
+backend/profiles/*.yaml
