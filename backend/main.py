@@ -11,7 +11,7 @@ import os
 import yaml
 import time
 import threading
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Dict, Any, Optional
 import sys
@@ -240,6 +240,7 @@ class StratOS:
             The complete output data
         """
         self._scan_cancelled.clear()
+        self._snapshot_previous_articles()  # Snapshot before any writes
         self.scan_status["is_scanning"] = True
         self.scan_status["stage"] = "starting"
         self.scan_status["progress"] = "Reloading configuration..."
@@ -714,6 +715,7 @@ class StratOS:
         Keeps existing market data.
         """
         self._scan_cancelled.clear()
+        self._snapshot_previous_articles()  # Snapshot before any writes
         self.scan_status["is_scanning"] = True
         self.scan_status["stage"] = "news"
         self.scan_status["progress"] = "Fetching news..."
@@ -722,6 +724,7 @@ class StratOS:
         self.scan_status["high"] = 0
         self.scan_status["medium"] = 0
         self.scan_status["cancelled"] = False
+        self.sse_broadcast("scan", {"status": "news", "progress": "Fetching news..."})
 
         logger.info("=" * 60)
         logger.info("Refreshing news and intelligence...")
@@ -752,6 +755,7 @@ class StratOS:
 
             # Fetch news
             self.scan_status["progress"] = "Fetching news..."
+            self.sse_broadcast("scan", {"status": "news", "progress": "Fetching news..."})
             logger.info("[1/4] Fetching news...")
             news_items = self.news_fetcher.fetch_all(cache_ttl_seconds=0)
             news_dicts = [item.to_dict() for item in news_items]
@@ -764,6 +768,7 @@ class StratOS:
             total_items = len(news_dicts)
             self.scan_status["total"] = total_items
             self.scan_status["progress"] = f"Scoring 0/{total_items} items with AI..."
+            self.sse_broadcast("scan", {"status": "scoring", "progress": f"Scoring 0/{total_items} items...", "scored": 0, "total": total_items})
             logger.info("[2/4] Scoring news items with AI...")
 
             def on_score_progress(current, total):
@@ -895,12 +900,14 @@ class StratOS:
             # Run entity discovery
             self.scan_status["stage"] = "discovery"
             self.scan_status["progress"] = "Running entity discovery..."
+            self.sse_broadcast("scan", {"status": "discovery", "progress": "Running entity discovery..."})
             logger.info("[3/4] Running entity discovery...")
             discoveries = self.discovery.discover(scored_items)
 
             # Generate briefing
             self.scan_status["stage"] = "briefing"
             self.scan_status["progress"] = "Generating briefing..."
+            self.sse_broadcast("scan", {"status": "briefing", "progress": "Generating briefing..."})
             logger.info("[4/4] Generating intelligence briefing...")
             briefing = self.briefing_gen.generate_briefing(
                 market_data=market_data,
@@ -1044,6 +1051,80 @@ class StratOS:
 
         return items
 
+    def _snapshot_previous_articles(self):
+        """Snapshot previous feed articles at scan start for retention merge.
+        Call this once at the beginning of run_scan()/run_news_refresh() so that
+        partial writes during the scan don't corrupt the retention source."""
+        try:
+            if self.output_file.exists():
+                with open(self.output_file, "r") as f:
+                    prev_data = json.load(f)
+                    self._retained_snapshot = prev_data.get("news", [])
+            else:
+                self._retained_snapshot = []
+        except Exception as e:
+            logger.warning(f"Could not snapshot previous feed for retention: {e}")
+            self._retained_snapshot = []
+
+    def _merge_retained_articles(self, current_articles: list) -> list:
+        """Merge high-scoring articles from previous scan into current results."""
+        scoring_cfg = self.config.get("scoring", {})
+        if not scoring_cfg.get("retain_high_scores", True):
+            return current_articles
+
+        threshold = scoring_cfg.get("retention_threshold", 8.0)
+        max_age_hours = scoring_cfg.get("retention_max_age_hours", 24)
+        max_retained = scoring_cfg.get("retention_max_items", 20)
+
+        # Use snapshot taken at scan start (avoids reading partially-written output file)
+        previous_articles = getattr(self, '_retained_snapshot', None)
+        if previous_articles is None:
+            # Fallback: read from file if no snapshot (shouldn't happen normally)
+            try:
+                if self.output_file.exists():
+                    with open(self.output_file, "r") as f:
+                        prev_data = json.load(f)
+                        previous_articles = prev_data.get("news", [])
+                else:
+                    previous_articles = []
+            except Exception as e:
+                logger.warning(f"Could not load previous feed for retention: {e}")
+                return current_articles
+
+        if not previous_articles:
+            return current_articles
+
+        current_urls = {a.get("url", "") for a in current_articles if a.get("url")}
+        cutoff = datetime.now() - timedelta(hours=max_age_hours)
+
+        retained = []
+        for article in previous_articles:
+            url = article.get("url", "")
+            if not url or url in current_urls:
+                continue
+            if article.get("score", 0) < threshold:
+                continue
+            # Check age
+            ts = article.get("timestamp", "")
+            if ts:
+                try:
+                    article_time = datetime.fromisoformat(ts.replace("Z", "+00:00")).replace(tzinfo=None)
+                    if article_time < cutoff:
+                        continue
+                except (ValueError, TypeError):
+                    pass
+            article["retained"] = True
+            retained.append(article)
+
+        # Cap retained articles — keep highest scoring
+        retained.sort(key=lambda x: x.get("score", 0), reverse=True)
+        retained = retained[:max_retained]
+
+        if retained:
+            logger.info(f"Retained {len(retained)} high-scoring articles from previous scan (>= {threshold})")
+
+        return current_articles + retained
+
     def _build_output(self, market_data: Dict, news_items: list, briefing: Dict, market_alerts: list = None) -> Dict[str, Any]:
         """
         Build the final output matching FRS schema with extensions.
@@ -1060,6 +1141,11 @@ class StratOS:
             "briefing": { ... }
         }
         """
+        # Merge retained high-scoring articles from previous scan
+        news_items = self._merge_retained_articles(news_items)
+        # Re-sort by score after merging
+        news_items.sort(key=lambda x: x.get("score", 0), reverse=True)
+
         # Filter news for output (respect max_items)
         max_items = self.config.get("system", {}).get("max_news_items", 50)
         filtered_news = news_items[:max_items]
@@ -1079,7 +1165,8 @@ class StratOS:
                 # Extensions
                 "id": item.get("id", ""),
                 "category": item.get("category", ""),
-                "score_reason": item.get("score_reason", "")
+                "score_reason": item.get("score_reason", ""),
+                **({"retained": True} if item.get("retained") else {})
             })
 
         # Build market output (FRS compliant)
@@ -1201,8 +1288,10 @@ def main():
                     strat.run_scan()
                 threading.Thread(target=background_scan, daemon=True).start()
 
-            if args.background:
+            if args.background and strat.config.get("schedule", {}).get("background_enabled", False):
                 strat.start_background_scheduler()
+            elif args.background:
+                logger.info("Background scheduler disabled in config (schedule.background_enabled: false)")
 
             strat.serve_frontend(port=args.port, open_browser=True)
         else:
