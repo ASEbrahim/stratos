@@ -1128,6 +1128,9 @@ class StratOS:
         current_urls = {a.get("url", "") for a in current_articles if a.get("url")}
         cutoff = datetime.now() - timedelta(hours=max_age_hours)
 
+        # Profile-scoped retention: only keep articles tagged for this profile
+        active_profile = self.active_profile or ""
+
         retained = []
         for article in previous_articles:
             url = article.get("url", "")
@@ -1147,7 +1150,12 @@ class StratOS:
             # Check if user dismissed this article
             if self.db and self.db.was_dismissed(url):
                 continue
+            # Profile filter: skip articles retained by a different profile
+            article_profile = article.get("retained_by_profile", "")
+            if article_profile and active_profile and article_profile != active_profile:
+                continue
             article["retained"] = True
+            article["retained_by_profile"] = active_profile
             retained.append(article)
 
         # Cap retained articles — keep highest scoring
