@@ -1227,7 +1227,9 @@ class StratOS:
                 "id": item.get("id", ""),
                 "category": item.get("category", ""),
                 "score_reason": item.get("score_reason", ""),
-                **({"retained": True} if item.get("retained") else {})
+                **({"retained": True, "retained_by_profile": item["retained_by_profile"]}
+                   if item.get("retained") and item.get("retained_by_profile") else
+                   {"retained": True} if item.get("retained") else {})
             })
 
         # Build market output (FRS compliant)
