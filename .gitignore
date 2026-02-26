@@ -55,3 +55,6 @@ data/corrections.db
 # Temporary
 /tmp/
 *.tmp
+backend/strat_os.db
+backend/strat_os.db-shm
+backend/strat_os.db-wal
