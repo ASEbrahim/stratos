@@ -84,6 +84,7 @@ class StratOS:
         self.config_path = Path(config_path)
         self.config = self._load_config()
         self._load_env_secrets()
+        self._sync_serper_credits()
 
         # Initialize database
         db_path = self.config.get("system", {}).get("database_file", "strat_os.db")
@@ -222,6 +223,27 @@ class StratOS:
             search['google_api_key'] = os.environ['GOOGLE_API_KEY']
         if os.environ.get('GOOGLE_CSE_ID'):
             search['google_cx'] = os.environ['GOOGLE_CSE_ID']
+
+    def _sync_serper_credits(self):
+        """Sync config.yaml serper_credits with the actual query tracker count."""
+        try:
+            from fetchers.serper_search import SerperQueryTracker
+            tracker = SerperQueryTracker()
+            status = tracker.get_status()
+            actual_remaining = status.get('remaining', 0)
+            config_remaining = self.config.get('search', {}).get('serper_credits', 0)
+            if config_remaining != actual_remaining:
+                self.config.setdefault('search', {})['serper_credits'] = actual_remaining
+                # Persist to config.yaml
+                import yaml
+                with open(self.config_path, 'r') as f:
+                    raw = yaml.safe_load(f)
+                raw.setdefault('search', {})['serper_credits'] = actual_remaining
+                with open(self.config_path, 'w') as f:
+                    yaml.dump(raw, f, default_flow_style=False, sort_keys=False)
+                logger.info(f"Serper credits synced: {config_remaining} -> {actual_remaining} (tracker)")
+        except Exception as e:
+            logger.debug(f"Could not sync Serper credits: {e}")
 
     def run_scan(self) -> Dict[str, Any]:
         """
