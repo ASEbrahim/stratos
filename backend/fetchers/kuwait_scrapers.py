@@ -470,6 +470,17 @@ class KuwaitIntelligenceFetcher:
                 (self._build_regional_searches, "regional", "regional"),
             ]
 
+        # Diagnostic: log provider + credit status at scan start
+        if self.serper_client:
+            try:
+                status = self.serper_client.get_status()
+                logger.info(f"Search provider: Serper.dev | Credits remaining: {status.get('remaining', '?')} | "
+                            f"Today: {status.get('today_count', 0)} used | Categories: {len(tasks)}")
+            except Exception:
+                pass
+        else:
+            logger.info("Search provider: DuckDuckGo (Serper not configured)")
+
         for builder, category, root in tasks:
             queries = builder()
             if not queries:
@@ -479,7 +490,7 @@ class KuwaitIntelligenceFetcher:
             logger.info(f"Searching {category} intelligence ({len(queries)} queries){provider_note}...")
 
             def _do_query(query, cat=category, rt=root):
-                return self._search(query, max_results=3, category=cat, root=rt)
+                return self._search(query, max_results=10, category=cat, root=rt)
 
             category_items = []
             with ThreadPoolExecutor(max_workers=3) as executor:

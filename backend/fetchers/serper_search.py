@@ -70,7 +70,7 @@ class SerperQueryTracker:
                 json.dump({
                     'total_count': self.total_count,
                     'daily_counts': self.daily_counts,
-                    'last_queries': self.last_queries[-50:]  # Keep last 50 for debugging
+                    'last_queries': self.last_queries[-200:]  # Keep last 200 for dedup + debugging
                 }, f, indent=2)
         except Exception as e:
             logger.warning(f"Failed to save Serper query tracker: {e}")
@@ -97,6 +97,22 @@ class SerperQueryTracker:
             })
 
             self._save()
+
+    def was_recently_queried(self, query: str, window_minutes: int = 60) -> bool:
+        """Check if this query was already sent within the given time window."""
+        with self._lock:
+            self._load()
+        q_normalized = query.strip().lower()[:100]
+        cutoff = datetime.now() - __import__('datetime').timedelta(minutes=window_minutes)
+        for entry in self.last_queries:
+            if entry.get('query', '').strip().lower() == q_normalized:
+                try:
+                    t = datetime.fromisoformat(entry['time'])
+                    if t >= cutoff:
+                        return True
+                except (ValueError, KeyError):
+                    pass
+        return False
 
     def get_status(self) -> Dict[str, Any]:
         """Get current usage status (thread-safe)."""
@@ -180,6 +196,11 @@ class SerperSearchClient:
         Raises:
             SerperSearchError: For API errors
         """
+        # Skip recently-sent queries to conserve credits
+        if self.tracker.was_recently_queried(query, window_minutes=60):
+            logger.debug(f"Serper dedup: skipping '{query[:40]}...' (sent within last 60 min)")
+            return []
+
         headers = {
             'X-API-KEY': self.api_key,
             'Content-Type': 'application/json'
