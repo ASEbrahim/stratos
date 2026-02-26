@@ -467,29 +467,15 @@ class StratOS:
             logger.info("[4/6] Running entity discovery...")
             discoveries = self.discovery.discover(scored_items)
 
-            # 5. Generate briefing
-            self.scan_status["stage"] = "briefing"
-            self.scan_status["progress"] = "Generating briefing..."
-            self.sse_broadcast("scan", {"status": "briefing", "progress": "Generating briefing..."})
-            logger.info("[5/6] Generating intelligence briefing...")
-            briefing = self.briefing_gen.generate_briefing(
-                market_data=market_data,
-                market_alerts=market_alerts,
-                news_items=scored_items,
-                discoveries=discoveries
-            )
-
-            # Save briefing to DB
-            self.db.save_briefing(briefing)
-
-            # 6. Build final output (FRS schema + extensions)
+            # 5. Build output WITHOUT briefing — let the user see results immediately
             self.scan_status["stage"] = "output"
             self.scan_status["progress"] = "Building output..."
-            logger.info("[6/6] Building output...")
-            output = self._build_output(market_data, scored_items, briefing, market_alerts=market_alerts)
-
-            # Write to JSON file
+            logger.info("[5/6] Building output (briefing deferred)...")
+            output = self._build_output(market_data, scored_items, {}, market_alerts=market_alerts)
             self._write_output(output)
+
+            # 6. Spawn briefing in background — non-blocking
+            self._spawn_deferred_briefing(market_data, market_alerts, scored_items, discoveries)
 
             elapsed = time.time() - start_time
             logger.info(f"Scan complete in {elapsed:.1f}s")
@@ -934,24 +920,12 @@ class StratOS:
             logger.info("[3/4] Running entity discovery...")
             discoveries = self.discovery.discover(scored_items)
 
-            # Generate briefing
-            self.scan_status["stage"] = "briefing"
-            self.scan_status["progress"] = "Generating briefing..."
-            self.sse_broadcast("scan", {"status": "briefing", "progress": "Generating briefing..."})
-            logger.info("[4/4] Generating intelligence briefing...")
-            briefing = self.briefing_gen.generate_briefing(
-                market_data=market_data,
-                market_alerts=market_alerts,
-                news_items=scored_items,
-                discoveries=discoveries
-            )
-
-            # Save briefing to DB
-            self.db.save_briefing(briefing)
-
-            # Build and write output
-            output = self._build_output(market_data, scored_items, briefing, market_alerts=market_alerts)
+            # Build output WITHOUT briefing — let the user see results immediately
+            output = self._build_output(market_data, scored_items, {}, market_alerts=market_alerts)
             self._write_output(output)
+
+            # Spawn briefing in background — non-blocking
+            self._spawn_deferred_briefing(market_data, market_alerts, scored_items, discoveries)
 
             elapsed = time.time() - start_time
             logger.info(f"News refresh complete in {elapsed:.1f}s")
@@ -1082,6 +1056,41 @@ class StratOS:
                     item['root'] = best_match[1]
 
         return items
+
+    def _spawn_deferred_briefing(self, market_data, market_alerts, scored_items, discoveries):
+        """Generate briefing in a background thread and patch the output when done."""
+        def _briefing_worker():
+            try:
+                if self._scan_cancelled.is_set():
+                    return
+                logger.info("Deferred briefing: generating...")
+                self.sse_broadcast("scan", {"status": "briefing", "progress": "Generating briefing..."})
+                briefing = self.briefing_gen.generate_briefing(
+                    market_data=market_data,
+                    market_alerts=market_alerts,
+                    news_items=scored_items,
+                    discoveries=discoveries
+                )
+                if self._scan_cancelled.is_set():
+                    return
+                # Save to DB
+                self.db.save_briefing(briefing)
+                # Patch the output file with the briefing
+                if self.output_file.exists():
+                    with open(self.output_file, "r") as f:
+                        output = json.load(f)
+                    output["briefing"] = briefing
+                    output["meta"]["critical_count"] = briefing.get("critical_count", 0)
+                    output["meta"]["high_count"] = briefing.get("high_count", 0)
+                    self._write_output(output)
+                self.sse_broadcast("briefing_ready", {"status": "ready"})
+                logger.info("Deferred briefing: complete, output patched")
+            except Exception as e:
+                logger.warning(f"Deferred briefing failed: {e}")
+                self.sse_broadcast("briefing_ready", {"status": "failed"})
+
+        t = threading.Thread(target=_briefing_worker, daemon=True, name="briefing-deferred")
+        t.start()
 
     def _snapshot_previous_articles(self):
         """Snapshot previous feed articles at scan start for retention merge.
