@@ -33,7 +33,7 @@ class BriefingGenerator:
         # Extract scoring config (support both full config and scoring-only)
         scoring_config = config.get("scoring", config) if "scoring" in config else config
 
-        self.model = scoring_config.get("inference_model", "qwen3:30b-a3b")
+        self.model = scoring_config.get("wizard_model") or scoring_config.get("inference_model", "qwen3:14b")
         self.host = scoring_config.get("ollama_host", "http://localhost:11434")
         self._available = None
 
