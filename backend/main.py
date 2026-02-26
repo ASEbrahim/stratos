@@ -325,10 +325,13 @@ class StratOS:
             # the frontend filters them into the right tabs.
             news_dicts = self._reclassify_dynamic(news_dicts)
 
-            # 3. Score news items
+            # 2.7 Incremental scan — reuse scores from previous scan if context unchanged
+            news_dicts, prescore_reused = self._reuse_snapshot_scores(news_dicts)
+
+            # 3. Score news items (only those that need fresh scoring)
             self.scan_status["stage"] = "scoring"
             total_items = len(news_dicts)
-            self.scan_status["total"] = total_items
+            self.scan_status["total"] = total_items + len(prescore_reused)
             self.scan_status["progress"] = f"Scoring 0/{total_items} items with AI..."
             self.sse_broadcast("scan", {"status": "scoring", "progress": f"Scoring {total_items} items..."})
             logger.info("[3/6] Scoring news items with AI...")
@@ -454,6 +457,15 @@ class StratOS:
                     self.db.save_news_item(item)
 
                 # Re-sort and update counts
+                scored_items.sort(key=lambda x: x.get('score', 0), reverse=True)
+                _high = sum(1 for i in scored_items if i.get('score', 0) >= 7.0)
+                _med = sum(1 for i in scored_items if 5.0 < i.get('score', 0) < 7.0)
+                self.scan_status["high"] = _high
+                self.scan_status["medium"] = _med
+
+            # Merge back pre-scored (reused) items
+            if prescore_reused:
+                scored_items.extend(prescore_reused)
                 scored_items.sort(key=lambda x: x.get('score', 0), reverse=True)
                 _high = sum(1 for i in scored_items if i.get('score', 0) >= 7.0)
                 _med = sum(1 for i in scored_items if 5.0 < i.get('score', 0) < 7.0)
@@ -779,10 +791,13 @@ class StratOS:
             # Re-classify into dynamic categories
             news_dicts = self._reclassify_dynamic(news_dicts)
 
+            # Incremental scan — reuse scores from previous scan if context unchanged
+            news_dicts, prescore_reused = self._reuse_snapshot_scores(news_dicts)
+
             # Score news
             self.scan_status["stage"] = "scoring"
             total_items = len(news_dicts)
-            self.scan_status["total"] = total_items
+            self.scan_status["total"] = total_items + len(prescore_reused)
             self.scan_status["progress"] = f"Scoring 0/{total_items} items with AI..."
             self.sse_broadcast("scan", {"status": "scoring", "progress": f"Scoring 0/{total_items} items...", "scored": 0, "total": total_items})
             logger.info("[2/4] Scoring news items with AI...")
@@ -907,6 +922,15 @@ class StratOS:
                     self.db.save_news_item(item)
 
                 # Re-sort and update counts
+                scored_items.sort(key=lambda x: x.get('score', 0), reverse=True)
+                _high = sum(1 for i in scored_items if i.get('score', 0) >= 7.0)
+                _med = sum(1 for i in scored_items if 5.0 < i.get('score', 0) < 7.0)
+                self.scan_status["high"] = _high
+                self.scan_status["medium"] = _med
+
+            # Merge back pre-scored (reused) items
+            if prescore_reused:
+                scored_items.extend(prescore_reused)
                 scored_items.sort(key=lambda x: x.get('score', 0), reverse=True)
                 _high = sum(1 for i in scored_items if i.get('score', 0) >= 7.0)
                 _med = sum(1 for i in scored_items if 5.0 < i.get('score', 0) < 7.0)
@@ -1057,6 +1081,54 @@ class StratOS:
 
         return items
 
+    def _reuse_snapshot_scores(self, news_dicts: list) -> tuple:
+        """Reuse scores from the previous scan's snapshot for already-seen URLs.
+
+        Returns (items_needing_scoring, reused_items).
+        Reuse is skipped entirely if the context hash changed since the last scan.
+        """
+        snapshot = getattr(self, '_retained_snapshot', None)
+        if not snapshot:
+            return news_dicts, []
+
+        # Check context hash — if profile/role changed, rescore everything
+        current_hash = self._get_context_hash(
+            self.config.get("profile", {}).get("role", ""),
+            self.config.get("profile", {}).get("context", ""),
+            self.config.get("profile", {}).get("location", ""),
+        )
+        prev_hash = getattr(self, '_snapshot_context_hash', "")
+
+        if not prev_hash or prev_hash != current_hash:
+            if prev_hash:
+                logger.info(f"Incremental scan: context changed ({prev_hash[:6]}→{current_hash[:6]}), rescoring all")
+            return news_dicts, []
+
+        # Build URL → scored article lookup from snapshot
+        snapshot_map = {}
+        for article in snapshot:
+            url = article.get("url", "")
+            if url and article.get("score") is not None:
+                snapshot_map[url] = article
+
+        need_scoring = []
+        reused = []
+        for item in news_dicts:
+            url = item.get("url", "")
+            if url and url in snapshot_map:
+                prev = snapshot_map[url]
+                # Carry over score + score_reason from previous scan
+                item["score"] = prev["score"]
+                item["score_reason"] = prev.get("score_reason", "")
+                reused.append(item)
+            else:
+                need_scoring.append(item)
+
+        if reused:
+            logger.info(f"Incremental scan: {len(reused)} reused, {len(need_scoring)} new (context={current_hash[:6]})")
+
+        return need_scoring, reused
+
     def _spawn_deferred_briefing(self, market_data, market_alerts, scored_items, discoveries):
         """Generate briefing in a background thread and patch the output when done."""
         def _briefing_worker():
@@ -1095,17 +1167,21 @@ class StratOS:
     def _snapshot_previous_articles(self):
         """Snapshot previous feed articles at scan start for retention merge.
         Call this once at the beginning of run_scan()/run_news_refresh() so that
-        partial writes during the scan don't corrupt the retention source."""
+        partial writes during the scan don't corrupt the retention source.
+        Also captures meta.context_hash for incremental score reuse."""
         try:
             if self.output_file.exists():
                 with open(self.output_file, "r") as f:
                     prev_data = json.load(f)
                     self._retained_snapshot = prev_data.get("news", [])
+                    self._snapshot_context_hash = prev_data.get("meta", {}).get("context_hash", "")
             else:
                 self._retained_snapshot = []
+                self._snapshot_context_hash = ""
         except Exception as e:
             logger.warning(f"Could not snapshot previous feed for retention: {e}")
             self._retained_snapshot = []
+            self._snapshot_context_hash = ""
 
     @staticmethod
     def _get_context_hash(role: str, context: str, location: str) -> str:
@@ -1267,7 +1343,12 @@ class StratOS:
                 "generated_at": datetime.now().isoformat(),
                 "news_count": len(news_output),
                 "critical_count": briefing.get("critical_count", 0),
-                "high_count": briefing.get("high_count", 0)
+                "high_count": briefing.get("high_count", 0),
+                "context_hash": self._get_context_hash(
+                    self.config.get("profile", {}).get("role", ""),
+                    self.config.get("profile", {}).get("context", ""),
+                    self.config.get("profile", {}).get("location", ""),
+                )
             }
         }
 
