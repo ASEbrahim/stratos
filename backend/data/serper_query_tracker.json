@@ -1,210 +1,218 @@
 {
-  "total_count": 2162,
+  "total_count": 2309,
   "daily_counts": {
     "2026-02-24": 123,
     "2026-02-25": 1669,
-    "2026-02-26": 621
+    "2026-02-26": 768
   },
   "last_queries": [
     {
-      "query": "\"Arabian Gulf University Tech\"  GCC OR Kuwait OR \"Middle East\" 2026",
-      "time": "2026-02-26T08:10:37.247942"
-    },
-    {
-      "query": "\"Qatar AI\" gulf tech startups GCC OR Kuwait OR \"Middle East\" 2026",
-      "time": "2026-02-26T08:10:38.408200"
-    },
-    {
-      "query": "\"Bahrain FinTech\" gulf tech startups GCC OR Kuwait OR \"Middle East\" 2026",
-      "time": "2026-02-26T08:10:38.430734"
-    },
-    {
-      "query": "\"Abu Dhabi AI Lab\" gulf tech startups GCC OR Kuwait OR \"Middle East\" 2026",
-      "time": "2026-02-26T08:10:39.336942"
-    },
-    {
-      "query": "\"Kuwait Innovation Lab\" gulf tech startups GCC OR Kuwait OR \"Middle East\" 2026",
-      "time": "2026-02-26T08:10:40.029663"
-    },
-    {
-      "query": "\"Kuwait AI Startup Hub, Gulf Cybersecurity\" gulf tech startups GCC OR Kuwait OR \"Middle East\" 2026",
-      "time": "2026-02-26T08:10:40.947250"
-    },
-    {
-      "query": "\"Arabian Gulf University Tech\" \"Gulf Startups\" deal OR partnership OR contract OR agreement 2026",
-      "time": "2026-02-26T08:10:42.112775"
-    },
-    {
-      "query": "\"Oman Tech Park\" gulf tech startups GCC OR Kuwait OR \"Middle East\" 2026",
-      "time": "2026-02-26T08:10:42.745493"
-    },
-    {
-      "query": "\"Arabian Gulf University Tech\" \"Smart Dubai\" deal OR partnership OR contract OR agreement 2026",
-      "time": "2026-02-26T08:10:42.992680"
-    },
-    {
       "query": "\"Arabian Gulf University Tech\" \"Abu Dhabi AI Lab\" deal OR partnership OR contract OR agreement 2026",
-      "time": "2026-02-26T08:10:44.203691"
+      "time": "2026-02-26T08:27:04.137912"
     },
     {
       "query": "\"Arabian Gulf University Tech\" \"Qatar AI\" deal OR partnership OR contract OR agreement 2026",
-      "time": "2026-02-26T08:10:45.016127"
-    },
-    {
-      "query": "\"AI integration\" cloud ai trends 2026",
-      "time": "2026-02-26T08:10:47.205827"
+      "time": "2026-02-26T08:27:07.071547"
     },
     {
       "query": "\"cloud computing\" cloud ai trends 2026",
-      "time": "2026-02-26T08:10:47.273940"
+      "time": "2026-02-26T08:27:08.404338"
+    },
+    {
+      "query": "\"AI integration\" cloud ai trends 2026",
+      "time": "2026-02-26T08:27:08.506468"
     },
     {
       "query": "\"machine learning\" cloud ai trends 2026",
-      "time": "2026-02-26T08:10:47.405873"
-    },
-    {
-      "query": "\"AI in healthcare\" cloud ai trends 2026",
-      "time": "2026-02-26T08:10:48.359042"
+      "time": "2026-02-26T08:27:08.818601"
     },
     {
       "query": "\"edge computing\" cloud ai trends 2026",
-      "time": "2026-02-26T08:10:48.514818"
+      "time": "2026-02-26T08:27:09.436589"
+    },
+    {
+      "query": "\"AI in healthcare\" cloud ai trends 2026",
+      "time": "2026-02-26T08:27:09.716414"
     },
     {
       "query": "\"AI in logistics\" cloud ai trends 2026",
-      "time": "2026-02-26T08:10:48.702240"
-    },
-    {
-      "query": "\"smart infrastructure\" cloud ai trends 2026",
-      "time": "2026-02-26T08:10:49.671451"
+      "time": "2026-02-26T08:27:10.156467"
     },
     {
       "query": "digital transformation cloud ai trends 2026",
-      "time": "2026-02-26T08:10:49.707884"
+      "time": "2026-02-26T08:27:10.625429"
+    },
+    {
+      "query": "\"smart infrastructure\" cloud ai trends 2026",
+      "time": "2026-02-26T08:27:11.241413"
     },
     {
       "query": "\"Microsoft Azure for Government, AWS GovCloud,\" cloud ai trends 2026",
-      "time": "2026-02-26T08:10:49.861957"
-    },
-    {
-      "query": "\"cloud computing\" \"machine learning\" deal OR partnership OR contract OR agreement 2026",
-      "time": "2026-02-26T08:10:50.931320"
+      "time": "2026-02-26T08:27:11.319086"
     },
     {
       "query": "\"cloud computing\" \"AI integration\" deal OR partnership OR contract OR agreement 2026",
-      "time": "2026-02-26T08:10:50.967138"
+      "time": "2026-02-26T08:27:12.274510"
+    },
+    {
+      "query": "\"cloud computing\" \"machine learning\" deal OR partnership OR contract OR agreement 2026",
+      "time": "2026-02-26T08:27:12.480090"
     },
     {
       "query": "\"cloud computing\" \"AI in healthcare\" deal OR partnership OR contract OR agreement 2026",
-      "time": "2026-02-26T08:10:52.223403"
+      "time": "2026-02-26T08:27:13.517449"
     },
     {
       "query": "\"cloud computing\" \"edge computing\" deal OR partnership OR contract OR agreement 2026",
-      "time": "2026-02-26T08:10:52.685016"
-    },
-    {
-      "query": "\"data protection\" cybersecurity developments 2026",
-      "time": "2026-02-26T08:10:54.071451"
+      "time": "2026-02-26T08:27:14.278090"
     },
     {
       "query": "\"cybersecurity\" technology 2026",
-      "time": "2026-02-26T08:10:54.147555"
+      "time": "2026-02-26T08:27:15.407253"
+    },
+    {
+      "query": "\"data protection\" cybersecurity developments 2026",
+      "time": "2026-02-26T08:27:15.538352"
     },
     {
       "query": "\"network security\" cybersecurity developments 2026",
-      "time": "2026-02-26T08:10:54.625227"
-    },
-    {
-      "query": "\"AI in threat detection\" cybersecurity developments 2026",
-      "time": "2026-02-26T08:10:55.180945"
-    },
-    {
-      "query": "\"cloud security\" cybersecurity developments 2026",
-      "time": "2026-02-26T08:10:55.598039"
+      "time": "2026-02-26T08:27:15.888043"
     },
     {
       "query": "\"IoT security\" cybersecurity developments 2026",
-      "time": "2026-02-26T08:10:56.009479"
+      "time": "2026-02-26T08:27:17.108917"
     },
     {
       "query": "government cybersecurity technology 2026",
-      "time": "2026-02-26T08:10:56.239985"
+      "time": "2026-02-26T08:27:18.085943"
+    },
+    {
+      "query": "\"cloud security\" cybersecurity developments 2026",
+      "time": "2026-02-26T08:27:18.096643"
+    },
+    {
+      "query": "\"AI in threat detection\" cybersecurity developments 2026",
+      "time": "2026-02-26T08:27:18.105292"
     },
     {
       "query": "\"cyber regulations\" cybersecurity developments 2026",
-      "time": "2026-02-26T08:10:56.679578"
-    },
-    {
-      "query": "\"cybersecurity\" \"data protection\" deal OR partnership OR contract OR agreement 2026",
-      "time": "2026-02-26T08:10:57.185076"
+      "time": "2026-02-26T08:27:19.432645"
     },
     {
       "query": "\"ISO/IEC 27001, NIST Cybersecurity Framework, CIS\" technology 2026",
-      "time": "2026-02-26T08:10:57.520395"
+      "time": "2026-02-26T08:27:19.785747"
+    },
+    {
+      "query": "\"cybersecurity\" \"data protection\" deal OR partnership OR contract OR agreement 2026",
+      "time": "2026-02-26T08:27:19.855215"
     },
     {
       "query": "\"cybersecurity\" \"network security\" deal OR partnership OR contract OR agreement 2026",
-      "time": "2026-02-26T08:10:57.690230"
+      "time": "2026-02-26T08:27:20.491409"
     },
     {
       "query": "\"cybersecurity\" \"AI in threat detection\" deal OR partnership OR contract OR agreement 2026",
-      "time": "2026-02-26T08:10:58.063965"
+      "time": "2026-02-26T08:27:20.892071"
     },
     {
       "query": "\"cybersecurity\" \"cloud security\" deal OR partnership OR contract OR agreement 2026",
-      "time": "2026-02-26T08:10:59.168393"
+      "time": "2026-02-26T08:27:21.870776"
     },
     {
       "query": "\"Kuwait Digital Transformation\" government tech projects GCC OR Kuwait OR \"Middle East\" 2026",
-      "time": "2026-02-26T08:11:00.093437"
+      "time": "2026-02-26T08:27:22.926083"
     },
     {
       "query": "\"Kuwait National AI Strategy\" government tech projects GCC OR Kuwait OR \"Middle East\" 2026",
-      "time": "2026-02-26T08:11:00.649252"
+      "time": "2026-02-26T08:27:23.425034"
     },
     {
       "query": "\"Smart Kuwait\" government tech projects GCC OR Kuwait OR \"Middle East\" 2026",
-      "time": "2026-02-26T08:11:01.369694"
+      "time": "2026-02-26T08:27:23.647944"
     },
     {
       "query": "\"Kuwait Smart Cities\" government tech projects GCC OR Kuwait OR \"Middle East\" 2026",
-      "time": "2026-02-26T08:11:01.644152"
+      "time": "2026-02-26T08:27:24.479790"
     },
     {
       "query": "\"Kuwait 2035 Vision\" government tech projects GCC OR Kuwait OR \"Middle East\" 2026",
-      "time": "2026-02-26T08:11:01.730490"
-    },
-    {
-      "query": "\"GCC Tech Initiatives\" government tech projects GCC OR Kuwait OR \"Middle East\" 2026",
-      "time": "2026-02-26T08:11:02.654480"
+      "time": "2026-02-26T08:27:24.561275"
     },
     {
       "query": "\"Kuwait Cybersecurity Strategy\" government tech projects GCC OR Kuwait OR \"Middle East\" 2026",
-      "time": "2026-02-26T08:11:03.462990"
+      "time": "2026-02-26T08:27:25.814229"
     },
     {
       "query": "\"Kuwait AI Lab\" government tech projects GCC OR Kuwait OR \"Middle East\" 2026",
-      "time": "2026-02-26T08:11:03.670674"
+      "time": "2026-02-26T08:27:26.421005"
+    },
+    {
+      "query": "\"GCC Tech Initiatives\" government tech projects GCC OR Kuwait OR \"Middle East\" 2026",
+      "time": "2026-02-26T08:27:26.679803"
     },
     {
       "query": "\"Kuwait National Cybersecurity Center (KNCC), Kuwait\" government tech projects GCC OR Kuwait OR \"Mid",
-      "time": "2026-02-26T08:11:04.148011"
+      "time": "2026-02-26T08:27:27.688769"
     },
     {
       "query": "\"Kuwait Digital Transformation\" \"Smart Kuwait\" deal OR partnership OR contract OR agreement 2026",
-      "time": "2026-02-26T08:11:04.957102"
+      "time": "2026-02-26T08:27:27.882304"
     },
     {
       "query": "\"Kuwait Digital Transformation\" \"Kuwait National AI Strategy\" deal OR partnership OR contract OR agr",
-      "time": "2026-02-26T08:11:06.741399"
+      "time": "2026-02-26T08:27:28.169174"
     },
     {
       "query": "\"Kuwait Digital Transformation\" \"Kuwait 2035 Vision\" deal OR partnership OR contract OR agreement 20",
-      "time": "2026-02-26T08:11:07.860283"
+      "time": "2026-02-26T08:27:30.949889"
     },
     {
       "query": "\"Kuwait Digital Transformation\" \"Kuwait Smart Cities\" deal OR partnership OR contract OR agreement 2",
-      "time": "2026-02-26T08:11:07.898381"
+      "time": "2026-02-26T08:27:31.097338"
+    },
+    {
+      "query": "\"Zain\" Kuwait hiring OR careers OR recruitment 2026",
+      "time": "2026-02-26T08:51:06.206356"
+    },
+    {
+      "query": "\"Zain\" kuwait tech employers Kuwait careers 2026",
+      "time": "2026-02-26T08:51:06.464371"
+    },
+    {
+      "query": "\"Ooredoo\" Kuwait hiring OR careers OR recruitment 2026",
+      "time": "2026-02-26T08:51:06.712620"
+    },
+    {
+      "query": "\"Zain\" Kuwait hiring OR careers OR recruitment 2026",
+      "time": "2026-02-26T15:23:36.572903"
+    },
+    {
+      "query": "\"Zain\" kuwait tech employers Kuwait careers 2026",
+      "time": "2026-02-26T15:23:36.925729"
+    },
+    {
+      "query": "\"Ooredoo\" Kuwait hiring OR careers OR recruitment 2026",
+      "time": "2026-02-26T15:23:37.044874"
+    },
+    {
+      "query": "\"Zain\" Kuwait hiring OR careers OR recruitment 2026",
+      "time": "2026-02-26T15:35:32.691115"
+    },
+    {
+      "query": "\"Zain\" kuwait tech employers Kuwait careers 2026",
+      "time": "2026-02-26T15:35:32.925639"
+    },
+    {
+      "query": "\"Ooredoo\" Kuwait hiring OR careers OR recruitment 2026",
+      "time": "2026-02-26T15:35:33.220509"
+    },
+    {
+      "query": "\"Ooredoo\" kuwait tech employers Kuwait careers 2026",
+      "time": "2026-02-26T16:00:21.989613"
+    },
+    {
+      "query": "\"STC Kuwait\" Kuwait hiring OR careers OR recruitment 2026",
+      "time": "2026-02-26T16:00:22.228403"
     }
   ]
 }
