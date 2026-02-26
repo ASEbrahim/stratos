@@ -4,6 +4,7 @@ The central brain that coordinates all modules and generates the final output.
 """
 
 import copy
+import hashlib
 import json
 import logging
 import logging.handlers
@@ -1097,6 +1098,16 @@ class StratOS:
             logger.warning(f"Could not snapshot previous feed for retention: {e}")
             self._retained_snapshot = []
 
+    @staticmethod
+    def _get_context_hash(role: str, context: str, location: str) -> str:
+        """Hash the full intelligence context into a stable 12-char identifier."""
+        parts = []
+        for text in [role, context, location]:
+            normalized = " ".join(text.lower().split()) if text else ""
+            parts.append(normalized)
+        combined = "|".join(parts)
+        return hashlib.sha256(combined.encode()).hexdigest()[:12]
+
     def _merge_retained_articles(self, current_articles: list) -> list:
         """Merge high-scoring articles from previous scan into current results."""
         scoring_cfg = self.config.get("scoring", {})
@@ -1128,8 +1139,13 @@ class StratOS:
         current_urls = {a.get("url", "") for a in current_articles if a.get("url")}
         cutoff = datetime.now() - timedelta(hours=max_age_hours)
 
-        # Profile-scoped retention: only keep articles tagged for this profile
-        active_profile = self.active_profile or ""
+        # Profile-scoped retention: hash role+context+location as the context key
+        profile_cfg = self.config.get("profile", {})
+        context_hash = self._get_context_hash(
+            profile_cfg.get("role", ""),
+            profile_cfg.get("context", ""),
+            profile_cfg.get("location", ""),
+        )
 
         retained = []
         for article in previous_articles:
@@ -1150,12 +1166,12 @@ class StratOS:
             # Check if user dismissed this article
             if self.db and self.db.was_dismissed(url):
                 continue
-            # Profile filter: skip articles retained by a different profile
+            # Profile filter: skip articles retained by a different context
             article_profile = article.get("retained_by_profile", "")
-            if article_profile and active_profile and article_profile != active_profile:
+            if article_profile and context_hash and article_profile != context_hash:
                 continue
             article["retained"] = True
-            article["retained_by_profile"] = active_profile
+            article["retained_by_profile"] = context_hash
             retained.append(article)
 
         # Cap retained articles — keep highest scoring
