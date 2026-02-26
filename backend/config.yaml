@@ -78,7 +78,7 @@ search:
   google_cx: 52d68e3fc17d74e9a
   provider: serper
   serper_api_key: ${SERPER_API_KEY}
-  serper_credits: 193
+  serper_credits: 191
 system:
   database_file: strat_os.db
   frontend_port: 8080
