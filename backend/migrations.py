@@ -179,6 +179,16 @@ def migration_006(cursor):
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_shadow_delta ON shadow_scores(delta)")
 
 
+# -- Migration 007: scan_log retained column --
+@migration
+def migration_007(cursor):
+    """Add retained column to scan_log for high-score article retention tracking."""
+    try:
+        cursor.execute("ALTER TABLE scan_log ADD COLUMN retained INTEGER DEFAULT 0")
+    except sqlite3.OperationalError:
+        pass  # Column already exists
+
+
 # =========================================================================
 # Migration runner
 # =========================================================================

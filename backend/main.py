@@ -280,6 +280,9 @@ class StratOS:
             self.config = copy.deepcopy(self._profile_configs[self.active_profile])
         else:
             self.config = self._load_config()
+        # Always re-apply .env secrets — config.yaml has ${VAR} placeholders
+        # that YAML doesn't expand, and profile cache may have stale keys
+        self._load_env_secrets()
 
         # Reinitialize fetchers with new config
         self.market_fetcher = MarketFetcher(self.config.get("market", {}))
@@ -496,6 +499,7 @@ class StratOS:
             high = sum(1 for i in scored_items if 7.0 <= i.get('score', 0) < 9.0)
             medium = sum(1 for i in scored_items if 5.0 < i.get('score', 0) < 7.0)
             noise = sum(1 for i in scored_items if i.get('score', 0) <= 5.0)
+            retained_count = getattr(self, '_last_retained_count', 0)
             scan_id = self.db.save_scan_log({
                 'started_at': datetime.fromtimestamp(start_time).isoformat(),
                 'elapsed_secs': round(elapsed, 1),
@@ -505,6 +509,7 @@ class StratOS:
                 'rule_scored': self.scorer._stats.get('rule', 0),
                 'llm_scored': self.scorer._stats.get('llm', 0),
                 'truncated': self.scorer._stats.get('truncated', 0),
+                'retained': retained_count,
             })
 
             # Update status
@@ -758,6 +763,8 @@ class StratOS:
                 self.config = copy.deepcopy(self._profile_configs[self.active_profile])
             else:
                 self.config = self._load_config()
+            # Always re-apply .env secrets (config.yaml has ${VAR} placeholders)
+            self._load_env_secrets()
             self.news_fetcher = NewsFetcher(self.config)
             self.scorer = _create_scorer(self.config, db=self.db)  # Rebuild scorer with latest profile
             self.briefing_gen = BriefingGenerator(self.config)  # Rebuild briefing with latest profile/context
@@ -954,6 +961,7 @@ class StratOS:
             high = sum(1 for i in scored_items if 7.0 <= i.get('score', 0) < 9.0)
             medium = sum(1 for i in scored_items if 5.0 < i.get('score', 0) < 7.0)
             noise = sum(1 for i in scored_items if i.get('score', 0) <= 5.0)
+            retained_count = getattr(self, '_last_retained_count', 0)
             scan_id = self.db.save_scan_log({
                 'started_at': datetime.fromtimestamp(start_time).isoformat(),
                 'elapsed_secs': round(elapsed, 1),
@@ -963,6 +971,7 @@ class StratOS:
                 'rule_scored': self.scorer._stats.get('rule', 0),
                 'llm_scored': self.scorer._stats.get('llm', 0),
                 'truncated': self.scorer._stats.get('truncated', 0),
+                'retained': retained_count,
             })
 
             self.scan_status["is_scanning"] = False
@@ -1135,6 +1144,9 @@ class StratOS:
                         continue
                 except (ValueError, TypeError):
                     pass
+            # Check if user dismissed this article
+            if self.db and self.db.was_dismissed(url):
+                continue
             article["retained"] = True
             retained.append(article)
 
@@ -1143,7 +1155,10 @@ class StratOS:
         retained = retained[:max_retained]
 
         if retained:
-            logger.info(f"Retained {len(retained)} high-scoring articles from previous scan (>= {threshold})")
+            logger.info(f"Retained: {len(retained)} articles from previous scans (>= {threshold})")
+
+        # Store count for scan log
+        self._last_retained_count = len(retained)
 
         return current_articles + retained
 

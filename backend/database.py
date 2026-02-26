@@ -114,7 +114,16 @@ class Database:
         cursor = self.conn.cursor()
         cursor.execute("UPDATE news_items SET dismissed = 1 WHERE id = ?", (item_id,))
         self._commit()
-    
+
+    def was_dismissed(self, url: str) -> bool:
+        """Check if a URL was dismissed by the user (via user_feedback table)."""
+        cursor = self.conn.cursor()
+        cursor.execute(
+            "SELECT 1 FROM user_feedback WHERE url = ? AND action = 'dismiss' LIMIT 1",
+            (url,)
+        )
+        return cursor.fetchone() is not None
+
     def is_url_seen(self, url: str) -> bool:
         """Check if we've already fetched this URL."""
         cursor = self.conn.cursor()
@@ -299,8 +308,8 @@ class Database:
         cursor.execute("""
             INSERT INTO scan_log
             (started_at, elapsed_secs, items_fetched, items_scored,
-             critical, high, medium, noise, rule_scored, llm_scored, error, truncated)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+             critical, high, medium, noise, rule_scored, llm_scored, error, truncated, retained)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """, (
             entry.get('started_at', datetime.now().isoformat()),
             entry.get('elapsed_secs', 0),
@@ -314,6 +323,7 @@ class Database:
             entry.get('llm_scored', 0),
             entry.get('error'),
             entry.get('truncated', 0),
+            entry.get('retained', 0),
         ))
         self._commit()
         return cursor.lastrowid
