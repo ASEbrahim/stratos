@@ -90,10 +90,10 @@ scoring:
     avg_cap: 60
   fallback_score: 3.0
 search:
-  google_api_key: AIzaSyAYmzOV-kl1m60gidsKAhXKiDM92F4qGmY
-  google_cx: 52d68e3fc17d74e9a
+  google_api_key: ${GOOGLE_API_KEY}
+  google_cx: ${GOOGLE_CSE_ID}
   provider: serper
-  serper_api_key: 1b9db98fe96029b315309b101464641e4955b7d4
+  serper_api_key: ${SERPER_API_KEY}
   serper_credits: 2500
 system:
   database_file: strat_os.db

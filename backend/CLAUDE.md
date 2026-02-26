@@ -21,8 +21,8 @@ python3 main.py --scan
 
 **Prerequisites**: Ollama must be running (`ollama serve`). The system uses three Ollama models:
 - `scoring.model` from config.yaml (e.g. `stratos-scorer-v2`) — fine-tuned scoring model
-- `scoring.inference_model` (e.g. `qwen3:30b-a3b`) — used for agent chat, suggestions, briefings
-- `scoring.wizard_model` (e.g. `qwen3:14b`) — lighter model for wizard/generate-profile (faster, less over-thinking). Falls back to inference_model if not set.
+- `scoring.inference_model` (e.g. `qwen3:30b-a3b`) — reserved for strat agent chat and market analysis only
+- `scoring.wizard_model` (e.g. `qwen3:14b`) — lighter model for wizard, briefings, and profile generation. Falls back to inference_model if not set.
 
 ## Training Pipeline
 
@@ -118,6 +118,10 @@ Per-user profiles stored as YAML in `profiles/`. Each has: role, location, conte
 - **Streaming Ollama for cancellation**: `_call_ollama` uses `stream=True` and checks `cancel_check` every 10 chunks for responsive scan cancellation.
 - **V2 dual weighting**: WeightedRandomSampler for batch balance + per-sample loss weighting for score-band emphasis.
 - **AOTRITON workaround**: Do NOT set `TORCH_ROCM_AOTRITON_ENABLE_EXPERIMENTAL=1` — causes NaN gradients on 7900 XTX.
+- **Profile-scoped retention**: Retained articles are tagged with a SHA-256 hash of `role|context|location` (stored in `retained_by_profile`). Switching roles within the same profile produces a new hash, so retained articles don't bleed across contexts. Trivial edits (capitalization, spacing) are normalized before hashing to prevent accidental orphaning.
+- **Deferred briefing**: Briefing generation runs in a background thread after scan completion. The output JSON is written immediately with scored articles (briefing = `{}`), then patched when the briefing finishes. SSE `briefing_ready` event notifies the frontend. The briefing thread checks `_scan_cancelled` to abandon work if a new scan starts.
+- **Incremental scanning**: `_reuse_snapshot_scores()` builds a URL→score lookup from the previous output snapshot. Articles already scored in the last scan skip LLM scoring entirely. Articles not re-fetched by the news fetcher are carried forward from the snapshot. Score reuse is skipped entirely if the context hash changed (different role/profile = rescore everything). Zero database changes — purely in-memory.
+- **Model routing for VRAM efficiency**: Briefings use `wizard_model` (14b, ~9GB) instead of `inference_model` (30b, ~18GB). Scorer (8.7GB) + 14b may coexist in 24GB VRAM without model swapping. The 30B is reserved for strat agent chat and market analysis where full reasoning is needed.
 
 ## Secrets and API Keys
 
@@ -135,7 +139,7 @@ GOOGLE_CSE_ID=...               # Google Custom Search Engine ID
 
 ## Ollama Environment Variables
 
-The inference model (`qwen3:30b-a3b`, ~18-19GB) and scorer model (`stratos-scorer-v2`, 8.7GB) cannot coexist in 24GB VRAM. Ollama handles model swapping automatically. These env vars should be set for the Ollama systemd service or shell:
+The inference model (`qwen3:30b-a3b`, ~18-19GB) and scorer model (`stratos-scorer-v2`, 8.7GB) cannot coexist in 24GB VRAM. However, scorer (8.7GB) + wizard_model/14b (~9GB) = ~18GB, which may fit. If they coexist, briefings become near-instant (no model swap). Try `OLLAMA_MAX_LOADED_MODELS=2` after routing briefings to 14b. Ollama handles model swapping automatically. These env vars should be set for the Ollama systemd service or shell:
 
 ```bash
 OLLAMA_MAX_LOADED_MODELS=1    # Only one model in VRAM at a time
