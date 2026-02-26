@@ -1,0 +1,8 @@
+# Exact versions used for V2 scorer training (2026-02-22)
+# GPU: AMD 7900 XTX, ROCm 6.2
+# Install torch first: pip install torch==2.5.1+rocm6.2 --index-url https://download.pytorch.org/whl/rocm6.2
+transformers==5.1.0
+trl==0.28.0
+peft==0.18.1
+datasets==4.5.0
+tokenizers==0.22.2

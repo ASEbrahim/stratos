@@ -1,0 +1,51 @@
+{
+  "latest": "V2",
+  "V1": {
+    "created": "2026-02-19",
+    "base_model": "Qwen/Qwen3-8B",
+    "training_mode": "full_retrain",
+    "adapter_type": "dora",
+    "lora_rank": 16,
+    "lora_alpha": 16,
+    "batch_size": 1,
+    "epochs": 1,
+    "learning_rate": 0.0001,
+    "max_seq_length": 1024,
+    "examples": 5977,
+    "quant": "q8_0",
+    "gguf_path": "/home/ahmad/Downloads/StratOS/StratOS1/backend/data/models/v15/stratos-scorer-q8_0.gguf",
+    "ollama_tag": "stratos-scorer-v1",
+    "calibration": "isotonic",
+    "note": "Formerly v15. Renamed to V1 as the production baseline."
+  },
+  "V2": {
+    "created": "2026-02-22",
+    "base_model": "Qwen/Qwen3-8B (via V1 merged base)",
+    "training_mode": "full_retrain",
+    "adapter_type": "dora",
+    "lora_rank": 16,
+    "lora_alpha": 32,
+    "batch_size": 2,
+    "gradient_accumulation": 8,
+    "epochs": 1,
+    "learning_rate": 0.00001,
+    "max_seq_length": 1024,
+    "examples": 18502,
+    "eval_examples": 2048,
+    "profiles": 30,
+    "quant": "q8_0",
+    "gguf_path": "/home/ahmad/Downloads/StratOS/StratOS1/backend/data/v2_pipeline/training_output/v2_scorer.gguf",
+    "ollama_tag": "stratos-scorer-v2",
+    "teacher_model": "claude-opus-4-5-20251101",
+    "teacher_samples": 20550,
+    "metrics": {
+      "direction_accuracy": 0.981,
+      "mae": 0.393,
+      "spearman_rho": 0.750,
+      "profile_awareness_spread": 7.90,
+      "parse_failures": 0,
+      "think_block_empty_rate": 0.0
+    },
+    "note": "Trained on 20,550 Opus-scored samples across 30 diverse profiles. Fixed V1 profile-blindness."
+  }
+}

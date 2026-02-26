@@ -1,0 +1,93 @@
+======================================================================
+OPUS PSR BASELINE ANALYSIS
+======================================================================
+
+Total eval examples:          2048
+Parsed records with scores:   2048
+Unique articles:              660
+Multi-profile articles:       561
+
+Opus PSR (spread >= 2.0):     26.4%  (148/561)
+V2 PSR (from eval_report):    24.4%  (on 561 articles)
+V1 PSR (from eval_report):    39.7%
+
+----------------------------------------------------------------------
+SPREAD DISTRIBUTION (Opus ground truth)
+----------------------------------------------------------------------
+  Spread Range   Count       %  Bar
+         0-1     218   38.9%  ###################
+         1-2     195   34.8%  #################
+         2-3      51    9.1%  ####
+         3-4      13    2.3%  #
+         4-5       6    1.1%  
+         5-6      26    4.6%  ##
+         6-7      24    4.3%  ##
+         7-8      22    3.9%  #
+         8-9       6    1.1%  
+        9-10       0    0.0%  
+
+Mean spread:    1.70
+Median spread:  1.0
+Min spread:     0.0
+Max spread:     8.5
+
+----------------------------------------------------------------------
+INTERPRETATION
+----------------------------------------------------------------------
+Opus PSR (26.4%) is close to V2 PSR (24.4%).
+V2 is correctly calibrated — the PSR 'drop' from V1 (39.7%) reflects
+V1's noisy scoring, not a V2 regression. PSR is a CLOSED ISSUE.
+
+----------------------------------------------------------------------
+TOP 10 HIGHEST-SPREAD ARTICLES (Opus GT)
+----------------------------------------------------------------------
+
+  "NCT JNJM Debuts 'BOTH SIDES' with Dual Charms"
+    Spread: 8.5  (5 profiles)
+    High: 8.5 — Digital marketing manager at a K-pop entertainment agency in
+    Low:  0.0 — Corporate lawyer at a major law firm in London, UK
+
+  "Home of Indies auf der Gamescom 2026: Das neue Standkonzept"
+    Spread: 8.5  (5 profiles)
+    High: 8.5 — Indie game developer and studio founder in Berlin, Germany
+    Low:  0.0 — Pipeline welder and CWB-certified inspector in Edmonton, Alb
+
+  "SC appoints Abdulkader inaugural fellow"
+    Spread: 8.0  (5 profiles)
+    High: 8.5 — Finance & Accounting student at GUST Kuwait in Kuwait
+    Low:  0.5 — Professional bonsai artist and competition judge in Kyoto, J
+
+  "Diversity In Clinical Trials: Current Gaps And How To Fix Them"
+    Spread: 8.0  (5 profiles)
+    High: 8.5 — Pediatric oncologist at King Faisal Specialist Hospital in R
+    Low:  0.5 — Pipeline welder and CWB-certified inspector in Edmonton, Alb
+
+  "SLB erhält mehrere Offshore-Bohrverträge von Mubadala Energy für die T"
+    Spread: 8.0  (4 profiles)
+    High: 8.5 — Computer Engineering student at American University of Kuwai
+    Low:  0.5 — Professional bonsai artist and competition judge in Kyoto, J
+
+  "FAAN bans cash transactions for revenue payments effective Feb. 28"
+    Spread: 8.0  (5 profiles)
+    High: 8.5 — CTO of a mobile payments startup in Lagos, Nigeria
+    Low:  0.5 — Pipeline welder and CWB-certified inspector in Edmonton, Alb
+
+  "US Foods Holding Corp. (USFD) Presents at Consumer Analyst Group of Ne"
+    Spread: 7.5  (4 profiles)
+    High: 8.5 — Executive chef and restaurant owner in Mexico City, Mexico
+    Low:  1.0 — Computer Engineering student at American University of Kuwai
+
+  "Trump Warns of 'Bad Things' if Iran Doesn't Make a Deal, as Second US "
+    Spread: 7.5  (4 profiles)
+    High: 8.5 — Supply chain analyst at a logistics company in Manama, Bahra
+    Low:  1.0 — Sports physiotherapist at a professional rugby club in Sydne
+
+  "Stock Market Today, Feb. 18: ImmunityBio Soars After EU Approves ANKTI"
+    Spread: 7.5  (3 profiles)
+    High: 8.5 — Hospital pharmacist specializing in oncology in Paris, Franc
+    Low:  1.0 — Sports physiotherapist at a professional rugby club in Sydne
+
+  "SimpleDocs Launches the Contract Intelligence Layer"
+    Spread: 7.5  (6 profiles)
+    High: 8.5 — Corporate lawyer at a major law firm in London, UK
+    Low:  1.0 — Retired UN diplomat and policy consultant in Vienna, Austria

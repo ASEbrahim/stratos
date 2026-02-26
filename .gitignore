@@ -1,0 +1,57 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+*.egg
+dist/
+build/
+.eggs/
+*.so
+venv/
+.venv/
+
+# Training artifacts
+data/models/*/lora_adapter/checkpoint-*/
+data/models/*/*.gguf
+data/models/*/merged/
+*.safetensors
+!data/models/*/lora_adapter/adapter_model.safetensors
+
+# V3 training checkpoints (large optimizer/rng/tokenizer files)
+**/training_output/checkpoint-*/
+*.pt
+*.pth
+
+# Logs
+*.log
+training_*.log
+nohup.out
+
+# Environment
+.env
+*.env.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Ollama model blobs (managed by Ollama, not git)
+# These are stored in ~/.ollama/models/
+
+# Large data files (track with git-lfs or exclude)
+data/training_merged.jsonl
+data/corrections.db
+
+# Claude Code
+.claude/
+
+# Temporary
+/tmp/
+*.tmp
