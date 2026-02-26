@@ -1113,6 +1113,8 @@ class StratOS:
 
         need_scoring = []
         reused = []
+        fetched_urls = {item.get("url", "") for item in news_dicts if item.get("url")}
+
         for item in news_dicts:
             url = item.get("url", "")
             if url and url in snapshot_map:
@@ -1124,8 +1126,18 @@ class StratOS:
             else:
                 need_scoring.append(item)
 
-        if reused:
-            logger.info(f"Incremental scan: {len(reused)} reused, {len(need_scoring)} new (context={current_hash[:6]})")
+        # Carry forward snapshot articles that weren't re-fetched.
+        # They already have scores — no reason to drop them.
+        # Exclude retained articles (handled separately by _merge_retained_articles).
+        carried = 0
+        for url, article in snapshot_map.items():
+            if url not in fetched_urls and not article.get("retained"):
+                reused.append(article)
+                carried += 1
+
+        if reused or carried:
+            logger.info(f"Incremental scan: {len(reused) - carried} matched, {carried} carried forward, "
+                        f"{len(need_scoring)} new (context={current_hash[:6]})")
 
         return need_scoring, reused
 
