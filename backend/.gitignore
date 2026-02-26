@@ -1,0 +1,48 @@
+# Secrets
+.env
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Claude Code internals
+.claude/
+
+# SQLite temp files
+*.db-shm
+*.db-wal
+
+# Model binaries (too large for git)
+*.gguf
+*.safetensors
+*.pt
+*.pth
+*.bin
+data/models/current_base/
+data/models/V1/checkpoint-*/
+data/models/V1/lora_adapter/
+
+# V2 pipeline large artifacts
+data/v2_pipeline/v1_merged_base/
+data/v2_pipeline/training_output/checkpoint-*/
+data/v2_pipeline/training_output/final_checkpoint/adapter_model.safetensors
+data/v2_pipeline/training_output/merged_v2/
+data/v2_pipeline/training_output/diag_*/
+data/v2_pipeline/training_output/diag/
+data/v2_pipeline/training_output/seed_*/
+
+# Training data (large JSONL files tracked separately)
+data/training_merged.jsonl
+data/training_data.jsonl
+
+# Logs
+*.log
+output/
+
+# Session state
+.sessions.json
+
+# OS
+.DS_Store
+Thumbs.db

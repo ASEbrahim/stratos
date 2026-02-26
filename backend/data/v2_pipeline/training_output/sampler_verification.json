@@ -1,0 +1,28 @@
+{
+  "batches_seen": 1001,
+  "examples_seen": 2002,
+  "expected_distribution": {
+    "noise": 0.75,
+    "tangential": 0.1241,
+    "moderate": 0.0473,
+    "high": 0.0449,
+    "critical": 0.0337
+  },
+  "actual_distribution": {
+    "noise": 0.7502,
+    "tangential": 0.1289,
+    "moderate": 0.043,
+    "high": 0.0519,
+    "critical": 0.026
+  },
+  "raw_distribution": {
+    "noise": 0.888,
+    "tangential": 0.0735,
+    "moderate": 0.0186,
+    "high": 0.0133,
+    "critical": 0.0066
+  },
+  "distance_to_expected": 0.024,
+  "distance_to_raw": 0.2754,
+  "passed": true
+}

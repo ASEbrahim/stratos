@@ -1,0 +1,27 @@
+{
+  "train_examples": 18502,
+  "eval_examples": 2048,
+  "contrastive_pairs": 25243,
+  "sparse_rejects": 0,
+  "train_file_kb": 29602.70703125,
+  "eval_file_kb": 3232.0986328125,
+  "band_distribution": {
+    "train": {
+      "noise": 16429,
+      "critical": 123,
+      "high": 246,
+      "tangential": 1359,
+      "moderate": 345
+    },
+    "eval": {
+      "noise": 1810,
+      "critical": 28,
+      "high": 32,
+      "tangential": 139,
+      "moderate": 39
+    }
+  },
+  "profiles_in_train": 30,
+  "profiles_in_eval": 30,
+  "profiles_in_both": 30
+}

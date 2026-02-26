@@ -1,0 +1,21 @@
+{
+  "timestamp": "2026-02-24T12:48:02",
+  "sources": {
+    "v2_train": 18502,
+    "v1_merged": 5977
+  },
+  "duplicates_removed": 0,
+  "total_training": 24479,
+  "total_eval": 2048,
+  "valid_samples": 24479,
+  "profiles": 41,
+  "band_distribution": {
+    "noise": 20315,
+    "critical": 231,
+    "high": 1236,
+    "tangential": 1946,
+    "moderate": 751
+  },
+  "include_eval_in_train": false,
+  "corrections_since": "2026-02-19"
+}

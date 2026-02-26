@@ -1,0 +1,8002 @@
+[
+  {
+    "article_id": "a18b71229368",
+    "low_profile": "finance_student_kw",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.2,
+    "gap": 5.2
+  },
+  {
+    "article_id": "a18b71229368",
+    "low_profile": "finance_student_kw",
+    "low_score": 1.0,
+    "high_profile": "lawyer_ai_disruption",
+    "high_score": 6.2,
+    "gap": 5.2
+  },
+  {
+    "article_id": "a18b71229368",
+    "low_profile": "geophysicist_koc_kw",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.2,
+    "gap": 5.2
+  },
+  {
+    "article_id": "a18b71229368",
+    "low_profile": "geophysicist_koc_kw",
+    "low_score": 1.0,
+    "high_profile": "lawyer_ai_disruption",
+    "high_score": 6.2,
+    "gap": 5.2
+  },
+  {
+    "article_id": "a18b71229368",
+    "low_profile": "biotech_researcher_sa",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.2,
+    "gap": 5.2
+  },
+  {
+    "article_id": "a18b71229368",
+    "low_profile": "biotech_researcher_sa",
+    "low_score": 1.0,
+    "high_profile": "lawyer_ai_disruption",
+    "high_score": 6.2,
+    "gap": 5.2
+  },
+  {
+    "article_id": "a18b71229368",
+    "low_profile": "agribiz_sao_paulo",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.2,
+    "gap": 5.2
+  },
+  {
+    "article_id": "a18b71229368",
+    "low_profile": "agribiz_sao_paulo",
+    "low_score": 1.0,
+    "high_profile": "lawyer_ai_disruption",
+    "high_score": 6.2,
+    "gap": 5.2
+  },
+  {
+    "article_id": "a18b71229368",
+    "low_profile": "pharmacist_paris",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.2,
+    "gap": 5.2
+  },
+  {
+    "article_id": "a18b71229368",
+    "low_profile": "pharmacist_paris",
+    "low_score": 1.0,
+    "high_profile": "lawyer_ai_disruption",
+    "high_score": 6.2,
+    "gap": 5.2
+  },
+  {
+    "article_id": "a18b71229368",
+    "low_profile": "kpop_marketer_seoul",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.2,
+    "gap": 5.2
+  },
+  {
+    "article_id": "a18b71229368",
+    "low_profile": "kpop_marketer_seoul",
+    "low_score": 1.0,
+    "high_profile": "lawyer_ai_disruption",
+    "high_score": 6.2,
+    "gap": 5.2
+  },
+  {
+    "article_id": "a18b71229368",
+    "low_profile": "pediatric_oncologist_riyadh",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.2,
+    "gap": 5.2
+  },
+  {
+    "article_id": "a18b71229368",
+    "low_profile": "pediatric_oncologist_riyadh",
+    "low_score": 1.0,
+    "high_profile": "lawyer_ai_disruption",
+    "high_score": 6.2,
+    "gap": 5.2
+  },
+  {
+    "article_id": "a18b71229368",
+    "low_profile": "filmmaker_mumbai",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.2,
+    "gap": 5.2
+  },
+  {
+    "article_id": "a18b71229368",
+    "low_profile": "filmmaker_mumbai",
+    "low_score": 1.0,
+    "high_profile": "lawyer_ai_disruption",
+    "high_score": 6.2,
+    "gap": 5.2
+  },
+  {
+    "article_id": "a18b71229368",
+    "low_profile": "physical_therapist_sydney",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.2,
+    "gap": 5.2
+  },
+  {
+    "article_id": "a18b71229368",
+    "low_profile": "physical_therapist_sydney",
+    "low_score": 1.0,
+    "high_profile": "lawyer_ai_disruption",
+    "high_score": 6.2,
+    "gap": 5.2
+  },
+  {
+    "article_id": "a18b71229368",
+    "low_profile": "nurse_practitioner_toronto",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.2,
+    "gap": 5.2
+  },
+  {
+    "article_id": "a18b71229368",
+    "low_profile": "nurse_practitioner_toronto",
+    "low_score": 1.0,
+    "high_profile": "lawyer_ai_disruption",
+    "high_score": 6.2,
+    "gap": 5.2
+  },
+  {
+    "article_id": "a18b71229368",
+    "low_profile": "bonsai_competitor_kyoto",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.2,
+    "gap": 5.2
+  },
+  {
+    "article_id": "a18b71229368",
+    "low_profile": "bonsai_competitor_kyoto",
+    "low_score": 1.0,
+    "high_profile": "lawyer_ai_disruption",
+    "high_score": 6.2,
+    "gap": 5.2
+  },
+  {
+    "article_id": "a18b71229368",
+    "low_profile": "chef_mexico_city",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.2,
+    "gap": 5.2
+  },
+  {
+    "article_id": "a18b71229368",
+    "low_profile": "chef_mexico_city",
+    "low_score": 1.0,
+    "high_profile": "lawyer_ai_disruption",
+    "high_score": 6.2,
+    "gap": 5.2
+  },
+  {
+    "article_id": "a18b71229368",
+    "low_profile": "welder_pipeline_alberta",
+    "low_score": 1.5,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.2,
+    "gap": 4.7
+  },
+  {
+    "article_id": "a18b71229368",
+    "low_profile": "welder_pipeline_alberta",
+    "low_score": 1.5,
+    "high_profile": "lawyer_ai_disruption",
+    "high_score": 6.2,
+    "gap": 4.7
+  },
+  {
+    "article_id": "a18b71229368",
+    "low_profile": "indie_gamedev_berlin",
+    "low_score": 1.5,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.2,
+    "gap": 4.7
+  },
+  {
+    "article_id": "a18b71229368",
+    "low_profile": "indie_gamedev_berlin",
+    "low_score": 1.5,
+    "high_profile": "lawyer_ai_disruption",
+    "high_score": 6.2,
+    "gap": 4.7
+  },
+  {
+    "article_id": "a18b71229368",
+    "low_profile": "mining_engineer_santiago",
+    "low_score": 1.5,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.2,
+    "gap": 4.7
+  },
+  {
+    "article_id": "a18b71229368",
+    "low_profile": "mining_engineer_santiago",
+    "low_score": 1.5,
+    "high_profile": "lawyer_ai_disruption",
+    "high_score": 6.2,
+    "gap": 4.7
+  },
+  {
+    "article_id": "a18b71229368",
+    "low_profile": "petrol_eng_kw",
+    "low_score": 2.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.2,
+    "gap": 4.2
+  },
+  {
+    "article_id": "a18b71229368",
+    "low_profile": "petrol_eng_kw",
+    "low_score": 2.0,
+    "high_profile": "lawyer_ai_disruption",
+    "high_score": 6.2,
+    "gap": 4.2
+  },
+  {
+    "article_id": "a18b71229368",
+    "low_profile": "cybersecurity_kw",
+    "low_score": 2.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.2,
+    "gap": 4.2
+  },
+  {
+    "article_id": "a18b71229368",
+    "low_profile": "cybersecurity_kw",
+    "low_score": 2.0,
+    "high_profile": "lawyer_ai_disruption",
+    "high_score": 6.2,
+    "gap": 4.2
+  },
+  {
+    "article_id": "a18b71229368",
+    "low_profile": "meche_grad_sa",
+    "low_score": 2.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.2,
+    "gap": 4.2
+  },
+  {
+    "article_id": "a18b71229368",
+    "low_profile": "meche_grad_sa",
+    "low_score": 2.0,
+    "high_profile": "lawyer_ai_disruption",
+    "high_score": 6.2,
+    "gap": 4.2
+  },
+  {
+    "article_id": "a18b71229368",
+    "low_profile": "data_scientist_dubai",
+    "low_score": 2.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.2,
+    "gap": 4.2
+  },
+  {
+    "article_id": "a18b71229368",
+    "low_profile": "data_scientist_dubai",
+    "low_score": 2.0,
+    "high_profile": "lawyer_ai_disruption",
+    "high_score": 6.2,
+    "gap": 4.2
+  },
+  {
+    "article_id": "a18b71229368",
+    "low_profile": "supply_chain_bahrain",
+    "low_score": 2.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.2,
+    "gap": 4.2
+  },
+  {
+    "article_id": "a18b71229368",
+    "low_profile": "supply_chain_bahrain",
+    "low_score": 2.0,
+    "high_profile": "lawyer_ai_disruption",
+    "high_score": 6.2,
+    "gap": 4.2
+  },
+  {
+    "article_id": "a18b71229368",
+    "low_profile": "ux_designer_tokyo",
+    "low_score": 2.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.2,
+    "gap": 4.2
+  },
+  {
+    "article_id": "a18b71229368",
+    "low_profile": "ux_designer_tokyo",
+    "low_score": 2.0,
+    "high_profile": "lawyer_ai_disruption",
+    "high_score": 6.2,
+    "gap": 4.2
+  },
+  {
+    "article_id": "a18b71229368",
+    "low_profile": "hvac_tech_texas",
+    "low_score": 2.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.2,
+    "gap": 4.2
+  },
+  {
+    "article_id": "a18b71229368",
+    "low_profile": "hvac_tech_texas",
+    "low_score": 2.0,
+    "high_profile": "lawyer_ai_disruption",
+    "high_score": 6.2,
+    "gap": 4.2
+  },
+  {
+    "article_id": "a18b71229368",
+    "low_profile": "marine_electrician_norway",
+    "low_score": 2.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.2,
+    "gap": 4.2
+  },
+  {
+    "article_id": "a18b71229368",
+    "low_profile": "marine_electrician_norway",
+    "low_score": 2.0,
+    "high_profile": "lawyer_ai_disruption",
+    "high_score": 6.2,
+    "gap": 4.2
+  },
+  {
+    "article_id": "a18b71229368",
+    "low_profile": "cto_fintech_lagos",
+    "low_score": 2.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.2,
+    "gap": 4.2
+  },
+  {
+    "article_id": "a18b71229368",
+    "low_profile": "cto_fintech_lagos",
+    "low_score": 2.0,
+    "high_profile": "lawyer_ai_disruption",
+    "high_score": 6.2,
+    "gap": 4.2
+  },
+  {
+    "article_id": "a18b71229368",
+    "low_profile": "retired_diplomat_vienna",
+    "low_score": 2.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.2,
+    "gap": 4.2
+  },
+  {
+    "article_id": "a18b71229368",
+    "low_profile": "retired_diplomat_vienna",
+    "low_score": 2.0,
+    "high_profile": "lawyer_ai_disruption",
+    "high_score": 6.2,
+    "gap": 4.2
+  },
+  {
+    "article_id": "a18b71229368",
+    "low_profile": "architect_qatar",
+    "low_score": 2.5,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.2,
+    "gap": 3.7
+  },
+  {
+    "article_id": "a18b71229368",
+    "low_profile": "architect_qatar",
+    "low_score": 2.5,
+    "high_profile": "lawyer_ai_disruption",
+    "high_score": 6.2,
+    "gap": 3.7
+  },
+  {
+    "article_id": "a18b71229368",
+    "low_profile": "hobbyist_crypto_f1",
+    "low_score": 2.5,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.2,
+    "gap": 3.7
+  },
+  {
+    "article_id": "a18b71229368",
+    "low_profile": "hobbyist_crypto_f1",
+    "low_score": 2.5,
+    "high_profile": "lawyer_ai_disruption",
+    "high_score": 6.2,
+    "gap": 3.7
+  },
+  {
+    "article_id": "a15bbae7cbe8",
+    "low_profile": "petrol_eng_kw",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "a15bbae7cbe8",
+    "low_profile": "biotech_researcher_sa",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "a15bbae7cbe8",
+    "low_profile": "agribiz_sao_paulo",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "a15bbae7cbe8",
+    "low_profile": "hvac_tech_texas",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "a15bbae7cbe8",
+    "low_profile": "welder_pipeline_alberta",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "a15bbae7cbe8",
+    "low_profile": "physical_therapist_sydney",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "a15bbae7cbe8",
+    "low_profile": "nurse_practitioner_toronto",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "a15bbae7cbe8",
+    "low_profile": "bonsai_competitor_kyoto",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "a15bbae7cbe8",
+    "low_profile": "geophysicist_koc_kw",
+    "low_score": 1.5,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 5.0
+  },
+  {
+    "article_id": "a15bbae7cbe8",
+    "low_profile": "pharmacist_paris",
+    "low_score": 1.5,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 5.0
+  },
+  {
+    "article_id": "a15bbae7cbe8",
+    "low_profile": "kpop_marketer_seoul",
+    "low_score": 1.5,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 5.0
+  },
+  {
+    "article_id": "a15bbae7cbe8",
+    "low_profile": "finance_student_kw",
+    "low_score": 2.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 4.5
+  },
+  {
+    "article_id": "a15bbae7cbe8",
+    "low_profile": "cybersecurity_kw",
+    "low_score": 2.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 4.5
+  },
+  {
+    "article_id": "a15bbae7cbe8",
+    "low_profile": "meche_grad_sa",
+    "low_score": 2.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 4.5
+  },
+  {
+    "article_id": "a15bbae7cbe8",
+    "low_profile": "ux_designer_tokyo",
+    "low_score": 2.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 4.5
+  },
+  {
+    "article_id": "a15bbae7cbe8",
+    "low_profile": "pediatric_oncologist_riyadh",
+    "low_score": 2.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 4.5
+  },
+  {
+    "article_id": "a15bbae7cbe8",
+    "low_profile": "marine_electrician_norway",
+    "low_score": 2.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 4.5
+  },
+  {
+    "article_id": "a15bbae7cbe8",
+    "low_profile": "indie_gamedev_berlin",
+    "low_score": 2.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 4.5
+  },
+  {
+    "article_id": "a15bbae7cbe8",
+    "low_profile": "filmmaker_mumbai",
+    "low_score": 2.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 4.5
+  },
+  {
+    "article_id": "a15bbae7cbe8",
+    "low_profile": "hobbyist_crypto_f1",
+    "low_score": 2.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 4.5
+  },
+  {
+    "article_id": "a15bbae7cbe8",
+    "low_profile": "lawyer_ai_disruption",
+    "low_score": 2.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 4.5
+  },
+  {
+    "article_id": "a15bbae7cbe8",
+    "low_profile": "cto_fintech_lagos",
+    "low_score": 2.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 4.5
+  },
+  {
+    "article_id": "a15bbae7cbe8",
+    "low_profile": "mining_engineer_santiago",
+    "low_score": 2.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 4.5
+  },
+  {
+    "article_id": "a15bbae7cbe8",
+    "low_profile": "retired_diplomat_vienna",
+    "low_score": 2.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 4.5
+  },
+  {
+    "article_id": "a15bbae7cbe8",
+    "low_profile": "chef_mexico_city",
+    "low_score": 2.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 4.5
+  },
+  {
+    "article_id": "a15bbae7cbe8",
+    "low_profile": "data_scientist_dubai",
+    "low_score": 2.5,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 4.0
+  },
+  {
+    "article_id": "a15bbae7cbe8",
+    "low_profile": "architect_qatar",
+    "low_score": 2.5,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 4.0
+  },
+  {
+    "article_id": "a15bbae7cbe8",
+    "low_profile": "supply_chain_bahrain",
+    "low_score": 3.5,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 3.0
+  },
+  {
+    "article_id": "a15bbae7cbe8",
+    "low_profile": "undeclared_student_chicago",
+    "low_score": 3.5,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 3.0
+  },
+  {
+    "article_id": "d0055746525c",
+    "low_profile": "agribiz_sao_paulo",
+    "low_score": 0.5,
+    "high_profile": "filmmaker_mumbai",
+    "high_score": 3.5,
+    "gap": 3.0
+  },
+  {
+    "article_id": "d0055746525c",
+    "low_profile": "agribiz_sao_paulo",
+    "low_score": 0.5,
+    "high_profile": "undeclared_student_chicago",
+    "high_score": 3.5,
+    "gap": 3.0
+  },
+  {
+    "article_id": "d0055746525c",
+    "low_profile": "marine_electrician_norway",
+    "low_score": 0.5,
+    "high_profile": "filmmaker_mumbai",
+    "high_score": 3.5,
+    "gap": 3.0
+  },
+  {
+    "article_id": "d0055746525c",
+    "low_profile": "marine_electrician_norway",
+    "low_score": 0.5,
+    "high_profile": "undeclared_student_chicago",
+    "high_score": 3.5,
+    "gap": 3.0
+  },
+  {
+    "article_id": "d0055746525c",
+    "low_profile": "welder_pipeline_alberta",
+    "low_score": 0.5,
+    "high_profile": "filmmaker_mumbai",
+    "high_score": 3.5,
+    "gap": 3.0
+  },
+  {
+    "article_id": "d0055746525c",
+    "low_profile": "welder_pipeline_alberta",
+    "low_score": 0.5,
+    "high_profile": "undeclared_student_chicago",
+    "high_score": 3.5,
+    "gap": 3.0
+  },
+  {
+    "article_id": "d0055746525c",
+    "low_profile": "bonsai_competitor_kyoto",
+    "low_score": 0.5,
+    "high_profile": "filmmaker_mumbai",
+    "high_score": 3.5,
+    "gap": 3.0
+  },
+  {
+    "article_id": "d0055746525c",
+    "low_profile": "bonsai_competitor_kyoto",
+    "low_score": 0.5,
+    "high_profile": "undeclared_student_chicago",
+    "high_score": 3.5,
+    "gap": 3.0
+  },
+  {
+    "article_id": "df1d8e259ad7",
+    "low_profile": "physical_therapist_sydney",
+    "low_score": 0.5,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 3.5,
+    "gap": 3.0
+  },
+  {
+    "article_id": "df1d8e259ad7",
+    "low_profile": "physical_therapist_sydney",
+    "low_score": 0.5,
+    "high_profile": "cybersecurity_kw",
+    "high_score": 3.5,
+    "gap": 3.0
+  },
+  {
+    "article_id": "df1d8e259ad7",
+    "low_profile": "physical_therapist_sydney",
+    "low_score": 0.5,
+    "high_profile": "data_scientist_dubai",
+    "high_score": 3.5,
+    "gap": 3.0
+  },
+  {
+    "article_id": "df1d8e259ad7",
+    "low_profile": "physical_therapist_sydney",
+    "low_score": 0.5,
+    "high_profile": "cto_fintech_lagos",
+    "high_score": 3.5,
+    "gap": 3.0
+  },
+  {
+    "article_id": "df1d8e259ad7",
+    "low_profile": "physical_therapist_sydney",
+    "low_score": 0.5,
+    "high_profile": "supply_chain_bahrain",
+    "high_score": 6.2,
+    "gap": 5.7
+  },
+  {
+    "article_id": "df1d8e259ad7",
+    "low_profile": "physical_therapist_sydney",
+    "low_score": 0.5,
+    "high_profile": "finance_student_kw",
+    "high_score": 6.5,
+    "gap": 6.0
+  },
+  {
+    "article_id": "df1d8e259ad7",
+    "low_profile": "bonsai_competitor_kyoto",
+    "low_score": 0.5,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 3.5,
+    "gap": 3.0
+  },
+  {
+    "article_id": "df1d8e259ad7",
+    "low_profile": "bonsai_competitor_kyoto",
+    "low_score": 0.5,
+    "high_profile": "cybersecurity_kw",
+    "high_score": 3.5,
+    "gap": 3.0
+  },
+  {
+    "article_id": "df1d8e259ad7",
+    "low_profile": "bonsai_competitor_kyoto",
+    "low_score": 0.5,
+    "high_profile": "data_scientist_dubai",
+    "high_score": 3.5,
+    "gap": 3.0
+  },
+  {
+    "article_id": "df1d8e259ad7",
+    "low_profile": "bonsai_competitor_kyoto",
+    "low_score": 0.5,
+    "high_profile": "cto_fintech_lagos",
+    "high_score": 3.5,
+    "gap": 3.0
+  },
+  {
+    "article_id": "df1d8e259ad7",
+    "low_profile": "bonsai_competitor_kyoto",
+    "low_score": 0.5,
+    "high_profile": "supply_chain_bahrain",
+    "high_score": 6.2,
+    "gap": 5.7
+  },
+  {
+    "article_id": "df1d8e259ad7",
+    "low_profile": "bonsai_competitor_kyoto",
+    "low_score": 0.5,
+    "high_profile": "finance_student_kw",
+    "high_score": 6.5,
+    "gap": 6.0
+  },
+  {
+    "article_id": "df1d8e259ad7",
+    "low_profile": "agribiz_sao_paulo",
+    "low_score": 1.0,
+    "high_profile": "supply_chain_bahrain",
+    "high_score": 6.2,
+    "gap": 5.2
+  },
+  {
+    "article_id": "df1d8e259ad7",
+    "low_profile": "agribiz_sao_paulo",
+    "low_score": 1.0,
+    "high_profile": "finance_student_kw",
+    "high_score": 6.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "df1d8e259ad7",
+    "low_profile": "pharmacist_paris",
+    "low_score": 1.0,
+    "high_profile": "supply_chain_bahrain",
+    "high_score": 6.2,
+    "gap": 5.2
+  },
+  {
+    "article_id": "df1d8e259ad7",
+    "low_profile": "pharmacist_paris",
+    "low_score": 1.0,
+    "high_profile": "finance_student_kw",
+    "high_score": 6.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "df1d8e259ad7",
+    "low_profile": "pediatric_oncologist_riyadh",
+    "low_score": 1.0,
+    "high_profile": "supply_chain_bahrain",
+    "high_score": 6.2,
+    "gap": 5.2
+  },
+  {
+    "article_id": "df1d8e259ad7",
+    "low_profile": "pediatric_oncologist_riyadh",
+    "low_score": 1.0,
+    "high_profile": "finance_student_kw",
+    "high_score": 6.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "df1d8e259ad7",
+    "low_profile": "hvac_tech_texas",
+    "low_score": 1.0,
+    "high_profile": "supply_chain_bahrain",
+    "high_score": 6.2,
+    "gap": 5.2
+  },
+  {
+    "article_id": "df1d8e259ad7",
+    "low_profile": "hvac_tech_texas",
+    "low_score": 1.0,
+    "high_profile": "finance_student_kw",
+    "high_score": 6.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "df1d8e259ad7",
+    "low_profile": "marine_electrician_norway",
+    "low_score": 1.0,
+    "high_profile": "supply_chain_bahrain",
+    "high_score": 6.2,
+    "gap": 5.2
+  },
+  {
+    "article_id": "df1d8e259ad7",
+    "low_profile": "marine_electrician_norway",
+    "low_score": 1.0,
+    "high_profile": "finance_student_kw",
+    "high_score": 6.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "df1d8e259ad7",
+    "low_profile": "welder_pipeline_alberta",
+    "low_score": 1.0,
+    "high_profile": "supply_chain_bahrain",
+    "high_score": 6.2,
+    "gap": 5.2
+  },
+  {
+    "article_id": "df1d8e259ad7",
+    "low_profile": "welder_pipeline_alberta",
+    "low_score": 1.0,
+    "high_profile": "finance_student_kw",
+    "high_score": 6.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "df1d8e259ad7",
+    "low_profile": "nurse_practitioner_toronto",
+    "low_score": 1.0,
+    "high_profile": "supply_chain_bahrain",
+    "high_score": 6.2,
+    "gap": 5.2
+  },
+  {
+    "article_id": "df1d8e259ad7",
+    "low_profile": "nurse_practitioner_toronto",
+    "low_score": 1.0,
+    "high_profile": "finance_student_kw",
+    "high_score": 6.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "df1d8e259ad7",
+    "low_profile": "chef_mexico_city",
+    "low_score": 1.0,
+    "high_profile": "supply_chain_bahrain",
+    "high_score": 6.2,
+    "gap": 5.2
+  },
+  {
+    "article_id": "df1d8e259ad7",
+    "low_profile": "chef_mexico_city",
+    "low_score": 1.0,
+    "high_profile": "finance_student_kw",
+    "high_score": 6.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "df1d8e259ad7",
+    "low_profile": "ux_designer_tokyo",
+    "low_score": 1.5,
+    "high_profile": "supply_chain_bahrain",
+    "high_score": 6.2,
+    "gap": 4.7
+  },
+  {
+    "article_id": "df1d8e259ad7",
+    "low_profile": "ux_designer_tokyo",
+    "low_score": 1.5,
+    "high_profile": "finance_student_kw",
+    "high_score": 6.5,
+    "gap": 5.0
+  },
+  {
+    "article_id": "df1d8e259ad7",
+    "low_profile": "kpop_marketer_seoul",
+    "low_score": 1.5,
+    "high_profile": "supply_chain_bahrain",
+    "high_score": 6.2,
+    "gap": 4.7
+  },
+  {
+    "article_id": "df1d8e259ad7",
+    "low_profile": "kpop_marketer_seoul",
+    "low_score": 1.5,
+    "high_profile": "finance_student_kw",
+    "high_score": 6.5,
+    "gap": 5.0
+  },
+  {
+    "article_id": "df1d8e259ad7",
+    "low_profile": "filmmaker_mumbai",
+    "low_score": 1.5,
+    "high_profile": "supply_chain_bahrain",
+    "high_score": 6.2,
+    "gap": 4.7
+  },
+  {
+    "article_id": "df1d8e259ad7",
+    "low_profile": "filmmaker_mumbai",
+    "low_score": 1.5,
+    "high_profile": "finance_student_kw",
+    "high_score": 6.5,
+    "gap": 5.0
+  },
+  {
+    "article_id": "df1d8e259ad7",
+    "low_profile": "petrol_eng_kw",
+    "low_score": 2.0,
+    "high_profile": "supply_chain_bahrain",
+    "high_score": 6.2,
+    "gap": 4.2
+  },
+  {
+    "article_id": "df1d8e259ad7",
+    "low_profile": "petrol_eng_kw",
+    "low_score": 2.0,
+    "high_profile": "finance_student_kw",
+    "high_score": 6.5,
+    "gap": 4.5
+  },
+  {
+    "article_id": "df1d8e259ad7",
+    "low_profile": "geophysicist_koc_kw",
+    "low_score": 2.0,
+    "high_profile": "supply_chain_bahrain",
+    "high_score": 6.2,
+    "gap": 4.2
+  },
+  {
+    "article_id": "df1d8e259ad7",
+    "low_profile": "geophysicist_koc_kw",
+    "low_score": 2.0,
+    "high_profile": "finance_student_kw",
+    "high_score": 6.5,
+    "gap": 4.5
+  },
+  {
+    "article_id": "df1d8e259ad7",
+    "low_profile": "meche_grad_sa",
+    "low_score": 2.0,
+    "high_profile": "supply_chain_bahrain",
+    "high_score": 6.2,
+    "gap": 4.2
+  },
+  {
+    "article_id": "df1d8e259ad7",
+    "low_profile": "meche_grad_sa",
+    "low_score": 2.0,
+    "high_profile": "finance_student_kw",
+    "high_score": 6.5,
+    "gap": 4.5
+  },
+  {
+    "article_id": "df1d8e259ad7",
+    "low_profile": "biotech_researcher_sa",
+    "low_score": 2.0,
+    "high_profile": "supply_chain_bahrain",
+    "high_score": 6.2,
+    "gap": 4.2
+  },
+  {
+    "article_id": "df1d8e259ad7",
+    "low_profile": "biotech_researcher_sa",
+    "low_score": 2.0,
+    "high_profile": "finance_student_kw",
+    "high_score": 6.5,
+    "gap": 4.5
+  },
+  {
+    "article_id": "df1d8e259ad7",
+    "low_profile": "architect_qatar",
+    "low_score": 2.0,
+    "high_profile": "supply_chain_bahrain",
+    "high_score": 6.2,
+    "gap": 4.2
+  },
+  {
+    "article_id": "df1d8e259ad7",
+    "low_profile": "architect_qatar",
+    "low_score": 2.0,
+    "high_profile": "finance_student_kw",
+    "high_score": 6.5,
+    "gap": 4.5
+  },
+  {
+    "article_id": "df1d8e259ad7",
+    "low_profile": "indie_gamedev_berlin",
+    "low_score": 2.0,
+    "high_profile": "supply_chain_bahrain",
+    "high_score": 6.2,
+    "gap": 4.2
+  },
+  {
+    "article_id": "df1d8e259ad7",
+    "low_profile": "indie_gamedev_berlin",
+    "low_score": 2.0,
+    "high_profile": "finance_student_kw",
+    "high_score": 6.5,
+    "gap": 4.5
+  },
+  {
+    "article_id": "df1d8e259ad7",
+    "low_profile": "hobbyist_crypto_f1",
+    "low_score": 2.0,
+    "high_profile": "supply_chain_bahrain",
+    "high_score": 6.2,
+    "gap": 4.2
+  },
+  {
+    "article_id": "df1d8e259ad7",
+    "low_profile": "hobbyist_crypto_f1",
+    "low_score": 2.0,
+    "high_profile": "finance_student_kw",
+    "high_score": 6.5,
+    "gap": 4.5
+  },
+  {
+    "article_id": "df1d8e259ad7",
+    "low_profile": "undeclared_student_chicago",
+    "low_score": 2.0,
+    "high_profile": "supply_chain_bahrain",
+    "high_score": 6.2,
+    "gap": 4.2
+  },
+  {
+    "article_id": "df1d8e259ad7",
+    "low_profile": "undeclared_student_chicago",
+    "low_score": 2.0,
+    "high_profile": "finance_student_kw",
+    "high_score": 6.5,
+    "gap": 4.5
+  },
+  {
+    "article_id": "df1d8e259ad7",
+    "low_profile": "mining_engineer_santiago",
+    "low_score": 2.0,
+    "high_profile": "supply_chain_bahrain",
+    "high_score": 6.2,
+    "gap": 4.2
+  },
+  {
+    "article_id": "df1d8e259ad7",
+    "low_profile": "mining_engineer_santiago",
+    "low_score": 2.0,
+    "high_profile": "finance_student_kw",
+    "high_score": 6.5,
+    "gap": 4.5
+  },
+  {
+    "article_id": "df1d8e259ad7",
+    "low_profile": "retired_diplomat_vienna",
+    "low_score": 2.0,
+    "high_profile": "supply_chain_bahrain",
+    "high_score": 6.2,
+    "gap": 4.2
+  },
+  {
+    "article_id": "df1d8e259ad7",
+    "low_profile": "retired_diplomat_vienna",
+    "low_score": 2.0,
+    "high_profile": "finance_student_kw",
+    "high_score": 6.5,
+    "gap": 4.5
+  },
+  {
+    "article_id": "df1d8e259ad7",
+    "low_profile": "lawyer_ai_disruption",
+    "low_score": 2.5,
+    "high_profile": "supply_chain_bahrain",
+    "high_score": 6.2,
+    "gap": 3.7
+  },
+  {
+    "article_id": "df1d8e259ad7",
+    "low_profile": "lawyer_ai_disruption",
+    "low_score": 2.5,
+    "high_profile": "finance_student_kw",
+    "high_score": 6.5,
+    "gap": 4.0
+  },
+  {
+    "article_id": "df1d8e259ad7",
+    "low_profile": "cpeg_student_kw",
+    "low_score": 3.5,
+    "high_profile": "finance_student_kw",
+    "high_score": 6.5,
+    "gap": 3.0
+  },
+  {
+    "article_id": "df1d8e259ad7",
+    "low_profile": "cybersecurity_kw",
+    "low_score": 3.5,
+    "high_profile": "finance_student_kw",
+    "high_score": 6.5,
+    "gap": 3.0
+  },
+  {
+    "article_id": "df1d8e259ad7",
+    "low_profile": "data_scientist_dubai",
+    "low_score": 3.5,
+    "high_profile": "finance_student_kw",
+    "high_score": 6.5,
+    "gap": 3.0
+  },
+  {
+    "article_id": "df1d8e259ad7",
+    "low_profile": "cto_fintech_lagos",
+    "low_score": 3.5,
+    "high_profile": "finance_student_kw",
+    "high_score": 6.5,
+    "gap": 3.0
+  },
+  {
+    "article_id": "6a78f264f709",
+    "low_profile": "bonsai_competitor_kyoto",
+    "low_score": 0.5,
+    "high_profile": "geophysicist_koc_kw",
+    "high_score": 4.0,
+    "gap": 3.5
+  },
+  {
+    "article_id": "6a78f264f709",
+    "low_profile": "bonsai_competitor_kyoto",
+    "low_score": 0.5,
+    "high_profile": "undeclared_student_chicago",
+    "high_score": 6.2,
+    "gap": 5.7
+  },
+  {
+    "article_id": "6a78f264f709",
+    "low_profile": "bonsai_competitor_kyoto",
+    "low_score": 0.5,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 6.0
+  },
+  {
+    "article_id": "6a78f264f709",
+    "low_profile": "bonsai_competitor_kyoto",
+    "low_score": 0.5,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 7.5,
+    "gap": 7.0
+  },
+  {
+    "article_id": "6a78f264f709",
+    "low_profile": "cybersecurity_kw",
+    "low_score": 1.0,
+    "high_profile": "geophysicist_koc_kw",
+    "high_score": 4.0,
+    "gap": 3.0
+  },
+  {
+    "article_id": "6a78f264f709",
+    "low_profile": "cybersecurity_kw",
+    "low_score": 1.0,
+    "high_profile": "undeclared_student_chicago",
+    "high_score": 6.2,
+    "gap": 5.2
+  },
+  {
+    "article_id": "6a78f264f709",
+    "low_profile": "cybersecurity_kw",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "6a78f264f709",
+    "low_profile": "cybersecurity_kw",
+    "low_score": 1.0,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 7.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "6a78f264f709",
+    "low_profile": "data_scientist_dubai",
+    "low_score": 1.0,
+    "high_profile": "geophysicist_koc_kw",
+    "high_score": 4.0,
+    "gap": 3.0
+  },
+  {
+    "article_id": "6a78f264f709",
+    "low_profile": "data_scientist_dubai",
+    "low_score": 1.0,
+    "high_profile": "undeclared_student_chicago",
+    "high_score": 6.2,
+    "gap": 5.2
+  },
+  {
+    "article_id": "6a78f264f709",
+    "low_profile": "data_scientist_dubai",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "6a78f264f709",
+    "low_profile": "data_scientist_dubai",
+    "low_score": 1.0,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 7.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "6a78f264f709",
+    "low_profile": "biotech_researcher_sa",
+    "low_score": 1.0,
+    "high_profile": "geophysicist_koc_kw",
+    "high_score": 4.0,
+    "gap": 3.0
+  },
+  {
+    "article_id": "6a78f264f709",
+    "low_profile": "biotech_researcher_sa",
+    "low_score": 1.0,
+    "high_profile": "undeclared_student_chicago",
+    "high_score": 6.2,
+    "gap": 5.2
+  },
+  {
+    "article_id": "6a78f264f709",
+    "low_profile": "biotech_researcher_sa",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "6a78f264f709",
+    "low_profile": "biotech_researcher_sa",
+    "low_score": 1.0,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 7.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "6a78f264f709",
+    "low_profile": "architect_qatar",
+    "low_score": 1.0,
+    "high_profile": "geophysicist_koc_kw",
+    "high_score": 4.0,
+    "gap": 3.0
+  },
+  {
+    "article_id": "6a78f264f709",
+    "low_profile": "architect_qatar",
+    "low_score": 1.0,
+    "high_profile": "undeclared_student_chicago",
+    "high_score": 6.2,
+    "gap": 5.2
+  },
+  {
+    "article_id": "6a78f264f709",
+    "low_profile": "architect_qatar",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "6a78f264f709",
+    "low_profile": "architect_qatar",
+    "low_score": 1.0,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 7.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "6a78f264f709",
+    "low_profile": "ux_designer_tokyo",
+    "low_score": 1.0,
+    "high_profile": "geophysicist_koc_kw",
+    "high_score": 4.0,
+    "gap": 3.0
+  },
+  {
+    "article_id": "6a78f264f709",
+    "low_profile": "ux_designer_tokyo",
+    "low_score": 1.0,
+    "high_profile": "undeclared_student_chicago",
+    "high_score": 6.2,
+    "gap": 5.2
+  },
+  {
+    "article_id": "6a78f264f709",
+    "low_profile": "ux_designer_tokyo",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "6a78f264f709",
+    "low_profile": "ux_designer_tokyo",
+    "low_score": 1.0,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 7.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "6a78f264f709",
+    "low_profile": "pharmacist_paris",
+    "low_score": 1.0,
+    "high_profile": "geophysicist_koc_kw",
+    "high_score": 4.0,
+    "gap": 3.0
+  },
+  {
+    "article_id": "6a78f264f709",
+    "low_profile": "pharmacist_paris",
+    "low_score": 1.0,
+    "high_profile": "undeclared_student_chicago",
+    "high_score": 6.2,
+    "gap": 5.2
+  },
+  {
+    "article_id": "6a78f264f709",
+    "low_profile": "pharmacist_paris",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "6a78f264f709",
+    "low_profile": "pharmacist_paris",
+    "low_score": 1.0,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 7.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "6a78f264f709",
+    "low_profile": "kpop_marketer_seoul",
+    "low_score": 1.0,
+    "high_profile": "geophysicist_koc_kw",
+    "high_score": 4.0,
+    "gap": 3.0
+  },
+  {
+    "article_id": "6a78f264f709",
+    "low_profile": "kpop_marketer_seoul",
+    "low_score": 1.0,
+    "high_profile": "undeclared_student_chicago",
+    "high_score": 6.2,
+    "gap": 5.2
+  },
+  {
+    "article_id": "6a78f264f709",
+    "low_profile": "kpop_marketer_seoul",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "6a78f264f709",
+    "low_profile": "kpop_marketer_seoul",
+    "low_score": 1.0,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 7.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "6a78f264f709",
+    "low_profile": "pediatric_oncologist_riyadh",
+    "low_score": 1.0,
+    "high_profile": "geophysicist_koc_kw",
+    "high_score": 4.0,
+    "gap": 3.0
+  },
+  {
+    "article_id": "6a78f264f709",
+    "low_profile": "pediatric_oncologist_riyadh",
+    "low_score": 1.0,
+    "high_profile": "undeclared_student_chicago",
+    "high_score": 6.2,
+    "gap": 5.2
+  },
+  {
+    "article_id": "6a78f264f709",
+    "low_profile": "pediatric_oncologist_riyadh",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "6a78f264f709",
+    "low_profile": "pediatric_oncologist_riyadh",
+    "low_score": 1.0,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 7.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "6a78f264f709",
+    "low_profile": "hvac_tech_texas",
+    "low_score": 1.0,
+    "high_profile": "geophysicist_koc_kw",
+    "high_score": 4.0,
+    "gap": 3.0
+  },
+  {
+    "article_id": "6a78f264f709",
+    "low_profile": "hvac_tech_texas",
+    "low_score": 1.0,
+    "high_profile": "undeclared_student_chicago",
+    "high_score": 6.2,
+    "gap": 5.2
+  },
+  {
+    "article_id": "6a78f264f709",
+    "low_profile": "hvac_tech_texas",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "6a78f264f709",
+    "low_profile": "hvac_tech_texas",
+    "low_score": 1.0,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 7.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "6a78f264f709",
+    "low_profile": "indie_gamedev_berlin",
+    "low_score": 1.0,
+    "high_profile": "geophysicist_koc_kw",
+    "high_score": 4.0,
+    "gap": 3.0
+  },
+  {
+    "article_id": "6a78f264f709",
+    "low_profile": "indie_gamedev_berlin",
+    "low_score": 1.0,
+    "high_profile": "undeclared_student_chicago",
+    "high_score": 6.2,
+    "gap": 5.2
+  },
+  {
+    "article_id": "6a78f264f709",
+    "low_profile": "indie_gamedev_berlin",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "6a78f264f709",
+    "low_profile": "indie_gamedev_berlin",
+    "low_score": 1.0,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 7.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "6a78f264f709",
+    "low_profile": "filmmaker_mumbai",
+    "low_score": 1.0,
+    "high_profile": "geophysicist_koc_kw",
+    "high_score": 4.0,
+    "gap": 3.0
+  },
+  {
+    "article_id": "6a78f264f709",
+    "low_profile": "filmmaker_mumbai",
+    "low_score": 1.0,
+    "high_profile": "undeclared_student_chicago",
+    "high_score": 6.2,
+    "gap": 5.2
+  },
+  {
+    "article_id": "6a78f264f709",
+    "low_profile": "filmmaker_mumbai",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "6a78f264f709",
+    "low_profile": "filmmaker_mumbai",
+    "low_score": 1.0,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 7.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "6a78f264f709",
+    "low_profile": "physical_therapist_sydney",
+    "low_score": 1.0,
+    "high_profile": "geophysicist_koc_kw",
+    "high_score": 4.0,
+    "gap": 3.0
+  },
+  {
+    "article_id": "6a78f264f709",
+    "low_profile": "physical_therapist_sydney",
+    "low_score": 1.0,
+    "high_profile": "undeclared_student_chicago",
+    "high_score": 6.2,
+    "gap": 5.2
+  },
+  {
+    "article_id": "6a78f264f709",
+    "low_profile": "physical_therapist_sydney",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "6a78f264f709",
+    "low_profile": "physical_therapist_sydney",
+    "low_score": 1.0,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 7.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "6a78f264f709",
+    "low_profile": "nurse_practitioner_toronto",
+    "low_score": 1.0,
+    "high_profile": "geophysicist_koc_kw",
+    "high_score": 4.0,
+    "gap": 3.0
+  },
+  {
+    "article_id": "6a78f264f709",
+    "low_profile": "nurse_practitioner_toronto",
+    "low_score": 1.0,
+    "high_profile": "undeclared_student_chicago",
+    "high_score": 6.2,
+    "gap": 5.2
+  },
+  {
+    "article_id": "6a78f264f709",
+    "low_profile": "nurse_practitioner_toronto",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "6a78f264f709",
+    "low_profile": "nurse_practitioner_toronto",
+    "low_score": 1.0,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 7.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "6a78f264f709",
+    "low_profile": "mining_engineer_santiago",
+    "low_score": 1.0,
+    "high_profile": "geophysicist_koc_kw",
+    "high_score": 4.0,
+    "gap": 3.0
+  },
+  {
+    "article_id": "6a78f264f709",
+    "low_profile": "mining_engineer_santiago",
+    "low_score": 1.0,
+    "high_profile": "undeclared_student_chicago",
+    "high_score": 6.2,
+    "gap": 5.2
+  },
+  {
+    "article_id": "6a78f264f709",
+    "low_profile": "mining_engineer_santiago",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "6a78f264f709",
+    "low_profile": "mining_engineer_santiago",
+    "low_score": 1.0,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 7.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "6a78f264f709",
+    "low_profile": "hobbyist_crypto_f1",
+    "low_score": 1.5,
+    "high_profile": "undeclared_student_chicago",
+    "high_score": 6.2,
+    "gap": 4.7
+  },
+  {
+    "article_id": "6a78f264f709",
+    "low_profile": "hobbyist_crypto_f1",
+    "low_score": 1.5,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 5.0
+  },
+  {
+    "article_id": "6a78f264f709",
+    "low_profile": "hobbyist_crypto_f1",
+    "low_score": 1.5,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 7.5,
+    "gap": 6.0
+  },
+  {
+    "article_id": "6a78f264f709",
+    "low_profile": "cto_fintech_lagos",
+    "low_score": 1.5,
+    "high_profile": "undeclared_student_chicago",
+    "high_score": 6.2,
+    "gap": 4.7
+  },
+  {
+    "article_id": "6a78f264f709",
+    "low_profile": "cto_fintech_lagos",
+    "low_score": 1.5,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 5.0
+  },
+  {
+    "article_id": "6a78f264f709",
+    "low_profile": "cto_fintech_lagos",
+    "low_score": 1.5,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 7.5,
+    "gap": 6.0
+  },
+  {
+    "article_id": "6a78f264f709",
+    "low_profile": "finance_student_kw",
+    "low_score": 2.0,
+    "high_profile": "undeclared_student_chicago",
+    "high_score": 6.2,
+    "gap": 4.2
+  },
+  {
+    "article_id": "6a78f264f709",
+    "low_profile": "finance_student_kw",
+    "low_score": 2.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 4.5
+  },
+  {
+    "article_id": "6a78f264f709",
+    "low_profile": "finance_student_kw",
+    "low_score": 2.0,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 7.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "6a78f264f709",
+    "low_profile": "meche_grad_sa",
+    "low_score": 2.0,
+    "high_profile": "undeclared_student_chicago",
+    "high_score": 6.2,
+    "gap": 4.2
+  },
+  {
+    "article_id": "6a78f264f709",
+    "low_profile": "meche_grad_sa",
+    "low_score": 2.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 4.5
+  },
+  {
+    "article_id": "6a78f264f709",
+    "low_profile": "meche_grad_sa",
+    "low_score": 2.0,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 7.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "6a78f264f709",
+    "low_profile": "agribiz_sao_paulo",
+    "low_score": 2.0,
+    "high_profile": "undeclared_student_chicago",
+    "high_score": 6.2,
+    "gap": 4.2
+  },
+  {
+    "article_id": "6a78f264f709",
+    "low_profile": "agribiz_sao_paulo",
+    "low_score": 2.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 4.5
+  },
+  {
+    "article_id": "6a78f264f709",
+    "low_profile": "agribiz_sao_paulo",
+    "low_score": 2.0,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 7.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "6a78f264f709",
+    "low_profile": "marine_electrician_norway",
+    "low_score": 2.0,
+    "high_profile": "undeclared_student_chicago",
+    "high_score": 6.2,
+    "gap": 4.2
+  },
+  {
+    "article_id": "6a78f264f709",
+    "low_profile": "marine_electrician_norway",
+    "low_score": 2.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 4.5
+  },
+  {
+    "article_id": "6a78f264f709",
+    "low_profile": "marine_electrician_norway",
+    "low_score": 2.0,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 7.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "6a78f264f709",
+    "low_profile": "chef_mexico_city",
+    "low_score": 2.0,
+    "high_profile": "undeclared_student_chicago",
+    "high_score": 6.2,
+    "gap": 4.2
+  },
+  {
+    "article_id": "6a78f264f709",
+    "low_profile": "chef_mexico_city",
+    "low_score": 2.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 4.5
+  },
+  {
+    "article_id": "6a78f264f709",
+    "low_profile": "chef_mexico_city",
+    "low_score": 2.0,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 7.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "6a78f264f709",
+    "low_profile": "supply_chain_bahrain",
+    "low_score": 2.5,
+    "high_profile": "undeclared_student_chicago",
+    "high_score": 6.2,
+    "gap": 3.7
+  },
+  {
+    "article_id": "6a78f264f709",
+    "low_profile": "supply_chain_bahrain",
+    "low_score": 2.5,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 4.0
+  },
+  {
+    "article_id": "6a78f264f709",
+    "low_profile": "supply_chain_bahrain",
+    "low_score": 2.5,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 7.5,
+    "gap": 5.0
+  },
+  {
+    "article_id": "6a78f264f709",
+    "low_profile": "retired_diplomat_vienna",
+    "low_score": 2.5,
+    "high_profile": "undeclared_student_chicago",
+    "high_score": 6.2,
+    "gap": 3.7
+  },
+  {
+    "article_id": "6a78f264f709",
+    "low_profile": "retired_diplomat_vienna",
+    "low_score": 2.5,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 4.0
+  },
+  {
+    "article_id": "6a78f264f709",
+    "low_profile": "retired_diplomat_vienna",
+    "low_score": 2.5,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 7.5,
+    "gap": 5.0
+  },
+  {
+    "article_id": "6a78f264f709",
+    "low_profile": "welder_pipeline_alberta",
+    "low_score": 3.0,
+    "high_profile": "undeclared_student_chicago",
+    "high_score": 6.2,
+    "gap": 3.2
+  },
+  {
+    "article_id": "6a78f264f709",
+    "low_profile": "welder_pipeline_alberta",
+    "low_score": 3.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 3.5
+  },
+  {
+    "article_id": "6a78f264f709",
+    "low_profile": "welder_pipeline_alberta",
+    "low_score": 3.0,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 7.5,
+    "gap": 4.5
+  },
+  {
+    "article_id": "6a78f264f709",
+    "low_profile": "lawyer_ai_disruption",
+    "low_score": 3.0,
+    "high_profile": "undeclared_student_chicago",
+    "high_score": 6.2,
+    "gap": 3.2
+  },
+  {
+    "article_id": "6a78f264f709",
+    "low_profile": "lawyer_ai_disruption",
+    "low_score": 3.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 3.5
+  },
+  {
+    "article_id": "6a78f264f709",
+    "low_profile": "lawyer_ai_disruption",
+    "low_score": 3.0,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 7.5,
+    "gap": 4.5
+  },
+  {
+    "article_id": "6a78f264f709",
+    "low_profile": "geophysicist_koc_kw",
+    "low_score": 4.0,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 7.5,
+    "gap": 3.5
+  },
+  {
+    "article_id": "10c5d75ea54d",
+    "low_profile": "physical_therapist_sydney",
+    "low_score": 0.5,
+    "high_profile": "geophysicist_koc_kw",
+    "high_score": 3.5,
+    "gap": 3.0
+  },
+  {
+    "article_id": "10c5d75ea54d",
+    "low_profile": "physical_therapist_sydney",
+    "low_score": 0.5,
+    "high_profile": "welder_pipeline_alberta",
+    "high_score": 4.0,
+    "gap": 3.5
+  },
+  {
+    "article_id": "10c5d75ea54d",
+    "low_profile": "physical_therapist_sydney",
+    "low_score": 0.5,
+    "high_profile": "meche_grad_sa",
+    "high_score": 6.5,
+    "gap": 6.0
+  },
+  {
+    "article_id": "10c5d75ea54d",
+    "low_profile": "physical_therapist_sydney",
+    "low_score": 0.5,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 8.5,
+    "gap": 8.0
+  },
+  {
+    "article_id": "10c5d75ea54d",
+    "low_profile": "physical_therapist_sydney",
+    "low_score": 0.5,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 8.5,
+    "gap": 8.0
+  },
+  {
+    "article_id": "10c5d75ea54d",
+    "low_profile": "bonsai_competitor_kyoto",
+    "low_score": 0.5,
+    "high_profile": "geophysicist_koc_kw",
+    "high_score": 3.5,
+    "gap": 3.0
+  },
+  {
+    "article_id": "10c5d75ea54d",
+    "low_profile": "bonsai_competitor_kyoto",
+    "low_score": 0.5,
+    "high_profile": "welder_pipeline_alberta",
+    "high_score": 4.0,
+    "gap": 3.5
+  },
+  {
+    "article_id": "10c5d75ea54d",
+    "low_profile": "bonsai_competitor_kyoto",
+    "low_score": 0.5,
+    "high_profile": "meche_grad_sa",
+    "high_score": 6.5,
+    "gap": 6.0
+  },
+  {
+    "article_id": "10c5d75ea54d",
+    "low_profile": "bonsai_competitor_kyoto",
+    "low_score": 0.5,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 8.5,
+    "gap": 8.0
+  },
+  {
+    "article_id": "10c5d75ea54d",
+    "low_profile": "bonsai_competitor_kyoto",
+    "low_score": 0.5,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 8.5,
+    "gap": 8.0
+  },
+  {
+    "article_id": "10c5d75ea54d",
+    "low_profile": "cybersecurity_kw",
+    "low_score": 1.0,
+    "high_profile": "welder_pipeline_alberta",
+    "high_score": 4.0,
+    "gap": 3.0
+  },
+  {
+    "article_id": "10c5d75ea54d",
+    "low_profile": "cybersecurity_kw",
+    "low_score": 1.0,
+    "high_profile": "meche_grad_sa",
+    "high_score": 6.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "10c5d75ea54d",
+    "low_profile": "cybersecurity_kw",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 8.5,
+    "gap": 7.5
+  },
+  {
+    "article_id": "10c5d75ea54d",
+    "low_profile": "cybersecurity_kw",
+    "low_score": 1.0,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 8.5,
+    "gap": 7.5
+  },
+  {
+    "article_id": "10c5d75ea54d",
+    "low_profile": "biotech_researcher_sa",
+    "low_score": 1.0,
+    "high_profile": "welder_pipeline_alberta",
+    "high_score": 4.0,
+    "gap": 3.0
+  },
+  {
+    "article_id": "10c5d75ea54d",
+    "low_profile": "biotech_researcher_sa",
+    "low_score": 1.0,
+    "high_profile": "meche_grad_sa",
+    "high_score": 6.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "10c5d75ea54d",
+    "low_profile": "biotech_researcher_sa",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 8.5,
+    "gap": 7.5
+  },
+  {
+    "article_id": "10c5d75ea54d",
+    "low_profile": "biotech_researcher_sa",
+    "low_score": 1.0,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 8.5,
+    "gap": 7.5
+  },
+  {
+    "article_id": "10c5d75ea54d",
+    "low_profile": "ux_designer_tokyo",
+    "low_score": 1.0,
+    "high_profile": "welder_pipeline_alberta",
+    "high_score": 4.0,
+    "gap": 3.0
+  },
+  {
+    "article_id": "10c5d75ea54d",
+    "low_profile": "ux_designer_tokyo",
+    "low_score": 1.0,
+    "high_profile": "meche_grad_sa",
+    "high_score": 6.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "10c5d75ea54d",
+    "low_profile": "ux_designer_tokyo",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 8.5,
+    "gap": 7.5
+  },
+  {
+    "article_id": "10c5d75ea54d",
+    "low_profile": "ux_designer_tokyo",
+    "low_score": 1.0,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 8.5,
+    "gap": 7.5
+  },
+  {
+    "article_id": "10c5d75ea54d",
+    "low_profile": "agribiz_sao_paulo",
+    "low_score": 1.0,
+    "high_profile": "welder_pipeline_alberta",
+    "high_score": 4.0,
+    "gap": 3.0
+  },
+  {
+    "article_id": "10c5d75ea54d",
+    "low_profile": "agribiz_sao_paulo",
+    "low_score": 1.0,
+    "high_profile": "meche_grad_sa",
+    "high_score": 6.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "10c5d75ea54d",
+    "low_profile": "agribiz_sao_paulo",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 8.5,
+    "gap": 7.5
+  },
+  {
+    "article_id": "10c5d75ea54d",
+    "low_profile": "agribiz_sao_paulo",
+    "low_score": 1.0,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 8.5,
+    "gap": 7.5
+  },
+  {
+    "article_id": "10c5d75ea54d",
+    "low_profile": "pharmacist_paris",
+    "low_score": 1.0,
+    "high_profile": "welder_pipeline_alberta",
+    "high_score": 4.0,
+    "gap": 3.0
+  },
+  {
+    "article_id": "10c5d75ea54d",
+    "low_profile": "pharmacist_paris",
+    "low_score": 1.0,
+    "high_profile": "meche_grad_sa",
+    "high_score": 6.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "10c5d75ea54d",
+    "low_profile": "pharmacist_paris",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 8.5,
+    "gap": 7.5
+  },
+  {
+    "article_id": "10c5d75ea54d",
+    "low_profile": "pharmacist_paris",
+    "low_score": 1.0,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 8.5,
+    "gap": 7.5
+  },
+  {
+    "article_id": "10c5d75ea54d",
+    "low_profile": "kpop_marketer_seoul",
+    "low_score": 1.0,
+    "high_profile": "welder_pipeline_alberta",
+    "high_score": 4.0,
+    "gap": 3.0
+  },
+  {
+    "article_id": "10c5d75ea54d",
+    "low_profile": "kpop_marketer_seoul",
+    "low_score": 1.0,
+    "high_profile": "meche_grad_sa",
+    "high_score": 6.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "10c5d75ea54d",
+    "low_profile": "kpop_marketer_seoul",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 8.5,
+    "gap": 7.5
+  },
+  {
+    "article_id": "10c5d75ea54d",
+    "low_profile": "kpop_marketer_seoul",
+    "low_score": 1.0,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 8.5,
+    "gap": 7.5
+  },
+  {
+    "article_id": "10c5d75ea54d",
+    "low_profile": "pediatric_oncologist_riyadh",
+    "low_score": 1.0,
+    "high_profile": "welder_pipeline_alberta",
+    "high_score": 4.0,
+    "gap": 3.0
+  },
+  {
+    "article_id": "10c5d75ea54d",
+    "low_profile": "pediatric_oncologist_riyadh",
+    "low_score": 1.0,
+    "high_profile": "meche_grad_sa",
+    "high_score": 6.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "10c5d75ea54d",
+    "low_profile": "pediatric_oncologist_riyadh",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 8.5,
+    "gap": 7.5
+  },
+  {
+    "article_id": "10c5d75ea54d",
+    "low_profile": "pediatric_oncologist_riyadh",
+    "low_score": 1.0,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 8.5,
+    "gap": 7.5
+  },
+  {
+    "article_id": "10c5d75ea54d",
+    "low_profile": "indie_gamedev_berlin",
+    "low_score": 1.0,
+    "high_profile": "welder_pipeline_alberta",
+    "high_score": 4.0,
+    "gap": 3.0
+  },
+  {
+    "article_id": "10c5d75ea54d",
+    "low_profile": "indie_gamedev_berlin",
+    "low_score": 1.0,
+    "high_profile": "meche_grad_sa",
+    "high_score": 6.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "10c5d75ea54d",
+    "low_profile": "indie_gamedev_berlin",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 8.5,
+    "gap": 7.5
+  },
+  {
+    "article_id": "10c5d75ea54d",
+    "low_profile": "indie_gamedev_berlin",
+    "low_score": 1.0,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 8.5,
+    "gap": 7.5
+  },
+  {
+    "article_id": "10c5d75ea54d",
+    "low_profile": "filmmaker_mumbai",
+    "low_score": 1.0,
+    "high_profile": "welder_pipeline_alberta",
+    "high_score": 4.0,
+    "gap": 3.0
+  },
+  {
+    "article_id": "10c5d75ea54d",
+    "low_profile": "filmmaker_mumbai",
+    "low_score": 1.0,
+    "high_profile": "meche_grad_sa",
+    "high_score": 6.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "10c5d75ea54d",
+    "low_profile": "filmmaker_mumbai",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 8.5,
+    "gap": 7.5
+  },
+  {
+    "article_id": "10c5d75ea54d",
+    "low_profile": "filmmaker_mumbai",
+    "low_score": 1.0,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 8.5,
+    "gap": 7.5
+  },
+  {
+    "article_id": "10c5d75ea54d",
+    "low_profile": "nurse_practitioner_toronto",
+    "low_score": 1.0,
+    "high_profile": "welder_pipeline_alberta",
+    "high_score": 4.0,
+    "gap": 3.0
+  },
+  {
+    "article_id": "10c5d75ea54d",
+    "low_profile": "nurse_practitioner_toronto",
+    "low_score": 1.0,
+    "high_profile": "meche_grad_sa",
+    "high_score": 6.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "10c5d75ea54d",
+    "low_profile": "nurse_practitioner_toronto",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 8.5,
+    "gap": 7.5
+  },
+  {
+    "article_id": "10c5d75ea54d",
+    "low_profile": "nurse_practitioner_toronto",
+    "low_score": 1.0,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 8.5,
+    "gap": 7.5
+  },
+  {
+    "article_id": "10c5d75ea54d",
+    "low_profile": "lawyer_ai_disruption",
+    "low_score": 1.0,
+    "high_profile": "welder_pipeline_alberta",
+    "high_score": 4.0,
+    "gap": 3.0
+  },
+  {
+    "article_id": "10c5d75ea54d",
+    "low_profile": "lawyer_ai_disruption",
+    "low_score": 1.0,
+    "high_profile": "meche_grad_sa",
+    "high_score": 6.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "10c5d75ea54d",
+    "low_profile": "lawyer_ai_disruption",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 8.5,
+    "gap": 7.5
+  },
+  {
+    "article_id": "10c5d75ea54d",
+    "low_profile": "lawyer_ai_disruption",
+    "low_score": 1.0,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 8.5,
+    "gap": 7.5
+  },
+  {
+    "article_id": "10c5d75ea54d",
+    "low_profile": "cto_fintech_lagos",
+    "low_score": 1.0,
+    "high_profile": "welder_pipeline_alberta",
+    "high_score": 4.0,
+    "gap": 3.0
+  },
+  {
+    "article_id": "10c5d75ea54d",
+    "low_profile": "cto_fintech_lagos",
+    "low_score": 1.0,
+    "high_profile": "meche_grad_sa",
+    "high_score": 6.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "10c5d75ea54d",
+    "low_profile": "cto_fintech_lagos",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 8.5,
+    "gap": 7.5
+  },
+  {
+    "article_id": "10c5d75ea54d",
+    "low_profile": "cto_fintech_lagos",
+    "low_score": 1.0,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 8.5,
+    "gap": 7.5
+  },
+  {
+    "article_id": "10c5d75ea54d",
+    "low_profile": "chef_mexico_city",
+    "low_score": 1.0,
+    "high_profile": "welder_pipeline_alberta",
+    "high_score": 4.0,
+    "gap": 3.0
+  },
+  {
+    "article_id": "10c5d75ea54d",
+    "low_profile": "chef_mexico_city",
+    "low_score": 1.0,
+    "high_profile": "meche_grad_sa",
+    "high_score": 6.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "10c5d75ea54d",
+    "low_profile": "chef_mexico_city",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 8.5,
+    "gap": 7.5
+  },
+  {
+    "article_id": "10c5d75ea54d",
+    "low_profile": "chef_mexico_city",
+    "low_score": 1.0,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 8.5,
+    "gap": 7.5
+  },
+  {
+    "article_id": "10c5d75ea54d",
+    "low_profile": "data_scientist_dubai",
+    "low_score": 1.5,
+    "high_profile": "meche_grad_sa",
+    "high_score": 6.5,
+    "gap": 5.0
+  },
+  {
+    "article_id": "10c5d75ea54d",
+    "low_profile": "data_scientist_dubai",
+    "low_score": 1.5,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 8.5,
+    "gap": 7.0
+  },
+  {
+    "article_id": "10c5d75ea54d",
+    "low_profile": "data_scientist_dubai",
+    "low_score": 1.5,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 8.5,
+    "gap": 7.0
+  },
+  {
+    "article_id": "10c5d75ea54d",
+    "low_profile": "hvac_tech_texas",
+    "low_score": 1.5,
+    "high_profile": "meche_grad_sa",
+    "high_score": 6.5,
+    "gap": 5.0
+  },
+  {
+    "article_id": "10c5d75ea54d",
+    "low_profile": "hvac_tech_texas",
+    "low_score": 1.5,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 8.5,
+    "gap": 7.0
+  },
+  {
+    "article_id": "10c5d75ea54d",
+    "low_profile": "hvac_tech_texas",
+    "low_score": 1.5,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 8.5,
+    "gap": 7.0
+  },
+  {
+    "article_id": "10c5d75ea54d",
+    "low_profile": "finance_student_kw",
+    "low_score": 2.0,
+    "high_profile": "meche_grad_sa",
+    "high_score": 6.5,
+    "gap": 4.5
+  },
+  {
+    "article_id": "10c5d75ea54d",
+    "low_profile": "finance_student_kw",
+    "low_score": 2.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 8.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "10c5d75ea54d",
+    "low_profile": "finance_student_kw",
+    "low_score": 2.0,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 8.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "10c5d75ea54d",
+    "low_profile": "supply_chain_bahrain",
+    "low_score": 2.0,
+    "high_profile": "meche_grad_sa",
+    "high_score": 6.5,
+    "gap": 4.5
+  },
+  {
+    "article_id": "10c5d75ea54d",
+    "low_profile": "supply_chain_bahrain",
+    "low_score": 2.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 8.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "10c5d75ea54d",
+    "low_profile": "supply_chain_bahrain",
+    "low_score": 2.0,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 8.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "10c5d75ea54d",
+    "low_profile": "architect_qatar",
+    "low_score": 2.0,
+    "high_profile": "meche_grad_sa",
+    "high_score": 6.5,
+    "gap": 4.5
+  },
+  {
+    "article_id": "10c5d75ea54d",
+    "low_profile": "architect_qatar",
+    "low_score": 2.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 8.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "10c5d75ea54d",
+    "low_profile": "architect_qatar",
+    "low_score": 2.0,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 8.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "10c5d75ea54d",
+    "low_profile": "marine_electrician_norway",
+    "low_score": 2.0,
+    "high_profile": "meche_grad_sa",
+    "high_score": 6.5,
+    "gap": 4.5
+  },
+  {
+    "article_id": "10c5d75ea54d",
+    "low_profile": "marine_electrician_norway",
+    "low_score": 2.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 8.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "10c5d75ea54d",
+    "low_profile": "marine_electrician_norway",
+    "low_score": 2.0,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 8.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "10c5d75ea54d",
+    "low_profile": "hobbyist_crypto_f1",
+    "low_score": 2.0,
+    "high_profile": "meche_grad_sa",
+    "high_score": 6.5,
+    "gap": 4.5
+  },
+  {
+    "article_id": "10c5d75ea54d",
+    "low_profile": "hobbyist_crypto_f1",
+    "low_score": 2.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 8.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "10c5d75ea54d",
+    "low_profile": "hobbyist_crypto_f1",
+    "low_score": 2.0,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 8.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "10c5d75ea54d",
+    "low_profile": "mining_engineer_santiago",
+    "low_score": 2.0,
+    "high_profile": "meche_grad_sa",
+    "high_score": 6.5,
+    "gap": 4.5
+  },
+  {
+    "article_id": "10c5d75ea54d",
+    "low_profile": "mining_engineer_santiago",
+    "low_score": 2.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 8.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "10c5d75ea54d",
+    "low_profile": "mining_engineer_santiago",
+    "low_score": 2.0,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 8.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "10c5d75ea54d",
+    "low_profile": "retired_diplomat_vienna",
+    "low_score": 2.0,
+    "high_profile": "meche_grad_sa",
+    "high_score": 6.5,
+    "gap": 4.5
+  },
+  {
+    "article_id": "10c5d75ea54d",
+    "low_profile": "retired_diplomat_vienna",
+    "low_score": 2.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 8.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "10c5d75ea54d",
+    "low_profile": "retired_diplomat_vienna",
+    "low_score": 2.0,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 8.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "10c5d75ea54d",
+    "low_profile": "undeclared_student_chicago",
+    "low_score": 2.5,
+    "high_profile": "meche_grad_sa",
+    "high_score": 6.5,
+    "gap": 4.0
+  },
+  {
+    "article_id": "10c5d75ea54d",
+    "low_profile": "undeclared_student_chicago",
+    "low_score": 2.5,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 8.5,
+    "gap": 6.0
+  },
+  {
+    "article_id": "10c5d75ea54d",
+    "low_profile": "undeclared_student_chicago",
+    "low_score": 2.5,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 8.5,
+    "gap": 6.0
+  },
+  {
+    "article_id": "10c5d75ea54d",
+    "low_profile": "geophysicist_koc_kw",
+    "low_score": 3.5,
+    "high_profile": "meche_grad_sa",
+    "high_score": 6.5,
+    "gap": 3.0
+  },
+  {
+    "article_id": "10c5d75ea54d",
+    "low_profile": "geophysicist_koc_kw",
+    "low_score": 3.5,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 8.5,
+    "gap": 5.0
+  },
+  {
+    "article_id": "10c5d75ea54d",
+    "low_profile": "geophysicist_koc_kw",
+    "low_score": 3.5,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 8.5,
+    "gap": 5.0
+  },
+  {
+    "article_id": "10c5d75ea54d",
+    "low_profile": "welder_pipeline_alberta",
+    "low_score": 4.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 8.5,
+    "gap": 4.5
+  },
+  {
+    "article_id": "10c5d75ea54d",
+    "low_profile": "welder_pipeline_alberta",
+    "low_score": 4.0,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 8.5,
+    "gap": 4.5
+  },
+  {
+    "article_id": "451e72310c84",
+    "low_profile": "kpop_marketer_seoul",
+    "low_score": 1.0,
+    "high_profile": "undeclared_student_chicago",
+    "high_score": 6.2,
+    "gap": 5.2
+  },
+  {
+    "article_id": "451e72310c84",
+    "low_profile": "kpop_marketer_seoul",
+    "low_score": 1.0,
+    "high_profile": "cybersecurity_kw",
+    "high_score": 6.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "451e72310c84",
+    "low_profile": "kpop_marketer_seoul",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 7.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "451e72310c84",
+    "low_profile": "hvac_tech_texas",
+    "low_score": 1.0,
+    "high_profile": "undeclared_student_chicago",
+    "high_score": 6.2,
+    "gap": 5.2
+  },
+  {
+    "article_id": "451e72310c84",
+    "low_profile": "hvac_tech_texas",
+    "low_score": 1.0,
+    "high_profile": "cybersecurity_kw",
+    "high_score": 6.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "451e72310c84",
+    "low_profile": "hvac_tech_texas",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 7.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "451e72310c84",
+    "low_profile": "physical_therapist_sydney",
+    "low_score": 1.0,
+    "high_profile": "undeclared_student_chicago",
+    "high_score": 6.2,
+    "gap": 5.2
+  },
+  {
+    "article_id": "451e72310c84",
+    "low_profile": "physical_therapist_sydney",
+    "low_score": 1.0,
+    "high_profile": "cybersecurity_kw",
+    "high_score": 6.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "451e72310c84",
+    "low_profile": "physical_therapist_sydney",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 7.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "451e72310c84",
+    "low_profile": "nurse_practitioner_toronto",
+    "low_score": 1.0,
+    "high_profile": "undeclared_student_chicago",
+    "high_score": 6.2,
+    "gap": 5.2
+  },
+  {
+    "article_id": "451e72310c84",
+    "low_profile": "nurse_practitioner_toronto",
+    "low_score": 1.0,
+    "high_profile": "cybersecurity_kw",
+    "high_score": 6.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "451e72310c84",
+    "low_profile": "nurse_practitioner_toronto",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 7.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "451e72310c84",
+    "low_profile": "bonsai_competitor_kyoto",
+    "low_score": 1.0,
+    "high_profile": "undeclared_student_chicago",
+    "high_score": 6.2,
+    "gap": 5.2
+  },
+  {
+    "article_id": "451e72310c84",
+    "low_profile": "bonsai_competitor_kyoto",
+    "low_score": 1.0,
+    "high_profile": "cybersecurity_kw",
+    "high_score": 6.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "451e72310c84",
+    "low_profile": "bonsai_competitor_kyoto",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 7.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "451e72310c84",
+    "low_profile": "chef_mexico_city",
+    "low_score": 1.0,
+    "high_profile": "undeclared_student_chicago",
+    "high_score": 6.2,
+    "gap": 5.2
+  },
+  {
+    "article_id": "451e72310c84",
+    "low_profile": "chef_mexico_city",
+    "low_score": 1.0,
+    "high_profile": "cybersecurity_kw",
+    "high_score": 6.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "451e72310c84",
+    "low_profile": "chef_mexico_city",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 7.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "451e72310c84",
+    "low_profile": "supply_chain_bahrain",
+    "low_score": 1.5,
+    "high_profile": "undeclared_student_chicago",
+    "high_score": 6.2,
+    "gap": 4.7
+  },
+  {
+    "article_id": "451e72310c84",
+    "low_profile": "supply_chain_bahrain",
+    "low_score": 1.5,
+    "high_profile": "cybersecurity_kw",
+    "high_score": 6.5,
+    "gap": 5.0
+  },
+  {
+    "article_id": "451e72310c84",
+    "low_profile": "supply_chain_bahrain",
+    "low_score": 1.5,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 7.5,
+    "gap": 6.0
+  },
+  {
+    "article_id": "451e72310c84",
+    "low_profile": "agribiz_sao_paulo",
+    "low_score": 1.5,
+    "high_profile": "undeclared_student_chicago",
+    "high_score": 6.2,
+    "gap": 4.7
+  },
+  {
+    "article_id": "451e72310c84",
+    "low_profile": "agribiz_sao_paulo",
+    "low_score": 1.5,
+    "high_profile": "cybersecurity_kw",
+    "high_score": 6.5,
+    "gap": 5.0
+  },
+  {
+    "article_id": "451e72310c84",
+    "low_profile": "agribiz_sao_paulo",
+    "low_score": 1.5,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 7.5,
+    "gap": 6.0
+  },
+  {
+    "article_id": "451e72310c84",
+    "low_profile": "welder_pipeline_alberta",
+    "low_score": 1.5,
+    "high_profile": "undeclared_student_chicago",
+    "high_score": 6.2,
+    "gap": 4.7
+  },
+  {
+    "article_id": "451e72310c84",
+    "low_profile": "welder_pipeline_alberta",
+    "low_score": 1.5,
+    "high_profile": "cybersecurity_kw",
+    "high_score": 6.5,
+    "gap": 5.0
+  },
+  {
+    "article_id": "451e72310c84",
+    "low_profile": "welder_pipeline_alberta",
+    "low_score": 1.5,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 7.5,
+    "gap": 6.0
+  },
+  {
+    "article_id": "451e72310c84",
+    "low_profile": "meche_grad_sa",
+    "low_score": 2.0,
+    "high_profile": "undeclared_student_chicago",
+    "high_score": 6.2,
+    "gap": 4.2
+  },
+  {
+    "article_id": "451e72310c84",
+    "low_profile": "meche_grad_sa",
+    "low_score": 2.0,
+    "high_profile": "cybersecurity_kw",
+    "high_score": 6.5,
+    "gap": 4.5
+  },
+  {
+    "article_id": "451e72310c84",
+    "low_profile": "meche_grad_sa",
+    "low_score": 2.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 7.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "451e72310c84",
+    "low_profile": "architect_qatar",
+    "low_score": 2.0,
+    "high_profile": "undeclared_student_chicago",
+    "high_score": 6.2,
+    "gap": 4.2
+  },
+  {
+    "article_id": "451e72310c84",
+    "low_profile": "architect_qatar",
+    "low_score": 2.0,
+    "high_profile": "cybersecurity_kw",
+    "high_score": 6.5,
+    "gap": 4.5
+  },
+  {
+    "article_id": "451e72310c84",
+    "low_profile": "architect_qatar",
+    "low_score": 2.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 7.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "451e72310c84",
+    "low_profile": "ux_designer_tokyo",
+    "low_score": 2.0,
+    "high_profile": "undeclared_student_chicago",
+    "high_score": 6.2,
+    "gap": 4.2
+  },
+  {
+    "article_id": "451e72310c84",
+    "low_profile": "ux_designer_tokyo",
+    "low_score": 2.0,
+    "high_profile": "cybersecurity_kw",
+    "high_score": 6.5,
+    "gap": 4.5
+  },
+  {
+    "article_id": "451e72310c84",
+    "low_profile": "ux_designer_tokyo",
+    "low_score": 2.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 7.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "451e72310c84",
+    "low_profile": "pharmacist_paris",
+    "low_score": 2.0,
+    "high_profile": "undeclared_student_chicago",
+    "high_score": 6.2,
+    "gap": 4.2
+  },
+  {
+    "article_id": "451e72310c84",
+    "low_profile": "pharmacist_paris",
+    "low_score": 2.0,
+    "high_profile": "cybersecurity_kw",
+    "high_score": 6.5,
+    "gap": 4.5
+  },
+  {
+    "article_id": "451e72310c84",
+    "low_profile": "pharmacist_paris",
+    "low_score": 2.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 7.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "451e72310c84",
+    "low_profile": "pediatric_oncologist_riyadh",
+    "low_score": 2.0,
+    "high_profile": "undeclared_student_chicago",
+    "high_score": 6.2,
+    "gap": 4.2
+  },
+  {
+    "article_id": "451e72310c84",
+    "low_profile": "pediatric_oncologist_riyadh",
+    "low_score": 2.0,
+    "high_profile": "cybersecurity_kw",
+    "high_score": 6.5,
+    "gap": 4.5
+  },
+  {
+    "article_id": "451e72310c84",
+    "low_profile": "pediatric_oncologist_riyadh",
+    "low_score": 2.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 7.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "451e72310c84",
+    "low_profile": "marine_electrician_norway",
+    "low_score": 2.0,
+    "high_profile": "undeclared_student_chicago",
+    "high_score": 6.2,
+    "gap": 4.2
+  },
+  {
+    "article_id": "451e72310c84",
+    "low_profile": "marine_electrician_norway",
+    "low_score": 2.0,
+    "high_profile": "cybersecurity_kw",
+    "high_score": 6.5,
+    "gap": 4.5
+  },
+  {
+    "article_id": "451e72310c84",
+    "low_profile": "marine_electrician_norway",
+    "low_score": 2.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 7.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "451e72310c84",
+    "low_profile": "indie_gamedev_berlin",
+    "low_score": 2.0,
+    "high_profile": "undeclared_student_chicago",
+    "high_score": 6.2,
+    "gap": 4.2
+  },
+  {
+    "article_id": "451e72310c84",
+    "low_profile": "indie_gamedev_berlin",
+    "low_score": 2.0,
+    "high_profile": "cybersecurity_kw",
+    "high_score": 6.5,
+    "gap": 4.5
+  },
+  {
+    "article_id": "451e72310c84",
+    "low_profile": "indie_gamedev_berlin",
+    "low_score": 2.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 7.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "451e72310c84",
+    "low_profile": "filmmaker_mumbai",
+    "low_score": 2.0,
+    "high_profile": "undeclared_student_chicago",
+    "high_score": 6.2,
+    "gap": 4.2
+  },
+  {
+    "article_id": "451e72310c84",
+    "low_profile": "filmmaker_mumbai",
+    "low_score": 2.0,
+    "high_profile": "cybersecurity_kw",
+    "high_score": 6.5,
+    "gap": 4.5
+  },
+  {
+    "article_id": "451e72310c84",
+    "low_profile": "filmmaker_mumbai",
+    "low_score": 2.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 7.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "451e72310c84",
+    "low_profile": "cto_fintech_lagos",
+    "low_score": 2.0,
+    "high_profile": "undeclared_student_chicago",
+    "high_score": 6.2,
+    "gap": 4.2
+  },
+  {
+    "article_id": "451e72310c84",
+    "low_profile": "cto_fintech_lagos",
+    "low_score": 2.0,
+    "high_profile": "cybersecurity_kw",
+    "high_score": 6.5,
+    "gap": 4.5
+  },
+  {
+    "article_id": "451e72310c84",
+    "low_profile": "cto_fintech_lagos",
+    "low_score": 2.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 7.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "451e72310c84",
+    "low_profile": "mining_engineer_santiago",
+    "low_score": 2.0,
+    "high_profile": "undeclared_student_chicago",
+    "high_score": 6.2,
+    "gap": 4.2
+  },
+  {
+    "article_id": "451e72310c84",
+    "low_profile": "mining_engineer_santiago",
+    "low_score": 2.0,
+    "high_profile": "cybersecurity_kw",
+    "high_score": 6.5,
+    "gap": 4.5
+  },
+  {
+    "article_id": "451e72310c84",
+    "low_profile": "mining_engineer_santiago",
+    "low_score": 2.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 7.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "451e72310c84",
+    "low_profile": "finance_student_kw",
+    "low_score": 2.5,
+    "high_profile": "undeclared_student_chicago",
+    "high_score": 6.2,
+    "gap": 3.7
+  },
+  {
+    "article_id": "451e72310c84",
+    "low_profile": "finance_student_kw",
+    "low_score": 2.5,
+    "high_profile": "cybersecurity_kw",
+    "high_score": 6.5,
+    "gap": 4.0
+  },
+  {
+    "article_id": "451e72310c84",
+    "low_profile": "finance_student_kw",
+    "low_score": 2.5,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 7.5,
+    "gap": 5.0
+  },
+  {
+    "article_id": "451e72310c84",
+    "low_profile": "lawyer_ai_disruption",
+    "low_score": 2.5,
+    "high_profile": "undeclared_student_chicago",
+    "high_score": 6.2,
+    "gap": 3.7
+  },
+  {
+    "article_id": "451e72310c84",
+    "low_profile": "lawyer_ai_disruption",
+    "low_score": 2.5,
+    "high_profile": "cybersecurity_kw",
+    "high_score": 6.5,
+    "gap": 4.0
+  },
+  {
+    "article_id": "451e72310c84",
+    "low_profile": "lawyer_ai_disruption",
+    "low_score": 2.5,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 7.5,
+    "gap": 5.0
+  },
+  {
+    "article_id": "451e72310c84",
+    "low_profile": "geophysicist_koc_kw",
+    "low_score": 3.0,
+    "high_profile": "undeclared_student_chicago",
+    "high_score": 6.2,
+    "gap": 3.2
+  },
+  {
+    "article_id": "451e72310c84",
+    "low_profile": "geophysicist_koc_kw",
+    "low_score": 3.0,
+    "high_profile": "cybersecurity_kw",
+    "high_score": 6.5,
+    "gap": 3.5
+  },
+  {
+    "article_id": "451e72310c84",
+    "low_profile": "geophysicist_koc_kw",
+    "low_score": 3.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 7.5,
+    "gap": 4.5
+  },
+  {
+    "article_id": "451e72310c84",
+    "low_profile": "data_scientist_dubai",
+    "low_score": 3.0,
+    "high_profile": "undeclared_student_chicago",
+    "high_score": 6.2,
+    "gap": 3.2
+  },
+  {
+    "article_id": "451e72310c84",
+    "low_profile": "data_scientist_dubai",
+    "low_score": 3.0,
+    "high_profile": "cybersecurity_kw",
+    "high_score": 6.5,
+    "gap": 3.5
+  },
+  {
+    "article_id": "451e72310c84",
+    "low_profile": "data_scientist_dubai",
+    "low_score": 3.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 7.5,
+    "gap": 4.5
+  },
+  {
+    "article_id": "451e72310c84",
+    "low_profile": "hobbyist_crypto_f1",
+    "low_score": 3.0,
+    "high_profile": "undeclared_student_chicago",
+    "high_score": 6.2,
+    "gap": 3.2
+  },
+  {
+    "article_id": "451e72310c84",
+    "low_profile": "hobbyist_crypto_f1",
+    "low_score": 3.0,
+    "high_profile": "cybersecurity_kw",
+    "high_score": 6.5,
+    "gap": 3.5
+  },
+  {
+    "article_id": "451e72310c84",
+    "low_profile": "hobbyist_crypto_f1",
+    "low_score": 3.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 7.5,
+    "gap": 4.5
+  },
+  {
+    "article_id": "451e72310c84",
+    "low_profile": "petrol_eng_kw",
+    "low_score": 3.5,
+    "high_profile": "cybersecurity_kw",
+    "high_score": 6.5,
+    "gap": 3.0
+  },
+  {
+    "article_id": "451e72310c84",
+    "low_profile": "petrol_eng_kw",
+    "low_score": 3.5,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 7.5,
+    "gap": 4.0
+  },
+  {
+    "article_id": "451e72310c84",
+    "low_profile": "biotech_researcher_sa",
+    "low_score": 3.5,
+    "high_profile": "cybersecurity_kw",
+    "high_score": 6.5,
+    "gap": 3.0
+  },
+  {
+    "article_id": "451e72310c84",
+    "low_profile": "biotech_researcher_sa",
+    "low_score": 3.5,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 7.5,
+    "gap": 4.0
+  },
+  {
+    "article_id": "451e72310c84",
+    "low_profile": "retired_diplomat_vienna",
+    "low_score": 3.5,
+    "high_profile": "cybersecurity_kw",
+    "high_score": 6.5,
+    "gap": 3.0
+  },
+  {
+    "article_id": "451e72310c84",
+    "low_profile": "retired_diplomat_vienna",
+    "low_score": 3.5,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 7.5,
+    "gap": 4.0
+  },
+  {
+    "article_id": "30cfdb6ab21d",
+    "low_profile": "pharmacist_paris",
+    "low_score": 0.5,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 6.0
+  },
+  {
+    "article_id": "30cfdb6ab21d",
+    "low_profile": "pharmacist_paris",
+    "low_score": 0.5,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 7.5,
+    "gap": 7.0
+  },
+  {
+    "article_id": "30cfdb6ab21d",
+    "low_profile": "nurse_practitioner_toronto",
+    "low_score": 0.5,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 6.0
+  },
+  {
+    "article_id": "30cfdb6ab21d",
+    "low_profile": "nurse_practitioner_toronto",
+    "low_score": 0.5,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 7.5,
+    "gap": 7.0
+  },
+  {
+    "article_id": "30cfdb6ab21d",
+    "low_profile": "cybersecurity_kw",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "30cfdb6ab21d",
+    "low_profile": "cybersecurity_kw",
+    "low_score": 1.0,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 7.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "30cfdb6ab21d",
+    "low_profile": "biotech_researcher_sa",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "30cfdb6ab21d",
+    "low_profile": "biotech_researcher_sa",
+    "low_score": 1.0,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 7.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "30cfdb6ab21d",
+    "low_profile": "architect_qatar",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "30cfdb6ab21d",
+    "low_profile": "architect_qatar",
+    "low_score": 1.0,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 7.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "30cfdb6ab21d",
+    "low_profile": "ux_designer_tokyo",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "30cfdb6ab21d",
+    "low_profile": "ux_designer_tokyo",
+    "low_score": 1.0,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 7.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "30cfdb6ab21d",
+    "low_profile": "agribiz_sao_paulo",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "30cfdb6ab21d",
+    "low_profile": "agribiz_sao_paulo",
+    "low_score": 1.0,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 7.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "30cfdb6ab21d",
+    "low_profile": "kpop_marketer_seoul",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "30cfdb6ab21d",
+    "low_profile": "kpop_marketer_seoul",
+    "low_score": 1.0,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 7.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "30cfdb6ab21d",
+    "low_profile": "pediatric_oncologist_riyadh",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "30cfdb6ab21d",
+    "low_profile": "pediatric_oncologist_riyadh",
+    "low_score": 1.0,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 7.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "30cfdb6ab21d",
+    "low_profile": "hvac_tech_texas",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "30cfdb6ab21d",
+    "low_profile": "hvac_tech_texas",
+    "low_score": 1.0,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 7.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "30cfdb6ab21d",
+    "low_profile": "indie_gamedev_berlin",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "30cfdb6ab21d",
+    "low_profile": "indie_gamedev_berlin",
+    "low_score": 1.0,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 7.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "30cfdb6ab21d",
+    "low_profile": "filmmaker_mumbai",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "30cfdb6ab21d",
+    "low_profile": "filmmaker_mumbai",
+    "low_score": 1.0,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 7.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "30cfdb6ab21d",
+    "low_profile": "physical_therapist_sydney",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "30cfdb6ab21d",
+    "low_profile": "physical_therapist_sydney",
+    "low_score": 1.0,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 7.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "30cfdb6ab21d",
+    "low_profile": "hobbyist_crypto_f1",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "30cfdb6ab21d",
+    "low_profile": "hobbyist_crypto_f1",
+    "low_score": 1.0,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 7.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "30cfdb6ab21d",
+    "low_profile": "lawyer_ai_disruption",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "30cfdb6ab21d",
+    "low_profile": "lawyer_ai_disruption",
+    "low_score": 1.0,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 7.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "30cfdb6ab21d",
+    "low_profile": "bonsai_competitor_kyoto",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "30cfdb6ab21d",
+    "low_profile": "bonsai_competitor_kyoto",
+    "low_score": 1.0,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 7.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "30cfdb6ab21d",
+    "low_profile": "cto_fintech_lagos",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "30cfdb6ab21d",
+    "low_profile": "cto_fintech_lagos",
+    "low_score": 1.0,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 7.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "30cfdb6ab21d",
+    "low_profile": "chef_mexico_city",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "30cfdb6ab21d",
+    "low_profile": "chef_mexico_city",
+    "low_score": 1.0,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 7.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "30cfdb6ab21d",
+    "low_profile": "data_scientist_dubai",
+    "low_score": 1.5,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 5.0
+  },
+  {
+    "article_id": "30cfdb6ab21d",
+    "low_profile": "data_scientist_dubai",
+    "low_score": 1.5,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 7.5,
+    "gap": 6.0
+  },
+  {
+    "article_id": "30cfdb6ab21d",
+    "low_profile": "retired_diplomat_vienna",
+    "low_score": 1.5,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 5.0
+  },
+  {
+    "article_id": "30cfdb6ab21d",
+    "low_profile": "retired_diplomat_vienna",
+    "low_score": 1.5,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 7.5,
+    "gap": 6.0
+  },
+  {
+    "article_id": "30cfdb6ab21d",
+    "low_profile": "finance_student_kw",
+    "low_score": 2.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 4.5
+  },
+  {
+    "article_id": "30cfdb6ab21d",
+    "low_profile": "finance_student_kw",
+    "low_score": 2.0,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 7.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "30cfdb6ab21d",
+    "low_profile": "supply_chain_bahrain",
+    "low_score": 2.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 4.5
+  },
+  {
+    "article_id": "30cfdb6ab21d",
+    "low_profile": "supply_chain_bahrain",
+    "low_score": 2.0,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 7.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "30cfdb6ab21d",
+    "low_profile": "marine_electrician_norway",
+    "low_score": 2.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 4.5
+  },
+  {
+    "article_id": "30cfdb6ab21d",
+    "low_profile": "marine_electrician_norway",
+    "low_score": 2.0,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 7.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "30cfdb6ab21d",
+    "low_profile": "welder_pipeline_alberta",
+    "low_score": 2.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 4.5
+  },
+  {
+    "article_id": "30cfdb6ab21d",
+    "low_profile": "welder_pipeline_alberta",
+    "low_score": 2.0,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 7.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "30cfdb6ab21d",
+    "low_profile": "mining_engineer_santiago",
+    "low_score": 2.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 4.5
+  },
+  {
+    "article_id": "30cfdb6ab21d",
+    "low_profile": "mining_engineer_santiago",
+    "low_score": 2.0,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 7.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "30cfdb6ab21d",
+    "low_profile": "undeclared_student_chicago",
+    "low_score": 2.5,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 4.0
+  },
+  {
+    "article_id": "30cfdb6ab21d",
+    "low_profile": "undeclared_student_chicago",
+    "low_score": 2.5,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 7.5,
+    "gap": 5.0
+  },
+  {
+    "article_id": "30cfdb6ab21d",
+    "low_profile": "geophysicist_koc_kw",
+    "low_score": 3.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 3.5
+  },
+  {
+    "article_id": "30cfdb6ab21d",
+    "low_profile": "geophysicist_koc_kw",
+    "low_score": 3.0,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 7.5,
+    "gap": 4.5
+  },
+  {
+    "article_id": "30cfdb6ab21d",
+    "low_profile": "meche_grad_sa",
+    "low_score": 3.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 3.5
+  },
+  {
+    "article_id": "30cfdb6ab21d",
+    "low_profile": "meche_grad_sa",
+    "low_score": 3.0,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 7.5,
+    "gap": 4.5
+  },
+  {
+    "article_id": "7dc51331f9c3",
+    "low_profile": "welder_pipeline_alberta",
+    "low_score": 0.0,
+    "high_profile": "biotech_researcher_sa",
+    "high_score": 3.0,
+    "gap": 3.0
+  },
+  {
+    "article_id": "7dc51331f9c3",
+    "low_profile": "welder_pipeline_alberta",
+    "low_score": 0.0,
+    "high_profile": "retired_diplomat_vienna",
+    "high_score": 3.0,
+    "gap": 3.0
+  },
+  {
+    "article_id": "7dc51331f9c3",
+    "low_profile": "welder_pipeline_alberta",
+    "low_score": 0.0,
+    "high_profile": "data_scientist_dubai",
+    "high_score": 3.5,
+    "gap": 3.5
+  },
+  {
+    "article_id": "7dc51331f9c3",
+    "low_profile": "welder_pipeline_alberta",
+    "low_score": 0.0,
+    "high_profile": "undeclared_student_chicago",
+    "high_score": 3.5,
+    "gap": 3.5
+  },
+  {
+    "article_id": "7dc51331f9c3",
+    "low_profile": "welder_pipeline_alberta",
+    "low_score": 0.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 4.0,
+    "gap": 4.0
+  },
+  {
+    "article_id": "7dc51331f9c3",
+    "low_profile": "welder_pipeline_alberta",
+    "low_score": 0.0,
+    "high_profile": "architect_qatar",
+    "high_score": 4.0,
+    "gap": 4.0
+  },
+  {
+    "article_id": "7dc51331f9c3",
+    "low_profile": "welder_pipeline_alberta",
+    "low_score": 0.0,
+    "high_profile": "filmmaker_mumbai",
+    "high_score": 4.0,
+    "gap": 4.0
+  },
+  {
+    "article_id": "7dc51331f9c3",
+    "low_profile": "agribiz_sao_paulo",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 4.0,
+    "gap": 3.0
+  },
+  {
+    "article_id": "7dc51331f9c3",
+    "low_profile": "agribiz_sao_paulo",
+    "low_score": 1.0,
+    "high_profile": "architect_qatar",
+    "high_score": 4.0,
+    "gap": 3.0
+  },
+  {
+    "article_id": "7dc51331f9c3",
+    "low_profile": "agribiz_sao_paulo",
+    "low_score": 1.0,
+    "high_profile": "filmmaker_mumbai",
+    "high_score": 4.0,
+    "gap": 3.0
+  },
+  {
+    "article_id": "7dc51331f9c3",
+    "low_profile": "pharmacist_paris",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 4.0,
+    "gap": 3.0
+  },
+  {
+    "article_id": "7dc51331f9c3",
+    "low_profile": "pharmacist_paris",
+    "low_score": 1.0,
+    "high_profile": "architect_qatar",
+    "high_score": 4.0,
+    "gap": 3.0
+  },
+  {
+    "article_id": "7dc51331f9c3",
+    "low_profile": "pharmacist_paris",
+    "low_score": 1.0,
+    "high_profile": "filmmaker_mumbai",
+    "high_score": 4.0,
+    "gap": 3.0
+  },
+  {
+    "article_id": "7dc51331f9c3",
+    "low_profile": "hvac_tech_texas",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 4.0,
+    "gap": 3.0
+  },
+  {
+    "article_id": "7dc51331f9c3",
+    "low_profile": "hvac_tech_texas",
+    "low_score": 1.0,
+    "high_profile": "architect_qatar",
+    "high_score": 4.0,
+    "gap": 3.0
+  },
+  {
+    "article_id": "7dc51331f9c3",
+    "low_profile": "hvac_tech_texas",
+    "low_score": 1.0,
+    "high_profile": "filmmaker_mumbai",
+    "high_score": 4.0,
+    "gap": 3.0
+  },
+  {
+    "article_id": "7dc51331f9c3",
+    "low_profile": "marine_electrician_norway",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 4.0,
+    "gap": 3.0
+  },
+  {
+    "article_id": "7dc51331f9c3",
+    "low_profile": "marine_electrician_norway",
+    "low_score": 1.0,
+    "high_profile": "architect_qatar",
+    "high_score": 4.0,
+    "gap": 3.0
+  },
+  {
+    "article_id": "7dc51331f9c3",
+    "low_profile": "marine_electrician_norway",
+    "low_score": 1.0,
+    "high_profile": "filmmaker_mumbai",
+    "high_score": 4.0,
+    "gap": 3.0
+  },
+  {
+    "article_id": "7dc51331f9c3",
+    "low_profile": "indie_gamedev_berlin",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 4.0,
+    "gap": 3.0
+  },
+  {
+    "article_id": "7dc51331f9c3",
+    "low_profile": "indie_gamedev_berlin",
+    "low_score": 1.0,
+    "high_profile": "architect_qatar",
+    "high_score": 4.0,
+    "gap": 3.0
+  },
+  {
+    "article_id": "7dc51331f9c3",
+    "low_profile": "indie_gamedev_berlin",
+    "low_score": 1.0,
+    "high_profile": "filmmaker_mumbai",
+    "high_score": 4.0,
+    "gap": 3.0
+  },
+  {
+    "article_id": "7dc51331f9c3",
+    "low_profile": "bonsai_competitor_kyoto",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 4.0,
+    "gap": 3.0
+  },
+  {
+    "article_id": "7dc51331f9c3",
+    "low_profile": "bonsai_competitor_kyoto",
+    "low_score": 1.0,
+    "high_profile": "architect_qatar",
+    "high_score": 4.0,
+    "gap": 3.0
+  },
+  {
+    "article_id": "7dc51331f9c3",
+    "low_profile": "bonsai_competitor_kyoto",
+    "low_score": 1.0,
+    "high_profile": "filmmaker_mumbai",
+    "high_score": 4.0,
+    "gap": 3.0
+  },
+  {
+    "article_id": "7dc51331f9c3",
+    "low_profile": "mining_engineer_santiago",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 4.0,
+    "gap": 3.0
+  },
+  {
+    "article_id": "7dc51331f9c3",
+    "low_profile": "mining_engineer_santiago",
+    "low_score": 1.0,
+    "high_profile": "architect_qatar",
+    "high_score": 4.0,
+    "gap": 3.0
+  },
+  {
+    "article_id": "7dc51331f9c3",
+    "low_profile": "mining_engineer_santiago",
+    "low_score": 1.0,
+    "high_profile": "filmmaker_mumbai",
+    "high_score": 4.0,
+    "gap": 3.0
+  },
+  {
+    "article_id": "2f39d55df30a",
+    "low_profile": "petrol_eng_kw",
+    "low_score": 1.0,
+    "high_profile": "architect_qatar",
+    "high_score": 6.2,
+    "gap": 5.2
+  },
+  {
+    "article_id": "2f39d55df30a",
+    "low_profile": "geophysicist_koc_kw",
+    "low_score": 1.0,
+    "high_profile": "architect_qatar",
+    "high_score": 6.2,
+    "gap": 5.2
+  },
+  {
+    "article_id": "2f39d55df30a",
+    "low_profile": "agribiz_sao_paulo",
+    "low_score": 1.0,
+    "high_profile": "architect_qatar",
+    "high_score": 6.2,
+    "gap": 5.2
+  },
+  {
+    "article_id": "2f39d55df30a",
+    "low_profile": "pharmacist_paris",
+    "low_score": 1.0,
+    "high_profile": "architect_qatar",
+    "high_score": 6.2,
+    "gap": 5.2
+  },
+  {
+    "article_id": "2f39d55df30a",
+    "low_profile": "kpop_marketer_seoul",
+    "low_score": 1.0,
+    "high_profile": "architect_qatar",
+    "high_score": 6.2,
+    "gap": 5.2
+  },
+  {
+    "article_id": "2f39d55df30a",
+    "low_profile": "pediatric_oncologist_riyadh",
+    "low_score": 1.0,
+    "high_profile": "architect_qatar",
+    "high_score": 6.2,
+    "gap": 5.2
+  },
+  {
+    "article_id": "2f39d55df30a",
+    "low_profile": "hvac_tech_texas",
+    "low_score": 1.0,
+    "high_profile": "architect_qatar",
+    "high_score": 6.2,
+    "gap": 5.2
+  },
+  {
+    "article_id": "2f39d55df30a",
+    "low_profile": "marine_electrician_norway",
+    "low_score": 1.0,
+    "high_profile": "architect_qatar",
+    "high_score": 6.2,
+    "gap": 5.2
+  },
+  {
+    "article_id": "2f39d55df30a",
+    "low_profile": "welder_pipeline_alberta",
+    "low_score": 1.0,
+    "high_profile": "architect_qatar",
+    "high_score": 6.2,
+    "gap": 5.2
+  },
+  {
+    "article_id": "2f39d55df30a",
+    "low_profile": "indie_gamedev_berlin",
+    "low_score": 1.0,
+    "high_profile": "architect_qatar",
+    "high_score": 6.2,
+    "gap": 5.2
+  },
+  {
+    "article_id": "2f39d55df30a",
+    "low_profile": "bonsai_competitor_kyoto",
+    "low_score": 1.0,
+    "high_profile": "architect_qatar",
+    "high_score": 6.2,
+    "gap": 5.2
+  },
+  {
+    "article_id": "2f39d55df30a",
+    "low_profile": "mining_engineer_santiago",
+    "low_score": 1.0,
+    "high_profile": "architect_qatar",
+    "high_score": 6.2,
+    "gap": 5.2
+  },
+  {
+    "article_id": "2f39d55df30a",
+    "low_profile": "retired_diplomat_vienna",
+    "low_score": 1.0,
+    "high_profile": "architect_qatar",
+    "high_score": 6.2,
+    "gap": 5.2
+  },
+  {
+    "article_id": "2f39d55df30a",
+    "low_profile": "chef_mexico_city",
+    "low_score": 1.0,
+    "high_profile": "architect_qatar",
+    "high_score": 6.2,
+    "gap": 5.2
+  },
+  {
+    "article_id": "2f39d55df30a",
+    "low_profile": "meche_grad_sa",
+    "low_score": 1.5,
+    "high_profile": "architect_qatar",
+    "high_score": 6.2,
+    "gap": 4.7
+  },
+  {
+    "article_id": "2f39d55df30a",
+    "low_profile": "biotech_researcher_sa",
+    "low_score": 1.5,
+    "high_profile": "architect_qatar",
+    "high_score": 6.2,
+    "gap": 4.7
+  },
+  {
+    "article_id": "2f39d55df30a",
+    "low_profile": "physical_therapist_sydney",
+    "low_score": 1.5,
+    "high_profile": "architect_qatar",
+    "high_score": 6.2,
+    "gap": 4.7
+  },
+  {
+    "article_id": "2f39d55df30a",
+    "low_profile": "finance_student_kw",
+    "low_score": 2.0,
+    "high_profile": "architect_qatar",
+    "high_score": 6.2,
+    "gap": 4.2
+  },
+  {
+    "article_id": "2f39d55df30a",
+    "low_profile": "data_scientist_dubai",
+    "low_score": 2.0,
+    "high_profile": "architect_qatar",
+    "high_score": 6.2,
+    "gap": 4.2
+  },
+  {
+    "article_id": "2f39d55df30a",
+    "low_profile": "supply_chain_bahrain",
+    "low_score": 2.0,
+    "high_profile": "architect_qatar",
+    "high_score": 6.2,
+    "gap": 4.2
+  },
+  {
+    "article_id": "2f39d55df30a",
+    "low_profile": "ux_designer_tokyo",
+    "low_score": 2.0,
+    "high_profile": "architect_qatar",
+    "high_score": 6.2,
+    "gap": 4.2
+  },
+  {
+    "article_id": "2f39d55df30a",
+    "low_profile": "hobbyist_crypto_f1",
+    "low_score": 2.0,
+    "high_profile": "architect_qatar",
+    "high_score": 6.2,
+    "gap": 4.2
+  },
+  {
+    "article_id": "2f39d55df30a",
+    "low_profile": "lawyer_ai_disruption",
+    "low_score": 2.0,
+    "high_profile": "architect_qatar",
+    "high_score": 6.2,
+    "gap": 4.2
+  },
+  {
+    "article_id": "2f39d55df30a",
+    "low_profile": "cto_fintech_lagos",
+    "low_score": 2.0,
+    "high_profile": "architect_qatar",
+    "high_score": 6.2,
+    "gap": 4.2
+  },
+  {
+    "article_id": "2f39d55df30a",
+    "low_profile": "cybersecurity_kw",
+    "low_score": 2.5,
+    "high_profile": "architect_qatar",
+    "high_score": 6.2,
+    "gap": 3.7
+  },
+  {
+    "article_id": "2f39d55df30a",
+    "low_profile": "filmmaker_mumbai",
+    "low_score": 2.5,
+    "high_profile": "architect_qatar",
+    "high_score": 6.2,
+    "gap": 3.7
+  },
+  {
+    "article_id": "2f39d55df30a",
+    "low_profile": "nurse_practitioner_toronto",
+    "low_score": 2.5,
+    "high_profile": "architect_qatar",
+    "high_score": 6.2,
+    "gap": 3.7
+  },
+  {
+    "article_id": "2f39d55df30a",
+    "low_profile": "undeclared_student_chicago",
+    "low_score": 2.5,
+    "high_profile": "architect_qatar",
+    "high_score": 6.2,
+    "gap": 3.7
+  },
+  {
+    "article_id": "7fceeeb9e086",
+    "low_profile": "geophysicist_koc_kw",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 4.0,
+    "gap": 3.0
+  },
+  {
+    "article_id": "7fceeeb9e086",
+    "low_profile": "geophysicist_koc_kw",
+    "low_score": 1.0,
+    "high_profile": "undeclared_student_chicago",
+    "high_score": 7.2,
+    "gap": 6.2
+  },
+  {
+    "article_id": "7fceeeb9e086",
+    "low_profile": "agribiz_sao_paulo",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 4.0,
+    "gap": 3.0
+  },
+  {
+    "article_id": "7fceeeb9e086",
+    "low_profile": "agribiz_sao_paulo",
+    "low_score": 1.0,
+    "high_profile": "undeclared_student_chicago",
+    "high_score": 7.2,
+    "gap": 6.2
+  },
+  {
+    "article_id": "7fceeeb9e086",
+    "low_profile": "pharmacist_paris",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 4.0,
+    "gap": 3.0
+  },
+  {
+    "article_id": "7fceeeb9e086",
+    "low_profile": "pharmacist_paris",
+    "low_score": 1.0,
+    "high_profile": "undeclared_student_chicago",
+    "high_score": 7.2,
+    "gap": 6.2
+  },
+  {
+    "article_id": "7fceeeb9e086",
+    "low_profile": "kpop_marketer_seoul",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 4.0,
+    "gap": 3.0
+  },
+  {
+    "article_id": "7fceeeb9e086",
+    "low_profile": "kpop_marketer_seoul",
+    "low_score": 1.0,
+    "high_profile": "undeclared_student_chicago",
+    "high_score": 7.2,
+    "gap": 6.2
+  },
+  {
+    "article_id": "7fceeeb9e086",
+    "low_profile": "pediatric_oncologist_riyadh",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 4.0,
+    "gap": 3.0
+  },
+  {
+    "article_id": "7fceeeb9e086",
+    "low_profile": "pediatric_oncologist_riyadh",
+    "low_score": 1.0,
+    "high_profile": "undeclared_student_chicago",
+    "high_score": 7.2,
+    "gap": 6.2
+  },
+  {
+    "article_id": "7fceeeb9e086",
+    "low_profile": "filmmaker_mumbai",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 4.0,
+    "gap": 3.0
+  },
+  {
+    "article_id": "7fceeeb9e086",
+    "low_profile": "filmmaker_mumbai",
+    "low_score": 1.0,
+    "high_profile": "undeclared_student_chicago",
+    "high_score": 7.2,
+    "gap": 6.2
+  },
+  {
+    "article_id": "7fceeeb9e086",
+    "low_profile": "nurse_practitioner_toronto",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 4.0,
+    "gap": 3.0
+  },
+  {
+    "article_id": "7fceeeb9e086",
+    "low_profile": "nurse_practitioner_toronto",
+    "low_score": 1.0,
+    "high_profile": "undeclared_student_chicago",
+    "high_score": 7.2,
+    "gap": 6.2
+  },
+  {
+    "article_id": "7fceeeb9e086",
+    "low_profile": "bonsai_competitor_kyoto",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 4.0,
+    "gap": 3.0
+  },
+  {
+    "article_id": "7fceeeb9e086",
+    "low_profile": "bonsai_competitor_kyoto",
+    "low_score": 1.0,
+    "high_profile": "undeclared_student_chicago",
+    "high_score": 7.2,
+    "gap": 6.2
+  },
+  {
+    "article_id": "7fceeeb9e086",
+    "low_profile": "chef_mexico_city",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 4.0,
+    "gap": 3.0
+  },
+  {
+    "article_id": "7fceeeb9e086",
+    "low_profile": "chef_mexico_city",
+    "low_score": 1.0,
+    "high_profile": "undeclared_student_chicago",
+    "high_score": 7.2,
+    "gap": 6.2
+  },
+  {
+    "article_id": "7fceeeb9e086",
+    "low_profile": "petrol_eng_kw",
+    "low_score": 1.5,
+    "high_profile": "undeclared_student_chicago",
+    "high_score": 7.2,
+    "gap": 5.7
+  },
+  {
+    "article_id": "7fceeeb9e086",
+    "low_profile": "welder_pipeline_alberta",
+    "low_score": 1.5,
+    "high_profile": "undeclared_student_chicago",
+    "high_score": 7.2,
+    "gap": 5.7
+  },
+  {
+    "article_id": "7fceeeb9e086",
+    "low_profile": "physical_therapist_sydney",
+    "low_score": 1.5,
+    "high_profile": "undeclared_student_chicago",
+    "high_score": 7.2,
+    "gap": 5.7
+  },
+  {
+    "article_id": "7fceeeb9e086",
+    "low_profile": "finance_student_kw",
+    "low_score": 2.0,
+    "high_profile": "undeclared_student_chicago",
+    "high_score": 7.2,
+    "gap": 5.2
+  },
+  {
+    "article_id": "7fceeeb9e086",
+    "low_profile": "cybersecurity_kw",
+    "low_score": 2.0,
+    "high_profile": "undeclared_student_chicago",
+    "high_score": 7.2,
+    "gap": 5.2
+  },
+  {
+    "article_id": "7fceeeb9e086",
+    "low_profile": "meche_grad_sa",
+    "low_score": 2.0,
+    "high_profile": "undeclared_student_chicago",
+    "high_score": 7.2,
+    "gap": 5.2
+  },
+  {
+    "article_id": "7fceeeb9e086",
+    "low_profile": "data_scientist_dubai",
+    "low_score": 2.0,
+    "high_profile": "undeclared_student_chicago",
+    "high_score": 7.2,
+    "gap": 5.2
+  },
+  {
+    "article_id": "7fceeeb9e086",
+    "low_profile": "architect_qatar",
+    "low_score": 2.0,
+    "high_profile": "undeclared_student_chicago",
+    "high_score": 7.2,
+    "gap": 5.2
+  },
+  {
+    "article_id": "7fceeeb9e086",
+    "low_profile": "ux_designer_tokyo",
+    "low_score": 2.0,
+    "high_profile": "undeclared_student_chicago",
+    "high_score": 7.2,
+    "gap": 5.2
+  },
+  {
+    "article_id": "7fceeeb9e086",
+    "low_profile": "hvac_tech_texas",
+    "low_score": 2.0,
+    "high_profile": "undeclared_student_chicago",
+    "high_score": 7.2,
+    "gap": 5.2
+  },
+  {
+    "article_id": "7fceeeb9e086",
+    "low_profile": "marine_electrician_norway",
+    "low_score": 2.0,
+    "high_profile": "undeclared_student_chicago",
+    "high_score": 7.2,
+    "gap": 5.2
+  },
+  {
+    "article_id": "7fceeeb9e086",
+    "low_profile": "indie_gamedev_berlin",
+    "low_score": 2.0,
+    "high_profile": "undeclared_student_chicago",
+    "high_score": 7.2,
+    "gap": 5.2
+  },
+  {
+    "article_id": "7fceeeb9e086",
+    "low_profile": "hobbyist_crypto_f1",
+    "low_score": 2.0,
+    "high_profile": "undeclared_student_chicago",
+    "high_score": 7.2,
+    "gap": 5.2
+  },
+  {
+    "article_id": "7fceeeb9e086",
+    "low_profile": "lawyer_ai_disruption",
+    "low_score": 2.0,
+    "high_profile": "undeclared_student_chicago",
+    "high_score": 7.2,
+    "gap": 5.2
+  },
+  {
+    "article_id": "7fceeeb9e086",
+    "low_profile": "cto_fintech_lagos",
+    "low_score": 2.0,
+    "high_profile": "undeclared_student_chicago",
+    "high_score": 7.2,
+    "gap": 5.2
+  },
+  {
+    "article_id": "7fceeeb9e086",
+    "low_profile": "mining_engineer_santiago",
+    "low_score": 2.0,
+    "high_profile": "undeclared_student_chicago",
+    "high_score": 7.2,
+    "gap": 5.2
+  },
+  {
+    "article_id": "7fceeeb9e086",
+    "low_profile": "retired_diplomat_vienna",
+    "low_score": 2.0,
+    "high_profile": "undeclared_student_chicago",
+    "high_score": 7.2,
+    "gap": 5.2
+  },
+  {
+    "article_id": "7fceeeb9e086",
+    "low_profile": "biotech_researcher_sa",
+    "low_score": 2.5,
+    "high_profile": "undeclared_student_chicago",
+    "high_score": 7.2,
+    "gap": 4.7
+  },
+  {
+    "article_id": "7fceeeb9e086",
+    "low_profile": "supply_chain_bahrain",
+    "low_score": 3.5,
+    "high_profile": "undeclared_student_chicago",
+    "high_score": 7.2,
+    "gap": 3.7
+  },
+  {
+    "article_id": "7fceeeb9e086",
+    "low_profile": "cpeg_student_kw",
+    "low_score": 4.0,
+    "high_profile": "undeclared_student_chicago",
+    "high_score": 7.2,
+    "gap": 3.2
+  },
+  {
+    "article_id": "bd39d615a215",
+    "low_profile": "physical_therapist_sydney",
+    "low_score": 0.0,
+    "high_profile": "hobbyist_crypto_f1",
+    "high_score": 3.0,
+    "gap": 3.0
+  },
+  {
+    "article_id": "bd39d615a215",
+    "low_profile": "physical_therapist_sydney",
+    "low_score": 0.0,
+    "high_profile": "cybersecurity_kw",
+    "high_score": 3.5,
+    "gap": 3.5
+  },
+  {
+    "article_id": "bd39d615a215",
+    "low_profile": "physical_therapist_sydney",
+    "low_score": 0.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 4.0,
+    "gap": 4.0
+  },
+  {
+    "article_id": "bd39d615a215",
+    "low_profile": "physical_therapist_sydney",
+    "low_score": 0.0,
+    "high_profile": "data_scientist_dubai",
+    "high_score": 4.0,
+    "gap": 4.0
+  },
+  {
+    "article_id": "bd39d615a215",
+    "low_profile": "physical_therapist_sydney",
+    "low_score": 0.0,
+    "high_profile": "finance_student_kw",
+    "high_score": 6.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "bd39d615a215",
+    "low_profile": "physical_therapist_sydney",
+    "low_score": 0.0,
+    "high_profile": "cto_fintech_lagos",
+    "high_score": 7.5,
+    "gap": 7.5
+  },
+  {
+    "article_id": "bd39d615a215",
+    "low_profile": "bonsai_competitor_kyoto",
+    "low_score": 0.5,
+    "high_profile": "cybersecurity_kw",
+    "high_score": 3.5,
+    "gap": 3.0
+  },
+  {
+    "article_id": "bd39d615a215",
+    "low_profile": "bonsai_competitor_kyoto",
+    "low_score": 0.5,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 4.0,
+    "gap": 3.5
+  },
+  {
+    "article_id": "bd39d615a215",
+    "low_profile": "bonsai_competitor_kyoto",
+    "low_score": 0.5,
+    "high_profile": "data_scientist_dubai",
+    "high_score": 4.0,
+    "gap": 3.5
+  },
+  {
+    "article_id": "bd39d615a215",
+    "low_profile": "bonsai_competitor_kyoto",
+    "low_score": 0.5,
+    "high_profile": "finance_student_kw",
+    "high_score": 6.5,
+    "gap": 6.0
+  },
+  {
+    "article_id": "bd39d615a215",
+    "low_profile": "bonsai_competitor_kyoto",
+    "low_score": 0.5,
+    "high_profile": "cto_fintech_lagos",
+    "high_score": 7.5,
+    "gap": 7.0
+  },
+  {
+    "article_id": "bd39d615a215",
+    "low_profile": "meche_grad_sa",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 4.0,
+    "gap": 3.0
+  },
+  {
+    "article_id": "bd39d615a215",
+    "low_profile": "meche_grad_sa",
+    "low_score": 1.0,
+    "high_profile": "data_scientist_dubai",
+    "high_score": 4.0,
+    "gap": 3.0
+  },
+  {
+    "article_id": "bd39d615a215",
+    "low_profile": "meche_grad_sa",
+    "low_score": 1.0,
+    "high_profile": "finance_student_kw",
+    "high_score": 6.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "bd39d615a215",
+    "low_profile": "meche_grad_sa",
+    "low_score": 1.0,
+    "high_profile": "cto_fintech_lagos",
+    "high_score": 7.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "bd39d615a215",
+    "low_profile": "biotech_researcher_sa",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 4.0,
+    "gap": 3.0
+  },
+  {
+    "article_id": "bd39d615a215",
+    "low_profile": "biotech_researcher_sa",
+    "low_score": 1.0,
+    "high_profile": "data_scientist_dubai",
+    "high_score": 4.0,
+    "gap": 3.0
+  },
+  {
+    "article_id": "bd39d615a215",
+    "low_profile": "biotech_researcher_sa",
+    "low_score": 1.0,
+    "high_profile": "finance_student_kw",
+    "high_score": 6.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "bd39d615a215",
+    "low_profile": "biotech_researcher_sa",
+    "low_score": 1.0,
+    "high_profile": "cto_fintech_lagos",
+    "high_score": 7.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "bd39d615a215",
+    "low_profile": "ux_designer_tokyo",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 4.0,
+    "gap": 3.0
+  },
+  {
+    "article_id": "bd39d615a215",
+    "low_profile": "ux_designer_tokyo",
+    "low_score": 1.0,
+    "high_profile": "data_scientist_dubai",
+    "high_score": 4.0,
+    "gap": 3.0
+  },
+  {
+    "article_id": "bd39d615a215",
+    "low_profile": "ux_designer_tokyo",
+    "low_score": 1.0,
+    "high_profile": "finance_student_kw",
+    "high_score": 6.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "bd39d615a215",
+    "low_profile": "ux_designer_tokyo",
+    "low_score": 1.0,
+    "high_profile": "cto_fintech_lagos",
+    "high_score": 7.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "bd39d615a215",
+    "low_profile": "pharmacist_paris",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 4.0,
+    "gap": 3.0
+  },
+  {
+    "article_id": "bd39d615a215",
+    "low_profile": "pharmacist_paris",
+    "low_score": 1.0,
+    "high_profile": "data_scientist_dubai",
+    "high_score": 4.0,
+    "gap": 3.0
+  },
+  {
+    "article_id": "bd39d615a215",
+    "low_profile": "pharmacist_paris",
+    "low_score": 1.0,
+    "high_profile": "finance_student_kw",
+    "high_score": 6.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "bd39d615a215",
+    "low_profile": "pharmacist_paris",
+    "low_score": 1.0,
+    "high_profile": "cto_fintech_lagos",
+    "high_score": 7.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "bd39d615a215",
+    "low_profile": "kpop_marketer_seoul",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 4.0,
+    "gap": 3.0
+  },
+  {
+    "article_id": "bd39d615a215",
+    "low_profile": "kpop_marketer_seoul",
+    "low_score": 1.0,
+    "high_profile": "data_scientist_dubai",
+    "high_score": 4.0,
+    "gap": 3.0
+  },
+  {
+    "article_id": "bd39d615a215",
+    "low_profile": "kpop_marketer_seoul",
+    "low_score": 1.0,
+    "high_profile": "finance_student_kw",
+    "high_score": 6.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "bd39d615a215",
+    "low_profile": "kpop_marketer_seoul",
+    "low_score": 1.0,
+    "high_profile": "cto_fintech_lagos",
+    "high_score": 7.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "bd39d615a215",
+    "low_profile": "pediatric_oncologist_riyadh",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 4.0,
+    "gap": 3.0
+  },
+  {
+    "article_id": "bd39d615a215",
+    "low_profile": "pediatric_oncologist_riyadh",
+    "low_score": 1.0,
+    "high_profile": "data_scientist_dubai",
+    "high_score": 4.0,
+    "gap": 3.0
+  },
+  {
+    "article_id": "bd39d615a215",
+    "low_profile": "pediatric_oncologist_riyadh",
+    "low_score": 1.0,
+    "high_profile": "finance_student_kw",
+    "high_score": 6.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "bd39d615a215",
+    "low_profile": "pediatric_oncologist_riyadh",
+    "low_score": 1.0,
+    "high_profile": "cto_fintech_lagos",
+    "high_score": 7.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "bd39d615a215",
+    "low_profile": "hvac_tech_texas",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 4.0,
+    "gap": 3.0
+  },
+  {
+    "article_id": "bd39d615a215",
+    "low_profile": "hvac_tech_texas",
+    "low_score": 1.0,
+    "high_profile": "data_scientist_dubai",
+    "high_score": 4.0,
+    "gap": 3.0
+  },
+  {
+    "article_id": "bd39d615a215",
+    "low_profile": "hvac_tech_texas",
+    "low_score": 1.0,
+    "high_profile": "finance_student_kw",
+    "high_score": 6.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "bd39d615a215",
+    "low_profile": "hvac_tech_texas",
+    "low_score": 1.0,
+    "high_profile": "cto_fintech_lagos",
+    "high_score": 7.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "bd39d615a215",
+    "low_profile": "marine_electrician_norway",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 4.0,
+    "gap": 3.0
+  },
+  {
+    "article_id": "bd39d615a215",
+    "low_profile": "marine_electrician_norway",
+    "low_score": 1.0,
+    "high_profile": "data_scientist_dubai",
+    "high_score": 4.0,
+    "gap": 3.0
+  },
+  {
+    "article_id": "bd39d615a215",
+    "low_profile": "marine_electrician_norway",
+    "low_score": 1.0,
+    "high_profile": "finance_student_kw",
+    "high_score": 6.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "bd39d615a215",
+    "low_profile": "marine_electrician_norway",
+    "low_score": 1.0,
+    "high_profile": "cto_fintech_lagos",
+    "high_score": 7.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "bd39d615a215",
+    "low_profile": "welder_pipeline_alberta",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 4.0,
+    "gap": 3.0
+  },
+  {
+    "article_id": "bd39d615a215",
+    "low_profile": "welder_pipeline_alberta",
+    "low_score": 1.0,
+    "high_profile": "data_scientist_dubai",
+    "high_score": 4.0,
+    "gap": 3.0
+  },
+  {
+    "article_id": "bd39d615a215",
+    "low_profile": "welder_pipeline_alberta",
+    "low_score": 1.0,
+    "high_profile": "finance_student_kw",
+    "high_score": 6.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "bd39d615a215",
+    "low_profile": "welder_pipeline_alberta",
+    "low_score": 1.0,
+    "high_profile": "cto_fintech_lagos",
+    "high_score": 7.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "bd39d615a215",
+    "low_profile": "nurse_practitioner_toronto",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 4.0,
+    "gap": 3.0
+  },
+  {
+    "article_id": "bd39d615a215",
+    "low_profile": "nurse_practitioner_toronto",
+    "low_score": 1.0,
+    "high_profile": "data_scientist_dubai",
+    "high_score": 4.0,
+    "gap": 3.0
+  },
+  {
+    "article_id": "bd39d615a215",
+    "low_profile": "nurse_practitioner_toronto",
+    "low_score": 1.0,
+    "high_profile": "finance_student_kw",
+    "high_score": 6.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "bd39d615a215",
+    "low_profile": "nurse_practitioner_toronto",
+    "low_score": 1.0,
+    "high_profile": "cto_fintech_lagos",
+    "high_score": 7.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "bd39d615a215",
+    "low_profile": "chef_mexico_city",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 4.0,
+    "gap": 3.0
+  },
+  {
+    "article_id": "bd39d615a215",
+    "low_profile": "chef_mexico_city",
+    "low_score": 1.0,
+    "high_profile": "data_scientist_dubai",
+    "high_score": 4.0,
+    "gap": 3.0
+  },
+  {
+    "article_id": "bd39d615a215",
+    "low_profile": "chef_mexico_city",
+    "low_score": 1.0,
+    "high_profile": "finance_student_kw",
+    "high_score": 6.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "bd39d615a215",
+    "low_profile": "chef_mexico_city",
+    "low_score": 1.0,
+    "high_profile": "cto_fintech_lagos",
+    "high_score": 7.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "bd39d615a215",
+    "low_profile": "geophysicist_koc_kw",
+    "low_score": 1.5,
+    "high_profile": "finance_student_kw",
+    "high_score": 6.5,
+    "gap": 5.0
+  },
+  {
+    "article_id": "bd39d615a215",
+    "low_profile": "geophysicist_koc_kw",
+    "low_score": 1.5,
+    "high_profile": "cto_fintech_lagos",
+    "high_score": 7.5,
+    "gap": 6.0
+  },
+  {
+    "article_id": "bd39d615a215",
+    "low_profile": "agribiz_sao_paulo",
+    "low_score": 1.5,
+    "high_profile": "finance_student_kw",
+    "high_score": 6.5,
+    "gap": 5.0
+  },
+  {
+    "article_id": "bd39d615a215",
+    "low_profile": "agribiz_sao_paulo",
+    "low_score": 1.5,
+    "high_profile": "cto_fintech_lagos",
+    "high_score": 7.5,
+    "gap": 6.0
+  },
+  {
+    "article_id": "bd39d615a215",
+    "low_profile": "indie_gamedev_berlin",
+    "low_score": 1.5,
+    "high_profile": "finance_student_kw",
+    "high_score": 6.5,
+    "gap": 5.0
+  },
+  {
+    "article_id": "bd39d615a215",
+    "low_profile": "indie_gamedev_berlin",
+    "low_score": 1.5,
+    "high_profile": "cto_fintech_lagos",
+    "high_score": 7.5,
+    "gap": 6.0
+  },
+  {
+    "article_id": "bd39d615a215",
+    "low_profile": "mining_engineer_santiago",
+    "low_score": 1.5,
+    "high_profile": "finance_student_kw",
+    "high_score": 6.5,
+    "gap": 5.0
+  },
+  {
+    "article_id": "bd39d615a215",
+    "low_profile": "mining_engineer_santiago",
+    "low_score": 1.5,
+    "high_profile": "cto_fintech_lagos",
+    "high_score": 7.5,
+    "gap": 6.0
+  },
+  {
+    "article_id": "bd39d615a215",
+    "low_profile": "petrol_eng_kw",
+    "low_score": 2.0,
+    "high_profile": "finance_student_kw",
+    "high_score": 6.5,
+    "gap": 4.5
+  },
+  {
+    "article_id": "bd39d615a215",
+    "low_profile": "petrol_eng_kw",
+    "low_score": 2.0,
+    "high_profile": "cto_fintech_lagos",
+    "high_score": 7.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "bd39d615a215",
+    "low_profile": "supply_chain_bahrain",
+    "low_score": 2.0,
+    "high_profile": "finance_student_kw",
+    "high_score": 6.5,
+    "gap": 4.5
+  },
+  {
+    "article_id": "bd39d615a215",
+    "low_profile": "supply_chain_bahrain",
+    "low_score": 2.0,
+    "high_profile": "cto_fintech_lagos",
+    "high_score": 7.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "bd39d615a215",
+    "low_profile": "architect_qatar",
+    "low_score": 2.0,
+    "high_profile": "finance_student_kw",
+    "high_score": 6.5,
+    "gap": 4.5
+  },
+  {
+    "article_id": "bd39d615a215",
+    "low_profile": "architect_qatar",
+    "low_score": 2.0,
+    "high_profile": "cto_fintech_lagos",
+    "high_score": 7.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "bd39d615a215",
+    "low_profile": "filmmaker_mumbai",
+    "low_score": 2.0,
+    "high_profile": "finance_student_kw",
+    "high_score": 6.5,
+    "gap": 4.5
+  },
+  {
+    "article_id": "bd39d615a215",
+    "low_profile": "filmmaker_mumbai",
+    "low_score": 2.0,
+    "high_profile": "cto_fintech_lagos",
+    "high_score": 7.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "bd39d615a215",
+    "low_profile": "lawyer_ai_disruption",
+    "low_score": 2.0,
+    "high_profile": "finance_student_kw",
+    "high_score": 6.5,
+    "gap": 4.5
+  },
+  {
+    "article_id": "bd39d615a215",
+    "low_profile": "lawyer_ai_disruption",
+    "low_score": 2.0,
+    "high_profile": "cto_fintech_lagos",
+    "high_score": 7.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "bd39d615a215",
+    "low_profile": "undeclared_student_chicago",
+    "low_score": 2.0,
+    "high_profile": "finance_student_kw",
+    "high_score": 6.5,
+    "gap": 4.5
+  },
+  {
+    "article_id": "bd39d615a215",
+    "low_profile": "undeclared_student_chicago",
+    "low_score": 2.0,
+    "high_profile": "cto_fintech_lagos",
+    "high_score": 7.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "bd39d615a215",
+    "low_profile": "retired_diplomat_vienna",
+    "low_score": 2.0,
+    "high_profile": "finance_student_kw",
+    "high_score": 6.5,
+    "gap": 4.5
+  },
+  {
+    "article_id": "bd39d615a215",
+    "low_profile": "retired_diplomat_vienna",
+    "low_score": 2.0,
+    "high_profile": "cto_fintech_lagos",
+    "high_score": 7.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "bd39d615a215",
+    "low_profile": "hobbyist_crypto_f1",
+    "low_score": 3.0,
+    "high_profile": "finance_student_kw",
+    "high_score": 6.5,
+    "gap": 3.5
+  },
+  {
+    "article_id": "bd39d615a215",
+    "low_profile": "hobbyist_crypto_f1",
+    "low_score": 3.0,
+    "high_profile": "cto_fintech_lagos",
+    "high_score": 7.5,
+    "gap": 4.5
+  },
+  {
+    "article_id": "bd39d615a215",
+    "low_profile": "cybersecurity_kw",
+    "low_score": 3.5,
+    "high_profile": "finance_student_kw",
+    "high_score": 6.5,
+    "gap": 3.0
+  },
+  {
+    "article_id": "bd39d615a215",
+    "low_profile": "cybersecurity_kw",
+    "low_score": 3.5,
+    "high_profile": "cto_fintech_lagos",
+    "high_score": 7.5,
+    "gap": 4.0
+  },
+  {
+    "article_id": "bd39d615a215",
+    "low_profile": "cpeg_student_kw",
+    "low_score": 4.0,
+    "high_profile": "cto_fintech_lagos",
+    "high_score": 7.5,
+    "gap": 3.5
+  },
+  {
+    "article_id": "bd39d615a215",
+    "low_profile": "data_scientist_dubai",
+    "low_score": 4.0,
+    "high_profile": "cto_fintech_lagos",
+    "high_score": 7.5,
+    "gap": 3.5
+  },
+  {
+    "article_id": "8555e3f74f4b",
+    "low_profile": "bonsai_competitor_kyoto",
+    "low_score": 0.5,
+    "high_profile": "finance_student_kw",
+    "high_score": 3.5,
+    "gap": 3.0
+  },
+  {
+    "article_id": "8555e3f74f4b",
+    "low_profile": "bonsai_competitor_kyoto",
+    "low_score": 0.5,
+    "high_profile": "retired_diplomat_vienna",
+    "high_score": 3.5,
+    "gap": 3.0
+  },
+  {
+    "article_id": "8555e3f74f4b",
+    "low_profile": "bonsai_competitor_kyoto",
+    "low_score": 0.5,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 4.0,
+    "gap": 3.5
+  },
+  {
+    "article_id": "8555e3f74f4b",
+    "low_profile": "bonsai_competitor_kyoto",
+    "low_score": 0.5,
+    "high_profile": "architect_qatar",
+    "high_score": 6.2,
+    "gap": 5.7
+  },
+  {
+    "article_id": "8555e3f74f4b",
+    "low_profile": "bonsai_competitor_kyoto",
+    "low_score": 0.5,
+    "high_profile": "cybersecurity_kw",
+    "high_score": 6.5,
+    "gap": 6.0
+  },
+  {
+    "article_id": "8555e3f74f4b",
+    "low_profile": "bonsai_competitor_kyoto",
+    "low_score": 0.5,
+    "high_profile": "data_scientist_dubai",
+    "high_score": 6.5,
+    "gap": 6.0
+  },
+  {
+    "article_id": "8555e3f74f4b",
+    "low_profile": "pharmacist_paris",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 4.0,
+    "gap": 3.0
+  },
+  {
+    "article_id": "8555e3f74f4b",
+    "low_profile": "pharmacist_paris",
+    "low_score": 1.0,
+    "high_profile": "architect_qatar",
+    "high_score": 6.2,
+    "gap": 5.2
+  },
+  {
+    "article_id": "8555e3f74f4b",
+    "low_profile": "pharmacist_paris",
+    "low_score": 1.0,
+    "high_profile": "cybersecurity_kw",
+    "high_score": 6.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "8555e3f74f4b",
+    "low_profile": "pharmacist_paris",
+    "low_score": 1.0,
+    "high_profile": "data_scientist_dubai",
+    "high_score": 6.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "8555e3f74f4b",
+    "low_profile": "kpop_marketer_seoul",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 4.0,
+    "gap": 3.0
+  },
+  {
+    "article_id": "8555e3f74f4b",
+    "low_profile": "kpop_marketer_seoul",
+    "low_score": 1.0,
+    "high_profile": "architect_qatar",
+    "high_score": 6.2,
+    "gap": 5.2
+  },
+  {
+    "article_id": "8555e3f74f4b",
+    "low_profile": "kpop_marketer_seoul",
+    "low_score": 1.0,
+    "high_profile": "cybersecurity_kw",
+    "high_score": 6.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "8555e3f74f4b",
+    "low_profile": "kpop_marketer_seoul",
+    "low_score": 1.0,
+    "high_profile": "data_scientist_dubai",
+    "high_score": 6.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "8555e3f74f4b",
+    "low_profile": "hvac_tech_texas",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 4.0,
+    "gap": 3.0
+  },
+  {
+    "article_id": "8555e3f74f4b",
+    "low_profile": "hvac_tech_texas",
+    "low_score": 1.0,
+    "high_profile": "architect_qatar",
+    "high_score": 6.2,
+    "gap": 5.2
+  },
+  {
+    "article_id": "8555e3f74f4b",
+    "low_profile": "hvac_tech_texas",
+    "low_score": 1.0,
+    "high_profile": "cybersecurity_kw",
+    "high_score": 6.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "8555e3f74f4b",
+    "low_profile": "hvac_tech_texas",
+    "low_score": 1.0,
+    "high_profile": "data_scientist_dubai",
+    "high_score": 6.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "8555e3f74f4b",
+    "low_profile": "marine_electrician_norway",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 4.0,
+    "gap": 3.0
+  },
+  {
+    "article_id": "8555e3f74f4b",
+    "low_profile": "marine_electrician_norway",
+    "low_score": 1.0,
+    "high_profile": "architect_qatar",
+    "high_score": 6.2,
+    "gap": 5.2
+  },
+  {
+    "article_id": "8555e3f74f4b",
+    "low_profile": "marine_electrician_norway",
+    "low_score": 1.0,
+    "high_profile": "cybersecurity_kw",
+    "high_score": 6.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "8555e3f74f4b",
+    "low_profile": "marine_electrician_norway",
+    "low_score": 1.0,
+    "high_profile": "data_scientist_dubai",
+    "high_score": 6.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "8555e3f74f4b",
+    "low_profile": "welder_pipeline_alberta",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 4.0,
+    "gap": 3.0
+  },
+  {
+    "article_id": "8555e3f74f4b",
+    "low_profile": "welder_pipeline_alberta",
+    "low_score": 1.0,
+    "high_profile": "architect_qatar",
+    "high_score": 6.2,
+    "gap": 5.2
+  },
+  {
+    "article_id": "8555e3f74f4b",
+    "low_profile": "welder_pipeline_alberta",
+    "low_score": 1.0,
+    "high_profile": "cybersecurity_kw",
+    "high_score": 6.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "8555e3f74f4b",
+    "low_profile": "welder_pipeline_alberta",
+    "low_score": 1.0,
+    "high_profile": "data_scientist_dubai",
+    "high_score": 6.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "8555e3f74f4b",
+    "low_profile": "physical_therapist_sydney",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 4.0,
+    "gap": 3.0
+  },
+  {
+    "article_id": "8555e3f74f4b",
+    "low_profile": "physical_therapist_sydney",
+    "low_score": 1.0,
+    "high_profile": "architect_qatar",
+    "high_score": 6.2,
+    "gap": 5.2
+  },
+  {
+    "article_id": "8555e3f74f4b",
+    "low_profile": "physical_therapist_sydney",
+    "low_score": 1.0,
+    "high_profile": "cybersecurity_kw",
+    "high_score": 6.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "8555e3f74f4b",
+    "low_profile": "physical_therapist_sydney",
+    "low_score": 1.0,
+    "high_profile": "data_scientist_dubai",
+    "high_score": 6.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "8555e3f74f4b",
+    "low_profile": "mining_engineer_santiago",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 4.0,
+    "gap": 3.0
+  },
+  {
+    "article_id": "8555e3f74f4b",
+    "low_profile": "mining_engineer_santiago",
+    "low_score": 1.0,
+    "high_profile": "architect_qatar",
+    "high_score": 6.2,
+    "gap": 5.2
+  },
+  {
+    "article_id": "8555e3f74f4b",
+    "low_profile": "mining_engineer_santiago",
+    "low_score": 1.0,
+    "high_profile": "cybersecurity_kw",
+    "high_score": 6.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "8555e3f74f4b",
+    "low_profile": "mining_engineer_santiago",
+    "low_score": 1.0,
+    "high_profile": "data_scientist_dubai",
+    "high_score": 6.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "8555e3f74f4b",
+    "low_profile": "agribiz_sao_paulo",
+    "low_score": 1.5,
+    "high_profile": "architect_qatar",
+    "high_score": 6.2,
+    "gap": 4.7
+  },
+  {
+    "article_id": "8555e3f74f4b",
+    "low_profile": "agribiz_sao_paulo",
+    "low_score": 1.5,
+    "high_profile": "cybersecurity_kw",
+    "high_score": 6.5,
+    "gap": 5.0
+  },
+  {
+    "article_id": "8555e3f74f4b",
+    "low_profile": "agribiz_sao_paulo",
+    "low_score": 1.5,
+    "high_profile": "data_scientist_dubai",
+    "high_score": 6.5,
+    "gap": 5.0
+  },
+  {
+    "article_id": "8555e3f74f4b",
+    "low_profile": "chef_mexico_city",
+    "low_score": 1.5,
+    "high_profile": "architect_qatar",
+    "high_score": 6.2,
+    "gap": 4.7
+  },
+  {
+    "article_id": "8555e3f74f4b",
+    "low_profile": "chef_mexico_city",
+    "low_score": 1.5,
+    "high_profile": "cybersecurity_kw",
+    "high_score": 6.5,
+    "gap": 5.0
+  },
+  {
+    "article_id": "8555e3f74f4b",
+    "low_profile": "chef_mexico_city",
+    "low_score": 1.5,
+    "high_profile": "data_scientist_dubai",
+    "high_score": 6.5,
+    "gap": 5.0
+  },
+  {
+    "article_id": "8555e3f74f4b",
+    "low_profile": "geophysicist_koc_kw",
+    "low_score": 2.0,
+    "high_profile": "architect_qatar",
+    "high_score": 6.2,
+    "gap": 4.2
+  },
+  {
+    "article_id": "8555e3f74f4b",
+    "low_profile": "geophysicist_koc_kw",
+    "low_score": 2.0,
+    "high_profile": "cybersecurity_kw",
+    "high_score": 6.5,
+    "gap": 4.5
+  },
+  {
+    "article_id": "8555e3f74f4b",
+    "low_profile": "geophysicist_koc_kw",
+    "low_score": 2.0,
+    "high_profile": "data_scientist_dubai",
+    "high_score": 6.5,
+    "gap": 4.5
+  },
+  {
+    "article_id": "8555e3f74f4b",
+    "low_profile": "meche_grad_sa",
+    "low_score": 2.0,
+    "high_profile": "architect_qatar",
+    "high_score": 6.2,
+    "gap": 4.2
+  },
+  {
+    "article_id": "8555e3f74f4b",
+    "low_profile": "meche_grad_sa",
+    "low_score": 2.0,
+    "high_profile": "cybersecurity_kw",
+    "high_score": 6.5,
+    "gap": 4.5
+  },
+  {
+    "article_id": "8555e3f74f4b",
+    "low_profile": "meche_grad_sa",
+    "low_score": 2.0,
+    "high_profile": "data_scientist_dubai",
+    "high_score": 6.5,
+    "gap": 4.5
+  },
+  {
+    "article_id": "8555e3f74f4b",
+    "low_profile": "biotech_researcher_sa",
+    "low_score": 2.0,
+    "high_profile": "architect_qatar",
+    "high_score": 6.2,
+    "gap": 4.2
+  },
+  {
+    "article_id": "8555e3f74f4b",
+    "low_profile": "biotech_researcher_sa",
+    "low_score": 2.0,
+    "high_profile": "cybersecurity_kw",
+    "high_score": 6.5,
+    "gap": 4.5
+  },
+  {
+    "article_id": "8555e3f74f4b",
+    "low_profile": "biotech_researcher_sa",
+    "low_score": 2.0,
+    "high_profile": "data_scientist_dubai",
+    "high_score": 6.5,
+    "gap": 4.5
+  },
+  {
+    "article_id": "8555e3f74f4b",
+    "low_profile": "ux_designer_tokyo",
+    "low_score": 2.0,
+    "high_profile": "architect_qatar",
+    "high_score": 6.2,
+    "gap": 4.2
+  },
+  {
+    "article_id": "8555e3f74f4b",
+    "low_profile": "ux_designer_tokyo",
+    "low_score": 2.0,
+    "high_profile": "cybersecurity_kw",
+    "high_score": 6.5,
+    "gap": 4.5
+  },
+  {
+    "article_id": "8555e3f74f4b",
+    "low_profile": "ux_designer_tokyo",
+    "low_score": 2.0,
+    "high_profile": "data_scientist_dubai",
+    "high_score": 6.5,
+    "gap": 4.5
+  },
+  {
+    "article_id": "8555e3f74f4b",
+    "low_profile": "pediatric_oncologist_riyadh",
+    "low_score": 2.0,
+    "high_profile": "architect_qatar",
+    "high_score": 6.2,
+    "gap": 4.2
+  },
+  {
+    "article_id": "8555e3f74f4b",
+    "low_profile": "pediatric_oncologist_riyadh",
+    "low_score": 2.0,
+    "high_profile": "cybersecurity_kw",
+    "high_score": 6.5,
+    "gap": 4.5
+  },
+  {
+    "article_id": "8555e3f74f4b",
+    "low_profile": "pediatric_oncologist_riyadh",
+    "low_score": 2.0,
+    "high_profile": "data_scientist_dubai",
+    "high_score": 6.5,
+    "gap": 4.5
+  },
+  {
+    "article_id": "8555e3f74f4b",
+    "low_profile": "indie_gamedev_berlin",
+    "low_score": 2.0,
+    "high_profile": "architect_qatar",
+    "high_score": 6.2,
+    "gap": 4.2
+  },
+  {
+    "article_id": "8555e3f74f4b",
+    "low_profile": "indie_gamedev_berlin",
+    "low_score": 2.0,
+    "high_profile": "cybersecurity_kw",
+    "high_score": 6.5,
+    "gap": 4.5
+  },
+  {
+    "article_id": "8555e3f74f4b",
+    "low_profile": "indie_gamedev_berlin",
+    "low_score": 2.0,
+    "high_profile": "data_scientist_dubai",
+    "high_score": 6.5,
+    "gap": 4.5
+  },
+  {
+    "article_id": "8555e3f74f4b",
+    "low_profile": "filmmaker_mumbai",
+    "low_score": 2.0,
+    "high_profile": "architect_qatar",
+    "high_score": 6.2,
+    "gap": 4.2
+  },
+  {
+    "article_id": "8555e3f74f4b",
+    "low_profile": "filmmaker_mumbai",
+    "low_score": 2.0,
+    "high_profile": "cybersecurity_kw",
+    "high_score": 6.5,
+    "gap": 4.5
+  },
+  {
+    "article_id": "8555e3f74f4b",
+    "low_profile": "filmmaker_mumbai",
+    "low_score": 2.0,
+    "high_profile": "data_scientist_dubai",
+    "high_score": 6.5,
+    "gap": 4.5
+  },
+  {
+    "article_id": "8555e3f74f4b",
+    "low_profile": "nurse_practitioner_toronto",
+    "low_score": 2.0,
+    "high_profile": "architect_qatar",
+    "high_score": 6.2,
+    "gap": 4.2
+  },
+  {
+    "article_id": "8555e3f74f4b",
+    "low_profile": "nurse_practitioner_toronto",
+    "low_score": 2.0,
+    "high_profile": "cybersecurity_kw",
+    "high_score": 6.5,
+    "gap": 4.5
+  },
+  {
+    "article_id": "8555e3f74f4b",
+    "low_profile": "nurse_practitioner_toronto",
+    "low_score": 2.0,
+    "high_profile": "data_scientist_dubai",
+    "high_score": 6.5,
+    "gap": 4.5
+  },
+  {
+    "article_id": "8555e3f74f4b",
+    "low_profile": "hobbyist_crypto_f1",
+    "low_score": 2.0,
+    "high_profile": "architect_qatar",
+    "high_score": 6.2,
+    "gap": 4.2
+  },
+  {
+    "article_id": "8555e3f74f4b",
+    "low_profile": "hobbyist_crypto_f1",
+    "low_score": 2.0,
+    "high_profile": "cybersecurity_kw",
+    "high_score": 6.5,
+    "gap": 4.5
+  },
+  {
+    "article_id": "8555e3f74f4b",
+    "low_profile": "hobbyist_crypto_f1",
+    "low_score": 2.0,
+    "high_profile": "data_scientist_dubai",
+    "high_score": 6.5,
+    "gap": 4.5
+  },
+  {
+    "article_id": "8555e3f74f4b",
+    "low_profile": "lawyer_ai_disruption",
+    "low_score": 2.0,
+    "high_profile": "architect_qatar",
+    "high_score": 6.2,
+    "gap": 4.2
+  },
+  {
+    "article_id": "8555e3f74f4b",
+    "low_profile": "lawyer_ai_disruption",
+    "low_score": 2.0,
+    "high_profile": "cybersecurity_kw",
+    "high_score": 6.5,
+    "gap": 4.5
+  },
+  {
+    "article_id": "8555e3f74f4b",
+    "low_profile": "lawyer_ai_disruption",
+    "low_score": 2.0,
+    "high_profile": "data_scientist_dubai",
+    "high_score": 6.5,
+    "gap": 4.5
+  },
+  {
+    "article_id": "8555e3f74f4b",
+    "low_profile": "undeclared_student_chicago",
+    "low_score": 2.0,
+    "high_profile": "architect_qatar",
+    "high_score": 6.2,
+    "gap": 4.2
+  },
+  {
+    "article_id": "8555e3f74f4b",
+    "low_profile": "undeclared_student_chicago",
+    "low_score": 2.0,
+    "high_profile": "cybersecurity_kw",
+    "high_score": 6.5,
+    "gap": 4.5
+  },
+  {
+    "article_id": "8555e3f74f4b",
+    "low_profile": "undeclared_student_chicago",
+    "low_score": 2.0,
+    "high_profile": "data_scientist_dubai",
+    "high_score": 6.5,
+    "gap": 4.5
+  },
+  {
+    "article_id": "8555e3f74f4b",
+    "low_profile": "cto_fintech_lagos",
+    "low_score": 2.0,
+    "high_profile": "architect_qatar",
+    "high_score": 6.2,
+    "gap": 4.2
+  },
+  {
+    "article_id": "8555e3f74f4b",
+    "low_profile": "cto_fintech_lagos",
+    "low_score": 2.0,
+    "high_profile": "cybersecurity_kw",
+    "high_score": 6.5,
+    "gap": 4.5
+  },
+  {
+    "article_id": "8555e3f74f4b",
+    "low_profile": "cto_fintech_lagos",
+    "low_score": 2.0,
+    "high_profile": "data_scientist_dubai",
+    "high_score": 6.5,
+    "gap": 4.5
+  },
+  {
+    "article_id": "8555e3f74f4b",
+    "low_profile": "petrol_eng_kw",
+    "low_score": 2.5,
+    "high_profile": "architect_qatar",
+    "high_score": 6.2,
+    "gap": 3.7
+  },
+  {
+    "article_id": "8555e3f74f4b",
+    "low_profile": "petrol_eng_kw",
+    "low_score": 2.5,
+    "high_profile": "cybersecurity_kw",
+    "high_score": 6.5,
+    "gap": 4.0
+  },
+  {
+    "article_id": "8555e3f74f4b",
+    "low_profile": "petrol_eng_kw",
+    "low_score": 2.5,
+    "high_profile": "data_scientist_dubai",
+    "high_score": 6.5,
+    "gap": 4.0
+  },
+  {
+    "article_id": "8555e3f74f4b",
+    "low_profile": "supply_chain_bahrain",
+    "low_score": 2.5,
+    "high_profile": "architect_qatar",
+    "high_score": 6.2,
+    "gap": 3.7
+  },
+  {
+    "article_id": "8555e3f74f4b",
+    "low_profile": "supply_chain_bahrain",
+    "low_score": 2.5,
+    "high_profile": "cybersecurity_kw",
+    "high_score": 6.5,
+    "gap": 4.0
+  },
+  {
+    "article_id": "8555e3f74f4b",
+    "low_profile": "supply_chain_bahrain",
+    "low_score": 2.5,
+    "high_profile": "data_scientist_dubai",
+    "high_score": 6.5,
+    "gap": 4.0
+  },
+  {
+    "article_id": "8555e3f74f4b",
+    "low_profile": "finance_student_kw",
+    "low_score": 3.5,
+    "high_profile": "cybersecurity_kw",
+    "high_score": 6.5,
+    "gap": 3.0
+  },
+  {
+    "article_id": "8555e3f74f4b",
+    "low_profile": "finance_student_kw",
+    "low_score": 3.5,
+    "high_profile": "data_scientist_dubai",
+    "high_score": 6.5,
+    "gap": 3.0
+  },
+  {
+    "article_id": "8555e3f74f4b",
+    "low_profile": "retired_diplomat_vienna",
+    "low_score": 3.5,
+    "high_profile": "cybersecurity_kw",
+    "high_score": 6.5,
+    "gap": 3.0
+  },
+  {
+    "article_id": "8555e3f74f4b",
+    "low_profile": "retired_diplomat_vienna",
+    "low_score": 3.5,
+    "high_profile": "data_scientist_dubai",
+    "high_score": 6.5,
+    "gap": 3.0
+  },
+  {
+    "article_id": "27192387eb1c",
+    "low_profile": "agribiz_sao_paulo",
+    "low_score": 1.0,
+    "high_profile": "undeclared_student_chicago",
+    "high_score": 6.2,
+    "gap": 5.2
+  },
+  {
+    "article_id": "27192387eb1c",
+    "low_profile": "agribiz_sao_paulo",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "27192387eb1c",
+    "low_profile": "hvac_tech_texas",
+    "low_score": 1.0,
+    "high_profile": "undeclared_student_chicago",
+    "high_score": 6.2,
+    "gap": 5.2
+  },
+  {
+    "article_id": "27192387eb1c",
+    "low_profile": "hvac_tech_texas",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "27192387eb1c",
+    "low_profile": "welder_pipeline_alberta",
+    "low_score": 1.0,
+    "high_profile": "undeclared_student_chicago",
+    "high_score": 6.2,
+    "gap": 5.2
+  },
+  {
+    "article_id": "27192387eb1c",
+    "low_profile": "welder_pipeline_alberta",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "27192387eb1c",
+    "low_profile": "physical_therapist_sydney",
+    "low_score": 1.0,
+    "high_profile": "undeclared_student_chicago",
+    "high_score": 6.2,
+    "gap": 5.2
+  },
+  {
+    "article_id": "27192387eb1c",
+    "low_profile": "physical_therapist_sydney",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "27192387eb1c",
+    "low_profile": "bonsai_competitor_kyoto",
+    "low_score": 1.0,
+    "high_profile": "undeclared_student_chicago",
+    "high_score": 6.2,
+    "gap": 5.2
+  },
+  {
+    "article_id": "27192387eb1c",
+    "low_profile": "bonsai_competitor_kyoto",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "27192387eb1c",
+    "low_profile": "petrol_eng_kw",
+    "low_score": 1.5,
+    "high_profile": "undeclared_student_chicago",
+    "high_score": 6.2,
+    "gap": 4.7
+  },
+  {
+    "article_id": "27192387eb1c",
+    "low_profile": "petrol_eng_kw",
+    "low_score": 1.5,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 5.0
+  },
+  {
+    "article_id": "27192387eb1c",
+    "low_profile": "marine_electrician_norway",
+    "low_score": 1.5,
+    "high_profile": "undeclared_student_chicago",
+    "high_score": 6.2,
+    "gap": 4.7
+  },
+  {
+    "article_id": "27192387eb1c",
+    "low_profile": "marine_electrician_norway",
+    "low_score": 1.5,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 5.0
+  },
+  {
+    "article_id": "27192387eb1c",
+    "low_profile": "nurse_practitioner_toronto",
+    "low_score": 1.5,
+    "high_profile": "undeclared_student_chicago",
+    "high_score": 6.2,
+    "gap": 4.7
+  },
+  {
+    "article_id": "27192387eb1c",
+    "low_profile": "nurse_practitioner_toronto",
+    "low_score": 1.5,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 5.0
+  },
+  {
+    "article_id": "27192387eb1c",
+    "low_profile": "cto_fintech_lagos",
+    "low_score": 1.5,
+    "high_profile": "undeclared_student_chicago",
+    "high_score": 6.2,
+    "gap": 4.7
+  },
+  {
+    "article_id": "27192387eb1c",
+    "low_profile": "cto_fintech_lagos",
+    "low_score": 1.5,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 5.0
+  },
+  {
+    "article_id": "27192387eb1c",
+    "low_profile": "geophysicist_koc_kw",
+    "low_score": 2.0,
+    "high_profile": "undeclared_student_chicago",
+    "high_score": 6.2,
+    "gap": 4.2
+  },
+  {
+    "article_id": "27192387eb1c",
+    "low_profile": "geophysicist_koc_kw",
+    "low_score": 2.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 4.5
+  },
+  {
+    "article_id": "27192387eb1c",
+    "low_profile": "meche_grad_sa",
+    "low_score": 2.0,
+    "high_profile": "undeclared_student_chicago",
+    "high_score": 6.2,
+    "gap": 4.2
+  },
+  {
+    "article_id": "27192387eb1c",
+    "low_profile": "meche_grad_sa",
+    "low_score": 2.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 4.5
+  },
+  {
+    "article_id": "27192387eb1c",
+    "low_profile": "supply_chain_bahrain",
+    "low_score": 2.0,
+    "high_profile": "undeclared_student_chicago",
+    "high_score": 6.2,
+    "gap": 4.2
+  },
+  {
+    "article_id": "27192387eb1c",
+    "low_profile": "supply_chain_bahrain",
+    "low_score": 2.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 4.5
+  },
+  {
+    "article_id": "27192387eb1c",
+    "low_profile": "biotech_researcher_sa",
+    "low_score": 2.0,
+    "high_profile": "undeclared_student_chicago",
+    "high_score": 6.2,
+    "gap": 4.2
+  },
+  {
+    "article_id": "27192387eb1c",
+    "low_profile": "biotech_researcher_sa",
+    "low_score": 2.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 4.5
+  },
+  {
+    "article_id": "27192387eb1c",
+    "low_profile": "ux_designer_tokyo",
+    "low_score": 2.0,
+    "high_profile": "undeclared_student_chicago",
+    "high_score": 6.2,
+    "gap": 4.2
+  },
+  {
+    "article_id": "27192387eb1c",
+    "low_profile": "ux_designer_tokyo",
+    "low_score": 2.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 4.5
+  },
+  {
+    "article_id": "27192387eb1c",
+    "low_profile": "pharmacist_paris",
+    "low_score": 2.0,
+    "high_profile": "undeclared_student_chicago",
+    "high_score": 6.2,
+    "gap": 4.2
+  },
+  {
+    "article_id": "27192387eb1c",
+    "low_profile": "pharmacist_paris",
+    "low_score": 2.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 4.5
+  },
+  {
+    "article_id": "27192387eb1c",
+    "low_profile": "kpop_marketer_seoul",
+    "low_score": 2.0,
+    "high_profile": "undeclared_student_chicago",
+    "high_score": 6.2,
+    "gap": 4.2
+  },
+  {
+    "article_id": "27192387eb1c",
+    "low_profile": "kpop_marketer_seoul",
+    "low_score": 2.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 4.5
+  },
+  {
+    "article_id": "27192387eb1c",
+    "low_profile": "pediatric_oncologist_riyadh",
+    "low_score": 2.0,
+    "high_profile": "undeclared_student_chicago",
+    "high_score": 6.2,
+    "gap": 4.2
+  },
+  {
+    "article_id": "27192387eb1c",
+    "low_profile": "pediatric_oncologist_riyadh",
+    "low_score": 2.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 4.5
+  },
+  {
+    "article_id": "27192387eb1c",
+    "low_profile": "indie_gamedev_berlin",
+    "low_score": 2.0,
+    "high_profile": "undeclared_student_chicago",
+    "high_score": 6.2,
+    "gap": 4.2
+  },
+  {
+    "article_id": "27192387eb1c",
+    "low_profile": "indie_gamedev_berlin",
+    "low_score": 2.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 4.5
+  },
+  {
+    "article_id": "27192387eb1c",
+    "low_profile": "hobbyist_crypto_f1",
+    "low_score": 2.0,
+    "high_profile": "undeclared_student_chicago",
+    "high_score": 6.2,
+    "gap": 4.2
+  },
+  {
+    "article_id": "27192387eb1c",
+    "low_profile": "hobbyist_crypto_f1",
+    "low_score": 2.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 4.5
+  },
+  {
+    "article_id": "27192387eb1c",
+    "low_profile": "mining_engineer_santiago",
+    "low_score": 2.0,
+    "high_profile": "undeclared_student_chicago",
+    "high_score": 6.2,
+    "gap": 4.2
+  },
+  {
+    "article_id": "27192387eb1c",
+    "low_profile": "mining_engineer_santiago",
+    "low_score": 2.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 4.5
+  },
+  {
+    "article_id": "27192387eb1c",
+    "low_profile": "retired_diplomat_vienna",
+    "low_score": 2.0,
+    "high_profile": "undeclared_student_chicago",
+    "high_score": 6.2,
+    "gap": 4.2
+  },
+  {
+    "article_id": "27192387eb1c",
+    "low_profile": "retired_diplomat_vienna",
+    "low_score": 2.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 4.5
+  },
+  {
+    "article_id": "27192387eb1c",
+    "low_profile": "chef_mexico_city",
+    "low_score": 2.0,
+    "high_profile": "undeclared_student_chicago",
+    "high_score": 6.2,
+    "gap": 4.2
+  },
+  {
+    "article_id": "27192387eb1c",
+    "low_profile": "chef_mexico_city",
+    "low_score": 2.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 4.5
+  },
+  {
+    "article_id": "27192387eb1c",
+    "low_profile": "finance_student_kw",
+    "low_score": 2.5,
+    "high_profile": "undeclared_student_chicago",
+    "high_score": 6.2,
+    "gap": 3.7
+  },
+  {
+    "article_id": "27192387eb1c",
+    "low_profile": "finance_student_kw",
+    "low_score": 2.5,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 4.0
+  },
+  {
+    "article_id": "27192387eb1c",
+    "low_profile": "cybersecurity_kw",
+    "low_score": 2.5,
+    "high_profile": "undeclared_student_chicago",
+    "high_score": 6.2,
+    "gap": 3.7
+  },
+  {
+    "article_id": "27192387eb1c",
+    "low_profile": "cybersecurity_kw",
+    "low_score": 2.5,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 4.0
+  },
+  {
+    "article_id": "27192387eb1c",
+    "low_profile": "architect_qatar",
+    "low_score": 3.0,
+    "high_profile": "undeclared_student_chicago",
+    "high_score": 6.2,
+    "gap": 3.2
+  },
+  {
+    "article_id": "27192387eb1c",
+    "low_profile": "architect_qatar",
+    "low_score": 3.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 3.5
+  },
+  {
+    "article_id": "27192387eb1c",
+    "low_profile": "data_scientist_dubai",
+    "low_score": 3.5,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 3.0
+  },
+  {
+    "article_id": "27192387eb1c",
+    "low_profile": "filmmaker_mumbai",
+    "low_score": 3.5,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 3.0
+  },
+  {
+    "article_id": "27192387eb1c",
+    "low_profile": "lawyer_ai_disruption",
+    "low_score": 3.5,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 3.0
+  },
+  {
+    "article_id": "033687e900ca",
+    "low_profile": "mining_engineer_santiago",
+    "low_score": 0.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 3.0,
+    "gap": 3.0
+  },
+  {
+    "article_id": "033687e900ca",
+    "low_profile": "mining_engineer_santiago",
+    "low_score": 0.0,
+    "high_profile": "data_scientist_dubai",
+    "high_score": 3.0,
+    "gap": 3.0
+  },
+  {
+    "article_id": "033687e900ca",
+    "low_profile": "mining_engineer_santiago",
+    "low_score": 0.0,
+    "high_profile": "architect_qatar",
+    "high_score": 3.0,
+    "gap": 3.0
+  },
+  {
+    "article_id": "ecfd2068bf24",
+    "low_profile": "physical_therapist_sydney",
+    "low_score": 0.5,
+    "high_profile": "geophysicist_koc_kw",
+    "high_score": 3.5,
+    "gap": 3.0
+  },
+  {
+    "article_id": "ecfd2068bf24",
+    "low_profile": "physical_therapist_sydney",
+    "low_score": 0.5,
+    "high_profile": "meche_grad_sa",
+    "high_score": 3.5,
+    "gap": 3.0
+  },
+  {
+    "article_id": "ecfd2068bf24",
+    "low_profile": "physical_therapist_sydney",
+    "low_score": 0.5,
+    "high_profile": "lawyer_ai_disruption",
+    "high_score": 3.5,
+    "gap": 3.0
+  },
+  {
+    "article_id": "ecfd2068bf24",
+    "low_profile": "physical_therapist_sydney",
+    "low_score": 0.5,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 7.5,
+    "gap": 7.0
+  },
+  {
+    "article_id": "ecfd2068bf24",
+    "low_profile": "physical_therapist_sydney",
+    "low_score": 0.5,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 8.5,
+    "gap": 8.0
+  },
+  {
+    "article_id": "ecfd2068bf24",
+    "low_profile": "nurse_practitioner_toronto",
+    "low_score": 0.5,
+    "high_profile": "geophysicist_koc_kw",
+    "high_score": 3.5,
+    "gap": 3.0
+  },
+  {
+    "article_id": "ecfd2068bf24",
+    "low_profile": "nurse_practitioner_toronto",
+    "low_score": 0.5,
+    "high_profile": "meche_grad_sa",
+    "high_score": 3.5,
+    "gap": 3.0
+  },
+  {
+    "article_id": "ecfd2068bf24",
+    "low_profile": "nurse_practitioner_toronto",
+    "low_score": 0.5,
+    "high_profile": "lawyer_ai_disruption",
+    "high_score": 3.5,
+    "gap": 3.0
+  },
+  {
+    "article_id": "ecfd2068bf24",
+    "low_profile": "nurse_practitioner_toronto",
+    "low_score": 0.5,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 7.5,
+    "gap": 7.0
+  },
+  {
+    "article_id": "ecfd2068bf24",
+    "low_profile": "nurse_practitioner_toronto",
+    "low_score": 0.5,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 8.5,
+    "gap": 8.0
+  },
+  {
+    "article_id": "ecfd2068bf24",
+    "low_profile": "bonsai_competitor_kyoto",
+    "low_score": 0.5,
+    "high_profile": "geophysicist_koc_kw",
+    "high_score": 3.5,
+    "gap": 3.0
+  },
+  {
+    "article_id": "ecfd2068bf24",
+    "low_profile": "bonsai_competitor_kyoto",
+    "low_score": 0.5,
+    "high_profile": "meche_grad_sa",
+    "high_score": 3.5,
+    "gap": 3.0
+  },
+  {
+    "article_id": "ecfd2068bf24",
+    "low_profile": "bonsai_competitor_kyoto",
+    "low_score": 0.5,
+    "high_profile": "lawyer_ai_disruption",
+    "high_score": 3.5,
+    "gap": 3.0
+  },
+  {
+    "article_id": "ecfd2068bf24",
+    "low_profile": "bonsai_competitor_kyoto",
+    "low_score": 0.5,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 7.5,
+    "gap": 7.0
+  },
+  {
+    "article_id": "ecfd2068bf24",
+    "low_profile": "bonsai_competitor_kyoto",
+    "low_score": 0.5,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 8.5,
+    "gap": 8.0
+  },
+  {
+    "article_id": "ecfd2068bf24",
+    "low_profile": "cybersecurity_kw",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 7.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "ecfd2068bf24",
+    "low_profile": "cybersecurity_kw",
+    "low_score": 1.0,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 8.5,
+    "gap": 7.5
+  },
+  {
+    "article_id": "ecfd2068bf24",
+    "low_profile": "biotech_researcher_sa",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 7.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "ecfd2068bf24",
+    "low_profile": "biotech_researcher_sa",
+    "low_score": 1.0,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 8.5,
+    "gap": 7.5
+  },
+  {
+    "article_id": "ecfd2068bf24",
+    "low_profile": "architect_qatar",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 7.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "ecfd2068bf24",
+    "low_profile": "architect_qatar",
+    "low_score": 1.0,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 8.5,
+    "gap": 7.5
+  },
+  {
+    "article_id": "ecfd2068bf24",
+    "low_profile": "agribiz_sao_paulo",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 7.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "ecfd2068bf24",
+    "low_profile": "agribiz_sao_paulo",
+    "low_score": 1.0,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 8.5,
+    "gap": 7.5
+  },
+  {
+    "article_id": "ecfd2068bf24",
+    "low_profile": "pharmacist_paris",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 7.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "ecfd2068bf24",
+    "low_profile": "pharmacist_paris",
+    "low_score": 1.0,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 8.5,
+    "gap": 7.5
+  },
+  {
+    "article_id": "ecfd2068bf24",
+    "low_profile": "kpop_marketer_seoul",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 7.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "ecfd2068bf24",
+    "low_profile": "kpop_marketer_seoul",
+    "low_score": 1.0,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 8.5,
+    "gap": 7.5
+  },
+  {
+    "article_id": "ecfd2068bf24",
+    "low_profile": "pediatric_oncologist_riyadh",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 7.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "ecfd2068bf24",
+    "low_profile": "pediatric_oncologist_riyadh",
+    "low_score": 1.0,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 8.5,
+    "gap": 7.5
+  },
+  {
+    "article_id": "ecfd2068bf24",
+    "low_profile": "hvac_tech_texas",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 7.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "ecfd2068bf24",
+    "low_profile": "hvac_tech_texas",
+    "low_score": 1.0,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 8.5,
+    "gap": 7.5
+  },
+  {
+    "article_id": "ecfd2068bf24",
+    "low_profile": "indie_gamedev_berlin",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 7.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "ecfd2068bf24",
+    "low_profile": "indie_gamedev_berlin",
+    "low_score": 1.0,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 8.5,
+    "gap": 7.5
+  },
+  {
+    "article_id": "ecfd2068bf24",
+    "low_profile": "cto_fintech_lagos",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 7.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "ecfd2068bf24",
+    "low_profile": "cto_fintech_lagos",
+    "low_score": 1.0,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 8.5,
+    "gap": 7.5
+  },
+  {
+    "article_id": "ecfd2068bf24",
+    "low_profile": "chef_mexico_city",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 7.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "ecfd2068bf24",
+    "low_profile": "chef_mexico_city",
+    "low_score": 1.0,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 8.5,
+    "gap": 7.5
+  },
+  {
+    "article_id": "ecfd2068bf24",
+    "low_profile": "ux_designer_tokyo",
+    "low_score": 1.5,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 7.5,
+    "gap": 6.0
+  },
+  {
+    "article_id": "ecfd2068bf24",
+    "low_profile": "ux_designer_tokyo",
+    "low_score": 1.5,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 8.5,
+    "gap": 7.0
+  },
+  {
+    "article_id": "ecfd2068bf24",
+    "low_profile": "filmmaker_mumbai",
+    "low_score": 1.5,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 7.5,
+    "gap": 6.0
+  },
+  {
+    "article_id": "ecfd2068bf24",
+    "low_profile": "filmmaker_mumbai",
+    "low_score": 1.5,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 8.5,
+    "gap": 7.0
+  },
+  {
+    "article_id": "ecfd2068bf24",
+    "low_profile": "data_scientist_dubai",
+    "low_score": 2.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 7.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "ecfd2068bf24",
+    "low_profile": "data_scientist_dubai",
+    "low_score": 2.0,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 8.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "ecfd2068bf24",
+    "low_profile": "supply_chain_bahrain",
+    "low_score": 2.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 7.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "ecfd2068bf24",
+    "low_profile": "supply_chain_bahrain",
+    "low_score": 2.0,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 8.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "ecfd2068bf24",
+    "low_profile": "marine_electrician_norway",
+    "low_score": 2.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 7.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "ecfd2068bf24",
+    "low_profile": "marine_electrician_norway",
+    "low_score": 2.0,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 8.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "ecfd2068bf24",
+    "low_profile": "welder_pipeline_alberta",
+    "low_score": 2.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 7.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "ecfd2068bf24",
+    "low_profile": "welder_pipeline_alberta",
+    "low_score": 2.0,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 8.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "ecfd2068bf24",
+    "low_profile": "hobbyist_crypto_f1",
+    "low_score": 2.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 7.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "ecfd2068bf24",
+    "low_profile": "hobbyist_crypto_f1",
+    "low_score": 2.0,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 8.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "ecfd2068bf24",
+    "low_profile": "undeclared_student_chicago",
+    "low_score": 2.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 7.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "ecfd2068bf24",
+    "low_profile": "undeclared_student_chicago",
+    "low_score": 2.0,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 8.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "ecfd2068bf24",
+    "low_profile": "mining_engineer_santiago",
+    "low_score": 2.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 7.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "ecfd2068bf24",
+    "low_profile": "mining_engineer_santiago",
+    "low_score": 2.0,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 8.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "ecfd2068bf24",
+    "low_profile": "retired_diplomat_vienna",
+    "low_score": 2.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 7.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "ecfd2068bf24",
+    "low_profile": "retired_diplomat_vienna",
+    "low_score": 2.0,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 8.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "ecfd2068bf24",
+    "low_profile": "finance_student_kw",
+    "low_score": 2.5,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 7.5,
+    "gap": 5.0
+  },
+  {
+    "article_id": "ecfd2068bf24",
+    "low_profile": "finance_student_kw",
+    "low_score": 2.5,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 8.5,
+    "gap": 6.0
+  },
+  {
+    "article_id": "ecfd2068bf24",
+    "low_profile": "geophysicist_koc_kw",
+    "low_score": 3.5,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 7.5,
+    "gap": 4.0
+  },
+  {
+    "article_id": "ecfd2068bf24",
+    "low_profile": "geophysicist_koc_kw",
+    "low_score": 3.5,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 8.5,
+    "gap": 5.0
+  },
+  {
+    "article_id": "ecfd2068bf24",
+    "low_profile": "meche_grad_sa",
+    "low_score": 3.5,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 7.5,
+    "gap": 4.0
+  },
+  {
+    "article_id": "ecfd2068bf24",
+    "low_profile": "meche_grad_sa",
+    "low_score": 3.5,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 8.5,
+    "gap": 5.0
+  },
+  {
+    "article_id": "ecfd2068bf24",
+    "low_profile": "lawyer_ai_disruption",
+    "low_score": 3.5,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 7.5,
+    "gap": 4.0
+  },
+  {
+    "article_id": "ecfd2068bf24",
+    "low_profile": "lawyer_ai_disruption",
+    "low_score": 3.5,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 8.5,
+    "gap": 5.0
+  },
+  {
+    "article_id": "40316b95445f",
+    "low_profile": "bonsai_competitor_kyoto",
+    "low_score": 0.5,
+    "high_profile": "architect_qatar",
+    "high_score": 3.5,
+    "gap": 3.0
+  },
+  {
+    "article_id": "40316b95445f",
+    "low_profile": "bonsai_competitor_kyoto",
+    "low_score": 0.5,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 6.0
+  },
+  {
+    "article_id": "40316b95445f",
+    "low_profile": "finance_student_kw",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "40316b95445f",
+    "low_profile": "supply_chain_bahrain",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "40316b95445f",
+    "low_profile": "biotech_researcher_sa",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "40316b95445f",
+    "low_profile": "agribiz_sao_paulo",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "40316b95445f",
+    "low_profile": "pharmacist_paris",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "40316b95445f",
+    "low_profile": "kpop_marketer_seoul",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "40316b95445f",
+    "low_profile": "pediatric_oncologist_riyadh",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "40316b95445f",
+    "low_profile": "welder_pipeline_alberta",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "40316b95445f",
+    "low_profile": "indie_gamedev_berlin",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "40316b95445f",
+    "low_profile": "filmmaker_mumbai",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "40316b95445f",
+    "low_profile": "physical_therapist_sydney",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "40316b95445f",
+    "low_profile": "lawyer_ai_disruption",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "40316b95445f",
+    "low_profile": "retired_diplomat_vienna",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "40316b95445f",
+    "low_profile": "data_scientist_dubai",
+    "low_score": 1.5,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 5.0
+  },
+  {
+    "article_id": "40316b95445f",
+    "low_profile": "nurse_practitioner_toronto",
+    "low_score": 1.5,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 5.0
+  },
+  {
+    "article_id": "40316b95445f",
+    "low_profile": "chef_mexico_city",
+    "low_score": 1.5,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 5.0
+  },
+  {
+    "article_id": "40316b95445f",
+    "low_profile": "petrol_eng_kw",
+    "low_score": 2.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 4.5
+  },
+  {
+    "article_id": "40316b95445f",
+    "low_profile": "cybersecurity_kw",
+    "low_score": 2.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 4.5
+  },
+  {
+    "article_id": "40316b95445f",
+    "low_profile": "geophysicist_koc_kw",
+    "low_score": 2.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 4.5
+  },
+  {
+    "article_id": "40316b95445f",
+    "low_profile": "meche_grad_sa",
+    "low_score": 2.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 4.5
+  },
+  {
+    "article_id": "40316b95445f",
+    "low_profile": "ux_designer_tokyo",
+    "low_score": 2.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 4.5
+  },
+  {
+    "article_id": "40316b95445f",
+    "low_profile": "hvac_tech_texas",
+    "low_score": 2.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 4.5
+  },
+  {
+    "article_id": "40316b95445f",
+    "low_profile": "marine_electrician_norway",
+    "low_score": 2.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 4.5
+  },
+  {
+    "article_id": "40316b95445f",
+    "low_profile": "hobbyist_crypto_f1",
+    "low_score": 2.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 4.5
+  },
+  {
+    "article_id": "40316b95445f",
+    "low_profile": "undeclared_student_chicago",
+    "low_score": 2.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 4.5
+  },
+  {
+    "article_id": "40316b95445f",
+    "low_profile": "cto_fintech_lagos",
+    "low_score": 2.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 4.5
+  },
+  {
+    "article_id": "40316b95445f",
+    "low_profile": "mining_engineer_santiago",
+    "low_score": 2.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 4.5
+  },
+  {
+    "article_id": "40316b95445f",
+    "low_profile": "architect_qatar",
+    "low_score": 3.5,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 6.5,
+    "gap": 3.0
+  },
+  {
+    "article_id": "c4ce036b6329",
+    "low_profile": "pharmacist_paris",
+    "low_score": 0.5,
+    "high_profile": "finance_student_kw",
+    "high_score": 3.5,
+    "gap": 3.0
+  },
+  {
+    "article_id": "c4ce036b6329",
+    "low_profile": "pharmacist_paris",
+    "low_score": 0.5,
+    "high_profile": "meche_grad_sa",
+    "high_score": 3.5,
+    "gap": 3.0
+  },
+  {
+    "article_id": "c4ce036b6329",
+    "low_profile": "pharmacist_paris",
+    "low_score": 0.5,
+    "high_profile": "welder_pipeline_alberta",
+    "high_score": 3.5,
+    "gap": 3.0
+  },
+  {
+    "article_id": "c4ce036b6329",
+    "low_profile": "pharmacist_paris",
+    "low_score": 0.5,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 7.5,
+    "gap": 7.0
+  },
+  {
+    "article_id": "c4ce036b6329",
+    "low_profile": "pharmacist_paris",
+    "low_score": 0.5,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 7.5,
+    "gap": 7.0
+  },
+  {
+    "article_id": "c4ce036b6329",
+    "low_profile": "bonsai_competitor_kyoto",
+    "low_score": 0.5,
+    "high_profile": "finance_student_kw",
+    "high_score": 3.5,
+    "gap": 3.0
+  },
+  {
+    "article_id": "c4ce036b6329",
+    "low_profile": "bonsai_competitor_kyoto",
+    "low_score": 0.5,
+    "high_profile": "meche_grad_sa",
+    "high_score": 3.5,
+    "gap": 3.0
+  },
+  {
+    "article_id": "c4ce036b6329",
+    "low_profile": "bonsai_competitor_kyoto",
+    "low_score": 0.5,
+    "high_profile": "welder_pipeline_alberta",
+    "high_score": 3.5,
+    "gap": 3.0
+  },
+  {
+    "article_id": "c4ce036b6329",
+    "low_profile": "bonsai_competitor_kyoto",
+    "low_score": 0.5,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 7.5,
+    "gap": 7.0
+  },
+  {
+    "article_id": "c4ce036b6329",
+    "low_profile": "bonsai_competitor_kyoto",
+    "low_score": 0.5,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 7.5,
+    "gap": 7.0
+  },
+  {
+    "article_id": "c4ce036b6329",
+    "low_profile": "cto_fintech_lagos",
+    "low_score": 0.5,
+    "high_profile": "finance_student_kw",
+    "high_score": 3.5,
+    "gap": 3.0
+  },
+  {
+    "article_id": "c4ce036b6329",
+    "low_profile": "cto_fintech_lagos",
+    "low_score": 0.5,
+    "high_profile": "meche_grad_sa",
+    "high_score": 3.5,
+    "gap": 3.0
+  },
+  {
+    "article_id": "c4ce036b6329",
+    "low_profile": "cto_fintech_lagos",
+    "low_score": 0.5,
+    "high_profile": "welder_pipeline_alberta",
+    "high_score": 3.5,
+    "gap": 3.0
+  },
+  {
+    "article_id": "c4ce036b6329",
+    "low_profile": "cto_fintech_lagos",
+    "low_score": 0.5,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 7.5,
+    "gap": 7.0
+  },
+  {
+    "article_id": "c4ce036b6329",
+    "low_profile": "cto_fintech_lagos",
+    "low_score": 0.5,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 7.5,
+    "gap": 7.0
+  },
+  {
+    "article_id": "c4ce036b6329",
+    "low_profile": "cybersecurity_kw",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 7.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "c4ce036b6329",
+    "low_profile": "cybersecurity_kw",
+    "low_score": 1.0,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 7.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "c4ce036b6329",
+    "low_profile": "data_scientist_dubai",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 7.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "c4ce036b6329",
+    "low_profile": "data_scientist_dubai",
+    "low_score": 1.0,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 7.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "c4ce036b6329",
+    "low_profile": "biotech_researcher_sa",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 7.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "c4ce036b6329",
+    "low_profile": "biotech_researcher_sa",
+    "low_score": 1.0,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 7.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "c4ce036b6329",
+    "low_profile": "architect_qatar",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 7.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "c4ce036b6329",
+    "low_profile": "architect_qatar",
+    "low_score": 1.0,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 7.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "c4ce036b6329",
+    "low_profile": "ux_designer_tokyo",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 7.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "c4ce036b6329",
+    "low_profile": "ux_designer_tokyo",
+    "low_score": 1.0,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 7.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "c4ce036b6329",
+    "low_profile": "agribiz_sao_paulo",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 7.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "c4ce036b6329",
+    "low_profile": "agribiz_sao_paulo",
+    "low_score": 1.0,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 7.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "c4ce036b6329",
+    "low_profile": "kpop_marketer_seoul",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 7.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "c4ce036b6329",
+    "low_profile": "kpop_marketer_seoul",
+    "low_score": 1.0,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 7.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "c4ce036b6329",
+    "low_profile": "pediatric_oncologist_riyadh",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 7.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "c4ce036b6329",
+    "low_profile": "pediatric_oncologist_riyadh",
+    "low_score": 1.0,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 7.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "c4ce036b6329",
+    "low_profile": "hvac_tech_texas",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 7.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "c4ce036b6329",
+    "low_profile": "hvac_tech_texas",
+    "low_score": 1.0,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 7.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "c4ce036b6329",
+    "low_profile": "indie_gamedev_berlin",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 7.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "c4ce036b6329",
+    "low_profile": "indie_gamedev_berlin",
+    "low_score": 1.0,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 7.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "c4ce036b6329",
+    "low_profile": "filmmaker_mumbai",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 7.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "c4ce036b6329",
+    "low_profile": "filmmaker_mumbai",
+    "low_score": 1.0,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 7.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "c4ce036b6329",
+    "low_profile": "physical_therapist_sydney",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 7.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "c4ce036b6329",
+    "low_profile": "physical_therapist_sydney",
+    "low_score": 1.0,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 7.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "c4ce036b6329",
+    "low_profile": "nurse_practitioner_toronto",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 7.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "c4ce036b6329",
+    "low_profile": "nurse_practitioner_toronto",
+    "low_score": 1.0,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 7.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "c4ce036b6329",
+    "low_profile": "hobbyist_crypto_f1",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 7.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "c4ce036b6329",
+    "low_profile": "hobbyist_crypto_f1",
+    "low_score": 1.0,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 7.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "c4ce036b6329",
+    "low_profile": "chef_mexico_city",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 7.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "c4ce036b6329",
+    "low_profile": "chef_mexico_city",
+    "low_score": 1.0,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 7.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "c4ce036b6329",
+    "low_profile": "supply_chain_bahrain",
+    "low_score": 2.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 7.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "c4ce036b6329",
+    "low_profile": "supply_chain_bahrain",
+    "low_score": 2.0,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 7.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "c4ce036b6329",
+    "low_profile": "marine_electrician_norway",
+    "low_score": 2.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 7.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "c4ce036b6329",
+    "low_profile": "marine_electrician_norway",
+    "low_score": 2.0,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 7.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "c4ce036b6329",
+    "low_profile": "lawyer_ai_disruption",
+    "low_score": 2.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 7.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "c4ce036b6329",
+    "low_profile": "lawyer_ai_disruption",
+    "low_score": 2.0,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 7.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "c4ce036b6329",
+    "low_profile": "undeclared_student_chicago",
+    "low_score": 2.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 7.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "c4ce036b6329",
+    "low_profile": "undeclared_student_chicago",
+    "low_score": 2.0,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 7.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "c4ce036b6329",
+    "low_profile": "mining_engineer_santiago",
+    "low_score": 2.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 7.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "c4ce036b6329",
+    "low_profile": "mining_engineer_santiago",
+    "low_score": 2.0,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 7.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "c4ce036b6329",
+    "low_profile": "retired_diplomat_vienna",
+    "low_score": 2.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 7.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "c4ce036b6329",
+    "low_profile": "retired_diplomat_vienna",
+    "low_score": 2.0,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 7.5,
+    "gap": 5.5
+  },
+  {
+    "article_id": "c4ce036b6329",
+    "low_profile": "geophysicist_koc_kw",
+    "low_score": 3.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 7.5,
+    "gap": 4.5
+  },
+  {
+    "article_id": "c4ce036b6329",
+    "low_profile": "geophysicist_koc_kw",
+    "low_score": 3.0,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 7.5,
+    "gap": 4.5
+  },
+  {
+    "article_id": "c4ce036b6329",
+    "low_profile": "finance_student_kw",
+    "low_score": 3.5,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 7.5,
+    "gap": 4.0
+  },
+  {
+    "article_id": "c4ce036b6329",
+    "low_profile": "finance_student_kw",
+    "low_score": 3.5,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 7.5,
+    "gap": 4.0
+  },
+  {
+    "article_id": "c4ce036b6329",
+    "low_profile": "meche_grad_sa",
+    "low_score": 3.5,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 7.5,
+    "gap": 4.0
+  },
+  {
+    "article_id": "c4ce036b6329",
+    "low_profile": "meche_grad_sa",
+    "low_score": 3.5,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 7.5,
+    "gap": 4.0
+  },
+  {
+    "article_id": "c4ce036b6329",
+    "low_profile": "welder_pipeline_alberta",
+    "low_score": 3.5,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 7.5,
+    "gap": 4.0
+  },
+  {
+    "article_id": "c4ce036b6329",
+    "low_profile": "welder_pipeline_alberta",
+    "low_score": 3.5,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 7.5,
+    "gap": 4.0
+  },
+  {
+    "article_id": "a32b99c1d219",
+    "low_profile": "bonsai_competitor_kyoto",
+    "low_score": 0.5,
+    "high_profile": "finance_student_kw",
+    "high_score": 3.5,
+    "gap": 3.0
+  },
+  {
+    "article_id": "a32b99c1d219",
+    "low_profile": "bonsai_competitor_kyoto",
+    "low_score": 0.5,
+    "high_profile": "meche_grad_sa",
+    "high_score": 3.5,
+    "gap": 3.0
+  },
+  {
+    "article_id": "a32b99c1d219",
+    "low_profile": "bonsai_competitor_kyoto",
+    "low_score": 0.5,
+    "high_profile": "geophysicist_koc_kw",
+    "high_score": 4.0,
+    "gap": 3.5
+  },
+  {
+    "article_id": "a32b99c1d219",
+    "low_profile": "bonsai_competitor_kyoto",
+    "low_score": 0.5,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 7.5,
+    "gap": 7.0
+  },
+  {
+    "article_id": "a32b99c1d219",
+    "low_profile": "bonsai_competitor_kyoto",
+    "low_score": 0.5,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 8.5,
+    "gap": 8.0
+  },
+  {
+    "article_id": "a32b99c1d219",
+    "low_profile": "cybersecurity_kw",
+    "low_score": 1.0,
+    "high_profile": "geophysicist_koc_kw",
+    "high_score": 4.0,
+    "gap": 3.0
+  },
+  {
+    "article_id": "a32b99c1d219",
+    "low_profile": "cybersecurity_kw",
+    "low_score": 1.0,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 7.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "a32b99c1d219",
+    "low_profile": "cybersecurity_kw",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 8.5,
+    "gap": 7.5
+  },
+  {
+    "article_id": "a32b99c1d219",
+    "low_profile": "biotech_researcher_sa",
+    "low_score": 1.0,
+    "high_profile": "geophysicist_koc_kw",
+    "high_score": 4.0,
+    "gap": 3.0
+  },
+  {
+    "article_id": "a32b99c1d219",
+    "low_profile": "biotech_researcher_sa",
+    "low_score": 1.0,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 7.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "a32b99c1d219",
+    "low_profile": "biotech_researcher_sa",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 8.5,
+    "gap": 7.5
+  },
+  {
+    "article_id": "a32b99c1d219",
+    "low_profile": "ux_designer_tokyo",
+    "low_score": 1.0,
+    "high_profile": "geophysicist_koc_kw",
+    "high_score": 4.0,
+    "gap": 3.0
+  },
+  {
+    "article_id": "a32b99c1d219",
+    "low_profile": "ux_designer_tokyo",
+    "low_score": 1.0,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 7.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "a32b99c1d219",
+    "low_profile": "ux_designer_tokyo",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 8.5,
+    "gap": 7.5
+  },
+  {
+    "article_id": "a32b99c1d219",
+    "low_profile": "agribiz_sao_paulo",
+    "low_score": 1.0,
+    "high_profile": "geophysicist_koc_kw",
+    "high_score": 4.0,
+    "gap": 3.0
+  },
+  {
+    "article_id": "a32b99c1d219",
+    "low_profile": "agribiz_sao_paulo",
+    "low_score": 1.0,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 7.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "a32b99c1d219",
+    "low_profile": "agribiz_sao_paulo",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 8.5,
+    "gap": 7.5
+  },
+  {
+    "article_id": "a32b99c1d219",
+    "low_profile": "pharmacist_paris",
+    "low_score": 1.0,
+    "high_profile": "geophysicist_koc_kw",
+    "high_score": 4.0,
+    "gap": 3.0
+  },
+  {
+    "article_id": "a32b99c1d219",
+    "low_profile": "pharmacist_paris",
+    "low_score": 1.0,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 7.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "a32b99c1d219",
+    "low_profile": "pharmacist_paris",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 8.5,
+    "gap": 7.5
+  },
+  {
+    "article_id": "a32b99c1d219",
+    "low_profile": "kpop_marketer_seoul",
+    "low_score": 1.0,
+    "high_profile": "geophysicist_koc_kw",
+    "high_score": 4.0,
+    "gap": 3.0
+  },
+  {
+    "article_id": "a32b99c1d219",
+    "low_profile": "kpop_marketer_seoul",
+    "low_score": 1.0,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 7.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "a32b99c1d219",
+    "low_profile": "kpop_marketer_seoul",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 8.5,
+    "gap": 7.5
+  },
+  {
+    "article_id": "a32b99c1d219",
+    "low_profile": "pediatric_oncologist_riyadh",
+    "low_score": 1.0,
+    "high_profile": "geophysicist_koc_kw",
+    "high_score": 4.0,
+    "gap": 3.0
+  },
+  {
+    "article_id": "a32b99c1d219",
+    "low_profile": "pediatric_oncologist_riyadh",
+    "low_score": 1.0,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 7.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "a32b99c1d219",
+    "low_profile": "pediatric_oncologist_riyadh",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 8.5,
+    "gap": 7.5
+  },
+  {
+    "article_id": "a32b99c1d219",
+    "low_profile": "hvac_tech_texas",
+    "low_score": 1.0,
+    "high_profile": "geophysicist_koc_kw",
+    "high_score": 4.0,
+    "gap": 3.0
+  },
+  {
+    "article_id": "a32b99c1d219",
+    "low_profile": "hvac_tech_texas",
+    "low_score": 1.0,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 7.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "a32b99c1d219",
+    "low_profile": "hvac_tech_texas",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 8.5,
+    "gap": 7.5
+  },
+  {
+    "article_id": "a32b99c1d219",
+    "low_profile": "indie_gamedev_berlin",
+    "low_score": 1.0,
+    "high_profile": "geophysicist_koc_kw",
+    "high_score": 4.0,
+    "gap": 3.0
+  },
+  {
+    "article_id": "a32b99c1d219",
+    "low_profile": "indie_gamedev_berlin",
+    "low_score": 1.0,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 7.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "a32b99c1d219",
+    "low_profile": "indie_gamedev_berlin",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 8.5,
+    "gap": 7.5
+  },
+  {
+    "article_id": "a32b99c1d219",
+    "low_profile": "filmmaker_mumbai",
+    "low_score": 1.0,
+    "high_profile": "geophysicist_koc_kw",
+    "high_score": 4.0,
+    "gap": 3.0
+  },
+  {
+    "article_id": "a32b99c1d219",
+    "low_profile": "filmmaker_mumbai",
+    "low_score": 1.0,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 7.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "a32b99c1d219",
+    "low_profile": "filmmaker_mumbai",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 8.5,
+    "gap": 7.5
+  },
+  {
+    "article_id": "a32b99c1d219",
+    "low_profile": "physical_therapist_sydney",
+    "low_score": 1.0,
+    "high_profile": "geophysicist_koc_kw",
+    "high_score": 4.0,
+    "gap": 3.0
+  },
+  {
+    "article_id": "a32b99c1d219",
+    "low_profile": "physical_therapist_sydney",
+    "low_score": 1.0,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 7.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "a32b99c1d219",
+    "low_profile": "physical_therapist_sydney",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 8.5,
+    "gap": 7.5
+  },
+  {
+    "article_id": "a32b99c1d219",
+    "low_profile": "nurse_practitioner_toronto",
+    "low_score": 1.0,
+    "high_profile": "geophysicist_koc_kw",
+    "high_score": 4.0,
+    "gap": 3.0
+  },
+  {
+    "article_id": "a32b99c1d219",
+    "low_profile": "nurse_practitioner_toronto",
+    "low_score": 1.0,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 7.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "a32b99c1d219",
+    "low_profile": "nurse_practitioner_toronto",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 8.5,
+    "gap": 7.5
+  },
+  {
+    "article_id": "a32b99c1d219",
+    "low_profile": "hobbyist_crypto_f1",
+    "low_score": 1.0,
+    "high_profile": "geophysicist_koc_kw",
+    "high_score": 4.0,
+    "gap": 3.0
+  },
+  {
+    "article_id": "a32b99c1d219",
+    "low_profile": "hobbyist_crypto_f1",
+    "low_score": 1.0,
+    "high_profile": "petrol_eng_kw",
+    "high_score": 7.5,
+    "gap": 6.5
+  },
+  {
+    "article_id": "a32b99c1d219",
+    "low_profile": "hobbyist_crypto_f1",
+    "low_score": 1.0,
+    "high_profile": "cpeg_student_kw",
+    "high_score": 8.5,
+    "gap": 7.5
+  },
+  {
+    "article_id": "a32b99c1d219",
+    "low_profile": "cto_fintech_lagos",
+    "low_score": 1.0,
+    "high_profile": "geophysicist_koc_kw",
+    "high_score": 4.0,
+    "gap": 3.0
+  }
+]

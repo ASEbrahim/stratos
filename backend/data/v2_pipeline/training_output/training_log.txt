@@ -1,0 +1,50 @@
+12:56:45 [INFO] Attempting training with batch_size=2...
+12:56:52 [INFO] ======================================================================
+12:56:52 [INFO] PHASE 2 — V2 SCORER TRAINING
+12:56:52 [INFO] ======================================================================
+12:56:52 [INFO] Base model: /home/ahmad/Downloads/StratOS/StratOS1/backend/data/v2_pipeline/v1_merged_base
+12:56:52 [INFO] Training data: data/v3_pipeline/training_v3.jsonl (37 MB)
+12:56:52 [INFO] Eval data: data/v3_pipeline/eval_v3.jsonl (3 MB)
+12:56:52 [INFO] Batch size: 2, Grad accum: 8, LR: 1e-05
+12:56:52 [INFO] Epochs: 1, Dry run: False
+12:56:52 [INFO] Set eos_token = <|im_end|> (id=151645)
+12:56:52 [INFO] Loading V1 merged base in bfloat16...
+12:57:12 [INFO] Forced all parameters to cuda:0 (meta device cleanup)
+12:57:13 [INFO] HTTP Request: HEAD https://s3.amazonaws.com/datasets.huggingface.co/datasets/datasets/json/json.py "HTTP/1.1 200 OK"
+12:57:13 [INFO] Training examples: 24479
+12:57:13 [INFO]   weight=0.5 (noise): 16429 examples (67.1%)
+12:57:13 [INFO]   weight=1.0 (tangential): 7336 examples (30.0%)
+12:57:13 [INFO]   weight=1.5 (moderate): 345 examples (1.4%)
+12:57:13 [INFO]   weight=2.0 (high): 246 examples (1.0%)
+12:57:13 [INFO]   weight=3.0 (critical): 123 examples (0.5%)
+12:57:15 [INFO] Converted messages -> prompt/completion
+12:57:15 [INFO] WeightedRandomSampler: 24479 weights, sum=16929.0
+12:57:15 [INFO] Expected sampling distribution:
+12:57:15 [INFO]   noise           48.5%
+12:57:15 [INFO]   tangential      43.3%
+12:57:15 [INFO]   moderate        3.1%
+12:57:15 [INFO]   high            2.9%
+12:57:15 [INFO]   critical        2.2%
+12:57:15 [INFO] HTTP Request: HEAD https://s3.amazonaws.com/datasets.huggingface.co/datasets/datasets/json/json.py "HTTP/1.1 200 OK"
+12:57:15 [INFO] Eval dataset: 2048 examples
+12:57:15 [INFO] Total optimizer steps: 1530 (batch=2, accum=8, effective=16)
+12:57:15 [INFO] Checkpoints at steps: [200, 400, 600, 800, 1000, 1200, 1400]
+12:57:17 [INFO] Starting V2 training...
+12:57:21 [INFO] [V2] compute_loss — per-sample weighting ACTIVE
+12:57:21 [INFO] [V2]   weights: [0.5, 0.5], per-example loss: [2.3944, 2.0128]
+12:57:21 [INFO] [V2]   weighted=2.2036 unweighted=2.2036
+12:57:25 [INFO] [V2] compute_loss — per-sample weighting ACTIVE
+12:57:25 [INFO] [V2]   weights: [0.5, 1.0], per-example loss: [2.0354, 3.1448]
+12:57:25 [INFO] [V2]   weighted=2.7750 unweighted=2.5901
+14:04:06 [INFO] ======================================================================
+14:04:06 [INFO] SAMPLER VERIFICATION (1001 batches, 2002 examples)
+14:04:06 [INFO] Bucket            Expected     Actual   Raw(bad)
+14:04:06 [INFO] --------------------------------------------------
+14:04:06 [INFO] noise                48.5%      48.5%      67.1%
+14:04:06 [INFO] tangential           43.3%      43.2%      30.0%
+14:04:06 [INFO] moderate              3.1%       2.9%       1.4%
+14:04:06 [INFO] high                  2.9%       2.8%       1.0%
+14:04:06 [INFO] critical              2.2%       2.6%       0.5%
+14:04:06 [INFO] SAMPLER WORKING — actual matches weighted expectation
+14:04:06 [INFO]   Distance to expected: 0.0084, distance to raw: 0.3733
+14:04:06 [INFO] Verification saved to data/v3_pipeline/training_output/sampler_verification.json

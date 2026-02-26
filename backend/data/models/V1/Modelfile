@@ -1,0 +1,16 @@
+FROM /home/ahmad/Downloads/StratOS/StratOS1/backend/data/models/V1/stratos-scorer-q8_0.gguf
+
+TEMPLATE """{{- if .System }}<|im_start|>system
+{{ .System }}<|im_end|>
+{{ end }}<|im_start|>user
+{{ .Prompt }}<|im_end|>
+<|im_start|>assistant
+"""
+
+PARAMETER stop "<|im_end|>"
+PARAMETER stop "<|endoftext|>"
+PARAMETER temperature 0.6
+PARAMETER top_p 0.95
+PARAMETER top_k 20
+PARAMETER num_predict 512
+PARAMETER repeat_penalty 1.1
