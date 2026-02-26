@@ -51,6 +51,10 @@ schedule:
   background_enabled: false
   background_interval_minutes: 30
 scoring:
+  retain_high_scores: true
+  retention_threshold: 8.0
+  retention_max_age_hours: 24
+  retention_max_items: 20
   critical_min: 9.0
   filter_below: 5.0
   forbidden_score: 5.0
@@ -73,7 +77,7 @@ search:
   google_api_key: REDACTED_GOOGLE_KEY
   google_cx: 52d68e3fc17d74e9a
   provider: serper
-  serper_api_key: be8794900a33bd3296d6d9630ed3cbfb131389ac
+  serper_api_key: REDACTED_SERPER_KEY
   serper_credits: 814
 system:
   database_file: strat_os.db
