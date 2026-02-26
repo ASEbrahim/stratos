@@ -127,6 +127,14 @@ def handle_config_save(handler, strat, auth_helpers):
             config["market"]["tickers"] = ticker_objects
             logger.info(f"  Tickers updated: {len(ticker_objects)} ({', '.join(t['symbol'] for t in ticker_objects[:5])}{'...' if len(ticker_objects) > 5 else ''})")
 
+        # Scoring config (retention toggle, etc.)
+        if "scoring" in new_config:
+            if "scoring" not in config:
+                config["scoring"] = {}
+            for key in ["retain_high_scores", "retention_threshold", "retention_max_age_hours", "retention_max_items"]:
+                if key in new_config["scoring"]:
+                    config["scoring"][key] = new_config["scoring"][key]
+
         # Dynamic categories
         if "dynamic_categories" in new_config:
             config["dynamic_categories"] = new_config["dynamic_categories"]

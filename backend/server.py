@@ -512,6 +512,9 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                     "custom_feeds_politics": cfg.get("custom_feeds_politics", []),
                     "custom_feeds": cfg.get("custom_feeds", []),
                     "custom_tab_name": cfg.get("custom_tab_name", "Custom"),
+                    "scoring": {
+                        "retain_high_scores": cfg.get("scoring", {}).get("retain_high_scores", True),
+                    },
                 }
                 self.wfile.write(json.dumps(editable_config).encode())
                 return
