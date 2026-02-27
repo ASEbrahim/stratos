@@ -4,7 +4,7 @@
 > Loaded into Claude.ai Project Knowledge and Claude Code context.
 > **CLAUDE.md** = how to work here. **STATE.md** = what happened and why. **FRS** = what the system should be.
 
-Last updated: **2026-02-27** (session: extended 16-profile diagnostic loop)
+Last updated: **2026-02-27** (session: diagnostic bug fixes — 5 fixes, 6 commits)
 
 ---
 
@@ -73,11 +73,11 @@ Last updated: **2026-02-27** (session: extended 16-profile diagnostic loop)
 
 ### What's Broken / Needs Attention
 
-- **CRITICAL — Retention cross-profile leak:** `_merge_retained_articles()` filter bypassed for freshly scored articles (empty `retained_by_profile` is falsy). Up to 20 articles from previous profile contaminate next profile's output with wrong scores/reasons. **Confirmed in both Phase 1 (10 profiles) and Phase 2 (6 profiles, even with fresh StratOS instances).** Contamination chain: P11→P12→P13→P14→P15→P16 with 20→17→1→1→1 leaked articles. See F009 in Failure Log and `DIAGNOSTIC_FINDINGS.md`.
-- **MODERATE — Extra feeds not in scan pipeline:** `extra_feeds_finance`/`extra_feeds_politics` toggle settings have NO effect on scan output. `fetch_extra_feeds()` is only called via on-demand API endpoints, never during `run_scan()`. Users enabling oilprice/bloomberg/bbc toggles don't get those articles scored.
+- ~~**CRITICAL — Retention cross-profile leak:**~~ **FIXED** (commit a0f9c47). All output articles now tagged with `retained_by_profile: context_hash`. Filter works correctly.
+- ~~**MODERATE — Extra feeds not in scan pipeline:**~~ **FIXED** (commit b6cdfdd). Opt-in via `scoring.include_extra_feeds_in_scan: true` in config.yaml. Default off — zero behavior change until enabled.
+- ~~**MODERATE — Deferred briefing uncapturable:**~~ **FIXED** (commit 59a4a0c). `wait_for_briefing(timeout=30)` method added with generation counter for race safety.
 - **kuniv category over-scoring:** Articles mentioning "Kuwait" get scored high regardless of topical relevance to the active profile. "Embassy of India, Kuwait" scored 9.0 for a petroleum engineering professor. Scorer training issue, not pipeline bug.
 - **Frontend SSE for briefing_ready:** Backend broadcasts `briefing_ready` event, but frontend doesn't listen for it yet — briefing appears on next data poll, not instantly.
-- **Briefing in export JSON:** May show short placeholder if exported before deferred briefing thread finishes patching. Dashboard shows the real briefing. **Phase 2 confirmed:** 30s wait captures briefings at 100% success rate.
 - **FRS v9 and README v8 are stale:** Don't reflect model routing changes (14b briefing), deferred briefing, incremental scanning, or profile-scoped retention.
 - **API key rotation pending:** Old Serper key (`ec4d2...`) and Google API key (`AIzaSy...`) were exposed in public git history (scrubbed with git-filter-repo). Should be rotated.
 
@@ -124,6 +124,22 @@ Focus mode agent uses its own `_cfsAgentHistory` and `_cfsAgentAppend`, independ
 
 **D017 — _fsSaveDrawings triggers analysis refresh**
 Instead of adding `_fsRenderAnalysis()` at every individual drawing completion/deletion/drag site, hooked it into `_fsSaveDrawings()` which is called on every drawing mutation. Single call site, no missed cases.
+
+**D018 — Tag all output articles with context_hash (not just retained)**
+`_build_output()` now writes `retained_by_profile: context_hash` on every article unconditionally. Previously only retained articles got the tag, causing the filter in `_merge_retained_articles()` to let all non-retained articles through (BUG-1).
+*Rejected:* Changing the filter logic to `if not article_profile: continue` (would break incremental scanning on first-ever scan with no snapshot).
+
+**D019 — Generation counter for briefing thread race condition**
+If scan B starts while scan A's briefing thread is still running, thread A's `_briefing_done.set()` could prematurely signal scan B's `wait_for_briefing()`. Added `_briefing_generation` counter — thread only signals if its generation matches current. `finally` block covers all exit paths.
+*Rejected:* Simple `_briefing_done` Event without generation guard (race condition with concurrent scans).
+
+**D020 — Route generic-keyword career matches to DoRA model at score 5.5**
+When ALL matched keywords are in `GENERIC_KEYWORDS` (e.g., "water", "service") AND location doesn't match, return `(5.5, reason, False)` instead of `(9.0, reason, True)`. Score 5.5 avoids the Forbidden 5.0 nudge zone (4.8-5.2) and routes to the DoRA V2 model via `confident=False`. The model has geographic awareness from training.
+*Rejected:* Hardcoded LOW_WEIGHT_KEYWORDS word list that caps at 7.0 (user pointed out DoRA model should handle this). Also rejected 5.0 as placeholder (collides with Forbidden 5.0 Rule).
+
+**D021 — Remove cross-entity combination queries**
+Cross-entity queries like `"E1" "E2" deal OR partnership 2026` returned 0 results ~30% of the time across 16 diagnostic profiles. Removed the entire block from `_build_dynamic_searches()`. Saves ~30% Serper credits per category.
+*Rejected:* Keeping but reducing pairs (still wastes credits on overly specific queries).
 
 ### 2026-02-26
 
@@ -200,6 +216,10 @@ Initial hray anchor drag implementation incremented `startIdx` twice (once in ge
 `extra_feeds_finance`/`extra_feeds_politics` settings control which curated RSS feeds (oilprice, bloomberg, bbc, etc.) appear in the Finance/Politics tabs. But `fetch_extra_feeds()` is only called from `server.py` on-demand API endpoints (`/api/finance-news`, `/api/politics-news`), never from `main.py:run_scan()`. Users enabling these toggles in settings expect those articles to be scored — they are not.
 **Rule:** Either integrate `fetch_extra_feeds()` into `NewsFetcher.fetch_all()` or clearly document the separation.
 
+**F013 — Forbidden 5.0 collision with LLM routing placeholder**
+Original fix plan for S3 (generic keyword routing) used `score=5.0` as the LLM routing placeholder. But the Forbidden 5.0 Rule (6 locations in `scorer_adaptive.py`) nudges scores 4.8-5.2 away from 5.0. If the nudge ran before LLM evaluation, it would push the score to 4.8 (below the uncertain zone). If LLM failed, the article kept 5.0 — a score the system is designed to never produce.
+**Rule:** Never use 5.0 as a deliberate placeholder score. Use 5.5 (safely inside the uncertain zone, outside the nudge range).
+
 ### 2026-02-26
 
 **F001 — `_build_output()` whitelist drops unknown fields**
@@ -247,6 +267,10 @@ Must delete `hf_device_map` and force `.to("cuda:0")` or gradient computation cr
 ## 4. Session Log
 
 > Most recent first. 3-5 lines per session.
+
+### 2026-02-27 — Diagnostic Bug Fixes (5 fixes, 6 commits)
+**Commits:** 6 (a0f9c47, 59a4a0c, 6463ad4, d5378f1, b6cdfdd, + STATE.md)
+Implemented all 5 fixes from the 16-profile diagnostic: (1) BUG-1 CRITICAL — tag all output articles with `retained_by_profile: context_hash` to prevent cross-profile retention leak, (2) BUG-2 — store briefing thread with generation counter + `wait_for_briefing()`, (3) S4 — remove cross-entity combination queries (~30% Serper credit savings), (4) S3 — route generic-keyword career matches to DoRA model at score 5.5 instead of hardcoded 9.0, (5) BUG-3 — opt-in extra feeds integration in scan pipeline (`scoring.include_extra_feeds_in_scan`). Each fix is an independent commit, rollback-safe via `git revert`. 54 tests pass after every commit.
 
 ### 2026-02-27 — 16-Profile Pipeline Diagnostic Loop (Phase 1 + Phase 2)
 **Commits:** 2 (diagnostic report + extended diagnostic)
