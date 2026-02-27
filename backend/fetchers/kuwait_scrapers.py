@@ -295,19 +295,7 @@ class KuwaitIntelligenceFetcher:
         
         # Cap at 12 queries per category
         searches = searches[:12]
-        
-        # ── Cross-entity combination queries ──
-        # When a category has multiple entities (companies), generate queries that 
-        # pair them together to catch partnership/deal/contract news between them.
-        entities = [item.strip() for item in items if item.strip() and _is_entity(item.strip())]
-        if len(entities) >= 2:
-            from itertools import combinations
-            pairs = list(combinations(entities[:6], 2))  # Cap at top 6 entities
-            # Generate up to 4 cross-entity queries
-            for e1, e2 in pairs[:4]:
-                q1, q2 = _quote(e1), _quote(e2)
-                searches.append(f'{q1} {q2} deal OR partnership OR contract OR agreement 2026')
-        
+
         return searches
 
     # ─── Search Execution ─────────────────────────────────────────
