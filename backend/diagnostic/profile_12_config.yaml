@@ -1,0 +1,107 @@
+custom_feeds: []
+custom_tab_name: Custom
+dynamic_categories:
+- enabled: true
+  icon: gavel
+  id: kwgov
+  items:
+  - Kuwait National Assembly
+  - مجلس الأمة الكويتي
+  - Kuwait government tenders
+  - Kuwait municipal elections
+  label: Kuwait Government & Parliament
+  root: kuwait
+  scorer_type: regional
+- enabled: true
+  icon: target
+  id: gccrel
+  items:
+  - GCC summit 2026
+  - Kuwait-Saudi relations
+  - Gulf Cooperation Council
+  - Kuwait foreign ministry
+  label: GCC Diplomatic Relations
+  root: regional
+  scorer_type: regional
+extra_feeds_finance:
+  arab_times_biz: false
+  biz_insider: false
+  bloomberg: false
+  boursa_kuwait: false
+  cnbc_finance: false
+  cnbc_top: false
+  coindesk: false
+  cointelegraph: false
+  economist: false
+  ft: false
+  gn_gcc_finance: false
+  gn_kuwait_biz: false
+  investing: false
+  marketwatch: false
+  mw_pulse: false
+  oilprice: false
+  rigzone: false
+  seekingalpha: false
+  wsj_world: false
+  yahoo_fin: false
+  zawya: false
+extra_feeds_politics:
+  alarabiya: true
+  aljazeera: false
+  arab_times: true
+  bbc_mideast: false
+  bbc_world: false
+  cnn_world: false
+  dw: false
+  fox_world: false
+  france24: false
+  gn_kuwait: true
+  gn_mideast: true
+  guardian: false
+  middleeasteye: false
+  newarab: false
+  nikkei_asia: false
+  npr_world: false
+  nyt_mideast: false
+  nyt_world: false
+  scmp: false
+  times_kuwait: false
+  wapo_politics: false
+  wapo_world: false
+market:
+  alert_threshold_percent: 5.0
+  intervals: {}
+  tickers: []
+news:
+  career:
+    keywords: []
+    queries: []
+    root: kuwait
+  finance:
+    keywords: []
+    queries: []
+    root: kuwait
+  regional:
+    keywords: []
+    queries: []
+    root: regional
+  rss_feeds: []
+  tech_trends:
+    keywords: []
+    queries: []
+    root: global
+  timelimit: w
+profile:
+  avatar: P12
+  context: Managing government affairs for a Kuwaiti conglomerate. Tracking National
+    Assembly debates, GCC summits, and public sector procurement tenders. Primary
+    news consumption in Arabic.
+  email: diag12@test.local
+  interests: []
+  location: Kuwait City, Kuwait
+  name: Diag_P12_ArabicKW
+  role: Government Relations Specialist
+security:
+  devices:
+  - diagnostic_device
+  pin_hash: 9af15b336e6a9619928537df30b2e6a2376569fcf9d7e773eccede65606529a0

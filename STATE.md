@@ -4,7 +4,7 @@
 > Loaded into Claude.ai Project Knowledge and Claude Code context.
 > **CLAUDE.md** = how to work here. **STATE.md** = what happened and why. **FRS** = what the system should be.
 
-Last updated: **2026-02-27** (session: 10-profile diagnostic loop)
+Last updated: **2026-02-27** (session: extended 16-profile diagnostic loop)
 
 ---
 
@@ -19,7 +19,7 @@ Last updated: **2026-02-27** (session: 10-profile diagnostic loop)
 - **Inference model:** `qwen3:30b-a3b` (~18-19GB MoE) — strat agent + market analysis only
 - **Wizard/briefing model:** `qwen3:14b` (~9GB) — wizard, briefings, profile generation, suggestions
 - **Search provider:** Serper (Google) primary, DuckDuckGo fallback. 60-min dedup window on Serper queries.
-- **Serper credits:** ~1688 remaining of 2500 (key: `1b9db98...` in `.env`) — 228 used in diagnostic loop
+- **Serper credits:** ~1579 remaining of 2500 (key: `1b9db98...` in `.env`) — 310 used in diagnostic loop (228 Phase 1 + 82 Phase 2)
 
 ### V2 Scorer Production Metrics
 
@@ -73,10 +73,11 @@ Last updated: **2026-02-27** (session: 10-profile diagnostic loop)
 
 ### What's Broken / Needs Attention
 
-- **CRITICAL — Retention cross-profile leak:** `_merge_retained_articles()` filter bypassed for freshly scored articles (empty `retained_by_profile` is falsy). Up to 20 articles from previous profile contaminate next profile's output with wrong scores/reasons. See F009 in Failure Log and `DIAGNOSTIC_REPORT.md`.
+- **CRITICAL — Retention cross-profile leak:** `_merge_retained_articles()` filter bypassed for freshly scored articles (empty `retained_by_profile` is falsy). Up to 20 articles from previous profile contaminate next profile's output with wrong scores/reasons. **Confirmed in both Phase 1 (10 profiles) and Phase 2 (6 profiles, even with fresh StratOS instances).** Contamination chain: P11→P12→P13→P14→P15→P16 with 20→17→1→1→1 leaked articles. See F009 in Failure Log and `DIAGNOSTIC_FINDINGS.md`.
+- **MODERATE — Extra feeds not in scan pipeline:** `extra_feeds_finance`/`extra_feeds_politics` toggle settings have NO effect on scan output. `fetch_extra_feeds()` is only called via on-demand API endpoints, never during `run_scan()`. Users enabling oilprice/bloomberg/bbc toggles don't get those articles scored.
 - **kuniv category over-scoring:** Articles mentioning "Kuwait" get scored high regardless of topical relevance to the active profile. "Embassy of India, Kuwait" scored 9.0 for a petroleum engineering professor. Scorer training issue, not pipeline bug.
 - **Frontend SSE for briefing_ready:** Backend broadcasts `briefing_ready` event, but frontend doesn't listen for it yet — briefing appears on next data poll, not instantly.
-- **Briefing in export JSON:** May show short placeholder if exported before deferred briefing thread finishes patching. Dashboard shows the real briefing.
+- **Briefing in export JSON:** May show short placeholder if exported before deferred briefing thread finishes patching. Dashboard shows the real briefing. **Phase 2 confirmed:** 30s wait captures briefings at 100% success rate.
 - **FRS v9 and README v8 are stale:** Don't reflect model routing changes (14b briefing), deferred briefing, incremental scanning, or profile-scoped retention.
 - **API key rotation pending:** Old Serper key (`ec4d2...`) and Google API key (`AIzaSy...`) were exposed in public git history (scrubbed with git-filter-repo). Should be rotated.
 
@@ -192,8 +193,12 @@ Initial hray anchor drag implementation incremented `startIdx` twice (once in ge
 ### 2026-02-27
 
 **F009 — Retention profile filter bypassed for freshly scored articles**
-`_merge_retained_articles()` (main.py:1267-1268) checks `retained_by_profile` to filter cross-profile articles. But freshly scored articles in the output JSON have NO `retained_by_profile` field (only set on already-retained articles in `_build_output()` lines 1327-1329). Empty string is falsy → filter condition `if article_profile and ...` is False → article passes through. Result: up to 20 high-scoring articles from Profile N leak into Profile N+1 with original scores/reasons. Confirmed across all 10 diagnostic profiles.
+`_merge_retained_articles()` (main.py:1267-1268) checks `retained_by_profile` to filter cross-profile articles. But freshly scored articles in the output JSON have NO `retained_by_profile` field (only set on already-retained articles in `_build_output()` lines 1327-1329). Empty string is falsy → filter condition `if article_profile and ...` is False → article passes through. Result: up to 20 high-scoring articles from Profile N leak into Profile N+1 with original scores/reasons. Confirmed across all 16 diagnostic profiles (Phase 1 + Phase 2). Even fresh StratOS instances don't fix it because `output/news_data.json` persists between profiles.
 **Rule:** Always write `retained_by_profile` with context hash on ALL output articles, or change filter: `if not article_profile or article_profile != context_hash: continue`.
+
+**F012 — Extra feed toggles are UI-only, not wired into scan pipeline**
+`extra_feeds_finance`/`extra_feeds_politics` settings control which curated RSS feeds (oilprice, bloomberg, bbc, etc.) appear in the Finance/Politics tabs. But `fetch_extra_feeds()` is only called from `server.py` on-demand API endpoints (`/api/finance-news`, `/api/politics-news`), never from `main.py:run_scan()`. Users enabling these toggles in settings expect those articles to be scored — they are not.
+**Rule:** Either integrate `fetch_extra_feeds()` into `NewsFetcher.fetch_all()` or clearly document the separation.
 
 ### 2026-02-26
 
@@ -243,9 +248,10 @@ Must delete `hf_device_map` and force `.to("cuda:0")` or gradient computation cr
 
 > Most recent first. 3-5 lines per session.
 
-### 2026-02-27 — 10-Profile Pipeline Diagnostic Loop
-**Commits:** 1 (diagnostic report)
-Key work: (1) Ran full diagnostic across 10 profiles (5 diverse: nurse/TX, quant/London, marine bio/Tokyo, cybersec/Dubai, teacher/São Paulo + 5 adversarial near-miss to Ahmad: elec tech/Kuwait MEW, petro journalist/Kuwait Times, IT support/KOC, mech eng/SABIC/Saudi, CS student/KU). (2) **Critical bug found:** retention system leaks up to 20 articles from previous profile into next profile without re-scoring (main.py:1267-1268, empty `retained_by_profile` bypasses filter). Contaminated 7/10 profiles. (3) V2 scorer itself performs well on fresh articles — correct role-awareness, good keyword matching, appropriate score spread. (4) Geographic filtering works correctly (no Kuwait bleed into non-Kuwait profiles). (5) Serper credits: 1916→1688 (228 used, well under budget). See `DIAGNOSTIC_REPORT.md` for full results.
+### 2026-02-27 — 16-Profile Pipeline Diagnostic Loop (Phase 1 + Phase 2)
+**Commits:** 2 (diagnostic report + extended diagnostic)
+**Phase 1** (10 profiles): Ran full diagnostic across 5 diverse (nurse/TX, quant/London, marine bio/Tokyo, cybersec/Dubai, teacher/São Paulo) + 5 adversarial near-miss to Ahmad (elec tech/Kuwait MEW, petro journalist/Kuwait Times, IT support/KOC, mech eng/SABIC/Saudi, CS student/KU). **Critical bug found:** retention system leaks up to 20 articles from previous profile (main.py:1267-1268). V2 scorer itself performs well on fresh articles. Serper: 1916→1688 (228 used).
+**Phase 2** (6 profiles): Extended diagnostic targeting pipeline gaps. Profiles: energy analyst/Houston (RSS feeds enabled), gov relations/Kuwait (Arabic content), papyrologist/Oxford (ultra-niche), MechEng student/Saudi (student vs P9 senior), graphic designer/Lisbon (empty categories), CEO/Singapore (broad generalist). Key improvements: fresh StratOS instance per profile, 30s briefing wait. **Findings:** (1) BUG-1 confirmed even with fresh instances (output file persists between profiles), (2) **New BUG-3:** extra feed toggles don't affect scan pipeline (fetch_extra_feeds never called from run_scan), (3) Briefing capture 100% at 30s wait, (4) Student vs senior: zero shared articles, mean 3.16 vs ~6.5, (5) Empty categories handled gracefully, (6) Bimodal score distribution universal (medium band empty), (7) Cross-entity combo queries still ~30% waste. Serper: 1661→1579 (82 used). See `DIAGNOSTIC_FINDINGS.md` for consolidated report.
 
 ### 2026-02-27 — Focus Mode Polish & Drawing Tools Overhaul
 **Commits:** 5 frontend (c48b82f → 9f1367b), 5 parent (a389779 → fc573ad)

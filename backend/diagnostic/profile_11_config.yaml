@@ -1,0 +1,110 @@
+custom_feeds: []
+custom_tab_name: Custom
+dynamic_categories:
+- enabled: true
+  icon: target
+  id: oilmkt
+  items:
+  - crude oil price
+  - LNG export terminal
+  - refinery capacity
+  - Brent crude
+  label: Crude Oil & LNG Markets
+  root: global
+  scorer_type: tech
+- enabled: true
+  icon: gavel
+  id: enpol
+  items:
+  - FERC regulation
+  - EPA emissions
+  - DOE energy policy
+  - carbon tax
+  label: Energy Policy & Regulation
+  root: global
+  scorer_type: regional
+extra_feeds_finance:
+  arab_times_biz: false
+  biz_insider: false
+  bloomberg: true
+  boursa_kuwait: false
+  cnbc_finance: false
+  cnbc_top: true
+  coindesk: false
+  cointelegraph: false
+  economist: false
+  ft: false
+  gn_gcc_finance: false
+  gn_kuwait_biz: false
+  investing: false
+  marketwatch: false
+  mw_pulse: false
+  oilprice: true
+  rigzone: true
+  seekingalpha: false
+  wsj_world: false
+  yahoo_fin: false
+  zawya: false
+extra_feeds_politics:
+  alarabiya: false
+  aljazeera: false
+  arab_times: false
+  bbc_mideast: false
+  bbc_world: true
+  cnn_world: false
+  dw: false
+  fox_world: false
+  france24: false
+  gn_kuwait: false
+  gn_mideast: false
+  guardian: false
+  middleeasteye: false
+  newarab: false
+  nikkei_asia: false
+  npr_world: false
+  nyt_mideast: false
+  nyt_world: false
+  scmp: false
+  times_kuwait: false
+  wapo_politics: false
+  wapo_world: false
+market:
+  alert_threshold_percent: 5.0
+  intervals: {}
+  tickers:
+  - name: Crude Oil
+    symbol: CL=F
+  - name: Natural Gas
+    symbol: NG=F
+news:
+  career:
+    keywords: []
+    queries: []
+    root: global
+  finance:
+    keywords: []
+    queries: []
+    root: global
+  regional:
+    keywords: []
+    queries: []
+    root: global
+  rss_feeds: []
+  tech_trends:
+    keywords: []
+    queries: []
+    root: global
+  timelimit: w
+profile:
+  avatar: P11
+  context: Monitoring crude oil markets, refinery operations, and LNG exports. Tracking
+    energy policy changes and OPEC+ decisions.
+  email: diag11@test.local
+  interests: []
+  location: Houston, Texas, USA
+  name: Diag_P11_RSSEnergy
+  role: Energy Market Analyst
+security:
+  devices:
+  - diagnostic_device
+  pin_hash: 9af15b336e6a9619928537df30b2e6a2376569fcf9d7e773eccede65606529a0

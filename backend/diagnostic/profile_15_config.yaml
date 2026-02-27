@@ -1,0 +1,110 @@
+custom_feeds: []
+custom_tab_name: Custom
+dynamic_categories:
+- enabled: true
+  icon: cpu
+  id: destools
+  items:
+  - Figma updates
+  - Adobe Creative Cloud
+  - Canva pro features
+  - Affinity Designer
+  label: Design Tools & Software
+  root: global
+  scorer_type: tech
+- enabled: true
+  icon: target
+  id: singlecat
+  items:
+  - Lisbon design meetup
+  label: Single Item Category
+  root: global
+  scorer_type: auto
+- enabled: true
+  icon: shield
+  id: emptycat
+  items: []
+  label: Empty Category
+  root: global
+  scorer_type: auto
+extra_feeds_finance:
+  arab_times_biz: false
+  biz_insider: false
+  bloomberg: false
+  boursa_kuwait: false
+  cnbc_finance: false
+  cnbc_top: false
+  coindesk: false
+  cointelegraph: false
+  economist: false
+  ft: false
+  gn_gcc_finance: false
+  gn_kuwait_biz: false
+  investing: false
+  marketwatch: false
+  mw_pulse: false
+  oilprice: false
+  rigzone: false
+  seekingalpha: false
+  wsj_world: false
+  yahoo_fin: false
+  zawya: false
+extra_feeds_politics:
+  alarabiya: false
+  aljazeera: false
+  arab_times: false
+  bbc_mideast: false
+  bbc_world: false
+  cnn_world: false
+  dw: false
+  fox_world: false
+  france24: false
+  gn_kuwait: false
+  gn_mideast: false
+  guardian: false
+  middleeasteye: false
+  newarab: false
+  nikkei_asia: false
+  npr_world: false
+  nyt_mideast: false
+  nyt_world: false
+  scmp: false
+  times_kuwait: false
+  wapo_politics: false
+  wapo_world: false
+market:
+  alert_threshold_percent: 5.0
+  intervals: {}
+  tickers: []
+news:
+  career:
+    keywords: []
+    queries: []
+    root: global
+  finance:
+    keywords: []
+    queries: []
+    root: global
+  regional:
+    keywords: []
+    queries: []
+    root: global
+  rss_feeds: []
+  tech_trends:
+    keywords: []
+    queries: []
+    root: global
+  timelimit: w
+profile:
+  avatar: P15
+  context: Working on branding projects for tech startups. Looking for design tool
+    updates and freelance contract opportunities.
+  email: diag15@test.local
+  interests: []
+  location: Lisbon, Portugal
+  name: Diag_P15_EdgeCase
+  role: Freelance Graphic Designer
+security:
+  devices:
+  - diagnostic_device
+  pin_hash: 9af15b336e6a9619928537df30b2e6a2376569fcf9d7e773eccede65606529a0
