@@ -101,6 +101,17 @@ EXPERIENCE_REGEX = [
     r'\b\d{2}\+?\s*(?:yrs?|years?)\b',
 ]
 
+# Generic keywords that decompose from employer/entity names but lack
+# geographic specificity. When ALL matched keywords are in this set AND
+# location doesn't match, route to the DoRA model instead of hardcoding 9.0.
+GENERIC_KEYWORDS = {
+    'water', 'power', 'service', 'ministry', 'national', 'general',
+    'international', 'united', 'authority', 'corporation', 'group',
+    'company', 'electric', 'electricity', 'petroleum', 'oil', 'gas',
+    'supply', 'transport', 'communications', 'health',
+    'housing', 'public', 'affairs', 'resources', 'agency',
+}
+
 
 # ═══════════════════════════════════════════════════════════════════
 # Keyword Index Builder
@@ -415,6 +426,7 @@ def score_career_adaptive(title: str, text: str, url: str,
     has_senior_content = any(s in text_lower for s in SENIOR_LEVEL_SIGNALS)
     has_experience = _has_experience_requirement(text_lower)
     has_location = keyword_index.match_location(text)
+    all_generic = cat_matched and all(kw in GENERIC_KEYWORDS for kw in cat_matched)
 
     # ── Student path ──
     if is_student:
@@ -435,6 +447,8 @@ def score_career_adaptive(title: str, text: str, url: str,
 
         # Critical: keyword match + hiring + entry level
         if cat_matches >= 2 and has_hiring and has_entry:
+            if all_generic and not has_location:
+                return 5.5, f"Generic entry-level keywords, needs LLM: {', '.join(cat_matched[:3])}", False
             label = ', '.join(cat_matched[:3])
             return 9.0, f"Entry-level hiring match: {label}", True
 
@@ -466,6 +480,8 @@ def score_career_adaptive(title: str, text: str, url: str,
             return 3.5, "Entry-level role (user is experienced)", True
 
         if cat_matches >= 2 and has_hiring:
+            if all_generic and not has_location:
+                return 5.5, f"Generic keywords only, needs LLM: {', '.join(cat_matched[:3])}", False
             return 9.0, f"Relevant hiring: {', '.join(cat_matched[:3])}", True
 
         if cat_matches >= 2 and has_location:
