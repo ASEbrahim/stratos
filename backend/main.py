@@ -1304,6 +1304,14 @@ class StratOS:
         # Re-sort by score after merging
         news_items.sort(key=lambda x: x.get("score", 0), reverse=True)
 
+        # Pre-compute context hash once for tagging all articles
+        profile_cfg = self.config.get("profile", {})
+        context_hash = self._get_context_hash(
+            profile_cfg.get("role", ""),
+            profile_cfg.get("context", ""),
+            profile_cfg.get("location", ""),
+        )
+
         # Filter news for output (respect max_items)
         max_items = self.config.get("system", {}).get("max_news_items", 50)
         filtered_news = news_items[:max_items]
@@ -1324,9 +1332,8 @@ class StratOS:
                 "id": item.get("id", ""),
                 "category": item.get("category", ""),
                 "score_reason": item.get("score_reason", ""),
-                **({"retained": True, "retained_by_profile": item["retained_by_profile"]}
-                   if item.get("retained") and item.get("retained_by_profile") else
-                   {"retained": True} if item.get("retained") else {})
+                "retained_by_profile": context_hash,
+                **({"retained": True} if item.get("retained") else {})
             })
 
         # Build market output (FRS compliant)
@@ -1356,11 +1363,7 @@ class StratOS:
                 "news_count": len(news_output),
                 "critical_count": briefing.get("critical_count", 0),
                 "high_count": briefing.get("high_count", 0),
-                "context_hash": self._get_context_hash(
-                    self.config.get("profile", {}).get("role", ""),
-                    self.config.get("profile", {}).get("context", ""),
-                    self.config.get("profile", {}).get("location", ""),
-                )
+                "context_hash": context_hash
             }
         }
 
