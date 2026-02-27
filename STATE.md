@@ -4,7 +4,7 @@
 > Loaded into Claude.ai Project Knowledge and Claude Code context.
 > **CLAUDE.md** = how to work here. **STATE.md** = what happened and why. **FRS** = what the system should be.
 
-Last updated: **2026-02-26** (session: pipeline optimizations + retention system)
+Last updated: **2026-02-27** (session: focus mode polish — TF layout, corners, intel panel)
 
 ---
 
@@ -68,6 +68,8 @@ Last updated: **2026-02-26** (session: pipeline optimizations + retention system
 - Model routing: 14b handles briefings (14-30s), 30b reserved for agent chat
 - Two-pass scoring: fast timeout Pass 1, 3x slower Pass 2 for deferred items
 - Serper + DDG dual provider with automatic fallback
+- Fullscreen chart: drawing tools (trend, ray, fib, rect, etc.) with drag/resize, anchor-aware endpoint editing, canvas clipping, keyboard shortcuts (Delete, Escape, Ctrl+Z)
+- Focus mode: rounded corners, enlarged TF buttons near ticker, bottom intel panel (analysis + Strat Market agent)
 
 ### What's Broken / Needs Attention
 
@@ -95,6 +97,31 @@ Last updated: **2026-02-26** (session: pipeline optimizations + retention system
 ## 2. Decision Log
 
 > Append-only. Newest first. Each entry: WHAT was decided, WHY, and WHAT was rejected.
+
+### 2026-02-27
+
+**D012 — Canvas pointer-events: none, events on chartEl**
+Drawing canvas overlay with `pointer-events: auto` blocked all chart interactions (scroll, zoom, pan). Moved all mouse/touch event listeners from the canvas to the underlying `chartEl` div. Canvas stays permanently `pointer-events: none`. During active drag, chart interaction disabled via `handleScroll: false` / `handleScale: false`, re-enabled on drag end.
+*Rejected:* Toggling `pointer-events` dynamically (fragile, caused stuck state after tool use).
+
+**D013 — Anchor-aware drawing drag (start/end/body)**
+`_fsAnchorHitTest()` checks proximity (16px radius) to start and end anchors vs line body. Grabbing an anchor rotates/resizes the drawing from that end; grabbing the body translates the whole shape. This matches TradingView behavior.
+*Rejected:* Body-only drag (user couldn't rotate or resize), separate resize handles (overengineered for canvas drawings).
+
+**D014 — Crosshair as toggle, not cursor-mode tool**
+Crosshair button toggles `CrosshairMode.Normal` ↔ `CrosshairMode.Hidden` independently of the active tool. Stored as `_fs.crosshairOn` boolean.
+*Rejected:* Treating crosshair as a cursor mode (conflicted with drawing tools, always re-enabled on tool switch).
+
+**D015 — Bottom intel panel inside cfs-chart-area flex column**
+Intel panel placed inside `.cfs-chart-area` (flex column) after `.cfs-chart-container` (flex: 1). Chart shrinks naturally to accommodate panel expansion. Grip handle with drag-to-resize (28px collapsed, up to 50vh). Height persisted in localStorage.
+*Rejected:* Overlay/modal (blocks chart), separate panel outside chart area (layout complexity).
+
+**D016 — Separate agent chat state for focus mode**
+Focus mode agent uses its own `_cfsAgentHistory` and `_cfsAgentAppend`, independent from the markets panel `_mpAgentHistory`. Prevents cross-contamination between the two chat contexts. Each auto-injects current ticker context into messages.
+*Rejected:* Sharing state with markets panel agent (confusing when switching between views).
+
+**D017 — _fsSaveDrawings triggers analysis refresh**
+Instead of adding `_fsRenderAnalysis()` at every individual drawing completion/deletion/drag site, hooked it into `_fsSaveDrawings()` which is called on every drawing mutation. Single call site, no missed cases.
 
 ### 2026-02-26
 
@@ -147,6 +174,20 @@ DoRA offers 1-4% gains over LoRA with better tolerance for lower ranks. For scor
 
 > Non-obvious failures that future sessions might repeat. If the natural instinct would be to try the same approach, log it here.
 
+### 2026-02-27
+
+**F009 — Canvas pointer-events: auto causes stuck chart**
+After using any drawing tool, canvas kept `pointer-events: auto`, blocking all chart scroll/zoom/pan. User had to exit and re-enter focus mode.
+**Rule:** Canvas overlays should always be `pointer-events: none`. Listen on the parent element and use coordinate math to detect canvas interactions.
+
+**F010 — `document.getElementById()` fails on detached DOM elements**
+Intel panel elements (agent send button, input) were created in a detached DOM tree (`chartWrap` not yet appended to `root`). `document.getElementById()` returned null, so event listeners were never attached. User could type but not send.
+**Rule:** For elements in detached DOM, use `parentElement.querySelector()` instead of `document.getElementById()`.
+
+**F011 — Qwen3 `think: false` leaks into hray anchor logic**
+Initial hray anchor drag implementation incremented `startIdx` twice (once in generic code, once in hray-specific). Caused erratic movement.
+**Rule:** When special-casing drawing types in shared drag logic, ensure the general path doesn't also execute.
+
 ### 2026-02-26
 
 **F001 — `_build_output()` whitelist drops unknown fields**
@@ -194,6 +235,10 @@ Must delete `hf_device_map` and force `.to("cuda:0")` or gradient computation cr
 ## 4. Session Log
 
 > Most recent first. 3-5 lines per session.
+
+### 2026-02-27 — Focus Mode Polish & Drawing Tools Overhaul
+**Commits:** 5 frontend (c48b82f → 9f1367b), 5 parent (a389779 → fc573ad)
+Key work: (1) Draggable drawings with anchor-aware endpoint editing (rotate/resize from either end, translate from body). (2) Drawing tools UX overhaul: canvas clip rects prevent bleeding into price scale, right-click cancel, Delete/Backspace/Escape keyboard shortcuts, events moved from canvas to chartEl. (3) Crosshair toggle (on/off). (4) Ticker name enhancement (symbol + full name, improved dropdown). (5) Focus mode polish: TF buttons moved left and enlarged, rounded corners with 8px inset margin, draggable bottom intel panel with live analysis (momentum, volatility, S/R, range, fibonacci) and embedded Strat Market agent chat. (6) Bug fix: `getElementById` on detached DOM → `querySelector`.
 
 ### 2026-02-26 — Pipeline Optimizations + Retention System
 **Commits:** 10 (9e42de4 → 39fc9a2)
@@ -250,6 +295,9 @@ Primary profile is Computer Engineering student at AUK (Ahmad's real profile). P
 | Database | `backend/database.py` |
 | Auth/profiles | `backend/auth.py`, `backend/profiles/*.yaml` |
 | Server/routes | `backend/server.py`, `backend/routes/` |
+| Fullscreen chart & drawings | `frontend/mobile.js` (IIFE, all drawing tools + intel panel) |
+| Markets panel & agent | `frontend/markets-panel.js` |
+| Chart styles | `frontend/styles.css` (`.cfs-*` classes) |
 | Output JSON | `backend/output/news_data.json` |
 | API keys | `backend/.env` (gitignored) |
 | Codebase guide | `backend/CLAUDE.md` |
