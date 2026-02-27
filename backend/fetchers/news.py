@@ -732,6 +732,32 @@ class NewsFetcher:
         except Exception as e:
             logger.warning(f"Kuwait scrapers failed: {e}")
 
+        # 3.5 Optionally include extra feeds in scan pipeline
+        if self.config.get("scoring", {}).get("include_extra_feeds_in_scan", False):
+            try:
+                from .extra_feeds import fetch_extra_feeds
+                for feed_type in ("finance", "politics"):
+                    extra_items = fetch_extra_feeds(feed_type, config=self.config)
+                    added = 0
+                    for item_dict in extra_items:
+                        url = item_dict.get('url', '')
+                        if url and url not in seen_urls:
+                            seen_urls.add(url)
+                            all_items.append(NewsItem(
+                                title=item_dict.get('title', ''),
+                                url=url,
+                                summary=item_dict.get('summary', ''),
+                                timestamp=item_dict.get('timestamp', ''),
+                                source=item_dict.get('source', 'RSS'),
+                                root=item_dict.get('root', feed_type),
+                                category=item_dict.get('category', 'general'),
+                            ))
+                            added += 1
+                    if added:
+                        logger.info(f"Extra feeds ({feed_type}): added {added} items to scan")
+            except Exception as e:
+                logger.warning(f"Extra feeds integration failed: {e}")
+
         # 4. Freshness filter: drop items with timestamps older than 2 days
         #    Catches stale results that slip through search engine time filters
         if all_items:
