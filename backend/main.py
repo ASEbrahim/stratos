@@ -136,6 +136,12 @@ class StratOS:
         self._profile_configs = {}           # name -> config snapshot
         self._config_lock = threading.Lock() # Serialize profile switches
 
+        # Deferred briefing thread tracking (BUG-2 fix)
+        self._briefing_thread = None
+        self._briefing_generation = 0
+        self._briefing_done = threading.Event()
+        self._briefing_done.set()  # Initially "done" (no pending briefing)
+
         # Server start time for uptime tracking
         self._server_start_time = time.time()
 
@@ -1143,6 +1149,10 @@ class StratOS:
 
     def _spawn_deferred_briefing(self, market_data, market_alerts, scored_items, discoveries):
         """Generate briefing in a background thread and patch the output when done."""
+        self._briefing_generation += 1
+        current_gen = self._briefing_generation
+        self._briefing_done.clear()
+
         def _briefing_worker():
             try:
                 if self._scan_cancelled.is_set():
@@ -1172,9 +1182,19 @@ class StratOS:
             except Exception as e:
                 logger.warning(f"Deferred briefing failed: {e}")
                 self.sse_broadcast("briefing_ready", {"status": "failed"})
+            finally:
+                # Signal completion only if this is still the current generation
+                # (prevents stale thread A from signaling thread B's wait)
+                if current_gen == self._briefing_generation:
+                    self._briefing_done.set()
 
-        t = threading.Thread(target=_briefing_worker, daemon=True, name="briefing-deferred")
-        t.start()
+        self._briefing_thread = threading.Thread(target=_briefing_worker, daemon=True, name="briefing-deferred")
+        self._briefing_thread.start()
+
+    def wait_for_briefing(self, timeout: float = 30) -> bool:
+        """Wait for the deferred briefing to complete.
+        Returns True if briefing finished, False if timed out."""
+        return self._briefing_done.wait(timeout=timeout)
 
     def _snapshot_previous_articles(self):
         """Snapshot previous feed articles at scan start for retention merge.
