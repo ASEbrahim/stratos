@@ -1,0 +1,2047 @@
+{
+  "profiles": {
+    "11": {
+      "profile_num": 11,
+      "name": "Diag_P11_RSSEnergy",
+      "role": "Energy Market Analyst",
+      "location": "Houston, Texas, USA",
+      "context": "Monitoring crude oil markets, refinery operations, and LNG exports. Tracking energy policy changes and OPEC+ decisions.",
+      "context_hash": "d0eee2006ba6",
+      "categories": [
+        {
+          "id": "oilmkt",
+          "label": "Crude Oil & LNG Markets",
+          "items": [
+            "crude oil price",
+            "LNG export terminal",
+            "refinery capacity",
+            "Brent crude"
+          ]
+        },
+        {
+          "id": "enpol",
+          "label": "Energy Policy & Regulation",
+          "items": [
+            "FERC regulation",
+            "EPA emissions",
+            "DOE energy policy",
+            "carbon tax"
+          ]
+        }
+      ],
+      "total_articles": 74,
+      "scan_time_seconds": 55.5,
+      "total_time_with_briefing_wait": 85.6,
+      "scores": [
+        9.5,
+        9.5,
+        9.5,
+        9.5,
+        9.5,
+        9.5,
+        9.0,
+        9.0,
+        9.0,
+        8.5,
+        8.5,
+        8.5,
+        8.5,
+        8.2,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        7.5,
+        7.5,
+        7.5,
+        7.0,
+        7.0,
+        7.0,
+        7.0,
+        7.0,
+        7.0,
+        7.0,
+        7.0,
+        7.0,
+        7.0,
+        7.0,
+        7.0,
+        7.0,
+        7.0,
+        7.0,
+        7.0,
+        7.0,
+        4.0,
+        3.5,
+        3.5,
+        3.5,
+        3.5,
+        3.5,
+        3.5,
+        3.5,
+        3.5,
+        3.5,
+        3.5,
+        3.5,
+        3.5,
+        3.5,
+        3.5,
+        3.5,
+        3.5,
+        3.0,
+        3.0,
+        3.0,
+        3.0,
+        2.0,
+        2.0,
+        2.0,
+        2.0,
+        2.0,
+        2.0,
+        2.0
+      ],
+      "score_stats": {
+        "mean": 6.08,
+        "median": 7.0,
+        "stdev": 2.49,
+        "min": 2.0,
+        "max": 9.5,
+        "above_9": 9,
+        "above_7": 46,
+        "between_5_7": 0,
+        "below_5": 28,
+        "pct_above_7": 62.2,
+        "pct_below_5": 37.8
+      },
+      "score_distribution": {
+        "9.0-9.9": 9,
+        "8.0-8.9": 17,
+        "7.0-7.9": 20,
+        "4.0-4.9": 1,
+        "3.0-3.9": 20,
+        "2.0-2.9": 7
+      },
+      "category_counts": {
+        "oilmkt": 48,
+        "enpol": 23,
+        "eletrends": 3
+      },
+      "source_distribution": {
+        "Serper/Google": 64,
+        "Web Search": 3,
+        "Twitter/X": 1,
+        "LinkedIn": 4,
+        "Instagram": 2
+      },
+      "top_10": [
+        {
+          "title": "Oil analysts say there is a supply glut \u2014 why that hasn't translated to ...",
+          "score": 9.5,
+          "reason": "LLM: Directly actionable for an energy market analyst tracking supply-demand price relationships.",
+          "category": "oilmkt",
+          "url": "https://finance.yahoo.com/news/oil-analysts-say-there-is-a-supply-glut--why-that-hasnt-translated-to-lower-prices-this-year-150108444.html",
+          "source": "Serper/Google",
+          "retained": false
+        },
+        {
+          "title": "[PDF] Supplement to the Annual Report - Chevron",
+          "score": 9.5,
+          "reason": "LLM: Direct match to user's crude oil price tracking interests",
+          "category": "oilmkt",
+          "url": "https://www.chevron.com/-/media/shared-media/documents/2025-chevron-annual-report-supplement.pdf",
+          "source": "Serper/Google",
+          "retained": false
+        },
+        {
+          "title": "TotalEnergies Signs 20-Year Deal for Alaska LNG Supply",
+          "score": 9.5,
+          "reason": "LLM: Directly actionable for an energy market analyst tracking major LNG supply deals and terminal operations.",
+          "category": "oilmkt",
+          "url": "https://oilprice.com/Company-News/TotalEnergies-Signs-20-Year-Deal-for-Alaska-LNG-Supply.html",
+          "source": "Serper/Google",
+          "retained": false
+        },
+        {
+          "title": "OPEC+ Looks Raising Oil Output By 137,000 bpd for April 2026",
+          "score": 9.5,
+          "reason": "LLM: Crucially relevant policy news about OPEC+ production decisions that directly impact the energy market analyst's core responsibilities.",
+          "category": "oilmkt",
+          "url": "https://www.oilandgasadvancement.com/news/opec-looks-raising-oil-output-by-137000-bpd-for-april-2026/",
+          "source": "Serper/Google",
+          "retained": false
+        },
+        {
+          "title": "Events | TankTerminals",
+          "score": 9.5,
+          "reason": "Breakthrough in tracked area: lng, terminal",
+          "category": "oilmkt",
+          "url": "https://tankterminals.com/events/page/50/",
+          "source": "Serper/Google",
+          "retained": false
+        },
+        {
+          "title": "Safe-haven demand supports gold prices, inventory increase ...",
+          "score": 9.5,
+          "reason": "LLM: Highly actionable article for an Energy Market Analyst focused on crude oil markets, refinery operations, and LNG exports.",
+          "category": "oilmkt",
+          "url": "https://news.futunn.com/en/post/69252704/february-26-financial-morning-briefing-safe-haven-demand-supports-gold",
+          "source": "Serper/Google",
+          "retained": false
+        },
+        {
+          "title": "Running on empty: South Africa's oil and gas sector at a crossroads",
+          "score": 9.0,
+          "reason": "LLM: Highly relevant to user's refinery capacity monitoring",
+          "category": "oilmkt",
+          "url": "https://iol.co.za/news/brics/2026-02-20-running-on-empty-south-africas-oil-and-gas-sector-at-a-crossroads/",
+          "source": "Serper/Google",
+          "retained": false
+        },
+        {
+          "title": "Golden Pass steps closer to LNG with FERC request - Argus Media",
+          "score": 9.0,
+          "reason": "LLM: Highly relevant market news about Golden Pass LNG production and federal regulatory approval process.",
+          "category": "oilmkt",
+          "url": "https://www.argusmedia.com/en/news-and-insights/latest-market-news/2792398-golden-pass-steps-closer-to-lng-with-ferc-request",
+          "source": "Serper/Google",
+          "retained": false
+        },
+        {
+          "title": "US Solar Tariffs: Commerce Dept. Preliminary Ruling Spurs Trade ...",
+          "score": 9.0,
+          "reason": "LLM: Directly actionable for user's trade policy analysis needs",
+          "category": "enpol",
+          "url": "https://now.solar/2026/02/24/us-solar-tariffs-commerce-dept-preliminary-ruling-spurs-trade-tensions-whalesbook/",
+          "source": "Serper/Google",
+          "retained": false
+        },
+        {
+          "title": "Indian Oil & Gas - News, views & analysis of the Indian petro sector",
+          "score": 8.5,
+          "reason": "LLM: Strong alignment with user's crude oil price analysis interests",
+          "category": "oilmkt",
+          "url": "https://www.indianoilandgas.com/viewnews.php?id=63821",
+          "source": "Serper/Google",
+          "retained": false
+        }
+      ],
+      "bottom_10": [
+        {
+          "title": "TotalEnergies Signs Agreement to Export 2 Mtpa of LNG for 20 ...",
+          "score": 7.0,
+          "reason": "Relevant topic: lng, terminal, capacity",
+          "category": "oilmkt",
+          "url": "https://totalenergies.com/news/press-releases/united-states-totalenergies-signs-agreement-export-2-mtpa-lng-20-years-alaska",
+          "source": "Serper/Google"
+        },
+        {
+          "title": "U.S. drilling to remain disciplined in 2026 amid flat rigs, steady output",
+          "score": 7.0,
+          "reason": "LLM: Moderately relevant to user's drilling capacity interests but limited geographic scope",
+          "category": "oilmkt",
+          "url": "https://worldoil.com/magazine/2026/february/special-focus-2026-forecast-review/u-s-drilling-to-remain-disciplined-in-2026-amid-flat-rigs-steady-output/",
+          "source": "Serper/Google"
+        },
+        {
+          "title": "Save Room \u2013 As LNG Exports and Haynesville Production Rise ...",
+          "score": 7.0,
+          "reason": "Relevant topic: lng, terminal, lng export terminal",
+          "category": "oilmkt",
+          "url": "https://rbnenergy.com/daily-posts/blog/lng-exports-and-haynesville-production-rise-natgas-storage-takes-center-stage",
+          "source": "Serper/Google"
+        },
+        {
+          "title": "Will Brent crude oil price stay above $70 in 2026? Analyst shares ...",
+          "score": 7.0,
+          "reason": "Relevant topic: price, oil, crude oil price",
+          "category": "oilmkt",
+          "url": "https://www.hellenicshippingnews.com/will-brent-crude-oil-price-stay-above-70-in-2026-analyst-shares-outlook/",
+          "source": "Serper/Google"
+        },
+        {
+          "title": "Goldman Raises Q4 Oil Price Outlook on Lower OECD Stocks",
+          "score": 7.0,
+          "reason": "Relevant topic: price, oil, brent",
+          "category": "oilmkt",
+          "url": "https://energynow.ca/2026/02/goldman-raises-q4-oil-price-outlook-on-lower-oecd-stocks/",
+          "source": "Serper/Google"
+        },
+        {
+          "title": "FACTBOX: Oil markets brace for potential US strikes on Iran's ...",
+          "score": 7.0,
+          "reason": "Relevant topic: price, oil, brent",
+          "category": "oilmkt",
+          "url": "https://www.spglobal.com/energy/en/news-research/latest-news/crude-oil/022426-factbox-oil-markets-brace-for-potential-us-strikes-on-irans-energy-infrastructure",
+          "source": "Serper/Google"
+        },
+        {
+          "title": "Goldman Sachs lifts Q4 oil price forecast on tighter OECD inventories",
+          "score": 7.0,
+          "reason": "Relevant topic: price, oil",
+          "category": "oilmkt",
+          "url": "https://www.oilandgas360.com/goldman-sachs-lifts-q4-oil-price-forecast-on-tighter-oecd-inventories/",
+          "source": "Serper/Google"
+        },
+        {
+          "title": "Oil Traders Bet on Risk as Diplomacy Yields Little | OilPrice.com",
+          "score": 7.0,
+          "reason": "Relevant topic: price, oil",
+          "category": "oilmkt",
+          "url": "https://oilprice.com/Energy/Crude-Oil/Oil-Traders-Bet-on-Risk-as-Diplomacy-Yields-Little.html",
+          "source": "Serper/Google"
+        },
+        {
+          "title": "Oil & Natural Gas Corporation Ltd. Share Price Today - Zerodha",
+          "score": 7.0,
+          "reason": "Relevant topic: price, oil, markets",
+          "category": "oilmkt",
+          "url": "https://zerodha.com/markets/stocks/NSE/ONGC/",
+          "source": "Serper/Google"
+        },
+        {
+          "title": "Talos Energy details 2025 reserves and output - Form 10-K",
+          "score": 7.0,
+          "reason": "LLM: Direct regulatory filing relevant to energy market analyst",
+          "category": "enpol",
+          "url": "https://www.stocktitan.net/sec-filings/TALO/10-k-talos-energy-inc-files-annual-report-52cec25cd37c.html",
+          "source": "Serper/Google"
+        }
+      ],
+      "pipeline_events": {
+        "errors": [],
+        "warnings": [
+          "Found 3 retained articles in isolated instance!"
+        ],
+        "rss_items_count": 0,
+        "search_items_count": 0,
+        "deferred_items": 0,
+        "pass1_scored": 71,
+        "pass2_scored": 0,
+        "retained_count": 3
+      },
+      "briefing_analysis": {
+        "has_content": true,
+        "critical_count": 9,
+        "high_count": 34,
+        "sections": [
+          "generated_at",
+          "greeting",
+          "critical_alerts",
+          "critical_count",
+          "market_summary",
+          "market_alerts",
+          "high_priority",
+          "high_count",
+          "medium_priority",
+          "medium_count",
+          "noise_count",
+          "discoveries",
+          "discovery_note",
+          "summary_stats"
+        ],
+        "text_length": 5284,
+        "role_word_matches": 3,
+        "role_total_words": 3
+      },
+      "retained_count": 3,
+      "rss_feeds_enabled": {
+        "finance": [
+          "oilprice",
+          "rigzone",
+          "bloomberg",
+          "cnbc_top"
+        ],
+        "politics": [
+          "bbc_world"
+        ]
+      },
+      "meta": {
+        "version": "3.0",
+        "generated_at": "2026-02-27T11:08:38.905859",
+        "news_count": 74,
+        "critical_count": 0,
+        "high_count": 0,
+        "context_hash": "d0eee2006ba6"
+      }
+    },
+    "12": {
+      "profile_num": 12,
+      "name": "Diag_P12_ArabicKW",
+      "role": "Government Relations Specialist",
+      "location": "Kuwait City, Kuwait",
+      "context": "Managing government affairs for a Kuwaiti conglomerate. Tracking National Assembly debates, GCC summits, and public sector procurement tenders. Primary news consumption in Arabic.",
+      "context_hash": "a9e3d909f361",
+      "categories": [
+        {
+          "id": "kwgov",
+          "label": "Kuwait Government & Parliament",
+          "items": [
+            "Kuwait National Assembly",
+            "\u0645\u062c\u0644\u0633 \u0627\u0644\u0623\u0645\u0629 \u0627\u0644\u0643\u0648\u064a\u062a\u064a",
+            "Kuwait government tenders",
+            "Kuwait municipal elections"
+          ]
+        },
+        {
+          "id": "gccrel",
+          "label": "GCC Diplomatic Relations",
+          "items": [
+            "GCC summit 2026",
+            "Kuwait-Saudi relations",
+            "Gulf Cooperation Council",
+            "Kuwait foreign ministry"
+          ]
+        }
+      ],
+      "total_articles": 73,
+      "scan_time_seconds": 28.9,
+      "total_time_with_briefing_wait": 58.9,
+      "scores": [
+        9.5,
+        9.5,
+        9.5,
+        9.5,
+        9.5,
+        9.5,
+        9.5,
+        9.5,
+        9.5,
+        9.0,
+        9.0,
+        9.0,
+        9.0,
+        8.5,
+        8.5,
+        8.5,
+        8.5,
+        8.5,
+        8.5,
+        8.2,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        7.0,
+        7.0,
+        7.0,
+        7.0,
+        7.0,
+        7.0,
+        7.0,
+        7.0,
+        4.0,
+        3.5,
+        3.5,
+        3.5,
+        3.5,
+        3.5,
+        3.5,
+        3.5,
+        3.0,
+        3.0,
+        3.0,
+        3.0,
+        3.0,
+        3.0,
+        2.5,
+        2.5,
+        2.5,
+        2.5,
+        2.0,
+        2.0,
+        2.0,
+        2.0,
+        2.0,
+        2.0,
+        2.0,
+        2.0,
+        1.0,
+        1.0
+      ],
+      "score_stats": {
+        "mean": 6.13,
+        "median": 8.0,
+        "stdev": 2.87,
+        "min": 1.0,
+        "max": 9.5,
+        "above_9": 13,
+        "above_7": 45,
+        "between_5_7": 0,
+        "below_5": 28,
+        "pct_above_7": 61.6,
+        "pct_below_5": 38.4
+      },
+      "score_distribution": {
+        "9.0-9.9": 13,
+        "8.0-8.9": 24,
+        "7.0-7.9": 8,
+        "4.0-4.9": 1,
+        "3.0-3.9": 13,
+        "2.0-2.9": 12,
+        "1.0-1.9": 2
+      },
+      "category_counts": {
+        "gccrel": 32,
+        "oilmkt": 16,
+        "enpol": 4,
+        "kwgov": 21
+      },
+      "source_distribution": {
+        "Serper/Google": 65,
+        "Kuwait News": 1,
+        "LinkedIn": 1,
+        "Instagram": 6
+      },
+      "top_10": [
+        {
+          "title": "GCC Calls on Iraq to Withdraw Contentious Coordinates, Map ...",
+          "score": 9.5,
+          "reason": "LLM: Directly actionable for GCC diplomatic relations specialist tracking Iraq's UN map dispute and Kuwait's regional cooperation.",
+          "category": "gccrel",
+          "url": "https://english.aawsat.com/gulf/5244140-gcc-calls-iraq-withdraw-contentious-coordinates-map-lodged-un%C2%A0",
+          "source": "Serper/Google",
+          "retained": false
+        },
+        {
+          "title": "Gulf bloc urges Iraq to withdraw UN map, coordinates over ...",
+          "score": 9.5,
+          "reason": "LLM: Identical content to [1] but different title, both directly actionable for GCC specialist.",
+          "category": "gccrel",
+          "url": "https://www.middleeastmonitor.com/20260223-gulf-bloc-urges-iraq-to-withdraw-un-map-coordinates-over-infringement-of-kuwaits-sovereignty/",
+          "source": "Serper/Google",
+          "retained": false
+        },
+        {
+          "title": "India-GCC FTA: Piyush Goyal signs Joint Statement for trade pact ...",
+          "score": 9.5,
+          "reason": "LLM: Directly actionable for a Kuwait-based government relations specialist, covering GCC diplomatic relations and a major regional summit.",
+          "category": "gccrel",
+          "url": "https://m.economictimes.com/news/economy/foreign-trade/india-gcc-fta-piyush-goyal-signs-joint-statement-for-trade-pact-with-gulf-cooperation-council-saudi-arabia-uae-qatar-kuwait-oman-and-bahrain/articleshow/128751254.cms",
+          "source": "Serper/Google",
+          "retained": false
+        },
+        {
+          "title": "Oil analysts say there is a supply glut \u2014 why that hasn't translated to ...",
+          "score": 9.5,
+          "reason": "LLM: Directly actionable for an energy market analyst tracking supply-demand price relationships.",
+          "category": "oilmkt",
+          "url": "https://finance.yahoo.com/news/oil-analysts-say-there-is-a-supply-glut--why-that-hasnt-translated-to-lower-prices-this-year-150108444.html",
+          "source": "Serper/Google",
+          "retained": true
+        },
+        {
+          "title": "[PDF] Supplement to the Annual Report - Chevron",
+          "score": 9.5,
+          "reason": "LLM: Direct match to user's crude oil price tracking interests",
+          "category": "oilmkt",
+          "url": "https://www.chevron.com/-/media/shared-media/documents/2025-chevron-annual-report-supplement.pdf",
+          "source": "Serper/Google",
+          "retained": true
+        },
+        {
+          "title": "TotalEnergies Signs 20-Year Deal for Alaska LNG Supply",
+          "score": 9.5,
+          "reason": "LLM: Directly actionable for an energy market analyst tracking major LNG supply deals and terminal operations.",
+          "category": "oilmkt",
+          "url": "https://oilprice.com/Company-News/TotalEnergies-Signs-20-Year-Deal-for-Alaska-LNG-Supply.html",
+          "source": "Serper/Google",
+          "retained": true
+        },
+        {
+          "title": "OPEC+ Looks Raising Oil Output By 137,000 bpd for April 2026",
+          "score": 9.5,
+          "reason": "LLM: Crucially relevant policy news about OPEC+ production decisions that directly impact the energy market analyst's core responsibilities.",
+          "category": "oilmkt",
+          "url": "https://www.oilandgasadvancement.com/news/opec-looks-raising-oil-output-by-137000-bpd-for-april-2026/",
+          "source": "Serper/Google",
+          "retained": true
+        },
+        {
+          "title": "Events | TankTerminals",
+          "score": 9.5,
+          "reason": "Breakthrough in tracked area: lng, terminal",
+          "category": "oilmkt",
+          "url": "https://tankterminals.com/events/page/50/",
+          "source": "Serper/Google",
+          "retained": true
+        },
+        {
+          "title": "Safe-haven demand supports gold prices, inventory increase ...",
+          "score": 9.5,
+          "reason": "LLM: Highly actionable article for an Energy Market Analyst focused on crude oil markets, refinery operations, and LNG exports.",
+          "category": "oilmkt",
+          "url": "https://news.futunn.com/en/post/69252704/february-26-financial-morning-briefing-safe-haven-demand-supports-gold",
+          "source": "Serper/Google",
+          "retained": true
+        },
+        {
+          "title": "Kuwait Marks Independence, Liberation Anniversaries Amid Record ...",
+          "score": 9.0,
+          "reason": "LLM: Actionable for a Kuwait-based professional, covering national celebrations and historical commemorations.",
+          "category": "gccrel",
+          "url": "https://english.aawsat.com/gulf/5244988-kuwait-marks-independence-liberation-anniversaries-amid-record-financial-surpluses",
+          "source": "Serper/Google",
+          "retained": false
+        }
+      ],
+      "bottom_10": [
+        {
+          "title": "U.S. Crude Oil Stockpiles Post Large Weekly Build - MarketScreener",
+          "score": 8.0,
+          "reason": "Notable development: oil, brent, markets",
+          "category": "oilmkt",
+          "url": "https://www.marketscreener.com/news/u-s-crude-oil-stockpiles-post-large-weekly-build-ce7e5cdbd080f327",
+          "source": "Serper/Google"
+        },
+        {
+          "title": "[PDF] Diamondback Energy, Inc. - Fortune",
+          "score": 8.0,
+          "reason": "Notable development: energy, regulation, ferc",
+          "category": "enpol",
+          "url": "https://fortune.com/company-assets/927/quartr/annual-report-10-k-65a68-2026-02-25-09-26-14.pdf",
+          "source": "Serper/Google"
+        },
+        {
+          "title": "Kuwait National Museum - Reviews, Photos & Phone Number ...",
+          "score": 7.0,
+          "reason": "Relevant topic: national, parliament, kuwait",
+          "category": "kwgov",
+          "url": "https://kuwait-national-museum.wheree.com/",
+          "source": "Serper/Google"
+        },
+        {
+          "title": "Latest 2026 Government Kuwait Tenders Details",
+          "score": 7.0,
+          "reason": "Relevant topic: kuwait government tenders, tenders, kuwait",
+          "category": "kwgov",
+          "url": "https://www.tendersinfo.com/global-kuwait-tenders.php",
+          "source": "Serper/Google"
+        },
+        {
+          "title": "Saudi Foreign Ministry: We reject Iraq's violations of our shared ...",
+          "score": 7.0,
+          "reason": "Relevant topic: foreign, 2026, kuwait",
+          "category": "gccrel",
+          "url": "https://www.middleeastmonitor.com/20260223-saudi-foreign-ministry-we-reject-iraqs-violations-of-our-shared-maritime-borders-with-kuwait/",
+          "source": "Serper/Google"
+        },
+        {
+          "title": "Can the Gulf Cooperation Council Transcend Its Divisions?",
+          "score": 7.0,
+          "reason": "Relevant topic: gulf cooperation council, gulf, cooperation",
+          "category": "gccrel",
+          "url": "https://carnegieendowment.org/russia-eurasia/research/2026/02/can-the-gulf-cooperation-council-transcend-its-divisions",
+          "source": "Serper/Google"
+        },
+        {
+          "title": "Gulf states rally behind Kuwait in maritime dispute with Iraq | | AW",
+          "score": 7.0,
+          "reason": "Relevant topic: gulf, kuwait",
+          "category": "gccrel",
+          "url": "https://thearabweekly.com/gulf-states-rally-behind-kuwait-maritime-dispute-iraq",
+          "source": "Serper/Google"
+        },
+        {
+          "title": "GCC backs Kuwait in dispute with Iraq over maritime border",
+          "score": 7.0,
+          "reason": "Relevant topic: foreign, gcc, kuwait",
+          "category": "gccrel",
+          "url": "https://www.newarab.com/news/gcc-backs-kuwait-dispute-iraq-over-maritime-border",
+          "source": "Serper/Google"
+        },
+        {
+          "title": "Gulf countries side with Kuwait as Iraq submits controversial ...",
+          "score": 7.0,
+          "reason": "Relevant topic: gulf, foreign, 2026",
+          "category": "gccrel",
+          "url": "https://english.mathrubhumi.com/news/world/iraq-kuwait-border-dispute-persian-gulf-gtifybfr",
+          "source": "Serper/Google"
+        },
+        {
+          "title": "India, Gulf Cooperation Council sign joint statement on Free Trade ...",
+          "score": 7.0,
+          "reason": "Relevant topic: gulf cooperation council, gulf, foreign",
+          "category": "gccrel",
+          "url": "https://www.tribuneindia.com/news/india/india-gulf-cooperation-council-sign-joint-statement-on-free-trade-agreement/",
+          "source": "Serper/Google"
+        }
+      ],
+      "pipeline_events": {
+        "errors": [],
+        "warnings": [
+          "Found 20 retained articles in isolated instance!"
+        ],
+        "rss_items_count": 0,
+        "search_items_count": 0,
+        "deferred_items": 0,
+        "pass1_scored": 53,
+        "pass2_scored": 0,
+        "retained_count": 20
+      },
+      "briefing_analysis": {
+        "has_content": true,
+        "critical_count": 4,
+        "high_count": 21,
+        "sections": [
+          "generated_at",
+          "greeting",
+          "critical_alerts",
+          "critical_count",
+          "market_summary",
+          "market_alerts",
+          "high_priority",
+          "high_count",
+          "medium_priority",
+          "medium_count",
+          "noise_count",
+          "discoveries",
+          "discovery_note",
+          "summary_stats"
+        ],
+        "text_length": 4577,
+        "role_word_matches": 3,
+        "role_total_words": 3
+      },
+      "retained_count": 20,
+      "rss_feeds_enabled": {
+        "finance": [],
+        "politics": [
+          "gn_kuwait",
+          "arab_times",
+          "alarabiya",
+          "gn_mideast"
+        ]
+      },
+      "meta": {
+        "version": "3.0",
+        "generated_at": "2026-02-27T11:09:41.393138",
+        "news_count": 73,
+        "critical_count": 0,
+        "high_count": 0,
+        "context_hash": "a9e3d909f361"
+      }
+    },
+    "13": {
+      "profile_num": 13,
+      "name": "Diag_P13_Niche",
+      "role": "Papyrologist specializing in Ptolemaic demotic scripts",
+      "location": "Oxford, United Kingdom",
+      "context": "Researching decipherment of Ptolemaic-era Egyptian demotic papyri. Looking for museum digitization projects, paleography conferences, and Coptic language analysis tools.",
+      "context_hash": "2728d4eb0af4",
+      "categories": [
+        {
+          "id": "papyr",
+          "label": "Papyrology & Ancient Scripts",
+          "items": [
+            "papyrus digitization",
+            "demotic script analysis",
+            "Ptolemaic Egypt research",
+            "ancient manuscript OCR"
+          ]
+        },
+        {
+          "id": "museum",
+          "label": "Museum & Archive Projects",
+          "items": [
+            "British Museum papyrus",
+            "Bodleian Library manuscripts",
+            "Egyptian Museum Cairo",
+            "papyrology postdoc"
+          ]
+        }
+      ],
+      "total_articles": 31,
+      "scan_time_seconds": 21.3,
+      "total_time_with_briefing_wait": 51.3,
+      "scores": [
+        9.5,
+        9.5,
+        9.5,
+        9.0,
+        8.5,
+        8.5,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        7.0,
+        4.0,
+        3.5,
+        3.5,
+        3.5,
+        3.5,
+        3.5,
+        3.5,
+        3.0,
+        2.5,
+        2.5,
+        2.0,
+        2.0
+      ],
+      "score_stats": {
+        "mean": 6.27,
+        "median": 8.0,
+        "stdev": 2.66,
+        "min": 2.0,
+        "max": 9.5,
+        "above_9": 4,
+        "above_7": 19,
+        "between_5_7": 0,
+        "below_5": 12,
+        "pct_above_7": 61.3,
+        "pct_below_5": 38.7
+      },
+      "score_distribution": {
+        "9.0-9.9": 4,
+        "8.0-8.9": 14,
+        "7.0-7.9": 1,
+        "4.0-4.9": 1,
+        "3.0-3.9": 7,
+        "2.0-2.9": 4
+      },
+      "category_counts": {
+        "gccrel": 17,
+        "museum": 4,
+        "papyr": 10
+      },
+      "source_distribution": {
+        "Serper/Google": 26,
+        "Instagram": 5
+      },
+      "top_10": [
+        {
+          "title": "GCC Calls on Iraq to Withdraw Contentious Coordinates, Map ...",
+          "score": 9.5,
+          "reason": "LLM: Directly actionable for GCC diplomatic relations specialist tracking Iraq's UN map dispute and Kuwait's regional cooperation.",
+          "category": "gccrel",
+          "url": "https://english.aawsat.com/gulf/5244140-gcc-calls-iraq-withdraw-contentious-coordinates-map-lodged-un%C2%A0",
+          "source": "Serper/Google",
+          "retained": true
+        },
+        {
+          "title": "Gulf bloc urges Iraq to withdraw UN map, coordinates over ...",
+          "score": 9.5,
+          "reason": "LLM: Identical content to [1] but different title, both directly actionable for GCC specialist.",
+          "category": "gccrel",
+          "url": "https://www.middleeastmonitor.com/20260223-gulf-bloc-urges-iraq-to-withdraw-un-map-coordinates-over-infringement-of-kuwaits-sovereignty/",
+          "source": "Serper/Google",
+          "retained": true
+        },
+        {
+          "title": "India-GCC FTA: Piyush Goyal signs Joint Statement for trade pact ...",
+          "score": 9.5,
+          "reason": "LLM: Directly actionable for a Kuwait-based government relations specialist, covering GCC diplomatic relations and a major regional summit.",
+          "category": "gccrel",
+          "url": "https://m.economictimes.com/news/economy/foreign-trade/india-gcc-fta-piyush-goyal-signs-joint-statement-for-trade-pact-with-gulf-cooperation-council-saudi-arabia-uae-qatar-kuwait-oman-and-bahrain/articleshow/128751254.cms",
+          "source": "Serper/Google",
+          "retained": true
+        },
+        {
+          "title": "Kuwait Marks Independence, Liberation Anniversaries Amid Record ...",
+          "score": 9.0,
+          "reason": "LLM: Actionable for a Kuwait-based professional, covering national celebrations and historical commemorations.",
+          "category": "gccrel",
+          "url": "https://english.aawsat.com/gulf/5244988-kuwait-marks-independence-liberation-anniversaries-amid-record-financial-surpluses",
+          "source": "Serper/Google",
+          "retained": true
+        },
+        {
+          "title": "Kuwait after May 2024: End of (semi-)democratic exceptionalism in ...",
+          "score": 8.5,
+          "reason": "LLM: Highly relevant analysis of Kuwait's political evolution, critical for someone managing government affairs.",
+          "category": "gccrel",
+          "url": "https://www.clingendael.org/publication/kuwait-after-may-2024-end-semi-democratic-exceptionalism-gulf",
+          "source": "Serper/Google",
+          "retained": true
+        },
+        {
+          "title": "India and GCC Sign Joint Statement Launching FTA Negotiations",
+          "score": 8.5,
+          "reason": "LLM: Highly relevant for a government relations specialist, covering GCC diplomatic relations and major regional negotiations.",
+          "category": "gccrel",
+          "url": "https://www.civilsdaily.com/news/india-and-gcc-sign-joint-statement-launching-fta-negotiations/",
+          "source": "Serper/Google",
+          "retained": true
+        },
+        {
+          "title": "Leuven Database of Ancient Books - Trismegistos.org",
+          "score": 8.0,
+          "reason": "Relevant opportunity in target location: museum, bodleian, library",
+          "category": "museum",
+          "url": "https://www.trismegistos.org/ldab/",
+          "source": "Serper/Google",
+          "retained": false
+        },
+        {
+          "title": "Gulf countries back Kuwait's sovereignty after Iraq draws new ...",
+          "score": 8.0,
+          "reason": "Notable development: gulf, gcc, 2026",
+          "category": "gccrel",
+          "url": "https://www.aljazeera.com/news/2026/2/23/gcc-states-back-kuwait-maritime-sovereignty-after-iraq-draws-new-boundaries",
+          "source": "Serper/Google",
+          "retained": true
+        },
+        {
+          "title": "GCC Urges Iraq to Withdraw Disputed UN Map",
+          "score": 8.0,
+          "reason": "Notable development: gcc, summit",
+          "category": "gccrel",
+          "url": "https://youthdiplomacyforum.com/gcc-urges-iraq-to-withdraw-disputed-un-map/",
+          "source": "Serper/Google",
+          "retained": true
+        },
+        {
+          "title": "Iraqi Maps Infuriate Gulf Governments | Alhurra",
+          "score": 8.0,
+          "reason": "Notable development: gulf cooperation council, gulf, foreign",
+          "category": "gccrel",
+          "url": "https://alhurra.com/en/13779",
+          "source": "Serper/Google",
+          "retained": true
+        }
+      ],
+      "bottom_10": [
+        {
+          "title": "Iraqi Maps Infuriate Gulf Governments | Alhurra",
+          "score": 8.0,
+          "reason": "Notable development: gulf cooperation council, gulf, foreign",
+          "category": "gccrel",
+          "url": "https://alhurra.com/en/13779",
+          "source": "Serper/Google"
+        },
+        {
+          "title": "The state of great power competition in the Gulf - Atlantic Council",
+          "score": 8.0,
+          "reason": "Notable development: gulf cooperation council, gulf, gcc",
+          "category": "gccrel",
+          "url": "https://www.atlanticcouncil.org/in-depth-research-reports/issue-brief/the-state-of-great-power-competition-in-the-gulf/",
+          "source": "Serper/Google"
+        },
+        {
+          "title": "READ: Message on the Occasion of the 65th National Day and 35th ...",
+          "score": 8.0,
+          "reason": "LLM: Highly relevant to GCC specialist tracking Kuwait's regional cooperation efforts and potential market access for Vietnam.",
+          "category": "gccrel",
+          "url": "https://www.facebook.com/PHinKuwait/posts/read-message-on-the-occasion-of-the-65th-national-day-and-35th-liberation-day-of/931347989284887/?locale=en_GB",
+          "source": "Serper/Google"
+        },
+        {
+          "title": "Ahmad Al-Jaber Al-Sabah, His Highness Crown Prince ... - Facebook",
+          "score": 8.0,
+          "reason": "LLM: Identical content to [3] but different title, both highly relevant to GCC specialist.",
+          "category": "gccrel",
+          "url": "https://www.facebook.com/pilipinosakuwait/posts/read-message-on-the-occasion-of-the-65th-national-day-and-35th-liberation-day-of/1251585603786076/",
+          "source": "Serper/Google"
+        },
+        {
+          "title": "GCC, India Launch Free Trade Agreement Negotiations",
+          "score": 8.0,
+          "reason": "Notable development: gulf cooperation council, gulf, gcc",
+          "category": "gccrel",
+          "url": "https://qna.org.qa/en/News-Area/News/2026-2/24/gcc-india-launch-free-trade-agreement-negotiations",
+          "source": "Serper/Google"
+        },
+        {
+          "title": "Saudi Arabia Confronts the Israel\u2013UAE Alignment in Somalia",
+          "score": 8.0,
+          "reason": "LLM: Highly relevant to GCC diplomatic relations, though the content appears incomplete.",
+          "category": "gccrel",
+          "url": "https://arabcenterdc.org/resource/saudi-arabia-confronts-the-israel-uae-alignment-in-somalia/",
+          "source": "Serper/Google"
+        },
+        {
+          "title": "GCC Sec Gen meets with ambassadors and representatives of GCC ...",
+          "score": 8.0,
+          "reason": "Notable development: gulf cooperation council, gulf, gcc",
+          "category": "gccrel",
+          "url": "https://www.bna.bh/En/GCCSecGenmeetswithambassadorsandrepresentativesofGCCembassiesinIndia.aspx?cms=q8FmFJgiscL2fwIzON1%2BDnbwrBkhwOPWpmzM%2FF10Cqw%3D",
+          "source": "Serper/Google"
+        },
+        {
+          "title": "Security Without Rights: The GCC's 2026 Agenda And The Cost Of ...",
+          "score": 8.0,
+          "reason": "Notable development: gulf cooperation council, gulf, gcc",
+          "category": "gccrel",
+          "url": "https://www.ecdhr.org/security-without-rights-the-gccs-2026-agenda-and-the-cost-of-control/",
+          "source": "Serper/Google"
+        },
+        {
+          "title": "India, Gulf Cooperation Council begin talks for free trade pact",
+          "score": 8.0,
+          "reason": "Notable development: gulf cooperation council, gulf, gcc",
+          "category": "gccrel",
+          "url": "https://www.deccanherald.com/india/india-gulf-cooperation-council-begin-talks-for-free-trade-pact-3910214",
+          "source": "Serper/Google"
+        },
+        {
+          "title": "Ancient Egyptian race controversy - Wikipedia",
+          "score": 7.0,
+          "reason": "Relevant topic: egypt, ancient",
+          "category": "papyr",
+          "url": "https://en.wikipedia.org/wiki/Ancient_Egyptian_race_controversy",
+          "source": "Serper/Google"
+        }
+      ],
+      "pipeline_events": {
+        "errors": [],
+        "warnings": [
+          "Found 17 retained articles in isolated instance!"
+        ],
+        "rss_items_count": 0,
+        "search_items_count": 0,
+        "deferred_items": 0,
+        "pass1_scored": 14,
+        "pass2_scored": 0,
+        "retained_count": 17
+      },
+      "briefing_analysis": {
+        "has_content": true,
+        "critical_count": 0,
+        "high_count": 2,
+        "sections": [
+          "generated_at",
+          "greeting",
+          "critical_alerts",
+          "critical_count",
+          "market_summary",
+          "market_alerts",
+          "high_priority",
+          "high_count",
+          "medium_priority",
+          "medium_count",
+          "noise_count",
+          "discoveries",
+          "discovery_note",
+          "summary_stats"
+        ],
+        "text_length": 1088,
+        "role_word_matches": 0,
+        "role_total_words": 5
+      },
+      "retained_count": 17,
+      "rss_feeds_enabled": {
+        "finance": [],
+        "politics": []
+      },
+      "meta": {
+        "version": "3.0",
+        "generated_at": "2026-02-27T11:10:36.155408",
+        "news_count": 31,
+        "critical_count": 0,
+        "high_count": 0,
+        "context_hash": "2728d4eb0af4"
+      }
+    },
+    "14": {
+      "profile_num": 14,
+      "name": "Diag_P14_MechStudent",
+      "role": "Mechanical Engineering Student (Senior year)",
+      "location": "Jubail, Saudi Arabia",
+      "context": "Completing final year at Jubail Industrial College. Interested in co-op positions at SABIC or Saudi Aramco. Studying for FE exam.",
+      "context_hash": "efe309d5d4b6",
+      "categories": [
+        {
+          "id": "sabicj",
+          "label": "SABIC & Saudi Petrochemicals",
+          "items": [
+            "SABIC",
+            "Saudi Aramco downstream",
+            "Jubail Industrial City",
+            "Saudi Vision 2030 industry"
+          ]
+        },
+        {
+          "id": "mecheng",
+          "label": "Mechanical Engineering Tech",
+          "items": [
+            "heat exchanger design",
+            "plant maintenance optimization",
+            "predictive maintenance",
+            "process piping"
+          ]
+        },
+        {
+          "id": "mechcrt",
+          "label": "MechEng Student Certifications",
+          "items": [
+            "FE exam mechanical",
+            "EIT certification",
+            "SABIC internship program",
+            "Saudi engineering co-op"
+          ]
+        }
+      ],
+      "total_articles": 17,
+      "scan_time_seconds": 21.5,
+      "total_time_with_briefing_wait": 51.6,
+      "scores": [
+        9.0,
+        8.0,
+        4.5,
+        4.0,
+        3.5,
+        2.8,
+        2.0,
+        2.0,
+        2.0,
+        2.0,
+        2.0,
+        2.0,
+        2.0,
+        2.0,
+        2.0,
+        2.0,
+        2.0
+      ],
+      "score_stats": {
+        "mean": 3.16,
+        "median": 2.0,
+        "stdev": 2.17,
+        "min": 2.0,
+        "max": 9.0,
+        "above_9": 1,
+        "above_7": 2,
+        "between_5_7": 0,
+        "below_5": 15,
+        "pct_above_7": 11.8,
+        "pct_below_5": 88.2
+      },
+      "score_distribution": {
+        "9.0-9.9": 1,
+        "8.0-8.9": 1,
+        "4.0-4.9": 2,
+        "3.0-3.9": 1,
+        "2.0-2.9": 12
+      },
+      "category_counts": {
+        "mechcrt": 16,
+        "museum": 1
+      },
+      "source_distribution": {
+        "LinkedIn": 2,
+        "Serper/Google": 15
+      },
+      "top_10": [
+        {
+          "title": "Mechanical Engineering Specialist with Security Clearance - LinkedIn",
+          "score": 9.0,
+          "reason": "Relevant hiring: mechanical, engineering",
+          "category": "mechcrt",
+          "url": "https://www.linkedin.com/jobs/view/mechanical-engineering-specialist-with-security-clearance-at-cornerstone-defense-4376380342",
+          "source": "LinkedIn",
+          "retained": false
+        },
+        {
+          "title": "Leuven Database of Ancient Books - Trismegistos.org",
+          "score": 8.0,
+          "reason": "Relevant opportunity in target location: museum, bodleian, library",
+          "category": "museum",
+          "url": "https://www.trismegistos.org/ldab/",
+          "source": "Serper/Google",
+          "retained": true
+        },
+        {
+          "title": "Mechanical Engineer - Tallo",
+          "score": 4.5,
+          "reason": "LLM: directly relevant to user's FE exam preparation and EIT certification goals",
+          "category": "mechcrt",
+          "url": "https://tallo.com/jobs/engineering/mechanical-engineer/nc/mecklenburg/mechanical-engineer-bb1a70b2c296/",
+          "source": "Serper/Google",
+          "retained": false
+        },
+        {
+          "title": "Mechanical Engineer - Aviation & Federal (California)",
+          "score": 4.0,
+          "reason": "LLM: only loosely relevant to user's certification focus and career interests",
+          "category": "mechcrt",
+          "url": "https://burnsmcd.jobs/brea-ca/mechanical-engineer-aviation-federal-california/BED52AEA2B7E494BACBFDFCAF1C9408B/job/",
+          "source": "Serper/Google",
+          "retained": false
+        },
+        {
+          "title": "Construction Materials Technician in Charlotte, North Carolina, USA",
+          "score": 3.5,
+          "reason": "No keyword relevance to category",
+          "category": "mechcrt",
+          "url": "https://careers.actalentservices.com/ca/fr/job/JP-005851340/Construction-Materials-Technician",
+          "source": "Serper/Google",
+          "retained": false
+        },
+        {
+          "title": "Senior Staff Engineer - Mechanical (HVAC) - Township of Wall, NJ ...",
+          "score": 2.8,
+          "reason": "LLM-rescore: ** This is a generic mechanical engineering resume page, not a specific article. It lacks the depth and relevance needed for an experienced professional seeking career opportunities.",
+          "category": "mechcrt",
+          "url": "https://www.indeed.com/viewjob?jk=e8a3725d6e1ba8bf",
+          "source": "Serper/Google",
+          "retained": false
+        },
+        {
+          "title": "Mechanical Engineering Intern - Career Hub | Duke University",
+          "score": 2.0,
+          "reason": "Noise: generic/aggregator page",
+          "category": "mechcrt",
+          "url": "https://careerhub.students.duke.edu/jobs/neetrac-georiga-tech-mechanical-engineering-intern/",
+          "source": "Serper/Google",
+          "retained": false
+        },
+        {
+          "title": "VST Engineering Inc. hiring Civil Engineer in San Francisco Bay Area",
+          "score": 2.0,
+          "reason": "Noise: generic/aggregator page",
+          "category": "mechcrt",
+          "url": "https://www.linkedin.com/jobs/view/civil-engineer-at-vst-engineering-inc-4376798490",
+          "source": "LinkedIn",
+          "retained": false
+        },
+        {
+          "title": "Graduate Fire Protection Engineer () at GHD USA - Prosple",
+          "score": 2.0,
+          "reason": "Noise: generic/aggregator page",
+          "category": "mechcrt",
+          "url": "https://prosple.com/graduate-employers/ghd-usa/jobs-internships/graduate-fire-protection-engineer",
+          "source": "Serper/Google",
+          "retained": false
+        },
+        {
+          "title": "Civil Engineer Resume Sample & Example (2026)",
+          "score": 2.0,
+          "reason": "Noise: generic/aggregator page",
+          "category": "mechcrt",
+          "url": "https://www.resumetarget.com/resume-samples/engineering/civil-engineer/",
+          "source": "Serper/Google",
+          "retained": false
+        }
+      ],
+      "bottom_10": [
+        {
+          "title": "Mechanical Engineering Specialist with Security Clearance - LinkedIn",
+          "score": 9.0,
+          "reason": "Relevant hiring: mechanical, engineering",
+          "category": "mechcrt",
+          "url": "https://www.linkedin.com/jobs/view/mechanical-engineering-specialist-with-security-clearance-at-cornerstone-defense-4376380342",
+          "source": "LinkedIn"
+        },
+        {
+          "title": "Leuven Database of Ancient Books - Trismegistos.org",
+          "score": 8.0,
+          "reason": "Relevant opportunity in target location: museum, bodleian, library",
+          "category": "museum",
+          "url": "https://www.trismegistos.org/ldab/",
+          "source": "Serper/Google"
+        }
+      ],
+      "pipeline_events": {
+        "errors": [],
+        "warnings": [
+          "Found 1 retained articles in isolated instance!"
+        ],
+        "rss_items_count": 0,
+        "search_items_count": 0,
+        "deferred_items": 0,
+        "pass1_scored": 16,
+        "pass2_scored": 0,
+        "retained_count": 1
+      },
+      "briefing_analysis": {
+        "has_content": true,
+        "critical_count": 1,
+        "high_count": 0,
+        "sections": [
+          "generated_at",
+          "greeting",
+          "critical_alerts",
+          "critical_count",
+          "market_summary",
+          "market_alerts",
+          "high_priority",
+          "high_count",
+          "medium_priority",
+          "medium_count",
+          "noise_count",
+          "discoveries",
+          "discovery_note",
+          "summary_stats"
+        ],
+        "text_length": 1227,
+        "role_word_matches": 2,
+        "role_total_words": 5
+      },
+      "retained_count": 1,
+      "rss_feeds_enabled": {
+        "finance": [],
+        "politics": []
+      },
+      "meta": {
+        "version": "3.0",
+        "generated_at": "2026-02-27T11:11:31.159116",
+        "news_count": 17,
+        "critical_count": 0,
+        "high_count": 0,
+        "context_hash": "efe309d5d4b6"
+      }
+    },
+    "15": {
+      "profile_num": 15,
+      "name": "Diag_P15_EdgeCase",
+      "role": "Freelance Graphic Designer",
+      "location": "Lisbon, Portugal",
+      "context": "Working on branding projects for tech startups. Looking for design tool updates and freelance contract opportunities.",
+      "context_hash": "86426bba5dec",
+      "categories": [
+        {
+          "id": "destools",
+          "label": "Design Tools & Software",
+          "items": [
+            "Figma updates",
+            "Adobe Creative Cloud",
+            "Canva pro features",
+            "Affinity Designer"
+          ]
+        },
+        {
+          "id": "singlecat",
+          "label": "Single Item Category",
+          "items": [
+            "Lisbon design meetup"
+          ]
+        },
+        {
+          "id": "emptycat",
+          "label": "Empty Category",
+          "items": []
+        }
+      ],
+      "total_articles": 45,
+      "scan_time_seconds": 25.7,
+      "total_time_with_briefing_wait": 55.7,
+      "scores": [
+        9.0,
+        8.5,
+        7.0,
+        7.0,
+        7.0,
+        7.0,
+        7.0,
+        7.0,
+        7.0,
+        7.0,
+        7.0,
+        7.0,
+        7.0,
+        7.0,
+        7.0,
+        7.0,
+        7.0,
+        7.0,
+        7.0,
+        7.0,
+        3.5,
+        3.5,
+        3.5,
+        3.5,
+        3.5,
+        3.5,
+        3.5,
+        3.5,
+        3.5,
+        3.5,
+        3.5,
+        3.5,
+        3.0,
+        3.0,
+        3.0,
+        3.0,
+        3.0,
+        2.0,
+        2.0,
+        2.0,
+        2.0,
+        2.0,
+        2.0,
+        2.0,
+        2.0
+      ],
+      "score_stats": {
+        "mean": 4.81,
+        "median": 3.5,
+        "stdev": 2.22,
+        "min": 2.0,
+        "max": 9.0,
+        "above_9": 1,
+        "above_7": 20,
+        "between_5_7": 0,
+        "below_5": 25,
+        "pct_above_7": 44.4,
+        "pct_below_5": 55.6
+      },
+      "score_distribution": {
+        "9.0-9.9": 1,
+        "8.0-8.9": 1,
+        "7.0-7.9": 18,
+        "3.0-3.9": 17,
+        "2.0-2.9": 8
+      },
+      "category_counts": {
+        "mechcrt": 1,
+        "destools": 44
+      },
+      "source_distribution": {
+        "LinkedIn": 3,
+        "Serper/Google": 32,
+        "Instagram": 10
+      },
+      "top_10": [
+        {
+          "title": "Mechanical Engineering Specialist with Security Clearance - LinkedIn",
+          "score": 9.0,
+          "reason": "Relevant hiring: mechanical, engineering",
+          "category": "mechcrt",
+          "url": "https://www.linkedin.com/jobs/view/mechanical-engineering-specialist-with-security-clearance-at-cornerstone-defense-4376380342",
+          "source": "LinkedIn",
+          "retained": true
+        },
+        {
+          "title": "Figmalion \u2013 Figma newsletter and community knowledge base",
+          "score": 8.5,
+          "reason": "LLM: Actionable for a graphic designer seeking design tool updates",
+          "category": "destools",
+          "url": "https://figmalion.com/",
+          "source": "Serper/Google",
+          "retained": false
+        },
+        {
+          "title": "Figma Unveils Latest Features and Config Ticket Giveaway in EP ...",
+          "score": 7.0,
+          "reason": "Relevant topic: design, figma, updates",
+          "category": "destools",
+          "url": "https://www.createwith.com/tool/figma/updates/figma-unveils-latest-features-and-config-ticket-giveaway-in-ep-006-release-notes",
+          "source": "Serper/Google",
+          "retained": false
+        },
+        {
+          "title": "Figma Integrates Claude Code for Seamless Prototype Transfers",
+          "score": 7.0,
+          "reason": "Relevant topic: canva, designer, design",
+          "category": "destools",
+          "url": "https://www.createwith.com/tool/figma/updates/figma-integrates-claude-code-for-seamless-prototype-transfers",
+          "source": "Serper/Google",
+          "retained": false
+        },
+        {
+          "title": "Figma Hosts Design Systems Event in Sydney on March 5",
+          "score": 7.0,
+          "reason": "Relevant topic: designer, design, figma",
+          "category": "destools",
+          "url": "https://www.createwith.com/tool/figma/updates/figma-hosts-design-systems-event-in-sydney-on-march-5",
+          "source": "Serper/Google",
+          "retained": false
+        },
+        {
+          "title": "Canva Interview Guide 2026: Process, Questions, and How to Land ...",
+          "score": 7.0,
+          "reason": "Relevant topic: canva, design, adobe",
+          "category": "destools",
+          "url": "https://ophyai.com/blog/company-guides/canva-interview-guide/",
+          "source": "Serper/Google",
+          "retained": false
+        },
+        {
+          "title": "Canva Pro Avatar Creation & Stock Avatars: Expert Q&A - JustAnswer",
+          "score": 7.0,
+          "reason": "Relevant topic: canva, pro, design",
+          "category": "destools",
+          "url": "https://www.justanswer.com/computer/udk1t-canva-pro-avatar-creation-lip-syncing.html",
+          "source": "Serper/Google",
+          "retained": false
+        },
+        {
+          "title": "Navigating the End of Your Canva Pro Free Trial: A Smooth Exit ...",
+          "score": 7.0,
+          "reason": "Relevant topic: canva, pro, features",
+          "category": "destools",
+          "url": "http://oreateai.com/blog/navigating-the-end-of-your-canva-pro-free-trial-a-smooth-exit-strategy/645804843e994cc8e980b02d0780c413",
+          "source": "Serper/Google",
+          "retained": false
+        },
+        {
+          "title": "23% OFF Canva Coupon Codes - February 2026 Promo Codes",
+          "score": 7.0,
+          "reason": "Relevant topic: canva, pro, canva pro features",
+          "category": "destools",
+          "url": "https://canva.tenereteam.com/coupons",
+          "source": "Serper/Google",
+          "retained": false
+        },
+        {
+          "title": "Amplifying creativity with AI tools for designers in 2026 - RGD",
+          "score": 7.0,
+          "reason": "Relevant topic: designer, design, tools",
+          "category": "destools",
+          "url": "https://rgd.ca/articles/2026-amplifying-creativity-with-ai-tools-for-designers-in-2026",
+          "source": "Serper/Google",
+          "retained": false
+        }
+      ],
+      "bottom_10": [
+        {
+          "title": "Projects overview - Adobe",
+          "score": 7.0,
+          "reason": "Relevant topic: design, adobe creative cloud, adobe",
+          "category": "destools",
+          "url": "https://helpx.adobe.com/au/creative-cloud/apps/manage-projects/projects-overview.html",
+          "source": "Serper/Google"
+        },
+        {
+          "title": "Adobe Firefly Customer Reviews 2026 | AI Graphic Design - Info-Tech",
+          "score": 7.0,
+          "reason": "Relevant topic: design, adobe, software",
+          "category": "destools",
+          "url": "https://www.infotech.com/software-reviews/products/adobe-firefly?c_id=482",
+          "source": "Serper/Google"
+        },
+        {
+          "title": "Adobe Express Software Pricing, Alternatives & More 2026 | Capterra",
+          "score": 7.0,
+          "reason": "Relevant topic: adobe creative cloud, adobe, tools",
+          "category": "destools",
+          "url": "https://www.capterra.com/p/174232/adobe-express/",
+          "source": "Serper/Google"
+        },
+        {
+          "title": "Figma vs. Sketch vs. Adobe XD: Which Design Tool Is Right for You?",
+          "score": 7.0,
+          "reason": "Relevant topic: design, figma, adobe",
+          "category": "destools",
+          "url": "https://www.coursera.org/articles/figma-vs-sketch-vs-adobe-xd",
+          "source": "Serper/Google"
+        },
+        {
+          "title": "Create and organize projects - Adobe",
+          "score": 7.0,
+          "reason": "Relevant topic: design, adobe creative cloud, adobe",
+          "category": "destools",
+          "url": "https://helpx.adobe.com/in/creative-cloud/apps/manage-projects/create-projects.html",
+          "source": "Serper/Google"
+        },
+        {
+          "title": "Navigating the Creative Cloud: What's the Deal With 3D ... - Oreate AI",
+          "score": 7.0,
+          "reason": "Relevant topic: designer, design, adobe",
+          "category": "destools",
+          "url": "http://oreateai.com/blog/navigating-the-creative-cloud-whats-the-deal-with-3d-and-chroma-pricing/3078a7d0f4eab3536043af8026ee1fa3",
+          "source": "Serper/Google"
+        },
+        {
+          "title": "Affinity Designer: A Deep Dive Into Its Strengths and Weaknesses for ...",
+          "score": 7.0,
+          "reason": "Relevant topic: affinity, pro, designer",
+          "category": "destools",
+          "url": "http://oreateai.com/blog/affinity-designer-a-deep-dive-into-its-strengths-and-weaknesses-for-creatives/78e39bf56d7f5491f0db79e704fb1a44",
+          "source": "Serper/Google"
+        },
+        {
+          "title": "Adobe vs Affinity: Which Design Platform Wins in 2026? (Pricing ...",
+          "score": 7.0,
+          "reason": "Relevant topic: affinity, design, adobe",
+          "category": "destools",
+          "url": "https://justcreative.com/adobe-vs-affinity/",
+          "source": "Serper/Google"
+        },
+        {
+          "title": "Premium Paid Design Tools - Professional Quality - Usetools",
+          "score": 7.0,
+          "reason": "Relevant topic: affinity, designer, design",
+          "category": "destools",
+          "url": "https://www.usetools.design/tools/paid",
+          "source": "Serper/Google"
+        },
+        {
+          "title": "Best Graphic Design Software 2026 | Capterra",
+          "score": 7.0,
+          "reason": "Relevant topic: affinity, designer, design",
+          "category": "destools",
+          "url": "https://www.capterra.com/graphic-design-software/",
+          "source": "Serper/Google"
+        }
+      ],
+      "pipeline_events": {
+        "errors": [],
+        "warnings": [
+          "Found 1 retained articles in isolated instance!"
+        ],
+        "rss_items_count": 0,
+        "search_items_count": 0,
+        "deferred_items": 0,
+        "pass1_scored": 44,
+        "pass2_scored": 0,
+        "retained_count": 1
+      },
+      "briefing_analysis": {
+        "has_content": true,
+        "critical_count": 0,
+        "high_count": 19,
+        "sections": [
+          "generated_at",
+          "greeting",
+          "critical_alerts",
+          "critical_count",
+          "market_summary",
+          "market_alerts",
+          "high_priority",
+          "high_count",
+          "medium_priority",
+          "medium_count",
+          "noise_count",
+          "discoveries",
+          "discovery_note",
+          "summary_stats"
+        ],
+        "text_length": 2094,
+        "role_word_matches": 3,
+        "role_total_words": 3
+      },
+      "retained_count": 1,
+      "rss_feeds_enabled": {
+        "finance": [],
+        "politics": []
+      },
+      "meta": {
+        "version": "3.0",
+        "generated_at": "2026-02-27T11:12:30.320222",
+        "news_count": 45,
+        "critical_count": 0,
+        "high_count": 0,
+        "context_hash": "86426bba5dec"
+      }
+    },
+    "16": {
+      "profile_num": 16,
+      "name": "Diag_P16_Generalist",
+      "role": "CEO of a mid-size technology consultancy",
+      "location": "Singapore",
+      "context": "Managing a 200-person firm across APAC. Interested in AI trends, business strategy, talent acquisition, regional politics, and investment opportunities. Needs to stay informed on everything.",
+      "context_hash": "d348a7a2eac0",
+      "categories": [
+        {
+          "id": "aiml",
+          "label": "AI & Machine Learning",
+          "items": [
+            "artificial intelligence business",
+            "ChatGPT enterprise",
+            "AI regulation",
+            "machine learning trends"
+          ]
+        },
+        {
+          "id": "bizstrat",
+          "label": "Business Strategy & Investment",
+          "items": [
+            "venture capital APAC",
+            "startup funding Singapore",
+            "management consulting trends",
+            "M&A technology"
+          ]
+        },
+        {
+          "id": "apacpol",
+          "label": "APAC Politics & Economy",
+          "items": [
+            "Singapore economy",
+            "ASEAN trade",
+            "China tech policy",
+            "India digital regulation"
+          ]
+        }
+      ],
+      "total_articles": 81,
+      "scan_time_seconds": 49.1,
+      "total_time_with_briefing_wait": 79.1,
+      "scores": [
+        9.5,
+        9.0,
+        9.0,
+        8.5,
+        8.5,
+        8.5,
+        8.5,
+        8.5,
+        8.5,
+        8.5,
+        8.5,
+        8.5,
+        8.5,
+        8.5,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        7.5,
+        7.5,
+        7.5,
+        7.5,
+        7.5,
+        7.5,
+        7.5,
+        7.0,
+        7.0,
+        7.0,
+        7.0,
+        7.0,
+        7.0,
+        7.0,
+        7.0,
+        7.0,
+        7.0,
+        7.0,
+        7.0,
+        7.0,
+        5.3,
+        3.5,
+        3.5,
+        3.5,
+        3.5,
+        3.5,
+        3.5,
+        3.5,
+        3.5,
+        3.5,
+        3.5,
+        3.5,
+        3.5,
+        3.5,
+        3.5,
+        3.5,
+        3.5,
+        3.5,
+        3.5,
+        3.5,
+        3.5,
+        3.5,
+        3.5,
+        3.0,
+        3.0,
+        3.0,
+        3.0,
+        2.5,
+        2.0,
+        2.0,
+        2.0,
+        2.0,
+        1.5,
+        1.5
+      ],
+      "score_stats": {
+        "mean": 5.88,
+        "median": 7.0,
+        "stdev": 2.42,
+        "min": 1.5,
+        "max": 9.5,
+        "above_9": 3,
+        "above_7": 47,
+        "between_5_7": 1,
+        "below_5": 33,
+        "pct_above_7": 58.0,
+        "pct_below_5": 40.7
+      },
+      "score_distribution": {
+        "9.0-9.9": 3,
+        "8.0-8.9": 24,
+        "7.0-7.9": 20,
+        "5.0-5.9": 1,
+        "3.0-3.9": 26,
+        "2.0-2.9": 5,
+        "1.0-1.9": 2
+      },
+      "category_counts": {
+        "aiml": 43,
+        "bizstrat": 19,
+        "destools": 1,
+        "apacpol": 18
+      },
+      "source_distribution": {
+        "Serper/Google": 67,
+        "LinkedIn": 8,
+        "Instagram": 6
+      },
+      "top_10": [
+        {
+          "title": "Latest AI News and AI Breakthroughs that Matter Most: 2026 & 2025",
+          "score": 9.5,
+          "reason": "Breakthrough in tracked area: learning, machine",
+          "category": "aiml",
+          "url": "https://www.crescendo.ai/news/latest-ai-news-and-updates",
+          "source": "Serper/Google",
+          "retained": false
+        },
+        {
+          "title": "OpenAI Partners With Consulting Giants in Enterprise AI Push",
+          "score": 9.0,
+          "reason": "LLM: Industry-specific news about enterprise AI implementation is extremely relevant to a CEO's responsibilities.",
+          "category": "aiml",
+          "url": "https://aibusiness.com/generative-ai/openai-partners-with-consulting-giants-for-enterprise-ai",
+          "source": "Serper/Google",
+          "retained": false
+        },
+        {
+          "title": "FinOps shifts to AI cost management and SaaS optimization",
+          "score": 9.0,
+          "reason": "LLM: Highly relevant and comprehensive business strategy content that directly addresses the CEO's role and interests.",
+          "category": "bizstrat",
+          "url": "https://www.techzine.eu/news/infrastructure/138972/finops-shifts-to-ai-cost-management-and-saas-optimization/",
+          "source": "Serper/Google",
+          "retained": false
+        },
+        {
+          "title": "McKinsey and OpenAI scale AI-driven transformations with new ...",
+          "score": 8.5,
+          "reason": "LLM: Strategic partnership between leading AI company and top consulting firm is highly relevant to a CEO's role.",
+          "category": "aiml",
+          "url": "https://www.mckinsey.com/about-us/new-at-mckinsey-blog/mckinsey-and-openai-scale-ai-driven-transformations-with-new-frontier-alliance",
+          "source": "Serper/Google",
+          "retained": false
+        },
+        {
+          "title": "AI Digital Transformation: Complete Implementation Guide 2026",
+          "score": 8.5,
+          "reason": "LLM-rescore: ** This article is highly relevant to a senior technology consultant CEO who needs to stay informed about AI trends, business strategy, and regional politics. The content is industry-relevant and provides actionable insights for a user in this role.",
+          "category": "aiml",
+          "url": "https://www.articsledge.com/post/ai-digital-transformation",
+          "source": "Serper/Google",
+          "retained": false
+        },
+        {
+          "title": "Why AI Is The New Enterprise Attack Surface - Forbes",
+          "score": 8.5,
+          "reason": "LLM: Highly relevant to a CEO's role in managing a growing firm and understanding AI's strategic impact.",
+          "category": "aiml",
+          "url": "https://www.forbes.com/councils/forbestechcouncil/2026/02/20/why-ai-is-the-new-enterprise-attack-surface/",
+          "source": "Serper/Google",
+          "retained": false
+        },
+        {
+          "title": "How AI can build organizational agility in 2026 - Information Week",
+          "score": 8.5,
+          "reason": "LLM: Directly actionable for a CEO managing a mid-size firm in APAC.",
+          "category": "aiml",
+          "url": "https://www.informationweek.com/machine-learning-ai/how-ai-can-build-organizational-agility-in-2026",
+          "source": "Serper/Google",
+          "retained": false
+        },
+        {
+          "title": "2026 Smart Factory Outlook: AI & Robotics Trends - IIoT World",
+          "score": 8.5,
+          "reason": "LLM: Highly relevant to a CEO managing a mid-size technology consultancy with strong interest in AI trends and business strategy.",
+          "category": "aiml",
+          "url": "https://www.iiot-world.com/smart-manufacturing/2026-smart-factory-outlook-ai-robotics/",
+          "source": "Serper/Google",
+          "retained": false
+        },
+        {
+          "title": "New M&A Market Opportunity May Reshape Deal Strategy for 2026",
+          "score": 8.5,
+          "reason": "Strong match + actionable: strategy, m&a",
+          "category": "bizstrat",
+          "url": "https://deloitte.wsj.com/cfo/new-m-a-market-opportunity-may-reshape-deal-strategy-for-2026-9587b85b",
+          "source": "Serper/Google",
+          "retained": false
+        },
+        {
+          "title": "Why exponential performance is now a leadership survival test",
+          "score": 8.5,
+          "reason": "LLM-rescore: This article is highly relevant to a CEO managing a mid-size technology consultancy in Singapore, covering current issues in venture capital, startup funding, and leadership challenges in the AI-driven business environment.",
+          "category": "bizstrat",
+          "url": "https://www.mercer.com/insights/people-strategy/future-of-work/why-exponential-performance-is-now-a-leadership-survival-test/",
+          "source": "Serper/Google",
+          "retained": false
+        }
+      ],
+      "bottom_10": [
+        {
+          "title": "FSU'S 2026 Artificial Intelligence and Machine Learning Expo ...",
+          "score": 7.0,
+          "reason": "Relevant topic: learning, artificial, machine",
+          "category": "aiml",
+          "url": "https://news.fsu.edu/news/science-technology/2026/02/23/fsus-2026-artificial-intelligence-and-machine-learning-expo-explores-latest-applications-for-technology-across-industries/",
+          "source": "Serper/Google"
+        },
+        {
+          "title": "How Businesses Are Evolving with AI in 2026 - Medium",
+          "score": 7.0,
+          "reason": "LLM: Useful for a CEO's strategic planning and understanding AI's business implications.",
+          "category": "aiml",
+          "url": "https://medium.com/predict/how-businesses-are-evolving-with-ai-in-2026-and-why-its-no-longer-optional-f45f02cfbc37",
+          "source": "Serper/Google"
+        },
+        {
+          "title": "World Development Report 2026: Artificial Intelligence for ...",
+          "score": 7.0,
+          "reason": "Relevant topic: learning, artificial, machine",
+          "category": "aiml",
+          "url": "https://www.worldbank.org/en/publication/wdr2026",
+          "source": "Serper/Google"
+        },
+        {
+          "title": "How to Build a Generative AI Business Strategy for Enterprises in 2026",
+          "score": 7.0,
+          "reason": "Relevant topic: enterprise, business, artificial",
+          "category": "aiml",
+          "url": "https://masterofcode.com/blog/generative-ai-business-strategy",
+          "source": "Serper/Google"
+        },
+        {
+          "title": "Artificial Intelligence Act | Framework, Applications, & Facts - Britannica",
+          "score": 7.0,
+          "reason": "Relevant topic: artificial, intelligence",
+          "category": "aiml",
+          "url": "https://www.britannica.com/topic/Artificial-Intelligence-Act",
+          "source": "Serper/Google"
+        },
+        {
+          "title": "Anthropic offers AI chatbot Claude to US government for $1 - AOL.com",
+          "score": 7.0,
+          "reason": "LLM: Relevant to a CEO interested in AI regulation and business strategy, but lacks direct actionability.",
+          "category": "aiml",
+          "url": "https://www.aol.com/news/anthropic-offers-ai-chatbot-claude-130313740.html?utm_source=chatgpt.com",
+          "source": "Serper/Google"
+        },
+        {
+          "title": "M&A IT strategy consulting | EY - US",
+          "score": 7.0,
+          "reason": "Title relevance: technology, consulting, strategy",
+          "category": "bizstrat",
+          "url": "https://www.ey.com/en_us/services/strategy/m-and-a-it-strategy-consulting",
+          "source": "Serper/Google"
+        },
+        {
+          "title": "16 Years On, ACFTA Widens Indonesia-China Trade Imbalance",
+          "score": 7.0,
+          "reason": "Relevant topic: singapore, asean, trade",
+          "category": "apacpol",
+          "url": "https://thediplomat.com/2026/02/16-years-on-acfta-widens-indonesia-china-trade-imbalance/",
+          "source": "Serper/Google"
+        },
+        {
+          "title": "Global PE Trade Realignment 2026: Duties, Capacity, and New ...",
+          "score": 7.0,
+          "reason": "Relevant topic: trade, china",
+          "category": "apacpol",
+          "url": "https://syntexamerica.com/blog/global-pe-trade-realignment-2026",
+          "source": "Serper/Google"
+        },
+        {
+          "title": "Private Markets Are Reshaping the Landscape in U.S. Investment ...",
+          "score": 5.3,
+          "reason": "LLM: Limited geographic relevance despite tech industry focus",
+          "category": "bizstrat",
+          "url": "https://www.greenwich.com/press-release/private-markets-are-reshaping-landscape-us-investment-consulting",
+          "source": "Serper/Google"
+        }
+      ],
+      "pipeline_events": {
+        "errors": [],
+        "warnings": [
+          "Found 1 retained articles in isolated instance!"
+        ],
+        "rss_items_count": 0,
+        "search_items_count": 0,
+        "deferred_items": 0,
+        "pass1_scored": 80,
+        "pass2_scored": 0,
+        "retained_count": 1
+      },
+      "briefing_analysis": {
+        "has_content": true,
+        "critical_count": 3,
+        "high_count": 43,
+        "sections": [
+          "generated_at",
+          "greeting",
+          "critical_alerts",
+          "critical_count",
+          "market_summary",
+          "market_alerts",
+          "high_priority",
+          "high_count",
+          "medium_priority",
+          "medium_count",
+          "noise_count",
+          "discoveries",
+          "discovery_note",
+          "summary_stats"
+        ],
+        "text_length": 4756,
+        "role_word_matches": 3,
+        "role_total_words": 3
+      },
+      "retained_count": 1,
+      "rss_feeds_enabled": {
+        "finance": [
+          "bloomberg",
+          "cnbc_top"
+        ],
+        "politics": [
+          "scmp",
+          "nikkei_asia"
+        ]
+      },
+      "meta": {
+        "version": "3.0",
+        "generated_at": "2026-02-27T11:13:52.882605",
+        "news_count": 81,
+        "critical_count": 0,
+        "high_count": 0,
+        "context_hash": "d348a7a2eac0"
+      }
+    }
+  },
+  "student_vs_senior": {
+    "shared_articles": [],
+    "shared_count": 0,
+    "p14_student_mentions_in_top10": 0,
+    "p14_total": 17,
+    "p9_total": 100
+  },
+  "initial_credits": "1661",
+  "final_credits": "1579",
+  "credits_used": 82,
+  "timestamp": "2026-02-27T11:14:26.355879"
+}
