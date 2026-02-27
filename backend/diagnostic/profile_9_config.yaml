@@ -1,0 +1,117 @@
+custom_feeds: []
+custom_tab_name: Custom
+dynamic_categories:
+- enabled: true
+  icon: building-2
+  id: sabicj
+  items:
+  - SABIC
+  - Saudi Aramco downstream
+  - Jubail Industrial City
+  - Saudi Vision 2030 industry
+  label: SABIC & Saudi Petrochemicals
+  root: regional
+  scorer_type: career
+- enabled: true
+  icon: cpu
+  id: mecheng
+  items:
+  - heat exchanger design
+  - plant maintenance optimization
+  - predictive maintenance
+  - process piping
+  label: Mechanical Engineering Tech
+  root: global
+  scorer_type: tech
+- enabled: true
+  icon: award
+  id: mechcrt
+  items:
+  - ASME certification
+  - PE mechanical exam
+  - API 510 inspector
+  - Six Sigma manufacturing
+  label: Mechanical Certifications
+  root: global
+  scorer_type: auto
+extra_feeds_finance:
+  arab_times_biz: false
+  biz_insider: false
+  bloomberg: false
+  boursa_kuwait: false
+  cnbc_finance: false
+  cnbc_top: false
+  coindesk: false
+  cointelegraph: false
+  economist: false
+  ft: false
+  gn_gcc_finance: false
+  gn_kuwait_biz: false
+  investing: false
+  marketwatch: false
+  mw_pulse: false
+  oilprice: false
+  rigzone: false
+  seekingalpha: false
+  wsj_world: false
+  yahoo_fin: false
+  zawya: false
+extra_feeds_politics:
+  alarabiya: false
+  aljazeera: false
+  arab_times: false
+  bbc_mideast: false
+  bbc_world: false
+  cnn_world: false
+  dw: false
+  fox_world: false
+  france24: false
+  gn_kuwait: false
+  gn_mideast: false
+  guardian: false
+  middleeasteye: false
+  newarab: false
+  nikkei_asia: false
+  npr_world: false
+  nyt_mideast: false
+  nyt_world: false
+  scmp: false
+  times_kuwait: false
+  wapo_politics: false
+  wapo_world: false
+market:
+  alert_threshold_percent: 5.0
+  intervals: {}
+  tickers: []
+news:
+  career:
+    keywords: []
+    queries: []
+    root: regional
+  finance:
+    keywords: []
+    queries: []
+    root: regional
+  regional:
+    keywords: []
+    queries: []
+    root: regional
+  rss_feeds: []
+  tech_trends:
+    keywords: []
+    queries: []
+    root: global
+  timelimit: w
+profile:
+  avatar: P9
+  context: Working on heat exchanger design and plant maintenance optimization. Interested
+    in ASME certifications and Saudi Vision 2030 industrial projects.
+  email: diag9@test.local
+  interests: []
+  location: Jubail, Saudi Arabia
+  name: Diag_P9_MechSABIC
+  role: Mechanical Engineer at SABIC
+security:
+  devices:
+  - diagnostic_device
+  pin_hash: 9af15b336e6a9619928537df30b2e6a2376569fcf9d7e773eccede65606529a0

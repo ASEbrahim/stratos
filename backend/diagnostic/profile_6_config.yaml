@@ -1,0 +1,118 @@
+custom_feeds: []
+custom_tab_name: Custom
+dynamic_categories:
+- enabled: true
+  icon: building-2
+  id: mewjob
+  items:
+  - Ministry of Electricity Water Kuwait
+  - MEW Kuwait
+  - government technician jobs Kuwait
+  - Kuwait civil service
+  label: MEW & Government Jobs
+  root: kuwait
+  scorer_type: career
+- enabled: true
+  icon: award
+  id: elecert
+  items:
+  - City Guilds electrical
+  - IEC 60364 training
+  - NEC code updates
+  - electrical safety certification
+  label: Electrical Trade Certifications
+  root: global
+  scorer_type: auto
+- enabled: true
+  icon: cpu
+  id: powsys
+  items:
+  - substation maintenance
+  - power transformer
+  - switchgear technology
+  - smart grid Kuwait
+  label: Power Distribution & Substations
+  root: regional
+  scorer_type: tech
+extra_feeds_finance:
+  arab_times_biz: false
+  biz_insider: false
+  bloomberg: false
+  boursa_kuwait: false
+  cnbc_finance: false
+  cnbc_top: false
+  coindesk: false
+  cointelegraph: false
+  economist: false
+  ft: false
+  gn_gcc_finance: false
+  gn_kuwait_biz: false
+  investing: false
+  marketwatch: false
+  mw_pulse: false
+  oilprice: false
+  rigzone: false
+  seekingalpha: false
+  wsj_world: false
+  yahoo_fin: false
+  zawya: false
+extra_feeds_politics:
+  alarabiya: false
+  aljazeera: false
+  arab_times: false
+  bbc_mideast: false
+  bbc_world: false
+  cnn_world: false
+  dw: false
+  fox_world: false
+  france24: false
+  gn_kuwait: false
+  gn_mideast: false
+  guardian: false
+  middleeasteye: false
+  newarab: false
+  nikkei_asia: false
+  npr_world: false
+  nyt_mideast: false
+  nyt_world: false
+  scmp: false
+  times_kuwait: false
+  wapo_politics: false
+  wapo_world: false
+market:
+  alert_threshold_percent: 5.0
+  intervals: {}
+  tickers: []
+news:
+  career:
+    keywords: []
+    queries: []
+    root: kuwait
+  finance:
+    keywords: []
+    queries: []
+    root: kuwait
+  regional:
+    keywords: []
+    queries: []
+    root: regional
+  rss_feeds: []
+  tech_trends:
+    keywords: []
+    queries: []
+    root: global
+  timelimit: w
+profile:
+  avatar: P6
+  context: Maintains power distribution substations. Interested in trade certifications
+    (City & Guilds, IEC standards) and government pay scale updates. Looking for overtime
+    opportunities.
+  email: diag6@test.local
+  interests: []
+  location: Kuwait City, Kuwait
+  name: Diag_P6_ElecTech
+  role: Electrical Technician at the Ministry of Electricity & Water
+security:
+  devices:
+  - diagnostic_device
+  pin_hash: 9af15b336e6a9619928537df30b2e6a2376569fcf9d7e773eccede65606529a0

@@ -1,0 +1,121 @@
+custom_feeds: []
+custom_tab_name: Custom
+dynamic_categories:
+- enabled: true
+  icon: cpu
+  id: algotr
+  items:
+  - high-frequency trading
+  - statistical arbitrage
+  - market microstructure
+  - order flow analysis
+  label: Algorithmic Trading Strategies
+  root: global
+  scorer_type: tech
+- enabled: true
+  icon: gavel
+  id: finreg
+  items:
+  - MiFID II
+  - Basel III
+  - FCA regulation
+  - ESMA guidelines
+  label: Financial Regulation
+  root: global
+  scorer_type: regional
+- enabled: true
+  icon: target
+  id: altdata
+  items:
+  - satellite imagery finance
+  - NLP sentiment trading
+  - web scraping alpha
+  - quant research
+  label: Alternative Data Sources
+  root: global
+  scorer_type: tech
+extra_feeds_finance:
+  arab_times_biz: false
+  biz_insider: false
+  bloomberg: false
+  boursa_kuwait: false
+  cnbc_finance: false
+  cnbc_top: false
+  coindesk: false
+  cointelegraph: false
+  economist: false
+  ft: false
+  gn_gcc_finance: false
+  gn_kuwait_biz: false
+  investing: false
+  marketwatch: false
+  mw_pulse: false
+  oilprice: false
+  rigzone: false
+  seekingalpha: false
+  wsj_world: false
+  yahoo_fin: false
+  zawya: false
+extra_feeds_politics:
+  alarabiya: false
+  aljazeera: false
+  arab_times: false
+  bbc_mideast: false
+  bbc_world: false
+  cnn_world: false
+  dw: false
+  fox_world: false
+  france24: false
+  gn_kuwait: false
+  gn_mideast: false
+  guardian: false
+  middleeasteye: false
+  newarab: false
+  nikkei_asia: false
+  npr_world: false
+  nyt_mideast: false
+  nyt_world: false
+  scmp: false
+  times_kuwait: false
+  wapo_politics: false
+  wapo_world: false
+market:
+  alert_threshold_percent: 5.0
+  intervals: {}
+  tickers:
+  - name: FTSE 100
+    symbol: ^FTSE
+  - name: Goldman Sachs
+    symbol: GS
+news:
+  career:
+    keywords: []
+    queries: []
+    root: global
+  finance:
+    keywords: []
+    queries: []
+    root: global
+  regional:
+    keywords: []
+    queries: []
+    root: global
+  rss_feeds: []
+  tech_trends:
+    keywords: []
+    queries: []
+    root: global
+  timelimit: w
+profile:
+  avatar: P2
+  context: Developing algorithmic trading strategies. Tracking regulatory changes
+    (MiFID II, Basel). Interested in alternative data sources.
+  email: diag2@test.local
+  interests: []
+  location: London, United Kingdom
+  name: Diag_P2_Quant
+  role: Quantitative Analyst at a hedge fund
+security:
+  devices:
+  - diagnostic_device
+  pin_hash: 9af15b336e6a9619928537df30b2e6a2376569fcf9d7e773eccede65606529a0
