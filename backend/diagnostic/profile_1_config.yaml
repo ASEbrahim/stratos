@@ -1,0 +1,119 @@
+custom_feeds: []
+custom_tab_name: Custom
+dynamic_categories:
+- enabled: true
+  icon: heart
+  id: travnurs
+  items:
+  - travel nursing agencies
+  - Aya Healthcare
+  - Cross Country Nurses
+  - AMN Healthcare
+  label: Travel Nursing Contracts
+  root: global
+  scorer_type: career
+- enabled: true
+  icon: shield
+  id: rurhlth
+  items:
+  - rural hospital funding
+  - telehealth expansion
+  - nurse practitioner scope
+  - Medicare rural
+  label: Rural Healthcare Policy
+  root: global
+  scorer_type: regional
+- enabled: true
+  icon: award
+  id: nursced
+  items:
+  - ANCC certification
+  - nursing CEU
+  - clinical nurse specialist
+  - BSN to DNP programs
+  label: Nursing Continuing Education
+  root: global
+  scorer_type: auto
+extra_feeds_finance:
+  arab_times_biz: false
+  biz_insider: false
+  bloomberg: false
+  boursa_kuwait: false
+  cnbc_finance: false
+  cnbc_top: false
+  coindesk: false
+  cointelegraph: false
+  economist: false
+  ft: false
+  gn_gcc_finance: false
+  gn_kuwait_biz: false
+  investing: false
+  marketwatch: false
+  mw_pulse: false
+  oilprice: false
+  rigzone: false
+  seekingalpha: false
+  wsj_world: false
+  yahoo_fin: false
+  zawya: false
+extra_feeds_politics:
+  alarabiya: false
+  aljazeera: false
+  arab_times: false
+  bbc_mideast: false
+  bbc_world: false
+  cnn_world: false
+  dw: false
+  fox_world: false
+  france24: false
+  gn_kuwait: false
+  gn_mideast: false
+  guardian: false
+  middleeasteye: false
+  newarab: false
+  nikkei_asia: false
+  npr_world: false
+  nyt_mideast: false
+  nyt_world: false
+  scmp: false
+  times_kuwait: false
+  wapo_politics: false
+  wapo_world: false
+market:
+  alert_threshold_percent: 5.0
+  intervals: {}
+  tickers:
+  - name: HCA Healthcare
+    symbol: HCA
+news:
+  career:
+    keywords: []
+    queries: []
+    root: global
+  finance:
+    keywords: []
+    queries: []
+    root: global
+  regional:
+    keywords: []
+    queries: []
+    root: global
+  rss_feeds: []
+  tech_trends:
+    keywords: []
+    queries: []
+    root: global
+  timelimit: w
+profile:
+  avatar: P1
+  context: Looking for travel nursing contracts and continuing education. Interested
+    in rural healthcare policy.
+  email: diag1@test.local
+  interests: []
+  location: Lubbock, Texas, USA
+  name: Diag_P1_Nurse
+  role: Registered Nurse
+security:
+  devices:
+  - diagnostic_device
+  pin_hash: 9af15b336e6a9619928537df30b2e6a2376569fcf9d7e773eccede65606529a0

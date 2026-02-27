@@ -4,7 +4,7 @@
 > Loaded into Claude.ai Project Knowledge and Claude Code context.
 > **CLAUDE.md** = how to work here. **STATE.md** = what happened and why. **FRS** = what the system should be.
 
-Last updated: **2026-02-27** (session: focus mode polish — TF layout, corners, intel panel)
+Last updated: **2026-02-27** (session: 10-profile diagnostic loop)
 
 ---
 
@@ -19,7 +19,7 @@ Last updated: **2026-02-27** (session: focus mode polish — TF layout, corners,
 - **Inference model:** `qwen3:30b-a3b` (~18-19GB MoE) — strat agent + market analysis only
 - **Wizard/briefing model:** `qwen3:14b` (~9GB) — wizard, briefings, profile generation, suggestions
 - **Search provider:** Serper (Google) primary, DuckDuckGo fallback. 60-min dedup window on Serper queries.
-- **Serper credits:** ~2220 remaining of 2500 (key: `1b9db98...` in `.env`)
+- **Serper credits:** ~1688 remaining of 2500 (key: `1b9db98...` in `.env`) — 228 used in diagnostic loop
 
 ### V2 Scorer Production Metrics
 
@@ -73,6 +73,7 @@ Last updated: **2026-02-27** (session: focus mode polish — TF layout, corners,
 
 ### What's Broken / Needs Attention
 
+- **CRITICAL — Retention cross-profile leak:** `_merge_retained_articles()` filter bypassed for freshly scored articles (empty `retained_by_profile` is falsy). Up to 20 articles from previous profile contaminate next profile's output with wrong scores/reasons. See F009 in Failure Log and `DIAGNOSTIC_REPORT.md`.
 - **kuniv category over-scoring:** Articles mentioning "Kuwait" get scored high regardless of topical relevance to the active profile. "Embassy of India, Kuwait" scored 9.0 for a petroleum engineering professor. Scorer training issue, not pipeline bug.
 - **Frontend SSE for briefing_ready:** Backend broadcasts `briefing_ready` event, but frontend doesn't listen for it yet — briefing appears on next data poll, not instantly.
 - **Briefing in export JSON:** May show short placeholder if exported before deferred briefing thread finishes patching. Dashboard shows the real briefing.
@@ -188,6 +189,12 @@ Intel panel elements (agent send button, input) were created in a detached DOM t
 Initial hray anchor drag implementation incremented `startIdx` twice (once in generic code, once in hray-specific). Caused erratic movement.
 **Rule:** When special-casing drawing types in shared drag logic, ensure the general path doesn't also execute.
 
+### 2026-02-27
+
+**F009 — Retention profile filter bypassed for freshly scored articles**
+`_merge_retained_articles()` (main.py:1267-1268) checks `retained_by_profile` to filter cross-profile articles. But freshly scored articles in the output JSON have NO `retained_by_profile` field (only set on already-retained articles in `_build_output()` lines 1327-1329). Empty string is falsy → filter condition `if article_profile and ...` is False → article passes through. Result: up to 20 high-scoring articles from Profile N leak into Profile N+1 with original scores/reasons. Confirmed across all 10 diagnostic profiles.
+**Rule:** Always write `retained_by_profile` with context hash on ALL output articles, or change filter: `if not article_profile or article_profile != context_hash: continue`.
+
 ### 2026-02-26
 
 **F001 — `_build_output()` whitelist drops unknown fields**
@@ -235,6 +242,10 @@ Must delete `hf_device_map` and force `.to("cuda:0")` or gradient computation cr
 ## 4. Session Log
 
 > Most recent first. 3-5 lines per session.
+
+### 2026-02-27 — 10-Profile Pipeline Diagnostic Loop
+**Commits:** 1 (diagnostic report)
+Key work: (1) Ran full diagnostic across 10 profiles (5 diverse: nurse/TX, quant/London, marine bio/Tokyo, cybersec/Dubai, teacher/São Paulo + 5 adversarial near-miss to Ahmad: elec tech/Kuwait MEW, petro journalist/Kuwait Times, IT support/KOC, mech eng/SABIC/Saudi, CS student/KU). (2) **Critical bug found:** retention system leaks up to 20 articles from previous profile into next profile without re-scoring (main.py:1267-1268, empty `retained_by_profile` bypasses filter). Contaminated 7/10 profiles. (3) V2 scorer itself performs well on fresh articles — correct role-awareness, good keyword matching, appropriate score spread. (4) Geographic filtering works correctly (no Kuwait bleed into non-Kuwait profiles). (5) Serper credits: 1916→1688 (228 used, well under budget). See `DIAGNOSTIC_REPORT.md` for full results.
 
 ### 2026-02-27 — Focus Mode Polish & Drawing Tools Overhaul
 **Commits:** 5 frontend (c48b82f → 9f1367b), 5 parent (a389779 → fc573ad)
