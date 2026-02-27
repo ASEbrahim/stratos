@@ -141,6 +141,9 @@ When ALL matched keywords are in `GENERIC_KEYWORDS` (e.g., "water", "service") A
 Cross-entity queries like `"E1" "E2" deal OR partnership 2026` returned 0 results ~30% of the time across 16 diagnostic profiles. Removed the entire block from `_build_dynamic_searches()`. Saves ~30% Serper credits per category.
 *Rejected:* Keeping but reducing pairs (still wastes credits on overly specific queries).
 
+**D022 — Add "Brighter" theme variant (8 themes × 3 modes = 24 variants)**
+Added `[data-bright="true"]` CSS blocks for all 8 themes. Lifts backgrounds +8-12 lightness, pushes text toward white, bumps accents one tier, increases border visibility. For readability on dimmed OLED screens. 3-position toggle cycles: Normal → Deeper → Brighter. Starry themes get boosted star opacity. `data-bright` and `data-dark` are mutually exclusive. Backward-compatible: existing "Deeper" users auto-migrate via `stratos-dark` → `stratos-theme-mode` localStorage key.
+
 ### 2026-02-26
 
 **D001 — Carry forward unfetched snapshot articles in incremental scan**
