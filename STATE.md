@@ -19,7 +19,7 @@ Last updated: **2026-02-27** (session: diagnostic bug fixes — 5 fixes, 6 commi
 - **Inference model:** `qwen3:30b-a3b` (~18-19GB MoE) — strat agent + market analysis only
 - **Wizard/briefing model:** `qwen3:14b` (~9GB) — wizard, briefings, profile generation, suggestions
 - **Search provider:** Serper (Google) primary, DuckDuckGo fallback. 60-min dedup window on Serper queries.
-- **Serper credits:** ~1579 remaining of 2500 (key: `1b9db98...` in `.env`) — 310 used in diagnostic loop (228 Phase 1 + 82 Phase 2)
+- **Serper credits:** ~1524 remaining of 2500 (key: `1b9db98...` in `.env`) — 365 used total (228 Phase 1 + 82 Phase 2 + 55 post-fix validation)
 
 ### V2 Scorer Production Metrics
 
@@ -268,9 +268,10 @@ Must delete `hf_device_map` and force `.to("cuda:0")` or gradient computation cr
 
 > Most recent first. 3-5 lines per session.
 
-### 2026-02-27 — Diagnostic Bug Fixes (5 fixes, 6 commits)
-**Commits:** 6 (a0f9c47, 59a4a0c, 6463ad4, d5378f1, b6cdfdd, + STATE.md)
+### 2026-02-27 — Diagnostic Bug Fixes + Post-Fix Validation (5 fixes, 8 commits)
+**Commits:** 8 (a0f9c47, 59a4a0c, 6463ad4, d5378f1, b6cdfdd, a76cb35, + validation + STATE.md)
 Implemented all 5 fixes from the 16-profile diagnostic: (1) BUG-1 CRITICAL — tag all output articles with `retained_by_profile: context_hash` to prevent cross-profile retention leak, (2) BUG-2 — store briefing thread with generation counter + `wait_for_briefing()`, (3) S4 — remove cross-entity combination queries (~30% Serper credit savings), (4) S3 — route generic-keyword career matches to DoRA model at score 5.5 instead of hardcoded 9.0, (5) BUG-3 — opt-in extra feeds integration in scan pipeline (`scoring.include_extra_feeds_in_scan`). Each fix is an independent commit, rollback-safe via `git revert`. 54 tests pass after every commit.
+**Post-fix validation:** Ran 3 adversarial profiles (P6 ElecTech, P7 PetroJourno, P10 CSUK) sequentially. **All 4 tests PASS:** zero cross-profile contamination (was 20→17→1 before), all articles tagged, `wait_for_briefing()` captures briefings reliably, generic-keyword articles routed to DoRA model (Firelands Electric → 1.0, Nebraska Exam Prep → 2.5, zero false positives ≥8.0). Serper: 55 credits used (1579→1524).
 
 ### 2026-02-27 — 16-Profile Pipeline Diagnostic Loop (Phase 1 + Phase 2)
 **Commits:** 2 (diagnostic report + extended diagnostic)

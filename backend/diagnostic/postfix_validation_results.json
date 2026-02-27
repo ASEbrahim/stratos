@@ -1,0 +1,188 @@
+{
+  "timestamp": "2026-02-27T18:35:56.525316",
+  "profiles_tested": [
+    6,
+    7,
+    10
+  ],
+  "credits_before": 1579,
+  "credits_after": 1524,
+  "all_pass": false,
+  "results": [
+    {
+      "profile_num": 6,
+      "name": "PostFix_P6_ElecTech",
+      "role": "Electrical Technician at the Ministry of Electricity & Water",
+      "context_hash": "b908525c15b1",
+      "total_articles": 53,
+      "scan_time": 37.4,
+      "scores_mean": 4.66,
+      "scores_above_7": 20,
+      "scores_below_5": 33,
+      "retained_count": 0,
+      "briefing_captured": false,
+      "wait_for_briefing_returned": true,
+      "untagged_articles": 0,
+      "contamination": {
+        "leaked_count": 0,
+        "leaked_articles": []
+      },
+      "generic_routing": {
+        "routed_to_llm": 0,
+        "still_hardcoded": 0,
+        "articles": []
+      },
+      "top_5": [
+        {
+          "title": "What Surprising Innovations Are Transforming Global Power Su",
+          "score": 9.5,
+          "reason": "LLM: highly relevant to a power distribution technician's role and interests, de",
+          "category": "powsys",
+          "retained_by_profile": "b908525c15b1"
+        },
+        {
+          "title": "Contract jobs vacancies - MEW Kuwait",
+          "score": 9.0,
+          "reason": "Relevant hiring: mew kuwait, kuwait, mew",
+          "category": "mewjob",
+          "retained_by_profile": "b908525c15b1"
+        },
+        {
+          "title": "Power & Utility Industry Events - CEATI",
+          "score": 8.5,
+          "reason": "LLM: Highly relevant to an electrical technician in Kuwait's power distribution ",
+          "category": "powsys",
+          "retained_by_profile": "b908525c15b1"
+        },
+        {
+          "title": "Switchgear Market Size, Share and Companies | Trends, 2026-3",
+          "score": 8.5,
+          "reason": "LLM: Highly relevant to a Kuwait-based electrical technician's professional inte",
+          "category": "powsys",
+          "retained_by_profile": "b908525c15b1"
+        },
+        {
+          "title": "Electrician Red Seal: What You Need to Know",
+          "score": 8.0,
+          "reason": "High relevance + action: trade, electrical, certification",
+          "category": "elecert",
+          "retained_by_profile": "b908525c15b1"
+        }
+      ]
+    },
+    {
+      "profile_num": 7,
+      "name": "PostFix_P7_PetroJourno",
+      "role": "Energy Sector Journalist at Kuwait Times",
+      "context_hash": "8b2ed41eec87",
+      "total_articles": 99,
+      "scan_time": 49.6,
+      "scores_mean": 4.99,
+      "scores_above_7": 41,
+      "scores_below_5": 58,
+      "retained_count": 0,
+      "briefing_captured": false,
+      "wait_for_briefing_returned": true,
+      "untagged_articles": 0,
+      "contamination": {
+        "leaked_count": 0,
+        "leaked_articles": []
+      },
+      "generic_routing": null,
+      "top_5": [
+        {
+          "title": "How AI is becoming central to oil and gas finance strategy |",
+          "score": 9.5,
+          "reason": "Breakthrough in tracked area: industry, automation, energy",
+          "category": "enstory",
+          "retained_by_profile": "8b2ed41eec87"
+        },
+        {
+          "title": "RatedPower publishes 2026 Global Renewable Energy Trends ...",
+          "score": 9.5,
+          "reason": "LLM: Highly relevant to oil workforce automation and LNG export terminal focus a",
+          "category": "enstory",
+          "retained_by_profile": "8b2ed41eec87"
+        },
+        {
+          "title": "Celebrating Kuwait's National & Liberation Days Al-Rashed ..",
+          "score": 9.0,
+          "reason": "Relevant hiring: times, kuwait times, arab times",
+          "category": "kwtmed",
+          "retained_by_profile": "8b2ed41eec87"
+        },
+        {
+          "title": "Golden Pass steps closer to LNG with FERC request - Argus Me",
+          "score": 9.0,
+          "reason": "LLM: Directly relevant to LNG export terminal operations and regulatory approval",
+          "category": "enstory",
+          "retained_by_profile": "8b2ed41eec87"
+        },
+        {
+          "title": "TotalEnergies signs preliminary deal to offtake Alaskan LNG ",
+          "score": 9.0,
+          "reason": "LLM: Article matches user's tracked interests in LNG export and oil workforce au",
+          "category": "enstory",
+          "retained_by_profile": "8b2ed41eec87"
+        }
+      ]
+    },
+    {
+      "profile_num": 10,
+      "name": "PostFix_P10_CSUK",
+      "role": "Computer Science Student (Junior year)",
+      "context_hash": "ad6f22647344",
+      "total_articles": 50,
+      "scan_time": 37.8,
+      "scores_mean": 5.04,
+      "scores_above_7": 23,
+      "scores_below_5": 27,
+      "retained_count": 0,
+      "briefing_captured": false,
+      "wait_for_briefing_returned": true,
+      "untagged_articles": 0,
+      "contamination": {
+        "leaked_count": 0,
+        "leaked_articles": []
+      },
+      "generic_routing": null,
+      "top_5": [
+        {
+          "title": "Next.js vs React: Which One Should You Choose in 2026",
+          "score": 9.5,
+          "reason": "LLM: Directly actionable article for a web developer looking to choose between f",
+          "category": "webdev",
+          "retained_by_profile": "ad6f22647344"
+        },
+        {
+          "title": "Vercel Releases React Best Practices Skill with 40+ Performa",
+          "score": 9.5,
+          "reason": "LLM: Directly actionable for user's web development interests with specific tech",
+          "category": "webdev",
+          "retained_by_profile": "ad6f22647344"
+        },
+        {
+          "title": "Top Graphic Design Trends in 2026: What Every Designer Must ",
+          "score": 9.5,
+          "reason": "LLM: directly actionable for a UI/UX designer seeking to stay competitive in the",
+          "category": "webdev",
+          "retained_by_profile": "ad6f22647344"
+        },
+        {
+          "title": "Is Next.js Dead in 2026? How to Know When an Open-Source ...",
+          "score": 9.0,
+          "reason": "LLM: Clear-cut article providing essential technical knowledge for framework sel",
+          "category": "webdev",
+          "retained_by_profile": "ad6f22647344"
+        },
+        {
+          "title": "KU and MMU are hiring. The two public institutions announced",
+          "score": 8.5,
+          "reason": "Relevant hiring in target location: kuwait university, faculty, kuwait",
+          "category": "kustud",
+          "retained_by_profile": "ad6f22647344"
+        }
+      ]
+    }
+  ]
+}
