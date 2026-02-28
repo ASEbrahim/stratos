@@ -216,7 +216,7 @@ def get_corrections(db_path: str, min_delta: float = 1.5, after: str = None) -> 
                n.summary, n.source,
                f.profile_role, f.profile_location, f.profile_context
         FROM user_feedback f
-        LEFT JOIN news_items n ON f.news_id = n.id
+        LEFT JOIN news_items n ON f.news_id = n.id AND f.profile_id = n.profile_id
         WHERE f.action = 'rate' AND f.ai_score IS NOT NULL AND f.user_score IS NOT NULL{time_filter}
         ORDER BY f.created_at DESC
     """, time_params)
@@ -248,7 +248,7 @@ def get_corrections(db_path: str, min_delta: float = 1.5, after: str = None) -> 
                n.summary, n.source, n.score,
                f.profile_role, f.profile_location, f.profile_context
         FROM user_feedback f
-        LEFT JOIN news_items n ON f.news_id = n.id
+        LEFT JOIN news_items n ON f.news_id = n.id AND f.profile_id = n.profile_id
         WHERE f.action IN ('save', 'dismiss', 'thumbs_up', 'thumbs_down'){time_filter}
         ORDER BY f.created_at DESC
     """, time_params)

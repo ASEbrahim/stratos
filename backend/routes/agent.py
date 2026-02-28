@@ -457,7 +457,7 @@ HISTORICAL DATA:
                 search_results = []
                 for kw in keywords[:3]:
                     try:
-                        results = strat.db.search_news_history(kw, days=14, limit=5)
+                        results = strat.db.search_news_history(kw, days=14, limit=5, profile_id=strat.active_profile_id)
                         search_results.extend(results)
                     except Exception:
                         pass
@@ -745,20 +745,21 @@ def _build_historical_context(strat):
             lines = [f"  {s.get('started_at','')[:16].replace('T',' ')}: {s.get('items_scored',0)} items → {s.get('critical',0)} crit, {s.get('high',0)} high" if not s.get('error') else f"  {s.get('started_at','')[:16]}: FAILED" for s in scans]
             parts.append("RECENT SCANS:\n" + "\n".join(lines))
     except Exception: pass
+    _pid = strat.active_profile_id
     try:
-        stats = db.get_category_stats(days=7)
+        stats = db.get_category_stats(days=7, profile_id=_pid)
         if stats:
             lines = [f"  {c.get('category','?')}: {c.get('total',0)} items, avg {c.get('avg_score',0)}, {c.get('critical',0)} crit, {c.get('high',0)} high" for c in stats[:10]]
             parts.append("CATEGORY PERFORMANCE (7d):\n" + "\n".join(lines))
     except Exception: pass
     try:
-        top = db.get_top_signals(days=7, min_score=7.5, limit=10)
+        top = db.get_top_signals(days=7, min_score=7.5, limit=10, profile_id=_pid)
         if top:
             lines = [f"  [{t.get('score',0):.1f}] {t.get('title','')[:80]} ({t.get('category','')}, {t.get('fetched_at','')[:10]})" for t in top]
             parts.append("TOP SIGNALS (7d):\n" + "\n".join(lines))
     except Exception: pass
     try:
-        daily = db.get_daily_signal_counts(days=7)
+        daily = db.get_daily_signal_counts(days=7, profile_id=_pid)
         if daily:
             lines = [f"  {d.get('day','?')}: {d.get('total',0)} total, {d.get('critical',0)} crit, {d.get('high',0)} high" for d in daily]
             parts.append("DAILY TREND:\n" + "\n".join(lines))

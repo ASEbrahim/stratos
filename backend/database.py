@@ -53,7 +53,7 @@ class Database:
     # NEWS ITEMS
     # =========================================================================
     
-    def save_news_item(self, item: Dict[str, Any]) -> bool:
+    def save_news_item(self, item: Dict[str, Any], profile_id: int = 0) -> bool:
         """
         Save a news item to the database.
         Returns True if new item, False if duplicate.
@@ -61,9 +61,9 @@ class Database:
         cursor = self.conn.cursor()
         try:
             cursor.execute("""
-                INSERT OR IGNORE INTO news_items 
-                (id, title, url, summary, source, root, category, score, score_reason, timestamp, fetched_at)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                INSERT OR IGNORE INTO news_items
+                (id, title, url, summary, source, root, category, score, score_reason, timestamp, fetched_at, profile_id)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """, (
                 item.get('id'),
                 item.get('title'),
@@ -75,7 +75,8 @@ class Database:
                 item.get('score', 0.0),
                 item.get('score_reason'),
                 item.get('timestamp'),
-                datetime.now().isoformat()
+                datetime.now().isoformat(),
+                profile_id,
             ))
             self._commit()
             return cursor.rowcount > 0
@@ -115,12 +116,12 @@ class Database:
         cursor.execute("UPDATE news_items SET dismissed = 1 WHERE id = ?", (item_id,))
         self._commit()
 
-    def was_dismissed(self, url: str) -> bool:
+    def was_dismissed(self, url: str, profile_id: int = 0) -> bool:
         """Check if a URL was dismissed by the user (via user_feedback table)."""
         cursor = self.conn.cursor()
         cursor.execute(
-            "SELECT 1 FROM user_feedback WHERE url = ? AND action = 'dismiss' LIMIT 1",
-            (url,)
+            "SELECT 1 FROM user_feedback WHERE url = ? AND action = 'dismiss' AND profile_id = ? LIMIT 1",
+            (url, profile_id)
         )
         return cursor.fetchone() is not None
 
@@ -257,13 +258,13 @@ class Database:
     # BRIEFINGS
     # =========================================================================
     
-    def save_briefing(self, briefing: Dict):
+    def save_briefing(self, briefing: Dict, profile_id: int = 0):
         """Save a generated briefing."""
         cursor = self.conn.cursor()
         cursor.execute("""
-            INSERT INTO briefings (content_json, generated_at)
-            VALUES (?, ?)
-        """, (json.dumps(briefing), datetime.now().isoformat()))
+            INSERT INTO briefings (content_json, generated_at, profile_id)
+            VALUES (?, ?, ?)
+        """, (json.dumps(briefing), datetime.now().isoformat(), profile_id))
         self._commit()
         return cursor.lastrowid
     
@@ -302,14 +303,14 @@ class Database:
     # SCAN LOG
     # =========================================================================
     
-    def save_scan_log(self, entry: Dict[str, Any]) -> int:
+    def save_scan_log(self, entry: Dict[str, Any], profile_id: int = 0) -> int:
         """Save a scan completion log entry. Returns the scan log row ID."""
         cursor = self.conn.cursor()
         cursor.execute("""
             INSERT INTO scan_log
             (started_at, elapsed_secs, items_fetched, items_scored,
-             critical, high, medium, noise, rule_scored, llm_scored, error, truncated, retained)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+             critical, high, medium, noise, rule_scored, llm_scored, error, truncated, retained, profile_id)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """, (
             entry.get('started_at', datetime.now().isoformat()),
             entry.get('elapsed_secs', 0),
@@ -324,6 +325,7 @@ class Database:
             entry.get('error'),
             entry.get('truncated', 0),
             entry.get('retained', 0),
+            profile_id,
         ))
         self._commit()
         return cursor.lastrowid
@@ -340,15 +342,15 @@ class Database:
     # SHADOW SCORES
     # =========================================================================
 
-    def save_shadow_score(self, entry: Dict[str, Any]):
+    def save_shadow_score(self, entry: Dict[str, Any], profile_id: int = 0):
         """Save a shadow scoring comparison entry."""
         cursor = self.conn.cursor()
         try:
             cursor.execute("""
                 INSERT INTO shadow_scores
                 (scan_id, news_id, title, category, primary_scorer, primary_score,
-                 shadow_scorer, shadow_score, delta, created_at)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                 shadow_scorer, shadow_score, delta, created_at, profile_id)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """, (
                 entry.get('scan_id'),
                 entry.get('news_id', ''),
@@ -360,6 +362,7 @@ class Database:
                 entry.get('shadow_score', 0),
                 entry.get('delta', 0),
                 datetime.now().isoformat(),
+                profile_id,
             ))
             self._commit()
         except Exception as e:
@@ -379,20 +382,20 @@ class Database:
     # HISTORICAL QUERIES (for Agent)
     # =========================================================================
     
-    def get_top_signals(self, days: int = 7, min_score: float = 7.0, limit: int = 20) -> List[Dict]:
+    def get_top_signals(self, days: int = 7, min_score: float = 7.0, limit: int = 20, profile_id: int = 0) -> List[Dict]:
         """Get top-scoring signals from the past N days."""
         cursor = self.conn.cursor()
         since = (datetime.now() - timedelta(days=days)).isoformat()
         cursor.execute("""
             SELECT title, url, score, score_reason, category, source, fetched_at
             FROM news_items
-            WHERE fetched_at > ? AND score >= ? AND dismissed = 0
+            WHERE fetched_at > ? AND score >= ? AND dismissed = 0 AND profile_id = ?
             ORDER BY score DESC, fetched_at DESC
             LIMIT ?
-        """, (since, min_score, limit))
+        """, (since, min_score, profile_id, limit))
         return [dict(row) for row in cursor.fetchall()]
-    
-    def get_category_stats(self, days: int = 7) -> List[Dict]:
+
+    def get_category_stats(self, days: int = 7, profile_id: int = 0) -> List[Dict]:
         """Get scoring stats per category over the past N days."""
         cursor = self.conn.cursor()
         since = (datetime.now() - timedelta(days=days)).isoformat()
@@ -404,13 +407,13 @@ class Database:
                    SUM(CASE WHEN score >= 7.0 AND score < 9.0 THEN 1 ELSE 0 END) as high,
                    MAX(score) as best_score
             FROM news_items
-            WHERE fetched_at > ? AND dismissed = 0
+            WHERE fetched_at > ? AND dismissed = 0 AND profile_id = ?
             GROUP BY category
             ORDER BY avg_score DESC
-        """, (since,))
+        """, (since, profile_id))
         return [dict(row) for row in cursor.fetchall()]
-    
-    def search_news_history(self, keyword: str, days: int = 14, limit: int = 15) -> List[Dict]:
+
+    def search_news_history(self, keyword: str, days: int = 14, limit: int = 15, profile_id: int = 0) -> List[Dict]:
         """Search past news items by keyword in title or summary."""
         cursor = self.conn.cursor()
         since = (datetime.now() - timedelta(days=days)).isoformat()
@@ -418,13 +421,13 @@ class Database:
         cursor.execute("""
             SELECT title, url, score, score_reason, category, source, fetched_at
             FROM news_items
-            WHERE fetched_at > ? AND (title LIKE ? OR summary LIKE ?) AND dismissed = 0
+            WHERE fetched_at > ? AND (title LIKE ? OR summary LIKE ?) AND dismissed = 0 AND profile_id = ?
             ORDER BY score DESC, fetched_at DESC
             LIMIT ?
-        """, (since, like, like, limit))
+        """, (since, like, like, profile_id, limit))
         return [dict(row) for row in cursor.fetchall()]
-    
-    def get_daily_signal_counts(self, days: int = 7) -> List[Dict]:
+
+    def get_daily_signal_counts(self, days: int = 7, profile_id: int = 0) -> List[Dict]:
         """Get daily counts of signals by score tier."""
         cursor = self.conn.cursor()
         since = (datetime.now() - timedelta(days=days)).isoformat()
@@ -435,25 +438,25 @@ class Database:
                    SUM(CASE WHEN score >= 7.0 AND score < 9.0 THEN 1 ELSE 0 END) as high,
                    SUM(CASE WHEN score > 5.0 AND score < 7.0 THEN 1 ELSE 0 END) as medium
             FROM news_items
-            WHERE fetched_at > ? AND dismissed = 0
+            WHERE fetched_at > ? AND dismissed = 0 AND profile_id = ?
             GROUP BY DATE(fetched_at)
             ORDER BY day DESC
-        """, (since,))
+        """, (since, profile_id))
         return [dict(row) for row in cursor.fetchall()]
-    
-    def save_feedback(self, feedback: Dict[str, Any]) -> bool:
+
+    def save_feedback(self, feedback: Dict[str, Any], profile_id: int = 0) -> bool:
         """Save user feedback (click, dismiss, rate, save, thumbs) for a news item.
-        
+
         Profile columns (profile_role, profile_location) are stored when available
         so training data can be paired with the correct system prompt later.
         """
         cursor = self.conn.cursor()
         try:
             cursor.execute("""
-                INSERT INTO user_feedback 
+                INSERT INTO user_feedback
                 (news_id, title, url, root, category, ai_score, user_score, note, action, created_at,
-                 profile_role, profile_location, profile_context)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                 profile_role, profile_location, profile_context, profile_id)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """, (
                 feedback.get('news_id', ''),
                 feedback.get('title', ''),
@@ -468,6 +471,7 @@ class Database:
                 feedback.get('profile_role', ''),
                 feedback.get('profile_location', ''),
                 feedback.get('profile_context', ''),
+                profile_id,
             ))
             self._commit()
             return True
@@ -582,15 +586,20 @@ class Database:
     # UTILITIES
     # =========================================================================
     
-    def cleanup_old_data(self, days: int = 30):
-        """Remove data older than specified days."""
+    def cleanup_old_data(self, days: int = 30, profile_id: int = None):
+        """Remove data older than specified days. If profile_id given, only that profile's data."""
         cursor = self.conn.cursor()
         cutoff = (datetime.now() - timedelta(days=days)).isoformat()
-        
-        cursor.execute("DELETE FROM news_items WHERE fetched_at < ?", (cutoff,))
+
+        if profile_id is not None:
+            cursor.execute("DELETE FROM news_items WHERE fetched_at < ? AND profile_id = ?", (cutoff, profile_id))
+            cursor.execute("DELETE FROM briefings WHERE generated_at < ? AND profile_id = ?", (cutoff, profile_id))
+        else:
+            cursor.execute("DELETE FROM news_items WHERE fetched_at < ?", (cutoff,))
+            cursor.execute("DELETE FROM briefings WHERE generated_at < ?", (cutoff,))
+        # Market snapshots and entity mentions are global — always clean by age
         cursor.execute("DELETE FROM market_snapshots WHERE snapshot_at < ?", (cutoff,))
         cursor.execute("DELETE FROM entity_mentions WHERE recorded_at < ?", (cutoff,))
-        cursor.execute("DELETE FROM briefings WHERE generated_at < ?", (cutoff,))
         
         self._commit()
         logger.info(f"Cleaned up data older than {days} days")
