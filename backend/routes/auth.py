@@ -105,22 +105,32 @@ def handle_auth_routes(handler, method, path, data, db, strat, send_json, email_
 
         cursor = db.conn.cursor()
 
-        # Check if email already exists
+        # Check if email already exists as a verified user
         cursor.execute("SELECT id FROM users WHERE email = ?", (email,))
         if cursor.fetchone():
             send_json(handler, {"error": "Email already registered"}, status=409)
             return True
 
-        # First user is admin
-        cursor.execute("SELECT COUNT(*) FROM users")
-        user_count = cursor.fetchone()[0]
-        is_first = user_count == 0
-
-        # Create user — always require email verification
+        # Store in pending_registrations (NOT users) until email is verified
         password_hash = _hash_password(password)
         code = _generate_code()
         verification_code_hash = _hash_code(code)
         verification_expires = (datetime.now() + timedelta(minutes=15)).isoformat()
+
+        # First user will be admin
+        cursor.execute("SELECT COUNT(*) FROM users")
+        user_count = cursor.fetchone()[0]
+        is_first = user_count == 0
+
+        # Upsert into pending_registrations (allow re-registration with new code)
+        cursor.execute("DELETE FROM pending_registrations WHERE email = ?", (email,))
+        cursor.execute("""
+            INSERT INTO pending_registrations (email, password_hash, display_name, is_admin,
+                         verification_code_hash, verification_expires)
+            VALUES (?, ?, ?, ?, ?, ?)
+        """, (email, password_hash, display_name, is_first,
+              verification_code_hash, verification_expires))
+        db._commit()
 
         # Send verification email (or log code if SMTP not configured)
         if email_service and email_service.is_configured():
@@ -131,23 +141,9 @@ def handle_auth_routes(handler, method, path, data, db, strat, send_json, email_
         else:
             logger.info(f"[EMAIL VERIFICATION] Code for {email}: {code} (SMTP not configured)")
 
-        cursor.execute("""
-            INSERT INTO users (email, password_hash, display_name, is_admin, email_verified,
-                             verification_code_hash, verification_expires)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
-        """, (email, password_hash, display_name, is_first, False,
-              verification_code_hash, verification_expires))
-        user_id = cursor.lastrowid
-
-        db._commit()
-
-        # Don't create session yet — user must verify email first
         send_json(handler, {
             "status": "registered",
-            "user_id": user_id,
             "display_name": display_name,
-            "is_admin": is_first,
-            "email_verified": False,
             "needs_verification": True,
         }, status=201)
         return True
@@ -157,19 +153,17 @@ def handle_auth_routes(handler, method, path, data, db, strat, send_json, email_
         code = (data.get("code") or "").strip()
 
         cursor = db.conn.cursor()
+        # Look up pending registration (user doesn't exist in users table yet)
         cursor.execute(
-            "SELECT id, verification_code_hash, verification_expires, display_name, is_admin FROM users WHERE email = ?",
+            "SELECT id, password_hash, display_name, is_admin, verification_code_hash, verification_expires FROM pending_registrations WHERE email = ?",
             (email,)
         )
         row = cursor.fetchone()
         if not row:
-            send_json(handler, {"error": "Email not found"}, status=404)
+            send_json(handler, {"error": "No pending registration for this email"}, status=404)
             return True
 
-        user_id, stored_hash, expires, display_name, is_admin = row
-        if not stored_hash:
-            send_json(handler, {"error": "No verification pending"}, status=400)
-            return True
+        pending_id, password_hash, display_name, is_admin, stored_hash, expires = row
         if expires and datetime.fromisoformat(expires) < datetime.now():
             send_json(handler, {"error": "Code expired. Request a new one."}, status=400)
             return True
@@ -177,10 +171,15 @@ def handle_auth_routes(handler, method, path, data, db, strat, send_json, email_
             send_json(handler, {"error": "Invalid code"}, status=400)
             return True
 
+        # Verification passed — NOW create the user in the users table
         cursor.execute("""
-            UPDATE users SET email_verified = TRUE, verification_code_hash = NULL, verification_expires = NULL
-            WHERE id = ?
-        """, (user_id,))
+            INSERT INTO users (email, password_hash, display_name, is_admin, email_verified)
+            VALUES (?, ?, ?, ?, TRUE)
+        """, (email, password_hash, display_name, is_admin))
+        user_id = cursor.lastrowid
+
+        # Remove from pending
+        cursor.execute("DELETE FROM pending_registrations WHERE id = ?", (pending_id,))
 
         # Create session — log the user in
         token = _generate_token()
@@ -202,19 +201,17 @@ def handle_auth_routes(handler, method, path, data, db, strat, send_json, email_
     if path == "/api/auth/resend-verification" and method == "POST":
         email = (data.get("email") or "").strip().lower()
         cursor = db.conn.cursor()
-        cursor.execute("SELECT id, display_name, email_verified FROM users WHERE email = ?", (email,))
+        # Check pending_registrations (users table doesn't have unverified users anymore)
+        cursor.execute("SELECT id, display_name FROM pending_registrations WHERE email = ?", (email,))
         row = cursor.fetchone()
         if not row:
-            send_json(handler, {"error": "Email not found"}, status=404)
+            send_json(handler, {"error": "No pending registration for this email"}, status=404)
             return True
-        user_id, display_name, verified = row
-        if verified:
-            send_json(handler, {"error": "Already verified"}, status=400)
-            return True
+        pending_id, display_name = row
         code = _generate_code()
         cursor.execute("""
-            UPDATE users SET verification_code_hash = ?, verification_expires = ? WHERE id = ?
-        """, (_hash_code(code), (datetime.now() + timedelta(minutes=15)).isoformat(), user_id))
+            UPDATE pending_registrations SET verification_code_hash = ?, verification_expires = ? WHERE id = ?
+        """, (_hash_code(code), (datetime.now() + timedelta(minutes=15)).isoformat(), pending_id))
         db._commit()
 
         if email_service and email_service.is_configured():
@@ -248,6 +245,11 @@ def handle_auth_routes(handler, method, path, data, db, strat, send_json, email_
         user_id, stored_hash, display_name, is_admin, email_verified = row
         if not _verify_password(password, stored_hash):
             send_json(handler, {"error": "Invalid email or password"}, status=401)
+            return True
+
+        # Block unverified users
+        if not email_verified:
+            send_json(handler, {"error": "Email not verified. Please check your inbox."}, status=403)
             return True
 
         # Upgrade legacy hash
