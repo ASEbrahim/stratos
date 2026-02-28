@@ -247,12 +247,17 @@ def handle_auth_routes(handler, method, path, data, db, strat, send_json, email_
         return True
 
     if path == "/api/auth/login" and method == "POST":
-        email = (data.get("email") or "").strip().lower()
+        identifier = (data.get("email") or "").strip()
         password = data.get("password", "")
 
         cursor = db.conn.cursor()
-        cursor.execute("SELECT id, password_hash, display_name, is_admin, email_verified FROM users WHERE email = ?",
-                       (email,))
+        # Support login by email or username (display_name)
+        if "@" in identifier:
+            cursor.execute("SELECT id, password_hash, display_name, is_admin, email_verified FROM users WHERE email = ?",
+                           (identifier.lower(),))
+        else:
+            cursor.execute("SELECT id, password_hash, display_name, is_admin, email_verified FROM users WHERE LOWER(display_name) = ?",
+                           (identifier.lower(),))
         row = cursor.fetchone()
         if not row:
             send_json(handler, {"error": "Invalid email or password"}, status=401)
