@@ -7,6 +7,7 @@ rate limiting, and API key masking.
 Extracted from main.py:serve_frontend() closures (Sprint 4, A1.2).
 """
 
+import copy
 import json
 import hashlib
 import secrets
@@ -130,8 +131,27 @@ class AuthManager:
         except Exception:
             return None
 
+    # System keys to PRESERVE across profile switches.
+    # Everything NOT in this set is cleared on profile switch.
+    # This is a blacklist-preserve approach: future profile-specific keys
+    # are automatically cleared without needing to update a whitelist.
+    SYSTEM_KEYS = frozenset([
+        'scoring',      # model names, ollama host, thresholds (profile may overlay retain_*)
+        'search',       # API keys, provider settings
+        'system',       # database_file, output_file, log_level
+        'discovery',    # mention thresholds, baseline hours
+        'cache',        # TTLs
+        'email',        # SMTP config
+        'schedule',     # background scheduler settings
+    ])
+
     def load_profile_config(self, name, strat_instance):
-        """Load a profile's config into the live system."""
+        """Load a profile's config into the live system.
+
+        Uses blacklist-preserve: saves SYSTEM_KEYS, nukes everything else,
+        then applies the new profile's config on top. This prevents any
+        profile-specific key from leaking between profiles.
+        """
         safe = self.safe_name(name)
         filepath = self.profiles_dir() / f"{safe}.yaml"
         if not filepath.exists():
@@ -139,47 +159,41 @@ class AuthManager:
         try:
             with open(filepath) as f:
                 preset = yaml.safe_load(f) or {}
-            current_search = strat_instance.config.get("search", {})
-            current_security = strat_instance.config.get("security", {})
 
-            # Clear profile-specific fields so a new profile doesn't inherit
-            # another profile's categories, keywords, tickers, etc.
-            profile_specific_keys = [
-                "dynamic_categories", "profile",
-                "extra_feeds_finance", "extra_feeds_politics",
-                "custom_feeds", "custom_tab_name",
-            ]
-            for key in profile_specific_keys:
-                strat_instance.config.pop(key, None)
-            # Reset nested profile-specific sections to empty defaults
-            strat_instance.config["market"] = {
-                "tickers": [],
-                "intervals": strat_instance.config.get("market", {}).get("intervals", {}),
-                "alert_threshold_percent": 5.0,
-            }
-            strat_instance.config["news"] = {
-                "timelimit": "w",
-                "career": {"root": "kuwait", "keywords": [], "queries": []},
-                "finance": {"root": "kuwait", "keywords": [], "queries": []},
-                "regional": {"root": "regional", "keywords": [], "queries": []},
-                "tech_trends": {"root": "global", "keywords": [], "queries": []},
-                "rss_feeds": [],
-            }
+            # 1. Snapshot system keys (deep copy to avoid reference sharing)
+            preserved = {}
+            for key in self.SYSTEM_KEYS:
+                if key in strat_instance.config:
+                    preserved[key] = copy.deepcopy(strat_instance.config[key])
 
-            # Now apply the profile's config on top of the clean slate
-            strat_instance.config.update(preset)
-            # Preserve API keys
-            if not preset.get("search", {}).get("serper_api_key"):
-                strat_instance.config.setdefault("search", {})["serper_api_key"] = current_search.get("serper_api_key", "")
-            if not preset.get("search", {}).get("google_api_key"):
-                strat_instance.config.setdefault("search", {})["google_api_key"] = current_search.get("google_api_key", "")
-            # Don't leak security config into live config
-            strat_instance.config.pop("security", None)
+            # 2. Nuclear clear — remove EVERYTHING except system keys
+            all_keys = list(strat_instance.config.keys())
+            for key in all_keys:
+                if key not in self.SYSTEM_KEYS:
+                    del strat_instance.config[key]
+
+            # 3. Apply new profile's config
+            for key, val in preset.items():
+                if key == 'security':
+                    continue  # Never leak security (pin_hash, devices) into live config
+                if key in self.SYSTEM_KEYS:
+                    # Deep merge profile overrides into system sections
+                    # e.g., profile sets scoring.retain_threshold without nuking scoring.model
+                    existing = strat_instance.config.get(key)
+                    if isinstance(existing, dict) and isinstance(val, dict):
+                        existing.update(val)
+                    else:
+                        strat_instance.config[key] = val
+                else:
+                    strat_instance.config[key] = val
+
+            # 4. Restore any system keys the profile YAML didn't touch
+            for key in self.SYSTEM_KEYS:
+                if key not in strat_instance.config and key in preserved:
+                    strat_instance.config[key] = preserved[key]
+
             # Cache the profile config for session isolation (A2.1)
             strat_instance.cache_profile_config(safe)
-            # Note: do NOT write back to config.yaml here — profile config
-            # lives in memory only. config.yaml is the global default;
-            # profile-specific data is persisted in profiles/*.yaml.
             logger.info(f"Profile loaded on login: {safe}")
             return True
         except Exception as e:

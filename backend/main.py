@@ -98,9 +98,9 @@ class StratOS:
         self.scorer = _create_scorer(self.config, db=self.db)  # Pick scorer based on profile
         self.briefing_gen = BriefingGenerator(self.config)  # Pass full config for dynamic prompts
 
-        # Output path
-        self.output_file = Path(self.config.get("system", {}).get("output_file", "output/news_data.json"))
-        self.output_file.parent.mkdir(parents=True, exist_ok=True)
+        # Output path (base — per-profile paths derived via _get_output_path)
+        self._output_base = Path(self.config.get("system", {}).get("output_file", "output/news_data.json"))
+        self._output_base.parent.mkdir(parents=True, exist_ok=True)
 
         # Background scheduler
         self._scheduler_thread: Optional[threading.Thread] = None
@@ -190,10 +190,23 @@ class StratOS:
 
     # ═══════════════════════════════════════════════════════════════
 
+    def _get_output_path(self, profile_name=None):
+        """Get output file path for the given profile (or active profile)."""
+        name = profile_name or getattr(self, 'active_profile', None)
+        if name:
+            return self._output_base.parent / f"{self._output_base.stem}_{name}{self._output_base.suffix}"
+        return self._output_base
+
+    @property
+    def output_file(self):
+        """Output file for the active profile."""
+        return self._get_output_path()
+
     def _get_data_version(self) -> str:
         """Get version hash of current data file."""
-        if self.output_file.exists():
-            stat = self.output_file.stat()
+        path = self.output_file
+        if path.exists():
+            stat = path.stat()
             return f"{stat.st_mtime:.0f}"
         return "0"
 
