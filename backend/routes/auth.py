@@ -78,7 +78,8 @@ def handle_auth_routes(handler, method, path, data, db, strat, send_json, email_
     if path == "/api/auth/registration-status" and method == "GET":
         cursor = db.conn.cursor()
         cursor.execute("SELECT COUNT(*) FROM users")
-        user_count = cursor.fetchone()[0]
+        row = cursor.fetchone()
+        user_count = row[0] if row else 0
         has_smtp = email_service is not None and email_service.is_configured()
         # Check system config for open registration
         open_reg = strat.config.get("system", {}).get("registration_open", False)

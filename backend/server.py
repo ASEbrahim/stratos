@@ -115,6 +115,10 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                     _pid_row = cursor.fetchone()
                     if _pid_row and _pid_row[0]:
                         strat.active_profile_id = _pid_row[0]
+                        # For DB-backed profiles, ensure active_profile is set
+                        # even if ensure_profile() didn't have the config cached
+                        if _session_profile and strat.active_profile != _session_profile:
+                            strat.active_profile = _session_profile
                 except Exception:
                     pass
 
@@ -949,6 +953,10 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                     _pid_row = cursor.fetchone()
                     if _pid_row and _pid_row[0]:
                         strat.active_profile_id = _pid_row[0]
+                        # For DB-backed profiles, ensure active_profile is set
+                        # even if ensure_profile() didn't have the config cached
+                        if _session_profile and strat.active_profile != _session_profile:
+                            strat.active_profile = _session_profile
                 except Exception:
                     pass
 
