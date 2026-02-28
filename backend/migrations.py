@@ -299,6 +299,25 @@ def migration_008(cursor):
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_news_score ON news_items(score)")
 
 
+# -- Migration 009: pending_registrations table --
+@migration
+def migration_009(cursor):
+    """Create pending_registrations table — users aren't created until email is verified."""
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS pending_registrations (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            email TEXT UNIQUE NOT NULL,
+            password_hash TEXT NOT NULL,
+            display_name TEXT NOT NULL,
+            is_admin BOOLEAN DEFAULT FALSE,
+            verification_code_hash TEXT NOT NULL,
+            verification_expires DATETIME NOT NULL,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_pending_email ON pending_registrations(email)")
+
+
 # =========================================================================
 # Migration runner
 # =========================================================================

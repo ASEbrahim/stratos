@@ -90,11 +90,11 @@ scoring:
     avg_cap: 60
   fallback_score: 3.0
 search:
-  google_api_key: ${GOOGLE_API_KEY}
-  google_cx: ${GOOGLE_CSE_ID}
+  google_api_key: AIzaSyAYmzOV-kl1m60gidsKAhXKiDM92F4qGmY
+  google_cx: 52d68e3fc17d74e9a
   provider: serper
-  serper_api_key: ${SERPER_API_KEY}
-  serper_credits: 2500
+  serper_api_key: 1b9db98fe96029b315309b101464641e4955b7d4
+  serper_credits: 135
 system:
   database_file: strat_os.db
   frontend_port: 8080
@@ -102,15 +102,12 @@ system:
   max_news_items: 100
   output_file: output/news_data.json
 profile:
-  role: 'Petroleum Engineering Professor at Kuwait University and Consultant for Seisnetics '
+  role: Developer
   location: Kuwait
   context: Petroleum engineering professor and consultant focused on academic research,
     industry R&D, and global energy technology trends with emphasis on Kuwait and
     GCC policy developments.
   interests: []
-  name: Ahmad
-  avatar: AE
-  email: Kirissie@gmail.com
 dynamic_categories:
 - id: kuniv
   label: Kuwait Academic & Research Employers
@@ -234,3 +231,11 @@ extra_feeds_politics:
   nikkei_asia: false
 custom_feeds: []
 custom_tab_name: Custom
+
+# Email (SMTP) — required for verification codes
+# For Gmail: use an App Password (https://myaccount.google.com/apppasswords)
+email:
+  smtp_host: ""
+  smtp_port: 587
+  smtp_user: ""
+  smtp_password: ""
