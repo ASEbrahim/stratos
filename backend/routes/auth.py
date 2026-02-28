@@ -294,6 +294,30 @@ def handle_auth_routes(handler, method, path, data, db, strat, send_json, email_
         })
         return True
 
+    if path == "/api/auth/delete-account" and method == "POST":
+        token = handler.headers.get("X-Auth-Token", "")
+        user_id = _get_user_from_token(db, token)
+        if not user_id:
+            send_json(handler, {"error": "Not authenticated"}, status=401)
+            return True
+
+        password = data.get("password", "")
+        cursor = db.conn.cursor()
+        cursor.execute("SELECT password_hash FROM users WHERE id = ?", (user_id,))
+        row = cursor.fetchone()
+        if not row or not _verify_password(password, row[0]):
+            send_json(handler, {"error": "Incorrect password"}, status=403)
+            return True
+
+        # Delete all user data (profiles cascade via FK, sessions too)
+        cursor.execute("DELETE FROM sessions WHERE user_id = ?", (user_id,))
+        cursor.execute("DELETE FROM profiles WHERE user_id = ?", (user_id,))
+        cursor.execute("DELETE FROM users WHERE id = ?", (user_id,))
+        db._commit()
+        logger.info(f"User {user_id} deleted their account")
+        send_json(handler, {"status": "deleted"})
+        return True
+
     if path == "/api/auth/logout" and method == "POST":
         token = handler.headers.get("X-Auth-Token", "")
         if token:
