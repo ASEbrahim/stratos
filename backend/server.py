@@ -7,8 +7,10 @@ and start_server() which wires everything together.
 Extracted from main.py:serve_frontend() (Sprint 4, A1.2).
 """
 
+import gzip as _gzip_mod
 import json
 import logging
+import mimetypes
 import os
 import sys
 import signal
@@ -760,6 +762,33 @@ def create_handler(strat, auth, frontend_dir, output_dir):
             if self.path == "/api/agent-status":
                 handle_agent_status(self, strat)
                 return
+
+            # --- Static file serving with gzip compression ---
+            _GZIP_TYPES = {'.js', '.css', '.html', '.json', '.svg', '.txt', '.xml'}
+            accepts_gzip = 'gzip' in self.headers.get('Accept-Encoding', '')
+            ext = os.path.splitext(self.path.split('?')[0])[1].lower()
+
+            if accepts_gzip and ext in _GZIP_TYPES:
+                # Translate URL path to filesystem path
+                path = self.translate_path(self.path)
+                if os.path.isdir(path):
+                    path = os.path.join(path, 'index.html')
+                    ext = '.html'
+                if os.path.isfile(path):
+                    try:
+                        with open(path, 'rb') as f:
+                            raw = f.read()
+                        compressed = _gzip_mod.compress(raw, compresslevel=6)
+                        ctype = mimetypes.guess_type(path)[0] or 'application/octet-stream'
+                        self.send_response(200)
+                        self.send_header("Content-Type", ctype)
+                        self.send_header("Content-Encoding", "gzip")
+                        self.send_header("Content-Length", str(len(compressed)))
+                        self.end_headers()
+                        self.wfile.write(compressed)
+                        return
+                    except Exception:
+                        pass  # Fall through to default handler
 
             return super().do_GET()
 
