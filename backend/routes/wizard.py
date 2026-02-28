@@ -215,6 +215,23 @@ def handle_wizard_tab_suggest(handler, strat):
         category_label = data.get("category_label", "")
         existing_items = data.get("existing_items", [])
         selections_context = data.get("selections_context", "").strip()
+        selections = data.get("selections", {})  # structured dict: {label: [values]}
+        exclude_selected = data.get("exclude_selected", [])  # previously-added suggestions
+
+        # Merge explicitly excluded items (previously-added suggestions)
+        if exclude_selected:
+            existing_items = list(set(existing_items + [str(e) for e in exclude_selected]))
+
+        # Build context from structured selections if provided (overrides flat string)
+        if selections and isinstance(selections, dict):
+            parts = []
+            for label, values in selections.items():
+                if isinstance(values, list) and values:
+                    parts.append(f"{label}: {', '.join(str(v) for v in values)}")
+                elif isinstance(values, str) and values:
+                    parts.append(f"{label}: {values}")
+            if parts:
+                selections_context = '; '.join(parts)
 
         if not role or not category_label:
             error_response(handler, "Role and category_label are required", 400)
