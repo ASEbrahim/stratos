@@ -248,6 +248,17 @@ class StratOS:
         if os.environ.get('GOOGLE_CSE_ID'):
             search['google_cx'] = os.environ['GOOGLE_CSE_ID']
 
+        # SMTP settings from .env override config.yaml
+        email_cfg = self.config.setdefault('email', {})
+        if os.environ.get('SMTP_HOST'):
+            email_cfg['smtp_host'] = os.environ['SMTP_HOST']
+        if os.environ.get('SMTP_PORT'):
+            email_cfg['smtp_port'] = int(os.environ['SMTP_PORT'])
+        if os.environ.get('SMTP_USER'):
+            email_cfg['smtp_user'] = os.environ['SMTP_USER']
+        if os.environ.get('SMTP_PASSWORD'):
+            email_cfg['smtp_password'] = os.environ['SMTP_PASSWORD']
+
     def _sync_serper_credits(self):
         """Sync config.yaml serper_credits with the actual query tracker count."""
         try:
