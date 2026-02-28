@@ -27,6 +27,7 @@ from fetchers.discovery import EntityDiscovery
 from processors.scorer_adaptive import AdaptiveScorer
 from processors.briefing import BriefingGenerator
 from sse import SSEManager
+import user_data
 
 
 def _create_scorer(config, db=None):
@@ -423,7 +424,7 @@ class StratOS:
             # Write Pass 1 results immediately so dashboard can display them
             if deferred_items:
                 partial_output = self._build_output(market_data, scored_items, {}, market_alerts=market_alerts, profile_id=_scan_pid)
-                self._write_output(partial_output)
+                self._write_output(partial_output, profile_id=_scan_pid)
                 self.scan_status["data_version"] = self._get_data_version()
                 self.sse_broadcast("pass1_complete", {
                     "scored": len(scored_items),
@@ -438,7 +439,7 @@ class StratOS:
                 logger.info(f"Scan cancelled after scoring {len(scored_items)}/{total_items} items")
                 if not deferred_items:
                     output = self._build_output(market_data, scored_items, {}, market_alerts=market_alerts, profile_id=_scan_pid)
-                    self._write_output(output)
+                    self._write_output(output, profile_id=_scan_pid)
                 self.scan_status["is_scanning"] = False
                 self.scan_status["stage"] = "cancelled"
                 self.scan_status["cancelled"] = True
@@ -531,7 +532,7 @@ class StratOS:
             self.scan_status["progress"] = "Building output..."
             logger.info("[5/6] Building output (briefing deferred)...")
             output = self._build_output(market_data, scored_items, {}, market_alerts=market_alerts, profile_id=_scan_pid)
-            self._write_output(output)
+            self._write_output(output, profile_id=_scan_pid)
 
             # 6. Spawn briefing in background — non-blocking
             self._spawn_deferred_briefing(market_data, market_alerts, scored_items, discoveries, profile_id=_scan_pid)
@@ -900,7 +901,7 @@ class StratOS:
             # Write Pass 1 results immediately so dashboard can display them
             if deferred_items:
                 partial_output = self._build_output(market_data, scored_items, {}, market_alerts=market_alerts, profile_id=_scan_pid)
-                self._write_output(partial_output)
+                self._write_output(partial_output, profile_id=_scan_pid)
                 self.scan_status["data_version"] = self._get_data_version()
                 self.sse_broadcast("pass1_complete", {
                     "scored": len(scored_items),
@@ -915,7 +916,7 @@ class StratOS:
                 logger.info(f"News refresh cancelled after scoring {len(scored_items)}/{total_items} items")
                 if not deferred_items:
                     output = self._build_output(market_data, scored_items, {}, market_alerts=market_alerts, profile_id=_scan_pid)
-                    self._write_output(output)
+                    self._write_output(output, profile_id=_scan_pid)
                 self.scan_status["is_scanning"] = False
                 self.scan_status["stage"] = "cancelled"
                 self.scan_status["cancelled"] = True
@@ -1005,7 +1006,7 @@ class StratOS:
 
             # Build output WITHOUT briefing — let the user see results immediately
             output = self._build_output(market_data, scored_items, {}, market_alerts=market_alerts, profile_id=_scan_pid)
-            self._write_output(output)
+            self._write_output(output, profile_id=_scan_pid)
 
             # Spawn briefing in background — non-blocking
             self._spawn_deferred_briefing(market_data, market_alerts, scored_items, discoveries, profile_id=_scan_pid)
@@ -1229,7 +1230,7 @@ class StratOS:
                     output["briefing"] = briefing
                     output["meta"]["critical_count"] = briefing.get("critical_count", 0)
                     output["meta"]["high_count"] = briefing.get("high_count", 0)
-                    self._write_output(output)
+                    self._write_output(output, profile_id=profile_id)
                 self.sse_broadcast("briefing_ready", {"status": "ready"})
                 logger.info("Deferred briefing: complete, output patched")
             except Exception as e:
@@ -1440,11 +1441,26 @@ class StratOS:
             }
         }
 
-    def _write_output(self, data: Dict[str, Any]):
-        """Write output to JSON file."""
+    def _write_output(self, data: Dict[str, Any], profile_id: int = 0):
+        """Write output to JSON file and per-user daily article export."""
         with open(self.output_file, "w") as f:
             json.dump(data, f, indent=2)
         logger.info(f"Output written to {self.output_file}")
+
+        # Per-user daily article JSONL export
+        uid = user_data.get_user_id_for_profile(self.db, profile_id)
+        if uid > 0:
+            today = datetime.now().strftime("%Y-%m-%d")
+            for article in data.get("news", []):
+                user_data.append_jsonl(uid, f"scans/{today}.jsonl", {
+                    "title": article.get("title", ""),
+                    "url": article.get("url", ""),
+                    "score": article.get("score", 0),
+                    "score_reason": article.get("score_reason", ""),
+                    "category": article.get("category", ""),
+                    "source": article.get("source", ""),
+                    "timestamp": article.get("timestamp", ""),
+                })
 
     def start_background_scheduler(self):
         """Start background refresh scheduler."""

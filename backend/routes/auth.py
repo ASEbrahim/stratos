@@ -12,6 +12,8 @@ import secrets
 import time
 from datetime import datetime, timedelta
 
+import user_data
+
 logger = logging.getLogger("STRAT_OS")
 
 try:
@@ -177,6 +179,9 @@ def handle_auth_routes(handler, method, path, data, db, strat, send_json, email_
             VALUES (?, ?, ?, ?, TRUE)
         """, (email, password_hash, display_name, is_admin))
         user_id = cursor.lastrowid
+
+        # Create per-user data directory
+        user_data.ensure_dir(user_id)
 
         # Remove from pending
         cursor.execute("DELETE FROM pending_registrations WHERE id = ?", (pending_id,))
@@ -542,6 +547,9 @@ def handle_auth_routes(handler, method, path, data, db, strat, send_json, email_
         cursor.execute("UPDATE profiles SET last_active = ? WHERE id = ?",
                        (datetime.now().isoformat(), profile_id))
         db._commit()
+
+        # Ensure per-user data directory exists
+        user_data.ensure_dir(user_id)
 
         send_json(handler, {"status": "activated", "profile_id": profile_id, "name": row[1]})
         return True
