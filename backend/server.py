@@ -135,6 +135,10 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                 # Resolve profile-specific output file
                 _token = self.headers.get('X-Auth-Token', '')
                 _prof = auth.get_session_profile(_token) if _token else ''
+                # No active profile → return empty data (prevent cross-user bleed)
+                if not _prof:
+                    _send_json(self, {"articles": [], "market": {}, "briefing": {}, "discoveries": []})
+                    return
                 output_path = strat._get_output_path(_prof) if _prof else (output_dir / "news_data.json")
                 if output_path.exists():
                     raw = output_path.read_bytes()
@@ -521,8 +525,14 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                 self.send_header("Content-type", "application/json")
                 self.send_header("Access-Control-Allow-Origin", "*")
                 self.end_headers()
-                # Return editable parts of config
-                cfg = strat.config
+                # If user has no active profile, return blank config (prevent data bleed)
+                _cfg_token = self.headers.get('X-Auth-Token', '')
+                _cfg_profile = auth.get_session_profile(_cfg_token) if _cfg_token else ''
+                cfg = strat.config if _cfg_profile else {
+                    "profile": {}, "market": {"tickers": []}, "news": {"timelimit": "w"},
+                    "search": strat.config.get("search", {}),  # keep search keys for API access
+                    "dynamic_categories": [], "scoring": strat.config.get("scoring", {}),
+                }
                 editable_config = {
                     "profile": cfg.get("profile", {}),
                     "market": {
