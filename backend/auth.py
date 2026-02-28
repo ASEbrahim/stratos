@@ -41,6 +41,11 @@ class AuthManager:
         '/api/wizard-preselect', '/api/wizard-tab-suggest', '/api/wizard-rv-items',
         '/api/refresh', '/api/status', '/api/scan/status', '/api/scan/cancel',
         '/api/health', '/api/events',
+        # New email auth routes (they handle their own auth internally)
+        '/api/auth/registration-status', '/api/auth/register', '/api/auth/login',
+        '/api/auth/verify', '/api/auth/resend-verification', '/api/auth/check',
+        '/api/auth/logout', '/api/auth/forgot-password', '/api/auth/reset-password',
+        '/api/auth/change-password',
     }
 
     def __init__(self, config_path):
@@ -216,7 +221,8 @@ class AuthManager:
             return False
         session = self._active_sessions.get(token)
         if not session:
-            return False
+            # Fallback: check DB-backed sessions (new email auth)
+            return self._validate_db_session(token)
         now = time.time()
         if now > session["expiry"]:
             del self._active_sessions[token]
@@ -233,10 +239,44 @@ class AuthManager:
             self._last_purge = now
         return True
 
+    def _validate_db_session(self, token):
+        """Check DB sessions table for a valid token (email auth system)."""
+        try:
+            from database import get_database
+            from datetime import datetime
+            db = get_database()
+            cursor = db.conn.cursor()
+            cursor.execute("SELECT expires_at FROM sessions WHERE token = ?", (token,))
+            row = cursor.fetchone()
+            if not row:
+                return False
+            if row[0] and datetime.fromisoformat(row[0]) < datetime.now():
+                cursor.execute("DELETE FROM sessions WHERE token = ?", (token,))
+                db._commit()
+                return False
+            return True
+        except Exception:
+            return False
+
     def get_session_profile(self, token):
         """Get the profile name associated with a session token."""
         session = self._active_sessions.get(token)
-        return session["profile"] if session else ""
+        if session:
+            return session["profile"]
+        # Fallback: check DB sessions for profile name
+        try:
+            from database import get_database
+            db = get_database()
+            cursor = db.conn.cursor()
+            cursor.execute("""
+                SELECT p.name FROM sessions s
+                JOIN profiles p ON s.profile_id = p.id
+                WHERE s.token = ?
+            """, (token,))
+            row = cursor.fetchone()
+            return row[0] if row else ""
+        except Exception:
+            return ""
 
     def delete_session(self, token):
         """Remove a session (logout)."""

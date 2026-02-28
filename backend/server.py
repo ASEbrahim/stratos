@@ -23,12 +23,24 @@ from http.server import HTTPServer, SimpleHTTPRequestHandler
 from socketserver import ThreadingMixIn
 
 from routes.agent import handle_agent_chat, handle_agent_status, handle_ask, handle_suggest_context
+from routes.auth import handle_auth_routes
 from routes.generate import handle_generate_profile
 from routes.wizard import handle_wizard_preselect, handle_wizard_tab_suggest, handle_wizard_rv_items
 from routes.helpers import json_response, error_response
 from routes.config import handle_config_save
+from email_service import EmailService
 
 logger = logging.getLogger("STRAT_OS")
+
+
+def _send_json(handler, data, status=200):
+    """Send a JSON response with proper headers."""
+    body = json.dumps(data).encode()
+    handler.send_response(status)
+    handler.send_header("Content-type", "application/json")
+    handler.send_header("Access-Control-Allow-Origin", "*")
+    handler.end_headers()
+    handler.wfile.write(body)
 
 
 def create_handler(strat, auth, frontend_dir, output_dir):
@@ -37,6 +49,8 @@ def create_handler(strat, auth, frontend_dir, output_dir):
     Uses closure to bind strat (StratOS instance), auth (AuthManager),
     frontend_dir, and output_dir to the handler class.
     """
+
+    email_service = EmailService(strat.config)
 
     class CORSHandler(SimpleHTTPRequestHandler):
         def __init__(self, *args, **kwargs):
@@ -76,6 +90,11 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                 self.wfile.write(json.dumps(resp).encode())
                 return
 
+            # --- New email-based auth routes (self-authenticating) ---
+            if self.path.startswith("/api/auth/") or self.path == "/api/admin/users" or self.path == "/api/profiles":
+                if handle_auth_routes(self, "GET", self.path, {}, strat.db, strat, _send_json, email_service):
+                    return
+
             # --- Auth enforcement for API endpoints ---
             if self.path.startswith('/api/') and self.path not in auth.AUTH_EXEMPT:
                 token = self.headers.get('X-Auth-Token', '')
@@ -89,6 +108,15 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                 _session_profile = auth.get_session_profile(token)
                 if _session_profile:
                     strat.ensure_profile(_session_profile)
+                # Resolve DB profile_id from session (for data isolation)
+                try:
+                    cursor = strat.db.conn.cursor()
+                    cursor.execute("SELECT profile_id FROM sessions WHERE token = ?", (token,))
+                    _pid_row = cursor.fetchone()
+                    if _pid_row and _pid_row[0]:
+                        strat.active_profile_id = _pid_row[0]
+                except Exception:
+                    pass
 
             # --- Rate limiting ---
             if auth.rate_limited(self.path):
@@ -348,9 +376,10 @@ def create_handler(strat, auth, frontend_dir, output_dir):
 
                     else:
                         # Full JSON diagnostic export
-                        cat_stats = strat.db.get_category_stats(days=7)
-                        daily_counts = strat.db.get_daily_signal_counts(days=7)
-                        top_signals = strat.db.get_top_signals(days=7, min_score=7.0, limit=30)
+                        _pid = strat.active_profile_id
+                        cat_stats = strat.db.get_category_stats(days=7, profile_id=_pid)
+                        daily_counts = strat.db.get_daily_signal_counts(days=7, profile_id=_pid)
+                        top_signals = strat.db.get_top_signals(days=7, min_score=7.0, limit=30, profile_id=_pid)
 
                         export = {
                             "exported_at": datetime.now().isoformat(),
@@ -731,7 +760,18 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                 self.wfile.write(b'{"status": "cancelling"}')
                 return
 
-            # --- Login endpoint (always public) ---
+            # --- New email-based auth routes (self-authenticating) ---
+            if self.path.startswith("/api/auth/") or self.path.startswith("/api/profiles") or self.path.startswith("/api/admin/"):
+                content_length = int(self.headers.get('Content-Length', 0))
+                post_data = self.rfile.read(content_length) if content_length else b'{}'
+                try:
+                    data = json.loads(post_data.decode('utf-8')) if post_data.strip() else {}
+                except (json.JSONDecodeError, UnicodeDecodeError):
+                    data = {}
+                if handle_auth_routes(self, "POST", self.path, data, strat.db, strat, _send_json, email_service):
+                    return
+
+            # --- Login endpoint (always public, legacy PIN-based) ---
             if self.path == "/api/auth":
                 content_length = int(self.headers.get('Content-Length', 0))
                 post_data = self.rfile.read(content_length)
@@ -902,6 +942,15 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                 _session_profile = auth.get_session_profile(token)
                 if _session_profile:
                     strat.ensure_profile(_session_profile)
+                # Resolve DB profile_id from session (for data isolation)
+                try:
+                    cursor = strat.db.conn.cursor()
+                    cursor.execute("SELECT profile_id FROM sessions WHERE token = ?", (token,))
+                    _pid_row = cursor.fetchone()
+                    if _pid_row and _pid_row[0]:
+                        strat.active_profile_id = _pid_row[0]
+                except Exception:
+                    pass
 
             # --- Rate limiting ---
             if auth.rate_limited(self.path):
@@ -1063,7 +1112,7 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                     data["profile_location"] = profile.get("location", "")
                     data["profile_context"] = profile.get("context", "")[:500]
 
-                    strat.db.save_feedback(data)
+                    strat.db.save_feedback(data, profile_id=strat.active_profile_id)
 
                     self.send_response(200)
                     self.send_header("Content-type", "application/json")
@@ -1334,10 +1383,18 @@ def create_handler(strat, auth, frontend_dir, output_dir):
             self.send_response(404)
             self.end_headers()
 
+        def do_DELETE(self):
+            # --- Auth route DELETE (profile deletion) ---
+            if self.path.startswith("/api/profiles/"):
+                if handle_auth_routes(self, "DELETE", self.path, {}, strat.db, strat, _send_json, email_service):
+                    return
+            self.send_response(404)
+            self.end_headers()
+
         def do_OPTIONS(self):
             # Handle CORS preflight
             self.send_response(200)
-            self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+            self.send_header("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS")
             self.send_header("Access-Control-Allow-Headers", "Content-Type, X-Auth-Token, X-Device-Id")
             self.end_headers()
 

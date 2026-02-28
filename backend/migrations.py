@@ -189,6 +189,116 @@ def migration_007(cursor):
         pass  # Column already exists
 
 
+# -- Migration 008: Profile isolation + email auth tables --
+@migration
+def migration_008(cursor):
+    """Add profile isolation (profile_id columns) and email auth tables."""
+
+    # --- Auth tables ---
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            email TEXT UNIQUE NOT NULL,
+            password_hash TEXT NOT NULL,
+            display_name TEXT NOT NULL,
+            is_admin BOOLEAN DEFAULT FALSE,
+            email_verified BOOLEAN DEFAULT FALSE,
+            verification_code_hash TEXT,
+            verification_expires DATETIME,
+            reset_code_hash TEXT,
+            reset_code_expires DATETIME,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            last_login DATETIME
+        )
+    """)
+
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS profiles (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+            name TEXT NOT NULL,
+            config_overlay TEXT NOT NULL DEFAULT '{}',
+            ui_state TEXT NOT NULL DEFAULT '{}',
+            is_default BOOLEAN DEFAULT FALSE,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            last_active DATETIME,
+            UNIQUE(user_id, name)
+        )
+    """)
+
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS sessions (
+            token TEXT PRIMARY KEY,
+            user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+            profile_id INTEGER REFERENCES profiles(id) ON DELETE SET NULL,
+            device_id TEXT,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            expires_at DATETIME NOT NULL,
+            last_active DATETIME
+        )
+    """)
+
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS invite_codes (
+            code TEXT PRIMARY KEY,
+            created_by INTEGER REFERENCES users(id),
+            used_by INTEGER REFERENCES users(id),
+            expires_at DATETIME NOT NULL,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+
+    # --- profile_id on existing tables ---
+    # Add profile_id column to 5 existing tables (DEFAULT 0 = legacy sentinel)
+    for table in ['news_items', 'scan_log', 'user_feedback', 'shadow_scores', 'briefings']:
+        try:
+            cursor.execute(f"ALTER TABLE {table} ADD COLUMN profile_id INTEGER NOT NULL DEFAULT 0")
+        except sqlite3.OperationalError:
+            pass  # Column already exists
+
+    # Rebuild news_items to change UNIQUE(url) to UNIQUE(url, profile_id)
+    # SQLite doesn't support DROP CONSTRAINT, so we rebuild the table
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS news_items_new (
+            id TEXT PRIMARY KEY,
+            title TEXT NOT NULL,
+            url TEXT NOT NULL,
+            summary TEXT,
+            source TEXT,
+            root TEXT,
+            category TEXT,
+            score REAL DEFAULT 0.0,
+            score_reason TEXT,
+            timestamp TEXT,
+            fetched_at TEXT NOT NULL,
+            shown_to_user INTEGER DEFAULT 0,
+            dismissed INTEGER DEFAULT 0,
+            profile_id INTEGER NOT NULL DEFAULT 0,
+            UNIQUE(url, profile_id)
+        )
+    """)
+    cursor.execute("""
+        INSERT OR IGNORE INTO news_items_new
+        SELECT id, title, url, summary, source, root, category, score,
+               score_reason, timestamp, fetched_at, shown_to_user, dismissed, profile_id
+        FROM news_items
+    """)
+    cursor.execute("DROP TABLE news_items")
+    cursor.execute("ALTER TABLE news_items_new RENAME TO news_items")
+
+    # --- Indexes ---
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_sessions_user ON sessions(user_id)")
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_sessions_expires ON sessions(expires_at)")
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_profiles_user ON profiles(user_id)")
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_news_profile ON news_items(profile_id)")
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_feedback_profile ON user_feedback(profile_id)")
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_shadow_profile ON shadow_scores(profile_id)")
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_scanlog_profile ON scan_log(profile_id)")
+    # Recreate indexes that were on the old news_items table
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_news_fetched ON news_items(fetched_at)")
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_news_score ON news_items(score)")
+
+
 # =========================================================================
 # Migration runner
 # =========================================================================

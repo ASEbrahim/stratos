@@ -131,8 +131,12 @@ class StratOS:
         # overlap with primary inference (single-GPU, one model at a time)
         self._ollama_lock = threading.Lock()
 
+        # Scan lock — prevents concurrent scans from overlapping
+        self._scan_lock = threading.Lock()
+
         # Multi-profile session isolation (A2.1)
         self.active_profile = None           # Currently loaded profile name
+        self.active_profile_id = 0           # DB profile ID (0 = legacy/unset)
         self._profile_configs = {}           # name -> config snapshot
         self._config_lock = threading.Lock() # Serialize profile switches
 
@@ -281,6 +285,16 @@ class StratOS:
         Returns:
             The complete output data
         """
+        if not self._scan_lock.acquire(blocking=False):
+            logger.warning("Scan already in progress, skipping")
+            return {}
+        try:
+            return self._run_scan_impl()
+        finally:
+            self._scan_lock.release()
+
+    def _run_scan_impl(self) -> Dict[str, Any]:
+        """Internal scan implementation (called with _scan_lock held)."""
         self._scan_cancelled.clear()
         self._snapshot_previous_articles()  # Snapshot before any writes
         self.scan_status["is_scanning"] = True
@@ -389,8 +403,9 @@ class StratOS:
             self.scan_status["medium"] = _med
 
             # Save scored items to DB (even on cancel — partial results are valuable)
+            _pid = self.active_profile_id
             for item in scored_items:
-                self.db.save_news_item(item)
+                self.db.save_news_item(item, profile_id=_pid)
 
             # Write Pass 1 results immediately so dashboard can display them
             if deferred_items:
@@ -473,7 +488,7 @@ class StratOS:
 
                 # Save Pass 2 items to DB
                 for item in pass2_scored:
-                    self.db.save_news_item(item)
+                    self.db.save_news_item(item, profile_id=_pid)
 
                 # Re-sort and update counts
                 scored_items.sort(key=lambda x: x.get('score', 0), reverse=True)
@@ -528,7 +543,7 @@ class StratOS:
                 'llm_scored': self.scorer._stats.get('llm', 0),
                 'truncated': self.scorer._stats.get('truncated', 0),
                 'retained': retained_count,
-            })
+            }, profile_id=_pid)
 
             # Update status
             self.scan_status["is_scanning"] = False
@@ -556,7 +571,7 @@ class StratOS:
             self._scan_count += 1
             if self._scan_count % 10 == 0:
                 logger.info(f"Running periodic DB cleanup (scan #{self._scan_count})...")
-                self.db.cleanup_old_data(days=30)
+                self.db.cleanup_old_data(days=30, profile_id=_pid)
 
             # Auto-distillation — every N scans (if API key configured)
             distill_every = self.config.get("distillation", {}).get("auto_every", 0)
@@ -573,7 +588,7 @@ class StratOS:
                 'elapsed_secs': round(elapsed, 1),
                 'error': str(e),
                 'truncated': getattr(self.scorer, '_stats', {}).get('truncated', 0),
-            })
+            }, profile_id=self.active_profile_id)
             self.scan_status["is_scanning"] = False
             self.scan_status["stage"] = "error"
             self.scan_status["progress"] = str(e)
@@ -622,7 +637,7 @@ class StratOS:
                                 'shadow_scorer': shadow_name,
                                 'shadow_score': shadow_score,
                                 'delta': delta,
-                            })
+                            }, profile_id=self.active_profile_id)
                         except Exception as e:
                             logger.debug(f"Shadow score failed for item: {e}")
 
@@ -759,6 +774,16 @@ class StratOS:
         Refresh news, scoring, and briefing (slower, uses API calls).
         Keeps existing market data.
         """
+        if not self._scan_lock.acquire(blocking=False):
+            logger.warning("Scan already in progress, skipping news refresh")
+            return {}
+        try:
+            return self._run_news_refresh_impl()
+        finally:
+            self._scan_lock.release()
+
+    def _run_news_refresh_impl(self) -> Dict[str, Any]:
+        """Internal news refresh implementation (called with _scan_lock held)."""
         self._scan_cancelled.clear()
         self._snapshot_previous_articles()  # Snapshot before any writes
         self.scan_status["is_scanning"] = True
@@ -854,8 +879,9 @@ class StratOS:
             self.scan_status["medium"] = _med
 
             # Save scored items to DB (even on cancel)
+            _pid = self.active_profile_id
             for item in scored_items:
-                self.db.save_news_item(item)
+                self.db.save_news_item(item, profile_id=_pid)
 
             # Write Pass 1 results immediately so dashboard can display them
             if deferred_items:
@@ -938,7 +964,7 @@ class StratOS:
 
                 # Save Pass 2 items to DB
                 for item in pass2_scored:
-                    self.db.save_news_item(item)
+                    self.db.save_news_item(item, profile_id=_pid)
 
                 # Re-sort and update counts
                 scored_items.sort(key=lambda x: x.get('score', 0), reverse=True)
@@ -990,7 +1016,7 @@ class StratOS:
                 'llm_scored': self.scorer._stats.get('llm', 0),
                 'truncated': self.scorer._stats.get('truncated', 0),
                 'retained': retained_count,
-            })
+            }, profile_id=_pid)
 
             self.scan_status["is_scanning"] = False
             self.scan_status["stage"] = "complete"
@@ -1181,7 +1207,7 @@ class StratOS:
                 if self._scan_cancelled.is_set():
                     return
                 # Save to DB
-                self.db.save_briefing(briefing)
+                self.db.save_briefing(briefing, profile_id=self.active_profile_id)
                 # Patch the output file with the briefing
                 if self.output_file.exists():
                     with open(self.output_file, "r") as f:
@@ -1294,7 +1320,7 @@ class StratOS:
                 except (ValueError, TypeError):
                     pass
             # Check if user dismissed this article
-            if self.db and self.db.was_dismissed(url):
+            if self.db and self.db.was_dismissed(url, profile_id=self.active_profile_id):
                 continue
             # Profile filter: skip articles retained by a different context
             article_profile = article.get("retained_by_profile", "")
