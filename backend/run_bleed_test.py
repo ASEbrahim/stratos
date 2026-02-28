@@ -42,11 +42,13 @@ os.chdir(Path(__file__).parent)
 sys.path.insert(0, str(Path(__file__).parent))
 
 logging.basicConfig(
-    level=logging.WARNING,  # Suppress StratOS debug noise
+    level=logging.INFO,  # Show scan progress
     format='%(asctime)s [%(levelname)s] %(name)s: %(message)s',
     datefmt='%H:%M:%S'
 )
-# Let the test's own logger be visible
+# Suppress noisy loggers
+for noisy in ["urllib3", "httpx", "httpcore", "yfinance", "peewee", "filelock"]:
+    logging.getLogger(noisy).setLevel(logging.WARNING)
 test_logger = logging.getLogger("BLEED_TEST")
 test_logger.setLevel(logging.INFO)
 
