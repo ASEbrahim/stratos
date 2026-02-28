@@ -28,13 +28,12 @@ import hashlib
 import json
 import logging
 import os
-import shutil
+import re
 import sys
 import time
 import yaml
 from datetime import datetime
 from pathlib import Path
-from textwrap import indent
 
 # ── Setup ────────────────────────────────────────────────────────────────────
 
@@ -181,16 +180,22 @@ PROFILE_B = {
     "custom_tab_name": "Custom",
 }
 
-# Keywords that are maximally distinct — used for contamination detection
+# Keywords that are maximally distinct — used for contamination detection.
+# Use multi-word phrases where single words are ambiguous:
+#   "marine" = also a fashion color; "sea" matches "research"/"season"
 PROFILE_A_MARKERS = {
-    "marine", "ocean", "arctic", "fish", "whale", "coral", "oceanography",
-    "phytoplankton", "fishery", "iceland", "reykjavik", "salmon", "ices",
-    "sea", "aquatic", "biodiversity", "ecosystem",
+    "marine biology", "marine biologist", "marine conservation", "marine biodiversity",
+    "ocean acidification", "arctic ecosystem", "fish population", "fish stock",
+    "whale migration", "coral reef", "oceanography", "phytoplankton",
+    "fishery management", "iceland fisheries", "reykjavik", "salmon conservation",
+    "ices advisory", "north atlantic", "arctic council",
 }
 PROFILE_B_MARKERS = {
-    "fashion", "textile", "luxury", "couture", "designer", "vogue", "milan",
-    "prada", "gucci", "armani", "versace", "fendi", "valentino", "runway",
-    "apparel", "garment", "fabric",
+    "fashion week", "fashion designer", "fashion industry", "fashion trend",
+    "textile innovation", "textile manufacturing", "luxury brand",
+    "haute couture", "vogue business", "milan fashion",
+    "prada", "gucci", "armani", "versace", "fendi", "valentino",
+    "runway", "apparel", "garment", "circular fashion", "sustainable fashion",
 }
 
 
@@ -208,7 +213,9 @@ def compute_context_hash(profile_data):
 
 
 def marker_score(text, markers):
-    """Count how many marker keywords appear in a text string."""
+    """Count how many marker phrases appear in a text string.
+    Uses case-insensitive substring matching with multi-word phrases
+    to avoid false positives (e.g. 'marine' as a color)."""
     if not text:
         return 0
     text_lower = text.lower()
@@ -303,16 +310,16 @@ def phase_1_config_isolation(results):
 
     from main import StratOS
     from auth import AuthManager
+    import database as db_module
 
-    # Use test database and output
-    test_db = Path("test_bleed.db")
-    test_output = Path("output/bleed_test_a.json")
+    test_db_path = Path("test_bleed.db")
 
-    # Temporarily override config
+    # Patch DB singleton to avoid locking production DB
+    old_instance = getattr(db_module, '_db_instance', None)
+    test_db_obj = db_module.Database(str(test_db_path))
+    db_module._db_instance = test_db_obj
+
     strat = StratOS(config_path="config.yaml")
-    strat.db = __import__('database').Database(str(test_db))
-    strat.output_file = test_output
-    test_output.parent.mkdir(parents=True, exist_ok=True)
 
     auth = AuthManager("config.yaml")
 
@@ -389,10 +396,16 @@ def phase_1_config_isolation(results):
         f"serper={'yes' if has_serper else 'no'}, google={'yes' if has_google else 'no'}"
     )
 
-    # Clean up test DB
+    # Clean up test DB and restore singleton
     strat.db.conn.close()
-    if test_db.exists():
-        test_db.unlink()
+    db_module._db_instance = old_instance
+    if test_db_path.exists():
+        test_db_path.unlink()
+    # Also clean WAL/SHM files
+    for suffix in ["-wal", "-shm"]:
+        p = Path(str(test_db_path) + suffix)
+        if p.exists():
+            p.unlink()
 
     return strat
 
@@ -417,8 +430,7 @@ def phase_2_scan_and_compare(results, hash_a, hash_b):
 
     # Create StratOS — it will get our test DB via get_database()
     strat = StratOS(config_path="config.yaml")
-    strat.output_file = output_a_path
-    strat.output_file.parent.mkdir(parents=True, exist_ok=True)
+    output_a_path.parent.mkdir(parents=True, exist_ok=True)
 
     auth = AuthManager("config.yaml")
 
@@ -427,7 +439,6 @@ def phase_2_scan_and_compare(results, hash_a, hash_b):
     auth.load_profile_config("BleedTestA", strat)
     strat.ensure_profile("BleedTestA")
     strat.output_file = output_a_path
-    strat.output_file.parent.mkdir(parents=True, exist_ok=True)
 
     t0 = time.time()
     try:
@@ -641,7 +652,28 @@ def phase_3_contamination_analysis(results, output_a, output_b, hash_a, hash_b):
         f"B categories: {list(cats_b.keys())}"
     )
 
-    # ── 3.8: Score reuse protection (context hash gate) ──
+    # ── 3.8: Market data isolation ──
+    market_a = set(output_a.get("market", {}).keys())
+    market_b = set(output_b.get("market", {}).keys())
+    a_tickers_in_b = market_a & market_b
+    results.check(
+        "No Profile A market tickers in Profile B output",
+        len(a_tickers_in_b) == 0,
+        f"A tickers: {market_a}, B tickers: {market_b}, shared: {a_tickers_in_b}"
+    )
+
+    # ── 3.9: Score distribution sanity ──
+    # Flag anomalous distributions (e.g. 100% high scores) as warnings
+    for label, articles, dist in [("A", articles_a, dist_a), ("B", articles_b, dist_b)]:
+        total = len(articles)
+        if total > 0 and dist["noise"] == 0 and total > 10:
+            results.warn(
+                f"Profile {label}: 0 noise articles out of {total}",
+                "All articles scored >= 5.0 — may indicate keyword-only scoring "
+                "without LLM discrimination. Not a contamination issue."
+            )
+
+    # ── 3.10: Score reuse protection (context hash gate) ──
     # After Scan A wrote output, Scan B should NOT have reused any scores
     # (because context_hash changed). We verify by checking that
     # B articles have their own score_reason (not copied from A).
@@ -735,6 +767,26 @@ def phase_4_db_contamination(results):
     results.check(
         f"scan_log has {scan_count} entries (expected 2)",
         scan_count >= 2,
+    )
+
+    # Check scan_log also lacks profile_id
+    cursor.execute("PRAGMA table_info(scan_log)")
+    sl_columns = [row["name"] for row in cursor.fetchall()]
+    if "profile_id" not in sl_columns:
+        results.warn(
+            "scan_log also lacks profile_id column",
+            "Both scans' logs are indistinguishable — another isolation gap"
+        )
+
+    # Check if duplicate URLs exist (INSERT OR IGNORE means second profile's
+    # articles with same URL would be silently dropped)
+    cursor.execute("SELECT COUNT(*) as cnt FROM news_items WHERE url IN "
+                   "(SELECT url FROM news_items GROUP BY url HAVING COUNT(*) > 1)")
+    dup_count = cursor.fetchone()["cnt"]
+    results.check(
+        f"No duplicate URLs in DB ({dup_count} duplicates)",
+        dup_count == 0,
+        "Expected: INSERT OR IGNORE deduplicates by URL globally"
     )
 
     conn.close()
