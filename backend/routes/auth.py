@@ -63,8 +63,8 @@ def _generate_token() -> str:
 
 
 def _generate_code() -> str:
-    """Generate a 6-digit verification code."""
-    return str(secrets.randbelow(900000) + 100000)
+    """Generate a 5-digit verification code."""
+    return str(secrets.randbelow(90000) + 10000)
 
 
 def _hash_code(code: str) -> str:
@@ -81,11 +81,9 @@ def handle_auth_routes(handler, method, path, data, db, strat, send_json, email_
         row = cursor.fetchone()
         user_count = row[0] if row else 0
         has_smtp = email_service is not None and email_service.is_configured()
-        # Check system config for open registration
-        open_reg = strat.config.get("system", {}).get("registration_open", False)
         send_json(handler, {
             "has_users": user_count > 0,
-            "open_registration": open_reg or user_count == 0,
+            "open_registration": True,  # Registration always open, gated by email verification
             "smtp_configured": has_smtp,
         })
         return True
@@ -94,7 +92,6 @@ def handle_auth_routes(handler, method, path, data, db, strat, send_json, email_
         email = (data.get("email") or "").strip().lower()
         password = data.get("password", "")
         display_name = (data.get("display_name") or "").strip()
-        invite_code = (data.get("invite_code") or "").strip()
 
         if not email or "@" not in email:
             send_json(handler, {"error": "Valid email is required"}, status=400)
@@ -103,7 +100,7 @@ def handle_auth_routes(handler, method, path, data, db, strat, send_json, email_
             send_json(handler, {"error": "Password must be at least 8 characters"}, status=400)
             return True
         if not display_name or len(display_name) < 2:
-            send_json(handler, {"error": "Display name must be at least 2 characters"}, status=400)
+            send_json(handler, {"error": "Username must be at least 2 characters"}, status=400)
             return True
 
         cursor = db.conn.cursor()
@@ -114,73 +111,44 @@ def handle_auth_routes(handler, method, path, data, db, strat, send_json, email_
             send_json(handler, {"error": "Email already registered"}, status=409)
             return True
 
-        # First user is admin; others need invite or open registration
+        # First user is admin
         cursor.execute("SELECT COUNT(*) FROM users")
         user_count = cursor.fetchone()[0]
         is_first = user_count == 0
-        open_reg = strat.config.get("system", {}).get("registration_open", False)
 
-        if not is_first and not open_reg:
-            if not invite_code:
-                send_json(handler, {"error": "Registration requires an invite code"}, status=403)
-                return True
-            cursor.execute(
-                "SELECT code FROM invite_codes WHERE code = ? AND used_by IS NULL AND expires_at > ?",
-                (invite_code, datetime.now().isoformat())
-            )
-            if not cursor.fetchone():
-                send_json(handler, {"error": "Invalid or expired invite code"}, status=403)
-                return True
-
-        # Create user
+        # Create user — always require email verification
         password_hash = _hash_password(password)
-        email_verified = True  # Auto-verify if no SMTP
-        verification_code_hash = None
-        verification_expires = None
+        code = _generate_code()
+        verification_code_hash = _hash_code(code)
+        verification_expires = (datetime.now() + timedelta(minutes=15)).isoformat()
 
+        # Send verification email (or log code if SMTP not configured)
         if email_service and email_service.is_configured():
-            email_verified = False
-            code = _generate_code()
-            verification_code_hash = _hash_code(code)
-            verification_expires = (datetime.now() + timedelta(minutes=15)).isoformat()
             try:
                 email_service.send_verification(email, code, display_name)
             except Exception as e:
                 logger.warning(f"Failed to send verification email: {e}")
-                # Allow registration anyway, just mark as unverified
-                email_verified = False
+        else:
+            logger.info(f"[EMAIL VERIFICATION] Code for {email}: {code} (SMTP not configured)")
 
         cursor.execute("""
             INSERT INTO users (email, password_hash, display_name, is_admin, email_verified,
                              verification_code_hash, verification_expires)
             VALUES (?, ?, ?, ?, ?, ?, ?)
-        """, (email, password_hash, display_name, is_first, email_verified,
+        """, (email, password_hash, display_name, is_first, False,
               verification_code_hash, verification_expires))
         user_id = cursor.lastrowid
 
-        # Mark invite code as used
-        if invite_code:
-            cursor.execute("UPDATE invite_codes SET used_by = ? WHERE code = ?", (user_id, invite_code))
-
         db._commit()
 
-        # Create session
-        token = _generate_token()
-        expires = (datetime.now() + timedelta(days=7)).isoformat()
-        cursor.execute("""
-            INSERT INTO sessions (token, user_id, expires_at)
-            VALUES (?, ?, ?)
-        """, (token, user_id, expires))
-        db._commit()
-
+        # Don't create session yet — user must verify email first
         send_json(handler, {
             "status": "registered",
-            "token": token,
             "user_id": user_id,
             "display_name": display_name,
             "is_admin": is_first,
-            "email_verified": email_verified,
-            "needs_verification": not email_verified,
+            "email_verified": False,
+            "needs_verification": True,
         }, status=201)
         return True
 
@@ -190,7 +158,7 @@ def handle_auth_routes(handler, method, path, data, db, strat, send_json, email_
 
         cursor = db.conn.cursor()
         cursor.execute(
-            "SELECT id, verification_code_hash, verification_expires FROM users WHERE email = ?",
+            "SELECT id, verification_code_hash, verification_expires, display_name, is_admin FROM users WHERE email = ?",
             (email,)
         )
         row = cursor.fetchone()
@@ -198,7 +166,7 @@ def handle_auth_routes(handler, method, path, data, db, strat, send_json, email_
             send_json(handler, {"error": "Email not found"}, status=404)
             return True
 
-        user_id, stored_hash, expires = row
+        user_id, stored_hash, expires, display_name, is_admin = row
         if not stored_hash:
             send_json(handler, {"error": "No verification pending"}, status=400)
             return True
@@ -213,8 +181,22 @@ def handle_auth_routes(handler, method, path, data, db, strat, send_json, email_
             UPDATE users SET email_verified = TRUE, verification_code_hash = NULL, verification_expires = NULL
             WHERE id = ?
         """, (user_id,))
+
+        # Create session — log the user in
+        token = _generate_token()
+        expires = (datetime.now() + timedelta(days=7)).isoformat()
+        cursor.execute("""
+            INSERT INTO sessions (token, user_id, expires_at)
+            VALUES (?, ?, ?)
+        """, (token, user_id, expires))
         db._commit()
-        send_json(handler, {"status": "verified"})
+
+        send_json(handler, {
+            "status": "verified",
+            "token": token,
+            "display_name": display_name,
+            "is_admin": bool(is_admin),
+        })
         return True
 
     if path == "/api/auth/resend-verification" and method == "POST":
@@ -229,20 +211,20 @@ def handle_auth_routes(handler, method, path, data, db, strat, send_json, email_
         if verified:
             send_json(handler, {"error": "Already verified"}, status=400)
             return True
-        if not email_service or not email_service.is_configured():
-            send_json(handler, {"error": "Email not configured"}, status=503)
-            return True
-
         code = _generate_code()
         cursor.execute("""
             UPDATE users SET verification_code_hash = ?, verification_expires = ? WHERE id = ?
         """, (_hash_code(code), (datetime.now() + timedelta(minutes=15)).isoformat(), user_id))
         db._commit()
-        try:
-            email_service.send_verification(email, code, display_name)
-        except Exception as e:
-            send_json(handler, {"error": f"Failed to send: {e}"}, status=500)
-            return True
+
+        if email_service and email_service.is_configured():
+            try:
+                email_service.send_verification(email, code, display_name)
+            except Exception as e:
+                logger.warning(f"Failed to send verification email: {e}")
+        else:
+            logger.info(f"[EMAIL VERIFICATION] Resend code for {email}: {code} (SMTP not configured)")
+
         send_json(handler, {"status": "sent", "cooldown": 60})
         return True
 
