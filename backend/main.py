@@ -295,6 +295,9 @@ class StratOS:
 
     def _run_scan_impl(self) -> Dict[str, Any]:
         """Internal scan implementation (called with _scan_lock held)."""
+        # Capture profile_id at scan start — another request could change
+        # active_profile_id mid-scan, so use this local copy throughout.
+        _scan_pid = self.active_profile_id
         self._scan_cancelled.clear()
         self._snapshot_previous_articles()  # Snapshot before any writes
         self.scan_status["is_scanning"] = True
@@ -359,7 +362,7 @@ class StratOS:
             news_dicts = self._reclassify_dynamic(news_dicts)
 
             # 2.7 Incremental scan — reuse scores from previous scan if context unchanged
-            news_dicts, prescore_reused = self._reuse_snapshot_scores(news_dicts)
+            news_dicts, prescore_reused = self._reuse_snapshot_scores(news_dicts, profile_id=_scan_pid)
 
             # 3. Score news items (only those that need fresh scoring)
             self.scan_status["stage"] = "scoring"
@@ -403,13 +406,12 @@ class StratOS:
             self.scan_status["medium"] = _med
 
             # Save scored items to DB (even on cancel — partial results are valuable)
-            _pid = self.active_profile_id
             for item in scored_items:
-                self.db.save_news_item(item, profile_id=_pid)
+                self.db.save_news_item(item, profile_id=_scan_pid)
 
             # Write Pass 1 results immediately so dashboard can display them
             if deferred_items:
-                partial_output = self._build_output(market_data, scored_items, {}, market_alerts=market_alerts)
+                partial_output = self._build_output(market_data, scored_items, {}, market_alerts=market_alerts, profile_id=_scan_pid)
                 self._write_output(partial_output)
                 self.scan_status["data_version"] = self._get_data_version()
                 self.sse_broadcast("pass1_complete", {
@@ -424,7 +426,7 @@ class StratOS:
             if self._scan_cancelled.is_set():
                 logger.info(f"Scan cancelled after scoring {len(scored_items)}/{total_items} items")
                 if not deferred_items:
-                    output = self._build_output(market_data, scored_items, {}, market_alerts=market_alerts)
+                    output = self._build_output(market_data, scored_items, {}, market_alerts=market_alerts, profile_id=_scan_pid)
                     self._write_output(output)
                 self.scan_status["is_scanning"] = False
                 self.scan_status["stage"] = "cancelled"
@@ -438,7 +440,7 @@ class StratOS:
                     "medium": _med,
                     "data_version": self.scan_status["data_version"]
                 })
-                return self._build_output(market_data, scored_items, {}, market_alerts=market_alerts)
+                return self._build_output(market_data, scored_items, {}, market_alerts=market_alerts, profile_id=_scan_pid)
 
             # === PASS 2: Retry deferred articles with longer timeout ===
             if deferred_items and not self._scan_cancelled.is_set():
@@ -488,7 +490,7 @@ class StratOS:
 
                 # Save Pass 2 items to DB
                 for item in pass2_scored:
-                    self.db.save_news_item(item, profile_id=_pid)
+                    self.db.save_news_item(item, profile_id=_scan_pid)
 
                 # Re-sort and update counts
                 scored_items.sort(key=lambda x: x.get('score', 0), reverse=True)
@@ -517,11 +519,11 @@ class StratOS:
             self.scan_status["stage"] = "output"
             self.scan_status["progress"] = "Building output..."
             logger.info("[5/6] Building output (briefing deferred)...")
-            output = self._build_output(market_data, scored_items, {}, market_alerts=market_alerts)
+            output = self._build_output(market_data, scored_items, {}, market_alerts=market_alerts, profile_id=_scan_pid)
             self._write_output(output)
 
             # 6. Spawn briefing in background — non-blocking
-            self._spawn_deferred_briefing(market_data, market_alerts, scored_items, discoveries)
+            self._spawn_deferred_briefing(market_data, market_alerts, scored_items, discoveries, profile_id=_scan_pid)
 
             elapsed = time.time() - start_time
             logger.info(f"Scan complete in {elapsed:.1f}s")
@@ -543,7 +545,7 @@ class StratOS:
                 'llm_scored': self.scorer._stats.get('llm', 0),
                 'truncated': self.scorer._stats.get('truncated', 0),
                 'retained': retained_count,
-            }, profile_id=_pid)
+            }, profile_id=_scan_pid)
 
             # Update status
             self.scan_status["is_scanning"] = False
@@ -565,13 +567,13 @@ class StratOS:
                     })
 
             # Shadow scoring — validates AdaptiveScorer vs AIScorer (daemon thread)
-            self._run_shadow_scoring(scored_items, scan_id)
+            self._run_shadow_scoring(scored_items, scan_id, profile_id=_scan_pid)
 
             # Periodic DB cleanup — every 10th scan
             self._scan_count += 1
             if self._scan_count % 10 == 0:
                 logger.info(f"Running periodic DB cleanup (scan #{self._scan_count})...")
-                self.db.cleanup_old_data(days=30, profile_id=_pid)
+                self.db.cleanup_old_data(days=30, profile_id=_scan_pid)
 
             # Auto-distillation — every N scans (if API key configured)
             distill_every = self.config.get("distillation", {}).get("auto_every", 0)
@@ -588,14 +590,14 @@ class StratOS:
                 'elapsed_secs': round(elapsed, 1),
                 'error': str(e),
                 'truncated': getattr(self.scorer, '_stats', {}).get('truncated', 0),
-            }, profile_id=self.active_profile_id)
+            }, profile_id=_scan_pid)
             self.scan_status["is_scanning"] = False
             self.scan_status["stage"] = "error"
             self.scan_status["progress"] = str(e)
             self.sse_broadcast("scan_error", {"message": str(e)})
             raise
 
-    def _run_shadow_scoring(self, scored_items, scan_id):
+    def _run_shadow_scoring(self, scored_items, scan_id, profile_id=0):
         """Run shadow scoring in a background thread.
 
         B3.3: With AIScorer retired, shadow scoring creates a second
@@ -637,7 +639,7 @@ class StratOS:
                                 'shadow_scorer': shadow_name,
                                 'shadow_score': shadow_score,
                                 'delta': delta,
-                            }, profile_id=self.active_profile_id)
+                            }, profile_id=profile_id)
                         except Exception as e:
                             logger.debug(f"Shadow score failed for item: {e}")
 
@@ -784,6 +786,8 @@ class StratOS:
 
     def _run_news_refresh_impl(self) -> Dict[str, Any]:
         """Internal news refresh implementation (called with _scan_lock held)."""
+        # Capture profile_id at start — prevents mid-scan race conditions
+        _scan_pid = self.active_profile_id
         self._scan_cancelled.clear()
         self._snapshot_previous_articles()  # Snapshot before any writes
         self.scan_status["is_scanning"] = True
@@ -836,7 +840,7 @@ class StratOS:
             news_dicts = self._reclassify_dynamic(news_dicts)
 
             # Incremental scan — reuse scores from previous scan if context unchanged
-            news_dicts, prescore_reused = self._reuse_snapshot_scores(news_dicts)
+            news_dicts, prescore_reused = self._reuse_snapshot_scores(news_dicts, profile_id=_scan_pid)
 
             # Score news
             self.scan_status["stage"] = "scoring"
@@ -879,13 +883,12 @@ class StratOS:
             self.scan_status["medium"] = _med
 
             # Save scored items to DB (even on cancel)
-            _pid = self.active_profile_id
             for item in scored_items:
-                self.db.save_news_item(item, profile_id=_pid)
+                self.db.save_news_item(item, profile_id=_scan_pid)
 
             # Write Pass 1 results immediately so dashboard can display them
             if deferred_items:
-                partial_output = self._build_output(market_data, scored_items, {}, market_alerts=market_alerts)
+                partial_output = self._build_output(market_data, scored_items, {}, market_alerts=market_alerts, profile_id=_scan_pid)
                 self._write_output(partial_output)
                 self.scan_status["data_version"] = self._get_data_version()
                 self.sse_broadcast("pass1_complete", {
@@ -900,7 +903,7 @@ class StratOS:
             if self._scan_cancelled.is_set():
                 logger.info(f"News refresh cancelled after scoring {len(scored_items)}/{total_items} items")
                 if not deferred_items:
-                    output = self._build_output(market_data, scored_items, {}, market_alerts=market_alerts)
+                    output = self._build_output(market_data, scored_items, {}, market_alerts=market_alerts, profile_id=_scan_pid)
                     self._write_output(output)
                 self.scan_status["is_scanning"] = False
                 self.scan_status["stage"] = "cancelled"
@@ -914,7 +917,7 @@ class StratOS:
                     "medium": _med,
                     "data_version": self.scan_status["data_version"]
                 })
-                return self._build_output(market_data, scored_items, {}, market_alerts=market_alerts)
+                return self._build_output(market_data, scored_items, {}, market_alerts=market_alerts, profile_id=_scan_pid)
 
             # === PASS 2: Retry deferred articles with longer timeout ===
             if deferred_items and not self._scan_cancelled.is_set():
@@ -964,7 +967,7 @@ class StratOS:
 
                 # Save Pass 2 items to DB
                 for item in pass2_scored:
-                    self.db.save_news_item(item, profile_id=_pid)
+                    self.db.save_news_item(item, profile_id=_scan_pid)
 
                 # Re-sort and update counts
                 scored_items.sort(key=lambda x: x.get('score', 0), reverse=True)
@@ -990,11 +993,11 @@ class StratOS:
             discoveries = self.discovery.discover(scored_items)
 
             # Build output WITHOUT briefing — let the user see results immediately
-            output = self._build_output(market_data, scored_items, {}, market_alerts=market_alerts)
+            output = self._build_output(market_data, scored_items, {}, market_alerts=market_alerts, profile_id=_scan_pid)
             self._write_output(output)
 
             # Spawn briefing in background — non-blocking
-            self._spawn_deferred_briefing(market_data, market_alerts, scored_items, discoveries)
+            self._spawn_deferred_briefing(market_data, market_alerts, scored_items, discoveries, profile_id=_scan_pid)
 
             elapsed = time.time() - start_time
             logger.info(f"News refresh complete in {elapsed:.1f}s")
@@ -1016,7 +1019,7 @@ class StratOS:
                 'llm_scored': self.scorer._stats.get('llm', 0),
                 'truncated': self.scorer._stats.get('truncated', 0),
                 'retained': retained_count,
-            }, profile_id=_pid)
+            }, profile_id=_scan_pid)
 
             self.scan_status["is_scanning"] = False
             self.scan_status["stage"] = "complete"
@@ -1037,7 +1040,7 @@ class StratOS:
                     })
 
             # Shadow scoring — validates AdaptiveScorer vs AIScorer (daemon thread)
-            self._run_shadow_scoring(scored_items, scan_id)
+            self._run_shadow_scoring(scored_items, scan_id, profile_id=_scan_pid)
 
             return output
 
@@ -1126,7 +1129,7 @@ class StratOS:
 
         return items
 
-    def _reuse_snapshot_scores(self, news_dicts: list) -> tuple:
+    def _reuse_snapshot_scores(self, news_dicts: list, profile_id=0) -> tuple:
         """Reuse scores from the previous scan's snapshot for already-seen URLs.
 
         Returns (items_needing_scoring, reused_items).
@@ -1186,7 +1189,7 @@ class StratOS:
 
         return need_scoring, reused
 
-    def _spawn_deferred_briefing(self, market_data, market_alerts, scored_items, discoveries):
+    def _spawn_deferred_briefing(self, market_data, market_alerts, scored_items, discoveries, profile_id=0):
         """Generate briefing in a background thread and patch the output when done."""
         self._briefing_generation += 1
         current_gen = self._briefing_generation
@@ -1207,7 +1210,7 @@ class StratOS:
                 if self._scan_cancelled.is_set():
                     return
                 # Save to DB
-                self.db.save_briefing(briefing, profile_id=self.active_profile_id)
+                self.db.save_briefing(briefing, profile_id=profile_id)
                 # Patch the output file with the briefing
                 if self.output_file.exists():
                     with open(self.output_file, "r") as f:
@@ -1264,7 +1267,7 @@ class StratOS:
         combined = "|".join(parts)
         return hashlib.sha256(combined.encode()).hexdigest()[:12]
 
-    def _merge_retained_articles(self, current_articles: list) -> list:
+    def _merge_retained_articles(self, current_articles: list, profile_id: int = 0) -> list:
         """Merge high-scoring articles from previous scan into current results."""
         scoring_cfg = self.config.get("scoring", {})
         if not scoring_cfg.get("retain_high_scores", True):
@@ -1320,7 +1323,7 @@ class StratOS:
                 except (ValueError, TypeError):
                     pass
             # Check if user dismissed this article
-            if self.db and self.db.was_dismissed(url, profile_id=self.active_profile_id):
+            if self.db and self.db.was_dismissed(url, profile_id=profile_id):
                 continue
             # Profile filter: skip articles retained by a different context
             article_profile = article.get("retained_by_profile", "")
@@ -1342,7 +1345,7 @@ class StratOS:
 
         return current_articles + retained
 
-    def _build_output(self, market_data: Dict, news_items: list, briefing: Dict, market_alerts: list = None) -> Dict[str, Any]:
+    def _build_output(self, market_data: Dict, news_items: list, briefing: Dict, market_alerts: list = None, profile_id: int = 0) -> Dict[str, Any]:
         """
         Build the final output matching FRS schema with extensions.
 
@@ -1359,7 +1362,7 @@ class StratOS:
         }
         """
         # Merge retained high-scoring articles from previous scan
-        news_items = self._merge_retained_articles(news_items)
+        news_items = self._merge_retained_articles(news_items, profile_id=profile_id)
         # Re-sort by score after merging
         news_items.sort(key=lambda x: x.get("score", 0), reverse=True)
 
