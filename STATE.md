@@ -4,7 +4,7 @@
 > Loaded into Claude.ai Project Knowledge and Claude Code context.
 > **CLAUDE.md** = how to work here. **STATE.md** = what happened and why. **FRS** = what the system should be.
 
-Last updated: **2026-02-27** (session: diagnostic bug fixes — 5 fixes, 6 commits)
+Last updated: **2026-02-28** (session: auth pipeline + profile isolation + per-user data directories — 8 commits)
 
 ---
 
@@ -13,13 +13,44 @@ Last updated: **2026-02-27** (session: diagnostic bug fixes — 5 fixes, 6 commi
 ### What's Deployed
 
 - **Server:** `python3 main.py --serve --background` on port 8080
-- **Active profile:** Ahmad — Petroleum Engineering Professor at Kuwait University / Seisnetics consultant
-- **Context hash:** `8e86611559e6` (role + context + location → SHA-256 12-char)
+- **Auth system:** DB-auth with email verification (pending_registrations → users on verify), bcrypt passwords, 7-day sliding sessions
+- **SMTP:** Gmail via `StratintOS@gmail.com` (app password in `.env`). Sends 5-digit verification codes + password reset codes.
+- **Legacy profiles:** Archived to `data/archive/` (Ahmad.yaml, Kyu.yaml). `profiles/` dir is now empty — all new users are DB-auth.
+- **Per-user data:** `data/users/{user_id}/` with JSONL exports (scan_log, feedback, briefings, daily article scans, profile.json)
 - **Scorer model:** `stratos-scorer-v2` (8.7GB Q8_0, DoRA fine-tuned Qwen3-8B)
 - **Inference model:** `qwen3:30b-a3b` (~18-19GB MoE) — strat agent + market analysis only
 - **Wizard/briefing model:** `qwen3:14b` (~9GB) — wizard, briefings, profile generation, suggestions
 - **Search provider:** Serper (Google) primary, DuckDuckGo fallback. 60-min dedup window on Serper queries.
 - **Serper credits:** ~1524 remaining of 2500 (key: `1b9db98...` in `.env`) — 365 used total (228 Phase 1 + 82 Phase 2 + 55 post-fix validation)
+
+### Auth & User System
+
+| Feature | Status | Notes |
+|---------|--------|-------|
+| Registration | Email + password + username | Stored in `pending_registrations` until verified |
+| Email verification | 5-digit code, 15-min expiry | Via SMTP (Gmail). Auto-login on verify. |
+| Login | Email or username | Blocks unverified users (403) |
+| Password reset | 5-digit code via email | Invalidates all sessions |
+| Password visibility | Eye toggle on all fields | 7 password/PIN inputs wrapped |
+| Account deletion | Password confirmation required | Cascades: sessions → profiles → user |
+| Session management | 7-day sliding expiry | Token-based (X-Auth-Token header) |
+| Profile isolation | Blank config/data for profileless users | Prevents data bleed between accounts |
+| Tour guide | Welcome modal + step tooltips | "Don't show again" persists via `stratos_tour_never` |
+
+### Per-User Data Directory
+
+```
+data/users/{user_id}/
+├── profile.json              # Config snapshot (updated on every config save)
+├── scan_log.jsonl            # One line per scan (metrics, score distribution)
+├── feedback.jsonl            # User feedback (ratings, saves, dismissals)
+├── briefings/
+│   └── YYYY-MM-DD.json       # Daily briefings
+└── scans/
+    └── YYYY-MM-DD.jsonl      # Articles scored per day (title, url, score, category)
+```
+
+**Write hooks:** `save_scan_log()` → scan_log.jsonl, `save_feedback()` → feedback.jsonl, `save_briefing()` → briefings/, `_write_output()` → scans/, `handle_config_save()` → profile.json + DB config_overlay
 
 ### V2 Scorer Production Metrics
 
@@ -70,16 +101,24 @@ Last updated: **2026-02-27** (session: diagnostic bug fixes — 5 fixes, 6 commi
 - Serper + DDG dual provider with automatic fallback
 - Fullscreen chart: drawing tools (trend, ray, fib, rect, etc.) with drag/resize, anchor-aware endpoint editing, canvas clipping, keyboard shortcuts (Delete, Escape, Ctrl+Z)
 - Focus mode: rounded corners, enlarged TF buttons near ticker, bottom intel panel (analysis + Strat Market agent)
+- DB-auth: registration → email verification → login, with profile management (create, activate, delete)
+- Per-user data directories: auto-created on verify/activate, JSONL exports for scan_log, feedback, briefings, daily articles
+- Config overlay DB sync: config saves persist to `profiles.config_overlay` + `profile.json` snapshot
+- Profile data isolation: blank config/data served to profileless users, full localStorage wipe on login/verify
+- Tour guide with "Don't show again" option (survives localStorage wipes)
 
 ### What's Broken / Needs Attention
 
-- ~~**CRITICAL — Retention cross-profile leak:**~~ **FIXED** (commit a0f9c47). All output articles now tagged with `retained_by_profile: context_hash`. Filter works correctly.
-- ~~**MODERATE — Extra feeds not in scan pipeline:**~~ **FIXED** (commit b6cdfdd). Opt-in via `scoring.include_extra_feeds_in_scan: true` in config.yaml. Default off — zero behavior change until enabled.
-- ~~**MODERATE — Deferred briefing uncapturable:**~~ **FIXED** (commit 59a4a0c). `wait_for_briefing(timeout=30)` method added with generation counter for race safety.
-- **kuniv category over-scoring:** Articles mentioning "Kuwait" get scored high regardless of topical relevance to the active profile. "Embassy of India, Kuwait" scored 9.0 for a petroleum engineering professor. Scorer training issue, not pipeline bug.
+- ~~**CRITICAL — Retention cross-profile leak:**~~ **FIXED** (commit a0f9c47).
+- ~~**MODERATE — Extra feeds not in scan pipeline:**~~ **FIXED** (commit b6cdfdd).
+- ~~**MODERATE — Deferred briefing uncapturable:**~~ **FIXED** (commit 59a4a0c).
+- ~~**CRITICAL — Data bleed between users:**~~ **FIXED** (commit ac42ec6, e297916). `/api/config` and `/api/data` return blank for profileless users. Full localStorage wipe on login/verify.
+- ~~**MODERATE — Unverified users could login:**~~ **FIXED** (commit 7a6d0ad). Users stored in `pending_registrations` until verified. Login blocks unverified (403).
+- **kuniv category over-scoring:** Articles mentioning "Kuwait" get scored high regardless of topical relevance. Scorer training issue, not pipeline bug.
 - **Frontend SSE for briefing_ready:** Backend broadcasts `briefing_ready` event, but frontend doesn't listen for it yet — briefing appears on next data poll, not instantly.
-- **FRS v9 and README v8 are stale:** Don't reflect model routing changes (14b briefing), deferred briefing, incremental scanning, or profile-scoped retention.
+- **FRS v9 and README v8 are stale:** Don't reflect auth system, per-user data, model routing, deferred briefing, incremental scanning, or profile-scoped retention.
 - **API key rotation pending:** Old Serper key (`ec4d2...`) and Google API key (`AIzaSy...`) were exposed in public git history (scrubbed with git-filter-repo). Should be rotated.
+- **Agent chat logging deferred:** Per-user agent chat history needs DB table + frontend changes. Not yet implemented.
 
 ### What's Not Yet Done
 
@@ -87,6 +126,9 @@ Last updated: **2026-02-27** (session: diagnostic bug fixes — 5 fixes, 6 commi
 - **Intelligence Archive** (Phase 3): dedicated searchable archive of all retained signals across all profiles
 - **VRAM coexistence test:** scorer (8.7GB) + 14b (~9GB) may fit in 24GB simultaneously — haven't tested `OLLAMA_MAX_LOADED_MODELS=2` yet
 - **RSS feeds:** currently empty (`rss_feeds: []`), all news comes from search queries
+- **Agent chat logging:** per-user JSONL for agent conversations (needs DB table + frontend wiring)
+- **Config overlay loading on profile switch:** when activating a profile, load its `config_overlay` into `strat.config` (currently only saves, doesn't restore)
+- **Admin panel polish:** user management UI, session viewer, system health dashboard
 
 ### GitHub
 
@@ -99,6 +141,36 @@ Last updated: **2026-02-27** (session: diagnostic bug fixes — 5 fixes, 6 commi
 ## 2. Decision Log
 
 > Append-only. Newest first. Each entry: WHAT was decided, WHY, and WHAT was rejected.
+
+### 2026-02-28
+
+**D023 — Pending registrations table instead of email_verified flag**
+Users stored in `pending_registrations` table until email verification succeeds. Only then moved to `users` table. Prevents half-created accounts from logging in, eliminates cleanup of unverified records from the main users table.
+*Rejected:* `email_verified` flag on `users` table (user row exists before verification, login guard can be bypassed by direct DB access, stale unverified rows accumulate).
+
+**D024 — SMTP credentials in .env, not config.yaml**
+SMTP host/port/user/password loaded from `.env` environment variables, overriding any config.yaml `email` section. Server operator configures once; individual users never see SMTP settings.
+*Rejected:* config.yaml only (credentials exposed in version control), per-user SMTP (unnecessary complexity).
+
+**D025 — Full localStorage wipe on login/verify (whitelist approach)**
+On login or email verification, wipe ALL localStorage keys except 4 auth essentials (`stratos_auth_token`, `stratos_profile`, `stratos_device_id`, `stratos_theme`) plus `stratos_tour_never`. Previous approach cleared 7 hardcoded keys, missing categories, signals, cached data, tour flags.
+*Rejected:* Blacklist approach (always incomplete, new keys added without updating the list).
+
+**D026 — Blank config/data for profileless users**
+`/api/config` returns empty profile config (no role/location/categories/tickers) and `/api/data` returns empty arrays when the authenticated user has no active profile. Prevents the previous user's in-memory config from bleeding to new accounts.
+*Rejected:* Clearing `strat.config` globally on logout (breaks other active sessions), per-session config copy (memory overhead).
+
+**D027 — Per-user data directory keyed by user_id, not profile_id**
+Directory structure is `data/users/{user_id}/` not `data/users/{profile_id}/`. One user may have multiple profiles but their data (scan logs, feedback) is consolidated per-user. profile_id → user_id resolution via `user_data.get_user_id_for_profile()`.
+*Rejected:* Per-profile directories (fragments data, harder to grep across a user's history), per-username directories (usernames can change).
+
+**D028 — JSONL for time-series data, JSON for snapshots**
+`scan_log.jsonl`, `feedback.jsonl`, `scans/YYYY-MM-DD.jsonl` use append-only JSONL (one record per line, grep-friendly, no parse-the-whole-file). `profile.json` and `briefings/YYYY-MM-DD.json` use standard JSON (read as complete documents).
+*Rejected:* All JSON (can't append atomically), all JSONL (briefings are hierarchical documents), SQLite export (duplicates existing DB).
+
+**D029 — Config overlay DB sync on every save**
+When POST /api/config saves, config is persisted to three places: (1) config.yaml on disk, (2) `profiles.config_overlay` column in DB, (3) `data/users/{id}/profile.json` snapshot. DB overlay is the source of truth for profile switching; JSON snapshot is for developer grep/analysis.
+*Rejected:* DB-only (breaks existing YAML-based profile loading), YAML-only (legacy approach, doesn't work for multi-profile DB auth).
 
 ### 2026-02-27
 
@@ -195,6 +267,20 @@ DoRA offers 1-4% gains over LoRA with better tolerance for lower ranks. For scor
 
 > Non-obvious failures that future sessions might repeat. If the natural instinct would be to try the same approach, log it here.
 
+### 2026-02-28
+
+**F014 — Data bleed: /api/config returns previous user's in-memory config**
+`server.py` serves `strat.config` (the singleton StratOS config object) to all authenticated users regardless of session. New user logs in, gets previous user's role, location, categories, tickers. The config object is shared mutable state.
+**Rule:** API endpoints that return user-specific data must check the session's active profile and return appropriate data (blank for profileless users).
+
+**F015 — localStorage clearance by blacklist misses new keys**
+`_clearProfileLocalStorage()` hardcoded 7 key names to remove. As features were added (categories, signals, tour state, cached data), new localStorage keys weren't added to the blacklist. Result: data bled between accounts.
+**Rule:** Use whitelist approach for localStorage cleanup — wipe everything except explicitly preserved keys.
+
+**F016 — Registration stored users before email verification**
+Original flow: `INSERT INTO users` → send verification email → user verifies later. Problem: unverified users exist in `users` table, can attempt login, and the `email_verified` check was present but not enforced.
+**Rule:** Never create the primary user record until verification succeeds. Use a staging table (`pending_registrations`).
+
 ### 2026-02-27
 
 **F009 — Canvas pointer-events: auto causes stuck chart**
@@ -271,6 +357,10 @@ Must delete `hf_device_map` and force `.to("cuda:0")` or gradient computation cr
 
 > Most recent first. 3-5 lines per session.
 
+### 2026-02-28 — Auth Pipeline + Profile Isolation + Per-User Data (8 commits)
+**Commits:** d047344, 7a6d0ad, 72851ca, 26aaef2, ac42ec6, e2c6733, 161a6cd, 24939a4
+Complete auth pipeline overhaul: (1) Email verification replaces invite codes — `pending_registrations` staging table, users only created after 5-digit code verified, auto-login on verify. (2) SMTP via Gmail (`StratintOS@gmail.com`), credentials in `.env`. (3) Password show/hide eye toggle on all 7 auth fields. (4) Account deletion with password confirmation. (5) **Profile data bleed fix** — `/api/config` and `/api/data` return blank for profileless users, full localStorage whitelist wipe on login/verify. (6) Tour "Don't show again" with persistent `stratos_tour_never` flag. (7) Legacy profile archive — Ahmad.yaml and Kyu.yaml moved to `data/archive/`, profiles/ dir emptied. (8) Per-user data directories (`data/users/{id}/`) with JSONL exports: scan_log, feedback, briefings, daily scored articles, profile.json config snapshots. Config saves now sync to DB `config_overlay` column + profile.json.
+
 ### 2026-02-27 — Diagnostic Bug Fixes + Post-Fix Validation (5 fixes, 8 commits)
 **Commits:** 8 (a0f9c47, 59a4a0c, 6463ad4, d5378f1, b6cdfdd, a76cb35, + validation + STATE.md)
 Implemented all 5 fixes from the 16-profile diagnostic: (1) BUG-1 CRITICAL — tag all output articles with `retained_by_profile: context_hash` to prevent cross-profile retention leak, (2) BUG-2 — store briefing thread with generation counter + `wait_for_briefing()`, (3) S4 — remove cross-entity combination queries (~30% Serper credit savings), (4) S3 — route generic-keyword career matches to DoRA model at score 5.5 instead of hardcoded 9.0, (5) BUG-3 — opt-in extra feeds integration in scan pipeline (`scoring.include_extra_feeds_in_scan`). Each fix is an independent commit, rollback-safe via `git revert`. 54 tests pass after every commit.
@@ -316,14 +406,25 @@ Key work: (1) Portfolio site deployed at asebrahim.github.io, codebase pushed to
 
 ---
 
-## 7. Profiles
+## 7. Users & Profiles
 
-| Name | Role | Hash |
-|------|------|------|
-| Ahmad | Petroleum Engineering Professor / Seisnetics Consultant | `8e86611559e6` |
-| saa | (incomplete/test profile) | — |
+### DB-Auth Users (current system)
 
-Primary profile is Computer Engineering student at AUK (Ahmad's real profile). Petroleum professor is active for testing.
+| user_id | Email | Display Name | Profiles |
+|---------|-------|-------------|----------|
+| 3 | ahmad@test.com | Ahmad | Developer_KW, Chef_Tokyo |
+| 4 | bob@test.com | Bob | Bob_Profile |
+| 5 | newuser@test.com | NewUser | — |
+| 10 | kirissie@gmail.com | Kirissie | — |
+
+### Archived Legacy Profiles
+
+| Name | Location | Archived To |
+|------|----------|-------------|
+| Ahmad | Petroleum Engineering Professor, Kuwait | `data/archive/Ahmad.yaml` |
+| Kyu | (test profile) | `data/archive/Kyu.yaml` |
+
+Legacy YAML profiles are no longer used. All new users go through DB-auth with email verification.
 
 ---
 
@@ -338,13 +439,22 @@ Primary profile is Computer Engineering student at AUK (Ahmad's real profile). P
 | Kuwait intelligence | `backend/fetchers/kuwait_scrapers.py` |
 | Serper client | `backend/fetchers/serper_search.py` |
 | Database | `backend/database.py` |
-| Auth/profiles | `backend/auth.py`, `backend/profiles/*.yaml` |
+| DB-auth routes | `backend/routes/auth.py` (register, verify, login, profiles, admin) |
+| Auth manager (sessions) | `backend/auth.py` (AuthManager, session tracking, profile switching) |
+| Email service | `backend/email_service.py` (SMTP delivery, verification/reset emails) |
+| Config routes | `backend/routes/config.py` (save handler, DB overlay sync) |
+| Per-user data | `backend/user_data.py` (ensure_dir, append_jsonl, write_json) |
+| User data dirs | `backend/data/users/{user_id}/` (JSONL exports, profile.json) |
+| Archived profiles | `backend/data/archive/` (Ahmad.yaml, Kyu.yaml) |
 | Server/routes | `backend/server.py`, `backend/routes/` |
+| Frontend auth | `frontend/auth.js` (login/register UI, localStorage wipe, eye toggle) |
+| Tour guide | `frontend/tour.js` (welcome modal, step tooltips, don't-show-again) |
 | Fullscreen chart & drawings | `frontend/mobile.js` (IIFE, all drawing tools + intel panel) |
 | Markets panel & agent | `frontend/markets-panel.js` |
 | Chart styles | `frontend/styles.css` (`.cfs-*` classes) |
 | Output JSON | `backend/output/news_data.json` |
-| API keys | `backend/.env` (gitignored) |
+| API keys + SMTP | `backend/.env` (gitignored) |
+| DB migrations | `backend/migrations.py` (currently at version 9) |
 | Codebase guide | `backend/CLAUDE.md` |
 | This file | `STATE.md` (repo root) |
 
