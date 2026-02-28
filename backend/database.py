@@ -12,6 +12,7 @@ from pathlib import Path
 import logging
 
 from migrations import run_migrations
+import user_data
 
 logger = logging.getLogger(__name__)
 
@@ -261,12 +262,20 @@ class Database:
     def save_briefing(self, briefing: Dict, profile_id: int = 0):
         """Save a generated briefing."""
         cursor = self.conn.cursor()
+        now = datetime.now()
         cursor.execute("""
             INSERT INTO briefings (content_json, generated_at, profile_id)
             VALUES (?, ?, ?)
-        """, (json.dumps(briefing), datetime.now().isoformat(), profile_id))
+        """, (json.dumps(briefing), now.isoformat(), profile_id))
         self._commit()
-        return cursor.lastrowid
+        briefing_id = cursor.lastrowid
+
+        # Per-user daily briefing export
+        uid = user_data.get_user_id_for_profile(self, profile_id)
+        if uid > 0:
+            user_data.write_json(uid, f"briefings/{now.strftime('%Y-%m-%d')}.json", briefing)
+
+        return briefing_id
     
     def get_recent_briefings(self, limit: int = 10) -> List[Dict]:
         """Get recent briefings."""
@@ -328,8 +337,28 @@ class Database:
             profile_id,
         ))
         self._commit()
-        return cursor.lastrowid
-    
+        scan_id = cursor.lastrowid
+
+        # Per-user JSONL export
+        uid = user_data.get_user_id_for_profile(self, profile_id)
+        if uid > 0:
+            user_data.append_jsonl(uid, "scan_log.jsonl", {
+                "scan_id": scan_id,
+                "timestamp": entry.get('started_at', datetime.now().isoformat()),
+                "elapsed_secs": entry.get('elapsed_secs', 0),
+                "items_fetched": entry.get('items_fetched', 0),
+                "items_scored": entry.get('items_scored', 0),
+                "critical": entry.get('critical', 0),
+                "high": entry.get('high', 0),
+                "medium": entry.get('medium', 0),
+                "noise": entry.get('noise', 0),
+                "rule_scored": entry.get('rule_scored', 0),
+                "llm_scored": entry.get('llm_scored', 0),
+                "retained": entry.get('retained', 0),
+            })
+
+        return scan_id
+
     def get_scan_log(self, limit: int = 50) -> List[Dict]:
         """Get recent scan log entries."""
         cursor = self.conn.cursor()
@@ -474,6 +503,21 @@ class Database:
                 profile_id,
             ))
             self._commit()
+
+            # Per-user JSONL export
+            uid = user_data.get_user_id_for_profile(self, profile_id)
+            if uid > 0:
+                user_data.append_jsonl(uid, "feedback.jsonl", {
+                    "timestamp": datetime.now().isoformat(),
+                    "action": feedback.get('action', 'click'),
+                    "title": feedback.get('title', ''),
+                    "url": feedback.get('url', ''),
+                    "category": feedback.get('category', ''),
+                    "ai_score": feedback.get('ai_score'),
+                    "user_score": feedback.get('user_score'),
+                    "note": feedback.get('note', ''),
+                })
+
             return True
         except Exception as e:
             logger.error(f"Failed to save feedback: {e}")

@@ -9,6 +9,7 @@ import logging
 from pathlib import Path
 
 from routes.helpers import json_response, error_response, read_json_body
+import user_data
 
 logger = logging.getLogger("STRAT_OS")
 
@@ -169,6 +170,10 @@ def handle_config_save(handler, strat, auth_helpers):
             _sync_to_profile_yaml(config, current_user, auth_helpers)
             strat.cache_profile_config(current_user)
 
+        # Sync config_overlay to DB + write profile.json for DB-auth users
+        if token:
+            _sync_to_db_profile(config, token, strat.db)
+
         # Reinitialize MarketFetcher if tickers changed
         if "tickers" in new_config or ("market" in new_config and "tickers" in new_config.get("market", {})):
             from fetchers.market import MarketFetcher
@@ -179,6 +184,49 @@ def handle_config_save(handler, strat, auth_helpers):
 
     except Exception as e:
         error_response(handler, str(e), 500)
+
+
+def _sync_to_db_profile(config: dict, token: str, db):
+    """Persist config overlay to the DB profile and write profile.json snapshot."""
+    try:
+        cursor = db.conn.cursor()
+        cursor.execute("""
+            SELECT s.profile_id, s.user_id FROM sessions s WHERE s.token = ?
+        """, (token,))
+        row = cursor.fetchone()
+        if not row or not row[0]:
+            return
+        profile_id, user_id = row
+
+        # Build config overlay (only user-facing fields, no API keys)
+        overlay = {
+            "profile": config.get("profile", {}),
+            "market": {"tickers": config.get("market", {}).get("tickers", [])},
+            "news": {"timelimit": config.get("news", {}).get("timelimit", "w")},
+            "dynamic_categories": config.get("dynamic_categories", []),
+            "extra_feeds_finance": config.get("extra_feeds_finance", {}),
+            "extra_feeds_politics": config.get("extra_feeds_politics", {}),
+            "custom_feeds": config.get("custom_feeds", []),
+            "custom_tab_name": config.get("custom_tab_name", ""),
+            "scoring": {k: config.get("scoring", {}).get(k) for k in
+                        ["retain_high_scores", "retention_threshold",
+                         "retention_max_age_hours", "retention_max_items"]
+                        if k in config.get("scoring", {})},
+        }
+
+        # Update DB
+        cursor.execute("UPDATE profiles SET config_overlay = ? WHERE id = ?",
+                       (json.dumps(overlay), profile_id))
+        db._commit()
+
+        # Write profile.json snapshot to user data dir
+        if user_id and user_id > 0:
+            from datetime import datetime
+            snapshot = {**overlay, "updated_at": datetime.now().isoformat()}
+            user_data.write_json(user_id, "profile.json", snapshot)
+
+    except Exception as e:
+        logger.debug(f"Failed to sync DB profile: {e}")
 
 
 def _sync_to_profile_yaml(config: dict, username: str, auth_helpers: dict):

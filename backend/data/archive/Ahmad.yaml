@@ -1,0 +1,178 @@
+profile:
+  role: 'Petroleum Engineering Professor at Kuwait University and Consultant for Seisnetics '
+  location: Kuwait
+  context: Petroleum engineering professor and consultant focused on academic research,
+    industry R&D, and global energy technology trends with emphasis on Kuwait and
+    GCC policy developments.
+  interests: []
+  name: Ahmad
+  avatar: AE
+  email: Kirissie@gmail.com
+security:
+  pin_hash: 471c2c0a9269c24c7deaa7cc8e1b66fbb32610bb2557ea9a974e32f598dd3bfb
+  devices:
+  - df33b14b57afdd75
+market:
+  tickers:
+  - symbol: XOM
+    name: ExxonMobil
+  - symbol: CVX
+    name: Chevron
+  - symbol: BP
+    name: BP
+  - symbol: TOT
+    name: TOT
+  - symbol: BTC-USD
+    name: Bitcoin
+  - symbol: ETH-USD
+    name: Ethereum
+  - symbol: GC=F
+    name: Gold
+  - symbol: CL=F
+    name: Crude Oil
+  - symbol: EURUSD=X
+    name: EURUSD=X
+  intervals: {}
+  alert_threshold_percent: 5.0
+news:
+  timelimit: w
+  career:
+    root: kuwait
+    keywords: []
+    queries: []
+  finance:
+    root: kuwait
+    keywords: []
+    queries: []
+  regional:
+    root: regional
+    keywords: []
+    queries: []
+  tech_trends:
+    root: global
+    keywords: []
+    queries: []
+  rss_feeds: []
+dynamic_categories:
+- id: kuniv
+  label: Kuwait Academic & Research Employers
+  icon: building-2
+  items:
+  - Kuwait University
+  - KISR
+  - KFUPM
+  - Kuwait Institute for Scientific Research
+  - Kuwait Foundation for Advancement of Sciences
+  - Kuwait Petroleum Research Center
+  - Seisnetics
+  - Schlumberger Kuwait
+  enabled: true
+  scorer_type: career
+  root: kuwait
+- id: oiltech
+  label: Petroleum Engineering & Tech Trends
+  icon: cpu
+  items:
+  - digital oilfield
+  - AI in reservoir modeling
+  - subsurface imaging
+  - seismic data analytics
+  - carbon capture tech
+  - enhanced oil recovery
+  - well automation
+  - digital twin for oil assets
+  enabled: true
+  scorer_type: tech
+  root: global
+- id: govpol
+  label: Government & Industry Policy
+  icon: gavel
+  items:
+  - Kuwait Energy Policy
+  - GCC oil regulations
+  - KOC R&D initiatives
+  - Kuwait National Petroleum Strategy
+  - Ministry of Energy projects
+  - Kuwait Sustainability Goals
+  - OPEC+ production agreements
+  - Kuwait Energy Efficiency Framework
+  enabled: true
+  scorer_type: regional
+  root: regional
+- id: certev
+  label: Career & Professional Certifications
+  icon: award
+  items:
+  - SPE certification
+  - Petroleum Engineering PhD programs
+  - Reservoir Simulation training
+  - Well Logging certification
+  - Geophysical Interpretation courses
+  - AI for Oil & Gas workshops
+  - ISO 50001 energy management
+  - Kuwait University research grants
+  enabled: true
+  scorer_type: career
+  root: kuwait
+- id: confer
+  label: Conferences & Academic Events
+  icon: target
+  items:
+  - SPE Annual Technical Conference
+  - IADC Middle East
+  - Kuwait University Petroleum Symposium
+  - World Petroleum Congress
+  - AI in Oil & Gas Summit
+  - KISR Research Forum
+  - GCC Energy Innovation Expo
+  - Petroleum Engineering Workshops
+  enabled: true
+  scorer_type: auto
+  root: global
+extra_feeds_finance:
+  cnbc_top: false
+  cnbc_finance: false
+  marketwatch: false
+  mw_pulse: false
+  yahoo_fin: false
+  investing: false
+  ft: false
+  bloomberg: false
+  wsj_world: false
+  economist: false
+  seekingalpha: false
+  biz_insider: false
+  coindesk: false
+  cointelegraph: false
+  gn_kuwait_biz: false
+  gn_gcc_finance: false
+  zawya: false
+  arab_times_biz: false
+  boursa_kuwait: false
+  oilprice: false
+  rigzone: false
+extra_feeds_politics:
+  bbc_world: false
+  bbc_mideast: false
+  aljazeera: false
+  npr_world: false
+  nyt_world: false
+  nyt_mideast: false
+  wapo_world: false
+  wapo_politics: false
+  cnn_world: false
+  fox_world: false
+  guardian: false
+  dw: false
+  france24: false
+  gn_kuwait: false
+  arab_times: false
+  times_kuwait: false
+  gn_mideast: false
+  alarabiya: false
+  middleeasteye: false
+  newarab: false
+  scmp: false
+  nikkei_asia: false
+custom_feeds: []
+custom_tab_name: Custom
