@@ -98,9 +98,12 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                 self.wfile.write(b'{"error": "Rate limit exceeded. Try again shortly."}')
                 return
 
-            # Serve news_data.json from output directory
+            # Serve news_data.json from output directory (per-profile)
             if self.path == "/api/data" or self.path == "/news_data.json":
-                output_path = output_dir / "news_data.json"
+                # Resolve profile-specific output file
+                _token = self.headers.get('X-Auth-Token', '')
+                _prof = auth.get_session_profile(_token) if _token else ''
+                output_path = strat._get_output_path(_prof) if _prof else (output_dir / "news_data.json")
                 if output_path.exists():
                     raw = output_path.read_bytes()
 
