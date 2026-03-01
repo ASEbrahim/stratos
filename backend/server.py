@@ -80,6 +80,8 @@ def create_handler(strat, auth, frontend_dir, output_dir):
             super().end_headers()
 
         def do_GET(self):
+            self._profile_id = 0
+            self._session_profile = None
             # --- Auth check endpoint (always public) ---
             if self.path == "/api/auth-check":
                 token = self.headers.get('X-Auth-Token', '')
@@ -128,13 +130,15 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                     cursor.execute("SELECT profile_id FROM sessions WHERE token = ?", (token,))
                     _pid_row = cursor.fetchone()
                     if _pid_row and _pid_row[0]:
-                        strat.active_profile_id = _pid_row[0]
+                        self._profile_id = _pid_row[0]
+                        strat.active_profile_id = _pid_row[0]  # backward compat
                         # For DB-backed profiles, ensure active_profile is set
                         # even if ensure_profile() didn't have the config cached
                         if _session_profile and strat.active_profile != _session_profile:
                             strat.active_profile = _session_profile
                 except Exception:
                     pass
+                self._session_profile = _session_profile
 
             # --- Rate limiting ---
             if auth.rate_limited(self.path):
@@ -198,8 +202,9 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                 self.send_header("Access-Control-Allow-Origin", "*")
                 self.end_headers()
                 self.wfile.write(b'{"status": "refresh_triggered"}')
-                # Trigger full scan in background
-                threading.Thread(target=strat.run_scan, daemon=True).start()
+                # Resolve profile_id (refresh is AUTH_EXEMPT)
+                _refresh_pid = self._profile_id or (_get_profile_id(self.headers.get('X-Auth-Token', '')) or 0)
+                threading.Thread(target=strat.run_scan, args=(_refresh_pid,), daemon=True).start()
                 return
 
             # Serve trigger for market-only refresh (fast)
@@ -220,8 +225,9 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                 self.send_header("Access-Control-Allow-Origin", "*")
                 self.end_headers()
                 self.wfile.write(b'{"status": "news_refresh_triggered"}')
-                # Trigger news refresh in background
-                threading.Thread(target=strat.run_news_refresh, daemon=True).start()
+                # Resolve profile_id (refresh-news is AUTH_EXEMPT)
+                _refresh_pid = self._profile_id or (_get_profile_id(self.headers.get('X-Auth-Token', '')) or 0)
+                threading.Thread(target=strat.run_news_refresh, args=(_refresh_pid,), daemon=True).start()
                 return
 
             # Serve scan status
@@ -252,9 +258,10 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                 self.send_header("Content-type", "application/json")
                 self.send_header("Access-Control-Allow-Origin", "*")
                 self.end_headers()
-                status = {**strat.scan_status, "recent_scans": strat.db.get_scan_log(5)}
-                # Include avatar_image if authenticated
+                # Resolve profile_id from token (status is AUTH_EXEMPT so _profile_id may be 0)
                 token = self.headers.get('X-Auth-Token', '')
+                _status_pid = self._profile_id or (_get_profile_id(token) if token else 0) or 0
+                status = {**strat.scan_status, "recent_scans": strat.db.get_scan_log(5, profile_id=_status_pid)}
                 if token:
                     user = auth.get_session_profile(token)
                     if user:
@@ -416,7 +423,7 @@ def create_handler(strat, auth, frontend_dir, output_dir):
 
                     else:
                         # Full JSON diagnostic export
-                        _pid = strat.active_profile_id
+                        _pid = self._profile_id
                         cat_stats = strat.db.get_category_stats(days=7, profile_id=_pid)
                         daily_counts = strat.db.get_daily_signal_counts(days=7, profile_id=_pid)
                         top_signals = strat.db.get_top_signals(days=7, min_score=7.0, limit=30, profile_id=_pid)
@@ -822,6 +829,8 @@ def create_handler(strat, auth, frontend_dir, output_dir):
             return super().do_GET()
 
         def do_POST(self):
+            self._profile_id = 0
+            self._session_profile = None
             # --- Scan cancellation (no body needed) ---
             if self.path == "/api/scan/cancel":
                 strat._scan_cancelled.set()
@@ -1038,13 +1047,15 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                     cursor.execute("SELECT profile_id FROM sessions WHERE token = ?", (token,))
                     _pid_row = cursor.fetchone()
                     if _pid_row and _pid_row[0]:
-                        strat.active_profile_id = _pid_row[0]
+                        self._profile_id = _pid_row[0]
+                        strat.active_profile_id = _pid_row[0]  # backward compat
                         # For DB-backed profiles, ensure active_profile is set
                         # even if ensure_profile() didn't have the config cached
                         if _session_profile and strat.active_profile != _session_profile:
                             strat.active_profile = _session_profile
                 except Exception:
                     pass
+                self._session_profile = _session_profile
 
             # --- Rate limiting ---
             if auth.rate_limited(self.path):
@@ -1206,7 +1217,7 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                     data["profile_location"] = profile.get("location", "")
                     data["profile_context"] = profile.get("context", "")[:500]
 
-                    strat.db.save_feedback(data, profile_id=strat.active_profile_id)
+                    strat.db.save_feedback(data, profile_id=self._profile_id)
 
                     self.send_response(200)
                     self.send_header("Content-type", "application/json")
@@ -1502,7 +1513,8 @@ def create_handler(strat, auth, frontend_dir, output_dir):
 
             # ── AI Agent Chat (streaming) ──────────────────────────
             if self.path == "/api/agent-chat":
-                handle_agent_chat(self, strat, output_dir)
+                _agent_output_dir = strat._get_output_path(self._session_profile).parent if self._session_profile else output_dir
+                handle_agent_chat(self, strat, _agent_output_dir, profile_id=self._profile_id)
                 return
 
             self.send_response(404)

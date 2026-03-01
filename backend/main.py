@@ -281,7 +281,7 @@ class StratOS:
         except Exception as e:
             logger.debug(f"Could not sync Serper credits: {e}")
 
-    def run_scan(self) -> Dict[str, Any]:
+    def run_scan(self, profile_id=None) -> Dict[str, Any]:
         """
         Run a complete intelligence scan.
 
@@ -294,6 +294,10 @@ class StratOS:
         6. Save to database
         7. Export to JSON
 
+        Args:
+            profile_id: Explicit profile_id from the requesting session.
+                         If None, falls back to self.active_profile_id.
+
         Returns:
             The complete output data
         """
@@ -301,15 +305,15 @@ class StratOS:
             logger.warning("Scan already in progress, skipping")
             return {}
         try:
-            return self._run_scan_impl()
+            return self._run_scan_impl(profile_id)
         finally:
             self._scan_lock.release()
 
-    def _run_scan_impl(self) -> Dict[str, Any]:
+    def _run_scan_impl(self, profile_id=None) -> Dict[str, Any]:
         """Internal scan implementation (called with _scan_lock held)."""
-        # Capture profile_id at scan start — another request could change
-        # active_profile_id mid-scan, so use this local copy throughout.
-        _scan_pid = self.active_profile_id
+        # Use explicit profile_id if provided (from HTTP handler),
+        # otherwise fall back to global (for background scheduler).
+        _scan_pid = profile_id if profile_id is not None else self.active_profile_id
         self._scan_cancelled.clear()
         self._snapshot_previous_articles()  # Snapshot before any writes
         self.scan_status["is_scanning"] = True
@@ -783,23 +787,28 @@ class StratOS:
             self.sse_broadcast("scan_error", {"message": str(e)})
             raise
 
-    def run_news_refresh(self) -> Dict[str, Any]:
+    def run_news_refresh(self, profile_id=None) -> Dict[str, Any]:
         """
         Refresh news, scoring, and briefing (slower, uses API calls).
         Keeps existing market data.
+
+        Args:
+            profile_id: Explicit profile_id from the requesting session.
+                         If None, falls back to self.active_profile_id.
         """
         if not self._scan_lock.acquire(blocking=False):
             logger.warning("Scan already in progress, skipping news refresh")
             return {}
         try:
-            return self._run_news_refresh_impl()
+            return self._run_news_refresh_impl(profile_id)
         finally:
             self._scan_lock.release()
 
-    def _run_news_refresh_impl(self) -> Dict[str, Any]:
+    def _run_news_refresh_impl(self, profile_id=None) -> Dict[str, Any]:
         """Internal news refresh implementation (called with _scan_lock held)."""
-        # Capture profile_id at start — prevents mid-scan race conditions
-        _scan_pid = self.active_profile_id
+        # Use explicit profile_id if provided (from HTTP handler),
+        # otherwise fall back to global (for background scheduler).
+        _scan_pid = profile_id if profile_id is not None else self.active_profile_id
         self._scan_cancelled.clear()
         self._snapshot_previous_articles()  # Snapshot before any writes
         self.scan_status["is_scanning"] = True

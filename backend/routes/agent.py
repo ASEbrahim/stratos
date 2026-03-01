@@ -385,7 +385,7 @@ def handle_agent_status(handler, strat):
     json_response(handler, {"available": available, "model": model, "host": ollama_host})
 
 
-def handle_agent_chat(handler, strat, output_dir):
+def handle_agent_chat(handler, strat, output_dir, profile_id=0):
     """POST /api/agent-chat — Streaming agent conversation with tool use."""
     try:
         body = read_json_body(handler)
@@ -395,7 +395,7 @@ def handle_agent_chat(handler, strat, output_dir):
             raise ValueError("Empty message")
 
         news_context = _build_agent_context(strat, output_dir)
-        historical_context = _build_historical_context(strat)
+        historical_context = _build_historical_context(strat, profile_id)
 
         scoring_cfg = strat.config.get("scoring", {})
         ollama_host = scoring_cfg.get("ollama_host", "http://localhost:11434")
@@ -457,7 +457,7 @@ HISTORICAL DATA:
                 search_results = []
                 for kw in keywords[:3]:
                     try:
-                        results = strat.db.search_news_history(kw, days=14, limit=5, profile_id=strat.active_profile_id)
+                        results = strat.db.search_news_history(kw, days=14, limit=5, profile_id=profile_id)
                         search_results.extend(results)
                     except Exception:
                         pass
@@ -736,16 +736,16 @@ TICKERS: 3-8 Yahoo Finance symbols relevant to this role.
 # CONTEXT BUILDERS
 # ═══════════════════════════════════════════════════════════
 
-def _build_historical_context(strat):
+def _build_historical_context(strat, profile_id=0):
     parts = []
     db = strat.db
     try:
-        scans = db.get_scan_log(5)
+        scans = db.get_scan_log(5, profile_id=profile_id)
         if scans:
             lines = [f"  {s.get('started_at','')[:16].replace('T',' ')}: {s.get('items_scored',0)} items → {s.get('critical',0)} crit, {s.get('high',0)} high" if not s.get('error') else f"  {s.get('started_at','')[:16]}: FAILED" for s in scans]
             parts.append("RECENT SCANS:\n" + "\n".join(lines))
     except Exception: pass
-    _pid = strat.active_profile_id
+    _pid = profile_id
     try:
         stats = db.get_category_stats(days=7, profile_id=_pid)
         if stats:
