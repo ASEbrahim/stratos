@@ -136,9 +136,17 @@ def handle_config_save(handler, strat, auth_helpers):
                 if key in new_config["scoring"]:
                     config["scoring"][key] = new_config["scoring"][key]
 
-        # Dynamic categories
+        # Dynamic categories — normalize field names (frontend may send label/items or name/keywords)
         if "dynamic_categories" in new_config:
-            config["dynamic_categories"] = new_config["dynamic_categories"]
+            normalized = []
+            for cat in new_config["dynamic_categories"]:
+                c = dict(cat)
+                if "name" in c and "label" not in c:
+                    c["label"] = c.pop("name")
+                if "keywords" in c and "items" not in c:
+                    c["items"] = c.pop("keywords")
+                normalized.append(c)
+            config["dynamic_categories"] = normalized
 
         # Extra feed toggles
         for key in ["extra_feeds_finance", "extra_feeds_politics",

@@ -215,8 +215,8 @@ class KuwaitIntelligenceFetcher:
         - 2+ words that are all lowercase common words → bare keywords, don't quote
         """
         searches = []
-        items = cat.get('items', [])
-        label = cat.get('label', '').strip()
+        items = cat.get('items', []) or cat.get('keywords', [])
+        label = (cat.get('label', '') or cat.get('name', '')).strip()
         scorer_type = cat.get('scorer_type', 'auto')
         root = cat.get('root', 'kuwait')
         
@@ -509,7 +509,7 @@ class KuwaitIntelligenceFetcher:
             # Check dynamic categories and legacy career keywords for oil sector entities
             check_keywords = [kw.lower() for kw in self.career_keywords]
             for cat in self.dynamic_categories:
-                check_keywords.extend(i.lower() for i in cat.get('items', []))
+                check_keywords.extend(i.lower() for i in (cat.get('items', []) or cat.get('keywords', [])))
             has_k_sector = any(ent in ' '.join(check_keywords) for ent in k_sector_entities)
         
         if is_kuwait_user and has_k_sector:
