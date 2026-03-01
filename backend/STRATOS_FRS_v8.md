@@ -1,8 +1,8 @@
 # StratOS Functional Requirements Specification (FRS)
 
 **Project:** StratOS -- Strategic Intelligence Operating System
-**Version:** 9.0 (V2.1 Production + Theme Overhaul + Settings Reorganization)
-**Date:** February 26, 2026
+**Version:** 10.0 (V2.1 Production + Auth + UI Sync + Profile Isolation)
+**Date:** March 1, 2026
 **Status:** V2.1 Production
 **Author:** Ahmad (Computer Engineering student, American University of Kuwait)
 
@@ -104,11 +104,12 @@ The frontend is a single-page application with no build step required (Tailwind 
 
 ### 2.5 Authentication System
 
-- Device-isolated sessions: each session is bound to a `device_id` + `profile_name`
-- SHA-256 PIN hashing: PINs are hashed before storage in per-profile YAML configs
-- Session tokens: 64-character hex tokens with 7-day TTL
-- Sessions persist across server restarts via `.sessions.json`
-- Auth-exempt endpoints: `/api/auth-check`, `/api/auth`, `/api/register`, `/api/logout`, `/api/suggest-context`, `/api/generate-profile`, `/api/wizard-*`, `/api/refresh`, `/api/status`, `/api/scan/status`, `/api/scan/cancel`
+- **DB-auth (primary):** Email + password registration with 5-digit verification code via SMTP. Users stored in `pending_registrations` until verified, then moved to `users` table. Bcrypt password hashing.
+- **Legacy PIN auth:** SHA-256 hashed PINs stored in per-profile YAML configs. Still supported for existing profiles.
+- **Session management:** 64-character hex tokens with 7-day sliding TTL. Sessions persist across server restarts via `.sessions.json`.
+- **Per-request profile isolation:** Each HTTP handler instance captures `self._profile_id` from the session token. All DB queries, scan threads, and agent chat use this per-request value instead of the global `strat.active_profile_id` singleton. Prevents data bleed between concurrent users in `ThreadingMixIn`.
+- **Cross-device UI sync:** Theme, theme_mode, and stars saved to `profiles.ui_state` (JSON column) via `/api/ui-state`. Applied on login, auth-check, and status poll. 1.5s debounced, null-filtered, guard flag prevents sync loops.
+- Auth-exempt endpoints: `/api/auth-check`, `/api/auth`, `/api/register`, `/api/logout`, `/api/suggest-context`, `/api/generate-profile`, `/api/wizard-*`, `/api/refresh`, `/api/status`, `/api/scan/status`, `/api/scan/cancel`, `/api/auth/*` (email auth routes)
 - Rate limiting: per-endpoint sliding window (e.g., `/api/refresh` = 2/min, `/api/agent-chat` = 20/min)
 - API key masking: keys are masked in GET responses (show only last 4 chars), masked values are rejected on save
 
@@ -917,6 +918,14 @@ Replaces the old single swipe-up toolbar (which had an auto-dismiss bug where th
 | `/api/export` | Dashboard data export (CSV or JSON format) | Yes |
 | `/api/health` | System health (uptime, Ollama status, DB size, last scan, SSE clients, memory) | Yes |
 | `/api/shadow-scores` | Shadow scoring comparisons + agreement stats | Yes |
+| `/api/ui-state` | Get cross-device UI state (theme, mode, stars) for current profile | Yes |
+| `/api/ticker-presets` | List saved ticker watchlist presets | Yes |
+| `/api/auth/check` | Email auth: check authentication status + return ui_state | No |
+| `/api/auth/register` | Email auth: register with email + password + username | No |
+| `/api/auth/login` | Email auth: login with email/username + password | No |
+| `/api/auth/verify` | Email auth: verify email with 5-digit code | No |
+| `/api/profiles` | List all profiles or device-scoped profiles | Yes |
+| `/api/briefing` | Get latest briefing for active profile | Yes |
 
 ### 6.2 POST Endpoints
 
@@ -935,9 +944,16 @@ Replaces the old single swipe-up toolbar (which had an auto-dismiss bug where th
 | `/api/wizard-preselect` | AI preselect categories for wizard Step 2 | No |
 | `/api/wizard-tab-suggest` | AI suggest keywords for wizard tab | No |
 | `/api/wizard-rv-items` | AI generate role-aware entities for wizard Step 3 review | No |
-| `/api/agent-chat` | Send chat message to Strat Agent (streaming SSE response) | Yes |
+| `/api/agent-chat` | Send chat message to Strat Agent (streaming SSE response, profile-isolated) | Yes |
 | `/api/profiles` | Load/switch/save/delete active profile presets | Yes |
-| `/api/update-profile` | Update user profile (name, avatar, email, PIN) with current-PIN verification | Yes |
+| `/api/update-profile` | Update user profile (name, avatar, email, PIN). Supports both YAML and DB-only users. | Yes |
+| `/api/ui-state` | Save cross-device UI state (theme, mode, stars). Atomic merge-update. | Yes |
+| `/api/auth/register` | Email auth: register with email + password + username | No |
+| `/api/auth/login` | Email auth: login with email/username | No |
+| `/api/auth/verify` | Email auth: verify email with 5-digit code (auto-login on verify) | No |
+| `/api/auth/forgot-password` | Send password reset code via email | No |
+| `/api/auth/reset-password` | Reset password with code (invalidates all sessions) | No |
+| `/api/auth/change-password` | Change password (requires current password) | Yes |
 
 ### 6.3 Response Formats
 
@@ -999,7 +1015,7 @@ Replaces the old single swipe-up toolbar (which had an auto-dismiss bug where th
 
 ## 7. Database Schema
 
-SQLite database with WAL mode (`database.py`, 685 lines). Singleton pattern via `get_database()`. Thread-safe commits via `threading.Lock`.
+SQLite database with WAL mode (`database.py`). Singleton pattern via `get_database()`. Thread-safe commits via `threading.Lock`. Schema managed by `migrations.py` (currently at version 9).
 
 **Performance Pragmas:**
 ```sql
@@ -1029,6 +1045,7 @@ PRAGMA temp_store = MEMORY
 | fetched_at | TEXT | NOT NULL |
 | shown_to_user | INTEGER | DEFAULT 0 |
 | dismissed | INTEGER | DEFAULT 0 |
+| profile_id | INTEGER | DEFAULT 0 |
 
 **`market_snapshots`** -- Market data history
 | Column | Type | Constraints |
@@ -1063,7 +1080,7 @@ PRAGMA temp_store = MEMORY
 | mention_count | INTEGER | DEFAULT 1 |
 | recorded_at | TEXT | NOT NULL |
 
-**`scan_log`** -- Scan performance history
+**`scan_log`** -- Scan performance history (filtered by profile_id in API responses)
 | Column | Type | Constraints |
 |--------|------|-------------|
 | id | INTEGER | PRIMARY KEY AUTOINCREMENT |
@@ -1078,6 +1095,9 @@ PRAGMA temp_store = MEMORY
 | rule_scored | INTEGER | DEFAULT 0 |
 | llm_scored | INTEGER | DEFAULT 0 |
 | error | TEXT | |
+| truncated | INTEGER | DEFAULT 0 |
+| retained | INTEGER | DEFAULT 0 |
+| profile_id | INTEGER | DEFAULT 0 |
 
 **`briefings`** -- Generated intelligence briefings
 | Column | Type | Constraints |
@@ -1103,6 +1123,65 @@ PRAGMA temp_store = MEMORY
 | profile_role | TEXT | (migration) |
 | profile_location | TEXT | (migration) |
 | profile_context | TEXT | (migration) |
+| profile_id | INTEGER | DEFAULT 0 |
+
+**`users`** -- DB-auth user accounts (migration 008)
+| Column | Type | Constraints |
+|--------|------|-------------|
+| id | INTEGER | PRIMARY KEY AUTOINCREMENT |
+| email | TEXT | UNIQUE NOT NULL |
+| password_hash | TEXT | NOT NULL |
+| display_name | TEXT | |
+| created_at | TEXT | DEFAULT CURRENT_TIMESTAMP |
+
+**`pending_registrations`** -- Unverified registrations (migration 008)
+| Column | Type | Constraints |
+|--------|------|-------------|
+| id | INTEGER | PRIMARY KEY AUTOINCREMENT |
+| email | TEXT | UNIQUE NOT NULL |
+| password_hash | TEXT | NOT NULL |
+| display_name | TEXT | |
+| verification_code | TEXT | |
+| code_expires_at | TEXT | |
+| created_at | TEXT | DEFAULT CURRENT_TIMESTAMP |
+
+**`profiles`** -- User profiles with config overlay and UI state (migration 008)
+| Column | Type | Constraints |
+|--------|------|-------------|
+| id | INTEGER | PRIMARY KEY AUTOINCREMENT |
+| user_id | INTEGER | REFERENCES users(id) |
+| name | TEXT | NOT NULL |
+| config_overlay | TEXT | DEFAULT '{}' |
+| ui_state | TEXT | DEFAULT '{}' |
+| is_active | INTEGER | DEFAULT 0 |
+| created_at | TEXT | DEFAULT CURRENT_TIMESTAMP |
+
+**`sessions`** -- Auth sessions with profile binding (migration 008)
+| Column | Type | Constraints |
+|--------|------|-------------|
+| id | INTEGER | PRIMARY KEY AUTOINCREMENT |
+| token | TEXT | UNIQUE NOT NULL |
+| user_id | INTEGER | REFERENCES users(id) |
+| profile_id | INTEGER | REFERENCES profiles(id) |
+| profile_name | TEXT | |
+| device_id | TEXT | |
+| created_at | TEXT | DEFAULT CURRENT_TIMESTAMP |
+| expires_at | TEXT | |
+
+**`shadow_scores`** -- Shadow scoring comparisons
+| Column | Type | Constraints |
+|--------|------|-------------|
+| id | INTEGER | PRIMARY KEY AUTOINCREMENT |
+| url | TEXT | NOT NULL |
+| title | TEXT | |
+| category | TEXT | |
+| scorer_score | REAL | |
+| shadow_score | REAL | |
+| scorer_reason | TEXT | |
+| shadow_reason | TEXT | |
+| delta | REAL | |
+| profile_id | INTEGER | DEFAULT 0 |
+| created_at | TEXT | DEFAULT CURRENT_TIMESTAMP |
 
 **`shadow_scores`** -- Shadow scoring comparisons
 | Column | Type | Constraints |
@@ -1400,7 +1479,20 @@ Categories are not hardcoded in the backend. The user's profile defines dynamic 
 
 ### 10.8 Profile Isolation
 
-Each device gets its own view of profiles. When a user registers on a device, their `device_id` is stored in the profile YAML. Other devices cannot see or access that profile. This enables multiple users on shared networks without cross-contamination.
+**Device isolation:** Each device gets its own view of profiles. When a user registers on a device, their `device_id` is stored in the profile. Other devices cannot see or access that profile.
+
+**Per-request profile_id isolation:** The server uses `ThreadingMixIn` — each request runs in its own thread. `strat.active_profile_id` is a global mutable singleton that gets overwritten by every request. To prevent concurrent users from seeing each other's data, each HTTP handler instance captures `self._profile_id` from the session token at the start of `do_GET()`/`do_POST()`. All downstream operations use this per-request value:
+- `get_scan_log(profile_id=...)` — filters scan history by profile
+- `save_feedback(profile_id=...)` — tags feedback to correct profile
+- `handle_agent_chat(profile_id=...)` — agent reads only the requesting user's signals during 30-180s LLM inference
+- `run_scan(profile_id=...)` — scan threads capture profile_id at thread start, immune to concurrent overwrites
+- `get_category_stats(profile_id=...)`, `get_top_signals(profile_id=...)`, `search_news_history(profile_id=...)` — all DB queries filtered
+
+AUTH_EXEMPT endpoints (`/api/status`, `/api/refresh`, `/api/refresh-news`) resolve `profile_id` from the token independently since the auth enforcement block is skipped.
+
+**Cross-device UI sync:** Theme, theme_mode, and stars are persisted to `profiles.ui_state` (JSON text column) via `/api/ui-state`. Applied on login, auth-check, and status poll. Avatar is synced via `/api/update-profile` with DB fallback for users without YAML profiles.
+
+**Remaining gap:** `strat.config` is still a shared mutable global. `ensure_profile()` swaps it when a different profile makes a request. Agent tool functions that read `strat.config` are fast (low race window) but not fully isolated. A complete fix would require per-request config snapshots.
 
 ### 10.9 ROCm-Specific Notes
 
@@ -1639,25 +1731,30 @@ The autopilot system includes 17+ profile templates for diverse training data ge
 - **Account settings with email field and forgot PIN:** two-column layout, email stored in profile YAML, forgot PIN toast placeholder
 - **Site-wide hover interactivity pass:** cursor:pointer on buttons, accent focus glow on inputs, hover effects on nav/panels/dropdowns/buttons
 - **Button reorder in "Who Are You" section:** Generate, Setup Wizard, Suggest, Save -- with correct wizard binding via openWizard()
-- **Theme system overhaul (v6.0):** 8 themes (Midnight, Noir, Coffee, Rose, Cosmos, Nebula, Aurora, Sakura), dark mode ("Deeper") toggle, twinkling star animations with parallax, sakura petal particles, collapsible theme picker, Extra Large font size
+- **Theme system overhaul (v6.0):** 8 themes (Midnight, Noir, Coffee, Rose, Cosmos, Nebula, Aurora, Sakura), dark/brighter modes (24 variants), twinkling star animations with parallax, sakura petal particles, collapsible theme picker, Extra Large font size
 - **Settings reorganization (v6.0):** 4-tab layout (Profile, Sources, Market, System), ticker presets (save/load watchlists), drawing tools expansion
 - **Header toolbar alignment (v6.0):** Icon-only refresh buttons (Market + News scan) aligned with History/Settings/Help as uniform icon row
 - **Focus Mode button (v6.0):** Text button with expand icon positioned above market chart (replaces overlay icon)
 - **Chart toolbar enlargement (v6.0):** Increased button padding and icon sizes for better usability
 - **Sidebar narrow collapse (v6.0):** Theme section and bottom bar hide when sidebar is dragged below 200px width
+- **Incremental scanning:** Reuses scores from previous output snapshot, carries forward unfetched articles
+- **Deferred briefing:** Non-blocking background thread with generation counter, SSE `briefing_ready` notification
+- **Profile-scoped retention:** Context hash tags (role|context|location), filtered on profile switch
+- **Email-based authentication:** Registration with email verification codes via SMTP, bcrypt passwords, password reset, 7-day sliding sessions
+- **Multi-user support:** Multiple email accounts per instance, per-request profile isolation prevents data bleed between concurrent users
+- **Per-user data directories:** `data/users/{id}/` with JSONL exports (scan_log, feedback, briefings, daily articles, profile.json)
+- **Cross-device UI sync:** Theme, theme_mode, stars, avatar persisted to `profiles.ui_state` DB column, synced via `/api/ui-state`
+- **Per-request profile isolation:** `self._profile_id` per HTTP handler instance, explicit `profile_id` passed to scan threads, agent chat, and all DB queries
+- **Guided Tours panel:** Settings → System tab, Restart Onboarding + Explore Features buttons for mobile users
 
 ### 15.2 In Progress
 
-- Chart drawing tools expansion (19 tools, Binance-style)
-- Mobile focus mode toolbar (two-tier: hotbar + full panel)
 - Feed density implementation
 - Chart initial zoom optimization
 
 ### 15.3 Planned -- Online-Enabled Features
 
-- **Email-based authentication:** Replace PIN auth with email + password, forgot password flow via SMTP (Gmail/Resend/SendGrid). Enables cross-device login with a single account.
-- **Cross-device profile sync:** Avatar, categories, keywords, ticker presets, drawings, and theme all stored server-side and synced on login. No more device-isolated data.
-- **Multi-user support:** Multiple email accounts on the same StratOS instance, each with their own profile and dashboard. Shared market data, separate news scoring.
+- **Cross-device full profile sync:** Categories, keywords, ticker presets, drawings stored server-side (theme/avatar already synced)
 - **Email notifications:** Critical alerts (9.0+ scores) sent immediately, daily/weekly digest emails with top signals.
 - **Cloud backup:** Optional encrypted backup of database + configs to Google Drive or S3.
 
@@ -1678,69 +1775,41 @@ The autopilot system includes 17+ profile templates for diverse training data ge
 
 ---
 
-## 16. Future Roadmap: Online-Enabled Architecture
-
-The following features represent the next evolution of StratOS, transitioning from a purely local-first system to a hybrid architecture that leverages online services for cross-device sync and multi-user collaboration while maintaining the core local-first principle for AI inference and data processing.
+## 16. Online-Enabled Architecture
 
 ### 16.1 Email-Based Authentication System
 
-**Status:** Planned | **Priority:** High | **Replaces:** Current device-isolated PIN auth (Section 2.5)
+**Status:** IMPLEMENTED (Feb 28, 2026)
 
-The current authentication model uses browser-generated device IDs with SHA-256 PIN hashing. Each device maintains its own session, and profile data does not sync across devices.
-
-**Planned implementation:**
-- **Registration:** Email + password -> backend hashes password (bcrypt), stores in SQLite `users` table, sends verification email via SMTP relay
-- **Login:** Email + password -> backend verifies hash, creates session (JWT or server-side token)
-- **Forgot Password:** Email -> time-limited reset token (15 min expiry) -> reset link sent via email -> user sets new password -> token consumed
-- **Session Management:** JWT stored in httpOnly cookie, configurable expiry, refresh token rotation
-- **Migration Path:** Existing PIN-based profiles can be linked to email accounts during first login post-upgrade
-
-**Database schema addition:**
-```sql
-CREATE TABLE users (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    email TEXT UNIQUE NOT NULL,
-    password_hash TEXT NOT NULL,
-    display_name TEXT,
-    avatar_type TEXT DEFAULT 'initials',
-    avatar_data TEXT,
-    reset_token TEXT,
-    reset_token_expires DATETIME,
-    email_verified BOOLEAN DEFAULT FALSE,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    last_login DATETIME
-);
-
-CREATE TABLE user_profiles (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_id INTEGER REFERENCES users(id),
-    profile_name TEXT NOT NULL,
-    config_yaml TEXT NOT NULL,
-    is_active BOOLEAN DEFAULT FALSE,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-);
-```
-
-**Email delivery:** Gmail SMTP with app password (free, 500/day) as default provider. Optional support for Resend, SendGrid, or Mailgun via config.yaml.
+- **Registration:** Email + password + username → stored in `pending_registrations` → 5-digit verification code via SMTP → verified → moved to `users` table. Bcrypt password hashing.
+- **Login:** Email or username + password → session token (64-char hex, 7-day sliding expiry)
+- **Forgot Password:** 5-digit code via email → reset invalidates all sessions
+- **Account Deletion:** Password confirmation required → cascades sessions → profiles → user
+- **Legacy PIN auth:** Still supported for existing YAML profiles. Coexists with DB-auth.
+- **Email delivery:** Gmail SMTP (`StratintOS@gmail.com`, app password in `.env`). 500/day limit.
 
 ### 16.2 Cross-Device Profile Sync
 
-**Status:** Planned (dependent on 16.1)
+**Status:** PARTIALLY IMPLEMENTED (Mar 1, 2026)
 
-With email-based auth, all profile data becomes account-bound rather than device-bound:
-- Avatar + Display Name stored server-side in `users` table
-- Categories + Keywords stored in `user_profiles.config_yaml`
-- Ticker Presets migrated from localStorage to server-side storage
-- Drawing Tool Drawings migrated from localStorage to per-user server storage
-- Theme Preference stored server-side, applied on login
+Implemented (synced via `profiles.ui_state` DB column):
+- Theme (8 themes) stored server-side, applied on login
+- Theme mode (Normal/Deeper/Brighter) stored server-side
+- Star animations toggle stored server-side
+- Avatar (initials + image) stored server-side, with DB fallback for users without YAML profiles
 
-**Sync model:** Last-write-wins with server as source of truth. No real-time sync between devices.
+Not yet synced (still localStorage-only):
+- Categories + Keywords (saved to `config_overlay` DB column but not synced on login)
+- Ticker Presets (localStorage only)
+- Drawing Tool Drawings (localStorage only)
 
-### 16.3 Multi-User Household Support
+**Sync model:** Last-write-wins with 1.5s trailing debounce. Server is source of truth. Dirty check on status poll prevents unnecessary overwrites. Guard flag prevents sync loops.
 
-**Status:** Future (dependent on 16.1 + 16.2)
+### 16.3 Multi-User Support
 
-Multiple users on the same StratOS instance, each with their own email login, profile, categories, and dashboard state. The AI scoring pipeline runs separately for each active user's profile during scan cycles. Market data is shared.
+**Status:** IMPLEMENTED (Feb 28 + Mar 1, 2026)
+
+Multiple email accounts per StratOS instance, each with their own login, profiles, categories, and dashboard state. Per-request profile isolation (`self._profile_id` on HTTP handler) ensures concurrent users never see each other's data — even during 30-180s agent chat LLM inference. Market data is shared, news scoring is profile-specific.
 
 ### 16.4 Email Notifications
 
@@ -1767,6 +1836,7 @@ Optional encrypted backup of the SQLite database + user configs to cloud storage
 | v6.0 FRS | Feb 26, 2026 | Settings reorganization (4 tabs), ticker presets, drawing tools expansion, online auth roadmap |
 | v8.0 FRS | Feb 26, 2026 | Mobile UI overhaul, interactivity pass, two-tier drawing toolbar |
 | v9.0 FRS | Feb 26, 2026 | Theme overhaul (8 themes, dark mode, stars), header alignment, focus mode, chart toolbar, roadmap addendum |
+| v10.0 FRS | Mar 1, 2026 | Email auth, per-request profile isolation, cross-device UI sync, guided tours, avatar DB persist |
 
 ---
 

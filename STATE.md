@@ -4,7 +4,7 @@
 > Loaded into Claude.ai Project Knowledge and Claude Code context.
 > **CLAUDE.md** = how to work here. **STATE.md** = what happened and why. **FRS** = what the system should be.
 
-Last updated: **2026-02-28** (session: auth pipeline + profile isolation + per-user data directories — 8 commits)
+Last updated: **2026-03-01** (session: cross-device UI state sync + per-request profile isolation — 4 commits)
 
 ---
 
@@ -35,7 +35,10 @@ Last updated: **2026-02-28** (session: auth pipeline + profile isolation + per-u
 | Account deletion | Password confirmation required | Cascades: sessions → profiles → user |
 | Session management | 7-day sliding expiry | Token-based (X-Auth-Token header) |
 | Profile isolation | Blank config/data for profileless users | Prevents data bleed between accounts |
+| Per-request profile_id | `self._profile_id` on handler instance | Eliminates global `active_profile_id` race in ThreadingMixIn |
+| Cross-device UI sync | Theme, mode, stars persist to DB `ui_state` | 1.5s debounced sync, null-filtered, guard flag prevents loops |
 | Tour guide | Welcome modal + step tooltips | "Don't show again" persists via `stratos_tour_never` |
+| Guided Tours panel | Settings → System tab | Restart Onboarding + Explore Features buttons for mobile |
 
 ### Per-User Data Directory
 
@@ -105,7 +108,11 @@ data/users/{user_id}/
 - Per-user data directories: auto-created on verify/activate, JSONL exports for scan_log, feedback, briefings, daily articles
 - Config overlay DB sync: config saves persist to `profiles.config_overlay` + `profile.json` snapshot
 - Profile data isolation: blank config/data served to profileless users, full localStorage wipe on login/verify
+- Per-request profile isolation: `self._profile_id` per HTTP handler instance, explicit `profile_id` passed to scan threads and agent chat
+- Cross-device UI state sync: theme, theme_mode, stars stored in `profiles.ui_state` DB column, synced via `/api/ui-state` endpoint
+- Avatar persistence for DB-auth users: avatar saved to `ui_state` even without YAML profile file
 - Tour guide with "Don't show again" option (survives localStorage wipes)
+- Guided Tours panel in Settings (System tab) for mobile access to tour restart
 
 ### What's Broken / Needs Attention
 
@@ -116,7 +123,7 @@ data/users/{user_id}/
 - ~~**MODERATE — Unverified users could login:**~~ **FIXED** (commit 7a6d0ad). Users stored in `pending_registrations` until verified. Login blocks unverified (403).
 - **kuniv category over-scoring:** Articles mentioning "Kuwait" get scored high regardless of topical relevance. Scorer training issue, not pipeline bug.
 - **Frontend SSE for briefing_ready:** Backend broadcasts `briefing_ready` event, but frontend doesn't listen for it yet — briefing appears on next data poll, not instantly.
-- **FRS v9 and README v8 are stale:** Don't reflect auth system, per-user data, model routing, deferred briefing, incremental scanning, or profile-scoped retention.
+- **FRS v9 is stale:** Doesn't reflect auth system, per-user data, model routing, deferred briefing, incremental scanning, or profile-scoped retention.
 - **API key rotation pending:** Old Serper key (`ec4d2...`) and Google API key (`AIzaSy...`) were exposed in public git history (scrubbed with git-filter-repo). Should be rotated.
 - **Agent chat logging deferred:** Per-user agent chat history needs DB table + frontend changes. Not yet implemented.
 
@@ -128,6 +135,7 @@ data/users/{user_id}/
 - **RSS feeds:** currently empty (`rss_feeds: []`), all news comes from search queries
 - **Agent chat logging:** per-user JSONL for agent conversations (needs DB table + frontend wiring)
 - **Config overlay loading on profile switch:** when activating a profile, load its `config_overlay` into `strat.config` (currently only saves, doesn't restore)
+- **Per-request config snapshot:** `strat.config` is still a shared mutable global. `ensure_profile()` can swap it mid-request. Agent tool functions that read `strat.config` are fast (low race window) but a full config isolation refactor would require per-request config copies.
 - **Admin panel polish:** user management UI, session viewer, system health dashboard
 
 ### GitHub
@@ -141,6 +149,19 @@ data/users/{user_id}/
 ## 2. Decision Log
 
 > Append-only. Newest first. Each entry: WHAT was decided, WHY, and WHAT was rejected.
+
+### 2026-03-01
+
+**D030 — Per-request profile_id on handler instance instead of global singleton**
+`strat.active_profile_id` is a global mutable on the singleton StratOS instance. `ThreadingMixIn` runs each request in its own thread. Concurrent requests overwrite each other's `active_profile_id`, causing agent chat (30-180s LLM inference) to read the wrong profile's signals. Fix: `self._profile_id` captured per-request on the handler instance, passed explicitly to scan threads, agent handler, and all DB queries. The global write is kept for backward compatibility (background scheduler reads it).
+*Rejected:* Per-request config snapshot (too large a refactor — `strat.config` is shared mutable too, but tool calls are fast so the race window is narrow). Threading lock on `active_profile_id` (doesn't help — the lock would serialize requests, defeating ThreadingMixIn).
+
+**D031 — Cross-device UI state sync via profiles.ui_state DB column**
+Theme, theme_mode, and stars saved to `profiles.ui_state` (JSON text column from migration 008) via POST `/api/ui-state`. Applied on login/auth-check and polled via `/api/status` dirty check. 1.5s trailing debounce prevents rapid clicks from spamming the server. Null localStorage values filtered from payload (prevents literal string "null" from propagating). `_isApplyingFromServer` guard flag prevents sync loops (setTheme triggers sync → sync calls setTheme → infinite loop).
+*Rejected:* Syncing via existing `/api/config` endpoint (heavyweight, writes config.yaml, causes profile reload). WebSocket push (overengineered for this — polling via status works fine).
+
+**D032 — Avatar excluded from UI state sync payload**
+Avatar is already persisted via dedicated `/api/update-profile` endpoint (which writes to both YAML and DB). Including it in the `_syncUiStateToServer()` payload would create a dual-write conflict. The sync payload only contains theme, theme_mode, and stars.
 
 ### 2026-02-28
 
@@ -267,6 +288,20 @@ DoRA offers 1-4% gains over LoRA with better tolerance for lower ranks. For scor
 
 > Non-obvious failures that future sessions might repeat. If the natural instinct would be to try the same approach, log it here.
 
+### 2026-03-01
+
+**F017 — Global active_profile_id race in ThreadingMixIn**
+`strat.active_profile_id` is a global mutable on the singleton. Each HTTP request runs in its own thread. User B's request overwrites User A's `active_profile_id` during the 30-180s agent chat LLM inference window. Agent then reads User B's signals, feedback gets tagged to User B, and scan_log returns all profiles' scans unfiltered.
+**Rule:** Never read shared mutable state during long-running operations. Capture request-scoped values at handler init and pass explicitly to all callees.
+
+**F018 — AUTH_EXEMPT endpoints skip profile_id resolution**
+`/api/status`, `/api/refresh`, `/api/refresh-news` are in `AUTH_EXEMPT`, so the auth enforcement block (which sets `self._profile_id`) is skipped. `self._profile_id` stays at default 0, causing scan_log to return unfiltered results and scan threads to run with profile_id=0.
+**Rule:** AUTH_EXEMPT endpoints that use profile-scoped data must resolve profile_id from the token independently.
+
+**F019 — DB-auth avatar persist fails without YAML file**
+`/api/update-profile` requires a YAML file. DB-auth users have no YAML, so the handler raises `FileNotFoundError` before reaching the avatar persist code. Fix: early-return path that saves avatar directly to DB `ui_state` when no YAML exists.
+**Rule:** Backend handlers must support both legacy YAML profiles and DB-only profiles. Check for YAML existence before assuming it.
+
 ### 2026-02-28
 
 **F014 — Data bleed: /api/config returns previous user's in-memory config**
@@ -357,6 +392,13 @@ Must delete `hf_device_map` and force `.to("cuda:0")` or gradient computation cr
 
 > Most recent first. 3-5 lines per session.
 
+### 2026-03-01 — Cross-Device UI Sync + Per-Request Profile Isolation (4 commits)
+**Commits:** f1edaed, 546b5a8, ce2ca9d, ff18882
+(1) **Cross-device theme/avatar sync** — `profiles.ui_state` DB column stores theme, theme_mode, stars, avatar as JSON. New `/api/ui-state` GET/POST endpoints. Frontend: `_syncUiStateToServer()` with 1.5s debounce, `_applyUiStateFromServer()` with guard flag, `_uiStateDirty()` for status poll dirty check. Applied on login, auth-check, and status poll. Null values filtered from payload.
+(2) **Guided Tours panel** in Settings → System tab for mobile users who can't access `#help-btn`. Restart Onboarding + Explore Features buttons.
+(3) **Avatar persist fix** for DB-auth users without YAML profiles — early-return path in `/api/update-profile`.
+(4) **Per-request profile isolation** — `self._profile_id` on HTTP handler instance replaces global `strat.active_profile_id` reads in all handlers. Explicit `profile_id` passed to `run_scan()`, `run_news_refresh()`, `handle_agent_chat()`, `_build_historical_context()`. `get_scan_log()` gains `profile_id` filter. AUTH_EXEMPT endpoints resolve profile_id from token independently.
+
 ### 2026-02-28 — Auth Pipeline + Profile Isolation + Per-User Data (8 commits)
 **Commits:** d047344, 7a6d0ad, 72851ca, 26aaef2, ac42ec6, e2c6733, 161a6cd, 24939a4
 Complete auth pipeline overhaul: (1) Email verification replaces invite codes — `pending_registrations` staging table, users only created after 5-digit code verified, auto-login on verify. (2) SMTP via Gmail (`StratintOS@gmail.com`), credentials in `.env`. (3) Password show/hide eye toggle on all 7 auth fields. (4) Account deletion with password confirmation. (5) **Profile data bleed fix** — `/api/config` and `/api/data` return blank for profileless users, full localStorage whitelist wipe on login/verify. (6) Tour "Don't show again" with persistent `stratos_tour_never` flag. (7) Legacy profile archive — Ahmad.yaml and Kyu.yaml moved to `data/archive/`, profiles/ dir emptied. (8) Per-user data directories (`data/users/{id}/`) with JSONL exports: scan_log, feedback, briefings, daily scored articles, profile.json config snapshots. Config saves now sync to DB `config_overlay` column + profile.json.
@@ -446,6 +488,7 @@ Legacy YAML profiles are no longer used. All new users go through DB-auth with e
 | Per-user data | `backend/user_data.py` (ensure_dir, append_jsonl, write_json) |
 | User data dirs | `backend/data/users/{user_id}/` (JSONL exports, profile.json) |
 | Archived profiles | `backend/data/archive/` (Ahmad.yaml, Kyu.yaml) |
+| Agent chat routes | `backend/routes/agent.py` (chat, context builders, tool dispatch) |
 | Server/routes | `backend/server.py`, `backend/routes/` |
 | Frontend auth | `frontend/auth.js` (login/register UI, localStorage wipe, eye toggle) |
 | Tour guide | `frontend/tour.js` (welcome modal, step tooltips, don't-show-again) |
