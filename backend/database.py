@@ -359,12 +359,17 @@ class Database:
 
         return scan_id
 
-    def get_scan_log(self, limit: int = 50) -> List[Dict]:
-        """Get recent scan log entries."""
+    def get_scan_log(self, limit: int = 50, profile_id: int = 0) -> List[Dict]:
+        """Get recent scan log entries, optionally filtered by profile_id."""
         cursor = self.conn.cursor()
-        cursor.execute("""
-            SELECT * FROM scan_log ORDER BY id DESC LIMIT ?
-        """, (limit,))
+        if profile_id:
+            cursor.execute("""
+                SELECT * FROM scan_log WHERE profile_id = ? ORDER BY id DESC LIMIT ?
+            """, (profile_id, limit))
+        else:
+            cursor.execute("""
+                SELECT * FROM scan_log ORDER BY id DESC LIMIT ?
+            """, (limit,))
         return [dict(row) for row in cursor.fetchall()]
     
     # =========================================================================
