@@ -34,6 +34,9 @@ from email_service import EmailService
 
 logger = logging.getLogger("STRAT_OS")
 
+# File extensions eligible for gzip compression on static file serving
+_GZIP_TYPES = frozenset({'.js', '.css', '.html', '.json', '.svg', '.txt', '.xml'})
+
 
 def _send_json(handler, data, status=200):
     """Send a JSON response with proper headers."""
@@ -764,7 +767,6 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                 return
 
             # --- Static file serving with gzip compression ---
-            _GZIP_TYPES = {'.js', '.css', '.html', '.json', '.svg', '.txt', '.xml'}
             accepts_gzip = 'gzip' in self.headers.get('Accept-Encoding', '')
             ext = os.path.splitext(self.path.split('?')[0])[1].lower()
 
