@@ -296,6 +296,7 @@ def handle_auth_routes(handler, method, path, data, db, strat, send_json, email_
             "email_verified": bool(email_verified),
             "active_profile_id": profile_id,
             "profiles": profiles,
+            "ui_state": db.get_ui_state(profile_id),
         })
         return True
 
@@ -368,6 +369,7 @@ def handle_auth_routes(handler, method, path, data, db, strat, send_json, email_
             "email_verified": bool(email_verified),
             "active_profile_id": profile_id,
             "profiles": profiles,
+            "ui_state": db.get_ui_state(profile_id),
         })
         return True
 
@@ -551,7 +553,7 @@ def handle_auth_routes(handler, method, path, data, db, strat, send_json, email_
         # Ensure per-user data directory exists
         user_data.ensure_dir(user_id)
 
-        send_json(handler, {"status": "activated", "profile_id": profile_id, "name": row[1]})
+        send_json(handler, {"status": "activated", "profile_id": profile_id, "name": row[1], "ui_state": db.get_ui_state(profile_id)})
         return True
 
     if path.startswith("/api/profiles/") and method == "DELETE":

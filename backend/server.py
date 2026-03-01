@@ -57,6 +57,15 @@ def create_handler(strat, auth, frontend_dir, output_dir):
 
     email_service = EmailService(strat.config)
 
+    def _get_profile_id(token):
+        """Resolve profile_id from auth session token."""
+        if not token:
+            return None
+        cursor = strat.db.conn.cursor()
+        cursor.execute("SELECT profile_id FROM sessions WHERE token = ?", (token,))
+        row = cursor.fetchone()
+        return row[0] if row else None
+
     class CORSHandler(SimpleHTTPRequestHandler):
         def __init__(self, *args, **kwargs):
             super().__init__(*args, directory=str(frontend_dir), **kwargs)
@@ -266,7 +275,25 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                                     status["email"] = em
                             except Exception:
                                 pass
+                    # DB fallback for avatar (DB-auth users have no YAML) + ui_state for theme sync
+                    pid = _get_profile_id(token)
+                    if pid:
+                        ui_state = strat.db.get_ui_state(pid)
+                        if "avatar_image" not in status and ui_state.get("avatar_image"):
+                            status["avatar_image"] = ui_state["avatar_image"]
+                        if "avatar" not in status and ui_state.get("avatar"):
+                            status["avatar"] = ui_state["avatar"]
+                        status["ui_state"] = ui_state
                 self.wfile.write(json.dumps(status).encode())
+                return
+
+            if self.path == "/api/ui-state":
+                token = self.headers.get('X-Auth-Token', '')
+                pid = _get_profile_id(token)
+                if not pid:
+                    _send_json(self, {"error": "Not authenticated"}, 401)
+                    return
+                _send_json(self, strat.db.get_ui_state(pid))
                 return
 
             # Detailed scan progress (for Stop Scan polling)
@@ -805,6 +832,24 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                 self.wfile.write(b'{"status": "cancelling"}')
                 return
 
+            # --- UI state sync ---
+            if self.path == "/api/ui-state":
+                token = self.headers.get('X-Auth-Token', '')
+                pid = _get_profile_id(token)
+                if not pid:
+                    _send_json(self, {"error": "Not authenticated"}, 401)
+                    return
+                content_length = int(self.headers.get('Content-Length', 0))
+                post_data = self.rfile.read(content_length) if content_length else b'{}'
+                try:
+                    body = json.loads(post_data.decode('utf-8')) if post_data.strip() else {}
+                except (json.JSONDecodeError, UnicodeDecodeError):
+                    body = {}
+                if body:
+                    strat.db.save_ui_state(pid, body)
+                _send_json(self, {"ok": True})
+                return
+
             # --- New email-based auth routes (self-authenticating) ---
             if self.path.startswith("/api/auth/") or self.path.startswith("/api/profiles") or self.path.startswith("/api/admin/"):
                 content_length = int(self.headers.get('Content-Length', 0))
@@ -1295,6 +1340,17 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                     # Save
                     with open(profile_file, "w") as f:
                         yaml.dump(profile_data, f, default_flow_style=False, sort_keys=False)
+
+                    # Persist avatar to DB ui_state for cross-device sync
+                    pid = _get_profile_id(token)
+                    if pid:
+                        avatar_state = {}
+                        if avatar_image and avatar_image.startswith("data:image/"):
+                            avatar_state["avatar_image"] = avatar_image
+                        if new_avatar:
+                            avatar_state["avatar"] = new_avatar
+                        if avatar_state:
+                            strat.db.save_ui_state(pid, avatar_state)
 
                     # Also update live config if name/role/location changed
                     if any(c in changes for c in ("name", "role", "location", "avatar")):
