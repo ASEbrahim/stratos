@@ -244,6 +244,18 @@ class MarketFetcher:
         
         return result, alerts
     
+    def fetch_single(self, symbol: str, interval: str = "1m") -> Dict[str, Any]:
+        """Fetch a single ticker at one interval, bypassing cache. Used for live chart updates."""
+        name = self.tickers.get(symbol, {}).get("name", symbol)
+        if self._is_crypto(symbol):
+            ticker_data, _ = self._fetch_binance(symbol, name)
+        else:
+            ticker_data, _ = self._fetch_ticker(symbol, name)
+        # Return only the requested interval
+        if ticker_data and "data" in ticker_data and interval in ticker_data["data"]:
+            return {symbol: {"name": name, "data": {interval: ticker_data["data"][interval]}}}
+        return {symbol: {"name": name, "data": {}}}
+
     @staticmethod
     def _is_crypto(symbol: str) -> bool:
         """Check if a symbol is a crypto ticker that should use Binance."""

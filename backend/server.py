@@ -216,6 +216,32 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                 threading.Thread(target=strat.run_market_refresh, daemon=True).start()
                 return
 
+            # Single-ticker live update (for fullscreen chart auto-refresh)
+            if self.path.startswith("/api/market-tick"):
+                from urllib.parse import urlparse, parse_qs
+                qs = parse_qs(urlparse(self.path).query)
+                symbol = qs.get("symbol", [""])[0]
+                interval = qs.get("interval", ["1m"])[0]
+                if not symbol:
+                    self.send_response(400)
+                    self.send_header("Content-type", "application/json")
+                    self.end_headers()
+                    self.wfile.write(b'{"error":"symbol required"}')
+                    return
+                try:
+                    tick_data = strat.market_fetcher.fetch_single(symbol, interval)
+                    self.send_response(200)
+                    self.send_header("Content-type", "application/json")
+                    self.send_header("Access-Control-Allow-Origin", "*")
+                    self.end_headers()
+                    self.wfile.write(json.dumps(tick_data).encode())
+                except Exception as e:
+                    self.send_response(500)
+                    self.send_header("Content-type", "application/json")
+                    self.end_headers()
+                    self.wfile.write(json.dumps({"error": str(e)}).encode())
+                return
+
             # Serve trigger for news-only refresh (slower, uses API)
             if self.path == "/api/refresh-news":
                 self.send_response(200)
