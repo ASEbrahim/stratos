@@ -1276,7 +1276,27 @@ def create_handler(strat, auth, frontend_dir, output_dir):
 
                     safe = auth.safe_name(current_user)
                     profile_file = auth.profiles_dir() / f"{safe}.yaml"
-                    if not profile_file.exists():
+                    _has_yaml = profile_file.exists()
+
+                    # DB-auth users may not have YAML files — handle avatar-only updates via DB
+                    if not _has_yaml:
+                        pid = _get_profile_id(token)
+                        if pid:
+                            avatar_state = {}
+                            new_avatar = data.get("avatar", "").strip()[:3]
+                            avatar_image = data.get("avatar_image", "")
+                            if avatar_image and avatar_image.startswith("data:image/"):
+                                avatar_state["avatar_image"] = avatar_image
+                            if new_avatar:
+                                avatar_state["avatar"] = new_avatar
+                            if avatar_state:
+                                strat.db.save_ui_state(pid, avatar_state)
+                            _send_json(self, {
+                                "status": "updated",
+                                "changes": list(avatar_state.keys()),
+                                "profile": {"name": current_user, "avatar": new_avatar or "", "avatar_image": avatar_image or ""}
+                            })
+                            return
                         raise FileNotFoundError(f"Profile '{current_user}' not found")
 
                     with open(profile_file) as f:
