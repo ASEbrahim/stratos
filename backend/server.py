@@ -553,13 +553,8 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                 self.send_header("Content-type", "application/json")
                 self.send_header("Access-Control-Allow-Origin", "*")
                 self.end_headers()
-                # If user has no active profile, return blank config (prevent data bleed)
-                _cfg_profile = self._session_profile
-                cfg = strat.config if _cfg_profile else {
-                    "profile": {}, "market": {"tickers": []}, "news": {"timelimit": "w"},
-                    "search": strat.config.get("search", {}),  # keep search keys for API access
-                    "dynamic_categories": [], "scoring": strat.config.get("scoring", {}),
-                }
+                # Use profile-scoped config if available, otherwise fall back to main config
+                cfg = strat.config
                 editable_config = {
                     "profile": cfg.get("profile", {}),
                     "market": {
