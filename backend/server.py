@@ -8,6 +8,7 @@ Extracted from main.py:serve_frontend() (Sprint 4, A1.2).
 """
 
 import gzip as _gzip_mod
+import hashlib
 import json
 import logging
 import mimetypes
@@ -21,6 +22,7 @@ import requests
 import webbrowser
 from datetime import datetime
 from pathlib import Path
+from urllib.parse import urlparse, parse_qs
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 from socketserver import ThreadingMixIn
 
@@ -151,19 +153,17 @@ def create_handler(strat, auth, frontend_dir, output_dir):
             # Serve news_data.json from output directory (per-profile)
             if self.path == "/api/data" or self.path == "/news_data.json":
                 # Resolve profile-specific output file
-                _token = self.headers.get('X-Auth-Token', '')
-                _prof = auth.get_session_profile(_token) if _token else ''
+                _prof = self._session_profile
                 # No active profile → return empty data (prevent cross-user bleed)
                 if not _prof:
                     _send_json(self, {"articles": [], "market": {}, "briefing": {}, "discoveries": []})
                     return
-                output_path = strat._get_output_path(_prof) if _prof else (output_dir / "news_data.json")
+                output_path = strat._get_output_path(_prof)
                 if output_path.exists():
                     raw = output_path.read_bytes()
 
                     # ETag: skip sending if client already has this version
-                    import hashlib as _hl
-                    etag = '"' + _hl.md5(raw).hexdigest()[:16] + '"'
+                    etag = '"' + hashlib.md5(raw).hexdigest()[:16] + '"'
                     if self.headers.get('If-None-Match') == etag:
                         self.send_response(304)
                         self.end_headers()
@@ -177,8 +177,7 @@ def create_handler(strat, auth, frontend_dir, output_dir):
 
                     # Gzip if client supports it
                     if 'gzip' in self.headers.get('Accept-Encoding', '') and len(raw) > 1024:
-                        import gzip as _gz
-                        compressed = _gz.compress(raw)
+                        compressed = _gzip_mod.compress(raw)
                         self.send_header("Content-Encoding", "gzip")
                         self.send_header("Content-Length", str(len(compressed)))
                         self.end_headers()
@@ -233,8 +232,7 @@ def create_handler(strat, auth, frontend_dir, output_dir):
             # Serve scan status
             # Ticker presets — GET list
             if self.path == "/api/ticker-presets":
-                token = self.headers.get('X-Auth-Token', '')
-                user = auth.get_session_profile(token) or 'default'
+                user = self._session_profile or 'default'
                 presets_dir = os.path.join("profiles", user, "ticker_presets")
                 presets = []
                 if os.path.isdir(presets_dir):
@@ -269,8 +267,7 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                         pf = auth.profiles_dir() / f"{safe}.yaml"
                         if pf.exists():
                             try:
-                                import yaml as _yaml
-                                pd = _yaml.safe_load(pf.read_text()) or {}
+                                pd = yaml.safe_load(pf.read_text()) or {}
                                 ai = pd.get("profile", {}).get("avatar_image", "")
                                 if ai:
                                     status["avatar_image"] = ai
@@ -283,9 +280,8 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                             except Exception:
                                 pass
                     # DB fallback for avatar (DB-auth users have no YAML) + ui_state for theme sync
-                    pid = _get_profile_id(token)
-                    if pid:
-                        ui_state = strat.db.get_ui_state(pid)
+                    if _status_pid:
+                        ui_state = strat.db.get_ui_state(_status_pid)
                         if "avatar_image" not in status and ui_state.get("avatar_image"):
                             status["avatar_image"] = ui_state["avatar_image"]
                         if "avatar" not in status and ui_state.get("avatar"):
@@ -295,12 +291,7 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                 return
 
             if self.path == "/api/ui-state":
-                token = self.headers.get('X-Auth-Token', '')
-                pid = _get_profile_id(token)
-                if not pid:
-                    _send_json(self, {"error": "Not authenticated"}, 401)
-                    return
-                _send_json(self, strat.db.get_ui_state(pid))
+                _send_json(self, strat.db.get_ui_state(self._profile_id))
                 return
 
             # Detailed scan progress (for Stop Scan polling)
@@ -369,26 +360,25 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                 self.send_header("Content-type", "application/json")
                 self.send_header("Access-Control-Allow-Origin", "*")
                 self.end_headers()
-                log = strat.db.get_scan_log(50)
+                log = strat.db.get_scan_log(50, profile_id=self._profile_id)
                 self.wfile.write(json.dumps(log).encode())
                 return
 
             # ── Dashboard Export ──────────────────────────────────
             if self.path.startswith("/api/export"):
                 try:
-                    from urllib.parse import urlparse, parse_qs
                     query = parse_qs(urlparse(self.path).query)
                     fmt = query.get("format", ["json"])[0]
 
-                    # Load current dashboard data
-                    output_path = Path(output_dir) / "news_data.json"
+                    # Load current dashboard data (profile-specific)
+                    _export_path = strat._get_output_path(self._session_profile) if self._session_profile else (Path(output_dir) / "news_data.json")
                     dashboard = {}
-                    if output_path.exists():
-                        with open(output_path, "r") as f:
+                    if _export_path.exists():
+                        with open(_export_path, "r") as f:
                             dashboard = json.loads(f.read())
 
                     news_items = dashboard.get("news", [])
-                    scan_log = strat.db.get_scan_log(20)
+                    scan_log = strat.db.get_scan_log(20, profile_id=self._profile_id)
 
                     if fmt == "csv":
                         # Flat CSV of news signals
@@ -565,8 +555,7 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                 self.send_header("Access-Control-Allow-Origin", "*")
                 self.end_headers()
                 # If user has no active profile, return blank config (prevent data bleed)
-                _cfg_token = self.headers.get('X-Auth-Token', '')
-                _cfg_profile = auth.get_session_profile(_cfg_token) if _cfg_token else ''
+                _cfg_profile = self._session_profile
                 cfg = strat.config if _cfg_profile else {
                     "profile": {}, "market": {"tickers": []}, "news": {"timelimit": "w"},
                     "search": strat.config.get("search", {}),  # keep search keys for API access
@@ -611,9 +600,7 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                 self.send_header("Access-Control-Allow-Origin", "*")
                 self.end_headers()
 
-                # Get current user from session
-                token = self.headers.get('X-Auth-Token', '')
-                current_user = auth.get_session_profile(token)
+                current_user = self._session_profile
 
                 presets = []
                 if current_user:
@@ -701,7 +688,6 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                 return
 
             if clean_path == "/api/shadow-scores":
-                from urllib.parse import urlparse, parse_qs
                 query = parse_qs(urlparse(self.path).query)
                 try:
                     limit = int(query.get("limit", ["200"])[0])
@@ -839,24 +825,6 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                 self.send_header("Access-Control-Allow-Origin", "*")
                 self.end_headers()
                 self.wfile.write(b'{"status": "cancelling"}')
-                return
-
-            # --- UI state sync ---
-            if self.path == "/api/ui-state":
-                token = self.headers.get('X-Auth-Token', '')
-                pid = _get_profile_id(token)
-                if not pid:
-                    _send_json(self, {"error": "Not authenticated"}, 401)
-                    return
-                content_length = int(self.headers.get('Content-Length', 0))
-                post_data = self.rfile.read(content_length) if content_length else b'{}'
-                try:
-                    body = json.loads(post_data.decode('utf-8')) if post_data.strip() else {}
-                except (json.JSONDecodeError, UnicodeDecodeError):
-                    body = {}
-                if body:
-                    strat.db.save_ui_state(pid, body)
-                _send_json(self, {"ok": True})
                 return
 
             # --- New email-based auth routes (self-authenticating) ---
@@ -1065,6 +1033,19 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                 self.wfile.write(b'{"error": "Rate limit exceeded. Try again shortly."}')
                 return
 
+            # --- UI state sync (after auth enforcement) ---
+            if self.path == "/api/ui-state":
+                content_length = int(self.headers.get('Content-Length', 0))
+                post_data = self.rfile.read(content_length) if content_length else b'{}'
+                try:
+                    body = json.loads(post_data.decode('utf-8')) if post_data.strip() else {}
+                except (json.JSONDecodeError, UnicodeDecodeError):
+                    body = {}
+                if body and self._profile_id:
+                    strat.db.save_ui_state(self._profile_id, body)
+                _send_json(self, {"ok": True})
+                return
+
             # Save config
             if self.path == "/api/config":
                 handle_config_save(self, strat, auth.auth_helpers_dict())
@@ -1157,8 +1138,7 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                     if not name:
                         raise ValueError("Preset name is required")
 
-                    token = self.headers.get('X-Auth-Token', '')
-                    user = auth.get_session_profile(token) or 'default'
+                    user = self._session_profile or 'default'
                     presets_dir = os.path.join("profiles", user, "ticker_presets")
                     os.makedirs(presets_dir, exist_ok=True)
 
@@ -1211,11 +1191,20 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                     if action not in ("click", "dismiss", "rate", "save", "thumbs_up", "thumbs_down"):
                         raise ValueError(f"Unknown feedback action: {action}")
 
-                    # Inject active profile so training data preserves context
-                    profile = strat.config.get("profile", {})
-                    data["profile_role"] = profile.get("role", "")
-                    data["profile_location"] = profile.get("location", "")
-                    data["profile_context"] = profile.get("context", "")[:500]
+                    # Inject active profile so training data preserves context (per-request, not shared config)
+                    _fb_profile = {}
+                    if self._session_profile:
+                        try:
+                            _fb_path = auth.profiles_dir() / f"{auth.safe_name(self._session_profile)}.yaml"
+                            if _fb_path.exists():
+                                _fb_profile = yaml.safe_load(_fb_path.read_text()).get("profile", {})
+                        except Exception:
+                            pass
+                    if not _fb_profile:
+                        _fb_profile = strat.config.get("profile", {})
+                    data["profile_role"] = _fb_profile.get("role", "")
+                    data["profile_location"] = _fb_profile.get("location", "")
+                    data["profile_context"] = _fb_profile.get("context", "")[:500]
 
                     strat.db.save_feedback(data, profile_id=self._profile_id)
 
@@ -1280,8 +1269,7 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                 post_data = self.rfile.read(content_length)
                 try:
                     data = json.loads(post_data.decode('utf-8'))
-                    token = self.headers.get('X-Auth-Token', '')
-                    current_user = auth.get_session_profile(token)
+                    current_user = self._session_profile
                     if not current_user:
                         raise ValueError("Not authenticated")
 
@@ -1291,8 +1279,7 @@ def create_handler(strat, auth, frontend_dir, output_dir):
 
                     # DB-auth users may not have YAML files — handle avatar-only updates via DB
                     if not _has_yaml:
-                        pid = _get_profile_id(token)
-                        if pid:
+                        if self._profile_id:
                             avatar_state = {}
                             new_avatar = data.get("avatar", "").strip()[:3]
                             avatar_image = data.get("avatar_image", "")
@@ -1301,7 +1288,7 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                             if new_avatar:
                                 avatar_state["avatar"] = new_avatar
                             if avatar_state:
-                                strat.db.save_ui_state(pid, avatar_state)
+                                strat.db.save_ui_state(self._profile_id, avatar_state)
                             _send_json(self, {
                                 "status": "updated",
                                 "changes": list(avatar_state.keys()),
@@ -1373,15 +1360,14 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                         yaml.dump(profile_data, f, default_flow_style=False, sort_keys=False)
 
                     # Persist avatar to DB ui_state for cross-device sync
-                    pid = _get_profile_id(token)
-                    if pid:
+                    if self._profile_id:
                         avatar_state = {}
                         if avatar_image and avatar_image.startswith("data:image/"):
                             avatar_state["avatar_image"] = avatar_image
                         if new_avatar:
                             avatar_state["avatar"] = new_avatar
                         if avatar_state:
-                            strat.db.save_ui_state(pid, avatar_state)
+                            strat.db.save_ui_state(self._profile_id, avatar_state)
 
                     # Also update live config if name/role/location changed
                     if any(c in changes for c in ("name", "role", "location", "avatar")):
@@ -1421,9 +1407,7 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                     action = data.get("action", "")
                     name = data.get("name", "").strip()
 
-                    # Get current user from session for scoping
-                    token = self.headers.get('X-Auth-Token', '')
-                    current_user = auth.get_session_profile(token)
+                    current_user = self._session_profile
                     if not current_user:
                         raise ValueError("Not authenticated")
 
