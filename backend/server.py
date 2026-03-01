@@ -154,11 +154,10 @@ def create_handler(strat, auth, frontend_dir, output_dir):
             if self.path == "/api/data" or self.path == "/news_data.json":
                 # Resolve profile-specific output file
                 _prof = self._session_profile
-                # No active profile → return empty data (prevent cross-user bleed)
-                if not _prof:
-                    _send_json(self, {"articles": [], "market": {}, "briefing": {}, "discoveries": []})
-                    return
-                output_path = strat._get_output_path(_prof)
+                output_path = strat._get_output_path(_prof) if _prof else strat._output_base
+                # If profile-specific file doesn't exist, try default
+                if _prof and not output_path.exists():
+                    output_path = strat._output_base
                 if output_path.exists():
                     raw = output_path.read_bytes()
 
