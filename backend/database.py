@@ -648,6 +648,37 @@ class Database:
         self._commit()
         logger.info(f"Cleaned up data older than {days} days")
     
+    def get_ui_state(self, profile_id: int) -> dict:
+        """Return parsed ui_state dict for a profile, or {} if missing/invalid."""
+        try:
+            cursor = self.conn.cursor()
+            cursor.execute("SELECT ui_state FROM profiles WHERE id = ?", (profile_id,))
+            row = cursor.fetchone()
+            if row and row[0]:
+                return json.loads(row[0])
+        except (json.JSONDecodeError, Exception) as e:
+            logger.warning(f"Failed to read ui_state for profile {profile_id}: {e}")
+        return {}
+
+    def save_ui_state(self, profile_id: int, partial_state: dict):
+        """Atomic merge-update: reads existing ui_state, merges new keys, writes back."""
+        try:
+            with self.conn:
+                cursor = self.conn.cursor()
+                cursor.execute("SELECT ui_state FROM profiles WHERE id = ?", (profile_id,))
+                row = cursor.fetchone()
+                existing = {}
+                if row and row[0]:
+                    try:
+                        existing = json.loads(row[0])
+                    except json.JSONDecodeError:
+                        pass
+                existing.update(partial_state)
+                cursor.execute("UPDATE profiles SET ui_state = ? WHERE id = ?",
+                               (json.dumps(existing), profile_id))
+        except Exception as e:
+            logger.error(f"Failed to save ui_state for profile {profile_id}: {e}")
+
     def close(self):
         """Close database connection."""
         if self.conn:
