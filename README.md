@@ -121,7 +121,7 @@ chmod +x start.sh && ./start.sh
 cd backend && python main.py --serve
 ```
 
-Open `http://localhost:8080` — create a profile and PIN on first visit.
+Open `http://localhost:8080` — register with email + password on first visit (or PIN auth for legacy profiles).
 
 ### Install as App (PWA)
 
@@ -222,7 +222,10 @@ StratOS/
 │   ├── server.py                  # Route dispatch, CORSHandler
 │   ├── database.py                # SQLite — dedup, history, feedback
 │   ├── auth.py                    # Session management, PIN auth, rate limiting
+│   ├── email_service.py           # SMTP delivery, verification/reset emails
+│   ├── user_data.py               # Per-user data directories (JSONL exports)
 │   ├── sse.py                     # Server-Sent Events broadcasting
+│   ├── migrations.py              # DB schema migrations (version 9)
 │   ├── config.yaml                # Global configuration
 │   ├── distill.py                 # Claude Opus distillation pipeline
 │   ├── export_training.py         # Corrections → LoRA training data
@@ -248,12 +251,14 @@ StratOS/
 │   │   └── profile_generator.py   # AI category generation pipeline
 │   ├── routes/
 │   │   ├── agent.py               # Strat Agent chat with tool-use
+│   │   ├── auth.py                # DB-auth routes (register, verify, login, profiles)
 │   │   ├── config.py              # Settings save API
 │   │   ├── generate.py            # Profile/category generation
 │   │   ├── wizard.py              # Onboarding wizard API
 │   │   └── helpers.py             # JSON response, LLM output cleaning
 │   ├── data/v2_pipeline/          # V2 large-scale training pipeline
-│   └── profiles/                  # Per-user YAML configs
+│   ├── data/users/{id}/           # Per-user JSONL exports
+│   └── profiles/                  # Legacy per-user YAML configs
 ├── frontend/
 │   ├── index.html                 # Single-page application shell (~1,329 lines)
 │   ├── app.js                     # Core: data loading, SSE, scan control (~1,956 lines)
@@ -268,7 +273,8 @@ StratOS/
 │   ├── mobile.js                  # Mobile gestures, bottom nav, PWA install (~2,154 lines)
 │   ├── theme-editor.js            # Live theme customization per-variable
 │   ├── scan-history.js            # Scan log viewer
-│   ├── ui.js                      # 8 themes, dark mode, stars, parallax, toasts (445 lines)
+│   ├── tour.js                     # Welcome tour + feature exploration (tooltips, modals)
+│   ├── ui.js                      # 8 themes, dark/brighter modes, stars, parallax, cross-device sync
 │   ├── sw.js                      # Service worker (offline + caching)
 │   ├── styles.css                 # 8 themes × 2 modes + stars + mobile (~1,666 lines)
 │   ├── tailwind-built.css         # Pre-compiled Tailwind (37KB)
@@ -307,7 +313,7 @@ Hover effects on all buttons, navigation items, cards, and dropdowns across ever
 Context-aware AI chat with ticker commands (`$NVDA`, `$BTC`), full portfolio context, conversation export/import, and streaming responses via Ollama. Tools: web search, watchlist management, category management. Dedicated full-screen agent view on mobile.
 
 ### Profile System
-AI-generated interest categories, per-profile watchlists and RSS feeds, device-isolated sessions with PIN auth (SHA-256), and theme customization with 8 built-in themes + dark mode toggle.
+AI-generated interest categories, per-profile watchlists and RSS feeds, device-isolated sessions with PIN auth (SHA-256), and theme customization with 8 built-in themes + dark mode toggle. Cross-device sync for theme, mode, stars, and avatar via DB-backed `ui_state`.
 
 ### Stop Scan
 Graceful cancellation of in-progress scans with streaming Ollama check. Partial results are preserved -- you keep everything scored before the cancel hit.
@@ -316,7 +322,7 @@ Graceful cancellation of in-progress scans with streaming Ollama check. Partial 
 4-step AI-guided profile setup with Quick/Deep modes. Walks new users through role, location, interests, and market watchlist. Generates tailored categories and keywords via the inference model.
 
 ### Multi-Profile Authentication
-Device-scoped login with PIN authentication (SHA-256 hashed). Each profile gets its own categories, watchlists, feeds, and theme -- fully isolated.
+Email-based registration with verification codes, bcrypt password hashing, and 7-day sliding sessions. Per-request profile isolation ensures concurrent users never see each other's data — even during long-running agent chat or scan operations. Legacy PIN auth still supported for YAML profiles.
 
 ### Mobile Experience
 Full mobile-native experience with:
@@ -332,7 +338,7 @@ Full mobile-native experience with:
 - **PWA installable:** Add to home screen for native app feel with offline support
 
 ### Theme System
-8 color themes: Midnight (default), Noir, Coffee, Rose, Cosmos, Nebula, Aurora, Sakura. Each has 20+ CSS custom properties in both normal and dark ("Deeper") variants (16 total). Twinkling star animations with scroll parallax, Sakura petal particles, collapsible theme picker, and a live theme editor for per-variable customization. Extra Large font size option (20px) that scales everything including icons.
+8 color themes: Midnight (default), Noir, Coffee, Rose, Cosmos, Nebula, Aurora, Sakura. Each has 20+ CSS custom properties in Normal, Deeper, and Brighter modes (24 variants). Twinkling star animations with scroll parallax, Sakura petal particles, collapsible theme picker, and a live theme editor for per-variable customization. Extra Large font size option (20px) that scales everything including icons. Theme, mode, and star preferences sync across devices automatically.
 
 ### Scan History
 Audit trail of all fetch operations with per-scan breakdowns: sources hit, items scored, duration, and error counts. Accessible from the dashboard sidebar.
@@ -396,9 +402,9 @@ ROCR_VISIBLE_DEVICES=0        # Prevent iGPU interference
 
 ## Known Issues
 
-- **Context contamination** — Wizard may inject legacy keywords regardless of role
 - **Model swap latency** — 5-15s delay switching between scorer and inference on single GPU
-- **V3 Scorer training is in progress** (24,479 samples)
+- **kuniv over-scoring** — Articles mentioning "Kuwait" score high regardless of topical relevance (scorer training issue)
+- **Shared config mutation** — `strat.config` is a global mutable swapped by `ensure_profile()`. Agent tool functions that read it are fast (low race window) but not fully isolated.
 
 ---
 
@@ -434,16 +440,21 @@ ROCR_VISIBLE_DEVICES=0        # Prevent iGPU interference
 - [x] Sidebar narrow collapse (themes/profile hide when sidebar dragged < 200px)
 - [x] Extra Large font size (20px) with proportional icon scaling
 
+- [x] Email-based authentication with verification codes and password reset
+- [x] Multi-user support with per-request profile isolation
+- [x] Cross-device theme/avatar sync via DB-backed ui_state
+- [x] Per-user data directories with JSONL exports
+- [x] Guided Tours panel in Settings for mobile tour access
+- [x] Deferred non-blocking briefing (background thread, SSE notification)
+- [x] Incremental scanning with snapshot score reuse
+- [x] Profile-scoped article retention via context hash
+
 #### In Progress
-- [ ] Chart drawing tools expansion (19 tools, Binance-style)
-- [ ] Mobile focus mode toolbar (two-tier: hotbar + full panel)
 - [ ] Feed density implementation
 - [ ] Chart initial zoom optimization
 
 #### Planned -- Online-Enabled Features
-- [ ] **Email-based authentication** -- Replace PIN auth with email + password, forgot password flow via SMTP (Gmail/Resend/SendGrid)
-- [ ] **Cross-device profile sync** -- Avatar, categories, keywords, ticker presets, drawings, and theme all stored server-side
-- [ ] **Multi-user support** -- Multiple email accounts on the same instance, each with their own profile
+- [ ] **Cross-device full profile sync** -- Categories, keywords, ticker presets, drawings stored server-side (theme/avatar already synced)
 - [ ] **Email notifications** -- Critical alerts (9.0+) sent immediately, daily/weekly digest emails
 - [ ] **Cloud backup** -- Optional encrypted backup to Google Drive or S3
 
@@ -466,6 +477,9 @@ ROCR_VISIBLE_DEVICES=0        # Prevent iGPU interference
 | Mobile Gestures + UI | Feb 25, 2026 | Fullscreen charts, profile settings, DDG fallback, multi-chart mobile layout |
 | Chart Tools + Interactivity | Feb 26, 2026 | 20 chart drawing tools, tooltips with keyboard shortcuts, two-tier mobile toolbar, button fixes, site-wide interactivity, account email |
 | Theme Overhaul + Settings | Feb 26, 2026 | 8 themes with dark mode + stars, settings 4-tab layout, ticker presets, focus mode button, header alignment, sidebar narrow collapse |
+| Pipeline + Retention | Feb 26-27, 2026 | Incremental scanning, deferred briefing, profile-scoped retention, model routing, 16-profile diagnostic |
+| Auth Pipeline | Feb 28, 2026 | Email verification, SMTP, per-user data directories, profile data isolation, config overlay DB sync |
+| UI Sync + Profile Isolation | Mar 1, 2026 | Cross-device theme/avatar sync, guided tours panel, per-request profile_id isolation, avatar persist for DB-auth users |
 
 ---
 
