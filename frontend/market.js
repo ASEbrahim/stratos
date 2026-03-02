@@ -88,9 +88,9 @@ function initChart(forceRecreate) {
             horzLine:{color:'rgba(148,163,184,0.3)',width:1,style:LightweightCharts.LineStyle.Dashed,labelBackgroundColor:'#1e293b'},
         },
         rightPriceScale: { borderColor:border, scaleMargins:{top:0.1,bottom:0.1} },
-        timeScale: { borderColor:border, timeVisible:true, secondsVisible:false, rightOffset:5, minBarSpacing:3, fixRightEdge:true, fixLeftEdge:true },
+        timeScale: { borderColor:border, timeVisible:true, secondsVisible:false, rightOffset:5, minBarSpacing:3 },
         handleScroll:{mouseWheel:false,pressedMouseMove:true,horzTouchDrag:true,vertTouchDrag:false},
-        handleScale:{axisPressedMouseMove:false,mouseWheel:false,pinch:true},
+        handleScale:{axisPressedMouseMove:false,mouseWheel:false,pinch:false},
     });
 
     _createSeries();
