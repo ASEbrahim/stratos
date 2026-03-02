@@ -1002,6 +1002,8 @@ const WIZ_CSS = `
 .wiz-scope .done-t { font-size:26px;font-weight:700;margin-bottom:10px;background:linear-gradient(135deg,var(--text-primary),var(--accent-light));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text; }
 .wiz-scope .done-s { font-size:15px;color:var(--text-dim);margin-bottom:32px;max-width:400px;line-height:1.6; }
 .wiz-scope .done-c.err { background:linear-gradient(135deg,#ef4444,#f87171); box-shadow:0 0 40px rgba(239,68,68,.2); }
+.wiz-scope .done-c.err ~ .done-t { background:linear-gradient(135deg,#fca5a5,#f87171);-webkit-background-clip:text;background-clip:text; }
+.wiz-scope .done-c.err ~ .done-s { color:var(--text-secondary); }
 
 /* === View All toggle (Issue 4) === */
 .wiz-scope .va-tog { background:none;border:none;color:var(--text-muted);font-size:12px;cursor:pointer;padding:4px 8px;font-family:inherit;transition:color .2s var(--ease); }
@@ -1965,7 +1967,7 @@ async function callGenerateProfile(role, location, context, deep = false) {
     const resp = await fetch('/api/generate-profile', {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
-      signal: AbortSignal.timeout(60000),
+      signal: AbortSignal.timeout(180000),
       body: JSON.stringify({role, location, context, deep})
     });
     clearInterval(progressTimer);

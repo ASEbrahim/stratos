@@ -1399,7 +1399,7 @@ async function generateFromRole() {
         const resp = await fetch('/api/generate-profile', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            signal: AbortSignal.timeout(60000),
+            signal: AbortSignal.timeout(180000),
             body: JSON.stringify({ role, location, context: document.getElementById('simple-context')?.value?.trim() || '' })
         });
         if (!resp.ok) throw new Error('HTTP ' + resp.status);
