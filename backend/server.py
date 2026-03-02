@@ -228,7 +228,6 @@ def create_handler(strat, auth, frontend_dir, output_dir):
 
             # Single-ticker live update (for fullscreen chart auto-refresh)
             if self.path.startswith("/api/market-tick"):
-                from urllib.parse import urlparse, parse_qs
                 qs = parse_qs(urlparse(self.path).query)
                 symbol = qs.get("symbol", [""])[0]
                 interval = qs.get("interval", ["1m"])[0]
