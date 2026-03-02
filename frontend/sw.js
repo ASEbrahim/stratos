@@ -1,5 +1,5 @@
 // STRAT_OS Service Worker — network-first with offline shell caching
-const CACHE_NAME = 'stratos-v6';
+const CACHE_NAME = 'stratos-v7';
 
 // App shell — pre-cache these for instant offline loading
 const SHELL_ASSETS = [

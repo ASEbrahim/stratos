@@ -1717,7 +1717,7 @@ async function loadNewData(skipToast) {
         renderMarketOverview();
         _refreshAllCompareCharts();
         
-        if (Object.keys(marketData).length > 0) {
+        if (Object.keys(marketData).length > 0 && !window._fs) {
             const sym = currentSymbol || Object.keys(marketData)[0];
             updateChart(sym);
         }

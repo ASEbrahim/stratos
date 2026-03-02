@@ -755,6 +755,7 @@ function _openFullscreenChartInner(sourceEl, title) {
         dragStart: null,    /* {timeIdx, price} at drag start */
         hoverIdx: -1,       /* Index of drawing under cursor (for delete key) */
     };
+    window._fs = _fs;
 
     /* ── Backdrop ── */
     var bg = document.createElement('div');
@@ -2828,6 +2829,7 @@ function _openFullscreenChartInner(sourceEl, title) {
 
     /* ── Close handler ── */
     function _fsClose() {
+        var closingSym = _fs ? _fs.symbol : null;
         _fsStopLive();
         if (_fs.crosshairSub) { try { fsChart.unsubscribeCrosshairMove(_fs.crosshairSub); } catch(e){} }
         fsRO.disconnect();
@@ -2843,7 +2845,10 @@ function _openFullscreenChartInner(sourceEl, title) {
         bg.remove();
         window.removeEventListener('popstate', onPop);
         document.removeEventListener('keydown', onEsc);
+        window._fs = null;
         _fs = null;
+        /* Sync main chart with latest data from focus mode */
+        if (closingSym && typeof updateChart === 'function') updateChart(closingSym);
     }
 
     header.querySelector('.cfs-close-btn').addEventListener('click', _fsClose);

@@ -301,6 +301,221 @@ function _redrawOverlay() {
             ctx.beginPath(); ctx.arc(pt.x,pt.y,3.5,0,Math.PI*2); ctx.fillStyle=ln.color; ctx.fill();
         });
     }
+
+    _renderFocusDrawings(ctx, canvas.width, canvas.height);
+}
+
+// Render focus mode drawings (from localStorage) on the main chart overlay
+function _renderFocusDrawings(ctx, w, h) {
+    if (!_tvChart || !_tvSeries || !currentSymbol) return;
+    var raw;
+    try { raw = localStorage.getItem('stratos_drawings_' + currentSymbol); } catch(e) { return; }
+    if (!raw) return;
+    var drawings;
+    try { drawings = JSON.parse(raw); } catch(e) { return; }
+    if (!drawings || !drawings.length) return;
+
+    var ts = _tvChart.timeScale();
+    var chartW = ts.width();
+    if (chartW <= 0 || chartW > w) chartW = w;
+
+    // Clip to plot area (excludes price scale)
+    ctx.save();
+    ctx.beginPath(); ctx.rect(0, 0, chartW, h); ctx.clip();
+
+    var fmtP = typeof _fsFmtPrice === 'function' ? _fsFmtPrice : function(v) {
+        if (v == null) return '--';
+        if (Math.abs(v) >= 100) return v.toFixed(2);
+        if (Math.abs(v) >= 1) return v.toFixed(4);
+        return v.toFixed(6);
+    };
+
+    drawings.forEach(function(d) {
+        if (d.type === 'hline') {
+            var y = _tvSeries.priceToCoordinate(d.price);
+            if (y == null) return;
+            ctx.strokeStyle = '#F0B90B'; ctx.lineWidth = 1;
+            ctx.setLineDash([5, 3]);
+            ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(chartW, y); ctx.stroke();
+            ctx.setLineDash([]);
+            ctx.fillStyle = '#F0B90B'; ctx.font = '10px monospace';
+            ctx.fillText(fmtP(d.price), 4, y - 4);
+
+        } else if (d.type === 'hray') {
+            var y = _tvSeries.priceToCoordinate(d.price);
+            var sx = ts.logicalToCoordinate(d.startIdx);
+            if (y == null || sx == null) return;
+            ctx.strokeStyle = '#F0B90B'; ctx.lineWidth = 1;
+            ctx.setLineDash([5, 3]);
+            ctx.beginPath(); ctx.moveTo(sx, y); ctx.lineTo(chartW, y); ctx.stroke();
+            ctx.setLineDash([]);
+            ctx.fillStyle = '#F0B90B'; ctx.font = '10px monospace';
+            ctx.fillText(fmtP(d.price), sx + 4, y - 4);
+
+        } else if (d.type === 'vline') {
+            var x = ts.logicalToCoordinate(d.timeIdx);
+            if (x == null) return;
+            ctx.strokeStyle = '#F0B90B'; ctx.lineWidth = 1;
+            ctx.setLineDash([5, 3]);
+            ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke();
+            ctx.setLineDash([]);
+
+        } else if (d.type === 'text') {
+            var x = ts.logicalToCoordinate(d.timeIdx);
+            var y = _tvSeries.priceToCoordinate(d.price);
+            if (x == null || y == null) return;
+            ctx.fillStyle = '#eaecef'; ctx.font = '12px sans-serif';
+            ctx.fillText(d.text, x, y);
+
+        } else if (d.type === 'trend') {
+            var sx = ts.logicalToCoordinate(d.startIdx), sy = _tvSeries.priceToCoordinate(d.startPrice);
+            var ex = ts.logicalToCoordinate(d.endIdx), ey = _tvSeries.priceToCoordinate(d.endPrice);
+            if (sx == null || sy == null || ex == null || ey == null) return;
+            ctx.strokeStyle = '#2196F3'; ctx.lineWidth = 1.5; ctx.setLineDash([]);
+            ctx.beginPath(); ctx.moveTo(sx, sy); ctx.lineTo(ex, ey); ctx.stroke();
+
+        } else if (d.type === 'ray') {
+            var sx = ts.logicalToCoordinate(d.startIdx), sy = _tvSeries.priceToCoordinate(d.startPrice);
+            var ex = ts.logicalToCoordinate(d.endIdx), ey = _tvSeries.priceToCoordinate(d.endPrice);
+            if (sx == null || sy == null || ex == null || ey == null) return;
+            ctx.strokeStyle = '#2196F3'; ctx.lineWidth = 1.5; ctx.setLineDash([]);
+            var dx = ex - sx, dy = ey - sy, len = Math.sqrt(dx*dx + dy*dy);
+            if (len > 0) {
+                var ext = Math.max(w, h) * 3 / len;
+                ctx.beginPath(); ctx.moveTo(sx, sy); ctx.lineTo(sx + dx*ext, sy + dy*ext); ctx.stroke();
+            }
+
+        } else if (d.type === 'fib') {
+            var sx = ts.logicalToCoordinate(d.startIdx), sy = _tvSeries.priceToCoordinate(d.startPrice);
+            var ex = ts.logicalToCoordinate(d.endIdx), ey = _tvSeries.priceToCoordinate(d.endPrice);
+            if (sx == null || sy == null || ex == null || ey == null) return;
+            var fibLevels = [0, 0.236, 0.382, 0.5, 0.618, 0.786, 1];
+            var fibColors = ['#787B86','#F6C343','#4CAF50','#2196F3','#9C27B0','#E91E63','#787B86'];
+            var range = d.endPrice - d.startPrice;
+            fibLevels.forEach(function(lvl, idx) {
+                var price = d.startPrice + range * lvl;
+                var y = _tvSeries.priceToCoordinate(price);
+                if (y == null) return;
+                ctx.strokeStyle = fibColors[idx] || '#787B86'; ctx.lineWidth = 1;
+                ctx.setLineDash(lvl === 0 || lvl === 1 ? [] : [4, 2]);
+                ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(chartW, y); ctx.stroke();
+                ctx.setLineDash([]);
+                ctx.fillStyle = fibColors[idx] || '#787B86'; ctx.font = '9px monospace';
+                ctx.fillText((lvl * 100).toFixed(1) + '% ' + fmtP(price), 4, y - 3);
+            });
+            var yTop = _tvSeries.priceToCoordinate(Math.max(d.startPrice, d.endPrice));
+            var yBot = _tvSeries.priceToCoordinate(Math.min(d.startPrice, d.endPrice));
+            if (yTop != null && yBot != null) {
+                ctx.fillStyle = 'rgba(33,150,243,0.05)';
+                ctx.fillRect(Math.min(sx, ex), yTop, Math.abs(ex - sx), yBot - yTop);
+            }
+
+        } else if (d.type === 'rect') {
+            var sx = ts.logicalToCoordinate(d.startIdx), sy = _tvSeries.priceToCoordinate(d.startPrice);
+            var ex = ts.logicalToCoordinate(d.endIdx), ey = _tvSeries.priceToCoordinate(d.endPrice);
+            if (sx == null || sy == null || ex == null || ey == null) return;
+            ctx.strokeStyle = '#F0B90B'; ctx.lineWidth = 1; ctx.setLineDash([]);
+            ctx.fillStyle = 'rgba(240,185,11,0.08)';
+            ctx.fillRect(sx, sy, ex - sx, ey - sy);
+            ctx.strokeRect(sx, sy, ex - sx, ey - sy);
+
+        } else if (d.type === 'channel') {
+            var sx = ts.logicalToCoordinate(d.startIdx), sy = _tvSeries.priceToCoordinate(d.startPrice);
+            var ex = ts.logicalToCoordinate(d.endIdx), ey = _tvSeries.priceToCoordinate(d.endPrice);
+            if (sx == null || sy == null || ex == null || ey == null) return;
+            var offPriceY = _tvSeries.priceToCoordinate(d.endPrice + d.offset);
+            var offsetPx = (offPriceY != null) ? (offPriceY - ey) : 0;
+            ctx.strokeStyle = '#2196F3'; ctx.lineWidth = 1.5; ctx.setLineDash([]);
+            ctx.beginPath(); ctx.moveTo(sx, sy); ctx.lineTo(ex, ey); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(sx, sy + offsetPx); ctx.lineTo(ex, ey + offsetPx); ctx.stroke();
+            ctx.fillStyle = 'rgba(33,150,243,0.06)';
+            ctx.beginPath();
+            ctx.moveTo(sx, sy); ctx.lineTo(ex, ey);
+            ctx.lineTo(ex, ey + offsetPx); ctx.lineTo(sx, sy + offsetPx);
+            ctx.closePath(); ctx.fill();
+
+        } else if (d.type === 'longpos') {
+            var sx = ts.logicalToCoordinate(d.startIdx), sy = _tvSeries.priceToCoordinate(d.startPrice);
+            var ex = ts.logicalToCoordinate(d.endIdx), ey = _tvSeries.priceToCoordinate(d.endPrice);
+            if (sx == null || sy == null || ex == null || ey == null) return;
+            var entryY = sy, tpY = ey;
+            var slY = entryY + (entryY - tpY);
+            var slPrice = d.startPrice - (d.endPrice - d.startPrice);
+            var boxL = Math.min(sx, ex), boxR = Math.max(sx, ex);
+            if (boxR - boxL < 60) { boxL = 0; boxR = chartW; }
+            ctx.fillStyle = 'rgba(14,203,129,0.1)';
+            ctx.fillRect(boxL, Math.min(entryY, tpY), boxR - boxL, Math.abs(tpY - entryY));
+            ctx.fillStyle = 'rgba(246,70,93,0.1)';
+            ctx.fillRect(boxL, entryY, boxR - boxL, Math.abs(slY - entryY));
+            ctx.lineWidth = 1; ctx.setLineDash([]);
+            ctx.strokeStyle = '#888';
+            ctx.beginPath(); ctx.moveTo(boxL, entryY); ctx.lineTo(boxR, entryY); ctx.stroke();
+            ctx.strokeStyle = '#0ECB81';
+            ctx.beginPath(); ctx.moveTo(boxL, tpY); ctx.lineTo(boxR, tpY); ctx.stroke();
+            ctx.strokeStyle = '#F6465D';
+            ctx.beginPath(); ctx.moveTo(boxL, slY); ctx.lineTo(boxR, slY); ctx.stroke();
+            ctx.font = '10px monospace';
+            ctx.fillStyle = '#888';
+            ctx.fillText('Entry ' + fmtP(d.startPrice), boxL + 4, entryY - 4);
+            ctx.fillStyle = '#0ECB81';
+            var tpPct = d.startPrice ? Math.abs(((d.endPrice - d.startPrice) / d.startPrice) * 100) : 0;
+            ctx.fillText('TP ' + fmtP(d.endPrice) + ' (+' + tpPct.toFixed(2) + '%)', boxL + 4, tpY - 4);
+            ctx.fillStyle = '#F6465D';
+            var slPct = d.startPrice ? Math.abs(((slPrice - d.startPrice) / d.startPrice) * 100) : 0;
+            ctx.fillText('SL ' + fmtP(slPrice) + ' (-' + slPct.toFixed(2) + '%)', boxL + 4, slY + 14);
+            var rr = Math.abs(d.endPrice - d.startPrice) / Math.max(0.0001, Math.abs(d.startPrice - slPrice));
+            ctx.fillStyle = '#ddd';
+            ctx.fillText('R/R 1:' + rr.toFixed(1), boxL + 4, entryY + 14);
+
+        } else if (d.type === 'shortpos') {
+            var sx = ts.logicalToCoordinate(d.startIdx), sy = _tvSeries.priceToCoordinate(d.startPrice);
+            var ex = ts.logicalToCoordinate(d.endIdx), ey = _tvSeries.priceToCoordinate(d.endPrice);
+            if (sx == null || sy == null || ex == null || ey == null) return;
+            var entryY = sy, tpY = ey;
+            var slY = entryY - (tpY - entryY);
+            var slPrice = d.startPrice + (d.startPrice - d.endPrice);
+            var boxL = Math.min(sx, ex), boxR = Math.max(sx, ex);
+            if (boxR - boxL < 60) { boxL = 0; boxR = chartW; }
+            ctx.fillStyle = 'rgba(14,203,129,0.1)';
+            ctx.fillRect(boxL, Math.min(entryY, tpY), boxR - boxL, Math.abs(tpY - entryY));
+            ctx.fillStyle = 'rgba(246,70,93,0.1)';
+            ctx.fillRect(boxL, Math.min(entryY, slY), boxR - boxL, Math.abs(slY - entryY));
+            ctx.lineWidth = 1; ctx.setLineDash([]);
+            ctx.strokeStyle = '#888';
+            ctx.beginPath(); ctx.moveTo(boxL, entryY); ctx.lineTo(boxR, entryY); ctx.stroke();
+            ctx.strokeStyle = '#0ECB81';
+            ctx.beginPath(); ctx.moveTo(boxL, tpY); ctx.lineTo(boxR, tpY); ctx.stroke();
+            ctx.strokeStyle = '#F6465D';
+            ctx.beginPath(); ctx.moveTo(boxL, slY); ctx.lineTo(boxR, slY); ctx.stroke();
+            ctx.font = '10px monospace';
+            ctx.fillStyle = '#888';
+            ctx.fillText('Entry ' + fmtP(d.startPrice), boxL + 4, entryY - 4);
+            ctx.fillStyle = '#0ECB81';
+            var tpPct = d.startPrice ? Math.abs(((d.startPrice - d.endPrice) / d.startPrice) * 100) : 0;
+            ctx.fillText('TP ' + fmtP(d.endPrice) + ' (+' + tpPct.toFixed(2) + '%)', boxL + 4, tpY + 14);
+            ctx.fillStyle = '#F6465D';
+            var slPct = d.startPrice ? Math.abs(((slPrice - d.startPrice) / d.startPrice) * 100) : 0;
+            ctx.fillText('SL ' + fmtP(slPrice) + ' (-' + slPct.toFixed(2) + '%)', boxL + 4, slY - 4);
+            var rr = Math.abs(d.startPrice - d.endPrice) / Math.max(0.0001, Math.abs(slPrice - d.startPrice));
+            ctx.fillStyle = '#ddd';
+            ctx.fillText('R/R 1:' + rr.toFixed(1), boxL + 4, entryY + 14);
+
+        } else if (d.type === 'measure') {
+            var sx = ts.logicalToCoordinate(d.startIdx), sy = _tvSeries.priceToCoordinate(d.startPrice);
+            var ex = ts.logicalToCoordinate(d.endIdx), ey = _tvSeries.priceToCoordinate(d.endPrice);
+            if (sx == null || sy == null || ex == null || ey == null) return;
+            ctx.strokeStyle = '#aaa'; ctx.lineWidth = 1;
+            ctx.setLineDash([3, 3]);
+            ctx.beginPath(); ctx.moveTo(sx, sy); ctx.lineTo(ex, ey); ctx.stroke();
+            ctx.setLineDash([]);
+            var pDiff = d.endPrice - d.startPrice;
+            var pPct = d.startPrice ? ((pDiff / d.startPrice) * 100) : 0;
+            ctx.fillStyle = '#ddd'; ctx.font = '10px monospace';
+            ctx.fillText(fmtP(pDiff) + ' (' + pPct.toFixed(2) + '%)', (sx+ex)/2 + 4, (sy+ey)/2 - 6);
+        }
+    });
+
+    ctx.restore();
 }
 
 // ═══════════════════════════════════════════════════════════
