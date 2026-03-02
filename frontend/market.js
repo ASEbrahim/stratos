@@ -89,8 +89,8 @@ function initChart(forceRecreate) {
         },
         rightPriceScale: { borderColor:border, scaleMargins:{top:0.1,bottom:0.1} },
         timeScale: { borderColor:border, timeVisible:true, secondsVisible:false, rightOffset:5, minBarSpacing:3 },
-        handleScroll:{mouseWheel:true,pressedMouseMove:true,horzTouchDrag:true,vertTouchDrag:false},
-        handleScale:{axisPressedMouseMove:true,mouseWheel:true,pinch:true},
+        handleScroll:{mouseWheel:false,pressedMouseMove:true,horzTouchDrag:true,vertTouchDrag:false},
+        handleScale:{axisPressedMouseMove:true,mouseWheel:false,pinch:true},
     });
 
     _createSeries();
@@ -344,15 +344,19 @@ function _computeAutoTrend() {
     }
 }
 
-// Convert timestamp to local Unix seconds for Lightweight Charts.
-// LC displays times as-is (assumes UTC), so we add the user's timezone
-// offset so the chart x-axis shows local time.
+// Convert timestamp to Unix seconds for Lightweight Charts display.
+// LC renders timestamps as-is (assumes UTC), so we shift by the browser's
+// UTC offset to make the x-axis show the user's local time.
 var _tzOffsetSec = -(new Date().getTimezoneOffset() * 60); // e.g., +10800 for UTC+3
 function _toUnix(ts) {
-    // Numeric = already UTC Unix seconds from backend
-    if (typeof ts === 'number') return ts + _tzOffsetSec;
-    // String fallback (legacy format "YYYY-MM-DDTHH:MM")
-    return Math.floor(new Date(ts + 'Z').getTime()/1000) + _tzOffsetSec;
+    if (typeof ts === 'number') {
+        // Integer from backend = UTC Unix seconds → shift to local
+        return ts + _tzOffsetSec;
+    }
+    // String (legacy "YYYY-MM-DDTHH:MM" in exchange-local time):
+    // new Date(str) interprets as browser-local; adding _tzOffsetSec cancels
+    // that out so LC displays the raw exchange time as-is.
+    return Math.floor(new Date(ts).getTime() / 1000) + _tzOffsetSec;
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -465,9 +469,9 @@ function updateChart(symbol) {
     // ── Set visible range: show last N bars (bar-count approach) ──
     // Keep candles readable: ~3-6px per bar at typical chart widths
     const _barsForSymbol = (tf, sym) => {
-        if (tf === '1m') return 120;   // ~2 hours (readable candles)
-        if (tf === '5m') return 78;    // ~1 stock day
-        return { '1d_1mo': 60, '1d_1y': 120, '1wk': 100 }[tf] || 80;
+        if (tf === '1m') return 60;    // ~1 hour (tighter view)
+        if (tf === '5m') return 48;    // ~4 hours
+        return { '1d_1mo': 30, '1d_1y': 60, '1wk': 52 }[tf] || 40;
     };
     if (chartData.length >= 2) {
         const n = Math.min(_barsForSymbol(currentTimeframe, symbol), chartData.length);

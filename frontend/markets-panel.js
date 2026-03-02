@@ -14,6 +14,7 @@ if (typeof CanvasRenderingContext2D !== 'undefined' && !CanvasRenderingContext2D
     };
 }
 
+var _mpTzOff = -(new Date().getTimezoneOffset() * 60); // browser TZ offset for chart display
 var MP_MAX_CHARTS = 6;
 var _mpCharts = [];
 var _mpSwapSelected = null; // click-to-swap: selected chart id
@@ -431,7 +432,7 @@ function _mpUpdateChart(entry) {
     var isCandle = entry.chartType === 'candle';
     var seen={}; var cd=[];
     for(var i=0;i<hist.length;i++){
-        var t=ts[i]?Math.floor(new Date(ts[i]).getTime()/1000):Math.floor(Date.now()/1000)-(hist.length-1-i)*60;
+        var t=ts[i]!=null?(typeof ts[i]==='number'?ts[i]+_mpTzOff:Math.floor(new Date(ts[i]).getTime()/1000)+_mpTzOff):Math.floor(Date.now()/1000)+_mpTzOff-(hist.length-1-i)*60;
         if(seen[t])continue;seen[t]=1;
         if (isCandle) {
             cd.push(hasOHLC?{time:t,open:op[i]||hist[i],high:hi[i]||hist[i],low:lo[i]||hist[i],close:hist[i]}:{time:t,open:hist[i],high:hist[i],low:hist[i],close:hist[i]});
