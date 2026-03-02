@@ -2504,7 +2504,7 @@ async function fetchTabSuggestion(tabId, extraExclude, isRefresh) {
     const resp = await fetch('/api/wizard-tab-suggest', {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
-      signal: _suggestAbortCtrl.signal,
+      signal: AbortSignal.any([_suggestAbortCtrl.signal, AbortSignal.timeout(300000)]),
       body: JSON.stringify({
         role, location,
         category_id: tabId,

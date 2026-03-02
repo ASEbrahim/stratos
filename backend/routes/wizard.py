@@ -168,7 +168,7 @@ Available categories:
 Pick the 2-4 categories and sub-categories most relevant for a "{role}" in "{location or 'anywhere'}"."""
 
         logger.info(f"Wizard preselect: role='{role}', location='{location}', model='{model}'")
-        raw = _call_ollama(host, model, PRESELECT_SYSTEM, prompt, max_tokens=6000, temperature=0.2)
+        raw = _call_ollama(host, model, PRESELECT_SYSTEM, prompt, max_tokens=6000, temperature=0.2, timeout=240)
         logger.info(f"Wizard preselect raw response: {raw[:300] if raw else 'None'}")
 
         if not raw:
@@ -265,7 +265,7 @@ Already tracking: {existing_str}
 
 Suggest 5-8 specific entities or keywords for the "{category_label}" category. Every suggestion MUST match the stage and goals above. Do not repeat items already being tracked."""
 
-        raw = _call_ollama(host, model, TAB_SUGGEST_SYSTEM, prompt, max_tokens=6000, temperature=0.3)
+        raw = _call_ollama(host, model, TAB_SUGGEST_SYSTEM, prompt, max_tokens=6000, temperature=0.3, timeout=240)
 
         if not raw:
             # Fallback: empty suggestions
