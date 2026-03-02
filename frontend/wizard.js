@@ -747,6 +747,8 @@ const WIZ_CSS = `
 .wiz-scope .wiz-mode-toggle input:checked + .wiz-mode-slider { background:var(--accent);box-shadow:0 0 12px var(--accent-border); }
 .wiz-scope .wiz-mode-toggle input:checked + .wiz-mode-slider::after { transform:translateX(18px); }
 .wiz-scope .wiz-mode-label { font-size:12px;color:var(--text-secondary);white-space:nowrap;min-width:100px;font-weight:500; }
+.wiz-scope .wiz-nx-hint { font-size:12px;color:var(--danger, #ef4444);opacity:0;transition:opacity .25s var(--ease);white-space:nowrap;pointer-events:none; }
+.wiz-scope .wiz-nx-hint:not(:empty) { opacity:1; }
 .wiz-scope .wiz-clr { font-size:12px;padding:6px 12px;opacity:.6;transition:opacity .2s var(--ease),transform .2s var(--ease),background-color .2s var(--ease),border-color .2s var(--ease),color .2s var(--ease),box-shadow .2s var(--ease); }
 .wiz-scope .wiz-clr:hover { opacity:1;color:var(--danger, #ef4444);border-color:var(--danger, #ef4444); }
 .wiz-scope .btn { display:inline-flex;align-items:center;gap:8px;padding:12px 26px;border-radius:var(--pill);font-size:15px;font-weight:600;border:none;cursor:pointer;transition:opacity .2s var(--ease),transform .2s var(--ease),background-color .2s var(--ease),border-color .2s var(--ease),color .2s var(--ease),box-shadow .2s var(--ease);font-family:inherit;outline:none; }
@@ -1130,6 +1132,7 @@ function injectDOM(role, location) {
         <button class="btn bg_" id="wiz-bbk" onclick="_wiz.goBack()">&#8592; Back</button>
         <button class="btn bg_ wiz-clr" id="wiz-clr" onclick="_wiz.clearAll()" title="Reset all selections">Clear all</button>
         <button class="preset-save wiz-hidden" id="wiz-psave" onclick="_wiz.savePreset()" title="Save this configuration as a named preset">&#x1F4BE; Save profile</button>
+        <span class="wiz-nx-hint" id="wiz-nx-hint"></span>
         <button class="btn bp" id="wiz-bnx" onclick="_wiz.goNext()">Next &#8594;</button>
         <div class="wiz-hidden wiz-build-row" id="wiz-build-row">
           <label class="wiz-mode-toggle" title="Deep thinking uses a larger model for higher quality — takes longer">
@@ -1243,16 +1246,23 @@ function goBack() {
 function updNx() {
   const nx = document.getElementById('wiz-bnx');
   if (!nx) return;
+  const hint = document.getElementById('wiz-nx-hint');
   if (step === 0) {
-    if (selCats.size === 0) { nx.disabled = true; return; }
+    if (selCats.size === 0) {
+      nx.disabled = true;
+      if (hint) hint.textContent = 'Select at least one category';
+      return;
+    }
     // At least one selected category must have sub-categories chosen (or interests with topics)
     const hasActiveSubs = [...selCats].some(id => {
       if (id === 'interests') return interestTopics.length > 0;
       return selSubs[id] && selSubs[id].size > 0;
     });
     nx.disabled = !hasActiveSubs;
+    if (hint) hint.textContent = hasActiveSubs ? '' : 'Expand a category and pick sub-topics';
   } else {
     nx.disabled = false;
+    if (hint) hint.textContent = '';
   }
 }
 
