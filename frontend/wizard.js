@@ -959,8 +959,8 @@ const WIZ_CSS = `
 @keyframes wizRingSpin { to{transform:rotate(360deg)} }
 .wiz-scope .ld-t { font-size:22px;font-weight:700;margin-bottom:8px;background:linear-gradient(135deg,var(--text-primary),var(--accent-light));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text; }
 .wiz-scope .ld-s { font-size:14px;color:var(--text-dim);margin-bottom:0; }
-.wiz-scope .ld-bar { width:220px;height:4px;background:rgba(255,255,255,.06);border-radius:3px;margin-top:18px;overflow:hidden; }
-.wiz-scope .ld-bar-fill { height:100%;width:0%;background:linear-gradient(90deg,var(--accent),var(--accent-light));border-radius:3px;transition:width .8s ease;box-shadow:0 0 8px var(--accent-border); }
+.wiz-scope .ld-bar { width:260px;height:6px;background:rgba(255,255,255,.08);border-radius:4px;margin-top:18px;overflow:hidden; }
+.wiz-scope .ld-bar-fill { height:100%;width:0%;background:linear-gradient(90deg,var(--accent),var(--accent-light));border-radius:4px;transition:width .5s cubic-bezier(.4,0,.2,1);box-shadow:0 0 10px var(--accent-border); }
 .wiz-scope .ld-list { margin-top:28px;display:flex;flex-direction:column;gap:16px;text-align:left;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);border-radius:14px;padding:20px 24px; }
 .wiz-scope .ls { display:flex;align-items:center;gap:14px;font-size:14px;color:var(--text-muted);transition:opacity .4s ease,transform .4s ease,background-color .4s ease,border-color .4s ease,color .4s ease,box-shadow .4s ease;opacity:0;transform:translateY(6px);animation:wizStepIn .4s ease forwards; }
 .wiz-scope .ls:nth-child(1) { animation-delay:.1s; }
@@ -1941,28 +1941,28 @@ async function callGenerateProfile(role, location, context, deep = false) {
     if (stepIdx > 0) { const prev = document.getElementById('wiz-l' + (stepIdx - 1)); if (prev) { prev.classList.remove('on'); prev.classList.add('ok'); } }
     if (stepIdx < 3) { const cur = document.getElementById('wiz-l' + stepIdx); if (cur) cur.classList.add('on'); stepIdx++; }
   };
-  advanceStep(); setBar(10); // Step 0: generating context
+  advanceStep(); setBar(5); // Step 0: generating context
   try {
     await new Promise(r => setTimeout(r, 600));
-    advanceStep(); setBar(30); // Step 1: building categories
+    advanceStep(); setBar(15); // Step 1: building categories
 
-    // Animate progress bar — rate depends on mode (deep takes ~5x longer)
-    let progressPct = 30;
-    const tickMs = deep ? 8000 : 1500;
+    // Animate progress bar with easing — accelerates toward target then slows
+    let progressPct = 15;
     const startTime = Date.now();
     const progressTimer = setInterval(() => {
-      if (progressPct < 70) {
-        progressPct += 1;
-        setBar(progressPct);
+      // Ease toward 75% (never reaches it — response arrival jumps to 80%)
+      if (progressPct < 75) {
+        progressPct += (75 - progressPct) * 0.06;
+        setBar(Math.round(progressPct));
       }
       // Show elapsed time
       const subtitle = document.querySelector('.ld-s');
       const elapsed = Math.round((Date.now() - startTime) / 1000);
-      if (subtitle && elapsed > 5) {
+      if (subtitle && elapsed > 3) {
         const mode = deep ? 'Deep analysis' : 'Generating';
         subtitle.innerHTML = `${mode} for <strong>${esc(role)}</strong> (${elapsed}s)`;
       }
-    }, tickMs);
+    }, 400);
 
     const resp = await fetch('/api/generate-profile', {
       method: 'POST',

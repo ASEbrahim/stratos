@@ -178,17 +178,20 @@
             <!-- Status Banner (for background scanning / new data notification) -->
             <div id="status-notification" class="hidden mb-6">
                 <!-- Scanning indicator -->
-                <div id="scanning-banner" class="hidden bg-blue-900/30 border border-blue-500/30 rounded-lg px-4 py-3">
+                <div id="scanning-banner" class="hidden rounded-lg px-4 py-3" style="background:color-mix(in srgb, var(--accent) 12%, transparent); border:1px solid color-mix(in srgb, var(--accent) 25%, transparent);">
                     <div class="flex items-center gap-3">
-                        <div class="w-4 h-4 border-2 border-blue-400/30 border-t-blue-400 rounded-full animate-spin flex-shrink-0"></div>
+                        <div class="w-4 h-4 border-2 rounded-full animate-spin flex-shrink-0" style="border-color:color-mix(in srgb, var(--accent) 30%, transparent); border-top-color:var(--accent);"></div>
                         <div class="flex-1 min-w-0">
                             <div class="flex items-center justify-between">
-                                <p id="scan-title" class="text-sm text-blue-300 font-medium">Scanning in background...</p>
-                                <span id="scan-percent" class="text-xs text-blue-400/70 ml-2 tabular-nums"></span>
+                                <p id="scan-title" class="text-sm font-medium" style="color:var(--accent);">Scanning in background...</p>
+                                <div class="flex items-center gap-2 ml-2">
+                                    <span id="scan-phase" class="text-[10px] font-semibold px-1.5 py-0.5 rounded" style="background:color-mix(in srgb, var(--accent) 20%, transparent); color:var(--accent);"></span>
+                                    <span id="scan-percent" class="text-xs tabular-nums" style="color:color-mix(in srgb, var(--accent) 70%, transparent);"></span>
+                                </div>
                             </div>
-                            <p id="scan-progress" class="text-xs text-blue-400/70">Fetching market data...</p>
-                            <div class="mt-2 h-2.5 rounded-full bg-blue-500/20 overflow-hidden">
-                                <div id="scan-bar" class="h-full rounded-full transition-all duration-500 ease-out" style="width: 0%; background: linear-gradient(90deg, #3b82f6, #60a5fa); box-shadow: 0 0 8px rgba(96,165,250,0.4);"></div>
+                            <p id="scan-progress" class="text-xs" style="color:color-mix(in srgb, var(--accent) 70%, transparent);">Fetching market data...</p>
+                            <div class="mt-2 h-2.5 rounded-full overflow-hidden" style="background:color-mix(in srgb, var(--accent) 15%, transparent);">
+                                <div id="scan-bar" class="h-full rounded-full transition-all duration-500 ease-out" style="width: 0%; background: linear-gradient(90deg, var(--accent), color-mix(in srgb, var(--accent) 70%, white)); box-shadow: 0 0 8px color-mix(in srgb, var(--accent) 40%, transparent);"></div>
                             </div>
                         </div>
                     </div>
@@ -627,17 +630,17 @@
             <!-- Settings Panel (separate from main grid) -->
             <div id="settings-panel" class="hidden">
                 <!-- Scanning Status Banner -->
-                <div id="settings-scan-banner" class="hidden mb-6 bg-blue-900/30 border border-blue-500/30 rounded-lg px-4 py-3">
+                <div id="settings-scan-banner" class="hidden mb-6 rounded-lg px-4 py-3" style="background:color-mix(in srgb, var(--accent) 12%, transparent); border:1px solid color-mix(in srgb, var(--accent) 25%, transparent);">
                     <div class="flex items-center gap-3">
-                        <div class="w-5 h-5 border-2 border-blue-400/30 border-t-blue-400 rounded-full animate-spin flex-shrink-0"></div>
+                        <div class="w-5 h-5 border-2 rounded-full animate-spin flex-shrink-0" style="border-color:color-mix(in srgb, var(--accent) 30%, transparent); border-top-color:var(--accent);"></div>
                         <div class="flex-1 min-w-0">
                             <div class="flex items-center justify-between">
-                                <p class="text-sm text-blue-300 font-medium">Scanning in background...</p>
-                                <span id="settings-scan-percent" class="text-xs text-blue-400/70 ml-2 tabular-nums"></span>
+                                <p class="text-sm font-medium" style="color:var(--accent);">Scanning in background...</p>
+                                <span id="settings-scan-percent" class="text-xs ml-2 tabular-nums" style="color:color-mix(in srgb, var(--accent) 70%, transparent);"></span>
                             </div>
-                            <p id="settings-scan-progress" class="text-xs text-blue-400/70">Processing...</p>
-                            <div class="mt-2 h-2.5 rounded-full bg-blue-500/20 overflow-hidden">
-                                <div id="settings-scan-bar" class="h-full rounded-full transition-all duration-500 ease-out" style="width: 0%; background: linear-gradient(90deg, #3b82f6, #60a5fa); box-shadow: 0 0 8px rgba(96,165,250,0.4);"></div>
+                            <p id="settings-scan-progress" class="text-xs" style="color:color-mix(in srgb, var(--accent) 70%, transparent);">Processing...</p>
+                            <div class="mt-2 h-2.5 rounded-full overflow-hidden" style="background:color-mix(in srgb, var(--accent) 15%, transparent);">
+                                <div id="settings-scan-bar" class="h-full rounded-full transition-all duration-500 ease-out" style="width: 0%; background: linear-gradient(90deg, var(--accent), color-mix(in srgb, var(--accent) 70%, white)); box-shadow: 0 0 8px color-mix(in srgb, var(--accent) 40%, transparent);"></div>
                             </div>
                         </div>
                     </div>

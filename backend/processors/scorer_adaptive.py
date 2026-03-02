@@ -1106,8 +1106,10 @@ Reply with EXACTLY one line per article, numbered:
                 break
             try:
                 current = i + 1
-                if progress_callback:
-                    progress_callback(current, total)
+                # NOTE: Do NOT call progress_callback here. Phase 1 (rule-scoring)
+                # is near-instant (<1s for 250+ items). Calling it here would blast
+                # the counter to total/total, then Phase 2 (LLM) would reset it
+                # backward — causing the "254/254 → 200/254" jump the user sees.
 
                 # Pre-filtered items already have a score
                 if 'pre_filter_score' in item:
@@ -1203,7 +1205,7 @@ Reply with EXACTLY one line per article, numbered:
 
                 if progress_callback:
                     done = min(batch_start + self.BATCH_SIZE, len(ambiguous))
-                    progress_callback(total - len(ambiguous) + done, total)
+                    progress_callback(done, len(ambiguous))
 
         # If cancelled mid-Phase-2, fill remaining unscored ambiguous items with rule scores
         if _cancelled:

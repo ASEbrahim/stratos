@@ -364,12 +364,16 @@ class StratOS:
 
             # 2. Fetch news
             self.scan_status["stage"] = "news"
-            self.scan_status["progress"] = "Fetching news..."
-            self.sse_broadcast("scan", {"status": "news", "progress": "Fetching news..."})
+            self.scan_status["progress"] = "Fetching news articles..."
+            self.sse_broadcast("scan", {"status": "news", "progress": "Fetching news articles..."})
             logger.info("[2/6] Fetching news...")
             cache_ttl = self.config.get("cache", {}).get("news_ttl_seconds", 900)
             news_items = self.news_fetcher.fetch_all(cache_ttl_seconds=cache_ttl)
             news_dicts = [item.to_dict() for item in news_items]
+
+            # Report fetch complete with count
+            self.scan_status["progress"] = f"Fetched {len(news_dicts)} articles, preparing to score..."
+            self.sse_broadcast("scan", {"status": "news_done", "progress": f"Fetched {len(news_dicts)} articles", "fetched": len(news_dicts)})
 
             # 2.5 Re-classify items into dynamic categories
             # RSS items arrive with generic category='tech'/'general'. Re-tag them
@@ -383,18 +387,20 @@ class StratOS:
             # 3. Score news items (only those that need fresh scoring)
             self.scan_status["stage"] = "scoring"
             total_items = len(news_dicts)
-            self.scan_status["total"] = total_items + len(prescore_reused)
-            self.scan_status["progress"] = f"Scoring 0/{total_items} items with AI..."
-            self.sse_broadcast("scan", {"status": "scoring", "progress": f"Scoring {total_items} items..."})
+            self.scan_status["scored"] = 0
+            self.scan_status["total"] = total_items
+            self.scan_status["progress"] = f"Scoring 0/{total_items} articles with AI..."
+            self.sse_broadcast("scan", {"status": "scoring", "progress": f"Scoring 0/{total_items} articles with AI...", "scored": 0, "total": total_items})
             logger.info("[3/6] Scoring news items with AI...")
 
-            # Score with progress callback
+            # Score with progress callback — scorer reports (done, ambiguous_total)
+            # for LLM-scored items only (rule-scored items are instant and skipped)
             def on_score_progress(current, total):
                 self.scan_status["scored"] = current
                 self.scan_status["total"] = total
-                self.scan_status["progress"] = f"Scoring {current}/{total} items with AI..."
+                self.scan_status["progress"] = f"AI scoring {current}/{total} articles..."
                 if current % 2 == 0 or current == total:
-                    self.sse_broadcast("scan", {"status": "scoring", "progress": f"Scoring {current}/{total} items...", "scored": current, "total": total})
+                    self.sse_broadcast("scan", {"status": "scoring", "progress": f"AI scoring {current}/{total} articles...", "scored": current, "total": total})
 
             # === TWO-PASS SCORING ===
             timeout_cfg = self.config.get("scoring", {}).get("timeout", {})
@@ -866,17 +872,18 @@ class StratOS:
             # Score news
             self.scan_status["stage"] = "scoring"
             total_items = len(news_dicts)
-            self.scan_status["total"] = total_items + len(prescore_reused)
-            self.scan_status["progress"] = f"Scoring 0/{total_items} items with AI..."
-            self.sse_broadcast("scan", {"status": "scoring", "progress": f"Scoring 0/{total_items} items...", "scored": 0, "total": total_items})
+            self.scan_status["scored"] = 0
+            self.scan_status["total"] = total_items
+            self.scan_status["progress"] = f"Scoring 0/{total_items} articles with AI..."
+            self.sse_broadcast("scan", {"status": "scoring", "progress": f"Scoring 0/{total_items} articles with AI...", "scored": 0, "total": total_items})
             logger.info("[2/4] Scoring news items with AI...")
 
             def on_score_progress(current, total):
                 self.scan_status["scored"] = current
                 self.scan_status["total"] = total
-                self.scan_status["progress"] = f"Scoring {current}/{total} items with AI..."
+                self.scan_status["progress"] = f"AI scoring {current}/{total} articles..."
                 if current % 2 == 0 or current == total:
-                    self.sse_broadcast("scan", {"status": "scoring", "progress": f"Scoring {current}/{total} items...", "scored": current, "total": total})
+                    self.sse_broadcast("scan", {"status": "scoring", "progress": f"AI scoring {current}/{total} articles...", "scored": current, "total": total})
 
             # === TWO-PASS SCORING ===
             timeout_cfg = self.config.get("scoring", {}).get("timeout", {})

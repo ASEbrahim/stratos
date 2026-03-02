@@ -1143,18 +1143,32 @@ function _fallbackToPolling() {
     }
 }
 
+var _scanPhase = 'fetch'; // 'fetch' or 'score'
+
 function _updateScanBars(pct) {
     // Update both main and settings progress bars
     var bar = document.getElementById('scan-bar');
     var sBar = document.getElementById('settings-scan-bar');
     var pctEl = document.getElementById('scan-percent');
     var sPctEl = document.getElementById('settings-scan-percent');
+    var phaseEl = document.getElementById('scan-phase');
     var label = pct > 0 ? Math.round(pct) + '%' : '';
     var width = pct > 0 ? pct + '%' : '0%';
     if (bar) bar.style.width = width;
     if (sBar) sBar.style.width = width;
     if (pctEl) pctEl.textContent = label;
     if (sPctEl) sPctEl.textContent = label;
+    if (phaseEl) phaseEl.textContent = _scanPhase === 'fetch' ? 'Fetching' : 'Scoring';
+}
+
+function _resetBarForPhase(phase) {
+    // Instantly reset bar to 0 (no transition) then re-enable transition
+    _scanPhase = phase;
+    var bar = document.getElementById('scan-bar');
+    var sBar = document.getElementById('settings-scan-bar');
+    if (bar) { bar.style.transition = 'none'; bar.style.width = '0%'; bar.offsetHeight; bar.style.transition = ''; }
+    if (sBar) { sBar.style.transition = 'none'; sBar.style.width = '0%'; sBar.offsetHeight; sBar.style.transition = ''; }
+    _updateScanBars(0);
 }
 
 function _handleSSEScan(d) {
@@ -1169,24 +1183,42 @@ function _handleSSEScan(d) {
 
     const progress = d.progress || d.status || 'Processing...';
 
-    // Compute progress bar percentage from scan stage
+    // Two-phase progress bar:
+    // Phase 1 (Fetching): starting → market → news → news_done = 0→100%
+    // Phase 2 (Scoring):  scoring → scoring_pass2 → discovery → briefing = 0→100%
     var pct = 0;
-    if (d.status === 'starting') pct = 5;
-    else if (d.status === 'market') pct = 15;
-    else if (d.status === 'news') pct = 30;
-    else if (d.status === 'scoring' && d.scored >= 0 && d.total > 0) pct = 35 + (d.scored / d.total) * 45;
-    else if (d.status === 'scoring') pct = 35;
-    else if (d.status === 'scoring_pass2' && d.scored >= 0 && d.total > 0) pct = 82 + (d.scored / d.total) * 5;
-    else if (d.status === 'scoring_pass2') pct = 82;
-    else if (d.status === 'discovery') pct = 90;
-    else if (d.status === 'briefing') pct = 95;
+    var isFetchPhase = ['starting', 'market', 'news', 'news_done'].includes(d.status);
+    var isScorePhase = ['scoring', 'scoring_pass2', 'discovery', 'briefing'].includes(d.status);
+
+    // Transition from fetch to score: reset bar
+    if (isScorePhase && _scanPhase === 'fetch') {
+        _resetBarForPhase('score');
+    } else if (isFetchPhase && _scanPhase !== 'fetch') {
+        _resetBarForPhase('fetch');
+    }
+
+    if (isFetchPhase) {
+        if (d.status === 'starting') pct = 10;
+        else if (d.status === 'market') pct = 45;
+        else if (d.status === 'news') pct = 75;
+        else if (d.status === 'news_done') pct = 100;
+    } else if (isScorePhase) {
+        if (d.status === 'scoring' && d.scored >= 0 && d.total > 0) pct = (d.scored / d.total) * 80;
+        else if (d.status === 'scoring') pct = 2;
+        else if (d.status === 'scoring_pass2' && d.scored >= 0 && d.total > 0) pct = 82 + (d.scored / d.total) * 8;
+        else if (d.status === 'scoring_pass2') pct = 82;
+        else if (d.status === 'discovery') pct = 92;
+        else if (d.status === 'briefing') pct = 96;
+    }
 
     // Update scan title based on stage
     var title = 'Scanning in background...';
     if (_marketRefreshPending) title = 'Refreshing market data...';
+    else if (d.status === 'starting') title = 'Initializing scan...';
     else if (d.status === 'market') title = 'Fetching market data...';
     else if (d.status === 'news') title = 'Fetching news articles...';
-    else if (d.status === 'scoring') title = 'Scoring articles...';
+    else if (d.status === 'news_done') title = 'Articles fetched!';
+    else if (d.status === 'scoring') title = 'Scoring with AI...';
     else if (d.status === 'scoring_pass2') title = 'Re-scoring deferred articles...';
     else if (d.status === 'discovery') title = 'Running discovery...';
     else if (d.status === 'briefing') title = 'Generating briefing...';
@@ -1209,8 +1241,9 @@ function _handleSSEScan(d) {
 
     _updateScanBars(pct);
 
-    systemStatus.innerHTML = '<span class="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span> Scanning...';
-    systemStatus.className = 'text-[10px] text-blue-400 flex items-center gap-2 mt-1';
+    systemStatus.innerHTML = '<span class="w-2 h-2 rounded-full animate-pulse" style="background:var(--accent);"></span> Scanning...';
+    systemStatus.className = 'text-[10px] flex items-center gap-2 mt-1';
+    systemStatus.style.color = 'var(--accent)';
 
     // Keep scan button in scanning state (handles page reload during scan)
     if (!_isScanRunning) {
@@ -1218,7 +1251,7 @@ function _handleSSEScan(d) {
         _startScanPolling();
     }
     // Update button progress from SSE data
-    if (d.scored > 0 && d.total > 0) {
+    if (isScorePhase && d.scored > 0 && d.total > 0) {
         _setScanButtonScanning(`Stop (${d.scored}/${d.total})`);
     } else {
         _setScanButtonScanning();
@@ -1236,11 +1269,14 @@ async function _handleSSEComplete(d) {
     _setScanButtonIdle();
 
     // Fill bar to 100%, then hide after a brief moment
+    _scanPhase = 'score'; // ensure we're in score phase for the final 100%
     _updateScanBars(100);
     var scanTitle = document.getElementById('scan-title');
     if (scanTitle) scanTitle.textContent = 'Complete!';
     var scanProg = document.getElementById('scan-progress');
     if (scanProg) scanProg.textContent = 'Loading results...';
+    // Reset phase for next scan
+    setTimeout(function() { _scanPhase = 'fetch'; }, 3000);
 
     const systemStatus = document.getElementById('system-status');
 
@@ -1470,25 +1506,35 @@ async function checkStatus() {
                 if (settingsScanProgress) settingsScanProgress.textContent = status.progress || 'Processing...';
             }
 
-            // Update progress bar from polling data (mirrors SSE _handleSSEScan logic)
+            // Update progress bar from polling data (mirrors SSE _handleSSEScan two-phase logic)
             var pollPct = 0;
             var st = status.stage;
-            if (st === 'starting') pollPct = 5;
-            else if (st === 'market') pollPct = 15;
-            else if (st === 'news') pollPct = 30;
-            else if (st === 'scoring' && status.scored >= 0 && status.total > 0) pollPct = 35 + (status.scored / status.total) * 45;
-            else if (st === 'scoring') pollPct = 35;
-            else if (st === 'scoring_pass2' && status.scored >= 0 && status.total > 0) pollPct = 82 + (status.scored / status.total) * 5;
-            else if (st === 'scoring_pass2') pollPct = 82;
-            else if (st === 'discovery') pollPct = 90;
-            else if (st === 'briefing') pollPct = 95;
+            var pollIsFetch = ['starting', 'market', 'news'].includes(st);
+            var pollIsScore = ['scoring', 'scoring_pass2', 'discovery', 'briefing'].includes(st);
+
+            if (pollIsScore && _scanPhase === 'fetch') _resetBarForPhase('score');
+            else if (pollIsFetch && _scanPhase !== 'fetch') _resetBarForPhase('fetch');
+
+            if (pollIsFetch) {
+                if (st === 'starting') pollPct = 10;
+                else if (st === 'market') pollPct = 45;
+                else if (st === 'news') pollPct = 75;
+            } else if (pollIsScore) {
+                if (st === 'scoring' && status.scored >= 0 && status.total > 0) pollPct = (status.scored / status.total) * 80;
+                else if (st === 'scoring') pollPct = 2;
+                else if (st === 'scoring_pass2' && status.scored >= 0 && status.total > 0) pollPct = 82 + (status.scored / status.total) * 8;
+                else if (st === 'scoring_pass2') pollPct = 82;
+                else if (st === 'discovery') pollPct = 92;
+                else if (st === 'briefing') pollPct = 96;
+            }
             _updateScanBars(pollPct);
 
             // Update scan title
             var pollTitle = 'Scanning in background...';
-            if (st === 'market') pollTitle = 'Fetching market data...';
+            if (st === 'starting') pollTitle = 'Initializing scan...';
+            else if (st === 'market') pollTitle = 'Fetching market data...';
             else if (st === 'news') pollTitle = 'Fetching news articles...';
-            else if (st === 'scoring') pollTitle = 'Scoring articles...';
+            else if (st === 'scoring') pollTitle = 'Scoring with AI...';
             else if (st === 'scoring_pass2') pollTitle = 'Re-scoring deferred articles...';
             else if (st === 'discovery') pollTitle = 'Running discovery...';
             else if (st === 'briefing') pollTitle = 'Generating briefing...';
@@ -1496,8 +1542,9 @@ async function checkStatus() {
             if (scanTitleEl) scanTitleEl.textContent = pollTitle;
 
             // Update system status to show scanning
-            systemStatus.innerHTML = '<span class="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span> Scanning...';
-            systemStatus.className = 'text-[10px] text-blue-400 flex items-center gap-2 mt-1';
+            systemStatus.innerHTML = '<span class="w-2 h-2 rounded-full animate-pulse" style="background:var(--accent);"></span> Scanning...';
+            systemStatus.className = 'text-[10px] flex items-center gap-2 mt-1';
+            systemStatus.style.color = 'var(--accent)';
 
             // Slow down polling while scanning to reduce tunnel load
             if (statusPollInterval) {
