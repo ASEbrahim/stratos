@@ -152,7 +152,7 @@ def create_handler(strat, auth, frontend_dir, output_dir):
 
             # Lightweight briefing-only endpoint (5KB vs 2MB full /api/data)
             if self.path == "/api/briefing":
-                briefings = strat.db.get_recent_briefings(limit=1)
+                briefings = strat.db.get_recent_briefings(limit=1, profile_id=self._profile_id)
                 if briefings:
                     _send_json(self, briefings[0].get("content", {}))
                 else:

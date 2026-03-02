@@ -277,12 +277,12 @@ class Database:
 
         return briefing_id
     
-    def get_recent_briefings(self, limit: int = 10) -> List[Dict]:
-        """Get recent briefings."""
+    def get_recent_briefings(self, limit: int = 10, profile_id: int = 0) -> List[Dict]:
+        """Get recent briefings for a specific profile."""
         cursor = self.conn.cursor()
         cursor.execute("""
-            SELECT * FROM briefings ORDER BY generated_at DESC LIMIT ?
-        """, (limit,))
+            SELECT * FROM briefings WHERE profile_id = ? ORDER BY generated_at DESC LIMIT ?
+        """, (profile_id, limit))
         rows = cursor.fetchall()
         result = []
         for row in rows:
@@ -291,15 +291,15 @@ class Database:
             del d['content_json']
             result.append(d)
         return result
-    
-    def get_briefing_by_date(self, date_str: str) -> Optional[Dict]:
-        """Get briefing for a specific date."""
+
+    def get_briefing_by_date(self, date_str: str, profile_id: int = 0) -> Optional[Dict]:
+        """Get briefing for a specific date and profile."""
         cursor = self.conn.cursor()
         cursor.execute("""
-            SELECT * FROM briefings 
-            WHERE DATE(generated_at) = DATE(?)
+            SELECT * FROM briefings
+            WHERE DATE(generated_at) = DATE(?) AND profile_id = ?
             ORDER BY generated_at DESC LIMIT 1
-        """, (date_str,))
+        """, (date_str, profile_id))
         row = cursor.fetchone()
         if row:
             d = dict(row)
