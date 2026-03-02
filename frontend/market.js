@@ -89,8 +89,8 @@ function initChart(forceRecreate) {
         },
         rightPriceScale: { borderColor:border, scaleMargins:{top:0.1,bottom:0.1} },
         timeScale: { borderColor:border, timeVisible:true, secondsVisible:false, rightOffset:5, minBarSpacing:3 },
-        handleScroll:{mouseWheel:false,pressedMouseMove:true,horzTouchDrag:true,vertTouchDrag:false},
-        handleScale:{axisPressedMouseMove:false,mouseWheel:false,pinch:false},
+        handleScroll:{mouseWheel:true,pressedMouseMove:true,horzTouchDrag:true,vertTouchDrag:false},
+        handleScale:{mouseWheel:true,pinch:true},
     });
 
     _createSeries();
