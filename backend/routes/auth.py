@@ -251,6 +251,9 @@ def handle_auth_routes(handler, method, path, data, db, strat, send_json, email_
         """, (token, user_id, profile_id, expires, datetime.now().isoformat()))
         db._commit()
 
+        # Clear strat.config of previous user's data — new profile has empty overlay
+        _apply_config_overlay(strat, {}, profile_name=safe_name)
+
         send_json(handler, {
             "status": "verified",
             "token": token,
@@ -339,11 +342,10 @@ def handle_auth_routes(handler, method, path, data, db, strat, send_json, email_
         """, (token, user_id, profile_id, expires, datetime.now().isoformat()))
         db._commit()
 
-        # Apply config overlay from the active profile
-        if profile_row and profile_row[2]:
-            overlay = json.loads(profile_row[2])
-            if overlay:
-                _apply_config_overlay(strat, overlay, profile_name=profile_row[1])
+        # Apply config overlay from the active profile (or clear stale data if empty)
+        if profile_row:
+            overlay = json.loads(profile_row[2]) if profile_row[2] else {}
+            _apply_config_overlay(strat, overlay, profile_name=profile_row[1])
 
         # Get profile list
         cursor.execute("SELECT id, name, last_active FROM profiles WHERE user_id = ?", (user_id,))
@@ -612,10 +614,9 @@ def handle_auth_routes(handler, method, path, data, db, strat, send_json, email_
                        (datetime.now().isoformat(), profile_id))
         db._commit()
 
-        # Load config overlay into live config
+        # Load config overlay into live config (or clear stale data if empty)
         overlay = json.loads(row[2]) if row[2] else {}
-        if overlay:
-            _apply_config_overlay(strat, overlay, profile_name=row[1])
+        _apply_config_overlay(strat, overlay, profile_name=row[1])
 
         # Ensure per-user data directory exists
         user_data.ensure_dir(user_id)
