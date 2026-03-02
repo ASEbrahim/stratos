@@ -1,5 +1,5 @@
 // STRAT_OS Service Worker — network-first with offline shell caching
-const CACHE_NAME = 'stratos-v5';
+const CACHE_NAME = 'stratos-v6';
 
 // App shell — pre-cache these for instant offline loading
 const SHELL_ASSETS = [
@@ -66,27 +66,16 @@ self.addEventListener('fetch', (e) => {
         return;
     }
 
-    // Static assets: cache-first (pre-cached shell), network fallback
+    // Static assets: network-first, cache fallback (ensures fresh code on reload)
     e.respondWith(
-        caches.match(e.request)
-            .then(cached => {
-                if (cached) {
-                    // Return cached immediately, update in background
-                    fetch(e.request).then(resp => {
-                        if (resp.ok) {
-                            caches.open(CACHE_NAME).then(c => c.put(e.request, resp));
-                        }
-                    }).catch(() => {});
-                    return cached;
+        fetch(e.request)
+            .then(resp => {
+                if (resp.ok) {
+                    const clone = resp.clone();
+                    caches.open(CACHE_NAME).then(c => c.put(e.request, clone));
                 }
-                // Not in cache — fetch from network and cache
-                return fetch(e.request).then(resp => {
-                    if (resp.ok) {
-                        const clone = resp.clone();
-                        caches.open(CACHE_NAME).then(c => c.put(e.request, clone));
-                    }
-                    return resp;
-                });
+                return resp;
             })
+            .catch(() => caches.match(e.request))
     );
 });
