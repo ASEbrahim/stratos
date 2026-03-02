@@ -142,9 +142,7 @@ function _backdrop(inner) {
     return `<div class="auth-backdrop" style="background:${_t.bg};">
         <div class="auth-grid-bg" style="--grid-c:${_t.grid};"></div>
         <div class="auth-stars" id="auth-star-field">
-            <div class="auth-star-layer auth-star-far"  id="auth-stars-far"></div>
-            <div class="auth-star-layer auth-star-mid"  id="auth-stars-mid"></div>
-            <div class="auth-star-layer auth-star-near" id="auth-stars-near"></div>
+            <canvas id="auth-star-canvas"></canvas>
         </div>
         <div class="auth-orb auth-orb-1" style="background:radial-gradient(circle,${_t.orb1} 0%,transparent 70%);"></div>
         <div class="auth-orb auth-orb-2" style="background:radial-gradient(circle,${_t.orb2} 0%,transparent 70%);"></div>
@@ -153,70 +151,250 @@ function _backdrop(inner) {
     </div>`;
 }
 
-/* ═══ STAR PARALLAX ENGINE ═══ */
+/* ═══ INTERACTIVE STAR CANVAS ENGINE ═══ */
 function _initStarParallax() {
-    const farEl  = document.getElementById('auth-stars-far');
-    const midEl  = document.getElementById('auth-stars-mid');
-    const nearEl = document.getElementById('auth-stars-near');
-    if (!farEl || !midEl || !nearEl) return;
+    const canvas = document.getElementById('auth-star-canvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
 
     const isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
     const isMobile = window.innerWidth <= 768;
+    const COUNT = isMobile ? 40 : 300;
+    const MOUSE_RADIUS = 160;
+    const LINE_RADIUS = 130;
+    const LINE_MOUSE_RANGE = 250;
+    const DRIFT_SPEED = 0.12;
 
-    // Reduce star counts on mobile: 165 → 30 total, no animations
-    const layers = [
-        { el: farEl,  count: isMobile ? 15 : 90,  sizeRange: [0.5, 1.2], color: _t.star3, twinkle: !isMobile },
-        { el: midEl,  count: isMobile ? 10 : 50,  sizeRange: [1.0, 2.0], color: _t.star2, twinkle: !isMobile },
-        { el: nearEl, count: isMobile ? 5  : 25,  sizeRange: [1.5, 3.0], color: _t.star1, twinkle: false },
-    ];
+    // Parse theme star colors into hex for canvas
+    function parseColor(rgba) {
+        const m = rgba.match(/rgba?\(([^)]+)\)/);
+        if (!m) return { r:255, g:255, b:255, a:0.3 };
+        const p = m[1].split(',').map(s => parseFloat(s.trim()));
+        return { r:p[0], g:p[1], b:p[2], a:p[3] !== undefined ? p[3] : 1 };
+    }
+    const c1 = parseColor(_t.star1), c2 = parseColor(_t.star2), c3 = parseColor(_t.star3);
 
-    layers.forEach(layer => {
-        let html = '';
-        for (let i = 0; i < layer.count; i++) {
-            const x = Math.random() * 100;
-            const y = Math.random() * 100;
-            const s = layer.sizeRange[0] + Math.random() * (layer.sizeRange[1] - layer.sizeRange[0]);
-            const delay = Math.random() * 6;
-            const dur = 3 + Math.random() * 4;
-            const twinkleClass = layer.twinkle ? 'auth-star-twinkle' : '';
-            html += `<span class="auth-star ${twinkleClass}" style="left:${x}%;top:${y}%;width:${s}px;height:${s}px;background:${layer.color};animation-delay:${delay}s;animation-duration:${dur}s;"></span>`;
-        }
-        layer.el.innerHTML = html;
-    });
+    function resize() {
+        canvas.width = canvas.parentElement.offsetWidth;
+        canvas.height = canvas.parentElement.offsetHeight;
+    }
+    resize();
 
-    // Skip mouse parallax on touch devices — no mouse, RAF loop wastes battery
-    if (isTouch) return;
-
-    /* Mouse parallax — subtle shift per layer depth */
-    let _raf = 0, _mx = 0, _my = 0, _cx = 0, _cy = 0;
-    const depths = [
-        { el: farEl,  factor: 0.008 },
-        { el: midEl,  factor: 0.018 },
-        { el: nearEl, factor: 0.035 },
-    ];
-
-    function _lerp() {
-        _cx += (_mx - _cx) * 0.06;
-        _cy += (_my - _cy) * 0.06;
-        depths.forEach(d => {
-            const tx = _cx * d.factor;
-            const ty = _cy * d.factor;
-            d.el.style.transform = `translate(${tx}px, ${ty}px)`;
-        });
-        _raf = requestAnimationFrame(_lerp);
+    // Pick a star color based on tier distribution
+    function pickStar() {
+        const r = Math.random();
+        if (r < 0.15) return { c: c1, bright: true };   // 15% accent (brightest)
+        if (r < 0.35) return { c: c2, bright: true };    // 20% secondary
+        return { c: c3, bright: false };                   // 65% dim white
     }
 
-    document.addEventListener('mousemove', e => {
-        _mx = e.clientX - window.innerWidth  / 2;
-        _my = e.clientY - window.innerHeight / 2;
-    });
+    // Initialize stars
+    const stars = [];
+    for (let i = 0; i < COUNT; i++) {
+        const pick = pickStar();
+        const isBright = pick.bright;
+        stars.push({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height,
+            baseX: 0, baseY: 0,
+            r: isBright ? Math.random() * 2.0 + 0.8 : Math.random() * 1.2 + 0.3,
+            a: isBright ? Math.random() * 0.35 + 0.40 : Math.random() * 0.30 + 0.06,
+            speed: Math.random() * 0.15 + 0.03,
+            phase: Math.random() * Math.PI * 2,
+            cr: pick.c.r, cg: pick.c.g, cb: pick.c.b,
+            isBright: isBright
+        });
+        stars[i].baseX = stars[i].x;
+        stars[i].baseY = stars[i].y;
+    }
 
-    _raf = requestAnimationFrame(_lerp);
+    // Shooting stars
+    const shooters = [];
+    let lastShooter = Date.now();
+    const SHOOT_INTERVAL = 5000;
+
+    function spawnShooter() {
+        const angle = Math.random() * 0.5 + 0.25;
+        const speed = Math.random() * 7 + 5;
+        shooters.push({
+            x: Math.random() * canvas.width * 0.7,
+            y: Math.random() * canvas.height * 0.35,
+            vx: Math.cos(angle) * speed,
+            vy: Math.sin(angle) * speed,
+            life: 1.0,
+            len: Math.random() * 45 + 25,
+            cr: c1.r, cg: c1.g, cb: c1.b
+        });
+    }
+
+    // Mouse tracking
+    let mouseX = -1000, mouseY = -1000;
+    let _raf = 0;
+
+    function onMouseMove(e) {
+        const rect = canvas.getBoundingClientRect();
+        mouseX = e.clientX - rect.left;
+        mouseY = e.clientY - rect.top;
+    }
+    function onMouseLeave() { mouseX = -1000; mouseY = -1000; }
+
+    if (!isTouch) {
+        canvas.parentElement.addEventListener('mousemove', onMouseMove);
+        canvas.parentElement.addEventListener('mouseleave', onMouseLeave);
+    }
+
+    // Main draw loop
+    function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        const t = Date.now() * 0.001;
+        const now = Date.now();
+
+        // Spawn shooting stars
+        if (now - lastShooter > SHOOT_INTERVAL + Math.random() * 3000) {
+            spawnShooter();
+            lastShooter = now;
+        }
+
+        // Collect visible stars near mouse for connection lines
+        const nearby = [];
+
+        for (let i = 0; i < stars.length; i++) {
+            const s = stars[i];
+
+            // Gentle upward drift
+            s.baseY -= DRIFT_SPEED;
+            if (s.baseY < -10) {
+                s.baseY = canvas.height + 10;
+                s.baseX = Math.random() * canvas.width;
+                s.y = s.baseY;
+                s.x = s.baseX;
+            }
+
+            let drawX = s.baseX, drawY = s.baseY;
+            const dx = drawX - mouseX, dy = drawY - mouseY;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+
+            // Mouse repulsion (desktop only)
+            if (!isTouch && dist < MOUSE_RADIUS && dist > 0) {
+                const force = (1 - dist / MOUSE_RADIUS) * 28;
+                drawX += (dx / dist) * force;
+                drawY += (dy / dist) * force;
+            }
+
+            // Smooth interpolation
+            s.x += (drawX - s.x) * 0.07;
+            s.y += (drawY - s.y) * 0.07;
+
+            if (s.y < -15 || s.y > canvas.height + 15) continue;
+
+            // Twinkle
+            const flicker = 0.65 + 0.35 * Math.sin(t * s.speed * 4 + s.phase);
+            const proxBoost = (!isTouch && dist < MOUSE_RADIUS) ? 1 + (1 - dist / MOUSE_RADIUS) * 0.5 : 1;
+            const alpha = Math.min(1, s.a * flicker * proxBoost);
+            const radius = s.r * ((!isTouch && dist < MOUSE_RADIUS) ? 1 + (1 - dist / MOUSE_RADIUS) * 0.4 : 1);
+
+            ctx.globalAlpha = alpha;
+            ctx.fillStyle = `rgb(${s.cr},${s.cg},${s.cb})`;
+            ctx.beginPath();
+            ctx.arc(s.x, s.y, radius, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Soft glow on bright stars near cursor
+            if (!isTouch && s.isBright && dist < MOUSE_RADIUS * 0.7) {
+                ctx.globalAlpha = alpha * 0.15;
+                ctx.beginPath();
+                ctx.arc(s.x, s.y, radius * 4, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            // Track nearby stars for connection lines
+            if (!isTouch) {
+                const mDist = Math.sqrt((s.x - mouseX) ** 2 + (s.y - mouseY) ** 2);
+                if (mDist < LINE_MOUSE_RANGE) {
+                    nearby.push({ x: s.x, y: s.y, a: alpha, mDist: mDist });
+                }
+            }
+        }
+
+        // Connection lines between nearby stars (constellation effect)
+        if (!isTouch && nearby.length > 1) {
+            const accent = _t.accent;
+            for (let a = 0; a < nearby.length; a++) {
+                for (let b = a + 1; b < nearby.length; b++) {
+                    const ddx = nearby[a].x - nearby[b].x;
+                    const ddy = nearby[a].y - nearby[b].y;
+                    const d = Math.sqrt(ddx * ddx + ddy * ddy);
+                    if (d < LINE_RADIUS) {
+                        let lineAlpha = (1 - d / LINE_RADIUS) * 0.16;
+                        const avgMD = (nearby[a].mDist + nearby[b].mDist) / 2;
+                        lineAlpha *= Math.max(0, (1 - avgMD / LINE_MOUSE_RANGE) * 1.4);
+                        lineAlpha = Math.min(lineAlpha, 0.18);
+                        ctx.globalAlpha = lineAlpha;
+                        ctx.strokeStyle = accent;
+                        ctx.lineWidth = 0.6;
+                        ctx.beginPath();
+                        ctx.moveTo(nearby[a].x, nearby[a].y);
+                        ctx.lineTo(nearby[b].x, nearby[b].y);
+                        ctx.stroke();
+                    }
+                }
+            }
+        }
+
+        // Draw shooting stars
+        for (let si = shooters.length - 1; si >= 0; si--) {
+            const sh = shooters[si];
+            sh.x += sh.vx;
+            sh.y += sh.vy;
+            sh.life -= 0.014;
+            if (sh.life <= 0 || sh.x > canvas.width + 60 || sh.y > canvas.height + 60) {
+                shooters.splice(si, 1);
+                continue;
+            }
+            const speed = Math.sqrt(sh.vx * sh.vx + sh.vy * sh.vy);
+            const tailX = sh.x - sh.vx * (sh.len / speed);
+            const tailY = sh.y - sh.vy * (sh.len / speed);
+            const grad = ctx.createLinearGradient(tailX, tailY, sh.x, sh.y);
+            grad.addColorStop(0, 'transparent');
+            grad.addColorStop(1, `rgba(${sh.cr},${sh.cg},${sh.cb},${sh.life * 0.6})`);
+            ctx.globalAlpha = sh.life * 0.7;
+            ctx.strokeStyle = grad;
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.moveTo(tailX, tailY);
+            ctx.lineTo(sh.x, sh.y);
+            ctx.stroke();
+            // Bright head
+            ctx.globalAlpha = sh.life * 0.85;
+            ctx.fillStyle = '#fff';
+            ctx.beginPath();
+            ctx.arc(sh.x, sh.y, 1.4, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        ctx.globalAlpha = 1;
+        _raf = requestAnimationFrame(draw);
+    }
+
+    _raf = requestAnimationFrame(draw);
+
+    // Resize handling
+    window.addEventListener('resize', () => {
+        resize();
+        for (let i = 0; i < stars.length; i++) {
+            stars[i].baseX = Math.random() * canvas.width;
+            stars[i].baseY = Math.random() * canvas.height;
+            stars[i].x = stars[i].baseX;
+            stars[i].y = stars[i].baseY;
+        }
+    });
 
     /* Cleanup on overlay removal */
     const obs = new MutationObserver(() => {
         if (!document.getElementById('auth-star-field')) {
             cancelAnimationFrame(_raf);
+            canvas.parentElement?.removeEventListener('mousemove', onMouseMove);
+            canvas.parentElement?.removeEventListener('mouseleave', onMouseLeave);
             obs.disconnect();
         }
     });
@@ -801,25 +979,9 @@ _css.textContent = `
 .auth-orb-2 { width:450px; height:450px; bottom:-10%; right:-8%; animation:authFloat2 28s infinite, authPulse 10s infinite 2s; }
 .auth-orb-3 { width:350px; height:350px; top:35%; left:55%; animation:authFloat3 20s infinite, authPulse 12s infinite 4s; }
 
-/* Star parallax field */
+/* Star canvas field */
 .auth-stars { position:absolute; inset:0; pointer-events:none; overflow:hidden; z-index:0; }
-.auth-star-layer { position:absolute; inset:-5%; will-change:transform; transition:transform 0s; }
-.auth-star { position:absolute; border-radius:50%; pointer-events:none; }
-.auth-star-twinkle { animation:authTwinkle 4s ease-in-out infinite; }
-@keyframes authTwinkle { 0%,100%{opacity:1} 50%{opacity:.2} }
-
-/* Subtle drift for near stars */
-.auth-star-near .auth-star { animation:authTwinkle 5s ease-in-out infinite, authStarDrift 20s ease-in-out infinite; }
-@keyframes authStarDrift { 0%,100%{transform:translate(0,0)} 50%{transform:translate(2px,3px)} }
-
-/* Shooting star (single, rare) */
-.auth-stars::after {
-    content:''; position:absolute; width:80px; height:1px;
-    background:linear-gradient(90deg, rgba(255,255,255,.6), transparent);
-    top:18%; left:-80px; opacity:0;
-    animation:authShoot 8s linear infinite 3s;
-}
-@keyframes authShoot { 0%{left:-80px;top:18%;opacity:0} 2%{opacity:.7} 8%{left:110%;top:35%;opacity:0} 100%{left:110%;top:35%;opacity:0} }
+#auth-star-canvas { position:absolute; inset:0; width:100%; height:100%; pointer-events:all; }
 
 .auth-landing { text-align:center; z-index:1; position:relative; animation:authFadeUp .6s ease; padding:24px; }
 .auth-logo-block { display:flex; align-items:center; justify-content:center; gap:18px; margin-bottom:28px; }
