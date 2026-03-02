@@ -1242,7 +1242,18 @@ function goBack() {
 
 function updNx() {
   const nx = document.getElementById('wiz-bnx');
-  if (nx) nx.disabled = (step === 0 && selCats.size === 0);
+  if (!nx) return;
+  if (step === 0) {
+    if (selCats.size === 0) { nx.disabled = true; return; }
+    // At least one selected category must have sub-categories chosen (or interests with topics)
+    const hasActiveSubs = [...selCats].some(id => {
+      if (id === 'interests') return interestTopics.length > 0;
+      return selSubs[id] && selSubs[id].size > 0;
+    });
+    nx.disabled = !hasActiveSubs;
+  } else {
+    nx.disabled = false;
+  }
 }
 
 function renderDots() {
@@ -1316,7 +1327,7 @@ function togSub(cid, sid, el) {
   }
   _rvItemsCache = null; // Invalidate Step 3 cache — sections changed
   if (el) el.classList.toggle('on', selSubs[cid].has(sid));
-  _wizSaveState();
+  updNx(); _wizSaveState();
 }
 
 function showAddSub(cid) {

@@ -145,7 +145,7 @@ class GuidedTour {
     this._overlay = null;
     this._tooltip = null;
     this._welcome = null;
-    this._svg = null;
+    this._cutout = null;
     this._resizeTimer = null;
     this._interactionCleanup = null;
     this._transitioning = false;
@@ -215,7 +215,7 @@ class GuidedTour {
     this._overlay = null;
     this._tooltip = null;
     this._welcome = null;
-    this._svg = null;
+    this._cutout = null;
   }
 
   /* ── DOM Injection ── */
@@ -227,16 +227,7 @@ class GuidedTour {
     const overlay = document.createElement('div');
     overlay.id = 'stratos-tour-overlay';
     overlay.innerHTML = `
-      <svg id="stratos-tour-backdrop" class="tour-backdrop">
-        <defs>
-          <mask id="tour-mask">
-            <rect width="100%" height="100%" fill="white"/>
-            <rect id="tour-cutout" rx="12" ry="12" fill="black" x="-20" y="-20" width="0" height="0"/>
-          </mask>
-        </defs>
-        <rect class="tour-backdrop-fill" width="100%" height="100%" mask="url(#tour-mask)"/>
-        <rect id="tour-highlight-ring" class="tour-highlight-ring" x="-20" y="-20" width="0" height="0" rx="12" ry="12"/>
-      </svg>
+      <div id="tour-cutout" class="tour-cutout-box"></div>
       <div id="stratos-tour-tooltip" class="tour-tooltip tour-tooltip-hidden">
         <div class="tour-tag-bar">
           <span class="tour-tag-icon"></span>
@@ -274,7 +265,7 @@ class GuidedTour {
 
     document.body.appendChild(overlay);
     this._overlay = overlay;
-    this._svg = overlay.querySelector('#stratos-tour-backdrop');
+    this._cutout = overlay.querySelector('#tour-cutout');
     this._tooltip = overlay.querySelector('#stratos-tour-tooltip');
     this._welcome = overlay.querySelector('#stratos-tour-welcome');
 
@@ -287,8 +278,8 @@ class GuidedTour {
     this._welcome.querySelector('.tour-welcome-never').onclick = () => { localStorage.setItem('stratos_tour_never', 'true'); this.skip(); };
 
     // Click on backdrop (dimmed area) advances the tour
-    this._svg.onclick = (e) => {
-      if (e.target.closest('.tour-tooltip') || e.target.closest('.tour-welcome-modal')) return;
+    this._overlay.onclick = (e) => {
+      if (e.target.closest('.tour-tooltip') || e.target.closest('.tour-welcome-modal') || e.target.closest('.tour-interactive-target')) return;
       this.advance();
     };
   }
@@ -421,28 +412,21 @@ class GuidedTour {
   /* ── Cutout ── */
 
   _animateCutout(x, y, w, h) {
-    const cutout = this._svg.querySelector('#tour-cutout');
-    const ring = this._svg.querySelector('#tour-highlight-ring');
-    ring.classList.add('tour-ring-pulse');
-
-    cutout.setAttribute('x', x);
-    cutout.setAttribute('y', y);
-    cutout.setAttribute('width', Math.max(0, w));
-    cutout.setAttribute('height', Math.max(0, h));
-    ring.setAttribute('x', x);
-    ring.setAttribute('y', y);
-    ring.setAttribute('width', Math.max(0, w));
-    ring.setAttribute('height', Math.max(0, h));
+    const c = this._cutout;
+    c.classList.add('tour-ring-pulse');
+    c.style.left = x + 'px';
+    c.style.top = y + 'px';
+    c.style.width = Math.max(0, w) + 'px';
+    c.style.height = Math.max(0, h) + 'px';
   }
 
   _hideCutout() {
-    const cutout = this._svg.querySelector('#tour-cutout');
-    const ring = this._svg.querySelector('#tour-highlight-ring');
-    ring.classList.remove('tour-ring-pulse');
-    cutout.setAttribute('width', '0');
-    cutout.setAttribute('height', '0');
-    ring.setAttribute('width', '0');
-    ring.setAttribute('height', '0');
+    const c = this._cutout;
+    c.classList.remove('tour-ring-pulse');
+    c.style.width = '0';
+    c.style.height = '0';
+    c.style.left = '-20px';
+    c.style.top = '-20px';
   }
 
   /* ── Tooltip ── */
