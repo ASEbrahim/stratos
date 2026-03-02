@@ -150,6 +150,15 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                 self.wfile.write(b'{"error": "Rate limit exceeded. Try again shortly."}')
                 return
 
+            # Lightweight briefing-only endpoint (5KB vs 2MB full /api/data)
+            if self.path == "/api/briefing":
+                briefings = strat.db.get_recent_briefings(limit=1)
+                if briefings:
+                    _send_json(self, briefings[0].get("content", {}))
+                else:
+                    _send_json(self, {"status": "no_briefing"})
+                return
+
             # Serve news_data.json from output directory (per-profile)
             if self.path == "/api/data" or self.path == "/news_data.json":
                 # Resolve profile-specific output file

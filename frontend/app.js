@@ -1096,6 +1096,17 @@ function _connectSSE() {
             } catch(err) { console.warn('[SSE] pass1_complete parse error:', err); }
         });
 
+        _sseSource.addEventListener('briefing_ready', async (e) => {
+            try {
+                const res = await fetch('/api/briefing', {headers: {'X-Auth-Token': authToken}});
+                if (res.ok) {
+                    const briefing = await res.json();
+                    if (data) { data.briefing = briefing; }
+                    if (typeof renderBriefing === 'function') renderBriefing();
+                }
+            } catch(err) { console.debug('[SSE] briefing_ready fetch error:', err); }
+        });
+
         _sseSource.addEventListener('critical_signal', (e) => {
             try {
                 const d = JSON.parse(e.data);
