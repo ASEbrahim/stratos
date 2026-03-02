@@ -164,9 +164,10 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                 # Resolve profile-specific output file
                 _prof = self._session_profile
                 output_path = strat._get_output_path(_prof) if _prof else strat._output_base
-                # If profile-specific file doesn't exist, try default
+                # If profile-specific file doesn't exist, return empty data (not another profile's)
                 if _prof and not output_path.exists():
-                    output_path = strat._output_base
+                    _send_json(self, {"news": [], "market": {}, "briefing": None, "last_updated": None})
+                    return
                 if output_path.exists():
                     raw = output_path.read_bytes()
 
