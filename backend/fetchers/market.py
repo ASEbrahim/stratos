@@ -206,9 +206,10 @@ class MarketFetcher:
                 timestamps_str = []
                 for ts in timestamps_raw:
                     try:
-                        timestamps_str.append(ts.strftime('%Y-%m-%dT%H:%M'))
+                        # Send UTC Unix seconds — lets frontend convert to user's timezone
+                        timestamps_str.append(int(ts.timestamp()))
                     except Exception:
-                        timestamps_str.append(str(ts))
+                        timestamps_str.append(int(datetime.now().timestamp()))
                 
                 # Summary stats from full (non-downsampled) data
                 open_price = round(float(hist["Open"].iloc[0]), 2) if not hist.empty else 0
@@ -307,8 +308,8 @@ class MarketFetcher:
                 opens, highs, lows, history, volumes = [], [], [], [], []
                 for k in klines:
                     ts_ms = int(k[0])
-                    dt = datetime.fromtimestamp(ts_ms / 1000, tz=None)
-                    timestamps_str.append(dt.strftime('%Y-%m-%dT%H:%M'))
+                    # Send UTC Unix seconds — lets frontend convert to user's timezone
+                    timestamps_str.append(ts_ms // 1000)
                     opens.append(float(k[1]))
                     highs.append(float(k[2]))
                     lows.append(float(k[3]))

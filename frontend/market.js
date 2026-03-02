@@ -344,7 +344,16 @@ function _computeAutoTrend() {
     }
 }
 
-function _toUnix(ts) { return Math.floor(new Date(ts).getTime()/1000); }
+// Convert timestamp to local Unix seconds for Lightweight Charts.
+// LC displays times as-is (assumes UTC), so we add the user's timezone
+// offset so the chart x-axis shows local time.
+var _tzOffsetSec = -(new Date().getTimezoneOffset() * 60); // e.g., +10800 for UTC+3
+function _toUnix(ts) {
+    // Numeric = already UTC Unix seconds from backend
+    if (typeof ts === 'number') return ts + _tzOffsetSec;
+    // String fallback (legacy format "YYYY-MM-DDTHH:MM")
+    return Math.floor(new Date(ts + 'Z').getTime()/1000) + _tzOffsetSec;
+}
 
 // ═══════════════════════════════════════════════════════════
 // DATA RESOLUTION — find best available data for a timeframe
@@ -422,7 +431,7 @@ function updateChart(symbol) {
     let chartData = [];
 
     for (let i=0; i<history.length; i++) {
-        const t = timestamps[i] ? _toUnix(timestamps[i]) : Math.floor(Date.now()/1000) - (history.length-1-i)*60;
+        const t = timestamps[i] != null ? _toUnix(timestamps[i]) : (Math.floor(Date.now()/1000) + _tzOffsetSec) - (history.length-1-i)*60;
         if (_chartType==='candle' && hasOHLC) {
             chartData.push({ time:t, open:candleData.opens[i]||history[i], high:candleData.highs[i]||history[i], low:candleData.lows[i]||history[i], close:history[i] });
         } else {
@@ -633,7 +642,7 @@ function _updateCompareChart(symbol) {
     const chartData = [];
     const seen = new Set();
     for (let i = 0; i < hist.length; i++) {
-        const t = ts[i] ? _toUnix(ts[i]) : Math.floor(Date.now()/1000) - (hist.length-1-i)*60;
+        const t = ts[i] != null ? _toUnix(ts[i]) : (Math.floor(Date.now()/1000) + _tzOffsetSec) - (hist.length-1-i)*60;
         if (!seen.has(t)) { seen.add(t); chartData.push({time:t, value:hist[i]}); }
     }
     chartData.sort((a,b) => a.time - b.time);
