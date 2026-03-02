@@ -95,6 +95,22 @@ function initChart(forceRecreate) {
 
     _createSeries();
 
+    // Freeze vertical scale when scrolling past data to prevent chart collapse.
+    // When the right edge of the visible window exceeds the data, disable autoScale
+    // so the price axis keeps its last good range. Re-enable when user scrolls back.
+    var _scaleFrozen = false;
+    _tvChart.timeScale().subscribeVisibleLogicalRangeChange(function(range) {
+        if (!range || !_tvChart._dataLen) return;
+        var pastData = range.to > _tvChart._dataLen + 5;
+        if (pastData && !_scaleFrozen) {
+            _scaleFrozen = true;
+            _tvChart.priceScale('right').applyOptions({ autoScale: false });
+        } else if (!pastData && _scaleFrozen) {
+            _scaleFrozen = false;
+            _tvChart.priceScale('right').applyOptions({ autoScale: true });
+        }
+    });
+
     // Responsive resize (debounced to one frame — avoids thrashing during drag-resize)
     let _roTimer = null;
     _chartRO = new ResizeObserver(() => {
@@ -684,6 +700,8 @@ function updateChart(symbol) {
 
     // ── Set visible range: show last N bars (bar-count approach) ──
     // Keep candles readable: ~3-6px per bar at typical chart widths
+    // Store data length for scroll clamping
+    if (_tvChart) _tvChart._dataLen = chartData.length;
     const _barsForSymbol = (tf, sym) => {
         if (tf === '1m') return 60;    // ~1 hour (tighter view)
         if (tf === '5m') return 48;    // ~4 hours
