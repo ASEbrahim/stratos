@@ -1965,9 +1965,11 @@ async function callGenerateProfile(role, location, context, deep = false) {
     const resp = await fetch('/api/generate-profile', {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
+      signal: AbortSignal.timeout(60000),
       body: JSON.stringify({role, location, context, deep})
     });
     clearInterval(progressTimer);
+    if (!resp.ok) throw new Error('Server error: ' + resp.status);
     const data = await resp.json();
     if (data.error) throw new Error(data.error);
 

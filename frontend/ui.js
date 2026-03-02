@@ -427,7 +427,7 @@ function submitAI(idx) {
             category: item.category || ''
         })
     })
-    .then(r => r.json())
+    .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
     .then(data => {
         if (data.error) {
             answerEl.innerHTML = `<span class="text-red-400">Error: ${data.error}</span>`;
@@ -488,7 +488,7 @@ function submitRating(idx) {
             action: 'rate'
         })
     })
-    .then(r => r.json())
+    .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
     .then(data => {
         if (data.status === 'ok') {
             const diff = userScore !== null ? ` (AI: ${(item.score||0).toFixed(1)} → You: ${userScore.toFixed(1)})` : '';

@@ -306,7 +306,8 @@ function _sendFeedback(item, action, userScore) {
     if (!item) return;
     fetch('/api/feedback', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'X-Auth-Token': authToken || '' },
+        signal: AbortSignal.timeout(15000),
         body: JSON.stringify({
             news_id: item.id || '',
             title: item.title || '',
@@ -789,7 +790,8 @@ function _toggleRetention(enabled) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-Auth-Token': typeof getAuthToken === 'function' ? getAuthToken() : '' },
         body: JSON.stringify({ scoring: { retain_high_scores: enabled } })
-    }).then(function() {
+    }).then(function(r) {
+        if (!r.ok) throw new Error(r.status);
         if (typeof showToast === 'function') showToast(enabled ? 'High-score retention enabled' : 'High-score retention disabled', 'success');
     }).catch(function() {
         if (typeof showToast === 'function') showToast('Failed to update retention setting', 'error');
@@ -943,9 +945,10 @@ async function loadData() {
     document.getElementById('main-content').classList.add('hidden');
     
     try {
-        const response = await fetch('/api/data');
+        const response = await fetch('/api/data', {signal: AbortSignal.timeout(10000)});
+        if (!response.ok) { setOffline(); showError('Server error: ' + response.status); return; }
         data = await response.json();
-        
+
         if (data.error) {
             setOffline();
             showError(data.error);
@@ -979,7 +982,8 @@ async function loadData() {
         }
         
         // Get version and also fetch current status to sync
-        const statusResp = await fetch('/api/status');
+        const statusResp = await fetch('/api/status', {signal: AbortSignal.timeout(8000)});
+        if (!statusResp.ok) { console.error('/api/status failed:', statusResp.status); return; }
         const status = await statusResp.json();
         currentDataVersion = status.data_version || data.meta?.generated_at || Date.now().toString();
 
@@ -1600,8 +1604,9 @@ async function loadNewData(skipToast) {
     // This prevents disruption on other devices when one device triggers a scan
     try {
         const response = await fetch('/api/data');
+        if (!response.ok) { console.error('/api/data failed:', response.status); return; }
         const newData = await response.json();
-        
+
         if (newData.error) {
             console.warn('Data load error:', newData.error);
             return;
@@ -1618,6 +1623,7 @@ async function loadNewData(skipToast) {
         // Sync version + avatar
         try {
             const statusResp = await fetch('/api/status');
+            if (!statusResp.ok) throw new Error(statusResp.status);
             const statusData = await statusResp.json();
             currentDataVersion = statusData.data_version;
             if (statusData.avatar_image && statusData.avatar_image.startsWith('data:')) {
@@ -1751,7 +1757,8 @@ async function toggleScan() {
             }
         }, 15000);
         try {
-            await fetch('/api/scan/cancel', { method: 'POST' });
+            const cancelResp = await fetch('/api/scan/cancel', { method: 'POST', signal: AbortSignal.timeout(15000) });
+            if (!cancelResp.ok) throw new Error('HTTP ' + cancelResp.status);
         } catch (err) {
             console.error('Cancel request failed:', err);
             if (typeof showToast === 'function') showToast('Cancel request failed', 'error');

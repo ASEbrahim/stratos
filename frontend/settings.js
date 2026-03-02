@@ -19,7 +19,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
 async function loadConfig() {
     try {
-        const response = await fetch('/api/config');
+        const response = await fetch('/api/config', {signal: AbortSignal.timeout(10000)});
+        if (!response.ok) { console.error('/api/config GET failed:', response.status); return; }
         configData = await response.json();
 
         // Populate form fields
@@ -383,11 +384,12 @@ async function saveConfig() {
         const response = await fetch('/api/config', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
+            signal: AbortSignal.timeout(15000),
             body: JSON.stringify(newConfig)
         });
-        
+        if (!response.ok) throw new Error('Server error: ' + response.status);
         const result = await response.json();
-        
+
         if (result.status === 'saved') {
             status.textContent = '✓ Saved!';
             status.className = 'text-sm text-emerald-400 self-center ml-2';
@@ -425,7 +427,8 @@ async function saveConfig() {
 // === PROFILE PRESETS ===
 async function loadPresets() {
     try {
-        const response = await fetch('/api/profiles');
+        const response = await fetch('/api/profiles', {signal: AbortSignal.timeout(10000)});
+        if (!response.ok) { console.error('/api/profiles GET failed:', response.status); return; }
         const data = await response.json();
         const container = document.getElementById('presets-list');
         
@@ -464,8 +467,10 @@ async function savePreset() {
         const response = await fetch('/api/profiles', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
+            signal: AbortSignal.timeout(15000),
             body: JSON.stringify({ action: 'save', name })
         });
+        if (!response.ok) throw new Error('HTTP ' + response.status);
         const result = await response.json();
         if (result.status === 'saved') {
             document.getElementById('preset-name-input').value = '';
@@ -485,8 +490,10 @@ async function loadPreset(name) {
         const response = await fetch('/api/profiles', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
+            signal: AbortSignal.timeout(15000),
             body: JSON.stringify({ action: 'load', name })
         });
+        if (!response.ok) throw new Error('HTTP ' + response.status);
         const result = await response.json();
         if (result.status === 'loaded') {
             await loadConfig();
@@ -502,11 +509,13 @@ async function loadPreset(name) {
 async function deletePreset(name) {
     if (!confirm(`Delete preset "${name}"?`)) return;
     try {
-        await fetch('/api/profiles', {
+        const delResp = await fetch('/api/profiles', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
+            signal: AbortSignal.timeout(15000),
             body: JSON.stringify({ action: 'delete', name })
         });
+        if (!delResp.ok) throw new Error('HTTP ' + delResp.status);
         loadPresets();
         if (typeof showToast === 'function') showToast(`Deleted "${name}"`, 'info');
     } catch(e) { if (typeof showToast === 'function') showToast('Failed to delete preset', 'error'); }
@@ -1330,8 +1339,10 @@ async function suggestContext() {
         const resp = await fetch('/api/suggest-context', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
+            signal: AbortSignal.timeout(30000),
             body: JSON.stringify({ role, location })
         });
+        if (!resp.ok) throw new Error('HTTP ' + resp.status);
         const data = await resp.json();
         
         if (data.suggestion) {
@@ -1388,8 +1399,10 @@ async function generateFromRole() {
         const resp = await fetch('/api/generate-profile', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
+            signal: AbortSignal.timeout(60000),
             body: JSON.stringify({ role, location, context: document.getElementById('simple-context')?.value?.trim() || '' })
         });
+        if (!resp.ok) throw new Error('HTTP ' + resp.status);
         const data = await resp.json();
         
         if (data.error) throw new Error(data.error);
@@ -2311,8 +2324,10 @@ async function saveTickers() {
         const resp = await fetch('/api/config', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
+            signal: AbortSignal.timeout(15000),
             body: JSON.stringify({ tickers: [...simpleTickers] })
         });
+        if (!resp.ok) throw new Error('HTTP ' + resp.status);
         const result = await resp.json();
         if (result.status === 'saved') {
             if (status) status.innerHTML = '<span class="text-emerald-400">✓ Saved!</span>';
@@ -2357,6 +2372,7 @@ async function saveSourceToggles(silent) {
         const resp = await fetch('/api/config', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
+            signal: AbortSignal.timeout(15000),
             body: JSON.stringify({
                 extra_feeds_finance: financeToggles,
                 extra_feeds_politics: politicsToggles,
@@ -2364,6 +2380,7 @@ async function saveSourceToggles(silent) {
                 custom_tab_name: customTabName,
             })
         });
+        if (!resp.ok) throw new Error('HTTP ' + resp.status);
         const result = await resp.json();
         if (!silent) {
             if (result.status === 'saved') {
