@@ -11,53 +11,19 @@ discovery:
   min_mentions: 3
   rising_multiplier: 3.0
 market:
-  tickers:
-  - symbol: XOM
-    name: XOM
-    category: custom
-  - symbol: CVX
-    name: CVX
-    category: custom
-  - symbol: BP
-    name: BP
-    category: custom
-  - symbol: TOT
-    name: TOT
-    category: custom
-  - symbol: BTC-USD
-    name: BTC-USD
-    category: custom
-  - symbol: ETH-USD
-    name: ETH-USD
-    category: custom
-  - symbol: GC=F
-    name: GC=F
-    category: custom
-  - symbol: CL=F
-    name: CL=F
-    category: custom
-  - symbol: EURUSD=X
-    name: EURUSD=X
-    category: custom
-  - symbol: ^GSPC
-    name: ^GSPC
-    category: custom
-  intervals: {}
+  tickers: []
   alert_threshold_percent: 5.0
 news:
   timelimit: w
   career:
-    root: kuwait
+    root: global
     keywords: []
-    queries: []
   finance:
     root: kuwait
     keywords: []
-    queries: []
   regional:
     root: regional
     keywords: []
-    queries: []
   tech_trends:
     root: global
     keywords: []
@@ -93,8 +59,8 @@ search:
   google_api_key: REDACTED_GOOGLE_API_KEY
   google_cx: 52d68e3fc17d74e9a
   provider: serper
-  serper_api_key: REDACTED_SERPER_KEY_2
-  serper_credits: 135
+  serper_api_key: REDACTED_SERPER_KEY
+  serper_credits: 103
 system:
   database_file: strat_os.db
   frontend_port: 8080
@@ -102,104 +68,27 @@ system:
   max_news_items: 100
   output_file: output/news_data.json
 profile:
-  role: Developer
-  location: Kuwait
-  context: Petroleum engineering professor and consultant focused on academic research,
-    industry R&D, and global energy technology trends with emphasis on Kuwait and
-    GCC policy developments.
+  role: ''
+  location: ''
+  context: ''
   interests: []
-dynamic_categories:
-- id: kuniv
-  label: Kuwait Academic & Research Employers
-  icon: building-2
-  items:
-  - Kuwait University
-  - KISR
-  - KFUPM
-  - Kuwait Institute for Scientific Research
-  - Kuwait Foundation for Advancement of Sciences
-  - Kuwait Petroleum Research Center
-  - Seisnetics
-  - Schlumberger Kuwait
-  enabled: true
-  scorer_type: career
-  root: kuwait
-- id: oiltech
-  label: Petroleum Engineering & Tech Trends
-  icon: cpu
-  items:
-  - digital oilfield
-  - AI in reservoir modeling
-  - subsurface imaging
-  - seismic data analytics
-  - carbon capture tech
-  - enhanced oil recovery
-  - well automation
-  - digital twin for oil assets
-  enabled: true
-  scorer_type: tech
-  root: global
-- id: govpol
-  label: Government & Industry Policy
-  icon: gavel
-  items:
-  - Kuwait Energy Policy
-  - GCC oil regulations
-  - KOC R&D initiatives
-  - Kuwait National Petroleum Strategy
-  - Ministry of Energy projects
-  - Kuwait Sustainability Goals
-  - OPEC+ production agreements
-  - Kuwait Energy Efficiency Framework
-  enabled: true
-  scorer_type: regional
-  root: regional
-- id: certev
-  label: Career & Professional Certifications
-  icon: award
-  items:
-  - SPE certification
-  - Petroleum Engineering PhD programs
-  - Reservoir Simulation training
-  - Well Logging certification
-  - Geophysical Interpretation courses
-  - AI for Oil & Gas workshops
-  - ISO 50001 energy management
-  - Kuwait University research grants
-  enabled: true
-  scorer_type: career
-  root: kuwait
-- id: confer
-  label: Conferences & Academic Events
-  icon: target
-  items:
-  - SPE Annual Technical Conference
-  - IADC Middle East
-  - Kuwait University Petroleum Symposium
-  - World Petroleum Congress
-  - AI in Oil & Gas Summit
-  - KISR Research Forum
-  - GCC Energy Innovation Expo
-  - Petroleum Engineering Workshops
-  enabled: true
-  scorer_type: auto
-  root: global
+dynamic_categories: []
 extra_feeds_finance:
-  cnbc_top: false
-  cnbc_finance: false
-  marketwatch: false
+  cnbc_top: true
+  cnbc_finance: true
+  marketwatch: true
   mw_pulse: false
-  yahoo_fin: false
-  investing: false
-  ft: false
-  bloomberg: false
+  yahoo_fin: true
+  investing: true
+  ft: true
+  bloomberg: true
   wsj_world: false
   economist: false
   seekingalpha: false
   biz_insider: false
   coindesk: false
   cointelegraph: false
-  gn_kuwait_biz: false
+  gn_kuwait_biz: true
   gn_gcc_finance: false
   zawya: false
   arab_times_biz: false
@@ -207,23 +96,23 @@ extra_feeds_finance:
   oilprice: false
   rigzone: false
 extra_feeds_politics:
-  bbc_world: false
-  bbc_mideast: false
-  aljazeera: false
-  npr_world: false
-  nyt_world: false
-  nyt_mideast: false
-  wapo_world: false
+  bbc_world: true
+  bbc_mideast: true
+  aljazeera: true
+  npr_world: true
+  nyt_world: true
+  nyt_mideast: true
+  wapo_world: true
   wapo_politics: false
   cnn_world: false
   fox_world: false
   guardian: false
   dw: false
   france24: false
-  gn_kuwait: false
-  arab_times: false
+  gn_kuwait: true
+  arab_times: true
   times_kuwait: false
-  gn_mideast: false
+  gn_mideast: true
   alarabiya: false
   middleeasteye: false
   newarab: false
@@ -231,11 +120,8 @@ extra_feeds_politics:
   nikkei_asia: false
 custom_feeds: []
 custom_tab_name: Custom
-
-# Email (SMTP) — required for verification codes
-# For Gmail: use an App Password (https://myaccount.google.com/apppasswords)
 email:
-  smtp_host: ""
+  smtp_host: smtp.gmail.com
   smtp_port: 587
-  smtp_user: ""
-  smtp_password: ""
+  smtp_user: REDACTED_SMTP_USER
+  smtp_password: REDACTED_SMTP_PASSWORD
