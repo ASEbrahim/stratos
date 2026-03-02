@@ -257,7 +257,10 @@ function renderStars() {
             isBright: pick.bright,
             petal: petal,
             petalAngle: Math.random() * Math.PI * 2,
-            petalSpin: (Math.random() - 0.5) * 0.005
+            petalSpin: (Math.random() - 0.5) * 0.008,
+            petalSize: petal ? Math.random() * 3 + 2.5 : 0,
+            petalSway: petal ? Math.random() * 0.4 + 0.2 : 0,
+            petalFall: petal ? Math.random() * 0.25 + 0.1 : 0
         });
         stars[i].baseX = stars[i].x;
         stars[i].baseY = stars[i].y;
@@ -318,16 +321,23 @@ function renderStars() {
         for (let i = 0; i < stars.length; i++) {
             const s = stars[i];
 
-            // Gentle drift
-            s.baseY -= DRIFT_SPEED;
+            // Gentle drift — petals fall down, stars drift up
             if (isSakura && s.petal) {
-                s.baseX += Math.sin(t * 0.3 + s.phase) * 0.15; // petals sway
+                s.baseY += s.petalFall;
+                s.baseX += Math.sin(t * s.petalSway + s.phase) * 0.25;
                 s.petalAngle += s.petalSpin;
-            }
-            if (s.baseY < -10) {
-                s.baseY = canvas.height + 10;
-                s.baseX = Math.random() * canvas.width;
-                s.y = s.baseY; s.x = s.baseX;
+                if (s.baseY > canvas.height + 20) {
+                    s.baseY = -20;
+                    s.baseX = Math.random() * canvas.width;
+                    s.y = s.baseY; s.x = s.baseX;
+                }
+            } else {
+                s.baseY -= DRIFT_SPEED;
+                if (s.baseY < -10) {
+                    s.baseY = canvas.height + 10;
+                    s.baseX = Math.random() * canvas.width;
+                    s.y = s.baseY; s.x = s.baseX;
+                }
             }
 
             let drawX = s.baseX, drawY = s.baseY - parallax;
@@ -353,15 +363,28 @@ function renderStars() {
 
             ctx.globalAlpha = alpha;
 
-            // Sakura petals: draw rotated ellipse
+            // Sakura petals: bezier petal shape with notch
             if (isSakura && s.petal) {
+                const sz = s.petalSize * ((!isTouch && dist < MOUSE_RADIUS) ? 1 + (1 - dist / MOUSE_RADIUS) * 0.3 : 1);
                 ctx.save();
                 ctx.translate(s.x, s.y);
                 ctx.rotate(s.petalAngle);
-                ctx.fillStyle = `rgb(${s.cr},${s.cg},${s.cb})`;
+                ctx.fillStyle = `rgba(${s.cr},${s.cg},${s.cb},${alpha})`;
                 ctx.beginPath();
-                ctx.ellipse(0, 0, radius * 2.2, radius * 1.1, 0, 0, Math.PI * 2);
+                // Petal: stem tip at bottom, two lobes at top with center notch
+                ctx.moveTo(0, sz * 1.6);                           // stem tip
+                ctx.bezierCurveTo(sz * 1.2, sz * 0.8, sz * 1.4, -sz * 0.6, sz * 0.3, -sz * 1.2);  // right lobe
+                ctx.quadraticCurveTo(0, -sz * 0.7, -sz * 0.3, -sz * 1.2);                          // notch
+                ctx.bezierCurveTo(-sz * 1.4, -sz * 0.6, -sz * 1.2, sz * 0.8, 0, sz * 1.6);        // left lobe
                 ctx.fill();
+                // Subtle center vein
+                ctx.globalAlpha = alpha * 0.15;
+                ctx.strokeStyle = `rgb(${s.cr},${s.cg},${s.cb})`;
+                ctx.lineWidth = 0.4;
+                ctx.beginPath();
+                ctx.moveTo(0, sz * 1.4);
+                ctx.quadraticCurveTo(0, 0, 0, -sz * 0.8);
+                ctx.stroke();
                 ctx.restore();
             } else {
                 ctx.fillStyle = `rgb(${s.cr},${s.cg},${s.cb})`;
