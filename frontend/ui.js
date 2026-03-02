@@ -153,99 +153,316 @@ function updateStarsToggleUI(starsOn) {
     }
 }
 
-function renderStars() {
-    const canvas = document.getElementById('star-canvas');
-    if (!canvas) return;
+/* ═══ INTERACTIVE STAR CANVAS ENGINE ═══ */
+var _starEngine = null; // holds running engine state for cleanup
 
-    // Clear existing stars
-    canvas.innerHTML = '';
-
-    // Stars are entirely controlled by the toggle button
-    const starsOn = localStorage.getItem('stratos-stars') === 'true';
-
-    if (!starsOn) {
-        canvas.style.display = 'none';
-        return;
-    }
-
-    canvas.style.display = 'block';
-
-    // For themes with custom star colors, use them; otherwise generic white/silver
-    const hasStarVars = getComputedStyle(document.documentElement).getPropertyValue('--starry-theme').trim();
-    let colors;
-    if (hasStarVars) {
-        const color1 = getComputedStyle(document.documentElement).getPropertyValue('--star-color-1').trim();
-        const color2 = getComputedStyle(document.documentElement).getPropertyValue('--star-color-2').trim();
-        const color3 = getComputedStyle(document.documentElement).getPropertyValue('--star-color-3').trim();
-        colors = [color1, color2, color3];
-    } else {
-        // Generic stars for non-starry themes: white/silver tones
-        const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
-        colors = [
-            'rgba(255, 255, 255, 0.3)',
-            'rgba(200, 210, 230, 0.25)',
-            accent ? accent.replace(')', ', 0.2)').replace('rgb(', 'rgba(') : 'rgba(180, 200, 220, 0.2)'
-        ];
-    }
-
-    const currentTheme = document.documentElement.getAttribute('data-theme');
-    const isSakura = currentTheme === 'sakura';
-    const isMobile = window.innerWidth <= 768;
-
-    // Reduce star count on mobile for performance (80 → 20)
-    const starCount = isMobile ? 20 : 80;
-
-    for (let i = 0; i < starCount; i++) {
-        const star = document.createElement('div');
-        star.className = 'stratos-star';
-        const size = Math.random() * 2 + 0.5;
-        const color = colors[Math.floor(Math.random() * 3)];
-        const x = Math.random() * 100;
-        const y = Math.random() * 100;
-
-        // Sakura: ~40% of particles are petal-shaped
-        const isPetal = isSakura && Math.random() < 0.4;
-        const petalStyle = isPetal
-            ? `border-radius: 50% 0 50% 0; transform: rotate(${Math.floor(Math.random() * 360)}deg); width: ${size * 2.5}px; height: ${size * 1.5}px;`
-            : '';
-
-        // Skip box-shadow glow and animations on mobile
-        const glow = !isMobile && size > 1.5 ? `box-shadow: 0 0 ${size * 2}px ${color};` : '';
-        const anim = !isMobile && size > 1.2 ? `animation: twinkle ${2 + Math.random() * 3}s ease-in-out infinite ${Math.random() * 3}s;` : '';
-
-        star.style.cssText = `
-            width: ${size}px; height: ${size}px;
-            background: ${color};
-            top: ${y}%; left: ${x}%;
-            ${isPetal ? petalStyle : ''}
-            ${glow}
-            ${anim}
-        `;
-        canvas.appendChild(star);
-    }
+function _stopStarEngine() {
+    if (!_starEngine) return;
+    cancelAnimationFrame(_starEngine.raf);
+    if (_starEngine.onMove) document.removeEventListener('mousemove', _starEngine.onMove);
+    if (_starEngine.onLeave) document.removeEventListener('mouseleave', _starEngine.onLeave);
+    if (_starEngine.onScroll) document.removeEventListener('scroll', _starEngine.onScroll, true);
+    _starEngine = null;
 }
 
-// Star parallax on scroll — disabled on touch devices to avoid scroll jank
-(function() {
-    const isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-    if (isTouch) return; // Skip scroll parallax entirely on mobile/tablet
+function _getStarColors() {
+    const cs = getComputedStyle(document.documentElement);
+    const hasStarVars = cs.getPropertyValue('--starry-theme').trim();
 
-    let ticking = false;
-    function onScroll() {
-        if (ticking) return;
-        ticking = true;
-        requestAnimationFrame(function() {
-            const canvas = document.getElementById('star-canvas');
-            if (canvas && canvas.style.display !== 'none') {
-                const el = document.getElementById('main-content') || document.querySelector('[class*="overflow-y"]');
-                const scrollY = el ? el.scrollTop : window.scrollY;
-                canvas.style.transform = 'translateY(' + (scrollY * -0.08) + 'px)';
-            }
-            ticking = false;
+    function parseRgba(str) {
+        const m = str.match(/rgba?\(([^)]+)\)/);
+        if (!m) return { r: 255, g: 255, b: 255, a: 0.3 };
+        const p = m[1].split(',').map(s => parseFloat(s.trim()));
+        return { r: p[0], g: p[1], b: p[2], a: p[3] !== undefined ? p[3] : 1 };
+    }
+
+    if (hasStarVars) {
+        return {
+            c1: parseRgba(cs.getPropertyValue('--star-color-1').trim()),
+            c2: parseRgba(cs.getPropertyValue('--star-color-2').trim()),
+            c3: parseRgba(cs.getPropertyValue('--star-color-3').trim()),
+            accent: cs.getPropertyValue('--accent').trim()
+        };
+    }
+    // Fallback for non-starry themes
+    const accent = cs.getPropertyValue('--accent').trim() || '#38bdf8';
+    return {
+        c1: { r: 255, g: 255, b: 255, a: 0.3 },
+        c2: { r: 200, g: 210, b: 230, a: 0.25 },
+        c3: { r: 180, g: 200, b: 220, a: 0.2 },
+        accent: accent
+    };
+}
+
+function renderStars() {
+    const container = document.getElementById('star-canvas');
+    if (!container) return;
+
+    // Stop any running engine
+    _stopStarEngine();
+
+    const starsOn = localStorage.getItem('stratos-stars') === 'true';
+    if (!starsOn) {
+        container.style.display = 'none';
+        return;
+    }
+    container.style.display = 'block';
+
+    const canvas = document.getElementById('star-canvas-el');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+
+    const isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+    const isMobile = window.innerWidth <= 768;
+    const COUNT = isMobile ? 30 : 200;
+    const MOUSE_RADIUS = 150;
+    const LINE_RADIUS = 120;
+    const LINE_MOUSE_RANGE = 240;
+    const DRIFT_SPEED = 0.06;
+
+    const theme = document.documentElement.getAttribute('data-theme');
+    const isSakura = theme === 'sakura';
+
+    // Sizing
+    function resize() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+    resize();
+
+    // Get theme colors
+    let colors = _getStarColors();
+
+    function pickStar() {
+        const r = Math.random();
+        if (r < 0.15) return { c: colors.c1, bright: true };
+        if (r < 0.35) return { c: colors.c2, bright: true };
+        return { c: colors.c3, bright: false };
+    }
+
+    // Initialize stars
+    const stars = [];
+    for (let i = 0; i < COUNT; i++) {
+        const pick = pickStar();
+        const petal = isSakura && Math.random() < 0.35;
+        stars.push({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height,
+            baseX: 0, baseY: 0,
+            r: pick.bright ? Math.random() * 1.8 + 0.7 : Math.random() * 1.1 + 0.3,
+            a: pick.bright ? Math.random() * 0.30 + 0.35 : Math.random() * 0.25 + 0.05,
+            speed: Math.random() * 0.12 + 0.03,
+            phase: Math.random() * Math.PI * 2,
+            cr: pick.c.r, cg: pick.c.g, cb: pick.c.b,
+            isBright: pick.bright,
+            petal: petal,
+            petalAngle: Math.random() * Math.PI * 2,
+            petalSpin: (Math.random() - 0.5) * 0.005
+        });
+        stars[i].baseX = stars[i].x;
+        stars[i].baseY = stars[i].y;
+    }
+
+    // Shooting stars
+    const shooters = [];
+    let lastShooter = Date.now();
+    const SHOOT_INTERVAL = 6000;
+
+    function spawnShooter() {
+        const angle = Math.random() * 0.5 + 0.25;
+        const speed = Math.random() * 6 + 4;
+        shooters.push({
+            x: Math.random() * canvas.width * 0.7,
+            y: Math.random() * canvas.height * 0.35,
+            vx: Math.cos(angle) * speed,
+            vy: Math.sin(angle) * speed,
+            life: 1.0,
+            len: Math.random() * 40 + 25,
+            cr: colors.c1.r, cg: colors.c1.g, cb: colors.c1.b
         });
     }
+
+    // Mouse + scroll tracking
+    let mouseX = -1000, mouseY = -1000;
+    let scrollOffset = 0;
+
+    function onMove(e) { mouseX = e.clientX; mouseY = e.clientY; }
+    function onLeave() { mouseX = -1000; mouseY = -1000; }
+    function onScroll() {
+        const el = document.getElementById('main-content') || document.querySelector('[class*="overflow-y"]');
+        scrollOffset = el ? el.scrollTop : window.scrollY;
+    }
+
+    if (!isTouch) {
+        document.addEventListener('mousemove', onMove);
+        document.addEventListener('mouseleave', onLeave);
+    }
     document.addEventListener('scroll', onScroll, { capture: true, passive: true });
-})();
+
+    let raf = 0;
+
+    function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        const t = Date.now() * 0.001;
+        const now = Date.now();
+        const parallax = scrollOffset * 0.06;
+
+        // Shooting stars
+        if (now - lastShooter > SHOOT_INTERVAL + Math.random() * 3000) {
+            spawnShooter();
+            lastShooter = now;
+        }
+
+        const nearby = [];
+
+        for (let i = 0; i < stars.length; i++) {
+            const s = stars[i];
+
+            // Gentle drift
+            s.baseY -= DRIFT_SPEED;
+            if (isSakura && s.petal) {
+                s.baseX += Math.sin(t * 0.3 + s.phase) * 0.15; // petals sway
+                s.petalAngle += s.petalSpin;
+            }
+            if (s.baseY < -10) {
+                s.baseY = canvas.height + 10;
+                s.baseX = Math.random() * canvas.width;
+                s.y = s.baseY; s.x = s.baseX;
+            }
+
+            let drawX = s.baseX, drawY = s.baseY - parallax;
+            const dx = drawX - mouseX, dy = drawY - mouseY;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+
+            // Mouse repulsion
+            if (!isTouch && dist < MOUSE_RADIUS && dist > 0) {
+                const force = (1 - dist / MOUSE_RADIUS) * 24;
+                drawX += (dx / dist) * force;
+                drawY += (dy / dist) * force;
+            }
+
+            s.x += (drawX - s.x) * 0.07;
+            s.y += (drawY - s.y) * 0.07;
+
+            if (s.y < -15 || s.y > canvas.height + 15) continue;
+
+            const flicker = 0.65 + 0.35 * Math.sin(t * s.speed * 4 + s.phase);
+            const proxBoost = (!isTouch && dist < MOUSE_RADIUS) ? 1 + (1 - dist / MOUSE_RADIUS) * 0.5 : 1;
+            const alpha = Math.min(1, s.a * flicker * proxBoost);
+            const radius = s.r * ((!isTouch && dist < MOUSE_RADIUS) ? 1 + (1 - dist / MOUSE_RADIUS) * 0.35 : 1);
+
+            ctx.globalAlpha = alpha;
+
+            // Sakura petals: draw rotated ellipse
+            if (isSakura && s.petal) {
+                ctx.save();
+                ctx.translate(s.x, s.y);
+                ctx.rotate(s.petalAngle);
+                ctx.fillStyle = `rgb(${s.cr},${s.cg},${s.cb})`;
+                ctx.beginPath();
+                ctx.ellipse(0, 0, radius * 2.2, radius * 1.1, 0, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            } else {
+                ctx.fillStyle = `rgb(${s.cr},${s.cg},${s.cb})`;
+                ctx.beginPath();
+                ctx.arc(s.x, s.y, radius, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            // Glow on bright stars near cursor
+            if (!isTouch && s.isBright && dist < MOUSE_RADIUS * 0.7) {
+                ctx.globalAlpha = alpha * 0.12;
+                ctx.beginPath();
+                ctx.arc(s.x, s.y, radius * 3.5, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            // Track for constellation lines
+            if (!isTouch) {
+                const mDist = Math.sqrt((s.x - mouseX) ** 2 + (s.y - mouseY) ** 2);
+                if (mDist < LINE_MOUSE_RANGE) {
+                    nearby.push({ x: s.x, y: s.y, a: alpha, mDist: mDist });
+                }
+            }
+        }
+
+        // Constellation lines
+        if (!isTouch && nearby.length > 1) {
+            for (let a = 0; a < nearby.length; a++) {
+                for (let b = a + 1; b < nearby.length; b++) {
+                    const ddx = nearby[a].x - nearby[b].x;
+                    const ddy = nearby[a].y - nearby[b].y;
+                    const d = Math.sqrt(ddx * ddx + ddy * ddy);
+                    if (d < LINE_RADIUS) {
+                        let la = (1 - d / LINE_RADIUS) * 0.14;
+                        const avgMD = (nearby[a].mDist + nearby[b].mDist) / 2;
+                        la *= Math.max(0, (1 - avgMD / LINE_MOUSE_RANGE) * 1.3);
+                        la = Math.min(la, 0.16);
+                        ctx.globalAlpha = la;
+                        ctx.strokeStyle = colors.accent;
+                        ctx.lineWidth = 0.5;
+                        ctx.beginPath();
+                        ctx.moveTo(nearby[a].x, nearby[a].y);
+                        ctx.lineTo(nearby[b].x, nearby[b].y);
+                        ctx.stroke();
+                    }
+                }
+            }
+        }
+
+        // Shooting stars
+        for (let si = shooters.length - 1; si >= 0; si--) {
+            const sh = shooters[si];
+            sh.x += sh.vx; sh.y += sh.vy;
+            sh.life -= 0.014;
+            if (sh.life <= 0 || sh.x > canvas.width + 60 || sh.y > canvas.height + 60) {
+                shooters.splice(si, 1); continue;
+            }
+            const spd = Math.sqrt(sh.vx * sh.vx + sh.vy * sh.vy);
+            const tailX = sh.x - sh.vx * (sh.len / spd);
+            const tailY = sh.y - sh.vy * (sh.len / spd);
+            const grad = ctx.createLinearGradient(tailX, tailY, sh.x, sh.y);
+            grad.addColorStop(0, 'transparent');
+            grad.addColorStop(1, `rgba(${sh.cr},${sh.cg},${sh.cb},${sh.life * 0.5})`);
+            ctx.globalAlpha = sh.life * 0.6;
+            ctx.strokeStyle = grad;
+            ctx.lineWidth = 1.3;
+            ctx.beginPath();
+            ctx.moveTo(tailX, tailY);
+            ctx.lineTo(sh.x, sh.y);
+            ctx.stroke();
+            ctx.globalAlpha = sh.life * 0.8;
+            ctx.fillStyle = '#fff';
+            ctx.beginPath();
+            ctx.arc(sh.x, sh.y, 1.2, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        ctx.globalAlpha = 1;
+        raf = requestAnimationFrame(draw);
+    }
+
+    raf = requestAnimationFrame(draw);
+
+    // Store engine state for cleanup
+    _starEngine = { raf, onMove: isTouch ? null : onMove, onLeave: isTouch ? null : onLeave, onScroll };
+
+    // Resize handler
+    window._starResize = function() {
+        resize();
+        for (let i = 0; i < stars.length; i++) {
+            stars[i].baseX = Math.random() * canvas.width;
+            stars[i].baseY = Math.random() * canvas.height;
+            stars[i].x = stars[i].baseX; stars[i].y = stars[i].baseY;
+        }
+    };
+}
+
+// Resize watcher for star canvas
+window.addEventListener('resize', function() {
+    if (typeof window._starResize === 'function') window._starResize();
+});
 
 // Load saved theme + mode + stars
 const savedTheme = validThemes.includes(localStorage.getItem('stratos-theme'))

@@ -342,19 +342,15 @@
 }
 
 /* ════════════════ STAR ANIMATION ════════════════ */
-@keyframes twinkle {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.3; }
-}
-.stratos-star {
-    position: absolute; border-radius: 50%;
-    pointer-events: none; z-index: 0;
-}
 #star-canvas {
     position: fixed; inset: 0;
     pointer-events: none; z-index: 0;
     overflow: hidden; display: none;
-    transition: transform 0.3s ease-out;
+}
+#star-canvas-el {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    pointer-events: all;
 }
 
 body { background-color: var(--bg-primary); color: var(--text-primary); }
@@ -2187,8 +2183,5 @@ body.density-comfortable .score-pill { min-height: 36px !important; padding: 6px
         animation-iteration-count: 1 !important;
         transition-duration: 0.01ms !important;
     }
-    .stratos-star { animation: none !important; }
-    .auth-star { animation: none !important; }
     .auth-orb { animation: none !important; }
-    #star-canvas { display: none !important; }
 }
