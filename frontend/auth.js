@@ -37,7 +37,8 @@ window.fetch = function(url, opts = {}) {
     return _originalFetch.call(this, url, opts).then(r => {
         if (r.status === 401 && typeof url === 'string' && url.startsWith('/api/')
             && !_authRedirecting
-            && !url.startsWith('/api/auth/')) {
+            && !url.startsWith('/api/auth/')
+            && !document.getElementById('auth-overlay')) {
             // Verify the token is truly invalid before logging out
             _authRedirecting = true;
             _originalFetch('/api/auth/check', { headers: { 'X-Auth-Token': getAuthToken() } })
@@ -56,26 +57,6 @@ window.fetch = function(url, opts = {}) {
 
 /* ═══ ROTATING COLOR THEMES (synced with app theme palette) ═══ */
 const AUTH_THEMES = [
-    { name:'Midnight', accent:'#34d399', rgb:'52,211,153',
-      orb1:'rgba(16,185,129,.14)', orb2:'rgba(59,130,246,.10)', orb3:'rgba(139,92,246,.08)',
-      grid:'rgba(16,185,129,.045)', bg:'linear-gradient(160deg,#050810 0%,#0f172a 50%,#050810 100%)',
-      star1:'rgba(52,211,153,.5)', star2:'rgba(148,163,184,.3)', star3:'rgba(255,255,255,.2)' },
-    { name:'Noir', accent:'#a78bfa', rgb:'167,139,250',
-      orb1:'rgba(139,92,246,.14)', orb2:'rgba(99,102,241,.10)', orb3:'rgba(192,132,252,.08)',
-      grid:'rgba(139,92,246,.045)', bg:'linear-gradient(160deg,#050506 0%,#0f0a24 50%,#050506 100%)',
-      star1:'rgba(167,139,250,.5)', star2:'rgba(192,132,252,.3)', star3:'rgba(255,255,255,.2)' },
-    { name:'Coffee', accent:'#fbbf24', rgb:'251,191,36',
-      orb1:'rgba(245,158,11,.14)', orb2:'rgba(217,119,6,.10)', orb3:'rgba(180,83,9,.07)',
-      grid:'rgba(245,158,11,.04)', bg:'linear-gradient(160deg,#0a0704 0%,#1a1008 50%,#0a0704 100%)',
-      star1:'rgba(251,191,36,.45)', star2:'rgba(245,158,11,.25)', star3:'rgba(255,255,255,.18)' },
-    { name:'Rose', accent:'#fb7185', rgb:'251,113,133',
-      orb1:'rgba(244,63,94,.14)', orb2:'rgba(251,113,133,.10)', orb3:'rgba(190,18,60,.07)',
-      grid:'rgba(244,63,94,.04)', bg:'linear-gradient(160deg,#080507 0%,#1a0a1e 50%,#080507 100%)',
-      star1:'rgba(251,113,133,.5)', star2:'rgba(244,63,94,.3)', star3:'rgba(255,255,255,.2)' },
-    { name:'Cosmos', accent:'#f0cc55', rgb:'240,204,85',
-      orb1:'rgba(232,185,49,.14)', orb2:'rgba(150,180,255,.10)', orb3:'rgba(100,130,220,.07)',
-      grid:'rgba(232,185,49,.04)', bg:'linear-gradient(160deg,#07080f 0%,#0d1225 50%,#07080f 100%)',
-      star1:'rgba(232,185,49,.6)', star2:'rgba(150,180,255,.4)', star3:'rgba(255,255,255,.3)' },
     { name:'Nebula', accent:'#7dd3fc', rgb:'125,211,252',
       orb1:'rgba(167,139,250,.14)', orb2:'rgba(56,189,248,.10)', orb3:'rgba(99,102,241,.08)',
       grid:'rgba(56,189,248,.04)', bg:'linear-gradient(160deg,#08060f 0%,#140e25 50%,#08060f 100%)',
@@ -84,10 +65,14 @@ const AUTH_THEMES = [
       orb1:'rgba(52,211,153,.14)', orb2:'rgba(56,189,248,.10)', orb3:'rgba(16,185,129,.07)',
       grid:'rgba(52,211,153,.04)', bg:'linear-gradient(160deg,#060b10 0%,#0a1520 50%,#060b10 100%)',
       star1:'rgba(52,211,153,.4)', star2:'rgba(56,189,248,.3)', star3:'rgba(255,255,255,.3)' },
-    { name:'Sakura', accent:'#f8c4d4', rgb:'248,196,212',
-      orb1:'rgba(240,160,184,.14)', orb2:'rgba(255,220,240,.08)', orb3:'rgba(200,160,220,.06)',
-      grid:'rgba(240,160,184,.035)', bg:'linear-gradient(160deg,#08050c 0%,#120a1a 50%,#08050c 100%)',
-      star1:'rgba(240,160,184,.5)', star2:'rgba(255,220,240,.35)', star3:'rgba(200,160,220,.3)' },
+    { name:'Noir', accent:'#a78bfa', rgb:'167,139,250',
+      orb1:'rgba(139,92,246,.14)', orb2:'rgba(99,102,241,.10)', orb3:'rgba(192,132,252,.08)',
+      grid:'rgba(139,92,246,.045)', bg:'linear-gradient(160deg,#050506 0%,#0f0a24 50%,#050506 100%)',
+      star1:'rgba(167,139,250,.5)', star2:'rgba(192,132,252,.3)', star3:'rgba(255,255,255,.2)' },
+    { name:'Cosmos', accent:'#f0cc55', rgb:'240,204,85',
+      orb1:'rgba(232,185,49,.14)', orb2:'rgba(150,180,255,.10)', orb3:'rgba(100,130,220,.07)',
+      grid:'rgba(232,185,49,.04)', bg:'linear-gradient(160deg,#07080f 0%,#0d1225 50%,#07080f 100%)',
+      star1:'rgba(232,185,49,.6)', star2:'rgba(150,180,255,.4)', star3:'rgba(255,255,255,.3)' },
 ];
 
 function _getAuthTheme() {

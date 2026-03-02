@@ -500,8 +500,8 @@ document.addEventListener('visibilitychange', function() {
             var secs = parseInt(document.getElementById('auto-refresh-interval')?.value || '0');
             if (secs > 0 && typeof setAutoRefresh === 'function') setAutoRefresh(secs);
         }
-        // Immediate status check on return
-        if (typeof checkStatus === 'function') checkStatus();
+        // Immediate status check on return — but only if authenticated
+        if (typeof checkStatus === 'function' && typeof getAuthToken === 'function' && getAuthToken()) checkStatus();
     }
 });
 
