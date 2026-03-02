@@ -4,7 +4,7 @@
 > Loaded into Claude.ai Project Knowledge and Claude Code context.
 > **CLAUDE.md** = how to work here. **STATE.md** = what happened and why. **FRS** = what the system should be.
 
-Last updated: **2026-03-01** (session: cross-device UI state sync + per-request profile isolation — 4 commits)
+Last updated: **2026-03-02** (session: config overlay loading, briefing endpoint, fetch hardening, diagnostics cleanup)
 
 ---
 
@@ -21,7 +21,7 @@ Last updated: **2026-03-01** (session: cross-device UI state sync + per-request 
 - **Inference model:** `qwen3:30b-a3b` (~18-19GB MoE) — strat agent + market analysis only
 - **Wizard/briefing model:** `qwen3:14b` (~9GB) — wizard, briefings, profile generation, suggestions
 - **Search provider:** Serper (Google) primary, DuckDuckGo fallback. 60-min dedup window on Serper queries.
-- **Serper credits:** ~1524 remaining of 2500 (key: `1b9db98...` in `.env`) — 365 used total (228 Phase 1 + 82 Phase 2 + 55 post-fix validation)
+- **Serper credits:** ~1524 remaining of 2500 (key: `bc26c29...` in `.env`, rotated Mar 2) — 365 used total (228 Phase 1 + 82 Phase 2 + 55 post-fix validation)
 
 ### Auth & User System
 
@@ -122,10 +122,11 @@ data/users/{user_id}/
 - ~~**CRITICAL — Data bleed between users:**~~ **FIXED** (commit ac42ec6, e297916). `/api/config` and `/api/data` return blank for profileless users. Full localStorage wipe on login/verify.
 - ~~**MODERATE — Unverified users could login:**~~ **FIXED** (commit 7a6d0ad). Users stored in `pending_registrations` until verified. Login blocks unverified (403).
 - **kuniv category over-scoring:** Articles mentioning "Kuwait" get scored high regardless of topical relevance. Scorer training issue, not pipeline bug.
-- **Frontend SSE for briefing_ready:** Backend broadcasts `briefing_ready` event, but frontend doesn't listen for it yet — briefing appears on next data poll, not instantly.
+- ~~**Frontend SSE for briefing_ready:**~~ **FIXED** (commit 93de658). New `/api/briefing` endpoint (5KB) + SSE listener. No longer reloads full 2MB `/api/data`.
 - **FRS v9 is stale:** Doesn't reflect auth system, per-user data, model routing, deferred briefing, incremental scanning, or profile-scoped retention.
-- **API key rotation pending:** Old Serper key (`ec4d2...`) and Google API key (`AIzaSy...`) were exposed in public git history (scrubbed with git-filter-repo). Should be rotated.
+- **API key rotation pending:** Serper key rotated (Mar 2). Google API key (`AIzaSy...`) still exposed in git history (scrubbed with git-filter-repo).
 - **Agent chat logging deferred:** Per-user agent chat history needs DB table + frontend changes. Not yet implemented.
+- **Frontend fetch error handling:** 25 of 34 unchecked fetch calls fixed (13 critical, 12 important). 9 optional fire-and-forget calls left as-is (ui-state sync, search-status, market-tick, ticker-presets).
 
 ### What's Not Yet Done
 
@@ -134,7 +135,7 @@ data/users/{user_id}/
 - **VRAM coexistence test:** scorer (8.7GB) + 14b (~9GB) may fit in 24GB simultaneously — haven't tested `OLLAMA_MAX_LOADED_MODELS=2` yet
 - **RSS feeds:** currently empty (`rss_feeds: []`), all news comes from search queries
 - **Agent chat logging:** per-user JSONL for agent conversations (needs DB table + frontend wiring)
-- **Config overlay loading on profile switch:** when activating a profile, load its `config_overlay` into `strat.config` (currently only saves, doesn't restore)
+- ~~**Config overlay loading on profile switch:**~~ **FIXED** (commit f684914). `_apply_config_overlay()` called on activation and login. Clear-and-replace pattern preserves system keys.
 - **Per-request config snapshot:** `strat.config` is still a shared mutable global. `ensure_profile()` can swap it mid-request. Agent tool functions that read `strat.config` are fast (low race window) but a full config isolation refactor would require per-request config copies.
 - **Admin panel polish:** user management UI, session viewer, system health dashboard
 
@@ -149,6 +150,24 @@ data/users/{user_id}/
 ## 2. Decision Log
 
 > Append-only. Newest first. Each entry: WHAT was decided, WHY, and WHAT was rejected.
+
+### 2026-03-02
+
+**D033 — Frontend gitlink removed, files tracked directly in parent repo**
+Frontend had its own `.git` without `.gitmodules`. `git push` to parent silently excluded frontend files (no error, no warning). Removed nested `.git`, tracked files directly.
+*Rejected:* Proper git submodule (unnecessary complexity for solo project, no separate remote for frontend).
+
+**D034 — Dependency upper bounds pinned in requirements.txt**
+All packages now have `>=x.y,<(x+1).0`. Prevents breaking upstream changes (especially yfinance API changes). `duckduckgo-search` renamed to `ddgs`.
+*Rejected:* Exact `==x.y.z` pinning (too brittle, blocks security patches). Unpinned `>=` only (current state was fragile).
+
+**D035 — Config overlay loading uses clear-and-replace, not deep merge**
+When activating a DB profile, `_apply_config_overlay()` snapshots system keys, nuclear-clears non-system keys, applies overlay, restores untouched system keys. Same pattern as `load_profile_config()` for YAML profiles. `dynamic_categories` is fully replaced (User B gets User B's categories, not a merge with User A's).
+*Rejected:* Deep merge (would leak User A's categories into User B's session). Shallow assign (wouldn't handle nested scoring overrides like `retain_threshold`).
+
+**D036 — Dedicated /api/briefing endpoint instead of full /api/data reload**
+Briefing is 5KB; `/api/data` is ~2MB (814KB market OHLCV + 88KB news). SSE `briefing_ready` handler fetches lightweight endpoint instead of reloading everything. Database methods `get_recent_briefings()` already existed but had no HTTP route.
+*Rejected:* Calling `loadNewData()` (400x bandwidth waste), adding query params to `/api/data` (complex, backwards-incompatible).
 
 ### 2026-03-01
 
@@ -288,6 +307,16 @@ DoRA offers 1-4% gains over LoRA with better tolerance for lower ranks. For scor
 
 > Non-obvious failures that future sessions might repeat. If the natural instinct would be to try the same approach, log it here.
 
+### 2026-03-02
+
+**F020 — duckduckgo_search renamed to ddgs**
+Runtime deprecation warning on every startup. Old import still worked silently. Affects news.py, kuwait_scrapers.py, stage2_collect.py. Fixed with fallback import chain (`ddgs` → `duckduckgo_search`).
+**Rule:** Pin package names in requirements.txt, not just versions. Monitor for rename notices in pip output.
+
+**F021 — Frontend gitlink without .gitmodules drops files from parent repo**
+Frontend directory had its own `.git` but no `.gitmodules` in parent. `git push` succeeds with no error, but frontend files don't appear on remote. No warning.
+**Rule:** Directory with `.git` inside a repo must be registered as proper submodule or have `.git` removed. Never have a nested `.git` without `.gitmodules`.
+
 ### 2026-03-01
 
 **F017 — Global active_profile_id race in ThreadingMixIn**
@@ -391,6 +420,19 @@ Must delete `hf_device_map` and force `.to("cuda:0")` or gradient computation cr
 ## 4. Session Log
 
 > Most recent first. 3-5 lines per session.
+
+### 2026-03-02 — Config Overlay, Briefing Endpoint, Fetch Hardening, Diagnostics Cleanup
+**Commits:** f684914, 93de658, f6e54f9, 0799711, d6014ec + docs commit
+(1) **Config overlay loading on profile activation** — `_apply_config_overlay()` in routes/auth.py uses clear-and-replace pattern (same as YAML profiles). Applied on login + profile activate. Closes the last multi-user isolation gap.
+(2) **Dedicated /api/briefing endpoint** — 5KB response vs 2MB full `/api/data`. SSE `briefing_ready` handler fetches lightweight endpoint, updates `data.briefing`, calls `renderBriefing()`.
+(3) **Fetch error handling** — Added `response.ok` checks + `AbortSignal.timeout()` to 25 fetch calls (13 critical, 12 important). Timeouts: 10s GET, 15s POST, 60s AI generation.
+(4) **TradingView chart investigation** — Verified LightweightCharts is event-driven; hidden sidebar chart on mobile has near-zero idle CPU. No fix needed.
+(5) **Diagnostics cleanup** (d6014ec) — SSE `beforeunload` cleanup, `ddgs` import rename, agent silent exceptions → `logger.debug()`, pinned dependency bounds, deleted 4 orphaned .db files (121MB freed), frontend gitlink → direct tracking, Serper key rotated.
+
+### 2026-03-02 — Portfolio Page Update + Code Quality Fixes
+(1) **Portfolio page** — Title: "Systems Engineer" → "Computer Engineering Student · ML & Systems". 3 new feature cards (Multi-User Auth, Cross-Device Sync, Guided Onboarding). OG/Twitter Card meta tags, SVG architecture diagram, email+LinkedIn contact. "Tailwind CSS" → "Vanilla CSS · 24 variants · custom properties · no framework". 5 screenshot slots.
+(2) **Code quality fixes** (tasks #53-55) — POST /api/ui-state moved after auth enforcement (security bypass fix), GET /api/ui-state simplified, /api/export scoped, redundant `_get_profile_id` eliminated, dead imports removed. 11/11 API tests pass, net -16 lines.
+**Note:** Script deferring (§1A) and auth orb hiding (§1B) were confirmed already shipped in prior sessions — no work needed. Prior diagnostics claims that `_tvTrendLines` and `candleData` are dead code were wrong (both actively used).
 
 ### 2026-03-01 — Cross-Device UI Sync + Per-Request Profile Isolation (4 commits)
 **Commits:** f1edaed, 546b5a8, ce2ca9d, ff18882
