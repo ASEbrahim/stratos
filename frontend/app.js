@@ -1244,12 +1244,18 @@ async function _handleSSEComplete(d) {
 
     const systemStatus = document.getElementById('system-status');
 
-    // First scan for fresh profile → full page reload
+    // First scan for fresh profile → soft refresh (no hard reload)
     if (window._firstScanPending) {
         window._firstScanPending = false;
-        if (typeof showToast === 'function') showToast('First scan complete! Reloading...', 'success', 2000);
-        await new Promise(r => setTimeout(r, 1500));
-        window.location.reload();
+        if (typeof showToast === 'function') showToast('First scan complete! Loading results...', 'success', 2000);
+        // Re-fetch config so new dynamic categories appear in nav
+        try {
+            const cfgResp = await fetch('/api/config');
+            if (cfgResp.ok) { configData = await cfgResp.json(); rebuildNavFromConfig(); }
+        } catch(e) {}
+        isAutoLoading = true;
+        await loadNewData(true);
+        isAutoLoading = false;
         return;
     }
 
@@ -1512,20 +1518,24 @@ async function checkStatus() {
             // Hide settings banner
             if (settingsScanBanner) settingsScanBanner.classList.add('hidden');
             
-            // If this was the first scan for a fresh profile, do a full page reload
-            // so nav, categories, and everything rebuilds cleanly
+            // First scan for fresh profile → soft refresh (no hard reload)
             if (window._firstScanPending) {
                 window._firstScanPending = false;
-                if (typeof showToast === 'function') showToast('First scan complete! Reloading...', 'success', 2000);
-                await new Promise(r => setTimeout(r, 1500));
-                window.location.reload();
+                if (typeof showToast === 'function') showToast('First scan complete! Loading results...', 'success', 2000);
+                // Re-fetch config so new dynamic categories appear in nav
+                try {
+                    const cfgResp = await fetch('/api/config');
+                    if (cfgResp.ok) { configData = await cfgResp.json(); rebuildNavFromConfig(); }
+                } catch(e) {}
+                await loadNewData(true);
+                isAutoLoading = false;
                 return;
             }
-            
+
             // Update system status
             systemStatus.innerHTML = '<span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Loading...';
             systemStatus.className = 'text-[10px] text-emerald-400 flex items-center gap-2 mt-1';
-            
+
             // Auto-reload the data
             await loadNewData();
             
