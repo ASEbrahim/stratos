@@ -89,8 +89,8 @@ function initChart(forceRecreate) {
         },
         rightPriceScale: { borderColor:border, scaleMargins:{top:0.1,bottom:0.1} },
         timeScale: { borderColor:border, timeVisible:true, secondsVisible:false, rightOffset:5, minBarSpacing:3 },
-        handleScroll:{mouseWheel:false,pressedMouseMove:true,horzTouchDrag:true,vertTouchDrag:false},
-        handleScale:{axisPressedMouseMove:true,mouseWheel:false,pinch:true},
+        handleScroll:{mouseWheel:false,pressedMouseMove:false,horzTouchDrag:true,vertTouchDrag:false},
+        handleScale:{axisPressedMouseMove:false,mouseWheel:false,pinch:true},
     });
 
     _createSeries();
@@ -302,20 +302,21 @@ function _redrawOverlay() {
         });
     }
 
-    _renderFocusDrawings(ctx, canvas.width, canvas.height);
+    _renderFocusDrawings(ctx, canvas.width, canvas.height, _tvChart, _tvSeries, currentSymbol);
 }
 
-// Render focus mode drawings (from localStorage) on the main chart overlay
-function _renderFocusDrawings(ctx, w, h) {
-    if (!_tvChart || !_tvSeries || !currentSymbol) return;
+// Render focus mode drawings (from localStorage) on any chart overlay.
+// Accepts chart/series/symbol so markets-panel.js can reuse this.
+function _renderFocusDrawings(ctx, w, h, chart, series, symbol) {
+    if (!chart || !series || !symbol) return;
     var raw;
-    try { raw = localStorage.getItem('stratos_drawings_' + currentSymbol); } catch(e) { return; }
+    try { raw = localStorage.getItem('stratos_drawings_' + symbol); } catch(e) { return; }
     if (!raw) return;
     var drawings;
     try { drawings = JSON.parse(raw); } catch(e) { return; }
     if (!drawings || !drawings.length) return;
 
-    var ts = _tvChart.timeScale();
+    var ts = chart.timeScale();
     var chartW = ts.width();
     if (chartW <= 0 || chartW > w) chartW = w;
 
@@ -332,7 +333,7 @@ function _renderFocusDrawings(ctx, w, h) {
 
     drawings.forEach(function(d) {
         if (d.type === 'hline') {
-            var y = _tvSeries.priceToCoordinate(d.price);
+            var y = series.priceToCoordinate(d.price);
             if (y == null) return;
             ctx.strokeStyle = '#F0B90B'; ctx.lineWidth = 1;
             ctx.setLineDash([5, 3]);
@@ -342,7 +343,7 @@ function _renderFocusDrawings(ctx, w, h) {
             ctx.fillText(fmtP(d.price), 4, y - 4);
 
         } else if (d.type === 'hray') {
-            var y = _tvSeries.priceToCoordinate(d.price);
+            var y = series.priceToCoordinate(d.price);
             var sx = ts.logicalToCoordinate(d.startIdx);
             if (y == null || sx == null) return;
             ctx.strokeStyle = '#F0B90B'; ctx.lineWidth = 1;
@@ -362,21 +363,21 @@ function _renderFocusDrawings(ctx, w, h) {
 
         } else if (d.type === 'text') {
             var x = ts.logicalToCoordinate(d.timeIdx);
-            var y = _tvSeries.priceToCoordinate(d.price);
+            var y = series.priceToCoordinate(d.price);
             if (x == null || y == null) return;
             ctx.fillStyle = '#eaecef'; ctx.font = '12px sans-serif';
             ctx.fillText(d.text, x, y);
 
         } else if (d.type === 'trend') {
-            var sx = ts.logicalToCoordinate(d.startIdx), sy = _tvSeries.priceToCoordinate(d.startPrice);
-            var ex = ts.logicalToCoordinate(d.endIdx), ey = _tvSeries.priceToCoordinate(d.endPrice);
+            var sx = ts.logicalToCoordinate(d.startIdx), sy = series.priceToCoordinate(d.startPrice);
+            var ex = ts.logicalToCoordinate(d.endIdx), ey = series.priceToCoordinate(d.endPrice);
             if (sx == null || sy == null || ex == null || ey == null) return;
             ctx.strokeStyle = '#2196F3'; ctx.lineWidth = 1.5; ctx.setLineDash([]);
             ctx.beginPath(); ctx.moveTo(sx, sy); ctx.lineTo(ex, ey); ctx.stroke();
 
         } else if (d.type === 'ray') {
-            var sx = ts.logicalToCoordinate(d.startIdx), sy = _tvSeries.priceToCoordinate(d.startPrice);
-            var ex = ts.logicalToCoordinate(d.endIdx), ey = _tvSeries.priceToCoordinate(d.endPrice);
+            var sx = ts.logicalToCoordinate(d.startIdx), sy = series.priceToCoordinate(d.startPrice);
+            var ex = ts.logicalToCoordinate(d.endIdx), ey = series.priceToCoordinate(d.endPrice);
             if (sx == null || sy == null || ex == null || ey == null) return;
             ctx.strokeStyle = '#2196F3'; ctx.lineWidth = 1.5; ctx.setLineDash([]);
             var dx = ex - sx, dy = ey - sy, len = Math.sqrt(dx*dx + dy*dy);
@@ -386,15 +387,15 @@ function _renderFocusDrawings(ctx, w, h) {
             }
 
         } else if (d.type === 'fib') {
-            var sx = ts.logicalToCoordinate(d.startIdx), sy = _tvSeries.priceToCoordinate(d.startPrice);
-            var ex = ts.logicalToCoordinate(d.endIdx), ey = _tvSeries.priceToCoordinate(d.endPrice);
+            var sx = ts.logicalToCoordinate(d.startIdx), sy = series.priceToCoordinate(d.startPrice);
+            var ex = ts.logicalToCoordinate(d.endIdx), ey = series.priceToCoordinate(d.endPrice);
             if (sx == null || sy == null || ex == null || ey == null) return;
             var fibLevels = [0, 0.236, 0.382, 0.5, 0.618, 0.786, 1];
             var fibColors = ['#787B86','#F6C343','#4CAF50','#2196F3','#9C27B0','#E91E63','#787B86'];
             var range = d.endPrice - d.startPrice;
             fibLevels.forEach(function(lvl, idx) {
                 var price = d.startPrice + range * lvl;
-                var y = _tvSeries.priceToCoordinate(price);
+                var y = series.priceToCoordinate(price);
                 if (y == null) return;
                 ctx.strokeStyle = fibColors[idx] || '#787B86'; ctx.lineWidth = 1;
                 ctx.setLineDash(lvl === 0 || lvl === 1 ? [] : [4, 2]);
@@ -403,16 +404,16 @@ function _renderFocusDrawings(ctx, w, h) {
                 ctx.fillStyle = fibColors[idx] || '#787B86'; ctx.font = '9px monospace';
                 ctx.fillText((lvl * 100).toFixed(1) + '% ' + fmtP(price), 4, y - 3);
             });
-            var yTop = _tvSeries.priceToCoordinate(Math.max(d.startPrice, d.endPrice));
-            var yBot = _tvSeries.priceToCoordinate(Math.min(d.startPrice, d.endPrice));
+            var yTop = series.priceToCoordinate(Math.max(d.startPrice, d.endPrice));
+            var yBot = series.priceToCoordinate(Math.min(d.startPrice, d.endPrice));
             if (yTop != null && yBot != null) {
                 ctx.fillStyle = 'rgba(33,150,243,0.05)';
                 ctx.fillRect(Math.min(sx, ex), yTop, Math.abs(ex - sx), yBot - yTop);
             }
 
         } else if (d.type === 'rect') {
-            var sx = ts.logicalToCoordinate(d.startIdx), sy = _tvSeries.priceToCoordinate(d.startPrice);
-            var ex = ts.logicalToCoordinate(d.endIdx), ey = _tvSeries.priceToCoordinate(d.endPrice);
+            var sx = ts.logicalToCoordinate(d.startIdx), sy = series.priceToCoordinate(d.startPrice);
+            var ex = ts.logicalToCoordinate(d.endIdx), ey = series.priceToCoordinate(d.endPrice);
             if (sx == null || sy == null || ex == null || ey == null) return;
             ctx.strokeStyle = '#F0B90B'; ctx.lineWidth = 1; ctx.setLineDash([]);
             ctx.fillStyle = 'rgba(240,185,11,0.08)';
@@ -420,10 +421,10 @@ function _renderFocusDrawings(ctx, w, h) {
             ctx.strokeRect(sx, sy, ex - sx, ey - sy);
 
         } else if (d.type === 'channel') {
-            var sx = ts.logicalToCoordinate(d.startIdx), sy = _tvSeries.priceToCoordinate(d.startPrice);
-            var ex = ts.logicalToCoordinate(d.endIdx), ey = _tvSeries.priceToCoordinate(d.endPrice);
+            var sx = ts.logicalToCoordinate(d.startIdx), sy = series.priceToCoordinate(d.startPrice);
+            var ex = ts.logicalToCoordinate(d.endIdx), ey = series.priceToCoordinate(d.endPrice);
             if (sx == null || sy == null || ex == null || ey == null) return;
-            var offPriceY = _tvSeries.priceToCoordinate(d.endPrice + d.offset);
+            var offPriceY = series.priceToCoordinate(d.endPrice + d.offset);
             var offsetPx = (offPriceY != null) ? (offPriceY - ey) : 0;
             ctx.strokeStyle = '#2196F3'; ctx.lineWidth = 1.5; ctx.setLineDash([]);
             ctx.beginPath(); ctx.moveTo(sx, sy); ctx.lineTo(ex, ey); ctx.stroke();
@@ -435,8 +436,8 @@ function _renderFocusDrawings(ctx, w, h) {
             ctx.closePath(); ctx.fill();
 
         } else if (d.type === 'longpos') {
-            var sx = ts.logicalToCoordinate(d.startIdx), sy = _tvSeries.priceToCoordinate(d.startPrice);
-            var ex = ts.logicalToCoordinate(d.endIdx), ey = _tvSeries.priceToCoordinate(d.endPrice);
+            var sx = ts.logicalToCoordinate(d.startIdx), sy = series.priceToCoordinate(d.startPrice);
+            var ex = ts.logicalToCoordinate(d.endIdx), ey = series.priceToCoordinate(d.endPrice);
             if (sx == null || sy == null || ex == null || ey == null) return;
             var entryY = sy, tpY = ey;
             var slY = entryY + (entryY - tpY);
@@ -468,8 +469,8 @@ function _renderFocusDrawings(ctx, w, h) {
             ctx.fillText('R/R 1:' + rr.toFixed(1), boxL + 4, entryY + 14);
 
         } else if (d.type === 'shortpos') {
-            var sx = ts.logicalToCoordinate(d.startIdx), sy = _tvSeries.priceToCoordinate(d.startPrice);
-            var ex = ts.logicalToCoordinate(d.endIdx), ey = _tvSeries.priceToCoordinate(d.endPrice);
+            var sx = ts.logicalToCoordinate(d.startIdx), sy = series.priceToCoordinate(d.startPrice);
+            var ex = ts.logicalToCoordinate(d.endIdx), ey = series.priceToCoordinate(d.endPrice);
             if (sx == null || sy == null || ex == null || ey == null) return;
             var entryY = sy, tpY = ey;
             var slY = entryY - (tpY - entryY);
@@ -501,8 +502,8 @@ function _renderFocusDrawings(ctx, w, h) {
             ctx.fillText('R/R 1:' + rr.toFixed(1), boxL + 4, entryY + 14);
 
         } else if (d.type === 'measure') {
-            var sx = ts.logicalToCoordinate(d.startIdx), sy = _tvSeries.priceToCoordinate(d.startPrice);
-            var ex = ts.logicalToCoordinate(d.endIdx), ey = _tvSeries.priceToCoordinate(d.endPrice);
+            var sx = ts.logicalToCoordinate(d.startIdx), sy = series.priceToCoordinate(d.startPrice);
+            var ex = ts.logicalToCoordinate(d.endIdx), ey = series.priceToCoordinate(d.endPrice);
             if (sx == null || sy == null || ex == null || ey == null) return;
             ctx.strokeStyle = '#aaa'; ctx.lineWidth = 1;
             ctx.setLineDash([3, 3]);

@@ -1214,6 +1214,11 @@ function _mpRedrawCanvas(entry) {
             ctx.beginPath(); ctx.arc(pt.x,pt.y,3,0,Math.PI*2); ctx.fillStyle=ln.color; ctx.fill();
         });
     });
+
+    // Render focus mode drawings from localStorage
+    if (typeof _renderFocusDrawings === 'function') {
+        _renderFocusDrawings(ctx, cv.width, cv.height, entry.chart, entry.series, entry.symbol);
+    }
 }
 
 // ═══════════════════════════════════════════════════════════
