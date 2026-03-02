@@ -1487,6 +1487,40 @@ function _openFullscreenChartInner(sourceEl, title) {
     });
     _fs.chart = fsChart;
 
+    /* ── MA refresh (reusable — called on create AND live tick) ── */
+    var _fsMaConfigs = [
+        { period:10,  color:'#F0B90B' },
+        { period:20,  color:'#F6465D' },
+        { period:50,  color:'#9B59B6' },
+        { period:200, color:'#26A69A' },
+    ];
+    function _fsRefreshMAs(data) {
+        var closes = data.map(function(d) { return d.close != null ? d.close : d.value; });
+        var times = data.map(function(d) { return d.time; });
+        var maIdx = 0;
+        _fsMaConfigs.forEach(function(mc) {
+            if (closes.length < mc.period) return;
+            var smaVals = _calcSMA(closes, mc.period);
+            var maData = [];
+            for (var i = 0; i < smaVals.length; i++) {
+                if (smaVals[i] != null) maData.push({ time: times[i], value: smaVals[i] });
+            }
+            if (maData.length > 0) {
+                if (maIdx < _fs.maSeries.length) {
+                    _fs.maSeries[maIdx].setData(maData);
+                } else {
+                    var maSeries = fsChart.addLineSeries({
+                        color: mc.color, lineWidth: 1,
+                        crosshairMarkerVisible: false, lastValueVisible: false, priceLineVisible: false,
+                    });
+                    maSeries.setData(maData);
+                    _fs.maSeries.push(maSeries);
+                }
+                maIdx++;
+            }
+        });
+    }
+
     /* ── Create candle series ── */
     function _fsCreateSeries(data, hasOHLC) {
         /* Remove old series */
@@ -1509,31 +1543,7 @@ function _openFullscreenChartInner(sourceEl, title) {
         _fs.series.setData(data);
         _fs.chartData = data;  /* Store for magnet OHLC snapping */
 
-        /* ── MA overlays ── */
-        var closes = data.map(function(d) { return d.close != null ? d.close : d.value; });
-        var times = data.map(function(d) { return d.time; });
-        var maConfigs = [
-            { period:10,  color:'#F0B90B' },
-            { period:20,  color:'#F6465D' },
-            { period:50,  color:'#9B59B6' },
-            { period:200, color:'#26A69A' },
-        ];
-        maConfigs.forEach(function(mc) {
-            if (closes.length < mc.period) return;
-            var smaVals = _calcSMA(closes, mc.period);
-            var maData = [];
-            for (var i = 0; i < smaVals.length; i++) {
-                if (smaVals[i] != null) maData.push({ time: times[i], value: smaVals[i] });
-            }
-            if (maData.length > 0) {
-                var maSeries = fsChart.addLineSeries({
-                    color: mc.color, lineWidth: 1,
-                    crosshairMarkerVisible: false, lastValueVisible: false, priceLineVisible: false,
-                });
-                maSeries.setData(maData);
-                _fs.maSeries.push(maSeries);
-            }
-        });
+        _fsRefreshMAs(data);
 
         /* Calculate visible bars — enough for readable candles, not all data */
         if (data.length > 2) {
@@ -2794,6 +2804,7 @@ function _openFullscreenChartInner(sourceEl, title) {
                 if (newBuilt && newBuilt.data.length > 0) {
                     _fs.series.setData(newBuilt.data);
                     _fs.chartData = newBuilt.data;
+                    _fsRefreshMAs(newBuilt.data);
                     /* Update header price */
                     var p = idata.price || 0;
                     var c = idata.change || 0;
