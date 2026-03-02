@@ -622,6 +622,8 @@ function _fsFormatVol(v) {
     return v.toFixed(0);
 }
 
+var _fsTzOff = -(new Date().getTimezoneOffset() * 60); // browser TZ offset for chart display
+
 /* ── Build OHLC chart data from resolveData for a given symbol+tf ── */
 function _fsBuildData(symbol, tfKey) {
     if (typeof _resolveData !== 'function') return null;
@@ -632,7 +634,7 @@ function _fsBuildData(symbol, tfKey) {
     var hasOHLC = ad.opens && ad.opens.length === hist.length;
     var data = [], seen = {};
     for (var i = 0; i < hist.length; i++) {
-        var t = ts[i] ? Math.floor(new Date(ts[i]).getTime()/1000) : Math.floor(Date.now()/1000) - (hist.length-1-i)*60;
+        var t = ts[i] != null ? (typeof ts[i]==='number' ? ts[i]+_fsTzOff : Math.floor(new Date(ts[i]).getTime()/1000)+_fsTzOff) : Math.floor(Date.now()/1000)+_fsTzOff-(hist.length-1-i)*60;
         if (seen[t]) continue;
         seen[t] = true;
         if (hasOHLC) {
@@ -2929,7 +2931,7 @@ function _extractSeriesData(series) {
                 var data = [];
                 var seen = {};
                 for (var i = 0; i < hist.length; i++) {
-                    var t = ts[i] ? Math.floor(new Date(ts[i]).getTime()/1000) : Math.floor(Date.now()/1000) - (hist.length-1-i)*60;
+                    var t = ts[i] != null ? (typeof ts[i]==='number' ? ts[i]+_fsTzOff : Math.floor(new Date(ts[i]).getTime()/1000)+_fsTzOff) : Math.floor(Date.now()/1000)+_fsTzOff-(hist.length-1-i)*60;
                     if (seen[t]) continue;
                     seen[t] = true;
                     if (hasOHLC) {
@@ -2958,7 +2960,7 @@ function _extractMpChartData(entry) {
         var data = [];
         var seen = {};
         for (var i = 0; i < hist.length; i++) {
-            var t = ts[i] ? Math.floor(new Date(ts[i]).getTime()/1000) : Math.floor(Date.now()/1000) - (hist.length-1-i)*60;
+            var t = ts[i] != null ? (typeof ts[i]==='number' ? ts[i]+_fsTzOff : Math.floor(new Date(ts[i]).getTime()/1000)+_fsTzOff) : Math.floor(Date.now()/1000)+_fsTzOff-(hist.length-1-i)*60;
             if (seen[t]) continue;
             seen[t] = true;
             if (hasOHLC && entry.chartType === 'candle') {
