@@ -5,6 +5,7 @@ Handles registration, login, email verification, password reset,
 profile management, and admin operations.
 """
 
+import copy
 import hashlib
 import json
 import logging
@@ -72,6 +73,53 @@ def _generate_code() -> str:
 def _hash_code(code: str) -> str:
     """Hash a verification code for storage."""
     return hashlib.sha256(code.encode('utf-8')).hexdigest()
+
+
+def _apply_config_overlay(strat, overlay: dict, profile_name: str = ""):
+    """Apply a DB profile's config_overlay into strat.config.
+
+    Uses the same blacklist-preserve pattern as AuthManager.load_profile_config():
+    1. Snapshot system keys
+    2. Nuclear clear non-system keys
+    3. Apply overlay on top
+    4. Restore untouched system keys
+    """
+    from auth import AuthManager
+    SYSTEM_KEYS = AuthManager.SYSTEM_KEYS
+
+    # 1. Snapshot system keys (deep copy to avoid reference sharing)
+    preserved = {}
+    for key in SYSTEM_KEYS:
+        if key in strat.config:
+            preserved[key] = copy.deepcopy(strat.config[key])
+
+    # 2. Nuclear clear — remove everything except system keys
+    for key in list(strat.config.keys()):
+        if key not in SYSTEM_KEYS:
+            del strat.config[key]
+
+    # 3. Apply overlay
+    for key, val in overlay.items():
+        if key in SYSTEM_KEYS:
+            # Deep merge into system section (e.g. scoring.retain_threshold
+            # without nuking scoring.model)
+            existing = strat.config.get(key)
+            if isinstance(existing, dict) and isinstance(val, dict):
+                existing.update(val)
+            else:
+                strat.config[key] = val
+        else:
+            strat.config[key] = val
+
+    # 4. Restore any system keys the overlay didn't touch
+    for key in SYSTEM_KEYS:
+        if key not in strat.config and key in preserved:
+            strat.config[key] = preserved[key]
+
+    # Cache for session isolation
+    if profile_name:
+        strat.cache_profile_config(profile_name)
+    logger.info(f"Config overlay applied for profile: {profile_name or '(unknown)'}")
 
 
 def handle_auth_routes(handler, method, path, data, db, strat, send_json, email_service=None):
@@ -268,9 +316,9 @@ def handle_auth_routes(handler, method, path, data, db, strat, send_json, email_
         token = _generate_token()
         expires = (datetime.now() + timedelta(days=7)).isoformat()
 
-        # Find default or last-active profile
+        # Find default or last-active profile and load its config overlay
         cursor.execute("""
-            SELECT id, name FROM profiles WHERE user_id = ?
+            SELECT id, name, config_overlay FROM profiles WHERE user_id = ?
             ORDER BY is_default DESC, last_active DESC NULLS LAST
             LIMIT 1
         """, (user_id,))
@@ -282,6 +330,12 @@ def handle_auth_routes(handler, method, path, data, db, strat, send_json, email_
             VALUES (?, ?, ?, ?, ?)
         """, (token, user_id, profile_id, expires, datetime.now().isoformat()))
         db._commit()
+
+        # Apply config overlay from the active profile
+        if profile_row and profile_row[2]:
+            overlay = json.loads(profile_row[2])
+            if overlay:
+                _apply_config_overlay(strat, overlay, profile_name=profile_row[1])
 
         # Get profile list
         cursor.execute("SELECT id, name, last_active FROM profiles WHERE user_id = ?", (user_id,))
@@ -538,7 +592,7 @@ def handle_auth_routes(handler, method, path, data, db, strat, send_json, email_
             return True
 
         cursor = db.conn.cursor()
-        cursor.execute("SELECT id, name FROM profiles WHERE id = ? AND user_id = ?", (profile_id, user_id))
+        cursor.execute("SELECT id, name, config_overlay FROM profiles WHERE id = ? AND user_id = ?", (profile_id, user_id))
         row = cursor.fetchone()
         if not row:
             send_json(handler, {"error": "Profile not found"}, status=404)
@@ -549,6 +603,11 @@ def handle_auth_routes(handler, method, path, data, db, strat, send_json, email_
         cursor.execute("UPDATE profiles SET last_active = ? WHERE id = ?",
                        (datetime.now().isoformat(), profile_id))
         db._commit()
+
+        # Load config overlay into live config
+        overlay = json.loads(row[2]) if row[2] else {}
+        if overlay:
+            _apply_config_overlay(strat, overlay, profile_name=row[1])
 
         # Ensure per-user data directory exists
         user_data.ensure_dir(user_id)
