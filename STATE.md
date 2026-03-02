@@ -4,7 +4,7 @@
 > Loaded into Claude.ai Project Knowledge and Claude Code context.
 > **CLAUDE.md** = how to work here. **STATE.md** = what happened and why. **FRS** = what the system should be.
 
-Last updated: **2026-03-02** (session: config overlay loading, briefing endpoint, fetch hardening, diagnostics cleanup)
+Last updated: **2026-03-03** (session: auth isolation fixes, visual/UX polish, markets/charts overhaul)
 
 ---
 
@@ -111,22 +111,38 @@ data/users/{user_id}/
 - Per-request profile isolation: `self._profile_id` per HTTP handler instance, explicit `profile_id` passed to scan threads and agent chat
 - Cross-device UI state sync: theme, theme_mode, stars stored in `profiles.ui_state` DB column, synced via `/api/ui-state` endpoint
 - Avatar persistence for DB-auth users: avatar saved to `ui_state` even without YAML profile file
-- Tour guide with "Don't show again" option (survives localStorage wipes)
+- Tour guide with "Don't show again" option (cleared on profile switch so new profiles get the tour)
 - Guided Tours panel in Settings (System tab) for mobile access to tour restart
+- Auto-create default profile on registration: session immediately linked to profile_id (no profileless gap)
+- Briefing profile isolation: `get_recent_briefings()` and `get_briefing_by_date()` filter by profile_id
+- `/api/data` returns empty data instead of falling back to another profile's output file
+- Interactive canvas star engine: 300 stars on desktop (40 mobile), mouse repulsion, constellation lines, proximity glow, shooting stars with gradient trails, scroll parallax, theme-aware colors
+- Sakura petals: bezier-curve petal shapes with center vein, downward fall + lateral sway, cursor proximity grow effect
+- Coffee theme: warm copper-caramel accent, improved panel contrast, star colors (gold/latte/cream), starry-theme enabled
+- Two-phase scan progress bar: Fetching (0→100%) then Scoring (0→100%) with phase label badge, theme-accent colors
+- Local timezone chart display: backend sends UTC Unix seconds, frontend adds browser timezone offset for correct x-axis
+- Focus mode drawing sync: drawings render on main chart overlay and Markets tab via `_renderFocusDrawings()`
+- Moving averages update on live tick in focus mode via extracted `_fsRefreshMAs()`
+- Service Worker network-first: fresh code on every reload, cache fallback only when offline
+- Soft refresh on first scan complete: re-fetches config + rebuilds nav + loadNewData() instead of hard page reload
 
 ### What's Broken / Needs Attention
 
 - ~~**CRITICAL — Retention cross-profile leak:**~~ **FIXED** (commit a0f9c47).
 - ~~**MODERATE — Extra feeds not in scan pipeline:**~~ **FIXED** (commit b6cdfdd).
 - ~~**MODERATE — Deferred briefing uncapturable:**~~ **FIXED** (commit 59a4a0c).
-- ~~**CRITICAL — Data bleed between users:**~~ **FIXED** (commit ac42ec6, e297916). `/api/config` and `/api/data` return blank for profileless users. Full localStorage wipe on login/verify.
+- ~~**CRITICAL — Data bleed between users:**~~ **FIXED** (commit ac42ec6, e297916, 489d166, 4b6ee88). `/api/config` and `/api/data` return blank for profileless users. Full localStorage wipe on login/verify. `/api/data` no longer falls back to default output file. Default profile auto-created on registration.
 - ~~**MODERATE — Unverified users could login:**~~ **FIXED** (commit 7a6d0ad). Users stored in `pending_registrations` until verified. Login blocks unverified (403).
+- ~~**MODERATE — Briefing data leaking across profiles:**~~ **FIXED** (commit 8567a50). `get_recent_briefings()` and `get_briefing_by_date()` now filter by `profile_id`. `/api/briefing` passes `self._profile_id`.
+- ~~**MODERATE — Export endpoint 500 error:**~~ **FIXED** (commit a08b3e0). Redundant `from urllib.parse import urlparse, parse_qs` inside do_GET branch shadowed the module-level import, causing UnboundLocalError in other branches.
+- ~~**MODERATE — Auth overlay reset on tab switch:**~~ **FIXED** (commit 0b095ce). `visibilitychange` handler now checks `getAuthToken()` before calling `checkStatus()`. 401 fetch interceptor skips redirect if auth overlay is already showing.
 - **kuniv category over-scoring:** Articles mentioning "Kuwait" get scored high regardless of topical relevance. Scorer training issue, not pipeline bug.
 - ~~**Frontend SSE for briefing_ready:**~~ **FIXED** (commit 93de658). New `/api/briefing` endpoint (5KB) + SSE listener. No longer reloads full 2MB `/api/data`.
 - **FRS v9 is stale:** Doesn't reflect auth system, per-user data, model routing, deferred briefing, incremental scanning, or profile-scoped retention.
 - **API key rotation pending:** Serper key rotated (Mar 2). Google API key (`AIzaSy...`) still exposed in git history (scrubbed with git-filter-repo).
 - **Agent chat logging deferred:** Per-user agent chat history needs DB table + frontend changes. Not yet implemented.
 - **Frontend fetch error handling:** 25 of 34 unchecked fetch calls fixed (13 critical, 12 important). 9 optional fire-and-forget calls left as-is (ui-state sync, search-status, market-tick, ticker-presets).
+- **SMTP password in config.yaml:** Commit 9eac71d inadvertently wrote the Gmail app password into `config.yaml` (not gitignored). Should be scrubbed from git history and kept only in `.env`.
 
 ### What's Not Yet Done
 
@@ -150,6 +166,40 @@ data/users/{user_id}/
 ## 2. Decision Log
 
 > Append-only. Newest first. Each entry: WHAT was decided, WHY, and WHAT was rejected.
+
+### 2026-03-02 (late)
+
+**D037 — Canvas star engine over DOM-based star field**
+Both login and in-app star fields replaced 165+ DOM `<span>` elements with CSS animations with a single `<canvas>` element and requestAnimationFrame loop. Canvas avoids DOM layout recalculation (165 animated elements triggered constant composite), supports interactivity (mouse repulsion, constellation lines, proximity glow, shooting stars) impossible with CSS alone, and allows responsive star counts (300 desktop / 40 mobile). MutationObserver on auth overlay handles cleanup; `_stopStarEngine()` with full event listener removal handles in-app toggle.
+*Rejected:* WebGL (overkill for 2D particles, compatibility overhead). Keeping DOM stars with reduced count (still no interactivity possible). CSS `will-change` optimization (doesn't fix reflow from 165 animated elements).
+
+**D038 — Service Worker network-first over cache-first (stale-while-revalidate)**
+Cache-first served stale JS even after hard refresh — user had to reload twice to get updated code. Network-first ensures fresh files on every load, falling back to cache only when offline. Trade-off: first load is slightly slower (network round-trip), but for a development-heavy project with frequent deployments, stale code is a worse problem than latency.
+*Rejected:* Cache-first with version bumping only (required manual SW cache version increment on every deploy — easy to forget, caused the exact bug it was trying to prevent). No SW at all (loses offline capability).
+
+**D039 — UTC Unix seconds from backend, timezone offset in frontend**
+Backend was sending formatted strings (`YYYY-MM-DDTHH:MM`) from yfinance which were exchange-local (NYSE = ET, Binance = UTC). Different exchanges meant inconsistent timezone behavior. Switched to UTC Unix seconds (`int(ts.timestamp())` for pandas, `ts_ms // 1000` for Binance). Frontend adds `-(new Date().getTimezoneOffset() * 60)` so Lightweight Charts (which displays values as-is) shows local time.
+*Rejected:* Backend sends timezone-aware ISO strings (Lightweight Charts can't parse timezone offsets). Backend converts to user's timezone (server doesn't know user's timezone). `luxon`/`moment.js` library (unnecessary dependency for a single offset addition).
+
+**D040 — Two-phase progress bar with bar reset between Fetch and Score phases**
+Single progress bar jumping from 30% (news fetch) to 35% (scoring start) looked like it stalled. Splitting into two phases — Fetching (0→100%) then Scoring (resets 0→100%) — gives the user a clear sense of progress in both stages. `_resetBarForPhase()` sets `transition: none`, resets width to 0%, forces reflow, then re-enables transition. Phase label badge ("Fetching" / "Scoring") indicates current stage.
+*Rejected:* Single bar with better stage percentages (still felt slow during long scoring phase). Two separate bars stacked (clutters the UI). Indeterminate spinner during fetch (hides progress information).
+
+**D041 — Remove progress_callback from Phase 1 rule-scoring loop**
+Phase 1 (rule-scoring) is near-instant (<1s for 250+ items). Calling `progress_callback` during Phase 1 blasted the counter to `254/254`, then Phase 2 (LLM) reset it to `0/200` — visible as a backward jump. Fix: only call `progress_callback` from Phase 2 LLM scoring, reporting `(done, ambiguous_total)` instead of `(total - ambiguous + done, total)`.
+*Rejected:* Separate progress callback for each phase (overengineered). Accumulating phase counts (confusing — user sees 454/454 total when only 200 items were LLM-scored).
+
+**D042 — Default profile auto-created on email verification**
+Verify path created a session WITHOUT `profile_id` (NULL). `get_session_profile()` returned empty, `/api/data` fell through to default output file containing previous user's data. Fix: create a default profile row (`INSERT INTO profiles`) immediately after creating the user in the verify path, set `profile_id` on the session. Login path already looked up existing profiles, so only the verify path needed fixing.
+*Rejected:* Lazy profile creation on first `/api/config` save (leaves a window where `/api/data` leaks). Requiring profile creation as a separate step after registration (bad UX — user sees empty dashboard with no way to fix it).
+
+**D043 — Briefing queries filtered by profile_id**
+`get_recent_briefings()` and `get_briefing_by_date()` had no profile_id filter — returned the most recent briefing from ANY profile. New users saw another profile's intelligence briefing. Added `WHERE profile_id = ?` to both queries, `self._profile_id` passed from the `/api/briefing` endpoint.
+*Rejected:* Filtering in the endpoint handler after query (wasteful — loads all briefings then filters). Separate briefing tables per profile (overcomplicated).
+
+**D044 — Focus mode drawings rendered on main chart + Markets tab via shared renderer**
+`_renderFocusDrawings(ctx, w, h)` reads drawings from `localStorage['stratos_drawings_' + symbol]`, converts stored logical indices/prices to pixel coordinates using the chart's `timeScale()` and `series.priceToCoordinate()`, and renders all 12 drawing types with proper colors and styles. Parameterized with `chart`/`series`/`symbol` so both `market.js` (`_redrawOverlay`) and `markets-panel.js` (`_mpRedrawCanvas`) can reuse it.
+*Rejected:* Only showing drawings in focus mode (loses context when viewing main chart). Storing drawings in a shared global instead of localStorage (doesn't persist across reloads). Separate drawing renderers per module (code duplication).
 
 ### 2026-03-02
 
@@ -307,6 +357,40 @@ DoRA offers 1-4% gains over LoRA with better tolerance for lower ranks. For scor
 
 > Non-obvious failures that future sessions might repeat. If the natural instinct would be to try the same approach, log it here.
 
+### 2026-03-02 (late)
+
+**F022 — Briefing endpoint returned any profile's briefing (no profile_id filter)**
+`get_recent_briefings()` and `get_briefing_by_date()` queried `SELECT * FROM briefings ORDER BY generated_at DESC` without a `WHERE profile_id = ?` clause. `/api/briefing` returned the most recent briefing from ANY profile. New users saw signals from other profiles' intelligence briefings on their dashboard.
+**Rule:** Every DB query that returns user-facing data must filter by `profile_id` or `user_id`. Treat unfiltered queries as data bleed until proven otherwise.
+
+**F023 — /api/data fell back to default output file for profileless users**
+When a profile-specific output file didn't exist (new account, no scan yet), the endpoint fell back to `strat._output_base` which contained the previous user's news, market data, and briefing. The fix from D026 (blank config for profileless users) didn't cover the data endpoint's file fallback.
+**Rule:** Data fallback paths must be audited for cross-profile leaks. If a profile-specific resource doesn't exist, return empty data — never fall back to a shared/default resource that may contain another profile's data.
+
+**F024 — Session created without profile_id on email verification**
+The verify endpoint created a user and session but set `profile_id = NULL`. `get_session_profile()` returned empty string. `/api/data` fell through to the default output file. The login endpoint correctly looked up profiles, but the verify endpoint (which auto-logs-in) didn't.
+**Rule:** Any endpoint that creates a session must also resolve or create a profile_id. Test the full registration→verify→first-load flow end-to-end.
+
+**F025 — Export endpoint 500: shadowed import inside function branch**
+`from urllib.parse import urlparse, parse_qs` was placed inside the `/api/market-tick` branch of `do_GET`. Python's scoping rules made these names local to the entire `do_GET` method. Any other branch (like `/api/export`) that used the module-level `urlparse`/`parse_qs` imports hit `UnboundLocalError` because the local names existed but were never assigned (the market-tick branch didn't execute).
+**Rule:** Never place `import` statements inside conditional branches of a method. Module-level imports are sufficient. Conditional imports create name shadowing across the entire function scope.
+
+**F026 — Focus mode chart showing 1970 dates for integer timestamps**
+`_fsBuildData()` in mobile.js used `new Date(ts)` which interprets integer Unix seconds as milliseconds (e.g., `new Date(1709300000)` → Jan 20, 1970). The main chart's `_toUnix()` handled this correctly for strings but not integers. All 3 timestamp conversion sites in mobile.js needed `typeof` checks.
+**Rule:** When backend switches timestamp format (strings → integers), audit ALL frontend timestamp consumers, not just the primary chart.
+
+**F027 — Service Worker cache-first served stale JS on hard refresh**
+Stale-while-revalidate pattern returned cached JS immediately, then updated cache in the background. But the user saw old code until their SECOND reload. For a development project with frequent frontend changes, this caused confusion (deployed fix not visible). Switching to network-first fixed it.
+**Rule:** During active development, use network-first for static assets. Cache-first is only appropriate for production deployments with cache-busting hashes in filenames.
+
+**F028 — Auth overlay reset when switching tabs to check verification email**
+`visibilitychange` handler called `checkStatus()` unconditionally on tab return. With no valid token (user mid-registration), `/api/status` returned 401. The 401 fetch interceptor called `checkAuthAndInit()`, which tore down the auth overlay and reset the login form. User lost their place in the verification flow.
+**Rule:** Tab-return handlers must check auth state before making authenticated API calls. 401 interceptors must check if auth UI is already showing before redirecting.
+
+**F029 — Scoring progress bar backward jump (254/254 → 200/254)**
+`progress_callback` was called from both Phase 1 (rule-scoring, near-instant) and Phase 2 (LLM scoring). Phase 1 reported `(254, 254)` in <1s, then Phase 2 started from `(0, 200)` — the bar visually jumped backward. Root cause: Phase 1 used `(current, total)` where `total` included all items but Phase 2 only processed ambiguous items.
+**Rule:** If a progress bar has distinct phases, either use separate counters or only report from the slow phase. Never let a fast phase inflate the counter past where the slow phase will start.
+
 ### 2026-03-02
 
 **F020 — duckduckgo_search renamed to ddgs**
@@ -420,6 +504,36 @@ Must delete `hf_device_map` and force `.to("cuda:0")` or gradient computation cr
 ## 4. Session Log
 
 > Most recent first. 3-5 lines per session.
+
+### 2026-03-02 — Markets/Charts: Timezone, Drawing Sync, Scroll/Zoom (10 commits)
+**Commits:** d0f2cab, 40f499c, 6235cb6, 2d16a97, e7a8867, 5fe9711, 67f8681, 3f237b6, 1e0b2f6, 25dcc3b
+(1) **Local timezone conversion** — Backend sends UTC Unix seconds (was formatted strings). Frontend adds `-(new Date().getTimezoneOffset() * 60)` offset. Applied to market.js `_toUnix()`, markets-panel.js, and mobile.js `_fsBuildData()`. Fixed 1970 dates caused by `new Date(integerUnixSec)` interpreting seconds as milliseconds.
+(2) **Focus mode drawing sync to main chart** — New `_renderFocusDrawings(ctx, w, h)` in market.js reads drawings from localStorage and renders all 12 drawing types (trend, ray, fib, rect, channel, long/short pos, hline, hray, vline, text) on the main chart overlay canvas. Refactored to accept params so markets-panel.js reuses it too.
+(3) **Service Worker → network-first** — Cache-first was serving stale JS even after hard refresh. Network-first ensures fresh files on reload, falls back to cache only offline. SW cache version bumped through v4-v9 during iteration.
+(4) **Chart scroll/zoom normalization** — Iterated through 5 commits to get consistent behavior: summary chart on Home tab and Markets tab charts now both allow mousewheel zoom/scroll, disabled axis-drag scaling to prevent accidental resize, added `fixRightEdge`/`fixLeftEdge` then removed them, settled on matching Markets tab's `handleScroll`/`handleScale` settings.
+(5) **Moving averages on live tick** — Extracted `_fsRefreshMAs()` from focus mode so MAs recalculate on each live tick update, not just initial chart creation.
+(6) **Visible bar defaults tightened** — 1m: 120→60, 5m: 78→48, etc. for a more zoomed-in initial view.
+
+### 2026-03-02 — Visual/UX Polish: Canvas Stars, Sakura, Coffee Theme, Progress Bar (7 commits)
+**Commits:** 039db99, a08b3e0, d8cb96d, b2bdc37, 8483add, 707e80b, 2ebcff2
+(1) **Interactive canvas star engine (login)** — Replaced 165 DOM spans + CSS animations with full canvas renderer: 300 stars on desktop (40 mobile), mouse repulsion (160px radius), constellation lines between nearby stars near cursor, proximity glow, real shooting stars with gradient trails every 5-8s, gentle upward drift, sin() twinkle, theme-aware colors from AUTH_THEMES. MutationObserver cleanup on auth overlay removal.
+(2) **Interactive canvas star engine (in-app)** — Same canvas engine for the Stars toggle in the main dashboard. 200 stars desktop (30 mobile), scroll parallax via `document.scroll`, proper `_stopStarEngine()` cleanup on toggle-off with event listener removal. Sakura theme renders 35% of particles as swaying petal ellipses.
+(3) **Sakura petal shapes** — Upgraded from ellipses to bezier-curve petals with two lobes + center notch + subtle center vein line. Petals fall downward (not upward like stars) with gentle lateral sway. Varied sizes (2.5-5.5px), cursor proximity grow effect.
+(4) **Coffee theme overhaul** — Accent: harsh amber `#f59e0b` → warm copper-caramel `#d4943c` across all 3 modes. Warmer brown backgrounds, improved panel contrast, brighter muted/faint text. Added `--starry-theme: 1` + star colors (gold/latte/cream) to all 3 modes.
+(5) **Two-phase scan progress bar** — Bar splits into Fetching (0→100%) then Scoring (resets 0→100%) with phase label badge. Backend emits `news_done` SSE event with fetched count. Removed `progress_callback` from Phase 1 rule-scoring loop (was causing 254/254→200/254 backward jump). Phase 2 LLM scoring now correctly reports `(done, ambiguous_total)`. All bars use `var(--accent)` + `color-mix()` instead of hardcoded `#3b82f6` blue.
+(6) **Export endpoint 500 fix** — Redundant `from urllib.parse import urlparse, parse_qs` inside a branch of `do_GET` shadowed the module-level import; other branches hit `UnboundLocalError`.
+(7) **Progress bar rebalance** — Shifted stage percentages (starting 5%, market 15%, news 30%, scoring 35-80%) and increased SSE broadcast frequency from every 5 items to every 2.
+
+### 2026-03-02 — Auth & Isolation Fixes, First-Run UX (8 commits)
+**Commits:** 9eac71d, ef093f1, 0492f58, 0b095ce, 8567a50, 489d166, 4b6ee88, 9c4abf6
+(1) **Default profile on registration** — Verify path now creates a default profile AND sets `profile_id` on the session. Previously, session had NULL profile_id, causing `/api/data` to fall through to another profile's output. Also backfilled 3 orphaned users.
+(2) **Briefing profile isolation** — `get_recent_briefings(profile_id)` and `get_briefing_by_date(date, profile_id)` now filter by profile_id. `/api/briefing` passes `self._profile_id`. New users no longer see other profiles' briefings.
+(3) **`/api/data` output fallback removed** — When profile-specific output file doesn't exist, returns `{"news":[],"market":{},"briefing":null}` instead of falling back to default output file (which contained previous user's data).
+(4) **Auth overlay tab-switch fix** — `visibilitychange` handler now checks `getAuthToken()` before calling `checkStatus()`. 401 fetch interceptor skips redirect if `#auth-overlay` already exists in DOM. AUTH_THEMES trimmed to 4 active themes.
+(5) **Tour per-profile** — `stratos_tour_never` no longer whitelisted in `_clearProfileLocalStorage()`, so each new profile login gets a fresh tour chance.
+(6) **Soft refresh on first scan** — Replaced `window.location.reload()` with re-fetch `/api/config` → `rebuildNavFromConfig()` → `loadNewData()`. Prevents losing state during login/setup.
+(7) **Wizard UX** — Error title "Generation had issues" now uses visible red gradient (was transparent-on-transparent). Generate-profile timeout increased 60s→180s for cold model loads.
+(8) **Housekeeping** — Removed dead config stubs (`market.intervals: {}`, unused `queries: []`). Replaced 29 `transition:all` in wizard.js with explicit property lists.
 
 ### 2026-03-02 — Config Overlay, Briefing Endpoint, Fetch Hardening, Diagnostics Cleanup
 **Commits:** f684914, 93de658, f6e54f9, 0799711, d6014ec + docs commit
