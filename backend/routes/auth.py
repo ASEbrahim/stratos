@@ -234,13 +234,21 @@ def handle_auth_routes(handler, method, path, data, db, strat, send_json, email_
         # Remove from pending
         cursor.execute("DELETE FROM pending_registrations WHERE id = ?", (pending_id,))
 
-        # Create session — log the user in
+        # Create default profile for the new user
+        safe_name = display_name.replace(' ', '_')[:30] or f"user_{user_id}"
+        cursor.execute("""
+            INSERT INTO profiles (user_id, name, is_default)
+            VALUES (?, ?, TRUE)
+        """, (user_id, safe_name))
+        profile_id = cursor.lastrowid
+
+        # Create session — log the user in (with profile_id)
         token = _generate_token()
         expires = (datetime.now() + timedelta(days=7)).isoformat()
         cursor.execute("""
-            INSERT INTO sessions (token, user_id, expires_at)
-            VALUES (?, ?, ?)
-        """, (token, user_id, expires))
+            INSERT INTO sessions (token, user_id, profile_id, expires_at, last_active)
+            VALUES (?, ?, ?, ?, ?)
+        """, (token, user_id, profile_id, expires, datetime.now().isoformat()))
         db._commit()
 
         send_json(handler, {
