@@ -520,6 +520,131 @@ def handle_auth_routes(handler, method, path, data, db, strat, send_json, email_
         send_json(handler, {"status": "password_reset"})
         return True
 
+    # --- OTP (one-time password) login ---
+
+    if path == "/api/auth/otp-request" and method == "POST":
+        email = (data.get("email") or "").strip().lower()
+        if not email or "@" not in email:
+            send_json(handler, {"error": "Valid email is required"}, status=400)
+            return True
+
+        cursor = db.conn.cursor()
+        cursor.execute("SELECT id, display_name, email_verified, otp_code_expires FROM users WHERE email = ?", (email,))
+        row = cursor.fetchone()
+
+        # Always return success to prevent email enumeration
+        if not row or not row[2]:
+            send_json(handler, {"status": "sent", "cooldown": 60})
+            return True
+
+        user_id, display_name, _, otp_expires = row
+
+        # Rate-limit: reject if previous OTP hasn't expired yet (within last 60s)
+        if otp_expires:
+            try:
+                exp = datetime.fromisoformat(otp_expires)
+                # OTP lasts 15 min; if more than 14 min remain, it was sent <1 min ago
+                if exp - timedelta(minutes=14) > datetime.now():
+                    send_json(handler, {"status": "sent", "cooldown": 60})
+                    return True
+            except (ValueError, TypeError):
+                pass
+
+        code = _generate_code()
+        otp_expires_at = (datetime.now() + timedelta(minutes=15)).isoformat()
+        cursor.execute(
+            "UPDATE users SET otp_code_hash = ?, otp_code_expires = ? WHERE id = ?",
+            (_hash_code(code), otp_expires_at, user_id)
+        )
+        db._commit()
+
+        if email_service and email_service.is_configured():
+            try:
+                email_service.send_login_code(email, code, display_name)
+            except Exception as e:
+                logger.warning(f"Failed to send OTP email: {e}")
+        else:
+            logger.info(f"[OTP LOGIN] Code for {email}: {code} (SMTP not configured)")
+
+        send_json(handler, {"status": "sent", "cooldown": 60})
+        return True
+
+    if path == "/api/auth/otp-verify" and method == "POST":
+        email = (data.get("email") or "").strip().lower()
+        code = (data.get("code") or "").strip()
+
+        if not email or not code:
+            send_json(handler, {"error": "Email and code are required"}, status=400)
+            return True
+
+        cursor = db.conn.cursor()
+        cursor.execute(
+            "SELECT id, display_name, is_admin, email_verified, otp_code_hash, otp_code_expires FROM users WHERE email = ?",
+            (email,)
+        )
+        row = cursor.fetchone()
+        if not row or not row[4]:
+            send_json(handler, {"error": "Invalid or expired code"}, status=400)
+            return True
+
+        user_id, display_name, is_admin, email_verified, stored_hash, otp_expires = row
+
+        if not email_verified:
+            send_json(handler, {"error": "Email not verified"}, status=403)
+            return True
+        if otp_expires and datetime.fromisoformat(otp_expires) < datetime.now():
+            send_json(handler, {"error": "Code expired. Request a new one."}, status=400)
+            return True
+        if _hash_code(code) != stored_hash:
+            send_json(handler, {"error": "Invalid code"}, status=400)
+            return True
+
+        # Clear OTP after use
+        cursor.execute(
+            "UPDATE users SET otp_code_hash = NULL, otp_code_expires = NULL, last_login = ? WHERE id = ?",
+            (datetime.now().isoformat(), user_id)
+        )
+
+        # Create session (same logic as password login)
+        token = _generate_token()
+        expires = (datetime.now() + timedelta(days=7)).isoformat()
+
+        cursor.execute("""
+            SELECT id, name, config_overlay FROM profiles WHERE user_id = ?
+            ORDER BY is_default DESC, last_active DESC NULLS LAST
+            LIMIT 1
+        """, (user_id,))
+        profile_row = cursor.fetchone()
+        profile_id = profile_row[0] if profile_row else None
+
+        cursor.execute("""
+            INSERT INTO sessions (token, user_id, profile_id, expires_at, last_active)
+            VALUES (?, ?, ?, ?, ?)
+        """, (token, user_id, profile_id, expires, datetime.now().isoformat()))
+        db._commit()
+
+        # Apply config overlay from the active profile
+        if profile_row:
+            overlay = json.loads(profile_row[2]) if profile_row[2] else {}
+            _apply_config_overlay(strat, overlay, profile_name=profile_row[1])
+
+        # Get profile list
+        cursor.execute("SELECT id, name, last_active FROM profiles WHERE user_id = ?", (user_id,))
+        profiles = [{"id": r[0], "name": r[1], "last_active": r[2]} for r in cursor.fetchall()]
+
+        send_json(handler, {
+            "status": "authenticated",
+            "token": token,
+            "user_id": user_id,
+            "display_name": display_name,
+            "is_admin": bool(is_admin),
+            "email_verified": bool(email_verified),
+            "active_profile_id": profile_id,
+            "profiles": profiles,
+            "ui_state": db.get_ui_state(profile_id),
+        })
+        return True
+
     # --- Profile management ---
 
     if path == "/api/profiles" and method == "GET":

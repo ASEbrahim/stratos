@@ -318,6 +318,17 @@ def migration_009(cursor):
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_pending_email ON pending_registrations(email)")
 
 
+# -- Migration 010: OTP login columns --
+@migration
+def migration_010(cursor):
+    """Add OTP login code columns to users table."""
+    for col in ["otp_code_hash TEXT", "otp_code_expires DATETIME"]:
+        try:
+            cursor.execute(f"ALTER TABLE users ADD COLUMN {col}")
+        except sqlite3.OperationalError:
+            pass  # Column already exists
+
+
 # =========================================================================
 # Migration runner
 # =========================================================================

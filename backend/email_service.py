@@ -67,6 +67,27 @@ class EmailService:
         """
         self._send(email, subject, body)
 
+    def send_login_code(self, email: str, code: str, display_name: str = ""):
+        """Send a one-time login code email."""
+        name = display_name or email.split("@")[0]
+        subject = f"StratOS — Login Code: {code}"
+        body = f"""
+        <div style="font-family: -apple-system, sans-serif; max-width: 480px; margin: 0 auto; padding: 32px;">
+            <h2 style="color: #e2e8f0; margin-bottom: 8px;">Sign in to StratOS</h2>
+            <p style="color: #94a3b8;">Hi {name}, your one-time login code is:</p>
+            <div style="background: #1e293b; border: 1px solid #334155; border-radius: 12px;
+                        padding: 24px; text-align: center; margin: 24px 0;">
+                <span style="font-size: 32px; font-weight: 700; letter-spacing: 8px; color: #38bdf8;">
+                    {code}
+                </span>
+            </div>
+            <p style="color: #64748b; font-size: 13px;">
+                This code expires in 15 minutes. If you didn't request this, ignore this email.
+            </p>
+        </div>
+        """
+        self._send(email, subject, body)
+
     def send_reset_code(self, email: str, code: str, display_name: str = ""):
         """Send a password reset code email."""
         name = display_name or email.split("@")[0]

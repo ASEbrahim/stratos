@@ -464,6 +464,10 @@ function _showScreen(mode) {
         _authMode === 'legacy' ? _renderRegister() : _renderEmailRegister();
     } else if (mode === 'verify') {
         _renderVerify();
+    } else if (mode === 'otp-request') {
+        _renderOtpRequest();
+    } else if (mode === 'otp-verify') {
+        _renderOtpVerify();
     } else {
         _authMode === 'legacy' ? _renderLogin() : _renderEmailLogin();
     }
@@ -753,6 +757,7 @@ function _renderEmailLogin() {
             <div class="auth-error" id="login-error"></div>
             <button class="auth-btn-primary" id="login-btn" onclick="_doEmailLogin()" style="--ba:${_t.accent};--br:${_t.rgb};">Sign In</button>
             <button class="auth-btn-link" style="color:${_t.accent};margin-top:12px;" onclick="_showForgotPassword()">Forgot password?</button>
+            ${_smtpConfigured ? `<button class="auth-btn-link" style="color:${_t.accent};margin-top:4px;" onclick="_showScreen('otp-request')">Sign in with email code</button>` : ''}
         </div>
         ${_allProfiles.length > 0 ? `<div style="margin-top:16px;"><button class="auth-btn-link" onclick="_authMode='legacy';_renderLogin()">Use PIN login instead</button></div>` : ''}`;
     setTimeout(() => document.getElementById('login-email')?.focus(), 120);
@@ -915,6 +920,108 @@ async function _doResetPassword(email) {
             _showScreen('login');
         } else { err.textContent = d.error || 'Reset failed'; btn.disabled = false; btn.textContent = 'Reset Password'; }
     } catch (e) { err.textContent = 'Connection error'; btn.disabled = false; btn.textContent = 'Reset Password'; }
+}
+
+/* ═══ OTP (EMAIL CODE) LOGIN ═══ */
+let _otpEmail = '';
+
+function _renderOtpRequest() {
+    document.getElementById('auth-body').innerHTML = `
+        <div class="auth-screen-title">Sign in with email code</div>
+        <div class="auth-screen-hint">We'll send a one-time code to your email</div>
+        <div class="auth-form">
+            <div class="auth-field-group">
+                <label class="auth-label">Email</label>
+                <input id="otp-email" class="auth-input" type="email" placeholder="you@example.com" autocomplete="email"
+                    onkeydown="if(event.key==='Enter')_doOtpRequest()" style="--fc:${_t.accent};">
+            </div>
+            <div class="auth-error" id="otp-req-error"></div>
+            <button class="auth-btn-primary" id="otp-req-btn" onclick="_doOtpRequest()" style="--ba:${_t.accent};--br:${_t.rgb};">Send Code</button>
+            <button class="auth-btn-link" style="color:${_t.accent};margin-top:12px;" onclick="_renderEmailLogin()">Sign in with password instead</button>
+        </div>`;
+    setTimeout(() => document.getElementById('otp-email')?.focus(), 120);
+}
+
+async function _doOtpRequest() {
+    const email = document.getElementById('otp-email').value.trim();
+    const err = document.getElementById('otp-req-error');
+    const btn = document.getElementById('otp-req-btn');
+    if (!email || !email.includes('@')) { err.textContent = 'Enter a valid email'; return; }
+    btn.disabled = true; btn.textContent = 'Sending...'; err.textContent = '';
+    try {
+        const r = await _originalFetch('/api/auth/otp-request', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email })
+        });
+        const d = await r.json();
+        if (r.ok) {
+            _otpEmail = email;
+            _renderOtpVerify();
+        } else {
+            err.textContent = d.error || 'Failed to send code';
+            btn.disabled = false; btn.textContent = 'Send Code';
+        }
+    } catch (e) { err.textContent = 'Connection error'; btn.disabled = false; btn.textContent = 'Send Code'; }
+}
+
+function _renderOtpVerify() {
+    document.getElementById('auth-body').innerHTML = `
+        <div class="auth-screen-title">Enter your login code</div>
+        <div class="auth-screen-hint">Enter the 5-digit code sent to<br><strong style="color:${_t.accent};">${_otpEmail || 'your email'}</strong></div>
+        <div class="auth-form">
+            <div class="auth-field-group">
+                <input id="otp-code" class="auth-input auth-pin-input" type="text" placeholder="00000" maxlength="5" autocomplete="one-time-code"
+                    oninput="if(this.value.length===5)_doOtpVerify()" onkeydown="if(event.key==='Enter')_doOtpVerify()" style="--fc:${_t.accent};font-size:24px;letter-spacing:8px;">
+            </div>
+            <div class="auth-error" id="otp-verify-error"></div>
+            <button class="auth-btn-primary" id="otp-verify-btn" onclick="_doOtpVerify()" style="--ba:${_t.accent};--br:${_t.rgb};">Sign In</button>
+            <button class="auth-btn-link" id="otp-resend-btn" style="color:${_t.accent};margin-top:12px;" onclick="_doOtpResend()">Resend code</button>
+        </div>`;
+    setTimeout(() => document.getElementById('otp-code')?.focus(), 120);
+}
+
+async function _doOtpVerify() {
+    const code = document.getElementById('otp-code').value.trim();
+    const err = document.getElementById('otp-verify-error');
+    const btn = document.getElementById('otp-verify-btn');
+    if (!code || code.length !== 5) { err.textContent = 'Enter the 5-digit code'; return; }
+    btn.disabled = true; btn.textContent = 'Verifying...'; err.textContent = '';
+    try {
+        const r = await _originalFetch('/api/auth/otp-verify', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: _otpEmail, code })
+        });
+        const d = await r.json();
+        if (r.ok && d.token) {
+            setAuthToken(d.token); setActiveProfile(d.display_name || '');
+            _clearProfileLocalStorage();
+            if (d.ui_state && typeof _applyUiStateFromServer === 'function') _applyUiStateFromServer(d.ui_state);
+            _dismiss();
+        } else {
+            err.textContent = d.error || 'Invalid code';
+            const inp = document.getElementById('otp-code'); inp.value = ''; _shake(inp); inp.focus();
+        }
+    } catch (e) { err.textContent = 'Connection error'; }
+    btn.disabled = false; btn.textContent = 'Sign In';
+}
+
+async function _doOtpResend() {
+    const btn = document.getElementById('otp-resend-btn');
+    const err = document.getElementById('otp-verify-error');
+    btn.disabled = true; btn.textContent = 'Sending...';
+    try {
+        const r = await _originalFetch('/api/auth/otp-request', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: _otpEmail })
+        });
+        if (r.ok) {
+            btn.textContent = 'Code sent!';
+            err.textContent = '';
+            setTimeout(() => { btn.disabled = false; btn.textContent = 'Resend code'; }, 60000);
+        } else {
+            btn.disabled = false; btn.textContent = 'Resend code';
+        }
+    } catch (e) { btn.disabled = false; btn.textContent = 'Resend code'; }
 }
 
 /* ═══ LOGOUT & HELPERS ═══ */
