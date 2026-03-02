@@ -393,7 +393,7 @@ class StratOS:
                 self.scan_status["scored"] = current
                 self.scan_status["total"] = total
                 self.scan_status["progress"] = f"Scoring {current}/{total} items with AI..."
-                if current % 5 == 0 or current == total:
+                if current % 2 == 0 or current == total:
                     self.sse_broadcast("scan", {"status": "scoring", "progress": f"Scoring {current}/{total} items...", "scored": current, "total": total})
 
             # === TWO-PASS SCORING ===
@@ -875,7 +875,7 @@ class StratOS:
                 self.scan_status["scored"] = current
                 self.scan_status["total"] = total
                 self.scan_status["progress"] = f"Scoring {current}/{total} items with AI..."
-                if current % 5 == 0 or current == total:
+                if current % 2 == 0 or current == total:
                     self.sse_broadcast("scan", {"status": "scoring", "progress": f"Scoring {current}/{total} items...", "scored": current, "total": total})
 
             # === TWO-PASS SCORING ===

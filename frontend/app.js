@@ -1171,14 +1171,14 @@ function _handleSSEScan(d) {
 
     // Compute progress bar percentage from scan stage
     var pct = 0;
-    if (d.status === 'starting') pct = 2;
-    else if (d.status === 'market') pct = 5;
-    else if (d.status === 'news') pct = 15;
-    else if (d.status === 'scoring' && d.scored >= 0 && d.total > 0) pct = 20 + (d.scored / d.total) * 65;
-    else if (d.status === 'scoring') pct = 20;
-    else if (d.status === 'scoring_pass2' && d.scored >= 0 && d.total > 0) pct = 85 + (d.scored / d.total) * 5;
-    else if (d.status === 'scoring_pass2') pct = 85;
-    else if (d.status === 'discovery') pct = 92;
+    if (d.status === 'starting') pct = 5;
+    else if (d.status === 'market') pct = 15;
+    else if (d.status === 'news') pct = 30;
+    else if (d.status === 'scoring' && d.scored >= 0 && d.total > 0) pct = 35 + (d.scored / d.total) * 45;
+    else if (d.status === 'scoring') pct = 35;
+    else if (d.status === 'scoring_pass2' && d.scored >= 0 && d.total > 0) pct = 82 + (d.scored / d.total) * 5;
+    else if (d.status === 'scoring_pass2') pct = 82;
+    else if (d.status === 'discovery') pct = 90;
     else if (d.status === 'briefing') pct = 95;
 
     // Update scan title based on stage
@@ -1473,14 +1473,14 @@ async function checkStatus() {
             // Update progress bar from polling data (mirrors SSE _handleSSEScan logic)
             var pollPct = 0;
             var st = status.stage;
-            if (st === 'starting') pollPct = 2;
-            else if (st === 'market') pollPct = 5;
-            else if (st === 'news') pollPct = 15;
-            else if (st === 'scoring' && status.scored >= 0 && status.total > 0) pollPct = 20 + (status.scored / status.total) * 65;
-            else if (st === 'scoring') pollPct = 20;
-            else if (st === 'scoring_pass2' && status.scored >= 0 && status.total > 0) pollPct = 85 + (status.scored / status.total) * 5;
-            else if (st === 'scoring_pass2') pollPct = 85;
-            else if (st === 'discovery') pollPct = 92;
+            if (st === 'starting') pollPct = 5;
+            else if (st === 'market') pollPct = 15;
+            else if (st === 'news') pollPct = 30;
+            else if (st === 'scoring' && status.scored >= 0 && status.total > 0) pollPct = 35 + (status.scored / status.total) * 45;
+            else if (st === 'scoring') pollPct = 35;
+            else if (st === 'scoring_pass2' && status.scored >= 0 && status.total > 0) pollPct = 82 + (status.scored / status.total) * 5;
+            else if (st === 'scoring_pass2') pollPct = 82;
+            else if (st === 'discovery') pollPct = 90;
             else if (st === 'briefing') pollPct = 95;
             _updateScanBars(pollPct);
 
