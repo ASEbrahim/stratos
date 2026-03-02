@@ -51,6 +51,9 @@ let _drawCtx = null;
 let _chartRO = null;  // Track ResizeObserver for cleanup
 
 function initChart(forceRecreate) {
+    // VERIFIED: LightweightCharts is event-driven, not timer-based. A hidden chart
+    // (mobile sidebar) has near-zero idle CPU — ResizeObserver won't fire on hidden
+    // elements, crosshair/click subscriptions only trigger on user interaction.
     const el = document.getElementById('tv-chart-container');
     if (!el) return;
 
