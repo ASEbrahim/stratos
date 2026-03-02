@@ -1,0 +1,1413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StratOS — Profile Onboarding</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #0f1724;
+  --card: #1a2332;
+  --card-hover: #1f2b3d;
+  --accent: #10b981;
+  --accent-dim: rgba(16, 185, 129, 0.15);
+  --accent-glow: rgba(16, 185, 129, 0.25);
+  --text: #f1f5f9;
+  --text-dim: #94a3b8;
+  --text-muted: #64748b;
+  --border: #2a3548;
+  --border-hover: #3a4a60;
+  --danger: #ef4444;
+  --radius: 12px;
+  --radius-sm: 8px;
+  --radius-pill: 999px;
+  --transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+/* ═══ LAUNCHER (simulates settings page) ═══ */
+.launcher {
+  max-width: 480px;
+  margin: 80px auto;
+  padding: 0 24px;
+}
+
+.launcher h2 {
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 4px;
+  letter-spacing: -0.02em;
+}
+
+.launcher p {
+  color: var(--text-dim);
+  font-size: 14px;
+  margin-bottom: 24px;
+}
+
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 6px;
+}
+
+.form-input {
+  width: 100%;
+  padding: 12px 16px;
+  background: var(--card);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-size: 14px;
+  font-family: inherit;
+  outline: none;
+  transition: border-color var(--transition);
+}
+
+.form-input:focus { border-color: var(--accent); }
+.form-input::placeholder { color: var(--text-muted); }
+
+.generate-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 14px;
+  margin-top: 24px;
+  background: var(--accent);
+  color: #000;
+  font-size: 15px;
+  font-weight: 600;
+  border: none;
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-family: inherit;
+  transition: all var(--transition);
+}
+
+.generate-btn:hover { background: #34d399; box-shadow: 0 0 24px var(--accent-glow); }
+.generate-btn:disabled { background: var(--border); color: var(--text-muted); cursor: not-allowed; box-shadow: none; }
+.generate-btn:active:not(:disabled) { transform: scale(0.98); }
+
+.launcher-hint {
+  text-align: center;
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 12px;
+}
+
+/* ═══ WIZARD MODAL OVERLAY ═══ */
+.wizard-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 9998;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.35s ease;
+}
+
+.wizard-backdrop.open { opacity: 1; pointer-events: auto; }
+
+.wizard-overlay {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.95);
+  width: min(94vw, 720px);
+  height: min(90vh, 760px);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+  box-shadow: 0 25px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.03);
+}
+
+.wizard-overlay.open {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+/* ── Header / progress ── */
+.wizard-header {
+  padding: 20px 32px 0;
+  flex-shrink: 0;
+}
+
+.wizard-top-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.wizard-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.wizard-brand svg {
+  width: 24px;
+  height: 24px;
+  color: var(--accent);
+}
+
+.wizard-brand span {
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.wizard-close {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition);
+}
+
+.wizard-close:hover { background: rgba(255,255,255,0.06); color: var(--text); }
+
+.wizard-profile-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  font-size: 12px;
+  color: var(--text-dim);
+  margin-bottom: 16px;
+}
+
+.wizard-profile-badge strong { color: var(--text); font-weight: 600; }
+
+.progress-bar-track {
+  width: 100%;
+  height: 3px;
+  background: var(--border);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 3px;
+  transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.step-indicators {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 14px;
+  padding-bottom: 4px;
+}
+
+.step-dot {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-muted);
+  transition: color var(--transition);
+}
+
+.step-dot.active { color: var(--accent); font-weight: 600; }
+.step-dot.done { color: var(--text-dim); }
+
+.step-dot-circle {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  transition: all var(--transition);
+  flex-shrink: 0;
+}
+
+.step-dot.active .step-dot-circle {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: #000;
+}
+
+.step-dot.done .step-dot-circle {
+  border-color: var(--accent);
+  background: transparent;
+  color: var(--accent);
+}
+
+.step-connector {
+  width: 20px;
+  height: 2px;
+  background: var(--border);
+  border-radius: 2px;
+  transition: background var(--transition);
+}
+
+.step-connector.done { background: var(--accent); }
+
+/* ── Main scrollable area ── */
+.wizard-body {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+}
+
+.steps-container {
+  display: flex;
+  height: 100%;
+  transition: transform 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.step-panel {
+  min-width: 100%;
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  padding: 24px 32px 100px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+
+.step-panel::-webkit-scrollbar { width: 5px; }
+.step-panel::-webkit-scrollbar-track { background: transparent; }
+.step-panel::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+/* ── Center-constrained content ── */
+.step-inner {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* ── Footer ── */
+.wizard-footer {
+  flex-shrink: 0;
+  padding: 16px 32px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid var(--border);
+  background: var(--bg);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 24px;
+  border-radius: var(--radius-pill);
+  font-size: 14px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all var(--transition);
+  font-family: inherit;
+  outline: none;
+}
+
+.btn:active { transform: scale(0.97); }
+
+.btn-primary {
+  background: var(--accent);
+  color: #000;
+}
+
+.btn-primary:hover { background: #34d399; box-shadow: 0 0 20px var(--accent-glow); }
+
+.btn-primary:disabled {
+  background: var(--border);
+  color: var(--text-muted);
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.btn-primary:disabled:active { transform: none; }
+
+.btn-ghost {
+  background: transparent;
+  color: var(--text-dim);
+  padding: 11px 16px;
+}
+
+.btn-ghost:hover { color: var(--text); background: rgba(255,255,255,0.05); }
+
+/* ── Typography ── */
+.step-title {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  margin-bottom: 4px;
+  line-height: 1.2;
+}
+
+.step-subtitle {
+  color: var(--text-dim);
+  font-size: 14px;
+  margin-bottom: 24px;
+  line-height: 1.5;
+}
+
+.section-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 10px;
+  margin-top: 24px;
+}
+
+.section-label:first-of-type { margin-top: 0; }
+
+.section-sublabel {
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--text-muted);
+  font-size: 11px;
+}
+
+/* ── Purpose cards (Step 1) ── */
+.purpose-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.purpose-card {
+  background: var(--card);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  cursor: pointer;
+  transition: all var(--transition);
+  position: relative;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.purpose-card:hover {
+  border-color: var(--border-hover);
+  background: var(--card-hover);
+  transform: translateY(-1px);
+}
+
+.purpose-card.selected {
+  border-color: var(--accent);
+  background: var(--accent-dim);
+  box-shadow: 0 0 16px var(--accent-glow), inset 0 0 16px rgba(16,185,129,0.05);
+}
+
+.purpose-card.selected:hover { background: rgba(16, 185, 129, 0.2); }
+
+.purpose-icon {
+  font-size: 24px;
+  margin-bottom: 8px;
+  display: block;
+}
+
+.purpose-name {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 3px;
+}
+
+.purpose-desc {
+  font-size: 11px;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+.purpose-check {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transform: scale(0.5);
+  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.purpose-card.selected .purpose-check {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.purpose-check svg {
+  width: 10px;
+  height: 10px;
+  stroke: #000;
+  stroke-width: 3;
+  fill: none;
+}
+
+/* last card spans full width if odd count */
+.purpose-grid > .purpose-card:last-child:nth-child(odd) {
+  grid-column: 1 / -1;
+}
+
+/* ── Pills ── */
+.pills-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 15px;
+  border-radius: var(--radius-pill);
+  font-size: 13px;
+  font-weight: 500;
+  background: var(--card);
+  border: 1.5px solid var(--border);
+  cursor: pointer;
+  transition: all var(--transition);
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  white-space: nowrap;
+}
+
+.pill:hover {
+  border-color: var(--border-hover);
+  background: var(--card-hover);
+}
+
+.pill.selected {
+  border-color: var(--accent);
+  background: var(--accent-dim);
+  color: var(--accent);
+}
+
+.pill.selected:hover { background: rgba(16,185,129,0.2); }
+
+.pill-remove {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  line-height: 1;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all var(--transition);
+  margin-left: 2px;
+  flex-shrink: 0;
+}
+
+.pill-remove:hover { color: var(--danger); }
+
+.pill-add {
+  border-style: dashed;
+  color: var(--text-muted);
+}
+
+.pill-add:hover { border-color: var(--accent); color: var(--accent); }
+
+/* ── Add input inline ── */
+.add-input {
+  background: var(--card);
+  border: 1.5px solid var(--accent);
+  border-radius: var(--radius-pill);
+  padding: 8px 14px;
+  font-size: 13px;
+  color: var(--text);
+  outline: none;
+  font-family: inherit;
+  width: 150px;
+  transition: all var(--transition);
+}
+
+.add-input::placeholder { color: var(--text-muted); }
+.add-input:focus { box-shadow: 0 0 12px var(--accent-glow); }
+
+/* ── Detail tabs (Step 2) ── */
+.detail-tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 20px;
+  padding: 3px;
+  background: rgba(255,255,255,0.03);
+  border-radius: var(--radius);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.detail-tabs::-webkit-scrollbar { display: none; }
+
+.detail-tab {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 8px 14px;
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all var(--transition);
+  white-space: nowrap;
+  border: none;
+  background: none;
+  font-family: inherit;
+  outline: none;
+}
+
+.detail-tab:hover { color: var(--text-dim); background: rgba(255,255,255,0.04); }
+
+.detail-tab.active {
+  color: var(--text);
+  background: var(--card);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+}
+
+.detail-tab-icon { font-size: 14px; }
+
+.detail-content {
+  animation: fadeSlideIn 0.3s ease;
+}
+
+@keyframes fadeSlideIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Review cards (Step 3) ── */
+.review-section {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+  margin-bottom: 10px;
+  transition: all var(--transition);
+}
+
+.review-section:hover { border-color: var(--border-hover); }
+
+.review-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.review-icon { font-size: 18px; }
+
+.review-title {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.review-row { margin-bottom: 10px; }
+
+.review-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  margin-bottom: 5px;
+}
+
+.review-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.review-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 11px;
+  border-radius: var(--radius-pill);
+  font-size: 12px;
+  font-weight: 500;
+  background: var(--accent-dim);
+  color: var(--accent);
+  border: 1px solid rgba(16,185,129,0.2);
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.review-pill:hover { border-color: var(--danger); color: var(--danger); background: rgba(239,68,68,0.1); }
+.review-pill:hover .rp-x { opacity: 1; }
+
+.rp-x {
+  font-size: 13px;
+  opacity: 0;
+  transition: opacity var(--transition);
+  margin-left: 1px;
+}
+
+.review-add {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 11px;
+  border-radius: var(--radius-pill);
+  font-size: 12px;
+  color: var(--text-muted);
+  border: 1px dashed var(--border);
+  cursor: pointer;
+  transition: all var(--transition);
+  background: none;
+  font-family: inherit;
+}
+
+.review-add:hover { border-color: var(--accent); color: var(--accent); }
+
+/* ── Loading (Step 4) ── */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  text-align: center;
+}
+
+.loading-orb {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, var(--accent), #059669);
+  margin-bottom: 28px;
+  position: relative;
+  animation: orbPulse 2s ease-in-out infinite;
+}
+
+.loading-orb::after {
+  content: '';
+  position: absolute;
+  inset: -8px;
+  border-radius: 50%;
+  border: 2px solid var(--accent);
+  opacity: 0;
+  animation: orbRing 2s ease-in-out infinite;
+}
+
+@keyframes orbPulse {
+  0%, 100% { transform: scale(1); box-shadow: 0 0 30px var(--accent-glow); }
+  50% { transform: scale(1.08); box-shadow: 0 0 50px var(--accent-glow), 0 0 80px rgba(16,185,129,0.08); }
+}
+
+@keyframes orbRing {
+  0% { transform: scale(0.8); opacity: 0.6; }
+  100% { transform: scale(1.5); opacity: 0; }
+}
+
+.loading-text {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.loading-sub {
+  font-size: 13px;
+  color: var(--text-dim);
+}
+
+.loading-steps {
+  margin-top: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  text-align: left;
+}
+
+.loading-step {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: var(--text-muted);
+  transition: all 0.4s ease;
+}
+
+.loading-step.active { color: var(--text); }
+.loading-step.done { color: var(--accent); }
+
+.loading-step-dot {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.4s ease;
+}
+
+.loading-step.active .loading-step-dot {
+  border-color: var(--accent);
+  background: var(--accent);
+}
+
+.loading-step.done .loading-step-dot {
+  border-color: var(--accent);
+  background: var(--accent);
+}
+
+.loading-step-dot svg {
+  width: 10px;
+  height: 10px;
+  stroke: #000;
+  stroke-width: 3;
+  fill: none;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.loading-step.done .loading-step-dot svg { opacity: 1; }
+
+.spinner-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #000;
+  animation: spinDot 0.8s ease-in-out infinite;
+}
+
+.loading-step:not(.active) .spinner-dot,
+.loading-step.done .spinner-dot { display: none; }
+
+@keyframes spinDot {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 1; }
+}
+
+/* ── Done state ── */
+.done-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  text-align: center;
+  animation: fadeSlideIn 0.5s ease;
+}
+
+.done-icon {
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  background: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+  animation: popIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes popIn {
+  from { transform: scale(0); }
+  to { transform: scale(1); }
+}
+
+.done-icon svg {
+  width: 30px;
+  height: 30px;
+  stroke: #000;
+  stroke-width: 2.5;
+  fill: none;
+}
+
+.done-title {
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.done-sub {
+  font-size: 14px;
+  color: var(--text-dim);
+  margin-bottom: 28px;
+  max-width: 340px;
+  line-height: 1.5;
+}
+
+/* ── Responsive ── */
+@media (max-width: 540px) {
+  .purpose-grid { grid-template-columns: 1fr; }
+  .step-panel { padding: 20px 20px 100px; }
+  .wizard-header { padding: 16px 20px 0; }
+  .wizard-footer { padding: 12px 20px 16px; }
+  .wizard-overlay { width: 100vw; height: 100vh; border-radius: 0; }
+  .step-dot > span { display: none; }
+}
+
+/* ── Utility ── */
+.hidden { display: none !important; }
+.count-badge {
+  background: var(--accent);
+  color: #000;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 10px;
+  margin-left: 3px;
+}
+</style>
+</head>
+<body>
+
+<!-- ═══ LAUNCHER — simulates the settings page ═══ -->
+<div class="launcher" id="launcher">
+  <h2>Set up your feed</h2>
+  <p>Tell us who you are and we'll build a personalized intelligence feed.</p>
+  <div class="form-group">
+    <label class="form-label">Your role</label>
+    <input class="form-input" id="input-role" type="text" placeholder="e.g. Computer Engineering Student" value="Computer Engineering Student">
+  </div>
+  <div class="form-group">
+    <label class="form-label">Location</label>
+    <input class="form-input" id="input-location" type="text" placeholder="e.g. Kuwait" value="Kuwait">
+  </div>
+  <button class="generate-btn" id="generate-btn" onclick="openWizard()">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+    Generate Intelligence Profile
+  </button>
+  <div class="launcher-hint">Opens a quick setup wizard to customize your feed</div>
+</div>
+
+<!-- ═══ WIZARD MODAL ═══ -->
+<div class="wizard-backdrop" id="wizard-backdrop" onclick="closeWizard()"></div>
+
+<div class="wizard-overlay" id="wizard">
+  <!-- Header -->
+  <div class="wizard-header">
+    <div class="wizard-top-row">
+      <div class="wizard-brand">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        <span>StratOS Setup</span>
+      </div>
+      <button class="wizard-close" onclick="closeWizard()" title="Close">&times;</button>
+    </div>
+    <div class="wizard-profile-badge" id="profile-badge">
+      <span>👤</span> <strong id="badge-role">Computer Engineering Student</strong> <span>·</span> <span id="badge-location">Kuwait</span>
+    </div>
+    <div class="progress-bar-track">
+      <div class="progress-bar-fill" id="progress-fill" style="width: 25%"></div>
+    </div>
+    <div class="step-indicators" id="step-indicators"></div>
+  </div>
+
+  <!-- Body -->
+  <div class="wizard-body">
+    <div class="steps-container" id="steps-container">
+
+      <!-- Step 1: Purpose -->
+      <div class="step-panel" id="step-1">
+        <div class="step-inner">
+          <h1 class="step-title">What brings you here?</h1>
+          <p class="step-subtitle">Pick everything that matters to you. We'll build your feed around these.</p>
+          <div class="purpose-grid" id="purpose-grid"></div>
+        </div>
+      </div>
+
+      <!-- Step 2: Details -->
+      <div class="step-panel" id="step-2">
+        <div class="step-inner">
+          <h1 class="step-title">Let's get specific</h1>
+          <p class="step-subtitle">Tell us more about each area so we can dial in your feed.</p>
+          <div class="detail-tabs" id="detail-tabs"></div>
+          <div class="detail-content" id="detail-content"></div>
+        </div>
+      </div>
+
+      <!-- Step 3: Review -->
+      <div class="step-panel" id="step-3">
+        <div class="step-inner">
+          <h1 class="step-title">Your intelligence profile</h1>
+          <p class="step-subtitle">Here's what we'll track. Tap any item to remove it.</p>
+          <div id="review-content"></div>
+        </div>
+      </div>
+
+      <!-- Step 4: Building -->
+      <div class="step-panel" id="step-4"></div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="wizard-footer" id="wizard-footer">
+    <button class="btn btn-ghost" id="btn-back" onclick="goBack()">← Back</button>
+    <button class="btn btn-primary" id="btn-next" onclick="goNext()">Next →</button>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+// DATA
+// ═══════════════════════════════════════════════════════════
+
+const PURPOSES = [
+  { id: 'career',    icon: '🎯', name: 'Career Growth',      desc: 'Jobs, internships, hiring, promotions' },
+  { id: 'invest',    icon: '📈', name: 'Investments',         desc: 'Stocks, crypto, commodities, real estate' },
+  { id: 'industry',  icon: '🏢', name: 'Industry Intel',      desc: 'Company tracking, sector trends, competitors' },
+  { id: 'learning',  icon: '🎓', name: 'Learning & Certs',    desc: 'Certifications, courses, skill development' },
+  { id: 'deals',     icon: '💰', name: 'Deals & Offers',      desc: 'Bank offers, student discounts, promotions' },
+  { id: 'research',  icon: '🔬', name: 'Research',            desc: 'Academic papers, market reports, policy' },
+  { id: 'personal',  icon: '🎮', name: 'Personal Interests',  desc: 'Hobbies, topics, communities' },
+];
+
+const DEFAULT_SELECTED = ['career', 'learning', 'deals', 'industry'];
+
+const DETAIL_PANELS = {
+  career: {
+    sections: [
+      { id: 'stage', label: 'What stage?', type: 'single', pills: ['Student', 'Intern', 'Fresh Graduate', 'Mid-Career', 'Senior'], default: 'Student' },
+      { id: 'roles', label: 'What kind of roles?', type: 'multi', pills: ['Engineering', 'IT / Software', 'Data Science', 'Management', 'Operations'], canAdd: true, defaults: ['Engineering', 'IT / Software'] },
+      { id: 'employers', label: 'Which employers interest you?', type: 'multi', pills: ['Equate', 'KOC', 'KNPC', 'Zain', 'Ooredoo', 'SLB', 'Alghanim', 'KIPIC', 'Huawei'], canAdd: true, sublabel: 'AI-suggested for Kuwait engineering', defaults: ['Equate', 'KOC', 'KNPC', 'Zain'] },
+    ]
+  },
+  invest: {
+    sections: [
+      { id: 'asset_types', label: 'What do you track?', type: 'multi', pills: ['Stocks', 'Crypto', 'Commodities', 'Real Estate', 'Alternative Assets'], defaults: ['Stocks', 'Crypto'] },
+      { id: 'depth', label: 'How actively?', type: 'single', pills: ['Just news & trends', 'Daily price tracking', 'Deep analysis'], default: 'Just news & trends' },
+      { id: 'assets', label: 'Any specific assets?', type: 'multi', pills: ['NVDA', 'BTC-USD', 'AAPL', 'MSFT', 'ETH-USD', 'TSLA', 'GC=F'], canAdd: true, sublabel: 'Add tickers or asset names', defaults: [] },
+    ]
+  },
+  industry: {
+    sections: [
+      { id: 'sectors', label: 'Which sectors?', type: 'multi', pills: ['Oil & Gas', 'Telecom', 'Tech', 'Banking', 'Construction', 'Healthcare', 'Logistics'], canAdd: true, defaults: ['Oil & Gas', 'Tech'] },
+      { id: 'focus', label: 'Focus area?', type: 'single', pills: ['Global trends', 'Kuwait / Regional', 'Both'], default: 'Both' },
+      { id: 'companies', label: 'Track specific companies?', type: 'multi', pills: ['Equate', 'KIPIC', 'KNPC', 'Zain', 'Ooredoo', 'VIVA', 'NBK', 'KFH', 'Agility'], canAdd: true, sublabel: 'AI-suggested for Kuwait', defaults: ['Equate', 'KIPIC', 'KNPC'] },
+    ]
+  },
+  learning: {
+    sections: [
+      { id: 'kind', label: 'What kind?', type: 'multi', pills: ['Professional Certifications', 'Academic Courses', 'Hands-on Skills'], defaults: ['Professional Certifications', 'Hands-on Skills'] },
+      { id: 'certs', label: 'Specific certifications?', type: 'multi', pills: ['AWS Solutions Architect', 'Cisco CCNA', 'CompTIA Security+', 'Google Cloud Engineer', 'PMP', 'Azure Fundamentals', 'Terraform Associate'], canAdd: true, sublabel: 'AI-suggested for engineering students', defaults: ['AWS Solutions Architect', 'Cisco CCNA'] },
+      { id: 'difficulty', label: 'Difficulty?', type: 'single', pills: ['Beginner / Entry', 'Intermediate', 'Advanced / Expert'], default: 'Beginner / Entry' },
+    ]
+  },
+  deals: {
+    sections: [
+      { id: 'deal_types', label: 'What kind?', type: 'multi', pills: ['Bank Offers', 'Telecom Deals', 'Student Discounts', 'Credit Card Rewards'], defaults: ['Bank Offers', 'Student Discounts'] },
+      { id: 'providers', label: 'Specific providers?', type: 'multi', pills: ['Warba Bank', 'Boubyan', 'NBK', 'KFH', 'Zain', 'Ooredoo', 'STC'], canAdd: true, sublabel: 'Popular in Kuwait', defaults: ['Warba Bank', 'Boubyan', 'NBK'] },
+    ]
+  },
+  research: {
+    sections: [
+      { id: 'fields', label: 'What fields?', type: 'multi', pills: ['Academic Papers', 'Market Reports', 'Policy & Regulation', 'Technical Standards'], defaults: ['Market Reports'] },
+      { id: 'topics', label: 'Specific topics?', type: 'multi', pills: [], canAdd: true, sublabel: 'Type a topic and press Enter', defaults: [] },
+    ]
+  },
+  personal: {
+    sections: [
+      { id: 'interests', label: 'What are you into?', type: 'multi', pills: [], canAdd: true, sublabel: 'Type a topic and press Enter', defaults: [] },
+    ]
+  },
+};
+
+// ═══════════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════════
+
+let currentStep = 0;
+let selectedPurposes = new Set(DEFAULT_SELECTED);
+let detailSelections = {};
+let customPills = {};
+let activeDetailTab = null;
+
+const STEP_NAMES = ['Purpose', 'Details', 'Review', 'Build'];
+
+function initDefaults() {
+  for (const [pid, panel] of Object.entries(DETAIL_PANELS)) {
+    detailSelections[pid] = {};
+    customPills[pid] = {};
+    for (const sec of panel.sections) {
+      customPills[pid][sec.id] = [];
+      if (sec.type === 'single' && sec.default) {
+        detailSelections[pid][sec.id] = new Set([sec.default]);
+      } else if (sec.type === 'multi' && sec.defaults) {
+        detailSelections[pid][sec.id] = new Set(sec.defaults);
+      } else {
+        detailSelections[pid][sec.id] = new Set();
+      }
+    }
+  }
+}
+initDefaults();
+
+// ═══════════════════════════════════════════════════════════
+// OPEN / CLOSE
+// ═══════════════════════════════════════════════════════════
+
+function openWizard() {
+  const role = document.getElementById('input-role').value.trim();
+  const loc = document.getElementById('input-location').value.trim();
+  if (!role || !loc) return;
+
+  document.getElementById('badge-role').textContent = role;
+  document.getElementById('badge-location').textContent = loc;
+
+  document.getElementById('wizard-backdrop').classList.add('open');
+  document.getElementById('wizard').classList.add('open');
+  document.body.style.overflow = 'hidden';
+  goToStep(0);
+}
+
+function closeWizard() {
+  document.getElementById('wizard-backdrop').classList.remove('open');
+  document.getElementById('wizard').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+// ═══════════════════════════════════════════════════════════
+// RENDER
+// ═══════════════════════════════════════════════════════════
+
+const checkSVG = '<svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>';
+
+function renderStepIndicators() {
+  const el = document.getElementById('step-indicators');
+  el.innerHTML = STEP_NAMES.map((name, i) => {
+    const cls = i === currentStep ? 'active' : (i < currentStep ? 'done' : '');
+    const dot = i < currentStep ? checkSVG : (i + 1);
+    const conn = i < STEP_NAMES.length - 1
+      ? `<div class="step-connector ${i < currentStep ? 'done' : ''}"></div>`
+      : '';
+    return `<div class="step-dot ${cls}"><div class="step-dot-circle">${dot}</div><span>${name}</span></div>${conn}`;
+  }).join('');
+}
+
+function renderPurposeGrid() {
+  document.getElementById('purpose-grid').innerHTML = PURPOSES.map(p => `
+    <div class="purpose-card ${selectedPurposes.has(p.id) ? 'selected' : ''}" onclick="togglePurpose('${p.id}')">
+      <div class="purpose-check">${checkSVG}</div>
+      <span class="purpose-icon">${p.icon}</span>
+      <div class="purpose-name">${p.name}</div>
+      <div class="purpose-desc">${p.desc}</div>
+    </div>
+  `).join('');
+}
+
+function renderDetailTabs() {
+  const tabs = document.getElementById('detail-tabs');
+  const purposes = PURPOSES.filter(p => selectedPurposes.has(p.id));
+  if (!activeDetailTab || !selectedPurposes.has(activeDetailTab)) {
+    activeDetailTab = purposes[0]?.id || null;
+  }
+  tabs.innerHTML = purposes.map(p => {
+    const sel = detailSelections[p.id] || {};
+    const count = Object.values(sel).reduce((s, set) => s + set.size, 0);
+    return `<button class="detail-tab ${p.id === activeDetailTab ? 'active' : ''}" onclick="switchDetailTab('${p.id}')">
+      <span class="detail-tab-icon">${p.icon}</span>
+      <span>${p.name}</span>
+      ${count ? `<span class="count-badge">${count}</span>` : ''}
+    </button>`;
+  }).join('');
+  renderDetailContent();
+}
+
+function renderDetailContent() {
+  const el = document.getElementById('detail-content');
+  if (!activeDetailTab) { el.innerHTML = ''; return; }
+  const panel = DETAIL_PANELS[activeDetailTab];
+  if (!panel) { el.innerHTML = ''; return; }
+  const sel = detailSelections[activeDetailTab];
+  const custom = customPills[activeDetailTab];
+
+  el.innerHTML = panel.sections.map(sec => {
+    const selected = sel[sec.id] || new Set();
+    const allPills = [...sec.pills, ...(custom[sec.id] || [])];
+
+    let pillsHTML = allPills.map(p => `
+      <div class="pill ${selected.has(p) ? 'selected' : ''}" onclick="toggleDetailPill('${activeDetailTab}','${sec.id}','${esc(p)}','${sec.type}')">
+        ${p}
+        ${(custom[sec.id] || []).includes(p) ? `<span class="pill-remove" onclick="event.stopPropagation();removeCustomPill('${activeDetailTab}','${sec.id}','${esc(p)}')">&times;</span>` : ''}
+      </div>
+    `).join('');
+
+    if (sec.canAdd) {
+      pillsHTML += `<div class="add-input-wrap" id="add-wrap-${sec.id}" style="display:none">
+        <input class="add-input" id="add-input-${sec.id}" placeholder="Type & Enter" onkeydown="handleAddKey(event,'${activeDetailTab}','${sec.id}')">
+      </div>
+      <div class="pill pill-add" id="add-btn-${sec.id}" onclick="showAddInput('${sec.id}')">+ Add</div>`;
+    }
+
+    const sublabel = sec.sublabel ? ` <span class="section-sublabel">· ${sec.sublabel}</span>` : '';
+    return `<div class="section-label">${sec.label}${sublabel}</div><div class="pills-row">${pillsHTML}</div>`;
+  }).join('');
+
+  el.style.animation = 'none';
+  el.offsetHeight;
+  el.style.animation = '';
+}
+
+function renderReview() {
+  const el = document.getElementById('review-content');
+  const purposes = PURPOSES.filter(p => selectedPurposes.has(p.id));
+
+  el.innerHTML = purposes.map(p => {
+    const panel = DETAIL_PANELS[p.id];
+    if (!panel) return '';
+    const sel = detailSelections[p.id];
+
+    const rows = panel.sections.map(sec => {
+      const items = [...(sel[sec.id] || [])];
+      if (!items.length) return '';
+      return `<div class="review-row">
+        <div class="review-label">${sec.label.replace('?', '')}</div>
+        <div class="review-pills">
+          ${items.map(item => `<span class="review-pill" onclick="removeReviewItem('${p.id}','${sec.id}','${esc(item)}')">${item}<span class="rp-x">&times;</span></span>`).join('')}
+          <button class="review-add" onclick="goToDetailForAdd('${p.id}')">+ Add</button>
+        </div>
+      </div>`;
+    }).filter(Boolean).join('');
+
+    if (!rows) return '';
+    return `<div class="review-section">
+      <div class="review-header"><span class="review-icon">${p.icon}</span><span class="review-title">${p.name}</span></div>
+      ${rows}
+    </div>`;
+  }).filter(Boolean).join('');
+
+  if (!el.innerHTML.trim()) {
+    el.innerHTML = `<div style="text-align:center;padding:40px;color:var(--text-muted)">
+      <p style="font-size:15px">Nothing selected yet.</p>
+      <p style="font-size:13px;margin-top:8px">Go back and configure your areas of interest.</p>
+    </div>`;
+  }
+}
+
+function renderStep4Loading() {
+  const role = document.getElementById('input-role').value.trim();
+
+  document.getElementById('step-4').innerHTML = `
+    <div class="loading-container" id="loading-view">
+      <div class="loading-orb"></div>
+      <div class="loading-text">Building your feed...</div>
+      <div class="loading-sub">Configuring intelligence for <strong>${role}</strong></div>
+      <div class="loading-steps">
+        <div class="loading-step active" id="ls-0">
+          <div class="loading-step-dot"><div class="spinner-dot"></div>${checkSVG}</div>
+          <span>Generating context from your choices</span>
+        </div>
+        <div class="loading-step" id="ls-1">
+          <div class="loading-step-dot"><div class="spinner-dot"></div>${checkSVG}</div>
+          <span>Building tracking categories</span>
+        </div>
+        <div class="loading-step" id="ls-2">
+          <div class="loading-step-dot"><div class="spinner-dot"></div>${checkSVG}</div>
+          <span>Selecting news sources</span>
+        </div>
+        <div class="loading-step" id="ls-3">
+          <div class="loading-step-dot"><div class="spinner-dot"></div>${checkSVG}</div>
+          <span>Configuring scoring model</span>
+        </div>
+      </div>
+    </div>`;
+
+  let i = 0;
+  const iv = setInterval(() => {
+    if (i > 0) {
+      document.getElementById(`ls-${i - 1}`).classList.remove('active');
+      document.getElementById(`ls-${i - 1}`).classList.add('done');
+    }
+    if (i < 4) {
+      document.getElementById(`ls-${i}`).classList.add('active');
+      i++;
+    } else {
+      clearInterval(iv);
+      setTimeout(showDone, 400);
+    }
+  }, 600);
+}
+
+function showDone() {
+  document.getElementById('step-4').innerHTML = `
+    <div class="done-container">
+      <div class="done-icon">${checkSVG.replace('viewBox="0 0 24 24"', 'viewBox="0 0 24 24" width="30" height="30" stroke="#000" stroke-width="2.5" fill="none"')}</div>
+      <div class="done-title">Your feed is ready! 🎉</div>
+      <div class="done-sub">We've configured your intelligence sources based on your preferences. Your dashboard will now show relevant signals tailored to you.</div>
+      <button class="btn btn-primary" onclick="closeWizard()" style="padding:13px 32px;font-size:15px">Open Dashboard →</button>
+    </div>`;
+  document.getElementById('wizard-footer').classList.add('hidden');
+}
+
+// ═══════════════════════════════════════════════════════════
+// INTERACTIONS
+// ═══════════════════════════════════════════════════════════
+
+function togglePurpose(id) {
+  selectedPurposes.has(id) ? selectedPurposes.delete(id) : selectedPurposes.add(id);
+  renderPurposeGrid();
+  updateNextButton();
+}
+
+function switchDetailTab(id) {
+  activeDetailTab = id;
+  renderDetailTabs();
+}
+
+function toggleDetailPill(purposeId, sectionId, value, type) {
+  const sel = detailSelections[purposeId][sectionId];
+  if (type === 'single') { sel.clear(); sel.add(value); }
+  else { sel.has(value) ? sel.delete(value) : sel.add(value); }
+  renderDetailContent();
+  renderDetailTabs();
+}
+
+function showAddInput(sectionId) {
+  const wrap = document.getElementById(`add-wrap-${sectionId}`);
+  const addBtn = document.getElementById(`add-btn-${sectionId}`);
+  wrap.style.display = 'inline-flex';
+  if (addBtn) addBtn.style.display = 'none';
+  document.getElementById(`add-input-${sectionId}`).focus();
+}
+
+function handleAddKey(e, purposeId, sectionId) {
+  if (e.key === 'Enter' && e.target.value.trim()) {
+    const val = e.target.value.trim();
+    if (!customPills[purposeId][sectionId].includes(val)) {
+      customPills[purposeId][sectionId].push(val);
+      detailSelections[purposeId][sectionId].add(val);
+    }
+    e.target.value = '';
+    renderDetailContent();
+    renderDetailTabs();
+    setTimeout(() => {
+      const input = document.getElementById(`add-input-${sectionId}`);
+      if (input) { input.parentElement.style.display = 'inline-flex'; const ab = document.getElementById(`add-btn-${sectionId}`); if(ab) ab.style.display='none'; input.focus(); }
+    }, 50);
+  } else if (e.key === 'Escape') {
+    e.target.value = '';
+    e.target.parentElement.style.display = 'none';
+    const addBtn = document.getElementById(`add-btn-${sectionId}`);
+    if (addBtn) addBtn.style.display = '';
+  }
+}
+
+function removeCustomPill(purposeId, sectionId, value) {
+  customPills[purposeId][sectionId] = customPills[purposeId][sectionId].filter(v => v !== value);
+  detailSelections[purposeId][sectionId].delete(value);
+  renderDetailContent();
+  renderDetailTabs();
+}
+
+function removeReviewItem(purposeId, sectionId, value) {
+  detailSelections[purposeId][sectionId].delete(value);
+  customPills[purposeId][sectionId] = customPills[purposeId][sectionId].filter(v => v !== value);
+  renderReview();
+}
+
+function goToDetailForAdd(purposeId) {
+  activeDetailTab = purposeId;
+  goToStep(1);
+}
+
+// ═══════════════════════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════════════════════
+
+function goToStep(step) {
+  currentStep = step;
+  document.getElementById('steps-container').style.transform = `translateX(-${step * 100}%)`;
+  document.getElementById('progress-fill').style.width = `${((step + 1) / STEP_NAMES.length) * 100}%`;
+  renderStepIndicators();
+
+  const footer = document.getElementById('wizard-footer');
+  const backBtn = document.getElementById('btn-back');
+  const nextBtn = document.getElementById('btn-next');
+
+  if (step === 3) {
+    footer.classList.add('hidden');
+    renderStep4Loading();
+  } else {
+    footer.classList.remove('hidden');
+    backBtn.classList.toggle('hidden', step === 0);
+
+    if (step === 0) { nextBtn.textContent = 'Next →'; renderPurposeGrid(); }
+    else if (step === 1) { nextBtn.textContent = 'Review →'; renderDetailTabs(); }
+    else if (step === 2) { nextBtn.innerHTML = '✨ Build my feed'; renderReview(); }
+  }
+  updateNextButton();
+
+  // Scroll panels back to top
+  document.getElementById(`step-${step + 1}`)?.scrollTo(0, 0);
+}
+
+function goNext() { if (currentStep < 3) goToStep(currentStep + 1); }
+function goBack() { if (currentStep > 0) goToStep(currentStep - 1); }
+
+function updateNextButton() {
+  document.getElementById('btn-next').disabled = (currentStep === 0 && selectedPurposes.size === 0);
+}
+
+function esc(s) {
+  return s.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+}
+
+// Enable/disable generate button based on inputs
+function checkLauncher() {
+  const r = document.getElementById('input-role').value.trim();
+  const l = document.getElementById('input-location').value.trim();
+  document.getElementById('generate-btn').disabled = !r || !l;
+}
+document.getElementById('input-role').addEventListener('input', checkLauncher);
+document.getElementById('input-location').addEventListener('input', checkLauncher);
+
+// Keyboard: Escape closes wizard
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && document.getElementById('wizard').classList.contains('open')) closeWizard();
+});
+</script>
+</body>
+</html>

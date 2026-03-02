@@ -21,13 +21,17 @@ import random
 
 logger = logging.getLogger(__name__)
 
-# Try to import DuckDuckGo search
+# Try to import DuckDuckGo search (package renamed: duckduckgo-search → ddgs)
 try:
-    from duckduckgo_search import DDGS
+    from ddgs import DDGS
     HAS_DDGS = True
 except ImportError:
-    HAS_DDGS = False
-    logger.warning("duckduckgo_search not installed. Run: pip install duckduckgo_search")
+    try:
+        from duckduckgo_search import DDGS
+        HAS_DDGS = True
+    except ImportError:
+        HAS_DDGS = False
+        logger.warning("ddgs not installed. Run: pip install ddgs")
 
 # Try to import Serper Search client
 try:

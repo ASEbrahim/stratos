@@ -1,0 +1,1322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#050810">
+    <title>STRAT_OS - Strategic Intelligence</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><text y='14' font-size='14'>📡</text></svg>">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" href="/icon-192.png">
+    <link rel="stylesheet" href="tailwind-built.css">
+    <script src="https://unpkg.com/lucide@0.460.0"></script>
+    <script src="https://unpkg.com/lightweight-charts@4.2.2/dist/lightweight-charts.standalone.production.js"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="min-h-screen font-sans" style="selection-color: var(--accent)">
+<div id="star-canvas"></div>
+
+    <div class="flex h-screen overflow-hidden">
+        
+        <!-- Floating sidebar toggle (outside sidebar, always accessible) -->
+        <button id="sidebar-float-toggle" onclick="toggleSidebar()" class="fixed z-30 p-2 rounded-r-lg sf-hidden" style="background:var(--bg-panel-solid); border: 1px solid var(--border-strong); border-left:none; top: 16px; left: 4px;" title="Toggle sidebar">
+            <i data-lucide="panel-left-open" class="w-4 h-4" style="color:var(--accent-light)"></i>
+        </button>
+
+        <!-- Left Sidebar -->
+        <aside id="sidebar" class="border-r flex flex-col z-20 relative flex-shrink-0" style="background:var(--sidebar-bg); border-color:var(--border-strong); width:224px; min-width:160px; max-width:400px;">
+            <!-- Resize handle -->
+            <div id="sidebar-resize-handle" class="absolute top-0 right-0 w-1 h-full cursor-col-resize z-30 hover:bg-emerald-500/30 active:bg-emerald-500/50 transition-colors" style="right:-1px;"></div>
+            <div class="p-5 flex-1 overflow-y-auto min-h-0">
+                <div class="flex items-center justify-between mb-8">
+                    <div id="sidebar-brand" class="flex items-center gap-2 text-emerald-500 font-bold text-lg tracking-wider overflow-hidden">
+                        <i data-lucide="scan-eye" class="w-5 h-5 text-emerald-400 flex-shrink-0"></i>
+                        <span>STRAT_OS</span>
+                    </div>
+                    <button id="sidebar-collapse-btn" onclick="toggleSidebar()" class="text-slate-500 hover:text-emerald-400 transition-colors p-1 rounded flex-shrink-0" title="Collapse sidebar">
+                        <i data-lucide="panel-left-close" class="w-4 h-4"></i>
+                    </button>
+                    <button id="sidebar-expand-btn" onclick="toggleSidebar()" class="hidden text-slate-500 hover:text-emerald-400 transition-colors p-1 rounded mx-auto" title="Expand sidebar">
+                        <i data-lucide="panel-left-open" class="w-4 h-4"></i>
+                    </button>
+                </div>
+                <nav class="space-y-1" id="nav-menu"></nav>
+            </div>
+            <div class="flex-shrink-0 px-5 py-4 sidebar-bottom-section" style="border-top: 1px solid var(--border-strong)">
+                <!-- System Status -->
+                <div class="flex items-center justify-between mb-2.5">
+                    <div class="flex items-center gap-2.5">
+                        <div id="system-status" class="text-[11px] font-medium text-red-500 flex items-center gap-2">
+                            <span class="w-2.5 h-2.5 rounded-full bg-red-500" style="box-shadow:0 0 6px rgba(239,68,68,0.4);"></span>
+                            Offline
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <div class="text-[11px] font-mono tracking-wide" id="clock" style="color:var(--text-muted);">--:--</div>
+                        <button id="notif-bell-btn" onclick="toggleNotifications()" class="text-slate-600 hover:text-amber-400 transition-colors flex-shrink-0 hidden" title="Enable browser notifications">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+                        </button>
+                    </div>
+                </div>
+                <!-- Theme Picker (collapsible) -->
+                <div class="rounded-lg p-2.5 mb-2.5" data-tour="theme-picker" style="background:var(--bg-hover); border:1px solid var(--border);">
+                    <div class="flex items-center justify-between mb-2 cursor-pointer select-none" onclick="var tp=document.getElementById('theme-picker');var ch=document.getElementById('theme-chev');if(tp.style.display==='none'){tp.style.display='';ch.style.transform='rotate(-90deg)'}else{tp.style.display='none';ch.style.transform=''}">
+                        <div class="text-[11px] font-bold uppercase tracking-wider flex items-center gap-2" style="color:var(--text-muted);">
+                            <svg id="theme-chev" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="flex-shrink:0;color:var(--text-faint);transition:transform 0.2s;"><polyline points="6 9 12 15 18 9"/></svg>
+                            Theme
+                        </div>
+                        <button onclick="event.stopPropagation();window._themeEditor && window._themeEditor.toggle()" class="text-[10px] flex items-center gap-1 px-2 py-0.5 rounded-md transition-all font-medium" style="color: var(--accent); background: rgba(var(--accent-rgb, 52,211,153), 0.08); border: 1px solid rgba(var(--accent-rgb, 52,211,153), 0.15);" onmouseenter="this.style.background='rgba(var(--accent-rgb, 52,211,153), 0.18)'" onmouseleave="this.style.background='rgba(var(--accent-rgb, 52,211,153), 0.08)'" title="Fine-tune colors for the active theme">
+                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="12" r="2.5"/><circle cx="13.5" cy="17.5" r="2.5"/><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20"/></svg>
+                            Customize
+                        </button>
+                    </div>
+                    <div id="theme-picker">
+                        <!-- Row 1: base themes -->
+                        <div class="flex items-center gap-2 mb-1.5">
+                            <button class="theme-label active" data-theme="midnight" onclick="setTheme('midnight')" style="--label-color:#34d399" title="Deep navy + emerald">Midnight</button>
+                            <button class="theme-label" data-theme="coffee" onclick="setTheme('coffee')" style="--label-color:#fbbf24" title="Dark chocolate + amber">Coffee</button>
+                            <button class="theme-label" data-theme="rose" onclick="setTheme('rose')" style="--label-color:#fb7185" title="Dark + hot pink">Rose</button>
+                            <button class="theme-label" data-theme="noir" onclick="setTheme('noir')" style="--label-color:#a78bfa" title="Pure black + violet">Noir</button>
+                        </div>
+                        <!-- Row 2: starry themes -->
+                        <div class="flex items-center gap-2 mb-2">
+                            <button class="theme-label" data-theme="aurora" onclick="setTheme('aurora')" style="--label-color:#34d399" title="Midnight blue + green shimmer ✦">Aurora</button>
+                            <button class="theme-label" data-theme="cosmos" onclick="setTheme('cosmos')" style="--label-color:#e8b931" title="Deep space + starlight gold ✦">Cosmos</button>
+                            <button class="theme-label" data-theme="sakura" onclick="setTheme('sakura')" style="--label-color:#f0a0b8" title="Nighttime cherry blossoms 🌸">Sakura</button>
+                            <button class="theme-label" data-theme="nebula" onclick="setTheme('nebula')" style="--label-color:#38bdf8" title="Purple depths + cyan glow ✦">Nebula</button>
+                        </div>
+                        <!-- Toggles row -->
+                        <div class="flex items-center gap-2 pt-1.5" style="border-top:1px solid var(--border);">
+                            <button id="dark-mode-toggle" onclick="cycleThemeMode()" class="flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-semibold transition-all" style="color:var(--text-muted); border:1px solid var(--border-strong); background:transparent;" title="Ultra dark mode">
+                                <span id="dark-mode-icon">✦</span>
+                                <span id="dark-mode-label">Normal</span>
+                            </button>
+                            <button id="stars-toggle" onclick="toggleStars()" class="flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-semibold transition-all" style="color:var(--text-muted); border:1px solid var(--border-strong); background:transparent;" title="Toggle twinkling stars">
+                                <span id="stars-toggle-icon">✧</span>
+                                <span id="stars-toggle-label">Stars</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <!-- Active Profile & Logout -->
+                <div id="sidebar-profile" class="sidebar-label" style="display:none;position:relative;">
+                    <div class="flex items-center justify-between cursor-pointer rounded-lg p-2" style="transition:background 0.15s;" onmouseenter="this.style.background='var(--bg-hover)'" onmouseleave="this.style.background='transparent'" onclick="_toggleProfilePopup(event)">
+                        <div class="flex items-center gap-3 min-w-0">
+                            <div id="sidebar-profile-avatar" style="width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.3);color:#10b981;flex-shrink:0;background-size:cover;background-position:center;"></div>
+                            <span id="sidebar-profile-name" class="text-[13px] truncate font-medium" style="color:var(--text-secondary);"></span>
+                        </div>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0" style="color:var(--text-faint);"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg>
+                    </div>
+                    <!-- Profile Popup Menu -->
+                    <div id="profile-popup" class="profile-popup hidden">
+                        <div id="profile-popup-content"></div>
+                    </div>
+                </div>
+                <!-- Login button — shown when not logged in -->
+                <div id="sidebar-login" class="mt-3 sidebar-label" style="display:none;">
+                    <button onclick="showLoginScreen()" class="w-full text-[10px] font-medium text-slate-400 hover:text-emerald-400 py-1.5 px-2 rounded-lg transition-colors flex items-center gap-2" style="background:var(--bg-panel-solid); border:1px solid var(--border-strong)">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+                        Login / Switch Profile
+                    </button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 overflow-y-auto p-8 relative scroll-smooth">
+            
+            <!-- Header -->
+            <div class="flex justify-between items-end pb-6 mb-8" style="border-bottom: 1px solid var(--border-strong)">
+                <div>
+                    <h2 id="page-title" class="text-2xl font-bold text-slate-100 uppercase tracking-wide">Executive Summary</h2>
+                    <p id="page-subtitle" class="text-slate-500 text-sm mt-1">Strategic Intelligence Stream</p>
+                </div>
+                <div class="text-right flex items-center gap-4">
+                    <div>
+                        <div class="text-[10px] font-mono text-slate-500 uppercase">Last Sync</div>
+                        <div class="text-sm font-mono text-emerald-500" id="last-updated">--:--</div>
+                    </div>
+                    <div class="flex flex-col items-end gap-1">
+                        <span class="text-[10px] text-slate-400 uppercase tracking-wider leading-none font-medium">Refresh</span>
+                        <div class="flex items-center gap-1.5">
+                            <button onclick="refreshMarket()" id="refresh-market-btn" class="p-1.5 rounded-lg text-slate-500 hover:text-slate-300 transition-all group" style="background:var(--bg-panel-solid); border: 1px solid var(--border-strong)" title="Refresh market data only (fast)">
+                                <i data-lucide="refresh-cw" class="w-3.5 h-3.5 group-hover:rotate-180 transition-all duration-300"></i>
+                            </button>
+                            <button onclick="toggleScan()" id="scan-btn" data-tour="scan-btn" class="p-1.5 rounded-lg transition-all group" style="background:rgba(16,185,129,0.15); border: 1px solid rgba(16,185,129,0.3); color: #34d399;" title="Refresh news & intelligence (uses API)">
+                                <i data-lucide="radar" id="scan-btn-icon" class="w-3.5 h-3.5 group-hover:rotate-180 transition-all duration-300"></i>
+                            </button>
+                            <div class="w-px h-5 bg-slate-700/40"></div>
+                            <button onclick="toggleScanHistory()" id="scan-history-btn" class="p-1.5 rounded-lg text-slate-500 hover:text-slate-300 transition-colors" style="background:var(--bg-panel-solid); border: 1px solid var(--border-strong)" title="Scan History">
+                                <i data-lucide="history" class="w-3.5 h-3.5"></i>
+                            </button>
+                            <button onclick="setActive('settings')" class="p-1.5 rounded-lg text-slate-500 hover:text-slate-300 transition-colors" style="background:var(--bg-panel-solid); border: 1px solid var(--border-strong)" title="Settings">
+                                <i data-lucide="settings" class="w-3.5 h-3.5"></i>
+                            </button>
+                            <div style="position:relative">
+                                <button onclick="document.getElementById('tour-help-menu').classList.toggle('tour-el-hidden')" id="help-btn" class="p-1.5 rounded-lg transition-all" style="background:var(--bg-panel-solid); border: 1px solid var(--border-strong); color: var(--text-muted);" title="Guided Tour" onmouseenter="this.style.color='var(--accent)';this.style.borderColor='var(--accent)'" onmouseleave="this.style.color='var(--text-muted)';this.style.borderColor='var(--border-strong)'">
+                                    <i data-lucide="help-circle" class="w-3.5 h-3.5"></i>
+                                </button>
+                                <div id="tour-help-menu" class="tour-help-menu tour-el-hidden">
+                                    <button onclick="this.parentElement.classList.add('tour-el-hidden');typeof restartTour==='function'&&restartTour()">Onboarding Tour</button>
+                                    <button onclick="this.parentElement.classList.add('tour-el-hidden');typeof startExploreTour==='function'&&startExploreTour()">Explore Features</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Market Overview (heatmap cards) -->
+            <div id="alerts-banner" class="mb-2">
+                <div id="overview-content">
+                    <div class="text-xs text-slate-500 italic">Loading market data...</div>
+                </div>
+            </div>
+            
+            <!-- Status Banner (for background scanning / new data notification) -->
+            <div id="status-notification" class="hidden mb-6">
+                <!-- Scanning indicator -->
+                <div id="scanning-banner" class="hidden bg-blue-900/30 border border-blue-500/30 rounded-lg px-4 py-3">
+                    <div class="flex items-center gap-3">
+                        <div class="w-4 h-4 border-2 border-blue-400/30 border-t-blue-400 rounded-full animate-spin flex-shrink-0"></div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center justify-between">
+                                <p id="scan-title" class="text-sm text-blue-300 font-medium">Scanning in background...</p>
+                                <span id="scan-percent" class="text-xs text-blue-400/70 ml-2 tabular-nums"></span>
+                            </div>
+                            <p id="scan-progress" class="text-xs text-blue-400/70">Fetching market data...</p>
+                            <div class="mt-2 h-2.5 rounded-full bg-blue-500/20 overflow-hidden">
+                                <div id="scan-bar" class="h-full rounded-full transition-all duration-500 ease-out" style="width: 0%; background: linear-gradient(90deg, #3b82f6, #60a5fa); box-shadow: 0 0 8px rgba(96,165,250,0.4);"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- New data available -->
+                <div id="newdata-banner" class="hidden bg-emerald-900/30 border border-emerald-500/30 rounded-lg px-4 py-3 flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <i data-lucide="sparkles" class="w-5 h-5 text-emerald-400"></i>
+                        <p class="text-sm text-emerald-300 font-medium">New data available!</p>
+                    </div>
+                    <button onclick="loadNewData()" class="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-500 rounded-lg text-xs font-medium flex items-center gap-2 transition-all">
+                        <i data-lucide="refresh-cw" class="w-3 h-3"></i>
+                        Load Now
+                    </button>
+                </div>
+                <!-- Search API limit warning -->
+                <div id="search-limit-banner" class="hidden bg-red-900/30 border border-red-500/30 rounded-lg px-4 py-3 flex items-center justify-between mt-2">
+                    <div class="flex items-center gap-3">
+                        <i data-lucide="alert-triangle" class="w-5 h-5 text-red-400"></i>
+                        <p class="text-sm text-red-300 font-medium">Google Search daily limit reached - results may be incomplete</p>
+                    </div>
+                    <a href="#" onclick="setActive('settings')" class="px-4 py-1.5 rounded-lg text-xs font-medium flex items-center gap-2 transition-all" style="background:var(--bg-panel-solid); border: 1px solid var(--border-strong)">
+                        <i data-lucide="settings" class="w-3 h-3"></i>
+                        Settings
+                    </a>
+                </div>
+            </div>
+
+            <!-- Loading State -->
+            <div id="loading" class="flex flex-col items-center justify-center py-32">
+                <div class="w-8 h-8 border-2 border-emerald-500/30 border-t-emerald-500 rounded-full animate-spin mb-4"></div>
+                <p class="text-slate-400 text-sm">Loading intelligence data...</p>
+            </div>
+
+            <!-- Main Grid -->
+            <div id="main-content" class="hidden grid grid-cols-1 xl:grid-cols-3 gap-8">
+                
+                <!-- News Feed (2/3) -->
+                <div id="feed-column" class="xl:col-span-2 space-y-4">
+                    <div id="status-banner"></div>
+
+                    <!-- AI Agent Chat (Dashboard only) -->
+                    <div id="agent-panel" class="hidden">
+                        <div class="rounded-xl overflow-hidden" style="background:var(--bg-panel-solid); border:1px solid var(--border-strong); box-shadow:0 4px 24px rgba(0,0,0,0.15);">
+                            <!-- Header -->
+                            <div class="flex items-center justify-between px-4 py-2.5 cursor-pointer" onclick="toggleAgentChat()" style="border-bottom:1px solid var(--border-strong);">
+                                <div class="flex items-center gap-2.5">
+                                    <div class="relative">
+                                        <div class="w-7 h-7 rounded-lg flex items-center justify-center" style="background:rgba(16,185,129,0.12); border:1px solid rgba(16,185,129,0.2);">
+                                            <i data-lucide="bot" class="w-4 h-4 text-emerald-400"></i>
+                                        </div>
+                                        <span id="agent-status-dot" class="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-slate-500 rounded-full" style="border:2px solid var(--bg-panel-solid);"></span>
+                                    </div>
+                                    <div>
+                                        <div class="flex items-center gap-2">
+                                            <span class="text-xs font-bold tracking-wide" style="color:var(--text-heading);">STRAT AGENT</span>
+                                            <span id="agent-model-badge" class="text-[9px] font-mono px-1.5 py-0.5 rounded" style="background:rgba(16,185,129,0.08); color:var(--accent,#34d399); border:1px solid rgba(16,185,129,0.15);"></span>
+                                        </div>
+                                        <p class="text-[10px] mt-0.5" style="color:var(--text-muted);">Search the web, manage your feed, analyze signals</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-0.5">
+                                    <button onclick="event.stopPropagation(); importAgentChat()" class="p-1.5 rounded-md transition-all" style="color:var(--text-muted);" title="Import chat or context file" onmouseenter="this.style.background='rgba(255,255,255,0.05)';this.style.color='var(--text-heading)'" onmouseleave="this.style.background='transparent';this.style.color='var(--text-muted)'">
+                                        <i data-lucide="upload" class="w-3 h-3"></i>
+                                    </button>
+                                    <button onclick="event.stopPropagation(); exportAgentChat()" class="p-1.5 rounded-md transition-all" style="color:var(--text-muted);" title="Export chat" onmouseenter="this.style.background='rgba(255,255,255,0.05)';this.style.color='var(--text-heading)'" onmouseleave="this.style.background='transparent';this.style.color='var(--text-muted)'">
+                                        <i data-lucide="download" class="w-3 h-3"></i>
+                                    </button>
+                                    <button onclick="event.stopPropagation(); clearAgentChat()" class="p-1.5 rounded-md transition-all" style="color:var(--text-muted);" title="Clear chat" onmouseenter="this.style.background='rgba(239,68,68,0.08)';this.style.color='rgb(248,113,113)'" onmouseleave="this.style.background='transparent';this.style.color='var(--text-muted)'">
+                                        <i data-lucide="trash-2" class="w-3 h-3"></i>
+                                    </button>
+                                    <div class="w-px h-4 mx-1" style="background:var(--border-strong);"></div>
+                                    <i data-lucide="chevron-down" id="agent-chevron" class="w-4 h-4 transition-transform" style="color:var(--text-muted);"></i>
+                                </div>
+                            </div>
+                            <!-- Body -->
+                            <div id="agent-body" class="hidden">
+                                <!-- Messages -->
+                                <div id="agent-messages" class="px-4 py-3 space-y-3 overflow-y-auto" style="scroll-behavior:smooth; height:280px; min-height:120px; max-height:600px;">
+                                    <div id="agent-welcome" class="flex flex-col items-center py-6 px-2">
+                                        <div class="w-12 h-12 rounded-2xl flex items-center justify-center mb-4" style="background:rgba(16,185,129,0.08); border:1px solid rgba(16,185,129,0.15);">
+                                            <i data-lucide="sparkles" class="w-6 h-6 text-emerald-400"></i>
+                                        </div>
+                                        <p class="text-sm font-semibold mb-1" style="color:var(--text-heading);">How can I help?</p>
+                                        <p class="text-[11px] mb-5 text-center max-w-xs" style="color:var(--text-muted);">I can search the web, manage your watchlist &amp; categories, and analyze your feed data.</p>
+                                        <div id="agent-suggestions" class="flex flex-wrap gap-1.5 justify-center max-w-md"></div>
+                                    </div>
+                                </div>
+                                <!-- Resize handle -->
+                                <div id="agent-resize-handle" class="h-1.5 cursor-ns-resize flex justify-center items-center group transition-colors" style="background:var(--border-strong);" title="Drag to resize" onmouseenter="this.style.background='var(--accent,#34d399)'" onmouseleave="this.style.background='var(--border-strong)'">
+                                    <div class="w-8 h-0.5 rounded-full" style="background:var(--text-muted); opacity:0.3;"></div>
+                                </div>
+                                <!-- Input -->
+                                <div class="px-3 py-2.5">
+                                    <div class="flex gap-2 items-end">
+                                        <div class="flex-1 relative">
+                                            <input id="agent-input" type="text" placeholder="Ask anything, search the web, manage tickers..." 
+                                                class="w-full rounded-xl px-4 py-2.5 text-xs focus:outline-none transition-all" 
+                                                style="background:rgba(255,255,255,0.03); border:1px solid var(--border-strong); color:var(--text-heading);"
+                                                onfocus="this.style.borderColor='var(--accent,#34d399)';this.style.boxShadow='0 0 0 2px rgba(16,185,129,0.1)'"
+                                                onblur="this.style.borderColor='var(--border-strong)';this.style.boxShadow='none'"
+                                                onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendAgentMessage();}">
+                                        </div>
+                                        <button onclick="sendAgentMessage()" id="agent-send-btn" class="w-9 h-9 rounded-xl flex items-center justify-center transition-all flex-shrink-0" style="background:var(--accent,#10b981); color:white;" onmouseenter="this.style.opacity='0.85'" onmouseleave="this.style.opacity='1'">
+                                            <i data-lucide="arrow-up" class="w-4 h-4"></i>
+                                        </button>
+                                    </div>
+                                    <div class="flex items-center justify-between mt-1.5 px-1">
+                                        <div class="flex items-center gap-2">
+                                            <span id="agent-serper-badge" class="text-[9px] font-mono flex items-center gap-1" style="color:var(--text-muted);"></span>
+                                        </div>
+                                        <span class="text-[9px]" style="color:var(--text-muted); opacity:0.5;">Enter to send</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Briefing Panel (Dashboard only) -->
+                    <div id="briefing-panel" class="hidden space-y-4"></div>
+                    
+                    <!-- Search & Filter Bar -->
+                    <div id="feed-controls" class="flex items-center gap-3 flex-wrap">
+                        <div class="relative flex-1 min-w-[200px]">
+                            <i data-lucide="search" class="w-3.5 h-3.5 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+                            <input id="feed-search" type="text" placeholder="Filter signals... (e.g. KOC, Warba, NVDA)"
+                                class="w-full pl-9 pr-3 py-2 rounded-lg text-xs text-slate-200 placeholder:text-slate-600"
+                                oninput="_debouncedRenderFeed()">
+                        </div>
+                        <div class="flex items-center gap-1.5" id="score-filters" data-tour="score-filters">
+                            <button onclick="toggleScoreFilter('all')" class="score-pill active px-2.5 py-1 rounded text-[10px] font-bold text-slate-300" style="border: 1px solid var(--border-strong); background:var(--bg-panel-solid)" data-filter="all">ALL</button>
+                            <button onclick="toggleScoreFilter('critical')" class="score-pill active px-2.5 py-1 rounded text-[10px] font-bold border score-critical" data-filter="critical">9+</button>
+                            <button onclick="toggleScoreFilter('high')" class="score-pill active px-2.5 py-1 rounded text-[10px] font-bold border score-high" data-filter="high">7+</button>
+                            <button onclick="toggleScoreFilter('medium')" class="score-pill active px-2.5 py-1 rounded text-[10px] font-bold border score-medium" data-filter="medium">5+</button>
+                            <button onclick="toggleScoreFilter('noise')" class="score-pill px-2.5 py-1 rounded text-[10px] font-bold border score-noise" data-filter="noise">&lt;5</button>
+                        </div>
+                    </div>
+                    
+                    <div id="feed-count" class="text-[10px] text-slate-600 font-mono"></div>
+                    <div id="news-feed" class="space-y-3"></div>
+                </div>
+
+                <!-- Right Sidebar (1/3) -->
+                <div id="sidebar-column" class="space-y-6">
+                    
+                    <!-- Markets Widget -->
+                    <div id="markets-widget" data-tour="markets-widget" class="glass-panel rounded-xl p-5">
+                        <div class="flex justify-between items-center mb-4">
+                        <div class="flex items-center gap-2">
+                            <h3 class="text-xs font-bold text-slate-400 flex items-center gap-2 uppercase tracking-widest">
+                                <i data-lucide="activity" class="text-emerald-400 w-4"></i> Markets
+                            </h3>
+                            <span id="market-sync-age" class="text-[10px] font-mono text-slate-600"></span>
+                        </div>
+                            <div class="flex rounded p-0.5" style="background:var(--bg-panel-solid)">
+                                <button onclick="setTimeframe('1m')" class="time-btn text-[10px] px-2 py-0.5 rounded transition-all bg-slate-600 text-white" data-tf="1m">1m</button>
+                                <button onclick="setTimeframe('5m')" class="time-btn text-[10px] px-2 py-0.5 rounded transition-all" data-tf="5m">5m</button>
+                                <button onclick="setTimeframe('1d_1mo')" class="time-btn text-[10px] px-2 py-0.5 rounded transition-all" data-tf="1d_1mo">D</button>
+                                <button onclick="setTimeframe('1d_1y')" class="time-btn text-[10px] px-2 py-0.5 rounded transition-all" data-tf="1d_1y">D·5Y</button>
+                                <button onclick="setTimeframe('1wk')" class="time-btn text-[10px] px-2 py-0.5 rounded transition-all" data-tf="1wk">W</button>
+                            </div>
+                        </div>
+
+                        <div class="relative mb-4">
+                            <div class="flex gap-2 overflow-x-auto pb-2 ticker-scroll" id="ticker-buttons"></div>
+                        </div>
+                        
+                        <!-- Price Header -->
+                        <div class="mb-3">
+                            <div id="selected-asset-name" class="text-[10px] text-slate-500 font-medium uppercase tracking-wider mb-0.5">--</div>
+                            <div class="flex items-baseline gap-2">
+                                <span id="selected-price-large" class="text-2xl font-bold text-white">$--</span>
+                                <span class="text-xs text-slate-500">USD</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span id="selected-change-detail" class="text-sm font-medium text-emerald-400">+0.00 (0.00%)</span>
+                                <span id="selected-market-status" class="text-xs text-slate-500">today</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Chart Toolbar -->
+                        <div class="flex items-center justify-between mb-1 flex-wrap gap-1" data-tour="chart-tools">
+                            <div class="flex items-center gap-1">
+                                <!-- Chart type toggle -->
+                                <button onclick="setChartType('line')" id="chart-type-line" class="chart-tool-btn active px-2 py-1 rounded text-[10px] font-medium transition-all" title="Line chart">
+                                    <i data-lucide="trending-up" class="w-3.5 h-3.5"></i>
+                                </button>
+                                <button onclick="setChartType('candle')" id="chart-type-candle" class="chart-tool-btn px-2 py-1 rounded text-[10px] font-medium transition-all" title="Candlestick chart">
+                                    <i data-lucide="bar-chart-2" class="w-3.5 h-3.5"></i>
+                                </button>
+                                <div class="w-px h-4 mx-0.5" style="background:var(--border-strong);"></div>
+                                <!-- Crosshair toggle -->
+                                <button onclick="toggleCrosshair()" id="crosshair-btn" class="chart-tool-btn px-2 py-1 rounded text-[10px] font-medium transition-all" title="Toggle crosshair">
+                                    <i data-lucide="crosshair" class="w-3.5 h-3.5"></i>
+                                </button>
+                                <div class="w-px h-4 mx-0.5" style="background:var(--border-strong);"></div>
+                                <!-- Auto trend lines -->
+                                <button onclick="toggleAutoTrend()" id="auto-trend-btn" class="chart-tool-btn px-2 py-1 rounded text-[10px] font-medium transition-all" title="Auto trend lines (swing highs/lows)">
+                                    <i data-lucide="git-branch" class="w-3.5 h-3.5"></i>
+                                </button>
+                                <div class="w-px h-4 mx-0.5" style="background:var(--border-strong);"></div>
+                                <!-- Drawing mode -->
+                                <button onclick="toggleDrawMode()" id="draw-btn" class="chart-tool-btn px-2 py-1 rounded text-[10px] font-medium flex items-center gap-1 transition-all" title="Draw trend line (click 2 points)">
+                                    <i data-lucide="pencil" class="w-3.5 h-3.5"></i>
+                                    <span class="hidden sm:inline">Draw</span>
+                                </button>
+                                <!-- Export chart as PNG -->
+                                <button onclick="exportChartPNG()" class="chart-tool-btn px-2 py-1 rounded text-[10px] font-medium flex items-center gap-1 transition-all" title="Save chart as PNG (S)">
+                                    <i data-lucide="download" class="w-3.5 h-3.5"></i>
+                                    <span class="hidden sm:inline">Export</span>
+                                </button>
+                                <!-- Drawing color picker -->
+                                <div id="draw-colors" class="hidden flex items-center gap-1 ml-1">
+                                    <button onclick="setDrawColor('#34d399')" class="w-4 h-4 rounded-full border-2 border-transparent hover:border-white/50 transition-all" style="background:#34d399;" title="Green"></button>
+                                    <button onclick="setDrawColor('#f87171')" class="w-4 h-4 rounded-full border-2 border-transparent hover:border-white/50 transition-all" style="background:#f87171;" title="Red"></button>
+                                    <button onclick="setDrawColor('#60a5fa')" class="w-4 h-4 rounded-full border-2 border-transparent hover:border-white/50 transition-all" style="background:#60a5fa;" title="Blue"></button>
+                                    <button onclick="setDrawColor('#fbbf24')" class="w-4 h-4 rounded-full border-2 border-transparent hover:border-white/50 transition-all" style="background:#fbbf24;" title="Yellow"></button>
+                                    <button onclick="setDrawColor('#c084fc')" class="w-4 h-4 rounded-full border-2 border-transparent hover:border-white/50 transition-all" style="background:#c084fc;" title="Purple"></button>
+                                    <div class="w-px h-4 mx-0.5" style="background:var(--border-strong);"></div>
+                                    <button onclick="clearDrawings()" class="text-[9px] px-1.5 py-0.5 rounded transition-all" style="color:var(--text-muted); border:1px solid var(--border-strong);" title="Clear all drawings" onmouseenter="this.style.color='#f87171';this.style.borderColor='#f87171'" onmouseleave="this.style.color='var(--text-muted)';this.style.borderColor='var(--border-strong)'">Clear</button>
+                                </div>
+                            </div>
+                            <!-- Focus Mode (inline with toolbar) -->
+                            <button id="chart-focus-btn" onclick="_openFullscreenChart(document.getElementById('chart-wrapper'), document.getElementById('selected-asset-name')?.textContent || 'Chart')" class="text-[10px] font-semibold px-2 py-1 rounded-md transition-all flex items-center gap-1" style="color:var(--text-secondary); border:1px solid var(--border-strong); background:var(--bg-hover);" onmouseenter="this.style.color='var(--accent)';this.style.borderColor='var(--accent)';this.style.background='rgba(var(--accent-rgb,52,211,153),0.1)'" onmouseleave="this.style.color='var(--text-secondary)';this.style.borderColor='var(--border-strong)';this.style.background='var(--bg-hover)'" title="Open fullscreen focus mode (F)">
+                                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3"/></svg>
+                                Focus
+                            </button>
+                            <div id="draw-status" class="text-[9px] font-mono hidden" style="color:var(--accent);"></div>
+                        </div>
+
+                        <!-- Chart Container -->
+                        <div id="chart-wrapper" class="relative w-full rounded overflow-hidden" style="height:260px; border:1px solid var(--border-strong,rgba(51,65,85,0.5));">
+                            <div id="tv-chart-container" style="width:100%;height:100%;"></div>
+                            <!-- OHLC legend overlay -->
+                            <div id="chart-legend" class="absolute top-1 left-2 z-20 pointer-events-none flex gap-3 text-[10px] font-mono" style="text-shadow:0 1px 3px rgba(0,0,0,0.8);">
+                                <span id="legend-o" class="text-slate-400"></span>
+                                <span id="legend-h" class="text-emerald-400"></span>
+                                <span id="legend-l" class="text-red-400"></span>
+                                <span id="legend-c" class="text-slate-300"></span>
+                                <span id="legend-v" class="text-slate-500"></span>
+                            </div>
+                            <!-- Drawing overlay canvas -->
+                            <canvas id="draw-overlay" style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:10;"></canvas>
+                        </div>
+
+                        <!-- Stats Grid (Yahoo Finance style) -->
+                        <div class="grid grid-cols-2 gap-x-4 gap-y-1.5 mt-4 pt-3 border-t border-slate-800/50">
+                            <div class="flex justify-between">
+                                <span class="text-[10px] text-slate-500">Open</span>
+                                <span id="stat-open" class="text-[11px] font-medium text-slate-300">--</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-[10px] text-slate-500">Prev Close</span>
+                                <span id="stat-prev-close" class="text-[11px] font-medium text-slate-300">--</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-[10px] text-slate-500">High</span>
+                                <span id="stat-high" class="text-[11px] font-medium text-emerald-400">--</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-[10px] text-slate-500">Low</span>
+                                <span id="stat-low" class="text-[11px] font-medium text-red-400">--</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-[10px] text-slate-500">Volume</span>
+                                <span id="stat-volume" class="text-[11px] font-medium text-slate-300">--</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-[10px] text-slate-500">Day Range</span>
+                                <span id="stat-day-range" class="text-[11px] font-medium text-slate-300">--</span>
+                            </div>
+                        </div>
+
+                        <!-- Compare Charts -->
+                        <div class="mt-4 pt-3 border-t border-slate-800/50">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-[10px] text-slate-500 uppercase tracking-wider font-bold">Compare</span>
+                                <button onclick="openCompareMenu(event)" class="text-[10px] px-2 py-0.5 rounded border border-slate-700 text-slate-400 hover:text-emerald-400 hover:border-emerald-500/30 transition-all flex items-center gap-1">
+                                    <i data-lucide="plus" class="w-3 h-3"></i> Add Chart
+                                </button>
+                            </div>
+                            <div id="compare-grid" class="grid grid-cols-2 gap-2"></div>
+                            <!-- Dropdown picker (hidden by default) -->
+                            <div id="compare-menu" class="hidden fixed bg-slate-900 border border-slate-700 rounded-lg p-2 shadow-xl max-h-48 overflow-y-auto" style="min-width:160px; z-index:9999;">
+                                <div id="compare-menu-items"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Asset Analysis (enhanced) -->
+                    <div id="asset-analysis" class="glass-panel rounded-xl p-5">
+                        <div class="flex items-center gap-2 mb-3">
+                            <i data-lucide="sparkles" class="w-4 h-4 text-emerald-400"></i>
+                            <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest">Asset Analysis</h3>
+                        </div>
+                        <div id="analysis-content" class="space-y-3">
+                            <div class="text-xs text-slate-500 italic">Select an asset to see analysis</div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            
+            <!-- Markets Panel -->
+            <div id="markets-panel" class="hidden" style="max-width:100%;overflow:hidden;">
+                <div id="mp-sections" class="space-y-3">
+
+                    <!-- Market Overview -->
+                    <div class="glass-panel rounded-xl p-3 mp-dragsec" id="mp-sec-overview" data-mpsec="overview" data-tour="mp-overview">
+                        <div class="flex items-center justify-between cursor-pointer select-none" onclick="if(!event.target.closest('.mp-grip'))mpToggleSection('overview')">
+                            <div class="flex items-center gap-2">
+                                <div class="mp-grip cursor-grab active:cursor-grabbing p-0.5 rounded hover:bg-slate-800/50" title="Click, then click another to swap"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="text-slate-600"><circle cx="9" cy="5" r="1"/><circle cx="15" cy="5" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="9" cy="19" r="1"/><circle cx="15" cy="19" r="1"/></svg></div>
+                                <i data-lucide="activity" class="w-3.5 h-3.5 text-emerald-400"></i>
+                                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest">Market Overview</h3>
+                            </div>
+                            <svg id="mp-chev-overview" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-slate-600" style="transition:transform 0.2s;"><polyline points="6 9 12 15 18 9"/></svg>
+                        </div>
+                        <div id="mp-overview-content" class="mt-2" style="transition:max-height 0.25s ease,opacity 0.15s;overflow:hidden;"></div>
+                    </div>
+
+                    <!-- Charts -->
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                                <i data-lucide="bar-chart-2" class="w-3.5 h-3.5 text-emerald-400"></i> Charts
+                                <span class="text-[10px] text-slate-600 font-normal normal-case tracking-normal">Click two grips to swap them</span>
+                            </h3>
+                            <div id="shortcuts-btn" data-tour="mp-shortcuts" class="relative group">
+                                <button class="text-[10px] px-2 py-1 rounded-lg flex items-center gap-1.5 transition-all cursor-help" style="border:1px solid var(--border-strong); color:var(--text-muted);" onmouseenter="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'" onmouseleave="this.style.borderColor='var(--border-strong)';this.style.color='var(--text-muted)'">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+                                    Shortcuts
+                                </button>
+                                <div class="absolute right-0 top-full mt-1 hidden group-hover:block rounded-lg p-3 text-[10px] font-mono whitespace-nowrap" style="background:#1e293b;border:1px solid rgba(51,65,85,0.8);color:#94a3b8;z-index:999;box-shadow:0 25px 50px -12px rgba(0,0,0,0.5);">
+                                    <div class="font-bold mb-2 text-slate-200">Keyboard Shortcuts</div>
+                                    <table style="border-spacing:6px 3px;border-collapse:separate;">
+                                        <tr><td><kbd class="px-1.5 py-0.5 rounded text-[9px]" style="background:#0f172a;border:1px solid #334155;">1-5</kbd></td><td>Timeframes</td></tr>
+                                        <tr><td><kbd class="px-1.5 py-0.5 rounded text-[9px]" style="background:#0f172a;border:1px solid #334155;">j/k</kbd></td><td>Cycle charts</td></tr>
+                                        <tr><td><kbd class="px-1.5 py-0.5 rounded text-[9px]" style="background:#0f172a;border:1px solid #334155;">c</kbd></td><td>Line / Candle / Area</td></tr>
+                                        <tr><td><kbd class="px-1.5 py-0.5 rounded text-[9px]" style="background:#0f172a;border:1px solid #334155;">d</kbd></td><td>Draw mode</td></tr>
+                                        <tr><td><kbd class="px-1.5 py-0.5 rounded text-[9px]" style="background:#0f172a;border:1px solid #334155;">f</kbd></td><td>Fibonacci</td></tr>
+                                        <tr><td><kbd class="px-1.5 py-0.5 rounded text-[9px]" style="background:#0f172a;border:1px solid #334155;">x</kbd></td><td>Crosshair</td></tr>
+                                        <tr><td><kbd class="px-1.5 py-0.5 rounded text-[9px]" style="background:#0f172a;border:1px solid #334155;">s</kbd></td><td>Export PNG</td></tr>
+                                        <tr><td><kbd class="px-1.5 py-0.5 rounded text-[9px]" style="background:#0f172a;border:1px solid #334155;">Esc</kbd></td><td>Cancel</td></tr>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex justify-end mb-1">
+                            <button onclick="mpToggleMobileCompact()" id="mp-compact-toggle" class="mp-mobile-only text-[9px] px-2 py-1 rounded-md transition-all flex items-center gap-1" style="color:var(--text-muted);background:var(--bg-panel-solid);border:1px solid var(--border-strong);" title="Toggle split / full view">
+                                <i data-lucide="columns-2" class="w-3 h-3"></i> <span id="mp-compact-label">Split</span>
+                            </button>
+                        </div>
+                        <div id="mp-chart-grid" data-tour="mp-charts" class="grid gap-3" style="grid-template-columns: repeat(2, minmax(0, 1fr));"></div>
+                    </div>
+
+                    <!-- Ticker Intel + Comparison side by side -->
+                    <div class="flex items-center justify-end mb-1">
+                        <button onclick="mpToggleBottomLayout()" id="mp-layout-btn" class="text-[9px] text-slate-600 hover:text-slate-400 transition-colors flex items-center gap-1" title="Toggle side-by-side / stacked">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="18" rx="1"/><rect x="14" y="3" width="7" height="18" rx="1"/></svg>
+                            <span id="mp-layout-label">Side-by-side</span>
+                        </button>
+                    </div>
+                    <div id="mp-bottom-row" class="grid grid-cols-1 lg:grid-cols-2 gap-3">
+                        <div class="glass-panel rounded-xl p-3 mp-dragsec" id="mp-sec-news" data-mpsec="news" data-tour="mp-intel">
+                            <div class="flex items-center justify-between cursor-pointer select-none" onclick="if(!event.target.closest('.mp-grip'))mpToggleSection('news')">
+                                <div class="flex items-center gap-2">
+                                    <div class="mp-grip cursor-grab active:cursor-grabbing p-0.5 rounded hover:bg-slate-800/50" title="Click, then click another to swap"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="text-slate-600"><circle cx="9" cy="5" r="1"/><circle cx="15" cy="5" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="9" cy="19" r="1"/><circle cx="15" cy="19" r="1"/></svg></div>
+                                    <i data-lucide="newspaper" class="w-3.5 h-3.5 text-emerald-400"></i>
+                                    <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest">Ticker Intel</h3>
+                                </div>
+                                <svg id="mp-chev-news" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-slate-600" style="transition:transform 0.2s;"><polyline points="6 9 12 15 18 9"/></svg>
+                            </div>
+                            <div id="mp-news-content" class="mt-2" style="transition:max-height 0.25s ease,opacity 0.15s;overflow:hidden;"></div>
+                        </div>
+                        <div class="glass-panel rounded-xl p-3 mp-dragsec" id="mp-sec-stats" data-mpsec="stats" data-tour="mp-agent">
+                            <div class="flex items-center justify-between cursor-pointer select-none" onclick="if(!event.target.closest('.mp-grip')&&!event.target.closest('button'))mpToggleSection('stats')">
+                                <div class="flex items-center gap-2">
+                                    <div class="mp-grip cursor-grab active:cursor-grabbing p-0.5 rounded hover:bg-slate-800/50" title="Click, then click another to swap"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="text-slate-600"><circle cx="9" cy="5" r="1"/><circle cx="15" cy="5" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="9" cy="19" r="1"/><circle cx="15" cy="19" r="1"/></svg></div>
+                                    <div class="relative">
+                                        <div class="w-5 h-5 rounded-md flex items-center justify-center" style="background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.15);">
+                                            <i data-lucide="bot" class="w-3 h-3 text-emerald-400"></i>
+                                        </div>
+                                        <span id="mp-agent-status-dot" class="absolute -bottom-0.5 -right-0.5 w-2 h-2 bg-slate-500 rounded-full" style="border:1.5px solid var(--bg-panel-solid,#0f172a);"></span>
+                                    </div>
+                                    <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest">Strat Market</h3>
+                                    <span id="mp-agent-model-badge" class="text-[8px] font-mono px-1 py-0.5 rounded" style="background:rgba(16,185,129,0.08);color:#34d399;border:1px solid rgba(16,185,129,0.15);"></span>
+                                </div>
+                                <div class="flex items-center gap-0.5">
+                                    <span id="mp-agent-serper-badge" class="text-[8px] font-mono mr-1" style="color:var(--text-muted,#64748b);"></span>
+                                    <button onclick="event.stopPropagation();mpImportMarketAgent()" class="p-1 rounded-md text-slate-600 hover:text-slate-300 transition-colors" title="Import chat or context"><i data-lucide="upload" class="w-3 h-3"></i></button>
+                                    <button onclick="event.stopPropagation();mpExportMarketAgent()" class="p-1 rounded-md text-slate-600 hover:text-slate-300 transition-colors" title="Export chat"><i data-lucide="download" class="w-3 h-3"></i></button>
+                                    <button onclick="event.stopPropagation();mpClearMarketAgent()" class="p-1 rounded-md text-slate-600 hover:text-red-400 transition-colors" title="Clear chat"><i data-lucide="trash-2" class="w-3 h-3"></i></button>
+                                    <svg id="mp-chev-stats" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-slate-600 ml-1" style="transition:transform 0.2s;"><polyline points="6 9 12 15 18 9"/></svg>
+                                </div>
+                            </div>
+                            <div id="mp-stats-table" class="mt-2" style="transition:max-height 0.25s ease,opacity 0.15s;overflow:hidden;">
+                                <div id="mp-agent-messages" class="space-y-3 overflow-y-auto" style="min-height:60px;height:260px;max-height:600px;scroll-behavior:smooth;">
+                                    <div id="mp-agent-welcome" class="flex flex-col items-center py-4 px-2">
+                                        <div class="w-10 h-10 rounded-2xl flex items-center justify-center mb-3" style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.15);">
+                                            <i data-lucide="sparkles" class="w-5 h-5 text-emerald-400"></i>
+                                        </div>
+                                        <p class="text-[11px] font-semibold mb-1 text-slate-300">Market Intelligence Agent</p>
+                                        <p class="text-[10px] text-slate-500 text-center max-w-xs mb-3">Analyze articles, manage your watchlist, compare tickers, or ask about market trends.</p>
+                                        <div id="mp-agent-suggestions" class="flex flex-wrap gap-1.5 justify-center max-w-md"></div>
+                                    </div>
+                                </div>
+                                <!-- Resize handle -->
+                                <div id="mp-agent-resize" class="h-1.5 cursor-ns-resize flex justify-center items-center" style="background:rgba(51,65,85,0.3);" title="Drag to resize" onmouseenter="this.style.background='rgba(16,185,129,0.3)'" onmouseleave="this.style.background='rgba(51,65,85,0.3)'">
+                                    <div class="w-8 h-0.5 rounded-full" style="background:rgba(100,116,139,0.3);"></div>
+                                </div>
+                                <div class="mt-1.5 flex gap-1.5 items-end">
+                                    <input id="mp-agent-input" type="text" placeholder="Ask about markets, manage watchlist..." 
+                                        class="flex-1 rounded-lg px-3 py-2 text-[11px] focus:outline-none transition-all" 
+                                        style="background:rgba(255,255,255,0.03);border:1px solid rgba(51,65,85,0.5);color:var(--text-heading,#e2e8f0);"
+                                        onfocus="this.style.borderColor='#34d399';this.style.boxShadow='0 0 0 2px rgba(16,185,129,0.1)'"
+                                        onblur="this.style.borderColor='rgba(51,65,85,0.5)';this.style.boxShadow='none'"
+                                        onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();mpSendMarketAgent();}">
+                                    <button onclick="mpSendMarketAgent()" id="mp-agent-send" class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 transition-all" style="background:#10b981;color:white;" onmouseenter="this.style.opacity='0.85'" onmouseleave="this.style.opacity='1'">
+                                        <i data-lucide="arrow-up" class="w-3.5 h-3.5"></i>
+                                    </button>
+                                </div>
+                                <input type="file" id="mp-agent-import-file" class="hidden" accept=".json,.txt,.md,.csv" onchange="mpHandleAgentImport(event)">
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+
+
+
+
+
+
+            <!-- Settings Panel (separate from main grid) -->
+            <div id="settings-panel" class="hidden">
+                <!-- Scanning Status Banner -->
+                <div id="settings-scan-banner" class="hidden mb-6 bg-blue-900/30 border border-blue-500/30 rounded-lg px-4 py-3">
+                    <div class="flex items-center gap-3">
+                        <div class="w-5 h-5 border-2 border-blue-400/30 border-t-blue-400 rounded-full animate-spin flex-shrink-0"></div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center justify-between">
+                                <p class="text-sm text-blue-300 font-medium">Scanning in background...</p>
+                                <span id="settings-scan-percent" class="text-xs text-blue-400/70 ml-2 tabular-nums"></span>
+                            </div>
+                            <p id="settings-scan-progress" class="text-xs text-blue-400/70">Processing...</p>
+                            <div class="mt-2 h-2.5 rounded-full bg-blue-500/20 overflow-hidden">
+                                <div id="settings-scan-bar" class="h-full rounded-full transition-all duration-500 ease-out" style="width: 0%; background: linear-gradient(90deg, #3b82f6, #60a5fa); box-shadow: 0 0 8px rgba(96,165,250,0.4);"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Settings Mode Toggle -->
+                <div class="flex items-center justify-between mb-6">
+                    <div class="flex items-center gap-3">
+                        <h2 class="text-lg font-bold text-slate-200">Settings</h2>
+                        <span id="quick-save-status" class="text-[10px] text-emerald-400 opacity-0 transition-opacity"></span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button onclick="quickSave()" id="quick-save-btn" class="settings-header-btn text-emerald-400 hover:text-emerald-300" style="background:var(--bg-panel-solid); border: 1px solid rgba(16,185,129,0.25)" title="Save all settings (Ctrl+S)">
+                            <i data-lucide="save" class="w-3.5 h-3.5"></i> Save All
+                        </button>
+                        <button onclick="clearSimpleSettings()" id="clear-simple-btn" class="settings-header-btn text-slate-500 hover:text-red-400" style="background:var(--bg-panel-solid); border: 1px solid var(--border-strong)" title="Clear all settings">
+                            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Clear All
+                        </button>
+                        <div class="flex rounded-lg p-0.5" style="background:var(--bg-panel-solid); border: 1px solid var(--border-strong)">
+                            <button onclick="setSettingsMode('simple')" id="settings-mode-simple" class="settings-header-btn rounded-md" style="background:var(--accent); color:white;">Simple</button>
+                            <button onclick="setSettingsMode('advanced')" id="settings-mode-advanced" class="settings-header-btn rounded-md text-slate-400">Advanced</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SIMPLE SETTINGS MODE -->
+                <div id="settings-simple" class="space-y-6">
+                    <!-- Settings Sub-Tabs -->
+                    <div class="stab-bar" id="settings-tab-bar">
+                        <button class="stab active" data-stab="profile" onclick="switchSettingsTab('profile')">Profile</button>
+                        <button class="stab" data-stab="sources" data-tour="sources-tab" onclick="switchSettingsTab('sources')">Sources</button>
+                        <button class="stab" data-stab="market" onclick="switchSettingsTab('market')">Market</button>
+                        <button class="stab" data-stab="system" onclick="switchSettingsTab('system')">System</button>
+                    </div>
+
+                    <!-- Account / Profile Settings -->
+                    <div class="glass-panel rounded-xl p-6" id="account-settings-panel" data-stab="profile">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-sm font-bold text-slate-200 flex items-center gap-2">
+                                <i data-lucide="user-cog" class="w-4 h-4" style="color:var(--accent)"></i> Account Settings
+                            </h3>
+                            <span id="profile-save-status" class="text-[10px] text-emerald-400 opacity-0 transition-opacity"></span>
+                        </div>
+
+                        <div class="acct-grid">
+                            <!-- LEFT: Avatar + Display Name + Email -->
+                            <div class="acct-left">
+                                <div class="flex items-center gap-2 mb-3">
+                                    <i data-lucide="user" class="w-3.5 h-3.5" style="color:var(--text-muted)"></i>
+                                    <span class="text-xs font-medium text-slate-400">Profile</span>
+                                </div>
+                                <div class="flex gap-3 items-start">
+                                    <div class="flex flex-col items-center gap-1.5 flex-shrink-0">
+                                        <div id="profile-avatar-preview" style="width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:700;background:var(--accent-bg);border:2px solid var(--accent-border);color:var(--accent);cursor:pointer;background-size:cover;background-position:center;position:relative;overflow:hidden;" onclick="document.getElementById('profile-avatar-file').click()" title="Click to upload photo">
+                                            <div style="position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,0.5);text-align:center;font-size:8px;color:#fff;padding:1px 0;font-weight:500;opacity:0.7;">Edit</div>
+                                        </div>
+                                        <input type="file" id="profile-avatar-file" class="hidden" accept="image/*" onchange="_handleAvatarUpload(event)">
+                                        <input type="text" id="profile-avatar-input" maxlength="3" style="max-width:80px;" class="bg-slate-900 border border-slate-700 rounded-md px-1.5 py-1 text-[10px] text-slate-200 focus:border-emerald-500 focus:outline-none text-center font-bold uppercase tracking-widest" placeholder="AA" oninput="document.getElementById('profile-avatar-preview').textContent=this.value.toUpperCase().slice(0,3)||'?'">
+                                    </div>
+                                    <div class="flex-1 grid grid-cols-1 gap-3">
+                                        <div>
+                                            <label class="text-[10px] text-slate-500 block mb-1 font-medium">Username</label>
+                                            <input type="text" id="profile-display-name" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:border-emerald-500 focus:outline-none" placeholder="Your name">
+                                        </div>
+                                        <div>
+                                            <label class="text-[10px] text-slate-500 block mb-1 font-medium">Account Email</label>
+                                            <input type="email" id="profile-email" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:border-emerald-500 focus:outline-none" placeholder="your@email.com">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- RIGHT: Change PIN (always visible) -->
+                            <div class="acct-right">
+                                <div class="flex items-center gap-2 mb-3">
+                                    <i data-lucide="lock" class="w-3.5 h-3.5" style="color:var(--text-muted)"></i>
+                                    <span class="text-xs font-medium text-slate-400">Change PIN</span>
+                                </div>
+                                <div class="grid grid-cols-1 gap-3">
+                                    <div>
+                                        <label class="text-[10px] text-slate-500 block mb-1">Current PIN</label>
+                                        <input type="password" id="profile-current-pin" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:border-emerald-500 focus:outline-none" placeholder="Current PIN">
+                                    </div>
+                                    <div>
+                                        <label class="text-[10px] text-slate-500 block mb-1">New PIN</label>
+                                        <input type="password" id="profile-new-pin" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:border-emerald-500 focus:outline-none" placeholder="New PIN">
+                                    </div>
+                                    <div>
+                                        <label class="text-[10px] text-slate-500 block mb-1">Confirm PIN</label>
+                                        <input type="password" id="profile-confirm-pin" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:border-emerald-500 focus:outline-none" placeholder="Confirm new PIN">
+                                    </div>
+                                    <div class="flex items-center gap-3">
+                                        <button onclick="_updatePin()" class="px-3 py-1.5 rounded-lg text-[11px] font-medium transition-all" style="background:transparent;color:var(--text-secondary);border:1px solid var(--border-strong);width:fit-content;">Update PIN</button>
+                                        <button onclick="_forgotPin()" class="text-[10px] font-medium transition-all" style="color:var(--accent);background:none;border:none;">Forgot PIN?</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- BUTTONS (full width) -->
+                            <div class="acct-btns">
+                                <button onclick="logout()" class="px-4 py-2 rounded-lg text-xs font-medium flex items-center gap-2 transition-all h-9" style="color:#f87171;background:transparent;border:1px solid rgba(239,68,68,0.35);">
+                                    <i data-lucide="log-out" class="w-3.5 h-3.5"></i> Logout
+                                </button>
+                                <button onclick="_saveProfileSettings()" class="px-4 py-2 rounded-lg text-xs font-medium flex items-center gap-2 transition-all h-9" style="background:#059669;color:white;">
+                                    <i data-lucide="save" class="w-3.5 h-3.5"></i> Save Profile
+                                </button>
+                                <span id="profile-error-msg" class="text-[10px] text-red-400 hidden"></span>
+                                <button onclick="_deleteAccount()" class="px-4 py-2 rounded-lg text-xs font-medium flex items-center gap-2 transition-all h-9" style="color:#f87171;background:transparent;border:1px solid rgba(239,68,68,0.2);margin-left:auto;">
+                                    <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Delete Account
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Display Settings -->
+                    <div class="glass-panel rounded-xl p-6" id="display-settings-panel" data-stab="system" data-tour="display-settings">
+                        <h3 class="text-sm font-bold text-slate-200 mb-1 flex items-center gap-2">
+                            <i data-lucide="monitor" class="w-4 h-4" style="color:var(--accent)"></i> Display
+                        </h3>
+                        <p class="text-xs text-slate-500 mb-3">Customize how the dashboard looks and behaves.</p>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="text-xs text-slate-400 block mb-1.5 font-medium">Feed Density</label>
+                                <select id="cfg-density" onchange="_applyDensity(this.value)" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:border-emerald-500 focus:outline-none">
+                                    <option value="compact">Compact</option>
+                                    <option value="normal" selected>Normal</option>
+                                    <option value="comfortable">Comfortable</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="text-xs text-slate-400 block mb-1.5 font-medium">Font Size</label>
+                                <select id="cfg-font-size" onchange="_applyFontSize(this.value)" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:border-emerald-500 focus:outline-none">
+                                    <option value="small">Small</option>
+                                    <option value="medium" selected>Medium</option>
+                                    <option value="large">Large</option>
+                                    <option value="xlarge">Extra Large</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="text-xs text-slate-400 block mb-1.5 font-medium">Default Chart Type</label>
+                                <select id="cfg-chart-type" onchange="_setDefaultChartType(this.value)" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:border-emerald-500 focus:outline-none">
+                                    <option value="line">Line</option>
+                                    <option value="candle">Candlestick</option>
+                                    <option value="area">Area</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="text-xs text-slate-400 block mb-1.5 font-medium">Auto-refresh Market</label>
+                                <select id="cfg-auto-refresh" onchange="_setAutoRefresh(this.value)" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:border-emerald-500 focus:outline-none">
+                                    <option value="0">Off</option>
+                                    <option value="60">Every minute</option>
+                                    <option value="300">Every 5 minutes</option>
+                                    <option value="900">Every 15 minutes</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="text-xs text-slate-400 block mb-1.5 font-medium">Keep 8+ Signals</label>
+                                <label class="flex items-center gap-2 cursor-pointer">
+                                    <input type="checkbox" id="cfg-retain-high" onchange="_toggleRetention(this.checked)" class="accent-emerald-500">
+                                    <span class="text-xs text-slate-300">Retain high-scoring articles across scans</span>
+                                </label>
+                                <p class="text-[10px] text-slate-600 mt-1">Articles scored 8.0+ persist for 24h so you don't lose actionable signals between scans.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Data & Privacy -->
+                    <div class="glass-panel rounded-xl p-6" id="data-privacy-panel" data-stab="system">
+                        <h3 class="text-sm font-bold text-slate-200 mb-1 flex items-center gap-2">
+                            <i data-lucide="database" class="w-4 h-4" style="color:var(--accent)"></i> Data & Privacy
+                        </h3>
+                        <p class="text-xs text-slate-500 mb-3">Manage your data and local storage.</p>
+                        <div class="flex flex-wrap gap-2">
+                            <button onclick="_exportSignals('json')" class="px-3 py-1.5 rounded-lg text-xs flex items-center gap-2 transition-all" style="background:var(--bg-panel-solid);border:1px solid var(--border-strong);color:var(--text-secondary);">
+                                <i data-lucide="download" class="w-3 h-3"></i> Export JSON
+                            </button>
+                            <button onclick="_exportSignals('csv')" class="px-3 py-1.5 rounded-lg text-xs flex items-center gap-2 transition-all" style="background:var(--bg-panel-solid);border:1px solid var(--border-strong);color:var(--text-secondary);">
+                                <i data-lucide="file-text" class="w-3 h-3"></i> Export CSV
+                            </button>
+                            <button onclick="_clearCache()" class="px-3 py-1.5 rounded-lg text-xs flex items-center gap-2 transition-all" style="background:var(--bg-panel-solid);border:1px solid var(--border-strong);color:var(--text-secondary);">
+                                <i data-lucide="trash-2" class="w-3 h-3"></i> Clear Cache
+                            </button>
+                        </div>
+                        <p class="text-[10px] text-slate-600 mt-2">Local storage: ~<span id="storage-usage">0</span> KB used</p>
+                    </div>
+
+                    <!-- Keyboard Shortcuts -->
+                    <div class="glass-panel rounded-xl p-6" id="shortcuts-panel" data-stab="system">
+                        <h3 class="text-sm font-bold text-slate-200 mb-1 flex items-center gap-2">
+                            <i data-lucide="keyboard" class="w-4 h-4" style="color:var(--accent)"></i> Keyboard Shortcuts
+                        </h3>
+                        <div class="grid grid-cols-2 gap-x-6 gap-y-1 mt-3 text-xs">
+                            <div class="flex justify-between"><span class="text-slate-500">Zoom chart</span><kbd class="px-1.5 py-0.5 rounded text-[9px]" style="background:var(--bg-panel-solid);border:1px solid var(--border-strong);">Scroll</kbd></div>
+                            <div class="flex justify-between"><span class="text-slate-500">Toggle candle/line</span><kbd class="px-1.5 py-0.5 rounded text-[9px]" style="background:var(--bg-panel-solid);border:1px solid var(--border-strong);">C</kbd></div>
+                            <div class="flex justify-between"><span class="text-slate-500">Draw mode</span><kbd class="px-1.5 py-0.5 rounded text-[9px]" style="background:var(--bg-panel-solid);border:1px solid var(--border-strong);">D</kbd></div>
+                            <div class="flex justify-between"><span class="text-slate-500">Fibonacci</span><kbd class="px-1.5 py-0.5 rounded text-[9px]" style="background:var(--bg-panel-solid);border:1px solid var(--border-strong);">F</kbd></div>
+                            <div class="flex justify-between"><span class="text-slate-500">Crosshair</span><kbd class="px-1.5 py-0.5 rounded text-[9px]" style="background:var(--bg-panel-solid);border:1px solid var(--border-strong);">X</kbd></div>
+                            <div class="flex justify-between"><span class="text-slate-500">Screenshot</span><kbd class="px-1.5 py-0.5 rounded text-[9px]" style="background:var(--bg-panel-solid);border:1px solid var(--border-strong);">S</kbd></div>
+                            <div class="flex justify-between"><span class="text-slate-500">Timeframes 1-5</span><kbd class="px-1.5 py-0.5 rounded text-[9px]" style="background:var(--bg-panel-solid);border:1px solid var(--border-strong);">1-5</kbd></div>
+                            <div class="flex justify-between"><span class="text-slate-500">Cycle charts</span><kbd class="px-1.5 py-0.5 rounded text-[9px]" style="background:var(--bg-panel-solid);border:1px solid var(--border-strong);">J/K</kbd></div>
+                            <div class="flex justify-between"><span class="text-slate-500">Auto-trend</span><kbd class="px-1.5 py-0.5 rounded text-[9px]" style="background:var(--bg-panel-solid);border:1px solid var(--border-strong);">T</kbd></div>
+                            <div class="flex justify-between"><span class="text-slate-500">Exit / Cancel</span><kbd class="px-1.5 py-0.5 rounded text-[9px]" style="background:var(--bg-panel-solid);border:1px solid var(--border-strong);">Esc</kbd></div>
+                        </div>
+                    </div>
+
+                    <!-- About -->
+                    <div class="glass-panel rounded-xl p-6" id="about-panel" data-stab="system">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-sm font-bold text-slate-200 flex items-center gap-2">
+                                <i data-lucide="info" class="w-4 h-4" style="color:var(--accent)"></i> About
+                            </h3>
+                            <span class="text-[10px] text-slate-600">v1.0</span>
+                        </div>
+                        <p class="text-xs text-slate-500 mt-2">StratOS — Strategic Intelligence Operating System. Personalized news scoring powered by local AI. Built with Ollama, Lightweight Charts, and the Qwen model family.</p>
+                    </div>
+
+                    <!-- Guided Tours -->
+                    <div class="glass-panel rounded-xl p-6" data-stab="system">
+                        <h3 class="text-sm font-bold text-slate-200 mb-1 flex items-center gap-2">
+                            <i data-lucide="help-circle" class="w-4 h-4" style="color:var(--accent)"></i> Guided Tours
+                        </h3>
+                        <p class="text-xs text-slate-500 mb-3">Walk through StratOS features step by step</p>
+                        <div class="flex flex-col sm:flex-row gap-2">
+                            <button onclick="typeof restartTour==='function'&&restartTour()" class="flex-1 px-3 py-2 rounded-lg text-xs font-medium transition-all bg-slate-800/60 border border-slate-700/50 text-slate-300 hover:border-emerald-500/50 hover:text-emerald-300 flex items-center justify-center gap-1.5">
+                                <i data-lucide="play" class="w-3.5 h-3.5"></i> Restart Onboarding
+                            </button>
+                            <button onclick="typeof startExploreTour==='function'&&startExploreTour()" class="flex-1 px-3 py-2 rounded-lg text-xs font-medium transition-all bg-slate-800/60 border border-slate-700/50 text-slate-300 hover:border-purple-500/50 hover:text-purple-300 flex items-center justify-center gap-1.5">
+                                <i data-lucide="compass" class="w-3.5 h-3.5"></i> Explore Features
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Quick Profile -->
+                    <div class="glass-panel rounded-xl p-6" data-stab="profile">
+                        <h3 class="text-sm font-bold text-slate-200 mb-1 flex items-center gap-2">
+                            <i data-lucide="user" class="w-4 h-4" style="color:var(--accent)"></i> Who are you?
+                        </h3>
+                        <p class="text-xs text-slate-500 mb-4">Type your role and context, then let AI generate what to track.</p>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                            <div>
+                                <label class="text-xs text-slate-400 block mb-1.5 font-medium">Your role</label>
+                                <input type="text" id="simple-role" data-tour="role-field" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-sm text-slate-200 focus:border-emerald-500 focus:outline-none" placeholder="e.g., Computer Engineering Student">
+                            </div>
+                            <div>
+                                <label class="text-xs text-slate-400 block mb-1.5 font-medium">Location</label>
+                                <input type="text" id="simple-location" data-tour="location-field" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-sm text-slate-200 focus:border-emerald-500 focus:outline-none" placeholder="e.g., Kuwait">
+                            </div>
+                        </div>
+                        <div class="mb-4">
+                            <div class="flex items-center justify-between mb-1.5">
+                                <label class="text-xs text-slate-400 font-medium">Context & Interests</label>
+                            </div>
+                            <textarea id="simple-context" data-tour="context-field" rows="3" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-sm text-slate-200 focus:border-emerald-500 focus:outline-none resize-none" placeholder="What are you interested in? e.g., Investing, cutting edge technology, ticker trends, AI developments, job market in Kuwait..."></textarea>
+                            <!-- Quick Profile Questions -->
+                            <div class="mt-2">
+                                <button onclick="_toggleProfileQs()" id="profile-qs-toggle" class="text-[10px] flex items-center gap-1.5 transition-all cursor-pointer" style="color:var(--text-muted);" onmouseenter="this.style.color='var(--accent)'" onmouseleave="this.style.color='var(--text-muted)'">
+                                    <i data-lucide="help-circle" class="w-3 h-3"></i>
+                                    <span>Not sure what to write? Answer a few questions</span>
+                                    <i data-lucide="chevron-down" id="profile-qs-chevron" class="w-3 h-3 transition-transform"></i>
+                                </button>
+                                <div id="profile-qs-panel" class="hidden mt-2 p-3 rounded-lg space-y-2.5" style="background:rgba(168,85,247,0.04); border:1px solid rgba(168,85,247,0.12);">
+                                    <p class="text-[10px] font-medium" style="color:var(--text-muted);">Answer any that apply — they'll be added to your context:</p>
+                                    <div class="space-y-2" id="profile-qs-list"></div>
+                                    <button onclick="_applyProfileQs()" class="text-[10px] px-3 py-1.5 rounded-lg font-medium flex items-center gap-1.5 transition-all" style="background:rgba(168,85,247,0.12); border:1px solid rgba(168,85,247,0.25); color:rgb(192,132,252);" onmouseenter="this.style.background='rgba(168,85,247,0.2)'" onmouseleave="this.style.background='rgba(168,85,247,0.12)'">
+                                        <i data-lucide="arrow-down-to-line" class="w-3 h-3"></i> Add answers to context
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <button onclick="generateFromRole()" id="simple-generate-btn" class="px-4 py-2 text-sm font-medium flex items-center gap-2 transition-all rounded-lg" style="background:var(--accent); color:white;">
+                                <i data-lucide="zap" class="w-4 h-4"></i> Generate
+                            </button>
+                            <button onclick="openWizard()" id="setup-wizard-btn" data-tour="wizard-btn" class="px-3.5 py-2 text-sm font-medium flex items-center gap-2 transition-all rounded-lg" style="background:transparent; color:var(--accent); border:1px solid var(--accent);">
+                                <i data-lucide="wand-2" class="w-4 h-4"></i> Setup Wizard
+                            </button>
+                            <button onclick="suggestContext()" id="suggest-context-btn" class="px-3.5 py-2 text-sm font-medium flex items-center gap-2 transition-all rounded-lg" style="background:rgba(99,102,241,0.08); color:#818cf8; border:1px solid rgba(99,102,241,0.35);">
+                                <i data-lucide="sparkles" class="w-4 h-4"></i> Suggest
+                            </button>
+                            <button onclick="saveContextOnly()" id="save-context-btn" class="px-3.5 py-2 text-sm font-medium flex items-center gap-2 transition-all rounded-lg" style="background:rgba(16,185,129,0.08); color:#34d399; border:1px solid rgba(16,185,129,0.35);">
+                                <i data-lucide="save" class="w-3.5 h-3.5"></i> Save
+                            </button>
+                            <div class="inline-flex items-center gap-1 ml-1">
+                                <button onclick="rollbackGeneration()" id="simple-rollback-btn" class="hidden px-2 py-1.5 text-xs font-medium flex items-center gap-1 transition-all rounded-md bg-slate-800 hover:bg-amber-900/30 text-slate-400 hover:text-amber-400 border border-slate-600" title="Undo last generation">
+                                    <i data-lucide="undo-2" class="w-3.5 h-3.5"></i>
+                                </button>
+                                <button onclick="redoGeneration()" id="simple-redo-btn" class="hidden px-2 py-1.5 text-xs font-medium flex items-center gap-1 transition-all rounded-md bg-slate-800 hover:bg-blue-900/30 text-slate-400 hover:text-blue-400 border border-slate-600" title="Redo last generation">
+                                    <i data-lucide="redo-2" class="w-3.5 h-3.5"></i>
+                                </button>
+                            </div>
+                            <span id="simple-generate-status" class="text-xs" style="color:var(--text-muted)"></span>
+                        </div>
+                    </div>
+
+                    <!-- Dynamic tracking categories (populated by Generate, profile, or manual) -->
+                    <div id="simple-categories-container" class="space-y-4" data-stab="sources">
+                    </div>
+
+                    <!-- Category Library -->
+                    <div id="category-presets-bar" class="hidden" data-stab="sources">
+                        <div class="glass-panel rounded-xl p-4">
+                            <div class="flex items-center justify-between mb-2">
+                                <h4 class="text-xs font-bold text-slate-300 flex items-center gap-1.5">
+                                    <i data-lucide="library" class="w-3.5 h-3.5" style="color:var(--accent)"></i> Saved Categories
+                                </h4>
+                                <span id="category-library-count" class="text-[10px] text-slate-600"></span>
+                            </div>
+                            <div id="category-library-list" class="flex flex-wrap gap-1.5">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- News freshness -->
+                    <div class="glass-panel rounded-xl p-6" data-stab="sources">
+                        <h3 class="text-sm font-bold text-slate-200 mb-1 flex items-center gap-2">
+                            <i data-lucide="clock" class="w-4 h-4" style="color:var(--accent)"></i> How fresh?
+                        </h3>
+                        <div class="flex gap-3 mt-3">
+                            <button onclick="setSimpleTimelimit('d')" class="simple-time-btn flex-1 px-4 py-3 rounded-lg text-sm font-medium border transition-all" data-tl="d">24 hours</button>
+                            <button onclick="setSimpleTimelimit('w')" class="simple-time-btn flex-1 px-4 py-3 rounded-lg text-sm font-medium border transition-all" data-tl="w">7 days</button>
+                            <button onclick="setSimpleTimelimit('m')" class="simple-time-btn flex-1 px-4 py-3 rounded-lg text-sm font-medium border transition-all" data-tl="m">30 days</button>
+                        </div>
+                    </div>
+
+                    <!-- Profiles -->
+                    <div class="glass-panel rounded-xl p-6" data-stab="profile">
+                        <h3 class="text-sm font-bold text-slate-200 mb-1 flex items-center gap-2">
+                            <i data-lucide="bookmark" class="w-4 h-4" style="color:var(--accent)"></i> Saved Profiles
+                        </h3>
+                        <p class="text-xs text-slate-500 mb-4">Save different configurations for different roles or contexts.</p>
+                        
+                        <div class="flex gap-2 mb-4">
+                            <input type="text" id="simple-profile-name" class="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-200 focus:border-emerald-500 focus:outline-none" placeholder="Profile name (e.g., Geophysicist, CPEG Student)" onkeydown="if(event.key==='Enter')saveSimpleProfile()">
+                            <button onclick="saveSimpleProfile()" class="px-3 py-2 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-all border border-emerald-700/50 hover:border-emerald-500 text-emerald-400 hover:bg-emerald-900/30">
+                                <i data-lucide="plus" class="w-3 h-3"></i> Save
+                            </button>
+                        </div>
+                        <div id="simple-profiles-list" class="space-y-2">
+                            <!-- Populated by JS -->
+                        </div>
+                        <div id="simple-profile-status" class="text-xs mt-2" style="color:var(--text-muted)"></div>
+                    </div>
+
+                    <!-- Quick Reference tips -->
+                    <div class="flex items-center gap-4 px-4 py-2.5 rounded-lg text-[10px]" data-stab="sources" style="background:rgba(245,158,11,0.05); border:1px solid rgba(245,158,11,0.12)">
+                        <i data-lucide="lightbulb" class="w-3 h-3 text-yellow-400/70 flex-shrink-0"></i>
+                        <span class="text-slate-500"><span class="text-emerald-400 font-semibold">Keywords</span> = comma-separated entities · <span class="text-emerald-400 font-semibold">Queries</span> = exact search strings · <span class="text-emerald-400 font-semibold">Scoring</span> = AI 1-10 · <span class="text-emerald-400 font-semibold">Tickers</span> = NVDA, BTC-USD, GC=F</span>
+                    </div>
+
+                    <button onclick="saveFromSimple()" id="simple-save-btn" class="w-full px-4 py-3 bg-emerald-600 hover:bg-emerald-500 rounded-lg text-sm font-medium flex items-center justify-center gap-2 transition-all">
+                        <i data-lucide="save" class="w-4 h-4"></i> Save Settings
+                    </button>
+                    <div id="simple-save-status" class="text-sm text-center" style="color:var(--accent)"></div>
+                </div>
+                
+                <!-- ADVANCED SETTINGS MODE (existing dev settings) -->
+                <div id="settings-advanced" class="hidden">
+                <!-- Draggable 2-Column Grid -->
+                <div id="adv-grid" class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+                    
+                    <!-- LEFT COLUMN -->
+                    <div id="adv-col-left" class="space-y-5 adv-drop-col" data-col="left">
+                        <!-- Your Profile -->
+                        <div class="glass-panel rounded-xl p-5 adv-draggable" draggable="true" data-panel-id="profile">
+                            <div class="flex items-center justify-between mb-3">
+                                <h3 class="text-sm font-bold text-slate-200 flex items-center gap-2">
+                                    <i data-lucide="user" class="w-4 h-4" style="color:var(--accent)"></i> Your Profile
+                                </h3>
+                                <i data-lucide="grip-vertical" class="w-3.5 h-3.5 text-slate-600 cursor-grab adv-drag-handle"></i>
+                            </div>
+                            <p class="text-xs text-slate-400 mb-3">Shapes how news is scored — articles matching your profile get higher relevance.</p>
+                            <div class="space-y-3">
+                                <div class="grid grid-cols-2 gap-3">
+                                    <div>
+                                        <label class="text-xs text-slate-400 block mb-1 font-medium">Role / Profession</label>
+                                        <input type="text" id="cfg-profile-role" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:border-emerald-500 focus:outline-none" placeholder="e.g., CPEG Student">
+                                    </div>
+                                    <div>
+                                        <label class="text-xs text-slate-400 block mb-1 font-medium">Location</label>
+                                        <input type="text" id="cfg-profile-location" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:border-emerald-500 focus:outline-none" placeholder="e.g., Kuwait">
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="text-xs text-slate-400 block mb-1 font-medium">Goals & Context</label>
+                                    <textarea id="cfg-profile-context" rows="4" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:border-emerald-500 focus:outline-none resize-none" placeholder="Looking for internships at oil & gas companies, interested in AI/ML positions, want to track student banking promotions"></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- News Time Range -->
+                        <div class="glass-panel rounded-xl p-5 adv-draggable" draggable="true" data-panel-id="timerange">
+                            <div class="flex items-center justify-between mb-3">
+                                <h3 class="text-sm font-bold text-slate-200 flex items-center gap-2">
+                                    <i data-lucide="clock" class="w-4 h-4" style="color:var(--accent)"></i> News Time Range
+                                </h3>
+                                <i data-lucide="grip-vertical" class="w-3.5 h-3.5 text-slate-600 cursor-grab adv-drag-handle"></i>
+                            </div>
+                            <select id="cfg-timelimit" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2.5 text-sm text-slate-200 focus:border-emerald-500 focus:outline-none">
+                                <option value="d">Daily - Last 24 hours (breaking news)</option>
+                                <option value="w" selected>Weekly - Last 7 days (recommended)</option>
+                                <option value="m">Monthly - Last 30 days (comprehensive)</option>
+                            </select>
+                            <p class="text-[10px] text-slate-500 mt-2">Shorter = fresher news, longer = more results. Weekly is recommended.</p>
+                        </div>
+
+                        <!-- Saved Profiles -->
+                        <div class="glass-panel rounded-xl p-5 adv-draggable" draggable="true" data-panel-id="presets">
+                            <div class="flex items-center justify-between mb-3">
+                                <h3 class="text-sm font-bold text-slate-200 flex items-center gap-2">
+                                    <i data-lucide="bookmark" class="w-4 h-4" style="color:var(--accent)"></i> Saved Profiles
+                                </h3>
+                                <i data-lucide="grip-vertical" class="w-3.5 h-3.5 text-slate-600 cursor-grab adv-drag-handle"></i>
+                            </div>
+                            <div class="flex gap-2 mb-2">
+                                <input type="text" id="preset-name-input" class="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:border-emerald-500 focus:outline-none" placeholder="Profile name...">
+                                <button onclick="savePreset()" class="px-3 py-2 bg-emerald-700 hover:bg-emerald-600 rounded-lg text-xs font-medium text-emerald-200 transition-all flex items-center gap-1">
+                                    <i data-lucide="save" class="w-3 h-3"></i> Save
+                                </button>
+                            </div>
+                            <p class="text-[10px] text-slate-600 mb-2">Save your entire config as a profile. Use login screen for PIN-protected profiles.</p>
+                            <div id="presets-list" class="space-y-2">
+                                <p class="text-xs text-slate-500 italic">Loading profiles...</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- RIGHT COLUMN — Categories only -->
+                    <div id="adv-col-right" class="space-y-5 adv-drop-col" data-col="right">
+                        <!-- Categories -->
+                        <div class="glass-panel rounded-xl p-5 adv-draggable" draggable="true" data-panel-id="categories">
+                            <div class="flex items-center justify-between mb-1">
+                                <h3 class="text-sm font-bold text-slate-200 flex items-center gap-2">
+                                    <i data-lucide="layers" class="w-4 h-4" style="color:var(--accent)"></i> Categories
+                                    <span id="adv-cat-count" class="text-[10px] text-slate-500 font-mono"></span>
+                                </h3>
+                                <i data-lucide="grip-vertical" class="w-3.5 h-3.5 text-slate-600 cursor-grab adv-drag-handle"></i>
+                            </div>
+                            <p class="text-[11px] text-slate-500 mb-3">Each category generates search queries for its items. Edit items inline or add new categories below.</p>
+                            <div id="adv-categories-list" class="space-y-2 mb-3">
+                                <p class="text-xs text-slate-500 italic">No categories yet — use Generate in Simple mode or add manually below.</p>
+                            </div>
+                            <button onclick="toggleAdvAddCategory()" id="adv-add-cat-toggle" class="w-full py-2 rounded-lg text-[11px] font-medium text-slate-400 hover:text-emerald-400 transition-all flex items-center justify-center gap-1.5 border border-dashed border-slate-700 hover:border-emerald-700/50">
+                                <i data-lucide="plus" class="w-3.5 h-3.5"></i> New Category
+                            </button>
+                            <div id="adv-add-cat-form" class="hidden mt-2 rounded-lg p-3" style="background: rgba(16,185,129,0.03); border: 1px solid rgba(16,185,129,0.1);">
+                                <div class="mb-2">
+                                    <input type="text" id="adv-new-cat-label" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-200 focus:border-emerald-500 focus:outline-none" placeholder="Category name (e.g. Renewable Energy)">
+                                </div>
+                                <div class="mb-2">
+                                    <input type="text" id="adv-new-cat-items" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-200 focus:border-emerald-500 focus:outline-none" placeholder="Items — comma separated (e.g. Tesla, Solar panels, Wind energy)">
+                                </div>
+                                <details class="mb-2">
+                                    <summary class="text-[10px] text-slate-500 cursor-pointer hover:text-slate-400 select-none">Advanced options</summary>
+                                    <div class="mt-2 space-y-2">
+                                        <div>
+                                            <label class="text-[9px] text-slate-600 block mb-0.5">How should news in this category be scored?</label>
+                                            <select id="adv-new-cat-scorer" class="w-full bg-slate-900 border border-slate-700 rounded px-2 py-1.5 text-[11px] text-slate-300 focus:border-emerald-500 focus:outline-none">
+                                                <option value="auto">Auto-detect (recommended)</option>
+                                                <option value="career">Hiring &amp; recruitment</option>
+                                                <option value="banks">Banking &amp; finance</option>
+                                                <option value="tech">Technology</option>
+                                                <option value="regional">Regional</option>
+                                            </select>
+                                        </div>
+                                        <div class="grid grid-cols-2 gap-2">
+                                            <div>
+                                                <label class="text-[9px] text-slate-600 block mb-0.5">Icon</label>
+                                                <select id="adv-new-cat-icon" class="w-full bg-slate-900 border border-slate-700 rounded px-2 py-1.5 text-[11px] text-slate-300 focus:border-emerald-500 focus:outline-none">
+                                                    <option value="globe">🌐 Globe</option><option value="cpu">⚡ Tech</option><option value="briefcase">💼 Work</option><option value="landmark">🏛 Gov</option><option value="bar-chart-3">📊 Chart</option><option value="shield">🛡 Shield</option><option value="building-2">🏢 Corp</option><option value="flask-conical">🧪 Science</option><option value="target">🎯 Target</option><option value="gavel">⚖ Legal</option>
+                                                </select>
+                                            </div>
+                                            <div>
+                                                <label class="text-[9px] text-slate-600 block mb-0.5">Dashboard section</label>
+                                                <select id="adv-new-cat-root" class="w-full bg-slate-900 border border-slate-700 rounded px-2 py-1.5 text-[11px] text-slate-300 focus:border-emerald-500 focus:outline-none">
+                                                    <option value="kuwait">Kuwait</option><option value="regional">Regional</option><option value="global">Global</option><option value="ai">AI</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </details>
+                                <div class="flex gap-2">
+                                    <button onclick="addAdvancedCategory()" class="flex-1 py-1.5 rounded-lg text-xs font-medium text-emerald-400 hover:text-emerald-300 transition-all flex items-center justify-center gap-1" style="background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.25);">
+                                        <i data-lucide="plus" class="w-3 h-3"></i> Add
+                                    </button>
+                                    <button onclick="toggleAdvAddCategory()" class="px-3 py-1.5 rounded-lg text-xs text-slate-500 hover:text-slate-400 transition-all" style="border: 1px solid var(--border-strong);">Cancel</button>
+                                </div>
+                            </div>
+                        </div>
+                    
+                </div>
+
+                <!-- Full-width drop zone for bottom panels -->
+                <div id="adv-col-bottom" class="mt-5 space-y-5 adv-drop-col" data-col="bottom">
+                <!-- Save & Apply -->
+                <div class="glass-panel rounded-xl p-5 adv-draggable" draggable="true" data-panel-id="save">
+                    <div class="flex items-center justify-between mb-3">
+                        <h3 class="text-sm font-bold text-slate-200 flex items-center gap-2">
+                            <i data-lucide="save" class="w-4 h-4" style="color:var(--accent)"></i> Save & Apply
+                        </h3>
+                        <i data-lucide="grip-vertical" class="w-3.5 h-3.5 text-slate-600 cursor-grab adv-drag-handle"></i>
+                    </div>
+                    <div class="space-y-3">
+                        <button onclick="saveConfig()" id="save-config-btn" class="w-full px-4 py-3 bg-emerald-600 hover:bg-emerald-500 rounded-lg text-sm font-medium flex items-center justify-center gap-2 transition-all">
+                            <i data-lucide="save" class="w-4 h-4"></i> Save Settings
+                        </button>
+                        <div class="flex gap-2">
+                            <button onclick="loadConfig()" class="flex-1 px-4 py-2.5 bg-slate-700 hover:bg-slate-600 rounded-lg text-xs font-medium flex items-center justify-center gap-2 transition-all">
+                                <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> Reset
+                            </button>
+                            <button onclick="clearAllInputs()" class="flex-1 px-4 py-2.5 bg-slate-800 hover:bg-red-900/50 border border-slate-700 hover:border-red-500/50 rounded-lg text-xs font-medium flex items-center justify-center gap-2 transition-all text-slate-400 hover:text-red-400">
+                                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Clear All
+                            </button>
+                        </div>
+                        <div id="save-status" class="text-sm text-center text-emerald-400"></div>
+                    </div>
+                </div>
+
+                <!-- Search Provider moved to always-visible section below -->
+                </div><!-- end adv-col-bottom -->
+
+                </div><!-- end adv-grid -->
+                </div><!-- end settings-advanced -->
+
+                <!-- Search Provider (always visible, both Simple & Advanced) -->
+                <div class="glass-panel rounded-xl mt-6" id="search-provider-panel" data-stab="sources">
+                    <div class="flex items-center justify-between px-4 py-3 cursor-pointer" onclick="toggleSearchProvider()">
+                        <h3 class="text-xs font-bold text-slate-200 flex items-center gap-2">
+                            <i data-lucide="search" class="w-3.5 h-3.5" style="color:var(--accent)"></i> Search Provider
+                        </h3>
+                        <div class="flex items-center gap-2">
+                            <i data-lucide="chevron-down" id="search-provider-chevron" class="w-3 h-3 text-slate-500 transition-transform"></i>
+                        </div>
+                    </div>
+                    <div id="search-provider-body" class="hidden px-4 pb-4">
+                        <!-- Search Status Banner -->
+                        <div id="search-status-banner" class="hidden mb-2 p-2 rounded-lg text-xs"></div>
+
+                        <select id="cfg-search-provider" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-2 text-xs text-slate-200 focus:border-emerald-500 focus:outline-none">
+                            <option value="serper">Serper.dev (Google results, 2500 free)</option>
+                            <option value="duckduckgo">DuckDuckGo (Free, Unlimited)</option>
+                        </select>
+
+                        <!-- Serper API Settings -->
+                        <div id="serper-api-settings" class="hidden space-y-2 mt-2.5 pt-2.5 border-t border-slate-700/50">
+                            <div>
+                                <label class="text-[10px] text-slate-400 block mb-1 font-medium">API Key</label>
+                                <div class="relative flex gap-1.5">
+                                    <div class="relative flex-1">
+                                        <input type="password" id="cfg-serper-api-key" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 focus:border-emerald-500 focus:outline-none pr-9" placeholder="Your Serper API key..." readonly>
+                                        <button id="serper-key-lock-btn" onclick="toggleSerperKeyLock()" class="absolute right-1.5 top-1/2 -translate-y-1/2 p-1 rounded text-amber-400/60 hover:text-amber-300 hover:bg-amber-900/20 transition-all" title="Click to unlock (PIN required)">
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+                                        </button>
+                                    </div>
+                                    <button id="serper-key-save-btn" onclick="saveSerperKey()" class="hidden px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-500 rounded-lg text-[10px] text-white font-medium transition-all whitespace-nowrap" title="Save API key immediately">
+                                        Save Key
+                                    </button>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="text-[10px] text-slate-400 block mb-1 font-medium">Credits</label>
+                                <div class="flex gap-2">
+                                    <input type="number" id="cfg-serper-credits" class="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 focus:border-emerald-500 focus:outline-none" placeholder="2471" min="0" max="99999">
+                                    <button onclick="syncSerperCredits()" class="px-2.5 py-1.5 bg-slate-700 hover:bg-slate-600 border border-slate-600 rounded-lg text-[10px] text-slate-300 transition-all">
+                                        Sync
+                                    </button>
+                                </div>
+                                <p class="text-[10px] text-slate-600 mt-0.5">Check at <a href="https://serper.dev/api-key" target="_blank" class="text-emerald-400 hover:underline">serper.dev/api-key</a></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- NEWS SOURCES — always visible (shared between Simple & Advanced) -->
+                <div id="settings-sources" class="mt-8">
+                    <div class="bg-slate-800/30 rounded-2xl border border-slate-700/40 p-6" id="news-sources-panel" data-stab="sources">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="flex items-center gap-3">
+                                <i data-lucide="radio" class="w-5 h-5 text-emerald-400"></i>
+                                <h3 class="text-base font-semibold text-white">News Sources</h3>
+                            </div>
+                            <div class="flex rounded-lg overflow-hidden border border-slate-600">
+                                <button onclick="showSourceTab('finance')" id="src-tab-finance" class="px-5 py-2 text-xs font-semibold transition-all bg-emerald-500/20 text-emerald-400 border-r border-slate-600">Finance</button>
+                                <button onclick="showSourceTab('politics')" id="src-tab-politics" class="px-5 py-2 text-xs font-semibold transition-all text-slate-500 hover:text-slate-300 border-r border-slate-600">Politics</button>
+                                <button onclick="showSourceTab('custom')" id="src-tab-custom" class="px-5 py-2 text-xs font-semibold transition-all text-slate-500 hover:text-slate-300 flex items-center gap-1">
+                                    <span id="custom-tab-label">Custom</span>
+                                    <button onclick="event.stopPropagation(); editCustomTabName()" class="p-0.5 rounded hover:bg-slate-600/50 transition-colors" title="Rename tab">
+                                        <i data-lucide="pencil" class="w-2.5 h-2.5 opacity-50 hover:opacity-100"></i>
+                                    </button>
+                                </button>
+                            </div>
+                        </div>
+                        <p class="text-xs text-slate-500 mb-5">Toggle which RSS feeds appear in your tabs. Add your own feeds in the Custom tab.</p>
+                        
+                        <div id="source-catalog-finance" class="source-catalog" style="min-height:140px"></div>
+                        <div id="source-catalog-politics" class="source-catalog hidden" style="min-height:140px"></div>
+                        <div id="source-catalog-custom" class="source-catalog hidden" style="min-height:140px">
+                            <!-- Custom feeds with toggles rendered here -->
+                        </div>
+                        
+                        <div class="mt-5 flex items-center gap-3">
+                            <button onclick="saveSourceToggles()" id="save-sources-btn" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-medium rounded-lg transition-colors flex items-center gap-2">
+                                <i data-lucide="save" class="w-4 h-4"></i> Save Sources
+                            </button>
+                            <span id="save-sources-status" class="text-xs"></span>
+                        </div>
+                    </div>
+
+                    <!-- Market Tickers — shared between Simple & Advanced -->
+                    <div class="bg-slate-800/30 rounded-2xl border border-slate-700/40 p-6 mt-6" id="market-tickers-panel" data-stab="market" data-tour="market-tickers">
+                        <div class="flex items-center gap-3 mb-1">
+                            <i data-lucide="bar-chart-2" class="w-5 h-5 text-emerald-400"></i>
+                            <h3 class="text-base font-semibold text-white">Market Tickers</h3>
+                            <span class="text-[10px] text-slate-600 font-normal" id="simple-tickers-count"></span>
+                        </div>
+                        <p class="text-xs text-slate-500 mb-4">Track stocks, crypto, and commodities. Data from Yahoo Finance.</p>
+                        <div class="flex flex-wrap gap-2" id="simple-tickers"></div>
+                        <div class="flex gap-2 mt-3">
+                            <input type="text" id="ticker-add-input" class="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-3 py-2.5 text-xs text-slate-200 focus:border-emerald-500 focus:outline-none" placeholder="Add ticker (e.g., TSLA, ETH-USD, SI=F)" onkeydown="if(event.key==='Enter'){addSimpleTicker(this.value); this.value='';}">
+                            <button onclick="const el=document.getElementById('ticker-add-input'); addSimpleTicker(el.value); el.value=''; el.focus();" class="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-medium rounded-lg transition-colors flex items-center gap-1.5">
+                                <i data-lucide="plus" class="w-3.5 h-3.5"></i> Add
+                            </button>
+                            <button onclick="addTop10Tickers()" class="px-3 py-2.5 bg-slate-700 hover:bg-slate-600 border border-slate-600 text-slate-300 text-xs font-medium rounded-lg transition-colors flex items-center gap-1.5" title="Blue chips: NVDA, AAPL, MSFT, AMZN, GOOGL, BTC-USD, ETH-USD, GC=F, CL=F, SPY">
+                                <i data-lucide="trophy" class="w-3.5 h-3.5 text-amber-400"></i> Top 10
+                            </button>
+                            <button onclick="addTopMoversTickers()" class="px-3 py-2.5 bg-slate-700 hover:bg-slate-600 border border-slate-600 text-slate-300 text-xs font-medium rounded-lg transition-colors flex items-center gap-1.5" title="Fetch today's top 10 tickers by % change from Yahoo Finance">
+                                <i data-lucide="flame" class="w-3.5 h-3.5 text-orange-400"></i> Movers
+                            </button>
+                        </div>
+                        <p class="text-[10px] text-slate-600 mt-2">Stocks: NVDA, AMD | Crypto: BTC-USD, ETH-USD | Commodities: GC=F (gold), SI=F (silver), CL=F (oil)</p>
+                        <div class="mt-4 flex items-center gap-3">
+                            <button onclick="saveTickers()" id="save-tickers-btn" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-medium rounded-lg transition-colors flex items-center gap-2">
+                                <i data-lucide="save" class="w-4 h-4"></i> Save Tickers
+                            </button>
+                            <button onclick="clearAllTickers()" class="px-3 py-2.5 bg-slate-700 hover:bg-red-900/50 border border-slate-600 hover:border-red-500/30 text-slate-400 hover:text-red-400 text-sm font-medium rounded-lg transition-colors flex items-center gap-2" title="Remove all tickers">
+                                <i data-lucide="trash-2" class="w-4 h-4"></i> Clear All
+                            </button>
+                            <span id="save-tickers-status" class="text-xs"></span>
+                        </div>
+
+                        <!-- Ticker Presets -->
+                        <div class="mt-5 pt-5" style="border-top:1px solid var(--border-strong);">
+                            <div class="flex items-center justify-between mb-3">
+                                <h4 class="text-xs font-bold text-slate-300 flex items-center gap-2">
+                                    <i data-lucide="folder-heart" class="w-3.5 h-3.5" style="color:var(--accent)"></i> Ticker Presets
+                                </h4>
+                                <span id="ticker-presets-count" class="text-[10px] text-slate-600"></span>
+                            </div>
+                            <div class="flex flex-wrap gap-2 mb-3" id="ticker-presets-list">
+                                <!-- Preset buttons rendered by JS -->
+                            </div>
+                            <div class="flex gap-2">
+                                <input type="text" id="ticker-preset-name" class="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-200 focus:border-emerald-500 focus:outline-none" placeholder="Preset name (e.g., Crypto, Tech)" onkeydown="if(event.key==='Enter')saveTickerPreset()">
+                                <button onclick="saveTickerPreset()" class="px-3 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-[11px] font-medium rounded-lg transition-colors flex items-center gap-1.5">
+                                    <i data-lucide="plus" class="w-3 h-3"></i> Save Preset
+                                </button>
+                            </div>
+                            <p class="text-[10px] text-slate-600 mt-2">Save your current tickers as a preset. Click a preset to load it.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+
+    <script defer src="auth.js"></script>
+    <script defer src="app.js"></script>
+    <script defer src="nav.js"></script>
+    <script defer src="settings.js"></script>
+    <script defer src="wizard.js"></script>
+    <script defer src="market.js"></script>
+    <script defer src="markets-panel.js"></script>
+    <script defer src="feed.js"></script>
+    <script defer src="agent.js"></script>
+    <script defer src="ui.js"></script>
+    <script defer src="scan-history.js"></script>
+    <script defer src="theme-editor.js"></script>
+    <script defer src="tour.js"></script>
+    <script defer src="mobile.js"></script>
+    <script>document.addEventListener('DOMContentLoaded',function(){try{checkAuthAndInit();}catch(e){document.body.innerHTML='<div style="padding:2rem;color:#f87171;font-family:monospace"><h2>STRAT_OS failed to initialize</h2><pre>'+e.message+'</pre><p style="color:#94a3b8;margin-top:1rem">Check browser console for details. Try hard-refreshing (Ctrl+Shift+R).</p></div>';console.error('Init error:',e);}});</script>
+    <script>if('serviceWorker' in navigator)navigator.serviceWorker.register('/sw.js').catch(()=>{});</script>
+<input type="file" id="agent-import-file" accept=".json,.txt,.md,.csv,.text" class="hidden" onchange="handleAgentImport(event)">
+</body>
+</html>

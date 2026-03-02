@@ -21,12 +21,16 @@ import threading
 
 logger = logging.getLogger(__name__)
 
-# Search client imports
+# Search client imports (package renamed: duckduckgo-search → ddgs)
 try:
-    from duckduckgo_search import DDGS
+    from ddgs import DDGS
     HAS_DDGS = True
 except ImportError:
-    HAS_DDGS = False
+    try:
+        from duckduckgo_search import DDGS
+        HAS_DDGS = True
+    except ImportError:
+        HAS_DDGS = False
 
 try:
     from .google_search import GoogleSearchClient, get_google_client, DailyLimitReached

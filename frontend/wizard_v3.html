@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StratOS — Setup Wizard v3</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0f1724;--card:#1a2332;--card-hover:#1f2b3d;
+  --accent:#10b981;--accent-dim:rgba(16,185,129,.15);--accent-glow:rgba(16,185,129,.25);
+  --text:#f1f5f9;--text-dim:#94a3b8;--text-muted:#64748b;
+  --border:#2a3548;--border-hover:#3a4a60;--danger:#ef4444;
+  --r:14px;--rs:10px;--pill:999px;
+  --ease:cubic-bezier(.4,0,.2,1);--spring:cubic-bezier(.34,1.56,.64,1);
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Inter,Roboto,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+
+/* ═══ LAUNCHER ═══ */
+.launcher{max-width:440px;margin:80px auto;padding:0 24px}
+.launcher h2{font-size:20px;font-weight:700;letter-spacing:-.02em;margin-bottom:4px}
+.launcher>p{color:var(--text-dim);font-size:14px;margin-bottom:24px;line-height:1.5}
+.fg{margin-bottom:14px}
+.fl{display:block;font-size:11px;font-weight:600;color:var(--text-dim);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px}
+.fi{width:100%;padding:12px 16px;background:var(--card);border:1.5px solid var(--border);border-radius:var(--rs);color:var(--text);font-size:14px;font-family:inherit;outline:none;transition:border-color .2s var(--ease)}
+.fi:focus{border-color:var(--accent)}.fi::placeholder{color:var(--text-muted)}
+.gbtn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:14px;margin-top:24px;background:var(--accent);color:#000;font-size:15px;font-weight:600;border:none;border-radius:var(--r);cursor:pointer;font-family:inherit;transition:all .2s var(--ease)}
+.gbtn:hover{background:#34d399;box-shadow:0 0 24px var(--accent-glow)}
+.gbtn:disabled{background:var(--border);color:var(--text-muted);cursor:not-allowed;box-shadow:none}
+.gbtn:active:not(:disabled){transform:scale(.98)}
+.lhint{text-align:center;font-size:12px;color:var(--text-muted);margin-top:10px}
+
+/* ═══ MODAL ═══ */
+.bk{position:fixed;inset:0;background:rgba(0,0,0,.55);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);z-index:9998;opacity:0;pointer-events:none;transition:opacity .35s ease}
+.bk.open{opacity:1;pointer-events:auto}
+.modal{
+  position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(.96);
+  width:min(94vw,700px);height:min(92vh,740px);
+  background:var(--bg);border:1px solid var(--border);border-radius:20px;
+  z-index:9999;display:flex;flex-direction:column;
+  opacity:0;pointer-events:none;transition:all .35s var(--ease);overflow:hidden;
+  box-shadow:0 25px 80px rgba(0,0,0,.5),0 0 0 1px rgba(255,255,255,.03);
+}
+.modal.open{opacity:1;pointer-events:auto;transform:translate(-50%,-50%) scale(1)}
+
+/* Header */
+.hdr{padding:18px 28px 0;flex-shrink:0}
+.hdr-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.brand{display:flex;align-items:center;gap:9px}
+.brand svg{width:22px;height:22px;color:var(--accent)}
+.brand span{font-size:15px;font-weight:700;letter-spacing:-.02em}
+.xbtn{width:30px;height:30px;border-radius:8px;border:none;background:0;color:var(--text-muted);font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s var(--ease)}
+.xbtn:hover{background:rgba(255,255,255,.06);color:var(--text)}
+.badge{display:inline-flex;align-items:center;gap:7px;padding:5px 12px;background:var(--card);border:1px solid var(--border);border-radius:var(--pill);font-size:12px;color:var(--text-dim);margin-bottom:12px}
+.badge strong{color:var(--text);font-weight:600}
+.prog-t{width:100%;height:3px;background:var(--border);border-radius:3px;overflow:hidden}
+.prog-f{height:100%;background:var(--accent);border-radius:3px;transition:width .5s var(--ease)}
+.dots{display:flex;align-items:center;justify-content:center;gap:6px;margin-top:12px;padding-bottom:2px}
+.dot{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--text-muted);transition:color .2s var(--ease)}
+.dot.a{color:var(--accent);font-weight:600}.dot.d{color:var(--text-dim)}
+.dot-c{width:20px;height:20px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;transition:all .2s var(--ease)}
+.dot.a .dot-c{border-color:var(--accent);background:var(--accent);color:#000}
+.dot.d .dot-c{border-color:var(--accent);color:var(--accent)}
+.conn{width:24px;height:2px;background:var(--border);border-radius:2px;transition:background .2s var(--ease)}.conn.d{background:var(--accent)}
+
+/* Body */
+.bod{flex:1;overflow:hidden;position:relative}
+.slides{display:flex;height:100%;transition:transform .45s var(--ease)}
+.sl{min-width:100%;height:100%;overflow-y:auto;padding:24px 28px 100px;scrollbar-width:thin;scrollbar-color:var(--border) transparent}
+.sl::-webkit-scrollbar{width:5px}.sl::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+.inn{max-width:580px;margin:0 auto}
+
+/* Footer */
+.ftr{flex-shrink:0;padding:14px 28px 18px;display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--border);background:var(--bg)}
+.btn{display:inline-flex;align-items:center;gap:7px;padding:11px 22px;border-radius:var(--pill);font-size:14px;font-weight:600;border:none;cursor:pointer;transition:all .2s var(--ease);font-family:inherit;outline:none}
+.btn:active{transform:scale(.97)}
+.bp{background:var(--accent);color:#000}
+.bp:hover{background:#34d399;box-shadow:0 0 20px var(--accent-glow)}
+.bp:disabled{background:var(--border);color:var(--text-muted);cursor:not-allowed;box-shadow:none}
+.bp:disabled:active{transform:none}
+.bg{background:0;color:var(--text-dim);padding:11px 14px}
+.bg:hover{color:var(--text);background:rgba(255,255,255,.05)}
+.bo{background:var(--card);color:var(--text);border:1px solid var(--border);padding:11px 22px}
+.bo:hover{border-color:var(--border-hover);background:var(--card-hover)}
+
+/* Typography */
+.title{font-size:22px;font-weight:700;letter-spacing:-.03em;margin-bottom:4px}
+.sub{color:var(--text-dim);font-size:14px;margin-bottom:24px;line-height:1.5}
+
+/* ═══ STEP 1: EXPANDING CARDS ═══ */
+.cards{display:flex;flex-direction:column;gap:10px}
+
+.ecard{
+  background:var(--card);border:1.5px solid var(--border);border-radius:16px;
+  cursor:pointer;transition:all .3s var(--ease);position:relative;
+  user-select:none;-webkit-tap-highlight-color:transparent;overflow:hidden;
+}
+.ecard:hover{border-color:var(--border-hover);background:var(--card-hover)}
+.ecard.sel{border-color:var(--accent);background:var(--accent-dim);box-shadow:0 0 20px var(--accent-glow),inset 0 0 20px rgba(16,185,129,.03)}
+.ecard.sel:hover{background:rgba(16,185,129,.18)}
+
+.ecard-head{display:flex;align-items:center;gap:14px;padding:20px 22px}
+.ecard-icon{font-size:30px;flex-shrink:0;filter:drop-shadow(0 2px 6px rgba(0,0,0,.3))}
+.ecard-text{flex:1;min-width:0}
+.ecard-name{font-size:16px;font-weight:700;letter-spacing:-.01em}
+.ecard-desc{font-size:12px;color:var(--text-muted);margin-top:2px;line-height:1.4}
+.ecard-chk{
+  width:22px;height:22px;border-radius:50%;border:2px solid var(--border);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  transition:all .3s var(--spring);
+}
+.ecard.sel .ecard-chk{border-color:var(--accent);background:var(--accent)}
+.ecard-chk svg{width:12px;height:12px;stroke:transparent;stroke-width:3;fill:none;transition:stroke .2s}
+.ecard.sel .ecard-chk svg{stroke:#000}
+
+/* Expandable sub-categories */
+.ecard-body{
+  max-height:0;opacity:0;overflow:hidden;
+  transition:max-height .4s var(--ease),opacity .3s var(--ease),padding .3s var(--ease);
+  padding:0 22px;
+}
+.ecard.sel .ecard-body{max-height:200px;opacity:1;padding:0 22px 18px}
+.ecard-body-label{font-size:10px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;padding-top:2px;border-top:1px solid rgba(255,255,255,.05)}
+.ecard-body-hint{font-size:11px;color:var(--text-muted);font-style:italic;padding-top:4px}
+
+/* Sub-category pills inside cards */
+.spills{display:flex;flex-wrap:wrap;gap:6px}
+.sp{
+  display:inline-flex;align-items:center;gap:4px;padding:6px 13px;
+  border-radius:var(--pill);font-size:12px;font-weight:500;
+  background:rgba(255,255,255,.04);border:1.5px solid rgba(255,255,255,.08);
+  cursor:pointer;transition:all .2s var(--ease);white-space:nowrap;
+}
+.sp:hover{border-color:rgba(255,255,255,.15);background:rgba(255,255,255,.07)}
+.sp.on{border-color:var(--accent);background:var(--accent-dim);color:var(--accent)}
+.sp.on:hover{background:rgba(16,185,129,.22)}
+.sp-icon{font-size:13px}
+
+/* ═══ STEP 2: SINGLE SCROLL SECTIONS ═══ */
+.sec{margin-bottom:28px}
+.sec:last-child{margin-bottom:0}
+.sec-hdr{display:flex;align-items:center;gap:8px;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--border)}
+.sec-icon{font-size:18px}
+.sec-name{font-size:15px;font-weight:700}
+.sec-q{font-size:12px;font-weight:600;color:var(--text-dim);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;margin-top:16px}
+.sec-q:first-of-type{margin-top:0}
+.sec-qhint{font-weight:400;text-transform:none;letter-spacing:0;color:var(--text-muted);font-size:11px}
+
+/* Pills */
+.pills{display:flex;flex-wrap:wrap;gap:7px}
+.pill{
+  display:inline-flex;align-items:center;gap:5px;padding:9px 16px;
+  border-radius:var(--pill);font-size:13px;font-weight:500;
+  background:var(--card);border:1.5px solid var(--border);cursor:pointer;
+  transition:all .2s var(--ease);user-select:none;white-space:nowrap;
+}
+.pill:hover{border-color:var(--border-hover);background:var(--card-hover)}
+.pill.on{border-color:var(--accent);background:var(--accent-dim);color:var(--accent)}
+.pill.on:hover{background:rgba(16,185,129,.22)}
+.pill-x{font-size:15px;color:var(--text-muted);cursor:pointer;transition:color .15s;margin-left:1px}
+.pill-x:hover{color:var(--danger)}
+.pill-add{border-style:dashed;color:var(--text-muted)}
+.pill-add:hover{border-color:var(--accent);color:var(--accent)}
+.pill-sug{border-style:dashed;opacity:.45;transition:all .2s var(--ease)}
+.pill-sug:hover{opacity:.75;border-color:var(--border-hover)}
+.pill-sug.on{opacity:1;border-style:solid}
+
+.add-inp{background:var(--card);border:1.5px solid var(--accent);border-radius:var(--pill);padding:9px 14px;font-size:13px;color:var(--text);outline:none;font-family:inherit;width:140px;transition:all .2s var(--ease)}
+.add-inp::placeholder{color:var(--text-muted)}.add-inp:focus{box-shadow:0 0 10px var(--accent-glow)}
+
+/* Free text input */
+.ftw{display:flex;gap:8px;margin-bottom:10px}
+.fti{flex:1;padding:10px 16px;background:var(--card);border:1.5px solid var(--border);border-radius:var(--pill);font-size:13px;color:var(--text);outline:none;font-family:inherit;transition:all .2s var(--ease)}
+.fti:focus{border-color:var(--accent);box-shadow:0 0 10px var(--accent-glow)}
+.fti::placeholder{color:var(--text-muted)}
+
+/* ═══ STEP 3: REVIEW ═══ */
+.rv{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:18px 20px;margin-bottom:10px;transition:border-color .2s var(--ease)}
+.rv:hover{border-color:var(--border-hover)}
+.rv-h{display:flex;align-items:center;gap:8px;margin-bottom:4px}
+.rv-i{font-size:18px}.rv-t{font-size:15px;font-weight:700}
+.rv-sub{margin-bottom:14px}
+.rv-sub-hdr{display:flex;align-items:center;gap:6px;margin-bottom:8px;margin-top:14px}
+.rv-sub-icon{font-size:14px}
+.rv-sub-name{font-size:13px;font-weight:600;color:var(--text-dim)}
+.rv-sub-ctx{font-size:11px;color:var(--text-muted);margin-bottom:8px}
+.rv-lbl{font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted);margin-bottom:6px;font-weight:600}
+.rv-pills{display:flex;flex-wrap:wrap;gap:5px}
+.rv-p{
+  display:inline-flex;align-items:center;gap:3px;padding:5px 12px;
+  border-radius:var(--pill);font-size:12px;font-weight:500;
+  background:var(--accent-dim);color:var(--accent);border:1px solid rgba(16,185,129,.2);
+  cursor:pointer;transition:all .2s var(--ease);
+}
+.rv-p:hover{border-color:var(--danger);color:var(--danger);background:rgba(239,68,68,.1)}
+.rv-p:hover .rv-x{opacity:1}
+.rv-x{font-size:13px;opacity:0;transition:opacity .15s;margin-left:1px}
+.rv-a{display:inline-flex;align-items:center;gap:3px;padding:5px 12px;border-radius:var(--pill);font-size:12px;color:var(--text-muted);border:1px dashed var(--border);cursor:pointer;transition:all .2s var(--ease);background:none;font-family:inherit}
+.rv-a:hover{border-color:var(--accent);color:var(--accent)}
+
+/* ═══ LOADING / DONE ═══ */
+.ld{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;text-align:center}
+.orb{width:56px;height:56px;border-radius:50%;background:radial-gradient(circle at 30% 30%,var(--accent),#059669);margin-bottom:24px;position:relative;animation:orb 2s ease-in-out infinite}
+.orb::after{content:'';position:absolute;inset:-7px;border-radius:50%;border:2px solid var(--accent);opacity:0;animation:ring 2s ease-in-out infinite}
+@keyframes orb{0%,100%{transform:scale(1);box-shadow:0 0 28px var(--accent-glow)}50%{transform:scale(1.06);box-shadow:0 0 48px var(--accent-glow)}}
+@keyframes ring{0%{transform:scale(.8);opacity:.5}100%{transform:scale(1.4);opacity:0}}
+.ld-t{font-size:18px;font-weight:600;margin-bottom:5px}
+.ld-s{font-size:13px;color:var(--text-dim)}
+.ld-list{margin-top:20px;display:flex;flex-direction:column;gap:9px;text-align:left}
+.ls{display:flex;align-items:center;gap:9px;font-size:13px;color:var(--text-muted);transition:all .4s ease}
+.ls.on{color:var(--text)}.ls.ok{color:var(--accent)}
+.ls-d{width:16px;height:16px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .4s ease}
+.ls.on .ls-d,.ls.ok .ls-d{border-color:var(--accent);background:var(--accent)}
+.ls-d svg{width:9px;height:9px;stroke:#000;stroke-width:3;fill:none;opacity:0;transition:opacity .3s}
+.ls.ok .ls-d svg{opacity:1}
+.ls-sp{width:5px;height:5px;border-radius:50%;background:#000;animation:sp .8s ease-in-out infinite}
+.ls:not(.on) .ls-sp,.ls.ok .ls-sp{display:none}
+@keyframes sp{0%,100%{opacity:.3}50%{opacity:1}}
+
+.done{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;text-align:center;animation:fu .5s ease}
+@keyframes fu{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.done-c{width:64px;height:64px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;margin-bottom:20px;animation:pop .5s var(--spring)}
+@keyframes pop{from{transform:scale(0)}to{transform:scale(1)}}
+.done-c svg{width:28px;height:28px;stroke:#000;stroke-width:2.5;fill:none}
+.done-t{font-size:22px;font-weight:700;margin-bottom:6px}
+.done-s{font-size:14px;color:var(--text-dim);margin-bottom:28px;max-width:340px;line-height:1.5}
+
+/* ═══ RESPONSIVE ═══ */
+@media(max-width:540px){
+  .modal{width:100vw;height:100vh;border-radius:0}
+  .sl{padding:20px 18px 100px}
+  .hdr{padding:16px 18px 0}
+  .ftr{padding:12px 18px 16px}
+  .dot>span{display:none}
+  .ecard-head{padding:16px 18px}
+  .ecard.sel .ecard-body{padding:0 18px 14px}
+}
+
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+
+<!-- LAUNCHER -->
+<div class="launcher" id="launcher">
+  <h2>Set up your feed</h2>
+  <p>Tell us who you are and we'll build a personalized intelligence feed.</p>
+  <div class="fg"><label class="fl">Your role</label><input class="fi" id="in-role" placeholder="e.g. Computer Engineering Student" value="Computer Engineering Student"></div>
+  <div class="fg"><label class="fl">Location</label><input class="fi" id="in-loc" placeholder="e.g. Kuwait" value="Kuwait"></div>
+  <button class="gbtn" id="gbtn" onclick="open_()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>Generate Intelligence Profile</button>
+  <div class="lhint">Opens a quick wizard to customize your feed</div>
+</div>
+
+<!-- MODAL -->
+<div class="bk" id="bk" onclick="close_()"></div>
+<div class="modal" id="modal">
+  <div class="hdr">
+    <div class="hdr-top">
+      <div class="brand"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg><span>StratOS</span></div>
+      <button class="xbtn" onclick="close_()" title="Close">&times;</button>
+    </div>
+    <div class="badge" id="badge"><span>👤</span><strong id="br">—</strong><span>·</span><span id="bl">—</span></div>
+    <div class="prog-t"><div class="prog-f" id="prog"></div></div>
+    <div class="dots" id="dots"></div>
+  </div>
+  <div class="bod">
+    <div class="slides" id="slides">
+      <div class="sl" id="s1"><div class="inn" id="s1i"></div></div>
+      <div class="sl" id="s2"><div class="inn" id="s2i"></div></div>
+      <div class="sl" id="s3"><div class="inn" id="s3i"></div></div>
+    </div>
+  </div>
+  <div class="ftr" id="ftr">
+    <button class="btn bg" id="bbk" onclick="back_()">← Back</button>
+    <button class="btn bp" id="bnx" onclick="next_()">Next →</button>
+  </div>
+</div>
+
+<script>
+const CK='<svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>';
+const SN=['Priorities','Details','Your Feed'];
+
+/* ═══ DATA ═══ */
+const CATS=[
+  {id:'career',icon:'💼',name:'My Career',desc:'Jobs, skills, industry, growth',
+   subs:[
+     {id:'jobs',icon:'🔍',name:'Job Hunting'},
+     {id:'certs',icon:'📜',name:'Certifications & Skills'},
+     {id:'trends',icon:'📊',name:'Industry Trends'},
+     {id:'network',icon:'🤝',name:'Networking & Events'},
+   ]},
+  {id:'money',icon:'💰',name:'My Money',desc:'Investments, markets, deals & offers',
+   subs:[
+     {id:'bank',icon:'🏦',name:'Bank Deals & Offers'},
+     {id:'market',icon:'📈',name:'Markets & Investing'},
+     {id:'discount',icon:'🎓',name:'Student / Employee Discounts'},
+   ]},
+  {id:'world',icon:'🧭',name:'My World',desc:'Interests, hobbies, news I care about',
+   subs:[]},
+];
+
+const DEF_CATS=new Set(['career','money']);
+const DEF_SUBS={career:new Set(['jobs','certs']),money:new Set(['bank','discount']),world:new Set()};
+
+/* Step 2 config per sub-category */
+const S2={
+  jobs:{icon:'🔍',name:'Job Hunting',qs:[
+    {id:'stage',label:'Your stage',type:'s',pills:['Student','Intern','Fresh Graduate','Mid-Career','Senior'],def:'Student'},
+    {id:'sectors',label:'Sectors',hint:'AI-suggested for your profile',type:'m',pills:['Oil & Gas','Telecom','Tech / Software','Government','Banking','Construction','Healthcare','Logistics'],canAdd:1,defs:['Oil & Gas','Tech / Software']},
+  ]},
+  certs:{icon:'📜',name:'Certifications & Skills',qs:[
+    {id:'level',label:'Level',type:'s',pills:['Beginner / Entry','Intermediate','Advanced / Expert'],def:'Beginner / Entry'},
+    {id:'focus',label:'Focus',type:'m',pills:['Cloud & Infrastructure','Networking','Security','Data & AI','Project Management','DevOps'],canAdd:1,defs:['Cloud & Infrastructure','Networking']},
+  ]},
+  trends:{icon:'📊',name:'Industry Trends',qs:[
+    {id:'scope',label:'Focus',type:'s',pills:['Kuwait / Regional','Global','Both'],def:'Both'},
+    {id:'sectors2',label:'Sectors',type:'m',pills:['Oil & Gas','Telecom','Tech','Banking','Energy Transition','Construction'],canAdd:1,defs:['Oil & Gas','Tech']},
+  ]},
+  network:{icon:'🤝',name:'Networking & Events',qs:[
+    {id:'types',label:'What kind',type:'m',pills:['Career Fairs','Tech Conferences','Industry Meetups','Hackathons','Webinars'],defs:['Career Fairs','Tech Conferences']},
+  ]},
+  bank:{icon:'🏦',name:'Bank Deals & Offers',qs:[
+    {id:'kinds',label:'What kind',type:'m',pills:['Salary / Allowance Transfer','New Account Bonuses','Credit Card Rewards','Loan Offers','Savings Promotions'],defs:['Salary / Allowance Transfer','New Account Bonuses']},
+  ]},
+  market:{icon:'📈',name:'Markets & Investing',qs:[
+    {id:'assets',label:'Asset types',type:'m',pills:['Stocks','Crypto','Commodities','Real Estate','Bonds / Sukuk'],canAdd:1,defs:['Stocks','Crypto']},
+    {id:'depth',label:'Tracking level',type:'s',pills:['📰 Just notable news','📊 Daily price tracking'],def:'📰 Just notable news'},
+  ]},
+  discount:{icon:'🎓',name:'Student / Employee Discounts',qs:[
+    {id:'dtypes',label:'Types',type:'m',pills:['Telecom deals','Tech / Software discounts','Food & Lifestyle','Travel','Education'],canAdd:1,defs:['Telecom deals','Tech / Software discounts']},
+  ]},
+};
+
+/* Generated entities for Step 3 (mock AI output) */
+const GEN={
+  jobs:{label:'Employers we\'ll track',items:['Equate','KOC','KNPC','KIPIC','Zain','Ooredoo','SLB','Alghanim','Huawei']},
+  certs:{label:'Certifications we\'ll track',items:['AWS Solutions Architect','Cisco CCNA','CompTIA Net+','AZ-900 Azure','Google Cloud Engineer','PMP']},
+  trends:{label:'Sources we\'ll track',items:['McKinsey Energy','Deloitte GCC','MEED','Oxford Business Group']},
+  network:{label:'Events we\'ll track',items:['Kuwait Tech Expo','GITEX','GCC Career Fair','IEEE Kuwait']},
+  bank:{label:'Banks we\'ll track',items:['Warba Bank','Boubyan','NBK','KFH','Gulf Bank','ABK']},
+  market:{label:'Assets we\'ll track',items:['NVDA','BTC-USD','GC=F','AAPL','ETH-USD','CL=F']},
+  discount:{label:'We\'ll track',items:['Zain Student Plan','Ooredoo Campus','Apple Education','Microsoft Imagine']},
+};
+
+/* ═══ STATE ═══ */
+let step=0;
+let selCats=new Set(DEF_CATS);
+let selSubs={};for(const c of CATS)selSubs[c.id]=new Set(DEF_SUBS[c.id]||[]);
+let s2sel={};let s2custom={};
+let worldItems=[];
+let rvItems={};let rvCustom={};
+
+function initS2(){
+  for(const[sid,cfg]of Object.entries(S2)){
+    s2sel[sid]={};s2custom[sid]={};
+    for(const q of cfg.qs){
+      s2custom[sid][q.id]=[];
+      s2sel[sid][q.id]=q.type==='s'&&q.def?new Set([q.def]):new Set(q.defs||[]);
+    }
+  }
+}
+initS2();
+
+function initRv(){
+  rvItems={};rvCustom={};
+  for(const cid of selCats){
+    for(const sid of selSubs[cid]){
+      if(GEN[sid]){
+        const n=sid==='jobs'||sid==='bank'?6:sid==='certs'?5:4;
+        rvItems[sid]=[...GEN[sid].items.slice(0,n)];
+        rvCustom[sid]=[];
+      }
+    }
+  }
+}
+
+/* ═══ OPEN/CLOSE ═══ */
+function open_(){
+  const r=document.getElementById('in-role').value.trim(),l=document.getElementById('in-loc').value.trim();
+  if(!r||!l)return;
+  document.getElementById('br').textContent=r;document.getElementById('bl').textContent=l;
+  document.getElementById('bk').classList.add('open');document.getElementById('modal').classList.add('open');
+  document.body.style.overflow='hidden';go(0);
+}
+function close_(){
+  document.getElementById('bk').classList.remove('open');document.getElementById('modal').classList.remove('open');
+  document.body.style.overflow='';
+}
+
+/* ═══ NAV ═══ */
+function go(s){
+  step=s;
+  document.getElementById('slides').style.transform=`translateX(-${s*100}%)`;
+  document.getElementById('prog').style.width=`${((s+1)/3)*100}%`;
+  renderDots();
+  const f=document.getElementById('ftr'),bk=document.getElementById('bbk'),nx=document.getElementById('bnx');
+  f.classList.remove('hidden');bk.classList.toggle('hidden',s===0);
+  if(s===0){nx.textContent='Next →';renderS1();}
+  else if(s===1){nx.textContent='Next →';renderS2();}
+  else{nx.innerHTML='✨ Build my feed';initRv();renderS3();}
+  updNx();
+  document.getElementById(`s${s+1}`)?.scrollTo(0,0);
+}
+function next_(){if(step===2){build();return;}if(step<2)go(step+1);}
+function back_(){if(step>0)go(step-1);}
+function updNx(){document.getElementById('bnx').disabled=(step===0&&selCats.size===0);}
+
+function renderDots(){
+  document.getElementById('dots').innerHTML=SN.map((n,i)=>{
+    const c=i===step?'a':i<step?'d':'';
+    const d=i<step?CK:(i+1);
+    const cn=i<SN.length-1?`<div class="conn ${i<step?'d':''}"></div>`:'';
+    return`<div class="dot ${c}"><div class="dot-c">${d}</div><span>${n}</span></div>${cn}`;
+  }).join('');
+}
+
+/* ═══ STEP 1 ═══ */
+function renderS1(){
+  document.getElementById('s1i').innerHTML=`
+    <h1 class="title">What matters to you?</h1>
+    <p class="sub">Tap to select, then pick specific areas within each.</p>
+    <div class="cards">${CATS.map(c=>{
+      const sel=selCats.has(c.id);
+      const subs=c.subs.length?`
+        <div class="ecard-body">
+          <div class="ecard-body-label">Focus areas</div>
+          <div class="spills">${c.subs.map(s=>`
+            <div class="sp ${selSubs[c.id].has(s.id)?'on':''}" onclick="event.stopPropagation();togSub('${c.id}','${s.id}')">
+              <span class="sp-icon">${s.icon}</span>${s.name}
+            </div>`).join('')}
+          </div>
+        </div>`:`
+        <div class="ecard-body">
+          <div class="ecard-body-hint">You'll customize topics in the next step</div>
+        </div>`;
+      return`<div class="ecard ${sel?'sel':''}" onclick="togCat('${c.id}')">
+        <div class="ecard-head">
+          <span class="ecard-icon">${c.icon}</span>
+          <div class="ecard-text"><div class="ecard-name">${c.name}</div><div class="ecard-desc">${c.desc}</div></div>
+          <div class="ecard-chk">${CK}</div>
+        </div>${subs}
+      </div>`;
+    }).join('')}</div>`;
+}
+
+function togCat(id){
+  if(selCats.has(id)){selCats.delete(id);selSubs[id].clear();}
+  else{selCats.add(id);selSubs[id]=new Set(DEF_SUBS[id]||[]);}
+  renderS1();updNx();
+}
+function togSub(cid,sid){
+  selSubs[cid].has(sid)?selSubs[cid].delete(sid):selSubs[cid].add(sid);
+  renderS1();
+}
+
+/* ═══ STEP 2 ═══ */
+function renderS2(){
+  const el=document.getElementById('s2i');
+  let html='<h1 class="title">Tell us more</h1><p class="sub">A few quick questions so we can generate the right tracking targets.</p>';
+
+  // Collect active sub-categories in order
+  for(const c of CATS){
+    if(!selCats.has(c.id))continue;
+    if(c.id==='world'){
+      html+=renderWorldSection();
+      continue;
+    }
+    for(const s of c.subs){
+      if(!selSubs[c.id].has(s.id))continue;
+      const cfg=S2[s.id];if(!cfg)continue;
+      html+=`<div class="sec"><div class="sec-hdr"><span class="sec-icon">${cfg.icon}</span><span class="sec-name">${cfg.name}</span></div>`;
+      for(const q of cfg.qs){
+        const picked=s2sel[s.id][q.id]||new Set();
+        const all=[...q.pills,...(s2custom[s.id][q.id]||[])];
+        const hint=q.hint?` <span class="sec-qhint">· ${q.hint}</span>`:'';
+        html+=`<div class="sec-q">${q.label}${hint}</div><div class="pills">`;
+        for(const p of all){
+          const isCustom=(s2custom[s.id][q.id]||[]).includes(p);
+          html+=`<div class="pill ${picked.has(p)?'on':''}" onclick="togPill('${s.id}','${q.id}','${esc(p)}','${q.type}')">${p}${isCustom?`<span class="pill-x" onclick="event.stopPropagation();rmC('${s.id}','${q.id}','${esc(p)}')">&times;</span>`:''}</div>`;
+        }
+        if(q.canAdd){
+          html+=`<span id="aw-${s.id}-${q.id}" style="display:none"><input class="add-inp" id="ai-${s.id}-${q.id}" placeholder="Type & Enter" onkeydown="addK(event,'${s.id}','${q.id}')"></span>`;
+          html+=`<div class="pill pill-add" id="ab-${s.id}-${q.id}" onclick="showA('${s.id}','${q.id}')">+ Add</div>`;
+        }
+        html+=`</div>`;
+      }
+      html+=`</div>`;
+    }
+  }
+  el.innerHTML=html;
+}
+
+function renderWorldSection(){
+  const SUGS=['Quantum Computing','Home Automation','Gaming','Fitness','Space Tech','Open Source','3D Printing'];
+  const itemsH=worldItems.map(w=>`<div class="pill on">${w}<span class="pill-x" onclick="event.stopPropagation();rmW('${esc(w)}')">&times;</span></div>`).join('');
+  const sugH=SUGS.map(s=>{
+    const on=worldItems.includes(s);
+    return`<div class="pill pill-sug ${on?'on':''}" onclick="togW('${esc(s)}')">${s}</div>`;
+  }).join('');
+  return`<div class="sec">
+    <div class="sec-hdr"><span class="sec-icon">🧭</span><span class="sec-name">My World</span></div>
+    <div class="sec-q">What do you follow outside career and money? <span class="sec-qhint">· Press Enter to add</span></div>
+    <div class="ftw"><input class="fti" id="wi" placeholder="Type a topic..." onkeydown="wKey(event)"></div>
+    ${worldItems.length?`<div class="pills" style="margin-bottom:14px">${itemsH}</div>`:''}
+    <div class="sec-q" style="margin-top:${worldItems.length?14:8}px">Suggestions <span class="sec-qhint">· tap to add</span></div>
+    <div class="pills">${sugH}</div>
+  </div>`;
+}
+
+function togPill(sid,qid,val,type){
+  const s=s2sel[sid][qid];
+  if(type==='s'){s.clear();s.add(val);}else{s.has(val)?s.delete(val):s.add(val);}
+  renderS2();
+}
+function showA(sid,qid){
+  document.getElementById(`aw-${sid}-${qid}`).style.display='inline';
+  const b=document.getElementById(`ab-${sid}-${qid}`);if(b)b.style.display='none';
+  document.getElementById(`ai-${sid}-${qid}`).focus();
+}
+function addK(e,sid,qid){
+  if(e.key==='Enter'&&e.target.value.trim()){
+    const v=e.target.value.trim();
+    if(!s2custom[sid][qid].includes(v)){s2custom[sid][qid].push(v);s2sel[sid][qid].add(v);}
+    e.target.value='';renderS2();
+    setTimeout(()=>{const w=document.getElementById(`aw-${sid}-${qid}`),b=document.getElementById(`ab-${sid}-${qid}`),i=document.getElementById(`ai-${sid}-${qid}`);if(w)w.style.display='inline';if(b)b.style.display='none';if(i)i.focus();},60);
+  }else if(e.key==='Escape'){e.target.value='';e.target.parentElement.style.display='none';const b=document.getElementById(`ab-${sid}-${qid}`);if(b)b.style.display='';}
+}
+function rmC(sid,qid,val){s2custom[sid][qid]=s2custom[sid][qid].filter(v=>v!==val);s2sel[sid][qid].delete(val);renderS2();}
+function togW(val){const i=worldItems.indexOf(val);i>=0?worldItems.splice(i,1):worldItems.push(val);renderS2();}
+function rmW(val){worldItems=worldItems.filter(v=>v!==val);renderS2();}
+function wKey(e){
+  if(e.key==='Enter'&&e.target.value.trim()){
+    const v=e.target.value.trim();if(!worldItems.includes(v))worldItems.push(v);
+    e.target.value='';renderS2();
+    setTimeout(()=>{const i=document.getElementById('wi');if(i)i.focus();},60);
+  }
+}
+
+/* ═══ STEP 3 ═══ */
+function renderS3(){
+  const el=document.getElementById('s3i');
+  let html='<h1 class="title">Your intelligence profile</h1><p class="sub">Generated from your choices. Tap any item to remove, or add your own.</p>';
+
+  for(const c of CATS){
+    if(!selCats.has(c.id))continue;
+    if(c.id==='world'){
+      if(worldItems.length){
+        html+=`<div class="rv"><div class="rv-h"><span class="rv-i">🧭</span><span class="rv-t">My World</span></div>
+          <div class="rv-pills" style="margin-top:8px">${worldItems.map(w=>`<span class="rv-p" onclick="rmWr('${esc(w)}')">${w}<span class="rv-x">&times;</span></span>`).join('')}
+          <button class="rv-a" onclick="go(1)">+ Add</button></div></div>`;
+      }
+      continue;
+    }
+
+    // Check if any subs are selected
+    const activeSubs=c.subs.filter(s=>selSubs[c.id].has(s.id));
+    if(!activeSubs.length)continue;
+
+    html+=`<div class="rv"><div class="rv-h"><span class="rv-i">${c.icon}</span><span class="rv-t">${c.name}</span></div>`;
+
+    for(const s of activeSubs){
+      const cfg=S2[s.id];
+      const gen=GEN[s.id];
+      if(!cfg||!gen)continue;
+
+      // Build context summary
+      const ctx=cfg.qs.map(q=>[...(s2sel[s.id][q.id]||[])].join(', ')).filter(Boolean).join(' · ');
+
+      html+=`<div class="rv-sub">
+        <div class="rv-sub-hdr"><span class="rv-sub-icon">${cfg.icon}</span><span class="rv-sub-name">${cfg.name}</span></div>
+        ${ctx?`<div class="rv-sub-ctx">${ctx}</div>`:''}
+        <div class="rv-lbl">${gen.label}</div>
+        <div class="rv-pills">
+          ${(rvItems[s.id]||[]).map(it=>`<span class="rv-p" onclick="rvRm('${s.id}','${esc(it)}')">${it}<span class="rv-x">&times;</span></span>`).join('')}
+          <span id="rw-${s.id}" style="display:none"><input class="add-inp" id="ri-${s.id}" placeholder="Add..." onkeydown="rvAK(event,'${s.id}')"></span>
+          <button class="rv-a" id="ra-${s.id}" onclick="rvSA('${s.id}')">+ Add</button>
+        </div>
+      </div>`;
+    }
+    html+=`</div>`;
+  }
+
+  html+=`<div style="display:flex;gap:10px;justify-content:center;margin-top:24px">
+    <button class="btn bo" onclick="go(1)">← Adjust</button>
+    <button class="btn bp" onclick="build()">✨ Build my feed</button>
+  </div>`;
+  el.innerHTML=html;
+}
+
+function rvRm(sid,val){rvItems[sid]=(rvItems[sid]||[]).filter(v=>v!==val);renderS3();}
+function rvSA(sid){document.getElementById('rw-'+sid).style.display='inline';document.getElementById('ra-'+sid).style.display='none';document.getElementById('ri-'+sid).focus();}
+function rvAK(e,sid){
+  if(e.key==='Enter'&&e.target.value.trim()){
+    const v=e.target.value.trim();if(!(rvItems[sid]||[]).includes(v)){(rvItems[sid]=rvItems[sid]||[]).push(v);}
+    e.target.value='';renderS3();
+    setTimeout(()=>{const w=document.getElementById('rw-'+sid),a=document.getElementById('ra-'+sid),i=document.getElementById('ri-'+sid);if(w)w.style.display='inline';if(a)a.style.display='none';if(i)i.focus();},60);
+  }else if(e.key==='Escape'){e.target.value='';e.target.parentElement.style.display='none';document.getElementById('ra-'+sid).style.display='';}
+}
+function rmWr(val){worldItems=worldItems.filter(v=>v!==val);renderS3();}
+
+/* ═══ BUILD ═══ */
+function build(){
+  document.getElementById('ftr').classList.add('hidden');
+  const role=document.getElementById('in-role').value.trim();
+  document.getElementById('s3i').innerHTML=`<div class="ld">
+    <div class="orb"></div>
+    <div class="ld-t">Building your feed...</div>
+    <div class="ld-s">Configuring intelligence for <strong>${role}</strong></div>
+    <div class="ld-list">
+      <div class="ls on" id="l0"><div class="ls-d"><div class="ls-sp"></div>${CK}</div><span>Generating context</span></div>
+      <div class="ls" id="l1"><div class="ls-d"><div class="ls-sp"></div>${CK}</div><span>Building categories</span></div>
+      <div class="ls" id="l2"><div class="ls-d"><div class="ls-sp"></div>${CK}</div><span>Selecting sources & scoring</span></div>
+    </div>
+  </div>`;
+  document.getElementById('s3').scrollTo(0,0);
+  let i=0;
+  const iv=setInterval(()=>{
+    if(i>0){document.getElementById('l'+(i-1)).classList.remove('on');document.getElementById('l'+(i-1)).classList.add('ok');}
+    if(i<3){document.getElementById('l'+i).classList.add('on');i++;}
+    else{clearInterval(iv);setTimeout(showDone,400);}
+  },650);
+}
+
+function showDone(){
+  document.getElementById('s3i').innerHTML=`<div class="done">
+    <div class="done-c">${CK.replace('viewBox','width="28" height="28" stroke="#000" stroke-width="2.5" fill="none" viewBox')}</div>
+    <div class="done-t">Your feed is ready! 🎉</div>
+    <div class="done-s">Your intelligence sources are configured. Your dashboard will now show signals tailored to your profile.</div>
+    <button class="btn bp" onclick="close_()" style="padding:13px 32px;font-size:15px">Open Dashboard →</button>
+  </div>`;
+}
+
+/* ═══ UTIL ═══ */
+function esc(s){return s.replace(/'/g,"\\'").replace(/"/g,'&quot;');}
+document.getElementById('in-role').addEventListener('input',chk);
+document.getElementById('in-loc').addEventListener('input',chk);
+function chk(){document.getElementById('gbtn').disabled=!document.getElementById('in-role').value.trim()||!document.getElementById('in-loc').value.trim();}
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.getElementById('modal').classList.contains('open'))close_();});
+</script>
+</body>
+</html>

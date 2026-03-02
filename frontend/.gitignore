@@ -1,0 +1,9 @@
+# Built CSS (regenerated from tailwind-input.css)
+tailwind-built.css
+
+# Runtime database
+strat_os.db
+
+# OS
+.DS_Store
+Thumbs.db

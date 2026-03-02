@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StratOS — Setup Wizard v2</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --bg:#0f1724;--card:#1a2332;--card-hover:#1f2b3d;
+  --accent:#10b981;--accent-dim:rgba(16,185,129,.15);--accent-glow:rgba(16,185,129,.25);
+  --text:#f1f5f9;--text-dim:#94a3b8;--text-muted:#64748b;
+  --border:#2a3548;--border-hover:#3a4a60;--danger:#ef4444;
+  --radius:14px;--radius-sm:10px;--pill:999px;
+  --ease:cubic-bezier(.4,0,.2,1);--spring:cubic-bezier(.34,1.56,.64,1);
+}
+
+body{
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Inter,Roboto,sans-serif;
+  background:var(--bg);color:var(--text);min-height:100vh;
+}
+
+/* ═══ LAUNCHER ═══ */
+.launcher{max-width:440px;margin:80px auto;padding:0 24px}
+.launcher h2{font-size:20px;font-weight:700;letter-spacing:-.02em;margin-bottom:4px}
+.launcher p{color:var(--text-dim);font-size:14px;margin-bottom:24px;line-height:1.5}
+.form-group{margin-bottom:14px}
+.form-label{display:block;font-size:11px;font-weight:600;color:var(--text-dim);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px}
+.form-input{width:100%;padding:12px 16px;background:var(--card);border:1.5px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:14px;font-family:inherit;outline:none;transition:border-color .2s var(--ease)}
+.form-input:focus{border-color:var(--accent)}
+.form-input::placeholder{color:var(--text-muted)}
+.gen-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:14px;margin-top:24px;background:var(--accent);color:#000;font-size:15px;font-weight:600;border:none;border-radius:var(--radius);cursor:pointer;font-family:inherit;transition:all .2s var(--ease)}
+.gen-btn:hover{background:#34d399;box-shadow:0 0 24px var(--accent-glow)}
+.gen-btn:disabled{background:var(--border);color:var(--text-muted);cursor:not-allowed;box-shadow:none}
+.gen-btn:active:not(:disabled){transform:scale(.98)}
+.launcher-hint{text-align:center;font-size:12px;color:var(--text-muted);margin-top:10px}
+
+/* ═══ MODAL ═══ */
+.backdrop{position:fixed;inset:0;background:rgba(0,0,0,.55);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);z-index:9998;opacity:0;pointer-events:none;transition:opacity .35s ease}
+.backdrop.open{opacity:1;pointer-events:auto}
+
+.modal{
+  position:fixed;top:50%;left:50%;
+  transform:translate(-50%,-50%) scale(.96);
+  width:min(94vw,680px);height:min(92vh,720px);
+  background:var(--bg);border:1px solid var(--border);border-radius:20px;
+  z-index:9999;display:flex;flex-direction:column;
+  opacity:0;pointer-events:none;
+  transition:all .35s var(--ease);overflow:hidden;
+  box-shadow:0 25px 80px rgba(0,0,0,.5),0 0 0 1px rgba(255,255,255,.03);
+}
+.modal.open{opacity:1;pointer-events:auto;transform:translate(-50%,-50%) scale(1)}
+
+/* ── Header ── */
+.hdr{padding:20px 28px 0;flex-shrink:0}
+.hdr-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.brand{display:flex;align-items:center;gap:9px}
+.brand svg{width:22px;height:22px;color:var(--accent)}
+.brand span{font-size:15px;font-weight:700;letter-spacing:-.02em}
+.close-btn{width:30px;height:30px;border-radius:8px;border:none;background:0;color:var(--text-muted);font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s var(--ease)}
+.close-btn:hover{background:rgba(255,255,255,.06);color:var(--text)}
+.badge{display:inline-flex;align-items:center;gap:7px;padding:5px 13px;background:var(--card);border:1px solid var(--border);border-radius:var(--pill);font-size:12px;color:var(--text-dim);margin-bottom:14px}
+.badge strong{color:var(--text);font-weight:600}
+
+/* Progress */
+.prog-track{width:100%;height:3px;background:var(--border);border-radius:3px;overflow:hidden}
+.prog-fill{height:100%;background:var(--accent);border-radius:3px;transition:width .5s var(--ease)}
+.steps-row{display:flex;align-items:center;justify-content:center;gap:6px;margin-top:13px;padding-bottom:2px}
+.sdot{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--text-muted);transition:color .2s var(--ease)}
+.sdot.active{color:var(--accent);font-weight:600}
+.sdot.done{color:var(--text-dim)}
+.sdot-c{width:20px;height:20px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;transition:all .2s var(--ease)}
+.sdot.active .sdot-c{border-color:var(--accent);background:var(--accent);color:#000}
+.sdot.done .sdot-c{border-color:var(--accent);color:var(--accent)}
+.sconn{width:28px;height:2px;background:var(--border);border-radius:2px;transition:background .2s var(--ease)}
+.sconn.done{background:var(--accent)}
+
+/* ── Body ── */
+.body{flex:1;overflow:hidden;position:relative}
+.slides{display:flex;height:100%;transition:transform .45s var(--ease)}
+.slide{min-width:100%;height:100%;overflow-y:auto;padding:24px 28px 100px;scrollbar-width:thin;scrollbar-color:var(--border) transparent}
+.slide::-webkit-scrollbar{width:5px}
+.slide::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+.inner{max-width:560px;margin:0 auto}
+
+/* ── Footer ── */
+.ftr{flex-shrink:0;padding:14px 28px 18px;display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--border);background:var(--bg)}
+.btn{display:inline-flex;align-items:center;gap:7px;padding:11px 22px;border-radius:var(--pill);font-size:14px;font-weight:600;border:none;cursor:pointer;transition:all .2s var(--ease);font-family:inherit;outline:none}
+.btn:active{transform:scale(.97)}
+.btn-p{background:var(--accent);color:#000}
+.btn-p:hover{background:#34d399;box-shadow:0 0 20px var(--accent-glow)}
+.btn-p:disabled{background:var(--border);color:var(--text-muted);cursor:not-allowed;box-shadow:none}
+.btn-p:disabled:active{transform:none}
+.btn-g{background:0;color:var(--text-dim);padding:11px 14px}
+.btn-g:hover{color:var(--text);background:rgba(255,255,255,.05)}
+.btn-o{background:var(--card);color:var(--text);border:1px solid var(--border);padding:11px 22px}
+.btn-o:hover{border-color:var(--border-hover);background:var(--card-hover)}
+
+/* ── Typography ── */
+.title{font-size:22px;font-weight:700;letter-spacing:-.03em;margin-bottom:4px}
+.sub{color:var(--text-dim);font-size:14px;margin-bottom:24px;line-height:1.5}
+.label{font-size:12px;font-weight:600;color:var(--text-dim);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;margin-top:24px}
+.label:first-of-type{margin-top:0}
+.label-hint{font-weight:400;text-transform:none;letter-spacing:0;color:var(--text-muted);font-size:11px}
+
+/* ═══ STEP 1: BIG CARDS ═══ */
+.big-cards{display:flex;gap:12px}
+
+.big-card{
+  flex:1;background:var(--card);border:1.5px solid var(--border);border-radius:16px;
+  padding:28px 22px;cursor:pointer;transition:all .25s var(--ease);
+  position:relative;user-select:none;-webkit-tap-highlight-color:transparent;
+  display:flex;flex-direction:column;align-items:center;text-align:center;
+  min-height:170px;
+}
+.big-card:hover{border-color:var(--border-hover);background:var(--card-hover);transform:translateY(-2px)}
+.big-card.sel{
+  border-color:var(--accent);background:var(--accent-dim);
+  box-shadow:0 0 24px var(--accent-glow),0 4px 20px rgba(16,185,129,.08),inset 0 0 24px rgba(16,185,129,.04);
+}
+.big-card.sel:hover{background:rgba(16,185,129,.2)}
+.big-card-icon{font-size:36px;margin-bottom:14px;display:block;filter:drop-shadow(0 2px 8px rgba(0,0,0,.3))}
+.big-card-name{font-size:17px;font-weight:700;margin-bottom:5px;letter-spacing:-.01em}
+.big-card-desc{font-size:12px;color:var(--text-muted);line-height:1.4}
+.big-card-check{
+  position:absolute;top:12px;right:12px;width:22px;height:22px;border-radius:50%;
+  background:var(--accent);display:flex;align-items:center;justify-content:center;
+  opacity:0;transform:scale(.4);transition:all .3s var(--spring);
+}
+.big-card.sel .big-card-check{opacity:1;transform:scale(1)}
+.big-card-check svg{width:12px;height:12px;stroke:#000;stroke-width:3;fill:none}
+
+/* ═══ STEP 2: TABS ═══ */
+.tabs{display:flex;gap:0;margin-bottom:24px;position:relative;border-bottom:1px solid var(--border)}
+.tab{
+  display:flex;align-items:center;gap:6px;padding:10px 18px 12px;
+  font-size:13px;font-weight:500;color:var(--text-muted);cursor:pointer;
+  transition:all .2s var(--ease);border:none;background:none;font-family:inherit;outline:none;
+  position:relative;white-space:nowrap;
+}
+.tab:hover{color:var(--text-dim)}
+.tab.active{color:var(--text);font-weight:600}
+.tab::after{
+  content:'';position:absolute;bottom:-1px;left:12px;right:12px;height:2px;
+  background:var(--accent);border-radius:2px;
+  transform:scaleX(0);transition:transform .25s var(--ease);
+}
+.tab.active::after{transform:scaleX(1)}
+.tab-icon{font-size:16px}
+
+.tab-body{animation:fadeUp .3s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* ═══ PILLS ═══ */
+.pills{display:flex;flex-wrap:wrap;gap:8px}
+.pill{
+  display:inline-flex;align-items:center;gap:5px;padding:9px 16px;
+  border-radius:var(--pill);font-size:13px;font-weight:500;
+  background:var(--card);border:1.5px solid var(--border);cursor:pointer;
+  transition:all .2s var(--ease);user-select:none;-webkit-tap-highlight-color:transparent;
+  white-space:nowrap;
+}
+.pill:hover{border-color:var(--border-hover);background:var(--card-hover)}
+.pill.sel{border-color:var(--accent);background:var(--accent-dim);color:var(--accent)}
+.pill.sel:hover{background:rgba(16,185,129,.2)}
+.pill-x{font-size:15px;color:var(--text-muted);cursor:pointer;transition:color .15s;margin-left:2px}
+.pill-x:hover{color:var(--danger)}
+.pill-add{border-style:dashed;color:var(--text-muted)}
+.pill-add:hover{border-color:var(--accent);color:var(--accent)}
+
+/* Suggestion pills (dimmed) */
+.pill-suggest{border-style:dashed;opacity:.5;transition:all .2s var(--ease)}
+.pill-suggest:hover{opacity:.8;border-color:var(--border-hover)}
+.pill-suggest.sel{opacity:1;border-style:solid}
+
+/* ═══ FREE TEXT INPUT ═══ */
+.free-input-wrap{display:flex;gap:8px;align-items:center;margin-bottom:12px}
+.free-input{
+  flex:1;padding:11px 16px;background:var(--card);border:1.5px solid var(--border);
+  border-radius:var(--pill);font-size:13px;color:var(--text);outline:none;
+  font-family:inherit;transition:all .2s var(--ease);
+}
+.free-input:focus{border-color:var(--accent);box-shadow:0 0 12px var(--accent-glow)}
+.free-input::placeholder{color:var(--text-muted)}
+
+/* Inline add input */
+.add-inp{
+  background:var(--card);border:1.5px solid var(--accent);border-radius:var(--pill);
+  padding:9px 14px;font-size:13px;color:var(--text);outline:none;font-family:inherit;
+  width:140px;transition:all .2s var(--ease);
+}
+.add-inp::placeholder{color:var(--text-muted)}
+.add-inp:focus{box-shadow:0 0 12px var(--accent-glow)}
+
+/* ═══ STEP 3: REVIEW ═══ */
+.rv-section{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px;margin-bottom:10px;transition:border-color .2s var(--ease)}
+.rv-section:hover{border-color:var(--border-hover)}
+.rv-hdr{display:flex;align-items:center;gap:9px;margin-bottom:6px}
+.rv-icon{font-size:20px}
+.rv-title{font-size:15px;font-weight:700}
+.rv-summary{font-size:12px;color:var(--text-dim);margin-bottom:14px;line-height:1.5}
+.rv-row{margin-bottom:12px}
+.rv-row:last-child{margin-bottom:0}
+.rv-label{font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted);margin-bottom:6px;font-weight:600}
+.rv-pills{display:flex;flex-wrap:wrap;gap:6px}
+.rv-pill{
+  display:inline-flex;align-items:center;gap:3px;padding:5px 12px;
+  border-radius:var(--pill);font-size:12px;font-weight:500;
+  background:var(--accent-dim);color:var(--accent);border:1px solid rgba(16,185,129,.2);
+  cursor:pointer;transition:all .2s var(--ease);
+}
+.rv-pill:hover{border-color:var(--danger);color:var(--danger);background:rgba(239,68,68,.1)}
+.rv-pill:hover .rv-x{opacity:1}
+.rv-x{font-size:13px;opacity:0;transition:opacity .15s;margin-left:1px}
+.rv-add{
+  display:inline-flex;align-items:center;gap:3px;padding:5px 12px;
+  border-radius:var(--pill);font-size:12px;color:var(--text-muted);
+  border:1px dashed var(--border);cursor:pointer;transition:all .2s var(--ease);
+  background:none;font-family:inherit;
+}
+.rv-add:hover{border-color:var(--accent);color:var(--accent)}
+
+/* ═══ LOADING / DONE ═══ */
+.ld-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;text-align:center}
+.ld-orb{
+  width:60px;height:60px;border-radius:50%;
+  background:radial-gradient(circle at 30% 30%,var(--accent),#059669);
+  margin-bottom:24px;position:relative;animation:pulse 2s ease-in-out infinite;
+}
+.ld-orb::after{
+  content:'';position:absolute;inset:-8px;border-radius:50%;
+  border:2px solid var(--accent);opacity:0;animation:ring 2s ease-in-out infinite;
+}
+@keyframes pulse{0%,100%{transform:scale(1);box-shadow:0 0 30px var(--accent-glow)}50%{transform:scale(1.06);box-shadow:0 0 50px var(--accent-glow)}}
+@keyframes ring{0%{transform:scale(.8);opacity:.5}100%{transform:scale(1.4);opacity:0}}
+.ld-text{font-size:18px;font-weight:600;margin-bottom:5px}
+.ld-sub{font-size:13px;color:var(--text-dim)}
+.ld-steps{margin-top:22px;display:flex;flex-direction:column;gap:9px;text-align:left}
+.ls{display:flex;align-items:center;gap:9px;font-size:13px;color:var(--text-muted);transition:all .4s ease}
+.ls.on{color:var(--text)}.ls.ok{color:var(--accent)}
+.ls-dot{
+  width:16px;height:16px;border-radius:50%;border:2px solid var(--border);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .4s ease;
+}
+.ls.on .ls-dot{border-color:var(--accent);background:var(--accent)}
+.ls.ok .ls-dot{border-color:var(--accent);background:var(--accent)}
+.ls-dot svg{width:9px;height:9px;stroke:#000;stroke-width:3;fill:none;opacity:0;transition:opacity .3s}
+.ls.ok .ls-dot svg{opacity:1}
+.ls-spin{width:5px;height:5px;border-radius:50%;background:#000;animation:sd .8s ease-in-out infinite}
+.ls:not(.on) .ls-spin,.ls.ok .ls-spin{display:none}
+@keyframes sd{0%,100%{opacity:.3}50%{opacity:1}}
+
+.done-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;text-align:center;animation:fadeUp .5s ease}
+.done-circle{width:64px;height:64px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;margin-bottom:20px;animation:pop .5s var(--spring)}
+@keyframes pop{from{transform:scale(0)}to{transform:scale(1)}}
+.done-circle svg{width:28px;height:28px;stroke:#000;stroke-width:2.5;fill:none}
+.done-t{font-size:22px;font-weight:700;margin-bottom:6px}
+.done-s{font-size:14px;color:var(--text-dim);margin-bottom:28px;max-width:340px;line-height:1.5}
+
+/* ═══ RESPONSIVE ═══ */
+@media(max-width:580px){
+  .big-cards{flex-direction:column}
+  .big-card{min-height:auto;flex-direction:row;padding:16px 18px;gap:14px;text-align:left;align-items:center}
+  .big-card-icon{font-size:28px;margin-bottom:0;flex-shrink:0}
+  .modal{width:100vw;height:100vh;border-radius:0}
+  .slide{padding:20px 20px 100px}
+  .hdr{padding:16px 20px 0}
+  .ftr{padding:12px 20px 16px}
+  .sdot>span{display:none}
+  .tab{padding:10px 14px 12px}
+  .tab>span:last-child{display:none}
+}
+
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+
+<!-- ═══ LAUNCHER ═══ -->
+<div class="launcher" id="launcher">
+  <h2>Set up your feed</h2>
+  <p>Tell us who you are and we'll build a personalized intelligence feed.</p>
+  <div class="form-group">
+    <label class="form-label">Your role</label>
+    <input class="form-input" id="in-role" type="text" placeholder="e.g. Computer Engineering Student" value="Computer Engineering Student">
+  </div>
+  <div class="form-group">
+    <label class="form-label">Location</label>
+    <input class="form-input" id="in-loc" type="text" placeholder="e.g. Kuwait" value="Kuwait">
+  </div>
+  <button class="gen-btn" id="gen-btn" onclick="openModal()">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+    Generate Intelligence Profile
+  </button>
+  <div class="launcher-hint">Opens a quick setup wizard to customize your feed</div>
+</div>
+
+<!-- ═══ MODAL ═══ -->
+<div class="backdrop" id="bk" onclick="closeModal()"></div>
+<div class="modal" id="modal">
+  <div class="hdr">
+    <div class="hdr-top">
+      <div class="brand">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        <span>StratOS</span>
+      </div>
+      <button class="close-btn" onclick="closeModal()" title="Close">&times;</button>
+    </div>
+    <div class="badge" id="badge"><span>👤</span><strong id="b-role">—</strong><span>·</span><span id="b-loc">—</span></div>
+    <div class="prog-track"><div class="prog-fill" id="prog" style="width:33%"></div></div>
+    <div class="steps-row" id="steps-row"></div>
+  </div>
+
+  <div class="body">
+    <div class="slides" id="slides">
+      <!-- S1 -->
+      <div class="slide" id="s1"><div class="inner" id="s1-inner"></div></div>
+      <!-- S2 -->
+      <div class="slide" id="s2"><div class="inner" id="s2-inner"></div></div>
+      <!-- S3 -->
+      <div class="slide" id="s3"><div class="inner" id="s3-inner"></div></div>
+    </div>
+  </div>
+
+  <div class="ftr" id="ftr">
+    <button class="btn btn-g" id="btn-back" onclick="back()">← Back</button>
+    <button class="btn btn-p" id="btn-next" onclick="next()">Next →</button>
+  </div>
+</div>
+
+<script>
+const CHK='<svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>';
+const NAMES=['Focus','Narrow','Confirm'];
+
+// ═══ DATA ═══
+const CATS=[
+  {id:'career',icon:'💼',name:'My Career',desc:'Jobs, skills, industry, growth'},
+  {id:'money', icon:'💰',name:'My Money', desc:'Investments, markets, deals & offers'},
+  {id:'world', icon:'🧭',name:'My World', desc:'Interests, hobbies, news I care about'},
+];
+
+const TAB_CFG={
+  career:{
+    sections:[
+      {id:'stage',label:'Your stage',type:'single',pills:['Student','Intern','Fresh Graduate','Mid-Career','Senior'],def:'Student'},
+      {id:'sectors',label:'Sectors relevant to you',hint:'AI-suggested for Kuwait engineering',type:'multi',
+       pills:['Oil & Gas','Telecom','Tech / Software','Government','Banking','Construction','Healthcare','Logistics'],canAdd:true,defs:['Oil & Gas','Tech / Software']},
+      {id:'goals',label:'Your goals',type:'multi',pills:['Job Hunting','Certifications','Industry Trends','Networking / Events'],defs:['Job Hunting','Certifications']},
+    ]
+  },
+  money:{
+    sections:[
+      {id:'areas',label:'What financial areas matter?',type:'multi',
+       pills:['Bank Deals & Offers','Telecom Promotions','Student Discounts','Stock Market','Crypto','Commodities','Real Estate'],canAdd:true,defs:['Bank Deals & Offers','Student Discounts','Stock Market']},
+      {id:'depth',label:'How closely?',type:'single',pills:['Just Notable News','Track Prices Daily'],def:'Just Notable News'},
+    ]
+  },
+  world:{
+    freeText:true,
+    suggestions:['Quantum Computing','Home Automation','Gaming','Fitness','Space Tech','Open Source','3D Printing'],
+  }
+};
+
+// AI-generated entities for Step 3 (based on Step 2 selections)
+const GENERATED={
+  career:{
+    employers:['Equate','KOC','KNPC','KIPIC','Zain','Ooredoo','SLB','Alghanim','Huawei'],
+    certs:['AWS Solutions Architect','Cisco CCNA','CompTIA Security+','Google Cloud Engineer','PMP'],
+  },
+  money:{
+    providers:['Warba Bank','Boubyan','NBK','KFH','Zain Telecom','Ooredoo Deals'],
+    tickers:['NVDA','BTC-USD','GC=F','AAPL'],
+  },
+};
+
+// ═══ STATE ═══
+let step=0;
+let selCats=new Set(['career','money']);
+let tabSel={}; // {catId:{secId:Set}}
+let customAdded={}; // {catId:{secId:[...]}}
+let worldItems=[];
+let activeTab=null;
+// review state: generated entities user can remove/add
+let rvData={}; // {catId:{groupId:[...items]}}
+let rvCustom={}; // {catId:{groupId:[...added]}}
+
+function initTabSel(){
+  for(const[cid,cfg]of Object.entries(TAB_CFG)){
+    tabSel[cid]={};customAdded[cid]={};
+    if(cfg.sections){
+      for(const s of cfg.sections){
+        customAdded[cid][s.id]=[];
+        if(s.type==='single'&&s.def) tabSel[cid][s.id]=new Set([s.def]);
+        else if(s.type==='multi'&&s.defs) tabSel[cid][s.id]=new Set(s.defs);
+        else tabSel[cid][s.id]=new Set();
+      }
+    }
+  }
+}
+initTabSel();
+
+function initRvData(){
+  rvData={};rvCustom={};
+  if(selCats.has('career')){
+    rvData.career={employers:[...GENERATED.career.employers.slice(0,6)],certs:[...GENERATED.career.certs]};
+    rvCustom.career={employers:[],certs:[]};
+  }
+  if(selCats.has('money')){
+    const areas=[...(tabSel.money?.areas||[])];
+    const hasStocks=areas.includes('Stock Market')||areas.includes('Crypto')||areas.includes('Commodities');
+    const hasDeals=areas.includes('Bank Deals & Offers')||areas.includes('Telecom Promotions')||areas.includes('Student Discounts');
+    rvData.money={};rvCustom.money={};
+    if(hasDeals){rvData.money.providers=[...GENERATED.money.providers];rvCustom.money.providers=[];}
+    if(hasStocks){rvData.money.tickers=[...GENERATED.money.tickers];rvCustom.money.tickers=[];}
+  }
+}
+
+// ═══ OPEN / CLOSE ═══
+function openModal(){
+  const r=document.getElementById('in-role').value.trim();
+  const l=document.getElementById('in-loc').value.trim();
+  if(!r||!l)return;
+  document.getElementById('b-role').textContent=r;
+  document.getElementById('b-loc').textContent=l;
+  document.getElementById('bk').classList.add('open');
+  document.getElementById('modal').classList.add('open');
+  document.body.style.overflow='hidden';
+  go(0);
+}
+function closeModal(){
+  document.getElementById('bk').classList.remove('open');
+  document.getElementById('modal').classList.remove('open');
+  document.body.style.overflow='';
+}
+
+// ═══ NAV ═══
+function go(s){
+  step=s;
+  document.getElementById('slides').style.transform=`translateX(-${s*100}%)`;
+  document.getElementById('prog').style.width=`${((s+1)/NAMES.length)*100}%`;
+  renderDots();
+  const ftr=document.getElementById('ftr');
+  const bk=document.getElementById('btn-back');
+  const nx=document.getElementById('btn-next');
+  ftr.classList.remove('hidden');
+  bk.classList.toggle('hidden',s===0);
+
+  if(s===0){nx.textContent='Next →';renderS1();}
+  else if(s===1){nx.textContent='Next →';renderS2();}
+  else if(s===2){nx.innerHTML='✨ Build my feed';initRvData();renderS3();}
+  updateNx();
+  document.getElementById(`s${s+1}`)?.scrollTo(0,0);
+}
+function next(){
+  if(step===2){startBuild();return;}
+  if(step<2)go(step+1);
+}
+function back(){if(step>0)go(step-1);}
+function updateNx(){document.getElementById('btn-next').disabled=(step===0&&selCats.size===0);}
+
+function renderDots(){
+  document.getElementById('steps-row').innerHTML=NAMES.map((n,i)=>{
+    const c=i===step?'active':i<step?'done':'';
+    const d=i<step?CHK:(i+1);
+    const conn=i<NAMES.length-1?`<div class="sconn ${i<step?'done':''}"></div>`:'';
+    return`<div class="sdot ${c}"><div class="sdot-c">${d}</div><span>${n}</span></div>${conn}`;
+  }).join('');
+}
+
+// ═══ STEP 1 ═══
+function renderS1(){
+  document.getElementById('s1-inner').innerHTML=`
+    <h1 class="title">What matters to you?</h1>
+    <p class="sub">Pick your areas of focus. We'll tailor everything around these.</p>
+    <div class="big-cards">${CATS.map(c=>`
+      <div class="big-card ${selCats.has(c.id)?'sel':''}" onclick="togCat('${c.id}')">
+        <div class="big-card-check">${CHK}</div>
+        <span class="big-card-icon">${c.icon}</span>
+        <div>
+          <div class="big-card-name">${c.name}</div>
+          <div class="big-card-desc">${c.desc}</div>
+        </div>
+      </div>`).join('')}
+    </div>`;
+}
+function togCat(id){selCats.has(id)?selCats.delete(id):selCats.add(id);renderS1();updateNx();}
+
+// ═══ STEP 2 ═══
+function renderS2(){
+  const cats=CATS.filter(c=>selCats.has(c.id));
+  if(!activeTab||!selCats.has(activeTab))activeTab=cats[0]?.id||null;
+  const el=document.getElementById('s2-inner');
+  el.innerHTML=`
+    <h1 class="title">Narrow it down</h1>
+    <p class="sub">Help us understand what to prioritize within each area.</p>
+    <div class="tabs">${cats.map(c=>`
+      <button class="tab ${c.id===activeTab?'active':''}" onclick="switchTab('${c.id}')">
+        <span class="tab-icon">${c.icon}</span><span>${c.name}</span>
+      </button>`).join('')}
+    </div>
+    <div class="tab-body" id="tab-body"></div>`;
+  renderTabBody();
+}
+function switchTab(id){activeTab=id;renderS2();}
+
+function renderTabBody(){
+  const el=document.getElementById('tab-body');
+  if(!activeTab){el.innerHTML='';return;}
+  const cfg=TAB_CFG[activeTab];
+
+  // Free text mode (My World)
+  if(cfg.freeText){
+    const sugHTML=cfg.suggestions.map(s=>{
+      const on=worldItems.includes(s);
+      return`<div class="pill pill-suggest ${on?'sel':''}" onclick="togWorld('${esc(s)}')">${s}</div>`;
+    }).join('');
+    const itemsHTML=worldItems.map(w=>`
+      <div class="pill sel">${w}<span class="pill-x" onclick="event.stopPropagation();rmWorld('${esc(w)}')">&times;</span></div>
+    `).join('');
+    el.innerHTML=`
+      <div class="label">What do you follow outside work and money? <span class="label-hint">· Press Enter to add</span></div>
+      <div class="free-input-wrap">
+        <input class="free-input" id="world-input" placeholder="Type a topic..." onkeydown="worldKey(event)">
+      </div>
+      ${worldItems.length?`<div class="pills" style="margin-bottom:16px">${itemsHTML}</div>`:''}
+      <div class="label" style="margin-top:${worldItems.length?16:20}px">Suggestions <span class="label-hint">· tap to add</span></div>
+      <div class="pills">${sugHTML}</div>`;
+    el.style.animation='none';el.offsetHeight;el.style.animation='';
+    return;
+  }
+
+  // Sectioned mode (Career, Money)
+  const sel=tabSel[activeTab];
+  const custom=customAdded[activeTab];
+  el.innerHTML=cfg.sections.map(sec=>{
+    const picked=sel[sec.id]||new Set();
+    const all=[...sec.pills,...(custom[sec.id]||[])];
+    let html=all.map(p=>`
+      <div class="pill ${picked.has(p)?'sel':''}" onclick="togPill('${activeTab}','${sec.id}','${esc(p)}','${sec.type}')">
+        ${p}${(custom[sec.id]||[]).includes(p)?`<span class="pill-x" onclick="event.stopPropagation();rmCustom('${activeTab}','${sec.id}','${esc(p)}')">&times;</span>`:''}
+      </div>`).join('');
+    if(sec.canAdd){
+      html+=`<span class="add-wrap" id="aw-${sec.id}" style="display:none"><input class="add-inp" id="ai-${sec.id}" placeholder="Type & Enter" onkeydown="addKey(event,'${activeTab}','${sec.id}')"></span>`;
+      html+=`<div class="pill pill-add" id="ab-${sec.id}" onclick="showAdd('${sec.id}')">+ Add</div>`;
+    }
+    const hint=sec.hint?` <span class="label-hint">· ${sec.hint}</span>`:'';
+    return`<div class="label">${sec.label}${hint}</div><div class="pills">${html}</div>`;
+  }).join('');
+  el.style.animation='none';el.offsetHeight;el.style.animation='';
+}
+
+function togPill(cid,sid,val,type){
+  const s=tabSel[cid][sid];
+  if(type==='single'){s.clear();s.add(val);}else{s.has(val)?s.delete(val):s.add(val);}
+  renderTabBody();
+}
+function showAdd(sid){
+  document.getElementById('aw-'+sid).style.display='inline';
+  const ab=document.getElementById('ab-'+sid);if(ab)ab.style.display='none';
+  document.getElementById('ai-'+sid).focus();
+}
+function addKey(e,cid,sid){
+  if(e.key==='Enter'&&e.target.value.trim()){
+    const v=e.target.value.trim();
+    if(!customAdded[cid][sid].includes(v)){customAdded[cid][sid].push(v);tabSel[cid][sid].add(v);}
+    e.target.value='';renderTabBody();
+    setTimeout(()=>{const w=document.getElementById('aw-'+sid);const a=document.getElementById('ab-'+sid);const i=document.getElementById('ai-'+sid);if(w)w.style.display='inline';if(a)a.style.display='none';if(i)i.focus();},50);
+  }else if(e.key==='Escape'){e.target.value='';e.target.parentElement.style.display='none';const ab=document.getElementById('ab-'+sid);if(ab)ab.style.display='';}
+}
+function rmCustom(cid,sid,val){
+  customAdded[cid][sid]=customAdded[cid][sid].filter(v=>v!==val);
+  tabSel[cid][sid].delete(val);renderTabBody();
+}
+function togWorld(val){
+  const i=worldItems.indexOf(val);
+  if(i>=0)worldItems.splice(i,1);else worldItems.push(val);
+  renderTabBody();
+}
+function rmWorld(val){worldItems=worldItems.filter(v=>v!==val);renderTabBody();}
+function worldKey(e){
+  if(e.key==='Enter'&&e.target.value.trim()){
+    const v=e.target.value.trim();
+    if(!worldItems.includes(v))worldItems.push(v);
+    e.target.value='';renderTabBody();
+    setTimeout(()=>{const i=document.getElementById('world-input');if(i)i.focus();},50);
+  }
+}
+
+// ═══ STEP 3 ═══
+function renderS3(){
+  const el=document.getElementById('s3-inner');
+  let html=`<h1 class="title">Here's your feed</h1><p class="sub">We generated specific tracking targets from your choices. Tap to remove, or add your own.</p>`;
+
+  if(selCats.has('career')){
+    const cs=tabSel.career||{};
+    const stage=[...(cs.stage||[])].join(', ')||'—';
+    const sectors=[...(cs.sectors||[])].join(', ')||'—';
+    const goals=[...(cs.goals||[])].join(' + ')||'—';
+    html+=`<div class="rv-section">
+      <div class="rv-hdr"><span class="rv-icon">💼</span><span class="rv-title">Career</span></div>
+      <div class="rv-summary">${stage} · ${sectors} · ${goals}</div>
+      ${rvGroup('career','employers','Tracking employers')}
+      ${rvGroup('career','certs','Tracking certifications')}
+    </div>`;
+  }
+
+  if(selCats.has('money')){
+    const ms=tabSel.money||{};
+    const areas=[...(ms.areas||[])].join(', ')||'—';
+    const depth=[...(ms.depth||[])].join('')||'—';
+    html+=`<div class="rv-section">
+      <div class="rv-hdr"><span class="rv-icon">💰</span><span class="rv-title">Money</span></div>
+      <div class="rv-summary">${areas} · ${depth}</div>
+      ${rvGroup('money','providers','Tracking providers')}
+      ${rvGroup('money','tickers','Tracking assets')}
+    </div>`;
+  }
+
+  if(selCats.has('world')&&worldItems.length){
+    html+=`<div class="rv-section">
+      <div class="rv-hdr"><span class="rv-icon">🧭</span><span class="rv-title">My World</span></div>
+      <div class="rv-pills" style="margin-top:4px">
+        ${worldItems.map(w=>`<span class="rv-pill" onclick="rmWorldRv('${esc(w)}')">${w}<span class="rv-x">&times;</span></span>`).join('')}
+        <button class="rv-add" onclick="go(1);switchTab('world')">+ Add</button>
+      </div>
+    </div>`;
+  }
+
+  html+=`<div style="display:flex;gap:10px;justify-content:center;margin-top:24px">
+    <button class="btn btn-o" onclick="go(1)">← Adjust</button>
+    <button class="btn btn-p" onclick="startBuild()">✨ Build my feed</button>
+  </div>`;
+
+  el.innerHTML=html;
+}
+
+function rvGroup(cid,gid,label){
+  if(!rvData[cid]||!rvData[cid][gid])return'';
+  const items=rvData[cid][gid];
+  if(!items.length)return'';
+  return`<div class="rv-row">
+    <div class="rv-label">${label}</div>
+    <div class="rv-pills">
+      ${items.map(it=>`<span class="rv-pill" onclick="rvRm('${cid}','${gid}','${esc(it)}')">${it}<span class="rv-x">&times;</span></span>`).join('')}
+      <span class="rv-add-wrap" id="rw-${cid}-${gid}" style="display:none"><input class="add-inp" id="ri-${cid}-${gid}" placeholder="Add..." onkeydown="rvAddKey(event,'${cid}','${gid}')"></span>
+      <button class="rv-add" id="ra-${cid}-${gid}" onclick="rvShowAdd('${cid}','${gid}')">+ Add</button>
+    </div>
+  </div>`;
+}
+
+function rvRm(cid,gid,val){
+  rvData[cid][gid]=rvData[cid][gid].filter(v=>v!==val);
+  rvCustom[cid][gid]=(rvCustom[cid][gid]||[]).filter(v=>v!==val);
+  renderS3();
+}
+function rvShowAdd(cid,gid){
+  document.getElementById(`rw-${cid}-${gid}`).style.display='inline';
+  document.getElementById(`ra-${cid}-${gid}`).style.display='none';
+  document.getElementById(`ri-${cid}-${gid}`).focus();
+}
+function rvAddKey(e,cid,gid){
+  if(e.key==='Enter'&&e.target.value.trim()){
+    const v=e.target.value.trim();
+    if(!rvData[cid][gid].includes(v)){rvData[cid][gid].push(v);(rvCustom[cid][gid]=rvCustom[cid][gid]||[]).push(v);}
+    e.target.value='';renderS3();
+    setTimeout(()=>{const w=document.getElementById(`rw-${cid}-${gid}`);const a=document.getElementById(`ra-${cid}-${gid}`);const i=document.getElementById(`ri-${cid}-${gid}`);if(w)w.style.display='inline';if(a)a.style.display='none';if(i)i.focus();},50);
+  }else if(e.key==='Escape'){e.target.value='';e.target.parentElement.style.display='none';document.getElementById(`ra-${cid}-${gid}`).style.display='';}
+}
+function rmWorldRv(val){worldItems=worldItems.filter(v=>v!==val);renderS3();}
+
+// ═══ BUILD ═══
+function startBuild(){
+  const ftr=document.getElementById('ftr');ftr.classList.add('hidden');
+  const role=document.getElementById('in-role').value.trim();
+  const el=document.getElementById('s3-inner');
+  el.innerHTML=`<div class="ld-wrap">
+    <div class="ld-orb"></div>
+    <div class="ld-text">Building your feed...</div>
+    <div class="ld-sub">Configuring intelligence for <strong>${role}</strong></div>
+    <div class="ld-steps">
+      <div class="ls on" id="ls0"><div class="ls-dot"><div class="ls-spin"></div>${CHK}</div><span>Generating context</span></div>
+      <div class="ls" id="ls1"><div class="ls-dot"><div class="ls-spin"></div>${CHK}</div><span>Building categories</span></div>
+      <div class="ls" id="ls2"><div class="ls-dot"><div class="ls-spin"></div>${CHK}</div><span>Selecting sources & scoring</span></div>
+    </div>
+  </div>`;
+  // Scroll to top of slide
+  document.getElementById('s3').scrollTo(0,0);
+  let i=0;
+  const iv=setInterval(()=>{
+    if(i>0){document.getElementById('ls'+(i-1)).classList.remove('on');document.getElementById('ls'+(i-1)).classList.add('ok');}
+    if(i<3){document.getElementById('ls'+i).classList.add('on');i++;}
+    else{clearInterval(iv);setTimeout(showDone,400);}
+  },650);
+}
+
+function showDone(){
+  document.getElementById('s3-inner').innerHTML=`<div class="done-wrap">
+    <div class="done-circle">${CHK.replace('viewBox','width="28" height="28" stroke="#000" stroke-width="2.5" fill="none" viewBox')}</div>
+    <div class="done-t">Your feed is ready! 🎉</div>
+    <div class="done-s">Your intelligence sources are configured. Your dashboard will now show signals tailored to your career, finances, and interests.</div>
+    <button class="btn btn-p" onclick="closeModal()" style="padding:13px 32px;font-size:15px">Open Dashboard →</button>
+  </div>`;
+}
+
+// ═══ UTIL ═══
+function esc(s){return s.replace(/'/g,"\\'").replace(/"/g,'&quot;');}
+
+document.getElementById('in-role').addEventListener('input',chk);
+document.getElementById('in-loc').addEventListener('input',chk);
+function chk(){document.getElementById('gen-btn').disabled=!document.getElementById('in-role').value.trim()||!document.getElementById('in-loc').value.trim();}
+
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.getElementById('modal').classList.contains('open'))closeModal();});
+</script>
+</body>
+</html>
