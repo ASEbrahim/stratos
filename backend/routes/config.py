@@ -107,10 +107,14 @@ def handle_config_save(handler, strat, auth_helpers):
 
         # Market tickers
         if "market" in new_config and "tickers" in new_config["market"]:
+            if "market" not in config:
+                config["market"] = {}
             config["market"]["tickers"] = new_config["market"]["tickers"]
 
         # News config
         if "news" in new_config:
+            if "news" not in config:
+                config["news"] = {}
             nc = new_config["news"]
             for key in ["timelimit", "career", "finance", "tech_trends", "regional", "rss_feeds"]:
                 if key in nc:
