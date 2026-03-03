@@ -4,7 +4,7 @@
 > Loaded into Claude.ai Project Knowledge and Claude Code context.
 > **CLAUDE.md** = how to work here. **STATE.md** = what happened and why. **FRS** = what the system should be.
 
-Last updated: **2026-03-03** (session: auth isolation fixes, visual/UX polish, markets/charts overhaul)
+Last updated: **2026-03-03** (session: wizard redesign, tour overlay fix, OTP login, UX polish)
 
 ---
 
@@ -37,7 +37,8 @@ Last updated: **2026-03-03** (session: auth isolation fixes, visual/UX polish, m
 | Profile isolation | Blank config/data for profileless users | Prevents data bleed between accounts |
 | Per-request profile_id | `self._profile_id` on handler instance | Eliminates global `active_profile_id` race in ThreadingMixIn |
 | Cross-device UI sync | Theme, mode, stars persist to DB `ui_state` | 1.5s debounced sync, null-filtered, guard flag prevents loops |
-| Tour guide | Welcome modal + step tooltips | "Don't show again" persists via `stratos_tour_never` |
+| OTP login | Email code alternative to password | 5-digit code, 10-min expiry, 60s rate limit, DB `otp_codes` table |
+| Tour guide | CSS box-shadow spotlight overlay | Replaced SVG mask approach (fragile on some browsers) |
 | Guided Tours panel | Settings → System tab | Restart Onboarding + Explore Features buttons for mobile |
 
 ### Per-User Data Directory
@@ -125,6 +126,9 @@ data/users/{user_id}/
 - Moving averages update on live tick in focus mode via extracted `_fsRefreshMAs()`
 - Service Worker network-first: fresh code on every reload, cache fallback only when offline
 - Soft refresh on first scan complete: re-fetches config + rebuilds nav + loadNewData() instead of hard page reload
+- OTP login: email code as alternative to password (5-digit, 10-min expiry, rate-limited 60s cooldown)
+- Tour overlay: CSS box-shadow spotlight (replaced fragile SVG mask approach)
+- Wizard redesign: single-scroll accordion with left preview rail, no discrete steps, per-category Discover More, SVG progress ring, 75% popup with accent styling
 
 ### What's Broken / Needs Attention
 
@@ -166,6 +170,20 @@ data/users/{user_id}/
 ## 2. Decision Log
 
 > Append-only. Newest first. Each entry: WHAT was decided, WHY, and WHAT was rejected.
+
+### 2026-03-03
+
+**D048 — Single-scroll accordion wizard over 3-step carousel**
+3-step slide carousel felt disconnected — users lost context navigating between Priorities/Details/Review. Tab bar in Step 2 overflowed with many categories. Step 3 was a dead-end that duplicated information. Replaced with single-scroll layout: priorities grid at top, detail accordion sections below (auto-appear when subs selected), live preview rail on left. All content visible at once, no step confusion, no tab overflow.
+*Rejected:* Card composer with drag-and-drop (too complex for onboarding). Conversational chat wizard (fun but slow, hard to edit previous answers). Keeping 3-step with improvements (fundamental UX problem is the step isolation itself).
+
+**D049 — CSS box-shadow spotlight over SVG mask for tour overlay**
+SVG `<mask>` approach for tour spotlight cutout rendered as solid white sheet on some browsers (especially when mask element dimensions didn't match viewport). CSS `box-shadow: 0 0 0 9999px rgba(0,0,0,.72)` is universally supported, simpler (single div positioned over target), and performs better (no SVG recalculation on resize).
+*Rejected:* Keeping SVG mask with browser-specific fixes (fragile, more code). Canvas-based overlay (overkill for a spotlight effect).
+
+**D050 — OTP login as alternative to password, not replacement**
+Some users prefer passwordless login (especially on mobile). Added email code login alongside existing password login. Separate `otp_codes` DB table (not reusing verification codes table) to keep concerns separated. 60s rate limit prevents abuse. Auto-cleanup of expired codes on each request.
+*Rejected:* Replacing password login entirely (some users prefer passwords). Magic links (require URL routing that complicates the SPA). TOTP/authenticator app (requires QR code setup, too complex for current user base).
 
 ### 2026-03-02 (late)
 
@@ -504,6 +522,15 @@ Must delete `hf_device_map` and force `.to("cuda:0")` or gradient computation cr
 ## 4. Session Log
 
 > Most recent first. 3-5 lines per session.
+
+### 2026-03-03 — Wizard Redesign, Tour Fix, OTP Login, UX Polish (7 commits)
+**Commits:** 5c07663, 1b08ab1, 3982aaf, 4bc5181, 8766beb, dbd0769
+(1) **Wizard suggest timeout** — Increased Ollama timeout for wizard-preselect and wizard-tab-suggest endpoints from 60s to 240s to handle cold model loads.
+(2) **OTP login** — Added email code login as alternative to password. New `otp_codes` DB table (migration 009), `/api/request-otp` and `/api/verify-otp` endpoints. 5-digit code, 10-min expiry, 60s rate limit per email, auto-login on verify. Frontend: new "Login with Email Code" toggle on auth overlay.
+(3) **Tour overlay fix** — Replaced SVG `<mask>` spotlight cutout with CSS `box-shadow: 0 0 0 9999px` approach. SVG masks rendered as white sheet on some browsers. Updated `_injectOverlay()`, `_animateCutout()`, `_hideCutout()` in tour.js. Added `.tour-cutout-box` CSS in styles.css.
+(4) **Wizard subcategory validation** — Next button disabled unless at least one selected category has sub-topics chosen. Added hint text showing why button is disabled.
+(5) **Wizard full redesign** — Rewrote `frontend/wizard.js` from 3-step slide carousel to single-scroll accordion with left preview rail. Two-panel layout: 300px rail (live preview pills, per-category Discover More, deep/quick toggle, build button) + main scroll area (priorities card grid + detail accordion sections). Removed: step navigation (goTo/goNext/goBack), tab bar system, step dots. Added: SVG progress ring in header, `renderPriorities()`, `renderDetails()`, `renderRail()`, `updateRing()`, `renderAll()`. All backend API contracts preserved — no backend changes.
+(6) **Wizard styling polish** — Modal → 75% viewport popup (inset 5vh/6vw) with rounded corners, accent gradient top bar. SVG checkmark: white stroke on gradient accent circle. Quick Setup: moved from header to prominent in-grid button. Cards: stronger hover glow, active press scale, gradient overlay. Pills: gradient background, box-shadow glow. Detail sections: accent border when expanded. Build button: shimmer hover effect. Close button: red hover. Brand text: gradient accent. Progress ring: glow filter.
 
 ### 2026-03-02 — Markets/Charts: Timezone, Drawing Sync, Scroll/Zoom (10 commits)
 **Commits:** d0f2cab, 40f499c, 6235cb6, 2d16a97, e7a8867, 5fe9711, 67f8681, 3f237b6, 1e0b2f6, 25dcc3b
