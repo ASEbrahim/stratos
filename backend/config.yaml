@@ -2,33 +2,12 @@ cache:
   discovery_ttl_seconds: 3600
   market_ttl_seconds: 60
   news_ttl_seconds: 900
-custom_feeds_finance: []
-custom_feeds_politics: []
 discovery:
   auto_track: true
   baseline_window_hours: 168
   enabled: true
   min_mentions: 3
   rising_multiplier: 3.0
-market:
-  tickers: []
-  alert_threshold_percent: 5.0
-news:
-  timelimit: w
-  career:
-    root: global
-    keywords: []
-  finance:
-    root: kuwait
-    keywords: []
-  regional:
-    root: regional
-    keywords: []
-  tech_trends:
-    root: global
-    keywords: []
-    queries: []
-  rss_feeds: []
 schedule:
   background_enabled: false
   background_interval_minutes: 30
@@ -56,53 +35,163 @@ scoring:
     avg_cap: 60
   fallback_score: 3.0
 search:
-  google_api_key: REDACTED_GOOGLE_API_KEY
-  google_cx: 52d68e3fc17d74e9a
+  google_api_key: ${GOOGLE_API_KEY}
+  google_cx: ${GOOGLE_CSE_ID}
   provider: serper
-  serper_api_key: REDACTED_SERPER_KEY
-  serper_credits: 103
+  serper_api_key: ${SERPER_API_KEY}
+  serper_credits: 0
 system:
   database_file: strat_os.db
   frontend_port: 8080
   log_level: INFO
   max_news_items: 100
   output_file: output/news_data.json
+email:
+  smtp_host: smtp.gmail.com
+  smtp_port: 587
+  smtp_user: ${SMTP_USER}
+  smtp_password: ${SMTP_PASSWORD}
 profile:
-  role: ''
-  location: ''
-  context: ''
+  role: Game Developer
+  location: Kuwait
+  context: Game Developer in Kuwait focused on learning and development in game development,
+    tracking industry trends, tools, and employment opportunities.
   interests: []
-dynamic_categories: []
+market:
+  tickers:
+  - symbol: CL=F
+    name: Crude Oil
+  - symbol: GC=F
+    name: Gold
+  - symbol: XOM
+    name: ExxonMobil
+  - symbol: CVX
+    name: Chevron
+  - symbol: SLB
+    name: SLB
+news:
+  timelimit: w
+  career:
+    root: kuwait
+    keywords: []
+    queries: []
+  finance:
+    root: kuwait
+    keywords: []
+    queries: []
+  tech_trends:
+    root: global
+    keywords: []
+    queries: []
+  regional:
+    root: regional
+    keywords: []
+    queries: []
+dynamic_categories:
+- id: gamedev
+  label: Game Development Employers
+  icon: briefcase
+  items:
+  - Ubisoft Kuwait
+  - EA Sports
+  - Activision Blizzard
+  - Nexon
+  - Zynga
+  - Kuwait Game Studio
+  - Gameloft
+  - Nintendo Kuwait
+  enabled: true
+  scorer_type: career
+  root: kuwait
+- id: gametech
+  label: Game Tech & Tools
+  icon: cpu
+  items:
+  - Unity Engine
+  - Unreal Engine
+  - Godot
+  - VR development
+  - AI in games
+  - GameFi
+  - Cloud gaming
+  - Blockchain gaming
+  enabled: true
+  scorer_type: tech
+  root: global
+- id: learn
+  label: Learning & Certifications
+  icon: book-open
+  items:
+  - Unity Certified
+  - Unreal Engine certification
+  - GameDev courses
+  - Coursera game dev
+  - Udemy game dev
+  - GDC workshops
+  - Game jams Kuwait
+  - Game design bootcamps
+  enabled: false
+  scorer_type: career
+  root: kuwait
+- id: gamenews
+  label: Regional & Global Industry News
+  icon: globe
+  items:
+  - GDC Kuwait
+  - gamescom
+  - Kuwait gaming events
+  - Middle East game dev
+  - Global game trends
+  - Steam updates
+  - Indie game funding
+  - ESports Kuwait
+  enabled: false
+  scorer_type: regional
+  root: regional
+- id: trends
+  label: Game Development Trends
+  icon: target
+  items:
+  - Metaverse gaming
+  - AI NPCs
+  - 5G gaming
+  - VR/AR integration
+  - Cross-platform dev
+  - Game analytics
+  - Sustainability in games
+  enabled: false
+  scorer_type: tech
+  root: global
 extra_feeds_finance:
-  cnbc_top: true
-  cnbc_finance: true
-  marketwatch: true
+  cnbc_top: false
+  cnbc_finance: false
+  marketwatch: false
   mw_pulse: false
-  yahoo_fin: true
-  investing: true
-  ft: true
-  bloomberg: true
+  yahoo_fin: false
+  investing: false
+  ft: false
+  bloomberg: false
   wsj_world: false
   economist: false
   seekingalpha: false
   biz_insider: false
   coindesk: false
   cointelegraph: false
-  gn_kuwait_biz: true
+  gn_kuwait_biz: false
   gn_gcc_finance: false
   zawya: false
   arab_times_biz: false
-  boursa_kuwait: false
-  oilprice: false
+  boursa_kuwait: true
+  oilprice: true
   rigzone: false
 extra_feeds_politics:
-  bbc_world: true
-  bbc_mideast: true
+  bbc_world: false
+  bbc_mideast: false
   aljazeera: true
-  npr_world: true
-  nyt_world: true
-  nyt_mideast: true
-  wapo_world: true
+  npr_world: false
+  nyt_world: false
+  nyt_mideast: false
+  wapo_world: false
   wapo_politics: false
   cnn_world: false
   fox_world: false
@@ -110,9 +199,9 @@ extra_feeds_politics:
   dw: false
   france24: false
   gn_kuwait: true
-  arab_times: true
+  arab_times: false
   times_kuwait: false
-  gn_mideast: true
+  gn_mideast: false
   alarabiya: false
   middleeasteye: false
   newarab: false
@@ -120,8 +209,3 @@ extra_feeds_politics:
   nikkei_asia: false
 custom_feeds: []
 custom_tab_name: Custom
-email:
-  smtp_host: smtp.gmail.com
-  smtp_port: 587
-  smtp_user: REDACTED_SMTP_USER
-  smtp_password: REDACTED_SMTP_PASSWORD
