@@ -383,7 +383,7 @@ async function saveConfig() {
         
         const response = await fetch('/api/config', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json', 'X-Auth-Token': typeof getAuthToken === 'function' ? getAuthToken() : '' },
             signal: AbortSignal.timeout(15000),
             body: JSON.stringify(newConfig)
         });
@@ -2323,7 +2323,7 @@ async function saveTickers() {
     try {
         const resp = await fetch('/api/config', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json', 'X-Auth-Token': typeof getAuthToken === 'function' ? getAuthToken() : '' },
             signal: AbortSignal.timeout(15000),
             body: JSON.stringify({ tickers: [...simpleTickers] })
         });
@@ -2371,7 +2371,7 @@ async function saveSourceToggles(silent) {
     try {
         const resp = await fetch('/api/config', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json', 'X-Auth-Token': typeof getAuthToken === 'function' ? getAuthToken() : '' },
             signal: AbortSignal.timeout(15000),
             body: JSON.stringify({
                 extra_feeds_finance: financeToggles,
