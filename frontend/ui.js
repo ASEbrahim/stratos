@@ -670,13 +670,13 @@ function submitAI(idx) {
     .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
     .then(data => {
         if (data.error) {
-            answerEl.innerHTML = `<span class="text-red-400">Error: ${data.error}</span>`;
+            answerEl.innerHTML = `<span class="text-red-400">Error: ${esc(data.error)}</span>`;
         } else {
             answerEl.innerHTML = `<div class="text-slate-300 whitespace-pre-wrap">${esc(data.answer)}</div>`;
         }
     })
     .catch(err => {
-        answerEl.innerHTML = `<span class="text-red-400">Failed: ${err.message}</span>`;
+        answerEl.innerHTML = `<span class="text-red-400">Failed: ${esc(err.message)}</span>`;
     });
 }
 
@@ -734,11 +734,11 @@ function submitRating(idx) {
             const diff = userScore !== null ? ` (AI: ${(item.score||0).toFixed(1)} → You: ${userScore.toFixed(1)})` : '';
             statusEl.innerHTML = `<span class="text-emerald-400">✓ Saved${diff}</span>`;
         } else {
-            statusEl.innerHTML = `<span class="text-red-400">Error: ${data.error || 'unknown'}</span>`;
+            statusEl.innerHTML = `<span class="text-red-400">Error: ${esc(data.error || 'unknown')}</span>`;
         }
     })
     .catch(err => {
-        statusEl.innerHTML = `<span class="text-red-400">Failed: ${err.message}</span>`;
+        statusEl.innerHTML = `<span class="text-red-400">Failed: ${esc(err.message)}</span>`;
     });
 }
 
