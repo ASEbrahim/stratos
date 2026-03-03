@@ -141,6 +141,10 @@ class StratOS:
         self._profile_configs = {}           # name -> config snapshot
         self._config_lock = threading.Lock() # Serialize profile switches
 
+        # Output file lock — serializes JSON read-modify-write across scan,
+        # market refresh, and deferred briefing threads
+        self._output_lock = threading.Lock()
+
         # Deferred briefing thread tracking (BUG-2 fix)
         self._briefing_thread = None
         self._briefing_generation = 0
@@ -1239,14 +1243,16 @@ class StratOS:
                     return
                 # Save to DB
                 self.db.save_briefing(briefing, profile_id=profile_id)
-                # Patch the output file with the briefing
-                if self.output_file.exists():
-                    with open(self.output_file, "r") as f:
-                        output = json.load(f)
-                    output["briefing"] = briefing
-                    output["meta"]["critical_count"] = briefing.get("critical_count", 0)
-                    output["meta"]["high_count"] = briefing.get("high_count", 0)
-                    self._write_output(output, profile_id=profile_id)
+                # Patch the output file with the briefing (lock covers read-modify-write)
+                with self._output_lock:
+                    if self.output_file.exists():
+                        with open(self.output_file, "r") as f:
+                            output = json.load(f)
+                        output["briefing"] = briefing
+                        output["meta"]["critical_count"] = briefing.get("critical_count", 0)
+                        output["meta"]["high_count"] = briefing.get("high_count", 0)
+                        with open(self.output_file, "w") as f:
+                            json.dump(output, f, indent=2)
                 self.sse_broadcast("briefing_ready", {"status": "ready"})
                 logger.info("Deferred briefing: complete, output patched")
             except Exception as e:
@@ -1458,9 +1464,11 @@ class StratOS:
         }
 
     def _write_output(self, data: Dict[str, Any], profile_id: int = 0):
-        """Write output to JSON file and per-user daily article export."""
-        with open(self.output_file, "w") as f:
-            json.dump(data, f, indent=2)
+        """Write output to JSON file and per-user daily article export.
+        Thread-safe: serialized via _output_lock to prevent briefing/scan races."""
+        with self._output_lock:
+            with open(self.output_file, "w") as f:
+                json.dump(data, f, indent=2)
         logger.info(f"Output written to {self.output_file}")
 
         # Per-user daily article JSONL export
