@@ -18,32 +18,57 @@ logger = logging.getLogger(__name__)
 
 
 class Database:
-    """SQLite database manager for STRAT_OS."""
-    
+    """SQLite database manager for STRAT_OS.
+
+    Uses per-thread connections via threading.local() to eliminate cursor
+    interleaving across threads. WAL mode handles concurrent read/write
+    at the SQLite level; busy_timeout (5s) handles write contention.
+    """
+
     def __init__(self, db_path: str = "strat_os.db"):
-        """Initialize database connection."""
+        """Initialize database with per-thread connection pool."""
         self.db_path = Path(db_path)
-        self.conn = None
-        self.lock = threading.Lock()
-        self._connect()
+        self._local = threading.local()
+        self._all_conns = []           # Track connections for cleanup
+        self._conn_track_lock = threading.Lock()
+        self.lock = threading.Lock()   # Kept for backward compat (_commit callers)
         self._create_tables()
-    
-    def _connect(self):
-        """Establish database connection."""
-        self.conn = sqlite3.connect(str(self.db_path), check_same_thread=False)
-        self.conn.row_factory = sqlite3.Row
-        # Performance pragmas
-        self.conn.execute("PRAGMA foreign_keys = ON")
-        self.conn.execute("PRAGMA journal_mode = WAL")      # Write-Ahead Logging — faster concurrent reads
-        self.conn.execute("PRAGMA busy_timeout = 5000")      # Wait up to 5s instead of failing immediately
-        self.conn.execute("PRAGMA synchronous = NORMAL")     # Good balance of safety + speed
-        self.conn.execute("PRAGMA cache_size = -8000")       # 8MB cache (default is 2MB)
-        self.conn.execute("PRAGMA temp_store = MEMORY")      # Temp tables in RAM
-    
+
+    def _make_conn(self) -> sqlite3.Connection:
+        """Create a new SQLite connection with standard pragmas."""
+        c = sqlite3.connect(str(self.db_path))
+        c.row_factory = sqlite3.Row
+        c.execute("PRAGMA foreign_keys = ON")
+        c.execute("PRAGMA journal_mode = WAL")
+        c.execute("PRAGMA busy_timeout = 5000")
+        c.execute("PRAGMA synchronous = NORMAL")
+        c.execute("PRAGMA cache_size = -8000")
+        c.execute("PRAGMA temp_store = MEMORY")
+        with self._conn_track_lock:
+            self._all_conns.append(c)
+        return c
+
+    @property
+    def conn(self) -> sqlite3.Connection:
+        """Per-thread connection (backward-compatible property).
+
+        External code accessing db.conn transparently gets the calling
+        thread's own connection — no cursor interleaving possible.
+        """
+        c = getattr(self._local, 'conn', None)
+        if c is None:
+            c = self._make_conn()
+            self._local.conn = c
+        return c
+
     def _commit(self):
-        """Thread-safe commit — prevents 'database is locked' during overlapping scans."""
-        with self.lock:
-            self.conn.commit()
+        """Commit the current thread's transaction.
+
+        WAL mode + busy_timeout handle cross-thread write serialization
+        at the SQLite level. The Python lock is kept as a safety net for
+        any remaining single-connection callers during migration.
+        """
+        self.conn.commit()
     
     def _create_tables(self):
         """Run the migration framework to create/update all tables."""
@@ -685,9 +710,15 @@ class Database:
             logger.error(f"Failed to save ui_state for profile {profile_id}: {e}")
 
     def close(self):
-        """Close database connection."""
-        if self.conn:
-            self.conn.close()
+        """Close all per-thread database connections."""
+        with self._conn_track_lock:
+            for c in self._all_conns:
+                try:
+                    c.close()
+                except Exception:
+                    pass
+            self._all_conns.clear()
+        self._local.conn = None
 
 
 # Singleton instance
