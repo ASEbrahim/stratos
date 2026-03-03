@@ -129,7 +129,7 @@ function toggleSerperKeyLock() {
         input.readOnly = true;
         input.type = 'password';
         _serperKeyUnlocked = false;
-        lockBtn.title = 'Click to unlock (PIN required)';
+        lockBtn.title = 'Click to unlock';
         lockBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>';
         lockBtn.classList.remove('text-emerald-400/60');
         lockBtn.classList.add('text-amber-400/60');
@@ -137,24 +137,18 @@ function toggleSerperKeyLock() {
         return;
     }
 
-    // Prompt for PIN
-    const pin = prompt('Enter PIN to unlock API key:');
-    if (pin === null) return; // cancelled
-    if (pin.trim() === '5080') {
-        input.readOnly = false;
-        input.type = 'text';
-        _serperKeyUnlocked = true;
-        lockBtn.title = 'Click to re-lock';
-        lockBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 017 0"/></svg>';
-        lockBtn.classList.remove('text-amber-400/60');
-        lockBtn.classList.add('text-emerald-400/60');
-        if (saveBtn) saveBtn.classList.remove('hidden');
-        // Clear the masked value so the user starts fresh
-        input.value = '';
-        input.focus();
-    } else {
-        if (typeof showToast === 'function') showToast('Incorrect PIN', 'error');
-    }
+    // Direct unlock — no PIN gate (key is already masked server-side)
+    input.readOnly = false;
+    input.type = 'text';
+    _serperKeyUnlocked = true;
+    lockBtn.title = 'Click to re-lock';
+    lockBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 017 0"/></svg>';
+    lockBtn.classList.remove('text-amber-400/60');
+    lockBtn.classList.add('text-emerald-400/60');
+    if (saveBtn) saveBtn.classList.remove('hidden');
+    // Clear the masked value so the user starts fresh
+    input.value = '';
+    input.focus();
 }
 
 async function saveSerperKey() {
