@@ -1512,7 +1512,7 @@ async function checkStatus() {
             // Update progress bar from polling data (mirrors SSE _handleSSEScan two-phase logic)
             var pollPct = 0;
             var st = status.stage;
-            var pollIsFetch = ['starting', 'market', 'news'].includes(st);
+            var pollIsFetch = ['starting', 'market', 'news', 'news_done'].includes(st);
             var pollIsScore = ['scoring', 'scoring_pass2', 'discovery', 'briefing'].includes(st);
 
             if (pollIsScore && _scanPhase === 'fetch') _resetBarForPhase('score');
@@ -1522,6 +1522,7 @@ async function checkStatus() {
                 if (st === 'starting') pollPct = 10;
                 else if (st === 'market') pollPct = 45;
                 else if (st === 'news') pollPct = 75;
+                else if (st === 'news_done') pollPct = 100;
             } else if (pollIsScore) {
                 if (st === 'scoring' && status.scored >= 0 && status.total > 0) pollPct = (status.scored / status.total) * 80;
                 else if (st === 'scoring') pollPct = 2;
@@ -1537,6 +1538,7 @@ async function checkStatus() {
             if (st === 'starting') pollTitle = 'Initializing scan...';
             else if (st === 'market') pollTitle = 'Fetching market data...';
             else if (st === 'news') pollTitle = 'Fetching news articles...';
+            else if (st === 'news_done') pollTitle = 'Articles fetched!';
             else if (st === 'scoring') pollTitle = 'Scoring with AI...';
             else if (st === 'scoring_pass2') pollTitle = 'Re-scoring deferred articles...';
             else if (st === 'discovery') pollTitle = 'Running discovery...';
