@@ -606,13 +606,13 @@ function renderPresetBar() {
     menuHtml = '<div class="preset-empty">No saved profiles</div>';
   }
 
-  el.innerHTML = `<div class="preset-dd">
+  el.innerHTML = `
+    <button class="preset-save-btn-hdr" onclick="_wiz.savePreset()">Save Profile</button>
     <button class="preset-btn ${_presetMenuOpen ? 'open' : ''}" onclick="_wiz.togglePresetMenu()">
-      <span class="preset-name">${hasPresets ? `\uD83D\uDCC2 ${names.length} saved profile${names.length > 1 ? 's' : ''}` : '\uD83D\uDCC2 No saved profiles'}</span>
+      <span class="preset-name">${hasPresets ? `${names.length} saved` : 'Profiles'}</span>
       <span class="preset-chev">\u25BC</span>
     </button>
-    <div class="preset-menu ${_presetMenuOpen ? 'open' : ''}">${menuHtml}</div>
-  </div>`;
+    <div class="preset-menu ${_presetMenuOpen ? 'open' : ''}">${menuHtml}</div>`;
 }
 
 function initState() {
@@ -662,21 +662,19 @@ function initState() {
 
 
 const WIZ_CSS = `
-/* === Variables: hardcoded from preview-final.html (self-contained) === */
+/* === Variables: inherit from dashboard theme, fallback to defaults === */
 .wiz-scope {
-  --bg: #080d18;
-  --bg-primary: #0c1222;
-  --bg-card: #131b2e;
-  --bg-card-hover: #1a2640;
-  --accent: #34d399;
-  --accent2: #38bdf8;
-  --accent-light: #6ee7b7;
-  --accent-dim: rgba(52,211,153,0.1);
-  --accent-glow: rgba(52,211,153,0.2);
-  --text: #f8fafc;
-  --text2: #94a3b8;
-  --text3: #64748b;
-  --brd: rgba(255,255,255,0.06);
+  --bg: var(--bg-primary, #080d18);
+  --bg-primary: var(--bg-primary, #0c1222);
+  --bg-card: var(--bg-panel-solid, #131b2e);
+  --bg-card-hover: var(--bg-hover, #1a2640);
+  --accent2: var(--accent-light, #38bdf8);
+  --accent-dim: var(--accent-bg, rgba(52,211,153,0.1));
+  --accent-glow: var(--accent-border, rgba(52,211,153,0.2));
+  --text: var(--text-primary, #f8fafc);
+  --text2: var(--text-secondary, #94a3b8);
+  --text3: var(--text-muted, #64748b);
+  --brd: var(--border-color, rgba(255,255,255,0.06));
   font-family: system-ui, -apple-system, sans-serif;
   color: var(--text);
 }
@@ -689,28 +687,28 @@ const WIZ_CSS = `
 .wiz-scope[data-wiz-atmos="deep"] .p-card { border-color:rgba(255,255,255,0.03); }
 .wiz-scope[data-wiz-atmos="deep"] .p-card.sel { box-shadow:0 0 0 1px var(--accent-glow),0 8px 40px rgba(0,0,0,0.5); }
 .wiz-scope[data-wiz-atmos="deep"] .accordion { border-color:rgba(255,255,255,0.03); }
-.wiz-scope[data-wiz-atmos="deep"] .build-btn { box-shadow:0 8px 40px rgba(52,211,153,0.3),0 0 0 1px rgba(52,211,153,0.4); }
+.wiz-scope[data-wiz-atmos="deep"] .build-btn { box-shadow:0 8px 40px var(--accent-glow),0 0 0 1px var(--accent-glow); }
 
 /* ── Atmosphere: Arcane ── */
 .wiz-scope[data-wiz-atmos="arcane"] { --bg:#050510;--bg-primary:#08081a;--bg-card:rgba(255,255,255,0.035);--bg-card-hover:rgba(255,255,255,0.06);--brd:rgba(255,255,255,0.05); }
-.wiz-scope[data-wiz-atmos="arcane"] .modal { background:#08081a;box-shadow:0 32px 80px rgba(0,0,0,0.8),0 0 0 1px rgba(52,211,153,0.08);overflow:hidden; }
+.wiz-scope[data-wiz-atmos="arcane"] .modal { background:#08081a;box-shadow:0 32px 80px rgba(0,0,0,0.8),0 0 0 1px var(--accent-dim);overflow:hidden; }
 .wiz-scope[data-wiz-atmos="arcane"] .wiz-stars-canvas { display:block; }
-.wiz-scope[data-wiz-atmos="arcane"] .grad-bar { height:3px;background:linear-gradient(90deg,var(--accent),var(--accent2),#a78bfa,var(--accent));background-size:300% 100%;animation:wizBarShift 6s ease infinite; }
+.wiz-scope[data-wiz-atmos="arcane"] .grad-bar { height:3px;background:linear-gradient(90deg,var(--accent),var(--accent2),var(--accent-light),var(--accent));background-size:300% 100%;animation:wizBarShift 6s ease infinite; }
 .wiz-scope[data-wiz-atmos="arcane"] .rail { background:rgba(8,8,26,0.7);backdrop-filter:blur(16px); }
 .wiz-scope[data-wiz-atmos="arcane"] .p-card { backdrop-filter:blur(8px);background:rgba(255,255,255,0.03);border-color:rgba(255,255,255,0.05); }
-.wiz-scope[data-wiz-atmos="arcane"] .p-card:hover { box-shadow:0 20px 50px rgba(0,0,0,0.4),0 0 20px rgba(52,211,153,0.05); }
-.wiz-scope[data-wiz-atmos="arcane"] .p-card.sel { box-shadow:0 0 0 1px var(--accent-glow),0 0 30px rgba(52,211,153,0.08),0 8px 40px rgba(0,0,0,0.4); }
+.wiz-scope[data-wiz-atmos="arcane"] .p-card:hover { box-shadow:0 20px 50px rgba(0,0,0,0.4),0 0 20px var(--accent-dim); }
+.wiz-scope[data-wiz-atmos="arcane"] .p-card.sel { box-shadow:0 0 0 1px var(--accent-glow),0 0 30px var(--accent-dim),0 8px 40px rgba(0,0,0,0.4); }
 .wiz-scope[data-wiz-atmos="arcane"] .accordion { backdrop-filter:blur(8px);background:rgba(255,255,255,0.025); }
-.wiz-scope[data-wiz-atmos="arcane"] .build-btn { box-shadow:0 8px 40px rgba(52,211,153,0.3),0 0 20px rgba(52,211,153,0.15),0 0 0 1px rgba(52,211,153,0.4); }
-.wiz-scope[data-wiz-atmos="arcane"] .hdr-logo { filter:drop-shadow(0 0 8px rgba(52,211,153,0.3)); }
-.wiz-scope[data-wiz-atmos="arcane"] .ring-fg { filter:drop-shadow(0 0 4px rgba(52,211,153,0.4)); }
+.wiz-scope[data-wiz-atmos="arcane"] .build-btn { box-shadow:0 8px 40px var(--accent-glow),0 0 20px var(--accent-dim),0 0 0 1px var(--accent-glow); }
+.wiz-scope[data-wiz-atmos="arcane"] .hdr-logo { filter:drop-shadow(0 0 8px var(--accent-glow)); }
+.wiz-scope[data-wiz-atmos="arcane"] .ring-fg { filter:drop-shadow(0 0 4px var(--accent-glow)); }
 
 /* ── Backdrop ── */
 .wiz-scope .backdrop { position:fixed;inset:0;background:rgba(0,0,0,0.65);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:9998;opacity:0;transition:opacity .35s;pointer-events:none; }
 .wiz-scope .backdrop.open { opacity:1;pointer-events:auto; }
 
 /* ── Modal ── */
-.wiz-scope .modal { position:fixed;inset:2vh 3vw;background:var(--bg-primary);border-radius:18px;z-index:9999;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 32px 80px rgba(0,0,0,0.6),0 0 0 1px var(--brd);opacity:0;transform:scale(.94) translateY(16px);transition:opacity .4s cubic-bezier(.22,1,.36,1),transform .4s cubic-bezier(.22,1,.36,1);pointer-events:none; }
+.wiz-scope .modal { position:fixed;inset:2vh 3vw;background:var(--bg-primary);border-radius:18px;z-index:9999;display:flex;flex-direction:column;overflow:clip;box-shadow:0 32px 80px rgba(0,0,0,0.6),0 0 0 1px var(--brd);opacity:0;transform:scale(.94) translateY(16px);transition:opacity .4s cubic-bezier(.22,1,.36,1),transform .4s cubic-bezier(.22,1,.36,1);pointer-events:none; }
 .wiz-scope .modal.open { opacity:1;transform:none;pointer-events:auto; }
 .wiz-scope .modal::after { content:'';position:absolute;inset:0;opacity:0.03;pointer-events:none;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='.8'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");z-index:0; }
 .wiz-scope .modal > *:not(.wiz-stars-canvas) { position:relative;z-index:1; }
@@ -724,7 +722,7 @@ const WIZ_CSS = `
 .wiz-scope .hdr-logo { font-size:22px;font-weight:800;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:-0.5px; }
 .wiz-scope .hdr-sub { font-size:13px;color:var(--text3);font-weight:500;margin-left:4px; }
 .wiz-scope .hdr-badges { display:flex;gap:8px;margin-left:8px;align-items:center; }
-.wiz-scope .badge { font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;padding:4px 10px;border-radius:6px;background:var(--accent-dim);color:var(--accent);border:1px solid rgba(52,211,153,0.15); }
+.wiz-scope .badge { font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;padding:4px 10px;border-radius:6px;background:var(--accent-dim);color:var(--accent);border:1px solid var(--accent-glow); }
 .wiz-scope .badge.blue { background:rgba(56,189,248,0.1);color:var(--accent2);border-color:rgba(56,189,248,0.15); }
 
 /* ── Atmosphere Selector ── */
@@ -748,7 +746,7 @@ const WIZ_CSS = `
 .wiz-scope .close-btn:hover { background:rgba(255,255,255,0.05);color:var(--text); }
 
 /* ── Body Layout ── */
-.wiz-scope .body { display:flex;flex:1;overflow:hidden; }
+.wiz-scope .body { display:flex;flex:1;min-height:0; }
 
 /* ── Left Rail ── */
 .wiz-scope .rail { width:290px;min-width:290px;background:color-mix(in srgb,var(--bg-card) 60%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-right:1px solid var(--brd);display:flex;flex-direction:column;overflow:hidden;flex-shrink:0; }
@@ -793,9 +791,10 @@ const WIZ_CSS = `
 /* ── Rail AI Suggestions ── */
 .wiz-scope .rail-ai-hdr { display:flex;align-items:center;gap:6px;padding:8px 0 4px 16px;margin-left:16px;padding-left:14px;font-size:11px;font-weight:600;color:var(--accent);letter-spacing:0.3px; }
 .wiz-scope .rail-suggestions { display:flex;flex-wrap:wrap;gap:5px;margin-left:16px;padding-left:14px;border-left:1px solid var(--brd);padding-bottom:4px; }
-.wiz-scope .sug-pill { font-size:11px;padding:4px 10px;border-radius:20px;border:1px dashed rgba(52,211,153,0.3);background:transparent;color:var(--accent-light);cursor:pointer;transition:all 0.2s;white-space:nowrap; }
-.wiz-scope .sug-pill:hover { border-color:var(--accent);background:rgba(52,211,153,0.08);box-shadow:0 0 12px rgba(52,211,153,0.12); }
-.wiz-scope .sug-pill.added { opacity:.35;border-style:solid;pointer-events:none; }
+.wiz-scope .sug-pill { font-size:11px;padding:4px 10px;border-radius:20px;border:1px dashed var(--accent-glow);background:transparent;color:var(--accent-light);cursor:pointer;transition:all 0.2s;white-space:nowrap; }
+.wiz-scope .sug-pill:hover { border-color:var(--accent);background:var(--accent-dim);box-shadow:0 0 12px var(--accent-dim); }
+.wiz-scope .sug-pill.added { opacity:.55;border-style:solid;cursor:pointer; }
+.wiz-scope .sug-pill.added:hover { opacity:.8;background:rgba(255,60,60,0.06); }
 
 /* ── Discover pills ── */
 .wiz-scope .rail-discover-hdr { display:flex;align-items:center;gap:6px;padding:6px 0 4px 16px;margin-left:16px;padding-left:14px;font-size:11px;font-weight:600;color:var(--accent2);letter-spacing:0.3px; }
@@ -822,11 +821,11 @@ const WIZ_CSS = `
 /* ── Depth Toggle ── */
 .wiz-scope .depth-toggle { display:flex;background:rgba(255,255,255,0.04);border-radius:12px;padding:4px;border:1px solid var(--brd);cursor:pointer; }
 .wiz-scope .depth-opt { flex:1;text-align:center;padding:7px;font-size:12px;font-weight:700;color:var(--text3);border-radius:9px;transition:all 0.25s;z-index:1;display:flex;align-items:center;justify-content:center;gap:5px; }
-.wiz-scope .depth-opt.active { color:var(--text);background:rgba(52,211,153,0.12);box-shadow:0 2px 8px rgba(52,211,153,0.1); }
+.wiz-scope .depth-opt.active { color:var(--text);background:var(--accent-dim);box-shadow:0 2px 8px var(--accent-dim); }
 
 /* ── Build Button ── */
-.wiz-scope .build-btn { position:relative;width:100%;padding:14px 24px;border:none;border-radius:14px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#0c1222;font-size:15px;font-weight:800;letter-spacing:0.3px;cursor:pointer;overflow:hidden;box-shadow:0 8px 32px rgba(52,211,153,0.25),0 0 0 1px rgba(52,211,153,0.3);transition:all 0.25s; }
-.wiz-scope .build-btn:hover:not(:disabled) { transform:translateY(-2px);box-shadow:0 12px 40px rgba(52,211,153,0.35),0 0 0 1px rgba(52,211,153,0.4); }
+.wiz-scope .build-btn { position:relative;width:100%;padding:14px 24px;border:none;border-radius:14px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#0c1222;font-size:15px;font-weight:800;letter-spacing:0.3px;cursor:pointer;overflow:hidden;box-shadow:0 8px 32px var(--accent-glow),0 0 0 1px var(--accent-glow);transition:all 0.25s; }
+.wiz-scope .build-btn:hover:not(:disabled) { transform:translateY(-2px);box-shadow:0 12px 40px var(--accent-glow),0 0 0 1px var(--accent-glow); }
 .wiz-scope .build-btn:active:not(:disabled) { transform:translateY(0) scale(.98); }
 .wiz-scope .build-btn:disabled { opacity:.3;cursor:not-allowed;transform:none;box-shadow:none; }
 .wiz-scope .build-btn::after { content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.15),transparent);background-size:200% 100%;animation:wizShimmer2 2.5s infinite;border-radius:inherit; }
@@ -839,14 +838,14 @@ const WIZ_CSS = `
 .wiz-scope .main::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.08);border-radius:4px; }
 
 /* ── Step Progress Bar ── */
-.wiz-scope .steps-bar { display:flex;align-items:center;margin-bottom:32px; }
-.wiz-scope .step-num-circle { width:34px;height:34px;display:flex;align-items:center;justify-content:center;border-radius:50%;font-size:13px;font-weight:700;border:2px solid var(--brd);color:var(--text3);transition:all 0.2s;flex-shrink:0; }
-.wiz-scope .step-num-circle.done { border-color:var(--accent);background:var(--accent);color:#0c1222; }
-.wiz-scope .step-num-circle.active { border-color:var(--accent);color:var(--accent);background:var(--accent-dim); }
-.wiz-scope .step-bar-label { font-size:12px;font-weight:600;color:var(--text3);margin-left:8px;white-space:nowrap; }
+.wiz-scope .steps-bar { display:flex!important;align-items:center!important;margin-bottom:32px;height:auto!important;max-height:50px!important;line-height:1!important; }
+.wiz-scope .step-num-circle { width:34px!important;height:34px!important;min-width:34px!important;max-width:34px!important;min-height:34px!important;max-height:34px!important;display:flex!important;align-items:center!important;justify-content:center!important;border-radius:50%!important;font-size:13px!important;font-weight:700;border:2px solid var(--brd)!important;color:var(--text3);transition:all 0.2s;flex-shrink:0;line-height:1!important;padding:0!important; }
+.wiz-scope .step-num-circle.done { border-color:var(--accent)!important;background:var(--accent)!important;color:#0c1222!important; }
+.wiz-scope .step-num-circle.active { border-color:var(--accent)!important;color:var(--accent)!important;background:var(--accent-dim)!important; }
+.wiz-scope .step-bar-label { font-size:12px!important;font-weight:600;color:var(--text3);margin-left:8px;white-space:nowrap;line-height:1!important; }
 .wiz-scope .step-bar-label.active { color:var(--text); }
-.wiz-scope .step-line { flex:1;height:2px;background:var(--brd);margin:0 14px; }
-.wiz-scope .step-line.done { background:linear-gradient(90deg,var(--accent),var(--accent2)); }
+.wiz-scope .step-line { flex:1;height:2px!important;max-height:2px!important;min-height:2px!important;background:var(--brd);margin:0 14px;border:none!important;padding:0!important; }
+.wiz-scope .step-line.done { background:linear-gradient(90deg,var(--accent),var(--accent2))!important; }
 
 /* ── Section Headers ── */
 .wiz-scope .sec-title { font-size:22px;font-weight:800;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:6px; }
@@ -867,8 +866,8 @@ const WIZ_CSS = `
 @keyframes wizCardEntry { from { opacity:0;transform:translateY(20px) scale(0.96); } to { opacity:1;transform:translateY(0) scale(1); } }
 .wiz-scope .p-card:hover { background:var(--bg-card-hover);transform:translateY(-6px);box-shadow:0 20px 40px rgba(0,0,0,0.3); }
 .wiz-scope .p-card:active { transform:translateY(-1px) scale(.98);transition-duration:.1s; }
-.wiz-scope .p-card.sel { border-color:var(--accent);box-shadow:0 0 0 1px rgba(52,211,153,0.15),0 8px 32px rgba(52,211,153,0.1); }
-.wiz-scope .p-card.sel::before { content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(52,211,153,0.08),rgba(56,189,248,0.05));border-radius:inherit;pointer-events:none; }
+.wiz-scope .p-card.sel { border-color:var(--accent);box-shadow:0 0 0 1px var(--accent-glow),0 8px 32px var(--accent-dim); }
+.wiz-scope .p-card.sel::before { content:'';position:absolute;inset:0;background:linear-gradient(135deg,var(--accent-dim),rgba(255,255,255,0.02));border-radius:inherit;pointer-events:none; }
 
 /* ── Card icon ── */
 .wiz-scope .card-icon { width:52px;height:52px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:16px;position:relative; }
@@ -889,7 +888,7 @@ const WIZ_CSS = `
 /* ── Card sub-pills (expand on select) ── */
 .wiz-scope .card-pills { display:flex;flex-wrap:wrap;gap:6px;margin-top:14px;max-height:0;overflow:hidden;transition:max-height 0.4s ease; }
 .wiz-scope .p-card.sel .card-pills { max-height:200px; }
-.wiz-scope .card-pill { font-size:11px;padding:4px 10px;border-radius:20px;background:rgba(52,211,153,0.1);color:var(--accent-light);border:1px solid rgba(52,211,153,0.15);font-weight:600; }
+.wiz-scope .card-pill { font-size:11px;padding:4px 10px;border-radius:20px;background:var(--accent-dim);color:var(--accent-light);border:1px solid var(--accent-glow);font-weight:600; }
 .wiz-scope .card-pill-x { margin-left:4px;cursor:pointer;opacity:.6; }
 .wiz-scope .card-pill-x:hover { opacity:1; }
 .wiz-scope .card-pill.sp-add { border-style:dashed;background:transparent;cursor:pointer; }
@@ -900,7 +899,7 @@ const WIZ_CSS = `
 
 /* ── Accordions ── */
 .wiz-scope .accordion { margin-bottom:12px;border-radius:14px;border:1px solid var(--brd);overflow:hidden;background:var(--bg-card);transition:border-color 0.2s; }
-.wiz-scope .accordion.open { border-color:rgba(52,211,153,0.15); }
+.wiz-scope .accordion.open { border-color:var(--accent-glow); }
 .wiz-scope .acc-header { display:flex;align-items:center;gap:12px;padding:16px 24px;cursor:pointer;transition:background 0.15s;user-select:none; }
 .wiz-scope .acc-header:hover { background:rgba(255,255,255,0.02); }
 .wiz-scope .acc-icon { width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:17px; }
@@ -924,7 +923,7 @@ const WIZ_CSS = `
 .wiz-scope .acc-pill { font-size:13px;font-weight:600;padding:7px 16px;border-radius:24px;background:rgba(255,255,255,0.04);border:1.5px solid var(--brd);color:var(--text2);cursor:pointer;transition:all 0.2s;position:relative;user-select:none; }
 .wiz-scope .acc-pill:hover { background:rgba(255,255,255,0.07);border-color:rgba(255,255,255,0.12);color:var(--text); }
 .wiz-scope .acc-pill:active { transform:scale(.95); }
-.wiz-scope .acc-pill.on { background:linear-gradient(135deg,rgba(52,211,153,0.15),rgba(56,189,248,0.1));border-color:var(--accent);color:var(--accent-light);animation:wizPillPop 0.3s cubic-bezier(0.34,1.56,0.64,1); }
+.wiz-scope .acc-pill.on { background:var(--accent-dim);border-color:var(--accent);color:var(--accent-light);animation:wizPillPop 0.3s cubic-bezier(0.34,1.56,0.64,1); }
 @keyframes wizPillPop { 0% { transform:scale(0.85); } 60% { transform:scale(1.05); } 100% { transform:scale(1); } }
 .wiz-scope .acc-pill.on::after { content:'\\2713';margin-left:6px;font-size:11px; }
 .wiz-scope .acc-pill.pill-decisive { border-width:2px;border-color:var(--accent-glow); }
@@ -932,8 +931,8 @@ const WIZ_CSS = `
 .wiz-scope .acc-pill.pill-sug { border-style:dashed;color:var(--accent-light);border-color:var(--accent-glow); }
 .wiz-scope .acc-pill .pill-x { margin-left:4px;cursor:pointer;opacity:.6; }
 .wiz-scope .acc-pill .pill-x:hover { opacity:1; }
-.wiz-scope .add-pill { font-size:13px;font-weight:600;padding:7px 16px;border-radius:24px;background:transparent;border:1.5px dashed rgba(52,211,153,0.3);color:var(--accent);cursor:pointer;transition:all 0.2s; }
-.wiz-scope .add-pill:hover { background:rgba(52,211,153,0.06);border-color:var(--accent); }
+.wiz-scope .add-pill { font-size:13px;font-weight:600;padding:7px 16px;border-radius:24px;background:transparent;border:1.5px dashed var(--accent-glow);color:var(--accent);cursor:pointer;transition:all 0.2s; }
+.wiz-scope .add-pill:hover { background:var(--accent-dim);border-color:var(--accent); }
 .wiz-scope .add-inp { border:1px solid var(--accent-glow);background:var(--bg-card);color:var(--text);padding:6px 12px;border-radius:24px;font-size:13px;outline:none;width:140px; }
 .wiz-scope .s2-hint { font-weight:400;color:var(--text3);font-size:12px; }
 
@@ -953,7 +952,10 @@ const WIZ_CSS = `
 .wiz-scope .ai-sug-spin { width:14px;height:14px;border:2px solid var(--accent-glow);border-top-color:var(--accent);border-radius:50%;animation:wizSpin .8s linear infinite; }
 .wiz-scope .ai-sug-pill { display:inline-flex;align-items:center;padding:5px 12px;border-radius:16px;font-size:12px;cursor:pointer;border:1px dashed var(--accent-glow);color:var(--accent-light);margin:3px;transition:all 0.2s; }
 .wiz-scope .ai-sug-pill:hover { background:var(--accent-dim);border-style:solid; }
-.wiz-scope .ai-sug-pill.added { opacity:.5;border-style:solid;cursor:default; }
+.wiz-scope .ai-sug-pill.added { opacity:.55;border-style:solid;border-color:var(--accent-glow);cursor:pointer; }
+.wiz-scope .ai-sug-pill.added:hover { opacity:.8;background:rgba(255,60,60,0.06); }
+.wiz-scope .ai-sug-pill .sug-x { margin-left:5px;font-size:11px;opacity:.5;cursor:pointer; }
+.wiz-scope .ai-sug-pill .sug-x:hover { opacity:1;color:#ff6b6b; }
 .wiz-scope .ai-sug-pill.shimmer { width:80px;height:28px;background:linear-gradient(90deg,var(--bg-card) 25%,var(--accent-dim) 50%,var(--bg-card) 75%);background-size:200% 100%;animation:wizShimmer 1.5s infinite;border:none;border-radius:16px; }
 .wiz-scope .ai-ref { background:none;border:none;color:var(--accent-light);cursor:pointer;font-size:16px;padding:2px 4px;border-radius:6px;transition:background 0.2s; }
 .wiz-scope .ai-ref:hover { background:var(--accent-dim); }
@@ -973,9 +975,22 @@ const WIZ_CSS = `
 .wiz-scope .quick-setup-sub { font-size:11px;font-weight:400;opacity:.7; }
 
 /* ── Presets ── */
-.wiz-scope .preset-dd { position:relative;display:inline-block; }
+.wiz-scope .preset-dd { position:relative;display:inline-flex;align-items:center;gap:6px; }
+.wiz-scope .preset-btn { padding:5px 12px;border-radius:8px;border:1px solid var(--brd);background:rgba(255,255,255,0.03);color:var(--text2);font-size:12px;font-weight:600;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;gap:6px;white-space:nowrap; }
+.wiz-scope .preset-btn:hover { background:rgba(255,255,255,0.06);color:var(--text); }
+.wiz-scope .preset-btn.open { background:rgba(255,255,255,0.06);color:var(--text); }
+.wiz-scope .preset-chev { font-size:9px;transition:transform 0.2s; }
+.wiz-scope .preset-btn.open .preset-chev { transform:rotate(180deg); }
+.wiz-scope .preset-save-btn-hdr { padding:5px 12px;border-radius:8px;border:1px solid var(--accent-glow);background:var(--accent-dim);color:var(--accent-light);font-size:12px;font-weight:600;cursor:pointer;transition:all 0.2s;white-space:nowrap; }
+.wiz-scope .preset-save-btn-hdr:hover { background:var(--accent-glow);color:var(--text); }
+.wiz-scope .preset-item-name { flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap; }
+.wiz-scope .preset-item-date { font-size:10px;color:var(--text3); }
+.wiz-scope .preset-del { background:none;border:none;color:var(--text3);font-size:14px;cursor:pointer;padding:0 2px;opacity:0;transition:opacity 0.15s; }
+.wiz-scope .preset-item:hover .preset-del { opacity:1; }
+.wiz-scope .preset-del:hover { color:#ff6b6b; }
+.wiz-scope .preset-empty { padding:12px 16px;font-size:12px;color:var(--text3);text-align:center;font-style:italic; }
 .wiz-scope .preset-dd .preset-menu { position:absolute;top:calc(100% + 6px);right:0;min-width:220px;background:var(--bg-card);border:1px solid var(--brd);border-radius:14px;box-shadow:0 8px 32px rgba(0,0,0,.25);z-index:10;padding:8px 0;display:none; }
-.wiz-scope .preset-dd .preset-menu.show { display:block; }
+.wiz-scope .preset-dd .preset-menu.open { display:block; }
 .wiz-scope .preset-item { display:flex;align-items:center;gap:8px;padding:8px 16px;font-size:13px;color:var(--text);cursor:pointer;transition:background .15s; }
 .wiz-scope .preset-item:hover { background:var(--bg-card-hover); }
 .wiz-scope .preset-item .pdel { margin-left:auto;color:var(--text3);font-size:11px;opacity:0;transition:opacity .15s; }
@@ -1022,7 +1037,7 @@ const WIZ_CSS = `
 
 /* ── Tooltip System ── */
 .wiz-scope [data-tip] { position:relative; }
-.wiz-scope [data-tip]::after { content:attr(data-tip);position:absolute;bottom:calc(100% + 10px);left:50%;transform:translateX(-50%);background:rgba(12,18,34,0.98);color:#cbd5e1;font-size:11.5px;font-weight:500;line-height:1.5;padding:10px 14px;border-radius:10px;border:1px solid rgba(52,211,153,0.2);border-left:3px solid var(--accent);width:max-content;max-width:240px;pointer-events:none;opacity:0;transition:opacity 0.15s;z-index:9999;box-shadow:0 8px 32px rgba(0,0,0,0.5);white-space:normal; }
+.wiz-scope [data-tip]::after { content:attr(data-tip);position:absolute;bottom:calc(100% + 10px);left:50%;transform:translateX(-50%);background:var(--bg-card);color:var(--text2);font-size:11.5px;font-weight:500;line-height:1.5;padding:10px 14px;border-radius:10px;border:1px solid var(--accent-glow);border-left:3px solid var(--accent);width:max-content;max-width:240px;pointer-events:none;opacity:0;transition:opacity 0.15s;z-index:9999;box-shadow:0 8px 32px rgba(0,0,0,0.5);white-space:normal; }
 .wiz-scope [data-tip]:hover::after { opacity:1; }
 .wiz-scope [data-tip-pos="bottom"]::after { bottom:auto;top:calc(100% + 10px); }
 .wiz-scope [data-tip-pos="right"]::after { bottom:auto;left:calc(100% + 10px);top:50%;transform:translateY(-50%); }
@@ -1398,6 +1413,15 @@ function renderDetails() {
 
       bodyH += renderTabSuggestions(tab.id);
 
+      // Discover pills for this category
+      const discoverItems = getRailDiscover(tab.id);
+      if (discoverItems.length) {
+        bodyH += `<div><div class="acc-group-label" style="display:flex;align-items:center;gap:6px">&#128269; Discover <span class="s2-hint">\u00B7 related topics to explore</span></div>
+          <div class="acc-pills">${discoverItems.map(d =>
+            `<span class="acc-pill pill-sug ${discoverAdded.has(d.name) ? 'on' : ''}" onclick="_wiz.discoverAdd('${escAttr(d.name)}','${escAttr(d.target || '')}')">${esc(d.name)}${discoverAdded.has(d.name) ? '<span class="pill-x" onclick="event.stopPropagation();_wiz.discoverRm(\''+escAttr(d.name)+'\',\''+escAttr(d.target || '')+'\')">&times;</span>' : ''}</span>`
+          ).join('')}</div></div>`;
+      }
+
       sectionsHTML += `<div class="accordion ${isOpen ? 'open' : ''}">
         <div class="acc-header" onclick="_wiz.togDetSection('${sec.id}')">
           <span class="acc-icon ai-${tab.id}">${sec.icon}</span>
@@ -1522,24 +1546,7 @@ function renderRail() {
       html += `<div class="rail-empty">No items yet</div>`;
     }
 
-    // AI Suggestions in rail
-    const sugCache = _tabSuggestCache[c.id];
-    if (sugCache && sugCache.suggestions?.length) {
-      const added = sugCache.added || new Set();
-      html += `<div class="rail-ai-hdr" data-tip="AI-recommended sources based on your role">&#10024; Suggestions</div>
-        <div class="rail-suggestions">${sugCache.suggestions.slice(0, 4).map(s =>
-          `<span class="sug-pill ${added.has(s) ? 'added' : ''}" onclick="_wiz.addTabSuggestion('${escAttr(c.id)}','${escAttr(s)}')" data-tip="Click to add to your feed">${esc(s)}</span>`
-        ).join('')}</div>`;
-    }
-
-    // Per-category discover
-    const discoverItems = getRailDiscover(c.id);
-    if (discoverItems.length) {
-      html += `<div class="rail-discover-hdr" data-tip="Explore related topics you might find useful">&#128269; Discover</div>
-        <div class="rail-suggestions">${discoverItems.map(d =>
-          `<span class="disc-pill ${discoverAdded.has(d.name) ? 'added' : ''}" onclick="_wiz.discoverAdd('${escAttr(d.name)}','${escAttr(d.target || '')}')" data-tip="${d.tag ? esc(d.tag) : 'Click to add'}">${esc(d.name)}</span>`
-        ).join('')}</div>`;
-    }
+    // Suggestions and discover moved to main panel (renderDetails)
 
     html += `</div></div>`;
   }
@@ -1810,6 +1817,8 @@ function togCat(id) {
   else { selCats.add(id); selSubs[id] = selSubs[id] && selSubs[id].size ? selSubs[id] : new Set(); }
   _rvItemsCache = null;
   renderAll(); _wizSaveState();
+  // Re-fetch discover items in background
+  if (selCats.size > 0) initRvWithAI();
 }
 
 function togSub(cid, sid, el) {
@@ -1821,6 +1830,8 @@ function togSub(cid, sid, el) {
   _rvItemsCache = null;
   if (el) el.classList.toggle('on', selSubs[cid].has(sid));
   renderAll(); _wizSaveState();
+  // Re-fetch discover items in background
+  if (selCats.size > 0) initRvWithAI();
 }
 
 function showAddSub(cid) {
@@ -2479,11 +2490,23 @@ async function skipToQuick() {
 }
 
 function discoverAdd(name, target) {
-  if (discoverAdded.has(name)) return;
-  discoverAdded.add(name);
-  if (!rvItems[target]) rvItems[target] = [];
-  if (!rvItems[target].includes(name)) rvItems[target].push(name);
+  if (discoverAdded.has(name)) {
+    // Toggle off
+    discoverAdded.delete(name);
+    rvItems[target] = (rvItems[target] || []).filter(v => v !== name);
+  } else {
+    discoverAdded.add(name);
+    if (!rvItems[target]) rvItems[target] = [];
+    if (!rvItems[target].includes(name)) rvItems[target].push(name);
+  }
   renderRail();
+  renderDetails();
+}
+function discoverRm(name, target) {
+  discoverAdded.delete(name);
+  rvItems[target] = (rvItems[target] || []).filter(v => v !== name);
+  renderRail();
+  renderDetails();
 }
 
 /* ═══════════════════════════════════════
@@ -2672,12 +2695,22 @@ function addTabSuggestion(tabId, keyword) {
   const cache = _tabSuggestCache[tabId];
   if (!cache) return;
   if (!cache.added) cache.added = new Set();
-  cache.added.add(keyword);
-  if (tabId === 'interests') {
-    if (!interestTopics.includes(keyword)) interestTopics.push(keyword);
+  // Toggle: if already added, remove it
+  if (cache.added.has(keyword)) {
+    cache.added.delete(keyword);
+    if (tabId === 'interests') {
+      interestTopics = interestTopics.filter(t => t !== keyword);
+    } else {
+      if (selSubs[tabId]) selSubs[tabId].delete(keyword);
+    }
   } else {
-    if (!selSubs[tabId]) selSubs[tabId] = new Set();
-    selSubs[tabId].add(keyword);
+    cache.added.add(keyword);
+    if (tabId === 'interests') {
+      if (!interestTopics.includes(keyword)) interestTopics.push(keyword);
+    } else {
+      if (!selSubs[tabId]) selSubs[tabId] = new Set();
+      selSubs[tabId].add(keyword);
+    }
   }
   renderDetails();
   renderRail();
@@ -2704,7 +2737,7 @@ function renderTabSuggestions(tabId) {
   }
   for (const s of allSugs) {
     const isAdded = added.has(s);
-    pillsHtml += `<div class="ai-sug-pill ${isAdded ? 'added' : ''}" onclick="_wiz.addTabSuggestion('${escAttr(tabId)}','${escAttr(s)}')">${isAdded ? '\u2713 ' : '+ '}${esc(s)}</div>`;
+    pillsHtml += `<div class="ai-sug-pill ${isAdded ? 'added' : ''}" onclick="_wiz.addTabSuggestion('${escAttr(tabId)}','${escAttr(s)}')">${isAdded ? '\u2713 ' : '+ '}${esc(s)}${isAdded ? '<span class="sug-x">\u00D7</span>' : ''}</div>`;
   }
   return `<div class="ai-sug"><div class="ai-sug-hdr">\u2728 Suggestions<button class="ai-ref" onclick="_wiz.refreshSuggestions('${escAttr(tabId)}')" title="Get new suggestions">&#x21bb;</button></div><div class="acc-pills">${pillsHtml}</div></div>`;
 }
@@ -2755,7 +2788,7 @@ window._wiz = {
   // Rail / Review
   togRvCollapse, collapseAllRv, expandAllRv,
   rvRm, rvRmInt, rvShowAdd, rvAddKey,
-  discoverAdd, addTabSuggestion,
+  discoverAdd, discoverRm, addTabSuggestion,
   toggleRail, toggleDeepMode,
   // Build
   doBuild, finishWizard, restoreMainView,
