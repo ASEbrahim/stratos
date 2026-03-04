@@ -133,7 +133,6 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                     _pid_row = cursor.fetchone()
                     if _pid_row and _pid_row[0]:
                         self._profile_id = _pid_row[0]
-                        strat.active_profile_id = _pid_row[0]  # backward compat
                         # For DB-backed profiles, ensure active_profile is set
                         # even if ensure_profile() didn't have the config cached
                         if _session_profile and strat.active_profile != _session_profile:
@@ -497,7 +496,7 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                 self.send_header("Access-Control-Allow-Origin", "*")
                 self.end_headers()
                 try:
-                    stats = strat.db.get_feedback_stats()
+                    stats = strat.db.get_feedback_stats(profile_id=self._profile_id)
                 except Exception as e:
                     stats = {"error": str(e)}
                 self.wfile.write(json.dumps(stats).encode())
@@ -726,7 +725,7 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                     min_delta = float(query.get("min_delta", ["0"])[0])
                 except (ValueError, IndexError):
                     min_delta = 0.0
-                scores = strat.db.get_shadow_scores(limit=limit, min_delta=min_delta)
+                scores = strat.db.get_shadow_scores(limit=limit, min_delta=min_delta, profile_id=self._profile_id)
                 # Compute summary stats
                 if scores:
                     deltas = [abs(s.get('delta', 0)) for s in scores]
@@ -1045,7 +1044,6 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                     _pid_row = cursor.fetchone()
                     if _pid_row and _pid_row[0]:
                         self._profile_id = _pid_row[0]
-                        strat.active_profile_id = _pid_row[0]  # backward compat
                         # For DB-backed profiles, ensure active_profile is set
                         # even if ensure_profile() didn't have the config cached
                         if _session_profile and strat.active_profile != _session_profile:
@@ -1253,7 +1251,7 @@ def create_handler(strat, auth, frontend_dir, output_dir):
             # Feedback stats (GET would be cleaner but keeping consistent with POST pattern)
             if self.path == "/api/feedback-stats":
                 try:
-                    stats = strat.db.get_feedback_stats()
+                    stats = strat.db.get_feedback_stats(profile_id=self._profile_id)
                     self.send_response(200)
                     self.send_header("Content-type", "application/json")
                     self.send_header("Access-Control-Allow-Origin", "*")

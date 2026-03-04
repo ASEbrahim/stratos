@@ -30,12 +30,12 @@ from sse import SSEManager
 import user_data
 
 
-def _create_scorer(config, db=None):
+def _create_scorer(config, db=None, profile_id=0):
     """Create the scorer. B3.3: AdaptiveScorer is now the sole scorer."""
     role = config.get('profile', {}).get('role', '?')
     location = config.get('profile', {}).get('location', '?')
     logger.info(f"Using AdaptiveScorer for profile: {role} in {location}")
-    return AdaptiveScorer(config, db=db)
+    return AdaptiveScorer(config, db=db, profile_id=profile_id)
 
 
 # Configure logging — console + rotating file (5 × 10 MB)
@@ -96,7 +96,7 @@ class StratOS:
         self.market_fetcher = MarketFetcher(self.config.get("market", {}))
         self.news_fetcher = NewsFetcher(self.config)  # Pass full config for Kuwait intel
         self.discovery = EntityDiscovery(self.config.get("discovery", {}), self.db)
-        self.scorer = _create_scorer(self.config, db=self.db)  # Pick scorer based on profile
+        self.scorer = _create_scorer(self.config, db=self.db, profile_id=0)  # Pick scorer based on profile
         self.briefing_gen = BriefingGenerator(self.config)  # Pass full config for dynamic prompts
 
         # Output path (base — per-profile paths derived via _get_output_path)
@@ -344,7 +344,7 @@ class StratOS:
         # Reinitialize fetchers with new config
         self.market_fetcher = MarketFetcher(self.config.get("market", {}))
         self.news_fetcher = NewsFetcher(self.config)  # Pass full config for search settings
-        self.scorer = _create_scorer(self.config, db=self.db)  # Rebuild scorer with latest profile
+        self.scorer = _create_scorer(self.config, db=self.db, profile_id=_scan_pid)  # Rebuild scorer with latest profile
         self.briefing_gen = BriefingGenerator(self.config)  # Rebuild briefing with new profile/context
 
         logger.info("=" * 60)
@@ -844,7 +844,7 @@ class StratOS:
             # Always re-apply .env secrets (config.yaml has ${VAR} placeholders)
             self._load_env_secrets()
             self.news_fetcher = NewsFetcher(self.config)
-            self.scorer = _create_scorer(self.config, db=self.db)  # Rebuild scorer with latest profile
+            self.scorer = _create_scorer(self.config, db=self.db, profile_id=_scan_pid)  # Rebuild scorer with latest profile
             self.briefing_gen = BriefingGenerator(self.config)  # Rebuild briefing with latest profile/context
 
             # Load existing market data
@@ -1494,10 +1494,33 @@ class StratOS:
 
         interval_min = self.config.get("schedule", {}).get("background_interval_minutes", 30)
 
+        def _resolve_scheduler_profile():
+            """Resume the most recently active profile from sessions DB."""
+            if self.active_profile_id:
+                return self.active_profile_id
+            try:
+                cursor = self.db.conn.cursor()
+                cursor.execute("""
+                    SELECT profile_id FROM sessions
+                    WHERE expires_at > ? AND profile_id IS NOT NULL
+                    ORDER BY last_active DESC LIMIT 1
+                """, (datetime.now().isoformat(),))
+                row = cursor.fetchone()
+                if row and row[0]:
+                    logger.info(f"Scheduler resuming profile_id={row[0]} from last active session")
+                    return row[0]
+            except Exception as e:
+                logger.warning(f"Scheduler profile lookup failed: {e}")
+            return None
+
         def scheduler_loop():
             while not self._stop_scheduler.is_set():
                 try:
-                    self.run_scan()
+                    pid = _resolve_scheduler_profile()
+                    if pid:
+                        self.run_scan(profile_id=pid)
+                    else:
+                        logger.info("Background scan skipped — no active profile")
                 except Exception as e:
                     logger.error(f"Scheduled scan failed: {e}")
 

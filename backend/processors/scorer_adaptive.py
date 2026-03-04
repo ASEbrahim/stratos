@@ -637,8 +637,8 @@ class AdaptiveScorer(ScorerBase):
     Inherits Ollama client, calibration, and score classification from ScorerBase.
     """
 
-    def __init__(self, config: Dict[str, Any], db=None):
-        super().__init__(config, db=db)
+    def __init__(self, config: Dict[str, Any], db=None, profile_id=0):
+        super().__init__(config, db=db, profile_id=profile_id)
 
         # Build keyword index from user's profile and categories
         self._full_config = config

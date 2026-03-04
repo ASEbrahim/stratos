@@ -387,7 +387,7 @@ class Database:
     def get_scan_log(self, limit: int = 50, profile_id: int = 0) -> List[Dict]:
         """Get recent scan log entries, optionally filtered by profile_id."""
         cursor = self.conn.cursor()
-        if profile_id:
+        if profile_id is not None:
             cursor.execute("""
                 SELECT * FROM scan_log WHERE profile_id = ? ORDER BY id DESC LIMIT ?
             """, (profile_id, limit))
@@ -427,14 +427,14 @@ class Database:
         except Exception as e:
             logger.error(f"Failed to save shadow score: {e}")
 
-    def get_shadow_scores(self, limit: int = 200, min_delta: float = 0) -> List[Dict]:
-        """Get recent shadow score comparisons."""
+    def get_shadow_scores(self, limit: int = 200, min_delta: float = 0, profile_id: int = 0) -> List[Dict]:
+        """Get recent shadow score comparisons for a specific profile."""
         cursor = self.conn.cursor()
         cursor.execute("""
             SELECT * FROM shadow_scores
-            WHERE ABS(delta) >= ?
+            WHERE ABS(delta) >= ? AND profile_id = ?
             ORDER BY id DESC LIMIT ?
-        """, (min_delta, limit))
+        """, (min_delta, profile_id, limit))
         return [dict(row) for row in cursor.fetchall()]
 
     # =========================================================================
@@ -553,36 +553,36 @@ class Database:
             logger.error(f"Failed to save feedback: {e}")
             return False
     
-    def get_feedback_stats(self) -> Dict[str, Any]:
-        """Get summary stats on user feedback."""
+    def get_feedback_stats(self, profile_id: int = 0) -> Dict[str, Any]:
+        """Get summary stats on user feedback for a specific profile."""
         cursor = self.conn.cursor()
-        
-        cursor.execute("SELECT COUNT(*) FROM user_feedback")
+
+        cursor.execute("SELECT COUNT(*) FROM user_feedback WHERE profile_id = ?", (profile_id,))
         total = cursor.fetchone()[0]
-        
-        cursor.execute("SELECT action, COUNT(*) FROM user_feedback GROUP BY action")
+
+        cursor.execute("SELECT action, COUNT(*) FROM user_feedback WHERE profile_id = ? GROUP BY action", (profile_id,))
         by_action = {row[0]: row[1] for row in cursor.fetchall()}
-        
+
         # Average user score vs AI score for rated items
         cursor.execute("""
             SELECT AVG(ai_score), AVG(user_score), COUNT(*)
-            FROM user_feedback WHERE user_score IS NOT NULL
-        """)
+            FROM user_feedback WHERE profile_id = ? AND user_score IS NOT NULL
+        """, (profile_id,))
         row = cursor.fetchone()
         avg_ai = round(row[0], 1) if row[0] else None
         avg_user = round(row[1], 1) if row[1] else None
         rated_count = row[2]
-        
+
         # Score disagreements — items where user and AI differ by >2 points
         cursor.execute("""
             SELECT title, ai_score, user_score, category
-            FROM user_feedback 
-            WHERE user_score IS NOT NULL AND ABS(ai_score - user_score) > 2.0
+            FROM user_feedback
+            WHERE profile_id = ? AND user_score IS NOT NULL AND ABS(ai_score - user_score) > 2.0
             ORDER BY ABS(ai_score - user_score) DESC
             LIMIT 20
-        """)
+        """, (profile_id,))
         disagreements = [dict(row) for row in cursor.fetchall()]
-        
+
         return {
             'total_feedback': total,
             'by_action': by_action,
@@ -592,7 +592,7 @@ class Database:
             'top_disagreements': disagreements
         }
 
-    def get_feedback_for_scoring(self, days: int = 30, limit: int = 20) -> Dict[str, list]:
+    def get_feedback_for_scoring(self, days: int = 30, limit: int = 20, profile_id: int = 0) -> Dict[str, list]:
         """
         Retrieve user feedback organized for scorer prompt injection.
         
@@ -610,7 +610,7 @@ class Database:
         cursor.execute("""
             SELECT DISTINCT title, ai_score, user_score, category, root, action
             FROM user_feedback
-            WHERE created_at > ?
+            WHERE created_at > ? AND profile_id = ?
               AND (
                   action = 'save'
                   OR action = 'thumbs_up'
@@ -619,14 +619,14 @@ class Database:
               )
             ORDER BY created_at DESC
             LIMIT ?
-        """, (since, limit))
+        """, (since, profile_id, limit))
         positive = [dict(row) for row in cursor.fetchall()]
         
         # Negative signals: dismissed items + low-rated items + thumbs down
         cursor.execute("""
             SELECT DISTINCT title, ai_score, user_score, category, root, action
             FROM user_feedback
-            WHERE created_at > ?
+            WHERE created_at > ? AND profile_id = ?
               AND (
                   action = 'dismiss'
                   OR action = 'thumbs_down'
@@ -634,7 +634,7 @@ class Database:
               )
             ORDER BY created_at DESC
             LIMIT ?
-        """, (since, limit))
+        """, (since, profile_id, limit))
         negative = [dict(row) for row in cursor.fetchall()]
         
         # Corrections: significant disagreements (user score differs from AI by ≥2)
@@ -642,12 +642,12 @@ class Database:
             SELECT title, ai_score, user_score, category, root,
                    (user_score - ai_score) as delta
             FROM user_feedback
-            WHERE created_at > ?
+            WHERE created_at > ? AND profile_id = ?
               AND user_score IS NOT NULL
               AND ABS(ai_score - user_score) >= 2.0
             ORDER BY ABS(ai_score - user_score) DESC
             LIMIT ?
-        """, (since, limit))
+        """, (since, profile_id, limit))
         corrections = [dict(row) for row in cursor.fetchall()]
         
         return {

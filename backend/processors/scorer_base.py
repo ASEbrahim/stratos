@@ -522,11 +522,12 @@ class ScoringMemory:
     """
     DEFAULT_PATH = Path(__file__).parent.parent / "data" / "memory.json"
 
-    def __init__(self, memory_path=None, max_examples=10, min_score=8.5, db=None):
+    def __init__(self, memory_path=None, max_examples=10, min_score=8.5, db=None, profile_id=0):
         self.memory_path = memory_path or self.DEFAULT_PATH
         self.max_examples = max_examples
         self.min_score = min_score
         self.db = db  # Database reference for feedback loop
+        self.profile_id = profile_id
         self._feedback_cache = None
         self._feedback_cache_time = None
         self._ensure_file_exists()
@@ -604,7 +605,7 @@ class ScoringMemory:
             return {'positive': [], 'negative': [], 'corrections': []}
 
         try:
-            self._feedback_cache = self.db.get_feedback_for_scoring(days=30, limit=15)
+            self._feedback_cache = self.db.get_feedback_for_scoring(days=30, limit=15, profile_id=self.profile_id)
             self._feedback_cache_time = now
             return self._feedback_cache
         except Exception as e:
@@ -724,7 +725,7 @@ class ScorerBase:
     Subclasses implement the actual scoring logic (rule engine + prompt building).
     """
 
-    def __init__(self, config: Dict[str, Any], db=None):
+    def __init__(self, config: Dict[str, Any], db=None, profile_id=0):
         scoring_config = config.get("scoring", config) if "scoring" in config else config
 
         self.model = scoring_config.get("model", "stratos-scorer-v1")
@@ -739,7 +740,8 @@ class ScorerBase:
         self.memory = ScoringMemory(
             max_examples=scoring_config.get("memory_max_examples", 10),
             min_score=scoring_config.get("memory_min_score", 8.5),
-            db=db
+            db=db,
+            profile_id=profile_id
         )
         self.few_shot_count = scoring_config.get("few_shot_examples", 3)
         self._available = None
