@@ -43,6 +43,17 @@
                 { key: '--border-strong', label: 'Border',     type: 'hex' },
             ]
         },
+        {
+            label: 'Effects',
+            icon: 'sliders',
+            vars: [
+                { key: '--te-card-opacity',   label: 'Card Opacity',   type: 'range', min: 0.1, max: 1, step: 0.05, default: 0.82 },
+                { key: '--te-panel-opacity',  label: 'Panel Opacity',  type: 'range', min: 0.1, max: 1, step: 0.05, default: 0.96 },
+                { key: '--te-border-radius',  label: 'Border Radius',  type: 'range', min: 0, max: 24, step: 1, default: 12, unit: 'px' },
+                { key: '--te-glow-intensity', label: 'Glow Intensity', type: 'range', min: 0, max: 1, step: 0.05, default: 0.15 },
+                { key: '--te-blur',           label: 'Glass Blur',     type: 'range', min: 0, max: 32, step: 1, default: 12, unit: 'px' },
+            ]
+        },
     ];
 
     // ── Derived variables (auto-computed from user picks) ──
@@ -86,7 +97,36 @@
         // sidebar-bg as rgba
         if (overrides['--sidebar-bg']) {
             const { r, g, b } = hexToRgb(overrides['--sidebar-bg']);
-            derived['--sidebar-bg'] = `rgba(${r},${g},${b},0.96)`;
+            const sidebarOp = overrides['--te-panel-opacity'] !== undefined ? parseFloat(overrides['--te-panel-opacity']) : 0.96;
+            derived['--sidebar-bg'] = `rgba(${r},${g},${b},${sidebarOp})`;
+        }
+        // Effects sliders → CSS variables
+        if (overrides['--te-card-opacity'] !== undefined) {
+            const op = parseFloat(overrides['--te-card-opacity']);
+            if (overrides['--bg-panel-solid']) {
+                const { r, g, b } = hexToRgb(overrides['--bg-panel-solid']);
+                derived['--bg-panel'] = `rgba(${r},${g},${b},${op})`;
+            }
+            derived['--card-opacity'] = String(op);
+        }
+        if (overrides['--te-panel-opacity'] !== undefined && !overrides['--sidebar-bg']) {
+            // If sidebar-bg wasn't explicitly set, apply panel opacity to computed sidebar
+            const sidebarHex = getCurrentHex('--sidebar-bg');
+            if (sidebarHex) {
+                const { r, g, b } = hexToRgb(sidebarHex);
+                derived['--sidebar-bg'] = `rgba(${r},${g},${b},${parseFloat(overrides['--te-panel-opacity'])})`;
+            }
+        }
+        if (overrides['--te-border-radius'] !== undefined) {
+            const px = overrides['--te-border-radius'] + 'px';
+            derived['--radius-lg'] = px;
+            derived['--radius-xl'] = (parseFloat(overrides['--te-border-radius']) + 4) + 'px';
+        }
+        if (overrides['--te-glow-intensity'] !== undefined) {
+            derived['--glow-intensity'] = String(overrides['--te-glow-intensity']);
+        }
+        if (overrides['--te-blur'] !== undefined) {
+            derived['--glass-blur'] = overrides['--te-blur'] + 'px';
         }
         return derived;
     }
@@ -134,7 +174,8 @@
         allVars.forEach(key => style.removeProperty(key));
         // Also clear derived
         ['--accent-bg','--accent-border','--chart-fill-top','--chart-fill-bottom',
-         '--bg-panel','--bg-input','--bg-hover','--border'].forEach(k => style.removeProperty(k));
+         '--bg-panel','--bg-input','--bg-hover','--border',
+         '--card-opacity','--radius-lg','--radius-xl','--glow-intensity','--glass-blur'].forEach(k => style.removeProperty(k));
         updateChart();
     }
 
@@ -226,14 +267,25 @@
 
             group.vars.forEach(v => {
                 const item = document.createElement('div');
-                item.className = 'te-color-item';
-                item.innerHTML = `
-                    <label class="te-color-label">${v.label}</label>
-                    <div class="te-color-input-wrap">
-                        <input type="color" class="te-color-picker" data-var="${v.key}" />
-                        <input type="text" class="te-color-hex" data-var="${v.key}" maxlength="7" spellcheck="false" />
-                    </div>
-                `;
+                if (v.type === 'range') {
+                    item.className = 'te-range-wrap';
+                    item.innerHTML = `
+                        <label class="te-color-label">${v.label}</label>
+                        <div style="display:flex;align-items:center;gap:8px;">
+                            <input type="range" class="te-range-slider" data-var="${v.key}" min="${v.min}" max="${v.max}" step="${v.step}" value="${v.default}" />
+                            <span class="te-range-val">${v.default}${v.unit||''}</span>
+                        </div>
+                    `;
+                } else {
+                    item.className = 'te-color-item';
+                    item.innerHTML = `
+                        <label class="te-color-label">${v.label}</label>
+                        <div class="te-color-input-wrap">
+                            <input type="color" class="te-color-picker" data-var="${v.key}" />
+                            <input type="text" class="te-color-hex" data-var="${v.key}" maxlength="7" spellcheck="false" />
+                        </div>
+                    `;
+                }
                 grid.appendChild(item);
             });
 
@@ -267,6 +319,19 @@
                 }
             });
         });
+
+        // Wire up range sliders
+        panel.querySelectorAll('.te-range-slider').forEach(slider => {
+            slider.addEventListener('input', (e) => {
+                const varName = e.target.dataset.var;
+                const val = e.target.value;
+                // Update value display
+                const valSpan = e.target.parentElement.querySelector('.te-range-val');
+                const varDef = EDITOR_GROUPS.flatMap(g => g.vars).find(v => v.key === varName);
+                if (valSpan) valSpan.textContent = val + (varDef?.unit || '');
+                applyAndSave(varName, val);
+            });
+        });
     }
 
     function applyAndSave(varName, hex) {
@@ -292,6 +357,18 @@
             // Also sync hex text input
             const hexInput = panel.querySelector(`.te-color-hex[data-var="${picker.dataset.var}"]`);
             if (hexInput) hexInput.value = hex;
+        });
+
+        // Sync range sliders from saved overrides
+        const overrides = loadOverrides();
+        panel.querySelectorAll('.te-range-slider').forEach(slider => {
+            const varName = slider.dataset.var;
+            if (overrides[varName] !== undefined) {
+                slider.value = overrides[varName];
+                const valSpan = slider.parentElement.querySelector('.te-range-val');
+                const varDef = EDITOR_GROUPS.flatMap(g => g.vars).find(v => v.key === varName);
+                if (valSpan) valSpan.textContent = overrides[varName] + (varDef?.unit || '');
+            }
         });
     }
 
