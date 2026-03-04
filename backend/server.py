@@ -330,6 +330,20 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                         if "avatar" not in status and ui_state.get("avatar"):
                             status["avatar"] = ui_state["avatar"]
                         status["ui_state"] = ui_state
+                        # DB fallback for email (DB-auth users have no YAML)
+                        if "email" not in status:
+                            try:
+                                cursor = strat.db.conn.cursor()
+                                cursor.execute("""
+                                    SELECT u.email FROM users u
+                                    JOIN profiles p ON p.user_id = u.id
+                                    WHERE p.id = ? LIMIT 1
+                                """, (_status_pid,))
+                                email_row = cursor.fetchone()
+                                if email_row and email_row[0]:
+                                    status["email"] = email_row[0]
+                            except Exception:
+                                pass
                 self.wfile.write(json.dumps(status).encode())
                 return
 
