@@ -983,6 +983,8 @@ const WIZ_CSS = `
 .wiz-scope .preset-btn.open .preset-chev { transform:rotate(180deg); }
 .wiz-scope .preset-save-btn-hdr { padding:5px 12px;border-radius:8px;border:1px solid var(--accent-glow);background:var(--accent-dim);color:var(--accent-light);font-size:12px;font-weight:600;cursor:pointer;transition:all 0.2s;white-space:nowrap; }
 .wiz-scope .preset-save-btn-hdr:hover { background:var(--accent-glow);color:var(--text); }
+@keyframes wiz-save-flash { 0%,100%{box-shadow:0 0 0 0 var(--accent-glow);} 50%{box-shadow:0 0 12px 4px var(--accent-glow);} }
+.wiz-scope .preset-save-btn-hdr.flash { animation:wiz-save-flash 1s ease-in-out 3; }
 .wiz-scope .preset-item-name { flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap; }
 .wiz-scope .preset-item-date { font-size:10px;color:var(--text3); }
 .wiz-scope .preset-del { background:none;border:none;color:var(--text3);font-size:14px;cursor:pointer;padding:0 2px;opacity:0;transition:opacity 0.15s; }
@@ -2578,6 +2580,15 @@ function openWizard(opts) {
 
   // Restore saved atmosphere
   restoreAtmosphere();
+
+  // Flash save button on first open
+  if (!localStorage.getItem('wiz_opened_before')) {
+    localStorage.setItem('wiz_opened_before', '1');
+    setTimeout(() => {
+      const saveBtn = document.querySelector('.wiz-scope .preset-save-btn-hdr');
+      if (saveBtn) saveBtn.classList.add('flash');
+    }, 800);
+  }
 
   // Render initial state
   renderAll();

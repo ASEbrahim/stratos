@@ -121,7 +121,8 @@ class StratOS:
             "medium": 0,
             "cancelled": False,
             "last_completed": None,
-            "data_version": self._get_data_version()
+            "data_version": self._get_data_version(),
+            "scan_profile_id": None
         }
         self._scan_count = 0
 
@@ -306,8 +307,9 @@ class StratOS:
             The complete output data
         """
         if not self._scan_lock.acquire(blocking=False):
-            logger.warning("Scan already in progress, skipping")
-            return {}
+            scanning_pid = self.scan_status.get("scan_profile_id")
+            logger.warning(f"Scan already in progress (profile={scanning_pid}), rejecting request from profile={profile_id}")
+            return {"error": "scan_in_progress", "scan_profile_id": scanning_pid}
         try:
             return self._run_scan_impl(profile_id)
         finally:
@@ -321,6 +323,7 @@ class StratOS:
         self._scan_cancelled.clear()
         self._snapshot_previous_articles()  # Snapshot before any writes
         self.scan_status["is_scanning"] = True
+        self.scan_status["scan_profile_id"] = _scan_pid
         self.scan_status["stage"] = "starting"
         self.scan_status["progress"] = "Reloading configuration..."
         self.scan_status["scored"] = 0
@@ -328,7 +331,7 @@ class StratOS:
         self.scan_status["high"] = 0
         self.scan_status["medium"] = 0
         self.scan_status["cancelled"] = False
-        self.sse_broadcast("scan", {"status": "starting", "progress": "Reloading configuration..."})
+        self.sse_broadcast("scan", {"status": "starting", "progress": "Reloading configuration..."}, profile_id=_scan_pid)
 
         # Reload config — use cached profile config if a profile is active,
         # otherwise fall back to config.yaml (A2.1 profile isolation)
@@ -355,7 +358,7 @@ class StratOS:
             # 1. Fetch market data
             self.scan_status["stage"] = "market"
             self.scan_status["progress"] = "Fetching market data..."
-            self.sse_broadcast("scan", {"status": "market", "progress": "Fetching market data..."})
+            self.sse_broadcast("scan", {"status": "market", "progress": "Fetching market data..."}, profile_id=_scan_pid)
             logger.info("[1/6] Fetching market data...")
             cache_ttl = self.config.get("cache", {}).get("market_ttl_seconds", 60)
             market_data, market_alerts = self.market_fetcher.fetch_all(cache_ttl_seconds=cache_ttl)
@@ -369,7 +372,7 @@ class StratOS:
             # 2. Fetch news
             self.scan_status["stage"] = "news"
             self.scan_status["progress"] = "Fetching news articles..."
-            self.sse_broadcast("scan", {"status": "news", "progress": "Fetching news articles..."})
+            self.sse_broadcast("scan", {"status": "news", "progress": "Fetching news articles..."}, profile_id=_scan_pid)
             logger.info("[2/6] Fetching news...")
             cache_ttl = self.config.get("cache", {}).get("news_ttl_seconds", 900)
             news_items = self.news_fetcher.fetch_all(cache_ttl_seconds=cache_ttl)
@@ -377,7 +380,7 @@ class StratOS:
 
             # Report fetch complete with count
             self.scan_status["progress"] = f"Fetched {len(news_dicts)} articles, preparing to score..."
-            self.sse_broadcast("scan", {"status": "news_done", "progress": f"Fetched {len(news_dicts)} articles", "fetched": len(news_dicts)})
+            self.sse_broadcast("scan", {"status": "news_done", "progress": f"Fetched {len(news_dicts)} articles", "fetched": len(news_dicts)}, profile_id=_scan_pid)
 
             # 2.5 Re-classify items into dynamic categories
             # RSS items arrive with generic category='tech'/'general'. Re-tag them
@@ -394,7 +397,7 @@ class StratOS:
             self.scan_status["scored"] = 0
             self.scan_status["total"] = total_items
             self.scan_status["progress"] = f"Scoring 0/{total_items} articles with AI..."
-            self.sse_broadcast("scan", {"status": "scoring", "progress": f"Scoring 0/{total_items} articles with AI...", "scored": 0, "total": total_items})
+            self.sse_broadcast("scan", {"status": "scoring", "progress": f"Scoring 0/{total_items} articles with AI...", "scored": 0, "total": total_items}, profile_id=_scan_pid)
             logger.info("[3/6] Scoring news items with AI...")
 
             # Score with progress callback — scorer reports (done, ambiguous_total)
@@ -404,7 +407,7 @@ class StratOS:
                 self.scan_status["total"] = total
                 self.scan_status["progress"] = f"AI scoring {current}/{total} articles..."
                 if current % 2 == 0 or current == total:
-                    self.sse_broadcast("scan", {"status": "scoring", "progress": f"AI scoring {current}/{total} articles...", "scored": current, "total": total})
+                    self.sse_broadcast("scan", {"status": "scoring", "progress": f"AI scoring {current}/{total} articles...", "scored": current, "total": total}, profile_id=_scan_pid)
 
             # === TWO-PASS SCORING ===
             timeout_cfg = self.config.get("scoring", {}).get("timeout", {})
@@ -446,7 +449,7 @@ class StratOS:
                     "high": _high,
                     "medium": _med,
                     "data_version": self.scan_status["data_version"]
-                })
+                }, profile_id=_scan_pid)
 
             # Handle cancellation — save partial results and return early
             if self._scan_cancelled.is_set():
@@ -465,7 +468,7 @@ class StratOS:
                     "high": _high,
                     "medium": _med,
                     "data_version": self.scan_status["data_version"]
-                })
+                }, profile_id=_scan_pid)
                 return self._build_output(market_data, scored_items, {}, market_alerts=market_alerts, profile_id=_scan_pid)
 
             # === PASS 2: Retry deferred articles with longer timeout ===
@@ -482,7 +485,7 @@ class StratOS:
                     "progress": f"Pass 2: {len(deferred_items)} deferred items...",
                     "scored": self.scan_status["scored"],
                     "total": total_items
-                })
+                }, profile_id=_scan_pid)
 
                 pass2_scored, still_deferred = self.scorer.score_items(
                     deferred_items,
@@ -491,7 +494,7 @@ class StratOS:
                         "progress": f"Pass 2: {cur}/{tot} deferred...",
                         "scored": self.scan_status["scored"],
                         "total": total_items
-                    }),
+                    }, profile_id=_scan_pid),
                     cancel_check=lambda: self._scan_cancelled.is_set(),
                     timeout_seconds=pass2_timeout
                 )
@@ -537,7 +540,7 @@ class StratOS:
             # 4. Run entity discovery
             self.scan_status["stage"] = "discovery"
             self.scan_status["progress"] = "Running entity discovery..."
-            self.sse_broadcast("scan", {"status": "discovery", "progress": "Running entity discovery..."})
+            self.sse_broadcast("scan", {"status": "discovery", "progress": "Running entity discovery..."}, profile_id=_scan_pid)
             logger.info("[4/6] Running entity discovery...")
             discoveries = self.discovery.discover(scored_items)
 
@@ -575,11 +578,12 @@ class StratOS:
 
             # Update status
             self.scan_status["is_scanning"] = False
+            self.scan_status["scan_profile_id"] = None
             self.scan_status["stage"] = "complete"
             self.scan_status["progress"] = ""
             self.scan_status["last_completed"] = datetime.now().isoformat()
             self.scan_status["data_version"] = self._get_data_version()
-            self.sse_broadcast("complete", {"data_version": self.scan_status["data_version"]})
+            self.sse_broadcast("complete", {"data_version": self.scan_status["data_version"]}, profile_id=_scan_pid)
 
             # Broadcast critical signals for push notifications (profile-scoped)
             for item in scored_items:
@@ -620,7 +624,7 @@ class StratOS:
             self.scan_status["is_scanning"] = False
             self.scan_status["stage"] = "error"
             self.scan_status["progress"] = str(e)
-            self.sse_broadcast("scan_error", {"message": str(e)})
+            self.sse_broadcast("scan_error", {"message": str(e)}, profile_id=_scan_pid)
             raise
 
     def _run_shadow_scoring(self, scored_items, scan_id, profile_id=0):
@@ -785,7 +789,7 @@ class StratOS:
             self.scan_status["stage"] = "complete"
             self.scan_status["progress"] = ""
             self.scan_status["data_version"] = self._get_data_version()
-            self.sse_broadcast("complete", {"data_version": self.scan_status["data_version"]})
+            self.sse_broadcast("complete", {"data_version": self.scan_status["data_version"]}, profile_id=_scan_pid)
 
             return output
 
@@ -794,7 +798,7 @@ class StratOS:
             self.scan_status["is_scanning"] = False
             self.scan_status["stage"] = "error"
             self.scan_status["progress"] = str(e)
-            self.sse_broadcast("scan_error", {"message": str(e)})
+            self.sse_broadcast("scan_error", {"message": str(e)}, profile_id=_scan_pid)
             raise
 
     def run_news_refresh(self, profile_id=None) -> Dict[str, Any]:
@@ -822,6 +826,7 @@ class StratOS:
         self._scan_cancelled.clear()
         self._snapshot_previous_articles()  # Snapshot before any writes
         self.scan_status["is_scanning"] = True
+        self.scan_status["scan_profile_id"] = _scan_pid
         self.scan_status["stage"] = "news"
         self.scan_status["progress"] = "Fetching news..."
         self.scan_status["scored"] = 0
@@ -829,7 +834,7 @@ class StratOS:
         self.scan_status["high"] = 0
         self.scan_status["medium"] = 0
         self.scan_status["cancelled"] = False
-        self.sse_broadcast("scan", {"status": "news", "progress": "Fetching news..."})
+        self.sse_broadcast("scan", {"status": "news", "progress": "Fetching news..."}, profile_id=_scan_pid)
 
         logger.info("=" * 60)
         logger.info("Refreshing news and intelligence...")
@@ -862,7 +867,7 @@ class StratOS:
 
             # Fetch news
             self.scan_status["progress"] = "Fetching news..."
-            self.sse_broadcast("scan", {"status": "news", "progress": "Fetching news..."})
+            self.sse_broadcast("scan", {"status": "news", "progress": "Fetching news..."}, profile_id=_scan_pid)
             logger.info("[1/4] Fetching news...")
             news_items = self.news_fetcher.fetch_all(cache_ttl_seconds=0)
             news_dicts = [item.to_dict() for item in news_items]
@@ -879,7 +884,7 @@ class StratOS:
             self.scan_status["scored"] = 0
             self.scan_status["total"] = total_items
             self.scan_status["progress"] = f"Scoring 0/{total_items} articles with AI..."
-            self.sse_broadcast("scan", {"status": "scoring", "progress": f"Scoring 0/{total_items} articles with AI...", "scored": 0, "total": total_items})
+            self.sse_broadcast("scan", {"status": "scoring", "progress": f"Scoring 0/{total_items} articles with AI...", "scored": 0, "total": total_items}, profile_id=_scan_pid)
             logger.info("[2/4] Scoring news items with AI...")
 
             def on_score_progress(current, total):
@@ -887,7 +892,7 @@ class StratOS:
                 self.scan_status["total"] = total
                 self.scan_status["progress"] = f"AI scoring {current}/{total} articles..."
                 if current % 2 == 0 or current == total:
-                    self.sse_broadcast("scan", {"status": "scoring", "progress": f"AI scoring {current}/{total} articles...", "scored": current, "total": total})
+                    self.sse_broadcast("scan", {"status": "scoring", "progress": f"AI scoring {current}/{total} articles...", "scored": current, "total": total}, profile_id=_scan_pid)
 
             # === TWO-PASS SCORING ===
             timeout_cfg = self.config.get("scoring", {}).get("timeout", {})
@@ -929,7 +934,7 @@ class StratOS:
                     "high": _high,
                     "medium": _med,
                     "data_version": self.scan_status["data_version"]
-                })
+                }, profile_id=_scan_pid)
 
             # Handle cancellation
             if self._scan_cancelled.is_set():
@@ -948,7 +953,7 @@ class StratOS:
                     "high": _high,
                     "medium": _med,
                     "data_version": self.scan_status["data_version"]
-                })
+                }, profile_id=_scan_pid)
                 return self._build_output(market_data, scored_items, {}, market_alerts=market_alerts, profile_id=_scan_pid)
 
             # === PASS 2: Retry deferred articles with longer timeout ===
@@ -965,7 +970,7 @@ class StratOS:
                     "progress": f"Pass 2: {len(deferred_items)} deferred items...",
                     "scored": self.scan_status["scored"],
                     "total": total_items
-                })
+                }, profile_id=_scan_pid)
 
                 pass2_scored, still_deferred = self.scorer.score_items(
                     deferred_items,
@@ -974,7 +979,7 @@ class StratOS:
                         "progress": f"Pass 2: {cur}/{tot} deferred...",
                         "scored": self.scan_status["scored"],
                         "total": total_items
-                    }),
+                    }, profile_id=_scan_pid),
                     cancel_check=lambda: self._scan_cancelled.is_set(),
                     timeout_seconds=pass2_timeout
                 )
@@ -1020,7 +1025,7 @@ class StratOS:
             # Run entity discovery
             self.scan_status["stage"] = "discovery"
             self.scan_status["progress"] = "Running entity discovery..."
-            self.sse_broadcast("scan", {"status": "discovery", "progress": "Running entity discovery..."})
+            self.sse_broadcast("scan", {"status": "discovery", "progress": "Running entity discovery..."}, profile_id=_scan_pid)
             logger.info("[3/4] Running entity discovery...")
             discoveries = self.discovery.discover(scored_items)
 
@@ -1054,11 +1059,12 @@ class StratOS:
             }, profile_id=_scan_pid)
 
             self.scan_status["is_scanning"] = False
+            self.scan_status["scan_profile_id"] = None
             self.scan_status["stage"] = "complete"
             self.scan_status["progress"] = ""
             self.scan_status["last_completed"] = datetime.now().isoformat()
             self.scan_status["data_version"] = self._get_data_version()
-            self.sse_broadcast("complete", {"data_version": self.scan_status["data_version"]})
+            self.sse_broadcast("complete", {"data_version": self.scan_status["data_version"]}, profile_id=_scan_pid)
 
             # Broadcast critical signals for push notifications (profile-scoped)
             for item in scored_items:
@@ -1081,7 +1087,7 @@ class StratOS:
             self.scan_status["is_scanning"] = False
             self.scan_status["stage"] = "error"
             self.scan_status["progress"] = str(e)
-            self.sse_broadcast("scan_error", {"message": str(e)})
+            self.sse_broadcast("scan_error", {"message": str(e)}, profile_id=_scan_pid)
             raise
 
     def _reclassify_dynamic(self, items: list) -> list:
@@ -1232,7 +1238,7 @@ class StratOS:
                 if self._scan_cancelled.is_set():
                     return
                 logger.info("Deferred briefing: generating...")
-                self.sse_broadcast("scan", {"status": "briefing", "progress": "Generating briefing..."})
+                self.sse_broadcast("scan", {"status": "briefing", "progress": "Generating briefing..."}, profile_id=profile_id)
                 briefing = self.briefing_gen.generate_briefing(
                     market_data=market_data,
                     market_alerts=market_alerts,
@@ -1253,11 +1259,11 @@ class StratOS:
                         output["meta"]["high_count"] = briefing.get("high_count", 0)
                         with open(self.output_file, "w") as f:
                             json.dump(output, f, indent=2)
-                self.sse_broadcast("briefing_ready", {"status": "ready"})
+                self.sse_broadcast("briefing_ready", {"status": "ready"}, profile_id=profile_id)
                 logger.info("Deferred briefing: complete, output patched")
             except Exception as e:
                 logger.warning(f"Deferred briefing failed: {e}")
-                self.sse_broadcast("briefing_ready", {"status": "failed"})
+                self.sse_broadcast("briefing_ready", {"status": "failed"}, profile_id=profile_id)
             finally:
                 # Signal completion only if this is still the current generation
                 # (prevents stale thread A from signaling thread B's wait)

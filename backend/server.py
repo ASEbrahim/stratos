@@ -371,7 +371,8 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                     "high": s["high"],
                     "medium": s["medium"],
                     "cancelled": s.get("cancelled", False),
-                    "stage": s["stage"]
+                    "stage": s["stage"],
+                    "scan_profile_id": s.get("scan_profile_id")
                 }).encode())
                 return
 
@@ -1122,6 +1123,15 @@ def create_handler(strat, auth, frontend_dir, output_dir):
             # Save config
             if self.path == "/api/config":
                 handle_config_save(self, strat, auth.auth_helpers_dict())
+                return
+
+            # Cancel an in-progress scan
+            if self.path == "/api/scan/cancel":
+                if strat.scan_status.get("is_scanning"):
+                    strat._scan_cancelled.set()
+                    _send_json(self, {"ok": True, "message": "Scan cancellation requested"})
+                else:
+                    _send_json(self, {"ok": False, "message": "No scan in progress"})
                 return
 
             # Agent model warmup — pre-load inference model into VRAM
