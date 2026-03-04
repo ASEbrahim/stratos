@@ -329,6 +329,16 @@ def migration_010(cursor):
             pass  # Column already exists
 
 
+# -- Migration 011: Composite index for profile-scoped feedback queries --
+@migration
+def migration_011(cursor):
+    """Add composite index for profile-scoped feedback queries (fixes 1.1/1.2)."""
+    cursor.execute(
+        "CREATE INDEX IF NOT EXISTS idx_feedback_profile_date "
+        "ON user_feedback(profile_id, created_at)"
+    )
+
+
 # =========================================================================
 # Migration runner
 # =========================================================================
