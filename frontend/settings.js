@@ -161,10 +161,7 @@ async function saveSerperKey() {
     }
     try {
         const headers = { 'Content-Type': 'application/json' };
-        const token = document.cookie.match(/auth_token=([^;]+)/)?.[1]
-            || sessionStorage.getItem('auth_token')
-            || localStorage.getItem('auth_token');
-        if (token) headers['X-Auth-Token'] = token;
+        if (typeof getAuthToken === 'function') headers['X-Auth-Token'] = getAuthToken();
 
         const resp = await fetch('/api/save-serper-key', {
             method: 'POST',
