@@ -189,6 +189,7 @@ function mpAddChart(symbol, timeframe, skipSave, chartType, chartHeight) {
     row1 += '</div>';
     row1 += '<div class="flex items-center gap-1 flex-shrink-0">';
     row1 += '<div class="flex rounded p-0.5" style="background:rgba(15,23,42,0.5);">' + tfBtns + '</div>';
+    row1 += '<button onclick="_mpRefreshSingle(\'' + id + '\')" class="mp-refresh-btn" title="Refresh this ticker" style="color:var(--text-muted);cursor:pointer;background:none;border:none;padding:2px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M3 21v-5h5"/></svg></button>';
     row1 += '<button onclick="mpRemoveChart(\'' + id + '\')" class="ml-1 text-slate-600 hover:text-red-400 transition-colors p-0.5">' + _xSvg + '</button>';
     row1 += '</div></div>';
 
@@ -411,6 +412,36 @@ function mpChangeTimeframe(id, tf) {
     e.el.querySelectorAll('.mp-tf-btn').forEach(function(b) { b.className = 'mp-tf-btn text-[9px] px-1.5 py-0.5 rounded transition-all ' + (b.dataset.mptf===tf?'bg-slate-600 text-white':'text-slate-500 hover:text-slate-300'); });
     _mpUpdateChart(e); _mpSaveLayout();
 }
+
+// ═══════════════════════════════════════════════════════════
+// PER-CARD REFRESH — fetches latest data for a single ticker
+// ═══════════════════════════════════════════════════════════
+
+window._mpRefreshSingle = function(id) {
+    var entry = _mpCharts.find(function(c) { return c.id === id; });
+    if (!entry) return;
+    var btn = document.querySelector('#mp-card-' + id + ' .mp-refresh-btn svg');
+    if (btn) btn.classList.add('animate-spin');
+
+    var sym = entry.symbol || id;
+    var interval = entry.interval || entry.timeframe || '1d';
+    fetch('/api/market-tick?symbol=' + encodeURIComponent(sym) + '&interval=' + encodeURIComponent(interval))
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            if (data && data.data) {
+                marketData[sym] = data.data;
+                _mpUpdateChart(entry);
+                if (typeof showToast === 'function') showToast(sym + ' refreshed', 'success');
+            }
+        })
+        .catch(function(err) {
+            console.warn('[MP] Refresh failed for', sym, err);
+            if (typeof showToast === 'function') showToast('Failed to refresh ' + sym, 'error');
+        })
+        .finally(function() {
+            if (btn) btn.classList.remove('animate-spin');
+        });
+};
 
 // ═══════════════════════════════════════════════════════════
 // UPDATE CHART DATA — handles candle, line, and area types
