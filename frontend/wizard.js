@@ -875,9 +875,8 @@ const WIZ_CSS = `
 .pill { padding:7px 16px;border-radius:24px;font-size:13px;font-weight:600;cursor:pointer;border:1.5px solid var(--brd);color:var(--text2);transition:all .2s;user-select:none; }
 .pill:hover { border-color:rgba(255,255,255,0.12);color:var(--text);background:rgba(255,255,255,0.04); }
 .pill:active { transform:scale(.95); }
-.pill.on { background:linear-gradient(135deg,var(--accent-dim),color-mix(in srgb,var(--accent-dim) 60%,var(--card) 40%));border-color:var(--accent);color:var(--accent-light);font-weight:600;animation:wizPillPop .3s cubic-bezier(.34,1.56,.64,1); }
+.pill.on { background:linear-gradient(135deg,var(--accent-dim),color-mix(in srgb,var(--accent-dim) 60%,var(--card) 40%));border-color:var(--accent);color:var(--accent-light);font-weight:600;box-shadow:0 2px 8px var(--accent-dim);animation:wizPillPop .3s cubic-bezier(.34,1.56,.64,1); }
 @keyframes wizPillPop { 0% { transform:scale(.85); } 60% { transform:scale(1.05); } 100% { transform:scale(1); } }
-.pill.on::after { content:'\\2713';margin-left:6px;font-size:11px; }
 .pill.pill-decisive { border-width:2px;border-color:var(--accent-glow); }
 .pill.pill-decisive.on { box-shadow:0 0 12px var(--accent-dim);border-color:var(--accent); }
 .pill-add,.pill.pill-add { border-style:dashed;color:var(--text3); }
