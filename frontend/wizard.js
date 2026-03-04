@@ -1086,7 +1086,6 @@ const WIZ_CSS = `
   .wiz-scope .rail.expanded { transform:translateY(0); }
   .wiz-scope .rail-handle { display:flex;align-items:center;justify-content:center;padding:10px 16px;cursor:pointer;gap:8px; }
   .wiz-scope .rail-handle-bar { width:36px;height:4px;border-radius:2px;background:var(--text3);opacity:.4; }
-  .wiz-scope .rail-handle-text { font-size:13px;color:var(--text2);font-weight:500; }
   .wiz-scope .rail-inner { display:none; }
   .wiz-scope .rail.expanded .rail-inner { display:block; }
   .wiz-scope .main { padding:20px 16px 80px; }
@@ -1161,7 +1160,6 @@ function injectDOM(role, location) {
         <div class="rail" id="wiz-rail">
           <div class="rail-handle" id="wiz-rail-handle" onclick="_wiz.toggleRail()">
             <div class="rail-handle-bar"></div>
-            <span class="rail-handle-text" id="wiz-rail-handle-text">0 items \u00B7 Build</span>
           </div>
           <div class="rail-inner" id="wiz-rail-scroll"></div>
           <div id="wiz-feed-summary" style="padding:4px 0;"></div>
@@ -1574,9 +1572,6 @@ function renderRail() {
   }
 
   scroll.innerHTML = html;
-
-  const handleText = document.getElementById('wiz-rail-handle-text');
-  if (handleText) handleText.textContent = `${totalItems} items \u00B7 Build`;
 
   renderFeedSummary(totalItems);
   updateBuildButton();
