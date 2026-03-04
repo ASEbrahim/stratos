@@ -675,7 +675,7 @@ const WIZ_CSS = `
   --accent-light: var(--accent-light);
   --accent-dim: var(--accent-bg);
   --accent-glow: var(--accent-border);
-  --accent2: var(--accent-light);
+  --accent2: #38bdf8;
   --text: var(--text-primary);
   --text2: var(--text-secondary);
   --text3: var(--text-muted);
@@ -691,14 +691,15 @@ const WIZ_CSS = `
 .wiz-bk { position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9998;opacity:0;transition:opacity .35s cubic-bezier(.4,0,.2,1);pointer-events:none;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px); }
 .wiz-bk.open { opacity:1;pointer-events:auto; }
 .wiz-modal { position:fixed;inset:5vh 6vw;z-index:9999;display:flex;flex-direction:column;background:var(--bg);opacity:0;transform:scale(.95) translateY(16px);transition:opacity .35s,transform .35s cubic-bezier(.16,1.11,.36,1.02);pointer-events:none;overflow:hidden;border-radius:24px;border:1px solid color-mix(in srgb, var(--accent) 15%, var(--brd));box-shadow:0 32px 100px rgba(0,0,0,.5),0 0 0 1px rgba(255,255,255,.04) inset,0 0 80px -20px color-mix(in srgb, var(--accent) 8%, transparent); }
-.wiz-modal::before { content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--accent),var(--accent-light),var(--accent));border-radius:24px 24px 0 0;z-index:1; }
+.wiz-modal::before { content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--accent),var(--accent2),var(--accent));background-size:200% 100%;animation:wizBarShift 4s ease infinite;border-radius:24px 24px 0 0;z-index:1; }
+@keyframes wizBarShift { 0%,100% { background-position:0% center; } 50% { background-position:100% center; } }
 .wiz-modal::after { content:'';position:absolute;inset:0;opacity:0.03;pointer-events:none;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='.8'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");z-index:0; }
 .wiz-modal > * { position:relative;z-index:1; }
 .wiz-modal.open { opacity:1;transform:none;pointer-events:auto; }
 
 /* ── Header ── */
 .wiz-hdr { display:flex;align-items:center;gap:12px;padding:16px 28px;border-bottom:1px solid var(--brd);flex-shrink:0;min-height:56px;background:linear-gradient(180deg,color-mix(in srgb,var(--accent-dim) 15%,var(--bg) 85%),var(--bg));backdrop-filter:blur(12px); }
-.wiz-brand { font-weight:800;font-size:18px;background:linear-gradient(135deg,var(--accent),var(--accent-light));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:-.3px; }
+.wiz-brand { font-weight:800;font-size:22px;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:-.5px; }
 .wiz-badge { display:inline-flex;align-items:center;gap:5px;padding:4px 12px;border-radius:20px;font-size:12px;color:var(--accent-light);background:var(--accent-dim);border:1px solid var(--accent-glow);white-space:nowrap;max-width:180px;overflow:hidden;text-overflow:ellipsis; }
 .wiz-hdr-spacer { flex:1; }
 .wiz-hdr-btn { display:inline-flex;align-items:center;gap:6px;padding:7px 16px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;border:1.5px solid var(--accent-glow);background:var(--accent-dim);color:var(--accent-light);transition:background .2s,transform .15s; }
@@ -710,14 +711,14 @@ const WIZ_CSS = `
 .wiz-ring-svg { width:36px;height:36px;transform:rotate(-90deg); }
 .wiz-ring-bg { fill:none;stroke:var(--brd);stroke-width:3; }
 .wiz-ring-fg { fill:none;stroke:var(--accent);stroke-width:3;stroke-linecap:round;transition:stroke-dashoffset .5s cubic-bezier(.4,0,.2,1);filter:drop-shadow(0 0 3px var(--accent)); }
-.wiz-ring-pct { position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:var(--text2); }
+.wiz-ring-pct { position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text; }
 
 /* ── Theme Swapper ── */
 .wiz-theme-bar { display:flex;align-items:center;gap:4px;background:rgba(255,255,255,0.03);border:1px solid var(--brd);border-radius:12px;padding:4px; }
 .wiz-theme-dot { width:22px;height:22px;border-radius:8px;cursor:pointer;transition:all .2s;border:2px solid transparent; }
 .wiz-theme-dot:hover { transform:scale(1.15); }
 .wiz-theme-dot.active { border-color:var(--text);box-shadow:0 0 12px rgba(255,255,255,0.15); }
-.wiz-theme-dot[data-t="default"] { background:linear-gradient(135deg,var(--accent),var(--accent-light)); }
+.wiz-theme-dot[data-t="default"] { background:linear-gradient(135deg,#34d399,#38bdf8); }
 .wiz-theme-dot[data-t="ember"] { background:linear-gradient(135deg,#f59e0b,#ef4444); }
 .wiz-theme-dot[data-t="frost"] { background:linear-gradient(135deg,#38bdf8,#a78bfa); }
 .wiz-theme-dot[data-t="violet"] { background:linear-gradient(135deg,#a78bfa,#ec4899); }
@@ -806,7 +807,7 @@ const WIZ_CSS = `
 .wiz-mode-opt.active { color:var(--text);background:var(--accent-dim);box-shadow:0 2px 8px var(--accent-dim); }
 
 /* ── Build button (in rail) — bold shimmer ── */
-.wiz-build-btn { width:100%;padding:14px 24px;border:none;border-radius:14px;font-size:15px;font-weight:800;cursor:pointer;background:linear-gradient(135deg,var(--accent),var(--accent2,var(--accent-light)));color:var(--bg);transition:all .25s;letter-spacing:.3px;box-shadow:0 8px 32px var(--accent-dim),0 0 0 1px var(--accent-glow);position:relative;overflow:hidden; }
+.wiz-build-btn { width:100%;padding:14px 24px;border:none;border-radius:14px;font-size:15px;font-weight:800;cursor:pointer;background:linear-gradient(135deg,var(--accent),var(--accent2));color:var(--bg);transition:all .25s;letter-spacing:.3px;box-shadow:0 8px 32px var(--accent-dim),0 0 0 1px var(--accent-glow);position:relative;overflow:hidden; }
 .wiz-build-btn::after { content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.15),transparent);background-size:200% 100%;animation:wizShimmer2 2.5s infinite;border-radius:inherit; }
 @keyframes wizShimmer2 { 0% { background-position:-200% center; } 100% { background-position:200% center; } }
 .wiz-build-btn:hover:not(:disabled) { transform:translateY(-2px);box-shadow:0 12px 40px var(--accent-dim),0 0 0 1px var(--accent-glow); }
@@ -815,7 +816,7 @@ const WIZ_CSS = `
 .wiz-build-btn:disabled::after { animation:none; }
 
 /* ── Card grid (priorities) — Bold cards with icon backgrounds ── */
-.title { font-size:22px;font-weight:800;background:linear-gradient(135deg,var(--accent),var(--accent2,var(--accent-light)));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin:0 0 6px; }
+.title { font-size:22px;font-weight:800;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin:0 0 6px; }
 .sub { font-size:14px;color:var(--text3);margin:0 0 24px;line-height:1.5;font-weight:500; }
 .card-grid { display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:32px; }
 .gcard { position:relative;border-radius:16px;padding:28px;cursor:pointer;background:var(--card);border:2px solid transparent;transition:all .3s cubic-bezier(.22,1,.36,1);overflow:hidden;animation:wizCardEntry .5s cubic-bezier(.22,1,.36,1) both; }
@@ -830,12 +831,18 @@ const WIZ_CSS = `
 .gcard:hover { background:var(--card-hover);transform:translateY(-6px);box-shadow:0 20px 40px rgba(0,0,0,.3); }
 .gcard:active { transform:translateY(-1px) scale(.98);transition-duration:.1s; }
 .gcard.sel { border-color:var(--accent);box-shadow:0 0 0 1px var(--accent-glow),0 8px 32px var(--accent-dim); }
-.gcard.sel::before { content:'';position:absolute;inset:0;background:linear-gradient(135deg,var(--accent-dim),transparent 60%);opacity:.3;pointer-events:none;border-radius:inherit; }
-.gcard-chk { position:absolute;top:14px;right:14px;width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2,var(--accent-light)));display:flex;align-items:center;justify-content:center;opacity:0;transform:scale(0);transition:all .35s cubic-bezier(.34,1.56,.64,1); }
+.gcard.sel::before { content:'';position:absolute;inset:0;background:linear-gradient(135deg,var(--accent-dim),rgba(56,189,248,0.05));pointer-events:none;border-radius:inherit; }
+.gcard-chk { position:absolute;top:14px;right:14px;width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;opacity:0;transform:scale(0);transition:all .35s cubic-bezier(.34,1.56,.64,1); }
 .gcard-chk svg { width:14px;height:14px;stroke:var(--bg);stroke-width:3;fill:none; }
 .gcard.sel .gcard-chk { opacity:1;transform:scale(1); }
 .gcard-head { pointer-events:none; }
 .gcard-icon { width:52px;height:52px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:16px;position:relative;background:var(--accent-dim); }
+.gcard-icon.ci-career { background:rgba(52,211,153,0.15); }
+.gcard-icon.ci-industry { background:rgba(56,189,248,0.15); }
+.gcard-icon.ci-learning { background:rgba(168,85,247,0.15); }
+.gcard-icon.ci-markets { background:rgba(245,158,11,0.15); }
+.gcard-icon.ci-deals { background:rgba(236,72,153,0.15); }
+.gcard-icon.ci-interests { background:rgba(249,115,22,0.15); }
 .gcard-name { font-size:16px;font-weight:700;color:var(--text);margin-bottom:6px; }
 .gcard-desc { font-size:13px;color:var(--text3);line-height:1.5; }
 .gcard-tap { position:absolute;bottom:10px;right:14px;font-size:11px;color:var(--accent-light);opacity:.5;pointer-events:none;transition:opacity .2s; }
@@ -861,6 +868,12 @@ const WIZ_CSS = `
 .det-hdr { display:flex;align-items:center;gap:12px;padding:16px 24px;cursor:pointer;transition:background .15s;user-select:none; }
 .det-hdr:hover { background:rgba(255,255,255,0.02); }
 .det-hdr-icon { width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:17px;background:var(--accent-dim); }
+.det-hdr-icon.di-career { background:rgba(52,211,153,0.12); }
+.det-hdr-icon.di-industry { background:rgba(56,189,248,0.12); }
+.det-hdr-icon.di-learning { background:rgba(168,85,247,0.12); }
+.det-hdr-icon.di-markets { background:rgba(245,158,11,0.12); }
+.det-hdr-icon.di-deals { background:rgba(236,72,153,0.12); }
+.det-hdr-icon.di-interests { background:rgba(249,115,22,0.12); }
 .det-hdr-name { font-size:15px;font-weight:700;color:var(--text);flex:1; }
 .det-hdr-tag { font-size:10px;padding:2px 8px;border-radius:10px;background:var(--accent-dim);color:var(--accent-light); }
 .det-hdr-chev { font-size:12px;color:var(--text3);transition:transform .25s; }
@@ -980,7 +993,7 @@ const WIZ_CSS = `
 .wiz-step-label { font-size:12px;font-weight:600;color:var(--text3);margin-left:8px;white-space:nowrap; }
 .wiz-step-label.active { color:var(--text); }
 .wiz-step-line { flex:1;height:2px;background:var(--brd);margin:0 14px; }
-.wiz-step-line.done { background:linear-gradient(90deg,var(--accent),var(--accent2,var(--accent-light))); }
+.wiz-step-line.done { background:linear-gradient(90deg,var(--accent),var(--accent2)); }
 
 /* ── Animations ── */
 @keyframes wizSpin { to { transform:rotate(360deg); } }
@@ -1257,7 +1270,7 @@ function renderCard(c) {
   const tapHint = sel ? '' : `<div class="gcard-tap">Tap to add</div>`;
   return `<div class="gcard ${sel ? 'sel' : ''}" onclick="_wiz.togCat('${c.id}')">
     <div class="gcard-chk">${CK}</div>
-    <div class="gcard-head"><div class="gcard-icon">${c.icon}</div><div class="gcard-name">${c.name}</div><div class="gcard-desc">${c.desc}</div></div>
+    <div class="gcard-head"><div class="gcard-icon ci-${c.id}">${c.icon}</div><div class="gcard-name">${c.name}</div><div class="gcard-desc">${c.desc}</div></div>
     ${bodyHTML}${tapHint}
   </div>`;
 }
@@ -1286,7 +1299,7 @@ function renderDetails() {
       }).join('');
       sectionsHTML += `<div class="det-section ${isCol ? 'collapsed' : ''}">
         <div class="det-hdr" onclick="_wiz.togDetSection('interests_det')">
-          <span class="det-hdr-icon">${tab.icon}</span>
+          <span class="det-hdr-icon di-${tab.id}">${tab.icon}</span>
           <span class="det-hdr-name">${tab.name}</span>
           ${interestTopics.length ? `<span class="det-hdr-tag">${interestTopics.length} topics</span>` : ''}
           <span class="det-hdr-chev">\u25BC</span>
@@ -1353,7 +1366,7 @@ function renderDetails() {
 
       sectionsHTML += `<div class="det-section ${isCol ? 'collapsed' : ''}">
         <div class="det-hdr" onclick="_wiz.togDetSection('${sec.id}')">
-          <span class="det-hdr-icon">${sec.icon}</span>
+          <span class="det-hdr-icon di-${tab.id}">${sec.icon}</span>
           <span class="det-hdr-name">${sec.name}</span>
           ${selCount ? `<span class="det-hdr-tag">${selCount} selected</span>` : ''}
           <span class="det-hdr-chev">\u25BC</span>
@@ -1605,6 +1618,7 @@ function toggleDeepMode() {
   if (cb) cb.checked = isOn;
   quick.classList.toggle('active', !isOn);
   deep.classList.toggle('active', isOn);
+  renderRail(); // update feed summary with new depth
 }
 
 
