@@ -893,6 +893,11 @@
                                 <input type="text" id="simple-location" data-tour="location-field" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-sm text-slate-200 focus:border-emerald-500 focus:outline-none" placeholder="e.g., Kuwait">
                             </div>
                         </div>
+                        <div class="mt-4">
+                            <button onclick="openWizard()" id="setup-wizard-btn" data-tour="wizard-btn" class="w-full px-4 py-3 text-sm font-medium flex items-center justify-center gap-2 transition-all rounded-lg strat-tip" style="background:linear-gradient(135deg, var(--accent), var(--accent-light, var(--accent))); color:white; box-shadow:0 2px 8px rgba(16,185,129,0.2);" data-tip="Step-by-step guided setup wizard — the easiest way to configure StratOS.">
+                                <i data-lucide="wand-2" class="w-4 h-4"></i> Setup Wizard
+                            </button>
+                        </div>
                     </div>
 
                     <!-- Context & Interests (Sources tab) -->
@@ -923,9 +928,6 @@
                         <div class="flex items-center gap-2 flex-wrap">
                             <button onclick="generateFromRole()" id="simple-generate-btn" class="px-4 py-2 text-sm font-medium flex items-center gap-2 transition-all rounded-lg strat-tip" style="background:var(--accent); color:white;" data-tip="Uses AI to generate tracking categories, keywords, and tickers based on your role and context.">
                                 <i data-lucide="zap" class="w-4 h-4"></i> Generate
-                            </button>
-                            <button onclick="openWizard()" id="setup-wizard-btn" data-tour="wizard-btn" class="px-3.5 py-2 text-sm font-medium flex items-center gap-2 transition-all rounded-lg strat-tip" style="background:transparent; color:var(--accent); border:1px solid var(--accent);" data-tip="Step-by-step guided setup wizard.">
-                                <i data-lucide="wand-2" class="w-4 h-4"></i> Setup Wizard
                             </button>
                             <button onclick="suggestContext()" id="suggest-context-btn" class="px-3.5 py-2 text-sm font-medium flex items-center gap-2 transition-all rounded-lg strat-tip" style="background:rgba(99,102,241,0.08); color:#818cf8; border:1px solid rgba(99,102,241,0.35);" data-tip="AI writes a context paragraph from your role — you can edit it after.">
                                 <i data-lucide="sparkles" class="w-4 h-4"></i> Suggest
