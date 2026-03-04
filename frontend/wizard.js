@@ -662,21 +662,25 @@ function initState() {
 
 
 const WIZ_CSS = `
-/* === Variable mapping: wizard → dashboard theme === */
+/* === Variables: hardcoded from preview-final.html (self-contained) === */
 .wiz-scope {
-  --bg: var(--bg-primary);
-  --bg-card: var(--bg-panel-solid);
-  --bg-card-hover: var(--bg-hover);
-  --accent: var(--accent);
+  --bg: #080d18;
+  --bg-primary: #0c1222;
+  --bg-card: #131b2e;
+  --bg-card-hover: #1a2640;
+  --accent: #34d399;
   --accent2: #38bdf8;
-  --accent-light: var(--accent-light);
-  --accent-dim: var(--accent-bg);
-  --accent-glow: var(--accent-border);
-  --text: var(--text-primary);
-  --text2: var(--text-secondary);
-  --text3: var(--text-muted);
-  --brd: var(--border-color);
+  --accent-light: #6ee7b7;
+  --accent-dim: rgba(52,211,153,0.1);
+  --accent-glow: rgba(52,211,153,0.2);
+  --text: #f8fafc;
+  --text2: #94a3b8;
+  --text3: #64748b;
+  --brd: rgba(255,255,255,0.06);
+  font-family: system-ui, -apple-system, sans-serif;
+  color: var(--text);
 }
+.wiz-scope *, .wiz-scope *::before, .wiz-scope *::after { box-sizing:border-box;margin:0;padding:0; }
 /* Theme overrides */
 .wiz-scope[data-wiz-theme="ember"] { --accent:#f59e0b;--accent-light:#fbbf24;--accent-dim:rgba(245,158,11,0.1);--accent-glow:rgba(245,158,11,0.2);--accent2:#ef4444; }
 .wiz-scope[data-wiz-theme="frost"] { --accent:#38bdf8;--accent-light:#7dd3fc;--accent-dim:rgba(56,189,248,0.1);--accent-glow:rgba(56,189,248,0.2);--accent2:#a78bfa; }
@@ -687,7 +691,7 @@ const WIZ_CSS = `
 .wiz-scope .backdrop.open { opacity:1;pointer-events:auto; }
 
 /* ── Modal ── */
-.wiz-scope .modal { position:fixed;inset:2vh 3vw;background:var(--bg);border-radius:18px;z-index:9999;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 32px 80px rgba(0,0,0,0.6),0 0 0 1px var(--brd);opacity:0;transform:scale(.94) translateY(16px);transition:opacity .4s cubic-bezier(.22,1,.36,1),transform .4s cubic-bezier(.22,1,.36,1);pointer-events:none; }
+.wiz-scope .modal { position:fixed;inset:2vh 3vw;background:var(--bg-primary);border-radius:18px;z-index:9999;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 32px 80px rgba(0,0,0,0.6),0 0 0 1px var(--brd);opacity:0;transform:scale(.94) translateY(16px);transition:opacity .4s cubic-bezier(.22,1,.36,1),transform .4s cubic-bezier(.22,1,.36,1);pointer-events:none; }
 .wiz-scope .modal.open { opacity:1;transform:none;pointer-events:auto; }
 .wiz-scope .modal::after { content:'';position:absolute;inset:0;opacity:0.03;pointer-events:none;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='.8'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");z-index:0; }
 .wiz-scope .modal > * { position:relative;z-index:1; }
