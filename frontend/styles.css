@@ -578,8 +578,8 @@ input::placeholder, textarea::placeholder {
 #theme-editor-panel.te-open { display: block; }
 
 .te-backdrop {
-    position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 998;
-    backdrop-filter: blur(2px); animation: teFadeIn 0.15s ease;
+    position: fixed; inset: 0; background: rgba(0,0,0,0.08); z-index: 998;
+    animation: teFadeIn 0.15s ease;
 }
 .te-container {
     position: fixed; right: 16px; top: 50%; transform: translateY(-50%);
@@ -679,6 +679,29 @@ input::placeholder, textarea::placeholder {
     font-size: 8px; color: var(--text-faint); text-align: center;
     letter-spacing: 0.03em;
 }
+.te-preset-row {
+    display: flex; gap: 4px; padding: 6px 0 0;
+}
+.te-preset-select {
+    flex: 1; padding: 4px 8px; border-radius: 6px;
+    border: 1px solid var(--border-strong); background: var(--bg-primary);
+    color: var(--text-primary); font-size: 11px; font-family: inherit;
+    cursor: pointer;
+}
+.te-btn-save {
+    padding: 4px 10px; border-radius: 6px;
+    border: 1px solid var(--accent); background: rgba(52,211,153,0.1);
+    color: var(--accent); font-size: 11px; font-weight: 600;
+    cursor: pointer; transition: background 0.2s;
+}
+.te-btn-save:hover { background: rgba(52,211,153,0.2); }
+.te-btn-del {
+    padding: 4px 8px; border-radius: 6px;
+    border: 1px solid var(--border-strong); background: none;
+    color: var(--text-muted); font-size: 11px; cursor: pointer;
+    transition: color 0.2s, border-color 0.2s;
+}
+.te-btn-del:hover { color: #f87171; border-color: #f87171; }
 
 @media (max-width: 640px) {
     .te-container { right: 8px; left: 8px; width: auto; max-height: 75vh; }

@@ -453,7 +453,8 @@ function _showScreen(mode) {
     ov.innerHTML = _backdrop(`
         <div class="auth-box">
             <button class="auth-back-btn" onclick="_authMode=_hasDbUsers?'email':'legacy';_showLanding()" title="Back">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                Back
             </button>
             <div class="auth-brand-sm">STRAT<span style="color:${_t.accent};">_</span>OS</div>
             <div id="auth-body"></div>
@@ -1117,8 +1118,8 @@ _css.textContent = `
 .auth-version { font-size:10px; color:rgba(100,116,139,.28); letter-spacing:2px; font-weight:600; }
 
 .auth-box { width:100%; max-width:480px; padding:44px 36px 40px; text-align:center; z-index:1; position:relative; animation:authFadeUp .45s ease; }
-.auth-back-btn { position:absolute; top:14px; left:10px; background:none; border:none; color:rgba(100,116,139,.65); cursor:pointer; padding:8px; border-radius:8px; transition:color .2s, background .2s; }
-.auth-back-btn:hover { color:rgba(226,232,240,.85); background:rgba(255,255,255,.06); }
+.auth-back-btn { position:absolute; top:14px; left:10px; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.08); color:rgba(148,163,184,.85); cursor:pointer; padding:6px 12px 6px 8px; border-radius:8px; transition:color .2s, background .2s; display:flex; align-items:center; gap:4px; font-size:12px; font-weight:500; font-family:inherit; }
+.auth-back-btn:hover { color:rgba(226,232,240,.95); background:rgba(255,255,255,.1); border-color:rgba(255,255,255,.15); }
 .auth-screen-title { font-size:26px; font-weight:300; color:rgba(226,232,240,.95); margin-bottom:6px; letter-spacing:.3px; }
 .auth-screen-hint { font-size:14px; color:rgba(148,163,184,.7); margin-bottom:28px; min-height:18px; transition:color .3s, opacity .3s; }
 

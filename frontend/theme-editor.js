@@ -132,9 +132,16 @@
     }
 
     // ── Storage helpers ──
+    function getBaseName() {
+        return document.documentElement.getAttribute('data-theme') || 'midnight';
+    }
+
     function getStorageKey() {
-        const base = document.documentElement.getAttribute('data-theme') || 'midnight';
-        return `stratos-theme-custom-${base}`;
+        return `stratos-theme-custom-${getBaseName()}`;
+    }
+
+    function getPresetsKey() {
+        return `stratos-theme-presets-${getBaseName()}`;
     }
 
     function loadOverrides() {
@@ -150,6 +157,25 @@
 
     function clearOverrides() {
         localStorage.removeItem(getStorageKey());
+    }
+
+    // ── Preset storage helpers ──
+    function _getPresets() {
+        try {
+            return JSON.parse(localStorage.getItem(getPresetsKey()) || '[]');
+        } catch { return []; }
+    }
+
+    function _savePresets(presets) {
+        localStorage.setItem(getPresetsKey(), JSON.stringify(presets));
+    }
+
+    function _refreshPresetList() {
+        const sel = document.getElementById('te-preset-select');
+        if (!sel) return;
+        const presets = _getPresets();
+        sel.innerHTML = '<option value="">Presets\u2026</option>' +
+            presets.map((p, i) => `<option value="${i}">${p.name}</option>`).join('');
     }
 
     // ── Apply overrides to the document ──
@@ -251,6 +277,13 @@
                 <div class="te-body" id="te-body"></div>
                 <div class="te-footer">
                     <div class="te-footer-hint">Changes save automatically per theme</div>
+                    <div class="te-preset-row">
+                        <select class="te-preset-select" id="te-preset-select" onchange="window._themeEditor.loadPreset(this.value)">
+                            <option value="">Presets\u2026</option>
+                        </select>
+                        <button class="te-btn te-btn-save" onclick="window._themeEditor.savePreset()" title="Save current as preset">Save</button>
+                        <button class="te-btn te-btn-del" onclick="window._themeEditor.deletePreset()" title="Delete selected preset">\u2715</button>
+                    </div>
                 </div>
             </div>
         `;
@@ -382,6 +415,7 @@
                 applyOverrides(overrides);
             }
             syncPickersToCurrentTheme();
+            _refreshPresetList();
             document.getElementById('theme-editor-panel').classList.add('te-open');
         },
 
@@ -408,6 +442,51 @@
             syncPickersToCurrentTheme();
         },
 
+        savePreset() {
+            const overrides = loadOverrides();
+            if (!Object.keys(overrides).length) return;
+            const name = prompt('Preset name:');
+            if (!name || !name.trim()) return;
+            const presets = _getPresets();
+            // Overwrite if same name exists
+            const idx = presets.findIndex(p => p.name === name.trim());
+            if (idx >= 0) {
+                presets[idx].overrides = { ...overrides };
+            } else {
+                presets.push({ name: name.trim(), overrides: { ...overrides } });
+            }
+            _savePresets(presets);
+            _refreshPresetList();
+            // Select the newly saved preset
+            const sel = document.getElementById('te-preset-select');
+            if (sel) sel.value = String(idx >= 0 ? idx : presets.length - 1);
+        },
+
+        loadPreset(indexStr) {
+            if (indexStr === '' || indexStr == null) return;
+            const presets = _getPresets();
+            const preset = presets[parseInt(indexStr)];
+            if (!preset) return;
+            // Apply preset overrides as current
+            saveOverrides(preset.overrides);
+            clearAllOverrides();
+            applyOverrides(preset.overrides);
+            syncPickersToCurrentTheme();
+        },
+
+        deletePreset() {
+            const sel = document.getElementById('te-preset-select');
+            if (!sel || sel.value === '') return;
+            const presets = _getPresets();
+            const idx = parseInt(sel.value);
+            const preset = presets[idx];
+            if (!preset) return;
+            if (!confirm(`Delete preset "${preset.name}"?`)) return;
+            presets.splice(idx, 1);
+            _savePresets(presets);
+            _refreshPresetList();
+        },
+
         // Called by setTheme() to re-apply overrides on theme switch
         onThemeChange() {
             setTimeout(() => {
@@ -417,6 +496,7 @@
                 }
                 if (document.getElementById('theme-editor-panel')?.classList.contains('te-open')) {
                     syncPickersToCurrentTheme();
+                    _refreshPresetList();
                 }
             }, 50);
         }

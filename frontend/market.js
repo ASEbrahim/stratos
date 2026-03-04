@@ -1111,6 +1111,27 @@ function toggleManualSearch() {}
 function applyManualSearchState() {}
 
 // ═══════════════════════════════════════════════════════════
+// TICKER TOGGLE (click to show/hide chart detail)
+// ═══════════════════════════════════════════════════════════
+
+function toggleTicker(symbol) {
+    const detail = document.getElementById('market-detail-section');
+    if (currentSymbol === symbol) {
+        // Deselect: hide chart detail, remove active highlight
+        currentSymbol = null;
+        document.querySelectorAll('.ticker-btn').forEach(btn => {
+            btn.classList.remove('bg-slate-700','border-slate-500');
+            btn.classList.add('bg-slate-800','border-slate-700');
+        });
+        if (detail) detail.style.display = 'none';
+    } else {
+        // Select: show chart detail and load chart
+        if (detail) detail.style.display = '';
+        updateChart(symbol);
+    }
+}
+
+// ═══════════════════════════════════════════════════════════
 // TICKER BUTTONS + DRAG REORDER
 // ═══════════════════════════════════════════════════════════
 
@@ -1127,7 +1148,7 @@ function renderTickerButtons() {
         const ad = _resolveData(sym, currentTimeframe);
         const chg = ad?.change || 0;
         const up = chg>=0, lbl = sym.replace('-USD','').replace('=F','');
-        return `<button draggable="true" data-symbol="${sym}" ondragstart="_tickerDragStart(event)" ondragover="_tickerDragOver(event)" ondrop="_tickerDrop(event)" ondragend="_tickerDragEnd(event)" onclick="updateChart('${sym}')" class="ticker-btn flex-shrink-0 bg-slate-800 border border-slate-700 rounded px-2.5 py-1 hover:border-slate-500 transition-all flex items-center gap-1.5 cursor-grab active:cursor-grabbing"><span class="text-xs font-mono font-bold text-slate-300">${lbl}</span><span class="text-[10px] font-mono font-bold ${up?'text-emerald-400':'text-red-400'}">${up?'+':''}${chg.toFixed(1)}%</span></button>`;
+        return `<button draggable="true" data-symbol="${sym}" ondragstart="_tickerDragStart(event)" ondragover="_tickerDragOver(event)" ondrop="_tickerDrop(event)" ondragend="_tickerDragEnd(event)" onclick="toggleTicker('${sym}')" class="ticker-btn flex-shrink-0 bg-slate-800 border border-slate-700 rounded px-2.5 py-1 hover:border-slate-500 transition-all flex items-center gap-1.5 cursor-grab active:cursor-grabbing"><span class="text-xs font-mono font-bold text-slate-300">${lbl}</span><span class="text-[10px] font-mono font-bold ${up?'text-emerald-400':'text-red-400'}">${up?'+':''}${chg.toFixed(1)}%</span></button>`;
     }).join('');
 }
 
