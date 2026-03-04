@@ -46,6 +46,7 @@ class AuthManager:
         '/api/wizard-preselect': (5, 60),
         '/api/wizard-tab-suggest': (10, 60),
         '/api/wizard-rv-items': (10, 60),
+        '/api/agent-warmup': (2, 60),
     }
 
     AUTH_EXEMPT = {
