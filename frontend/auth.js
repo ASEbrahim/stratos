@@ -1032,9 +1032,8 @@ function _clearProfileLocalStorage() {
     for (let i = 0; i < localStorage.length; i++) {
         const k = localStorage.key(i);
         if (!k) continue;
-        // Keep only auth tokens, device ID, and theme — clear everything else
-        // Note: stratos_tour_never is intentionally NOT preserved so new profiles get the tour
-        if (k === AUTH_TOKEN_KEY || k === AUTH_PROFILE_KEY || k === DEVICE_ID_KEY || k === AUTH_THEME_KEY) continue;
+        // Preserved — auth tokens, device ID, theme, and tour preference persist across sessions
+        if (k === AUTH_TOKEN_KEY || k === AUTH_PROFILE_KEY || k === DEVICE_ID_KEY || k === AUTH_THEME_KEY || k === 'stratos_tour_never') continue;
         keysToRemove.push(k);
     }
     keysToRemove.forEach(k => localStorage.removeItem(k));
