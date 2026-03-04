@@ -349,7 +349,7 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                 return
 
             # SSE event stream — replaces polling for real-time updates
-            if self.path == "/api/events":
+            if self.path.startswith("/api/events"):
                 self.send_response(200)
                 self.send_header("Content-Type", "text/event-stream")
                 self.send_header("Cache-Control", "no-cache")
@@ -362,7 +362,17 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                 self.wfile.write(f"event: status\ndata: {init_data}\n\n".encode())
                 self.wfile.flush()
 
-                strat.sse_register(self.wfile)
+                # Resolve profile_id from token query param for profile-scoped SSE
+                sse_pid = 0
+                try:
+                    from urllib.parse import urlparse, parse_qs
+                    qs = parse_qs(urlparse(self.path).query)
+                    sse_token = (qs.get('token') or [''])[0]
+                    if sse_token and auth.validate_session(sse_token):
+                        sse_pid = _get_profile_id(sse_token) or 0
+                except Exception:
+                    pass
+                strat.sse_register(self.wfile, profile_id=sse_pid)
                 try:
                     # Keep alive with heartbeats every 15s
                     while True:

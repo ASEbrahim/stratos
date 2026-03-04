@@ -902,14 +902,14 @@ Previous automated score was {first_score:.1f} (uncertain). Please re-evaluate c
             return first_score, f"LLM: rescore failed, keeping {first_score:.1f}"
 
         try:
-            score_match = re.search(r'SCORE:\s*(\d+\.?\d*)', clean, re.IGNORECASE)
-            reason_match = re.search(r'REASON:\s*(.+)', clean, re.IGNORECASE)
-            if score_match:
-                rescore = float(score_match.group(1))
+            score_matches = re.findall(r'SCORE:\s*(\d+\.?\d*)', clean, re.IGNORECASE)
+            reason_matches = re.findall(r'REASON:\s*(.+)', clean, re.IGNORECASE)
+            if score_matches:
+                rescore = float(score_matches[-1])  # Last match — avoids title injection
                 rescore = max(0.0, min(10.0, rescore))
                 if 4.8 <= rescore <= 5.2:
                     rescore = 5.3 if rescore >= 5.0 else 4.8
-                reason = reason_match.group(1).strip() if reason_match else "rescored"
+                reason = reason_matches[-1].strip() if reason_matches else "rescored"
                 return rescore, f"LLM-rescore: {reason}"
         except (ValueError, AttributeError):
             pass
@@ -934,18 +934,18 @@ Previous automated score was {first_score:.1f} (uncertain). Please re-evaluate c
             return rule_score, "LLM no response, using rule score"
 
         try:
-            score_match = re.search(r'SCORE:\s*(\d+\.?\d*)', clean, re.IGNORECASE)
-            reason_match = re.search(r'REASON:\s*(.+)', clean, re.IGNORECASE)
+            score_matches = re.findall(r'SCORE:\s*(\d+\.?\d*)', clean, re.IGNORECASE)
+            reason_matches = re.findall(r'REASON:\s*(.+)', clean, re.IGNORECASE)
 
-            if score_match:
-                llm_score = float(score_match.group(1))
+            if score_matches:
+                llm_score = float(score_matches[-1])  # Last match — avoids title injection
                 llm_score = max(0.0, min(10.0, llm_score))
 
                 # Forbidden 5.0
                 if 4.8 <= llm_score <= 5.2:
                     llm_score = 5.3 if llm_score >= 5.0 else 4.8
 
-                reason = reason_match.group(1).strip() if reason_match else "LLM scored"
+                reason = reason_matches[-1].strip() if reason_matches else "LLM scored"
                 return llm_score, f"LLM: {reason}"
         except (ValueError, AttributeError):
             pass

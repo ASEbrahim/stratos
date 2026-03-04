@@ -158,17 +158,17 @@ class StratOS:
 
     # ═══ SSE Push (delegates to SSEManager) ═══════════════════════
 
-    def sse_register(self, wfile):
-        """Register a new SSE client connection."""
-        self.sse.register(wfile)
+    def sse_register(self, wfile, profile_id=0):
+        """Register a new SSE client connection with optional profile scope."""
+        self.sse.register(wfile, profile_id=profile_id)
 
     def sse_unregister(self, wfile):
         """Remove a disconnected SSE client."""
         self.sse.unregister(wfile)
 
-    def sse_broadcast(self, event_type: str, data: dict = None):
-        """Push an event to all connected SSE clients."""
-        self.sse.broadcast(event_type, data)
+    def sse_broadcast(self, event_type: str, data: dict = None, profile_id=None):
+        """Push an event to connected SSE clients (profile_id=None → all)."""
+        self.sse.broadcast(event_type, data, profile_id=profile_id)
 
     # ═══ Profile Isolation (A2.1) ═════════════════════════════════
 
@@ -581,7 +581,7 @@ class StratOS:
             self.scan_status["data_version"] = self._get_data_version()
             self.sse_broadcast("complete", {"data_version": self.scan_status["data_version"]})
 
-            # Broadcast critical signals for push notifications
+            # Broadcast critical signals for push notifications (profile-scoped)
             for item in scored_items:
                 if item.get('score', 0) >= 9.0:
                     self.sse_broadcast("critical_signal", {
@@ -590,7 +590,7 @@ class StratOS:
                         "reason": item.get('score_reason', ''),
                         "url": item.get('url', ''),
                         "category": item.get('category', ''),
-                    })
+                    }, profile_id=_scan_pid)
 
             # Shadow scoring — validates AdaptiveScorer vs AIScorer (daemon thread)
             self._run_shadow_scoring(scored_items, scan_id, profile_id=_scan_pid)
@@ -1060,7 +1060,7 @@ class StratOS:
             self.scan_status["data_version"] = self._get_data_version()
             self.sse_broadcast("complete", {"data_version": self.scan_status["data_version"]})
 
-            # Broadcast critical signals for push notifications
+            # Broadcast critical signals for push notifications (profile-scoped)
             for item in scored_items:
                 if item.get('score', 0) >= 9.0:
                     self.sse_broadcast("critical_signal", {
@@ -1069,7 +1069,7 @@ class StratOS:
                         "reason": item.get('score_reason', ''),
                         "url": item.get('url', ''),
                         "category": item.get('category', ''),
-                    })
+                    }, profile_id=_scan_pid)
 
             # Shadow scoring — validates AdaptiveScorer vs AIScorer (daemon thread)
             self._run_shadow_scoring(scored_items, scan_id, profile_id=_scan_pid)

@@ -520,10 +520,15 @@ class ScoringMemory:
     - "User dismissed these as noise" (dismissals, low ratings)
     - "Scoring corrections" (where user disagreed with AI score)
     """
-    DEFAULT_PATH = Path(__file__).parent.parent / "data" / "memory.json"
+    DEFAULT_DIR = Path(__file__).parent.parent / "data"
 
     def __init__(self, memory_path=None, max_examples=10, min_score=8.5, db=None, profile_id=0):
-        self.memory_path = memory_path or self.DEFAULT_PATH
+        if memory_path:
+            self.memory_path = memory_path
+        elif profile_id:
+            self.memory_path = self.DEFAULT_DIR / f"memory_{profile_id}.json"
+        else:
+            self.memory_path = self.DEFAULT_DIR / "memory.json"
         self.max_examples = max_examples
         self.min_score = min_score
         self.db = db  # Database reference for feedback loop
@@ -535,7 +540,13 @@ class ScoringMemory:
     def _ensure_file_exists(self):
         if not self.memory_path.exists():
             self.memory_path.parent.mkdir(parents=True, exist_ok=True)
-            self._save({"version": "1.0", "last_updated": "", "examples": []})
+            # Seed profile-specific memory from global memory.json if available
+            global_path = self.DEFAULT_DIR / "memory.json"
+            if self.profile_id and global_path.exists() and global_path != self.memory_path:
+                import shutil
+                shutil.copy2(global_path, self.memory_path)
+            else:
+                self._save({"version": "1.0", "last_updated": "", "examples": []})
 
     def _load(self):
         try:

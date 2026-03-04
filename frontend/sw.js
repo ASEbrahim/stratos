@@ -1,5 +1,5 @@
 // STRAT_OS Service Worker — network-first with offline shell caching
-const CACHE_NAME = 'stratos-v11';
+const CACHE_NAME = 'stratos-v12';
 
 // App shell — pre-cache these for instant offline loading
 const SHELL_ASSETS = [
@@ -51,7 +51,13 @@ self.addEventListener('fetch', (e) => {
     if (url.origin !== self.location.origin) return;
 
     // API calls: network-first, cache fallback
+    // Profile-sensitive endpoints skip cache entirely to prevent cross-profile data leaks
+    const NO_CACHE_API = ['/api/data', '/api/config', '/api/status', '/api/briefing', '/api/news', '/api/auth/'];
     if (url.pathname.startsWith('/api/')) {
+        if (NO_CACHE_API.some(p => url.pathname.startsWith(p))) {
+            e.respondWith(fetch(e.request));
+            return;
+        }
         e.respondWith(
             fetch(e.request)
                 .then(resp => {

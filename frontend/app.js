@@ -1047,7 +1047,10 @@ function _connectSSE() {
     if (_sseSource) { try { _sseSource.close(); } catch(e){} }
     
     try {
-        _sseSource = new EventSource('/api/events');
+        const _sseUrl = typeof getAuthToken === 'function' && getAuthToken()
+            ? '/api/events?token=' + encodeURIComponent(getAuthToken())
+            : '/api/events';
+        _sseSource = new EventSource(_sseUrl);
         
         _sseSource.onopen = () => {
             console.log('[SSE] Connected — polling disabled');
