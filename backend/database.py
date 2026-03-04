@@ -110,39 +110,10 @@ class Database:
             logger.error(f"Failed to save news item: {e}")
             return False
     
-    def update_news_score(self, item_id: str, score: float, reason: str = None):
-        """Update the score for a news item."""
-        cursor = self.conn.cursor()
-        cursor.execute("""
-            UPDATE news_items SET score = ?, score_reason = ? WHERE id = ?
-        """, (score, reason, item_id))
-        self._commit()
-    
-    def get_recent_news(self, hours: int = 24, min_score: float = 0.0) -> List[Dict]:
-        """Get recent news items above minimum score."""
-        cursor = self.conn.cursor()
-        since = (datetime.now() - timedelta(hours=hours)).isoformat()
-        cursor.execute("""
-            SELECT * FROM news_items 
-            WHERE fetched_at > ? AND score >= ? AND dismissed = 0
-            ORDER BY score DESC, fetched_at DESC
-        """, (since, min_score))
-        return [dict(row) for row in cursor.fetchall()]
-    
-    def get_news_by_id(self, item_id: str) -> Optional[Dict]:
-        """Get a specific news item by ID."""
-        cursor = self.conn.cursor()
-        cursor.execute("SELECT * FROM news_items WHERE id = ?", (item_id,))
-        row = cursor.fetchone()
-        return dict(row) if row else None
-    
-    def dismiss_news(self, item_id: str):
-        """Mark a news item as dismissed."""
-        cursor = self.conn.cursor()
-        cursor.execute("UPDATE news_items SET dismissed = 1 WHERE id = ?", (item_id,))
-        self._commit()
-
     def was_dismissed(self, url: str, profile_id: int = 0) -> bool:
+        # Note: Dismissal is tracked via user_feedback (action='dismiss'), NOT the
+        # news_items.dismissed column. That column and its writer (dismiss_news) are
+        # both dead — no live code path reads or writes news_items.dismissed.
         """Check if a URL was dismissed by the user (via user_feedback table)."""
         cursor = self.conn.cursor()
         cursor.execute(
@@ -151,21 +122,6 @@ class Database:
         )
         return cursor.fetchone() is not None
 
-    def is_url_seen(self, url: str) -> bool:
-        """Check if we've already fetched this URL."""
-        cursor = self.conn.cursor()
-        cursor.execute("SELECT 1 FROM news_items WHERE url = ?", (url,))
-        return cursor.fetchone() is not None
-    
-    def mark_shown(self, item_ids: List[str]):
-        """Mark items as shown to user."""
-        cursor = self.conn.cursor()
-        cursor.executemany(
-            "UPDATE news_items SET shown_to_user = 1 WHERE id = ?",
-            [(id,) for id in item_ids]
-        )
-        self._commit()
-    
     # =========================================================================
     # MARKET DATA
     # =========================================================================
@@ -189,28 +145,6 @@ class Database:
             datetime.now().isoformat()
         ))
         self._commit()
-    
-    def get_market_trend(self, symbol: str, days: int = 5) -> List[Dict]:
-        """Get historical price snapshots for trend analysis."""
-        cursor = self.conn.cursor()
-        since = (datetime.now() - timedelta(days=days)).isoformat()
-        cursor.execute("""
-            SELECT * FROM market_snapshots 
-            WHERE symbol = ? AND interval = '5m' AND snapshot_at > ?
-            ORDER BY snapshot_at ASC
-        """, (symbol, since))
-        return [dict(row) for row in cursor.fetchall()]
-    
-    def get_latest_market(self, symbol: str) -> Optional[Dict]:
-        """Get the most recent market snapshot for a symbol."""
-        cursor = self.conn.cursor()
-        cursor.execute("""
-            SELECT * FROM market_snapshots 
-            WHERE symbol = ? 
-            ORDER BY snapshot_at DESC LIMIT 1
-        """, (symbol,))
-        row = cursor.fetchone()
-        return dict(row) if row else None
     
     # =========================================================================
     # ENTITY DISCOVERY
@@ -240,17 +174,6 @@ class Database:
         row = cursor.fetchone()
         return row['avg_mentions'] if row and row['avg_mentions'] else 0.0
     
-    def get_recent_mentions(self, entity_name: str, hours: int = 24) -> int:
-        """Get total mentions in recent period."""
-        cursor = self.conn.cursor()
-        since = (datetime.now() - timedelta(hours=hours)).isoformat()
-        cursor.execute("""
-            SELECT SUM(mention_count) as total FROM entity_mentions
-            WHERE entity_name = ? AND recorded_at > ?
-        """, (entity_name, since))
-        row = cursor.fetchone()
-        return row['total'] if row and row['total'] else 0
-    
     def add_tracked_entity(self, name: str, category: str, is_discovered: bool = False):
         """Add a new entity to track."""
         cursor = self.conn.cursor()
@@ -273,12 +196,6 @@ class Database:
         else:
             cursor.execute("SELECT * FROM entities")
         return [dict(row) for row in cursor.fetchall()]
-    
-    def deactivate_entity(self, name: str):
-        """Stop tracking an entity."""
-        cursor = self.conn.cursor()
-        cursor.execute("UPDATE entities SET is_active = 0 WHERE name = ?", (name,))
-        self._commit()
     
     # =========================================================================
     # BRIEFINGS
@@ -317,22 +234,6 @@ class Database:
             result.append(d)
         return result
 
-    def get_briefing_by_date(self, date_str: str, profile_id: int = 0) -> Optional[Dict]:
-        """Get briefing for a specific date and profile."""
-        cursor = self.conn.cursor()
-        cursor.execute("""
-            SELECT * FROM briefings
-            WHERE DATE(generated_at) = DATE(?) AND profile_id = ?
-            ORDER BY generated_at DESC LIMIT 1
-        """, (date_str, profile_id))
-        row = cursor.fetchone()
-        if row:
-            d = dict(row)
-            d['content'] = json.loads(d['content_json'])
-            del d['content_json']
-            return d
-        return None
-    
     # =========================================================================
     # SCAN LOG
     # =========================================================================
