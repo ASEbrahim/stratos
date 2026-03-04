@@ -372,7 +372,10 @@ let _suggestDebounceTimer = null;   // Step 3: debounce timer for suggestion ref
 let _suggestAbortCtrl = null;       // Step 3: AbortController for in-flight suggest requests
 let _s2BannerDismissed = false;     // Step 3: banner dismissed flag
 
-const WIZ_STORAGE_KEY = 'stratos_wizard_state';
+function _wizKey() {
+  const p = (typeof getActiveProfile === 'function') ? getActiveProfile() : '';
+  return p ? `stratos_wizard_state_${p}` : 'stratos_wizard_state';
+}
 
 function _wizSaveState() {
   try {
@@ -384,7 +387,7 @@ function _wizSaveState() {
       serPanelSel[sid] = {};
       for (const [qid, set] of Object.entries(qs)) serPanelSel[sid][qid] = [...set];
     }
-    localStorage.setItem(WIZ_STORAGE_KEY, JSON.stringify({
+    localStorage.setItem(_wizKey(), JSON.stringify({
       selCats: [...selCats],
       selSubs: serSubs,
       customSubs,
@@ -398,11 +401,11 @@ function _wizSaveState() {
 
 function _wizLoadState() {
   try {
-    const raw = localStorage.getItem(WIZ_STORAGE_KEY);
+    const raw = localStorage.getItem(_wizKey());
     if (!raw) return false;
     const saved = JSON.parse(raw);
     // Expire after 24 hours
-    if (Date.now() - (saved.ts || 0) > 86400000) { localStorage.removeItem(WIZ_STORAGE_KEY); return false; }
+    if (Date.now() - (saved.ts || 0) > 86400000) { localStorage.removeItem(_wizKey()); return false; }
     if (!saved.selCats?.length) return false;
 
     selCats = new Set(saved.selCats);
@@ -436,26 +439,35 @@ function _wizLoadState() {
 }
 
 function _wizClearState() {
-  try { localStorage.removeItem(WIZ_STORAGE_KEY); } catch(e) {}
+  try { localStorage.removeItem(_wizKey()); } catch(e) {}
+}
+
+function clearAll() {
+  initState();
+  _wizClearState();
+  renderAll();
 }
 
 /* ═══════════════════════════════════════
    PROFILE PRESETS
    ═══════════════════════════════════════ */
 
-const PRESETS_STORAGE_KEY = 'stratos_wizard_presets';
+function _presetsKey() {
+  const p = (typeof getActiveProfile === 'function') ? getActiveProfile() : '';
+  return p ? `stratos_wizard_presets_${p}` : 'stratos_wizard_presets';
+}
 let _presetMenuOpen = false;
 
 function _getPresets() {
   try {
-    const raw = localStorage.getItem(PRESETS_STORAGE_KEY);
+    const raw = localStorage.getItem(_presetsKey());
     return raw ? JSON.parse(raw) : {};
   } catch(e) { return {}; }
 }
 
 function _setPresets(presets) {
   try {
-    localStorage.setItem(PRESETS_STORAGE_KEY, JSON.stringify(presets));
+    localStorage.setItem(_presetsKey(), JSON.stringify(presets));
   } catch(e) {
     if (typeof showToast === 'function') showToast('Storage full \u2014 delete some presets to save new ones', 'warning');
   }
@@ -981,6 +993,8 @@ const WIZ_CSS = `
 .wiz-scope .preset-btn.open { background:rgba(255,255,255,0.06);color:var(--text); }
 .wiz-scope .preset-chev { font-size:9px;transition:transform 0.2s; }
 .wiz-scope .preset-btn.open .preset-chev { transform:rotate(180deg); }
+.wiz-scope .wiz-clear-all-btn { padding:5px 12px;border-radius:8px;border:1px solid rgba(255,100,100,0.25);background:rgba(255,100,100,0.08);color:#ff8a8a;font-size:11px;font-weight:600;cursor:pointer;transition:all 0.2s;white-space:nowrap;letter-spacing:0.3px; }
+.wiz-scope .wiz-clear-all-btn:hover { background:rgba(255,100,100,0.18);color:#ff6b6b;border-color:rgba(255,100,100,0.4); }
 .wiz-scope .preset-save-btn-hdr { padding:5px 12px;border-radius:8px;border:1px solid var(--accent-glow);background:var(--accent-dim);color:var(--accent-light);font-size:12px;font-weight:600;cursor:pointer;transition:all 0.2s;white-space:nowrap; }
 .wiz-scope .preset-save-btn-hdr:hover { background:var(--accent-glow);color:var(--text); }
 @keyframes wiz-save-flash { 0%,100%{box-shadow:0 0 0 0 var(--accent-glow);} 50%{box-shadow:0 0 12px 4px var(--accent-glow);} }
@@ -1066,6 +1080,7 @@ const WIZ_CSS = `
   .wiz-scope .hdr { padding:10px 16px;gap:8px;flex-wrap:wrap; }
   .wiz-scope .badge { font-size:9px; }
   .wiz-scope .atmos-selector { display:none; }
+  .wiz-scope .wiz-clear-all-btn { display:none; }
   .wiz-scope .body { flex-direction:column; }
   .wiz-scope .rail { width:100%;min-width:unset;border-right:none;border-top:1px solid var(--brd);position:fixed;bottom:0;left:0;right:0;z-index:10000;max-height:70vh;transform:translateY(calc(100% - 52px));transition:transform .35s cubic-bezier(.4,0,.2,1);background:var(--bg);border-radius:16px 16px 0 0;box-shadow:0 -4px 24px rgba(0,0,0,.3); }
   .wiz-scope .rail.expanded { transform:translateY(0); }
@@ -1126,10 +1141,11 @@ function injectDOM(role, location) {
           ${location ? `<span class="badge blue" data-tip="Your location">${esc(location)}</span>` : ''}
         </div>
         <div class="preset-dd" id="wiz-preset-dd"></div>
+        <button class="wiz-clear-all-btn" onclick="_wiz.clearAll()" data-tip="Reset all selections">Clear All</button>
         <div class="atmos-selector">
-          <button class="atmos-btn active" data-atmos="clean" onclick="_wiz.setAtmosphere(this)">Clean</button>
+          <button class="atmos-btn active" data-atmos="arcane" onclick="_wiz.setAtmosphere(this)">Arcane</button>
+          <button class="atmos-btn" data-atmos="clean" onclick="_wiz.setAtmosphere(this)">Clean</button>
           <button class="atmos-btn" data-atmos="deep" onclick="_wiz.setAtmosphere(this)">Deep</button>
-          <button class="atmos-btn" data-atmos="arcane" onclick="_wiz.setAtmosphere(this)">Arcane</button>
         </div>
         <div class="ring-wrap" id="wiz-ring-wrap" data-tip="Profile completion progress">
           <svg width="40" height="40" viewBox="0 0 42 42">
@@ -1604,13 +1620,13 @@ function renderStepBar() {
     return selSubs[id] && selSubs[id].size > 0;
   });
   el.innerHTML = `<div class="steps-bar">
-    <div class="step-num-circle ${hasCats ? 'done' : 'active'}" data-tip="Step 1: Choose your priority categories">1</div>
+    <div class="step-num-circle ${hasCats ? 'done' : 'active'}" data-tip="Step 1: Choose your priority categories" data-tip-pos="bottom">1</div>
     <span class="step-bar-label ${hasCats ? 'active' : ''}">Priorities</span>
     <div class="step-line ${hasCats ? 'done' : ''}"></div>
-    <div class="step-num-circle ${hasDetails ? 'done' : hasCats ? 'active' : ''}" data-tip="Step 2: Fine-tune your selections">2</div>
+    <div class="step-num-circle ${hasDetails ? 'done' : hasCats ? 'active' : ''}" data-tip="Step 2: Fine-tune your selections" data-tip-pos="bottom">2</div>
     <span class="step-bar-label ${hasCats ? 'active' : ''}">Details</span>
     <div class="step-line ${hasDetails ? 'done' : ''}"></div>
-    <div class="step-num-circle ${hasDetails ? 'active' : ''}" data-tip="Step 3: Preview and build your feed">3</div>
+    <div class="step-num-circle ${hasDetails ? 'active' : ''}" data-tip="Step 3: Preview and build your feed" data-tip-pos="bottom">3</div>
     <span class="step-bar-label ${hasDetails ? 'active' : ''}">Build</span>
   </div>`;
 }
@@ -1645,16 +1661,14 @@ function setAtmosphere(btnEl) {
 
 function restoreAtmosphere() {
   try {
-    const a = localStorage.getItem('wiz-atmosphere');
-    if (a && a !== 'clean') {
-      const root = document.getElementById('wiz-root');
-      if (root) {
-        root.setAttribute('data-wiz-atmos', a);
-        root.querySelectorAll('.atmos-btn').forEach(b => {
-          b.classList.toggle('active', b.getAttribute('data-atmos') === a);
-        });
-        if (a === 'arcane') _startWizStars();
-      }
+    const a = localStorage.getItem('wiz-atmosphere') || 'arcane';
+    const root = document.getElementById('wiz-root');
+    if (root) {
+      if (a !== 'arcane') root.setAttribute('data-wiz-atmos', a);
+      root.querySelectorAll('.atmos-btn').forEach(b => {
+        b.classList.toggle('active', b.getAttribute('data-atmos') === a);
+      });
+      if (a === 'arcane') _startWizStars();
     }
   } catch(e) {}
 }
