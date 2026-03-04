@@ -408,6 +408,7 @@ def run_migrations(conn):
     applied = 0
 
     if current >= total:
+        conn.commit()  # commit the schema_version check to release write lock
         logger.info(f"Database schema up to date (version {current})")
         return 0
 
