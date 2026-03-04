@@ -1223,8 +1223,8 @@ function renderPriorities() {
   const el = document.getElementById('wiz-priorities');
   if (!el) return;
   el.innerHTML = `
-    <h1 class="title">What matters to you?</h1>
-    <p class="sub">Select your areas of interest, then pick focus areas within each.</p>
+    <h1 class="title">Choose Your Focus Areas</h1>
+    <p class="sub">Select the categories that matter most to you</p>
     <div class="card-grid">${CATS.map(c => renderCard(c)).join('')}</div>
     <div class="quick-setup-wrap">
       <button class="quick-setup-btn" onclick="_wiz.skipToQuick()">&#x26A1; Quick Setup <span class="quick-setup-sub">Auto-configure based on your role</span></button>
@@ -1258,7 +1258,7 @@ function renderCard(c) {
   const tapHint = sel ? '' : `<div class="gcard-tap">Tap to add</div>`;
   return `<div class="gcard ${sel ? 'sel' : ''}" onclick="_wiz.togCat('${c.id}')">
     <div class="gcard-chk">${CK}</div>
-    <div class="gcard-head"><span class="gcard-icon">${c.icon}</span><div class="gcard-name">${c.name}</div><div class="gcard-desc">${c.desc}</div></div>
+    <div class="gcard-head"><div class="gcard-icon">${c.icon}</div><div class="gcard-name">${c.name}</div><div class="gcard-desc">${c.desc}</div></div>
     ${bodyHTML}${tapHint}
   </div>`;
 }
@@ -1367,8 +1367,9 @@ function renderDetails() {
   }
 
   el.innerHTML = `
-    <h1 class="title" style="margin-top:40px">Dial it in</h1>
-    <p class="sub">Configure each area for personalized results.</p>
+    <div style="height:1px;background:linear-gradient(90deg,transparent,var(--brd),var(--brd),transparent);margin:8px 0 32px"></div>
+    <h1 class="title">Fine-tune Your Selections</h1>
+    <p class="sub">Customize each category to get exactly the intelligence you need.</p>
     ${bannerH}${sectionsHTML}`;
 }
 
