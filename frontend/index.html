@@ -251,6 +251,11 @@
                                             <span id="agent-model-badge" class="text-[9px] font-mono px-1.5 py-0.5 rounded" style="background:rgba(16,185,129,0.08); color:var(--accent,#34d399); border:1px solid rgba(16,185,129,0.15);"></span>
                                         </div>
                                         <p class="text-[10px] mt-0.5" style="color:var(--text-muted);">Search the web, manage your feed, analyze signals</p>
+                                        <div class="flex items-center gap-1 mt-1">
+                                            <span class="text-[8px] font-mono px-1.5 py-0.5 rounded-full strat-tip" style="background:rgba(99,102,241,0.1); color:#818cf8; border:1px solid rgba(99,102,241,0.2);" data-tip="Agent can search the web for real-time info.">🔍 Search</span>
+                                            <span class="text-[8px] font-mono px-1.5 py-0.5 rounded-full strat-tip" style="background:rgba(16,185,129,0.1); color:#34d399; border:1px solid rgba(16,185,129,0.2);" data-tip="Agent can add/remove market tickers.">📊 Watchlist</span>
+                                            <span class="text-[8px] font-mono px-1.5 py-0.5 rounded-full strat-tip" style="background:rgba(251,191,36,0.1); color:#fbbf24; border:1px solid rgba(251,191,36,0.2);" data-tip="Agent can manage tracking categories.">🏷️ Categories</span>
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="flex items-center gap-0.5">
@@ -871,26 +876,33 @@
                         </div>
                     </div>
 
-                    <!-- Quick Profile -->
+                    <!-- Quick Profile — Who are you? (Profile tab) -->
                     <div class="glass-panel rounded-xl p-6" data-stab="profile">
                         <h3 class="text-sm font-bold text-slate-200 mb-1 flex items-center gap-2">
                             <i data-lucide="user" class="w-4 h-4" style="color:var(--accent)"></i> Who are you?
+                            <span class="strat-tip" data-tip="Your role and location shape how the AI scores and prioritizes news for you."><i data-lucide="info" class="w-3 h-3" style="color:var(--text-muted);"></i></span>
                         </h3>
-                        <p class="text-xs text-slate-500 mb-4">Type your role and context, then let AI generate what to track.</p>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <p class="text-xs text-slate-500 mb-4">Tell StratOS who you are so it can personalize your feed.</p>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                                <label class="text-xs text-slate-400 block mb-1.5 font-medium">Your role</label>
+                                <label class="text-xs text-slate-400 block mb-1.5 font-medium strat-tip" data-tip="Your profession or role — shapes which topics the AI considers high-priority for you.">Your role</label>
                                 <input type="text" id="simple-role" data-tour="role-field" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-sm text-slate-200 focus:border-emerald-500 focus:outline-none" placeholder="e.g., Computer Engineering Student">
                             </div>
                             <div>
-                                <label class="text-xs text-slate-400 block mb-1.5 font-medium">Location</label>
+                                <label class="text-xs text-slate-400 block mb-1.5 font-medium strat-tip" data-tip="Your location — enables region-specific news sources and local market tracking.">Location</label>
                                 <input type="text" id="simple-location" data-tour="location-field" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-sm text-slate-200 focus:border-emerald-500 focus:outline-none" placeholder="e.g., Kuwait">
                             </div>
                         </div>
+                    </div>
+
+                    <!-- Context & Interests (Sources tab) -->
+                    <div class="glass-panel rounded-xl p-6" data-stab="sources">
+                        <h3 class="text-sm font-bold text-slate-200 mb-1 flex items-center gap-2">
+                            <i data-lucide="brain" class="w-4 h-4" style="color:var(--accent)"></i> Context & Interests
+                            <span class="strat-tip" data-tip="Describe what you care about — the AI uses this to score relevance, generate categories, and write briefings."><i data-lucide="info" class="w-3 h-3" style="color:var(--text-muted);"></i></span>
+                        </h3>
+                        <p class="text-xs text-slate-500 mb-4">Describe your interests so AI can generate relevant tracking categories.</p>
                         <div class="mb-4">
-                            <div class="flex items-center justify-between mb-1.5">
-                                <label class="text-xs text-slate-400 font-medium">Context & Interests</label>
-                            </div>
                             <textarea id="simple-context" data-tour="context-field" rows="3" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-sm text-slate-200 focus:border-emerald-500 focus:outline-none resize-none" placeholder="What are you interested in? e.g., Investing, cutting edge technology, ticker trends, AI developments, job market in Kuwait..."></textarea>
                             <!-- Quick Profile Questions -->
                             <div class="mt-2">
@@ -909,16 +921,16 @@
                             </div>
                         </div>
                         <div class="flex items-center gap-2 flex-wrap">
-                            <button onclick="generateFromRole()" id="simple-generate-btn" class="px-4 py-2 text-sm font-medium flex items-center gap-2 transition-all rounded-lg" style="background:var(--accent); color:white;">
+                            <button onclick="generateFromRole()" id="simple-generate-btn" class="px-4 py-2 text-sm font-medium flex items-center gap-2 transition-all rounded-lg strat-tip" style="background:var(--accent); color:white;" data-tip="Uses AI to generate tracking categories, keywords, and tickers based on your role and context.">
                                 <i data-lucide="zap" class="w-4 h-4"></i> Generate
                             </button>
-                            <button onclick="openWizard()" id="setup-wizard-btn" data-tour="wizard-btn" class="px-3.5 py-2 text-sm font-medium flex items-center gap-2 transition-all rounded-lg" style="background:transparent; color:var(--accent); border:1px solid var(--accent);">
+                            <button onclick="openWizard()" id="setup-wizard-btn" data-tour="wizard-btn" class="px-3.5 py-2 text-sm font-medium flex items-center gap-2 transition-all rounded-lg strat-tip" style="background:transparent; color:var(--accent); border:1px solid var(--accent);" data-tip="Step-by-step guided setup wizard.">
                                 <i data-lucide="wand-2" class="w-4 h-4"></i> Setup Wizard
                             </button>
-                            <button onclick="suggestContext()" id="suggest-context-btn" class="px-3.5 py-2 text-sm font-medium flex items-center gap-2 transition-all rounded-lg" style="background:rgba(99,102,241,0.08); color:#818cf8; border:1px solid rgba(99,102,241,0.35);">
+                            <button onclick="suggestContext()" id="suggest-context-btn" class="px-3.5 py-2 text-sm font-medium flex items-center gap-2 transition-all rounded-lg strat-tip" style="background:rgba(99,102,241,0.08); color:#818cf8; border:1px solid rgba(99,102,241,0.35);" data-tip="AI writes a context paragraph from your role — you can edit it after.">
                                 <i data-lucide="sparkles" class="w-4 h-4"></i> Suggest
                             </button>
-                            <button onclick="saveContextOnly()" id="save-context-btn" class="px-3.5 py-2 text-sm font-medium flex items-center gap-2 transition-all rounded-lg" style="background:rgba(16,185,129,0.08); color:#34d399; border:1px solid rgba(16,185,129,0.35);">
+                            <button onclick="saveContextOnly()" id="save-context-btn" class="px-3.5 py-2 text-sm font-medium flex items-center gap-2 transition-all rounded-lg strat-tip" style="background:rgba(16,185,129,0.08); color:#34d399; border:1px solid rgba(16,185,129,0.35);" data-tip="Saves your context without regenerating categories.">
                                 <i data-lucide="save" class="w-3.5 h-3.5"></i> Save
                             </button>
                             <div class="inline-flex items-center gap-1 ml-1">
@@ -955,6 +967,7 @@
                     <div class="glass-panel rounded-xl p-6" data-stab="sources">
                         <h3 class="text-sm font-bold text-slate-200 mb-1 flex items-center gap-2">
                             <i data-lucide="clock" class="w-4 h-4" style="color:var(--accent)"></i> How fresh?
+                            <span class="strat-tip" data-tip="Controls the maximum age of articles fetched during scans."><i data-lucide="info" class="w-3 h-3" style="color:var(--text-muted);"></i></span>
                         </h3>
                         <div class="flex gap-3 mt-3">
                             <button onclick="setSimpleTimelimit('d')" class="simple-time-btn flex-1 px-4 py-3 rounded-lg text-sm font-medium border transition-all" data-tl="d">24 hours</button>
