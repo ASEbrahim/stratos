@@ -468,6 +468,13 @@ async function init() {
 
     // Pulse help button for empty profiles
     _pulseHelpIfNew();
+
+    // Deferred agent warmup — pre-load model into VRAM
+    setTimeout(function() {
+        fetch('/api/agent-warmup', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' })
+            .then(function() { console.log('[Agent] Model pre-loaded'); })
+            .catch(function() { /* silent — warmup is best-effort */ });
+    }, 5000);
 }
 
 // === PAGE VISIBILITY — pause polling when tab is hidden ===

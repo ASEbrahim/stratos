@@ -1100,6 +1100,21 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                 handle_config_save(self, strat, auth.auth_helpers_dict())
                 return
 
+            # Agent model warmup — pre-load inference model into VRAM
+            if self.path == "/api/agent-warmup":
+                try:
+                    scoring_cfg = strat.config.get("scoring", {})
+                    ollama_host = scoring_cfg.get("ollama_host", "http://localhost:11434")
+                    model = scoring_cfg.get("inference_model", "qwen3:30b-a3b")
+                    requests.post(f"{ollama_host}/api/generate",
+                                  json={"model": model, "prompt": "hi", "stream": False,
+                                        "options": {"num_predict": 1}},
+                                  timeout=30)
+                except Exception:
+                    pass
+                _send_json(self, {"ok": True})
+                return
+
             # Sync Serper credits
             if self.path == "/api/serper-credits":
                 content_length = int(self.headers.get('Content-Length', 0))
