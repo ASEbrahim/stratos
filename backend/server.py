@@ -1600,6 +1600,7 @@ def create_handler(strat, auth, frontend_dir, output_dir):
         def do_OPTIONS(self):
             # Handle CORS preflight
             self.send_response(200)
+            self.send_header("Access-Control-Allow-Origin", "*")
             self.send_header("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS")
             self.send_header("Access-Control-Allow-Headers", "Content-Type, X-Auth-Token, X-Device-Id")
             self.end_headers()
