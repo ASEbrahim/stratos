@@ -184,7 +184,6 @@ def json_response(handler, data, status=200, compress=True):
     body = json.dumps(data).encode()
     handler.send_response(status)
     handler.send_header("Content-type", "application/json")
-    handler.send_header("Access-Control-Allow-Origin", "*")
 
     if compress and len(body) > 1024 and 'gzip' in handler.headers.get('Accept-Encoding', ''):
         body = gzip.compress(body)
@@ -223,5 +222,4 @@ def start_sse(handler):
     handler.send_response(200)
     handler.send_header("Content-type", "text/event-stream")
     handler.send_header("Cache-Control", "no-cache")
-    handler.send_header("Access-Control-Allow-Origin", "*")
     handler.end_headers()

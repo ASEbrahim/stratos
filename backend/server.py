@@ -78,7 +78,15 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                 self.send_header("Cache-Control", "no-cache, no-store, must-revalidate")
                 self.send_header("Pragma", "no-cache")
                 self.send_header("Expires", "0")
-            self.send_header("Access-Control-Allow-Origin", "*")
+            # CORS: reflect origin if in allowlist, or wildcard if ["*"] (default)
+            cors_origins = strat.config.get("system", {}).get("cors_origins", ["*"])
+            if "*" in cors_origins:
+                self.send_header("Access-Control-Allow-Origin", "*")
+            else:
+                req_origin = self.headers.get("Origin", "")
+                if req_origin in cors_origins:
+                    self.send_header("Access-Control-Allow-Origin", req_origin)
+                    self.send_header("Vary", "Origin")
             self.send_header("X-Content-Type-Options", "nosniff")
             self.send_header("X-Frame-Options", "DENY")
             self.send_header("Referrer-Policy", "strict-origin-when-cross-origin")
