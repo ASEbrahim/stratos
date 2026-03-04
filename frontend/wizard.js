@@ -1564,6 +1564,38 @@ function toggleRail() {
   if (rail) rail.classList.toggle('expanded');
 }
 
+function setTheme(dotEl) {
+  const theme = dotEl.getAttribute('data-t');
+  const root = document.getElementById('wiz-root');
+  if (!root) return;
+  // Update active dot
+  root.querySelectorAll('.wiz-theme-dot').forEach(d => d.classList.remove('active'));
+  dotEl.classList.add('active');
+  // Apply theme
+  if (theme === 'default') {
+    root.removeAttribute('data-wiz-theme');
+  } else {
+    root.setAttribute('data-wiz-theme', theme);
+  }
+  // Persist
+  try { localStorage.setItem('wiz-theme', theme); } catch(e) {}
+}
+
+function restoreTheme() {
+  try {
+    const t = localStorage.getItem('wiz-theme');
+    if (t && t !== 'default') {
+      const root = document.getElementById('wiz-root');
+      if (root) {
+        root.setAttribute('data-wiz-theme', t);
+        root.querySelectorAll('.wiz-theme-dot').forEach(d => {
+          d.classList.toggle('active', d.getAttribute('data-t') === t);
+        });
+      }
+    }
+  } catch(e) {}
+}
+
 function toggleDeepMode() {
   const quick = document.getElementById('wiz-mode-quick');
   const deep = document.getElementById('wiz-mode-deep');
@@ -2324,6 +2356,9 @@ function openWizard(opts) {
   });
   document.body.style.overflow = 'hidden';
 
+  // Restore saved theme
+  restoreTheme();
+
   // Render initial state
   renderAll();
 
@@ -2522,7 +2557,7 @@ window._wiz = {
   // Presets
   savePreset, loadPreset, deletePreset, togglePresetMenu,
   // Other
-  skipToQuick, closeWizard, clearAll,
+  skipToQuick, closeWizard, clearAll, setTheme,
 };
 
 // Public API
