@@ -1293,11 +1293,11 @@ function renderDetails() {
           <span class="det-hdr-chev">\u25BC</span>
         </div>
         <div class="det-body">
-          <div class="s2-label">What do you follow? <span class="s2-hint">\u00B7 Type a topic and press Enter</span></div>
-          <div class="int-wrap"><input class="int-inp" id="wiz-int-inp" placeholder="e.g. Quantum Computing, Gaming..." onkeydown="_wiz.intKeyS2(event)"></div>
-          ${interestTopics.length ? `<div class="s2-label" style="margin-top:20px">Your topics</div><div class="pills" style="margin-bottom:20px">${itemsH}</div>` : ''}
-          <div class="s2-label" style="margin-top:${interestTopics.length ? 8 : 20}px">Suggested for your role <span class="s2-hint">\u00B7 tap to add</span></div>
-          <div class="pills">${sugH}</div>
+          <div><div class="s2-label">What do you follow? <span class="s2-hint">\u00B7 Type a topic and press Enter</span></div>
+          <div class="int-wrap"><input class="int-inp" id="wiz-int-inp" placeholder="e.g. Quantum Computing, Gaming..." onkeydown="_wiz.intKeyS2(event)"></div></div>
+          ${interestTopics.length ? `<div><div class="s2-label">Your topics</div><div class="pills">${itemsH}</div></div>` : ''}
+          <div><div class="s2-label">Suggested for your role <span class="s2-hint">\u00B7 tap to add</span></div>
+          <div class="pills">${sugH}</div></div>
         </div>
       </div>`;
       continue;
@@ -1330,7 +1330,7 @@ function renderDetails() {
         const hint = q.hint ? ` <span class="s2-hint">\u00B7 ${q.hint}</span>` : '';
         const isDecisive = DETERMINISTIC_QS.has(q.id);
 
-        let h = `<div class="s2-label">${q.label}${hint}</div><div class="pills">`;
+        let h = `<div><div class="s2-label">${q.label}${hint}</div><div class="pills">`;
         for (const p of all) {
           const isC = (custom[q.id] || []).includes(p);
           h += `<div class="pill ${isDecisive ? 'pill-decisive' : ''} ${picked.has(p) ? 'on' : ''}" onclick="_wiz.togPanel('${sec.id}','${q.id}','${escAttr(p)}','${q.type}')">
@@ -1345,6 +1345,7 @@ function renderDetails() {
         if (hasMore && q.type !== 's') {
           h += `<button class="va-tog" onclick="_wiz.togViewAll('${q.id}')">${isViewAll ? 'Show less' : `View all (${fullCount})`}</button>`;
         }
+        h += `</div>`;
         return h;
       }).join('');
 
@@ -1384,10 +1385,10 @@ function renderGenericDetSection(sec) {
       <span class="det-hdr-chev">\u25BC</span>
     </div>
     <div class="det-body">
-      <div class="s2-label">Keywords to track <span class="s2-hint">\u00B7 Type and press Enter</span></div><div class="pills">`;
+      <div><div class="s2-label">Keywords to track <span class="s2-hint">\u00B7 Type and press Enter</span></div><div class="pills">`;
   for (const p of custom) html += `<div class="pill on">${esc(p)}<span class="pill-x" onclick="event.stopPropagation();_wiz.rmPanelCustom('${sec.id}','kw','${escAttr(p)}')">&times;</span></div>`;
   html += `<span id="wiz-aw-${sec.id}-kw" style="display:none"><input class="add-inp" id="wiz-ai-${sec.id}-kw" placeholder="Type & Enter" onkeydown="_wiz.addPanelKey(event,'${sec.id}','kw')"></span>`;
-  html += `<div class="pill pill-add" id="wiz-ab-${sec.id}-kw" onclick="_wiz.showPanelAdd('${sec.id}','kw')">+ Add</div></div>
+  html += `<div class="pill pill-add" id="wiz-ab-${sec.id}-kw" onclick="_wiz.showPanelAdd('${sec.id}','kw')">+ Add</div></div></div>
     </div>
   </div>`;
   return html;
