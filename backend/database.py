@@ -674,9 +674,15 @@ class Database:
         # Market snapshots and entity mentions are global — always clean by age
         cursor.execute("DELETE FROM market_snapshots WHERE snapshot_at < ?", (cutoff,))
         cursor.execute("DELETE FROM entity_mentions WHERE recorded_at < ?", (cutoff,))
-        
+
+        # Scan log and shadow scores — keep at least 90 days for diagnostic history
+        diag_cutoff = (datetime.now() - timedelta(days=max(days, 90))).isoformat()
+        cursor.execute("DELETE FROM scan_log WHERE started_at < ?", (diag_cutoff,))
+        cursor.execute("DELETE FROM shadow_scores WHERE created_at < ?", (diag_cutoff,))
+        # Note: user_feedback is NOT cleaned — it's training data that doesn't expire
+
         self._commit()
-        logger.info(f"Cleaned up data older than {days} days")
+        logger.info(f"Cleaned up data older than {days} days (scan_log/shadow_scores: {max(days, 90)} days)")
     
     def get_ui_state(self, profile_id: int) -> dict:
         """Return parsed ui_state dict for a profile, or {} if missing/invalid."""
