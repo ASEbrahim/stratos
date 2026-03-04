@@ -390,11 +390,7 @@ def handle_auth_routes(handler, method, path, data, db, strat, send_json, email_
             send_json(handler, {"error": "Incorrect password"}, status=403)
             return True
 
-        # Delete all user data (profiles cascade via FK, sessions too)
-        cursor.execute("DELETE FROM sessions WHERE user_id = ?", (user_id,))
-        cursor.execute("DELETE FROM profiles WHERE user_id = ?", (user_id,))
-        cursor.execute("DELETE FROM users WHERE id = ?", (user_id,))
-        db._commit()
+        _delete_user_data(db, user_id)
         logger.info(f"User {user_id} deleted their account")
         send_json(handler, {"status": "deleted"})
         return True
@@ -839,6 +835,33 @@ def handle_auth_routes(handler, method, path, data, db, strat, send_json, email_
         send_json(handler, {"status": "password_reset"})
         return True
 
+    if path == "/api/admin/delete-user" and method == "POST":
+        token = handler.headers.get("X-Auth-Token", "")
+        admin_id = _get_user_from_token(db, token)
+        if not admin_id or not _is_admin(db, admin_id):
+            send_json(handler, {"error": "Admin required"}, status=403)
+            return True
+
+        target_user_id = data.get("user_id")
+        if not target_user_id:
+            send_json(handler, {"error": "user_id required"}, status=400)
+            return True
+        if target_user_id == admin_id:
+            send_json(handler, {"error": "Cannot delete your own admin account"}, status=400)
+            return True
+
+        cursor = db.conn.cursor()
+        cursor.execute("SELECT display_name FROM users WHERE id = ?", (target_user_id,))
+        row = cursor.fetchone()
+        if not row:
+            send_json(handler, {"error": "User not found"}, status=404)
+            return True
+
+        _delete_user_data(db, target_user_id)
+        logger.info(f"Admin {admin_id} deleted user {target_user_id} ({row[0]})")
+        send_json(handler, {"status": "deleted", "user_id": target_user_id, "display_name": row[0]})
+        return True
+
     return False
 
 
@@ -864,3 +887,25 @@ def _is_admin(db, user_id: int) -> bool:
     cursor.execute("SELECT is_admin FROM users WHERE id = ?", (user_id,))
     row = cursor.fetchone()
     return bool(row and row[0])
+
+
+def _delete_user_data(db, user_id: int):
+    """Delete all data for a user — full account removal."""
+    cursor = db.conn.cursor()
+    # Get profile IDs for this user
+    profile_ids = [r[0] for r in cursor.execute(
+        "SELECT id FROM profiles WHERE user_id = ?", (user_id,)
+    ).fetchall()]
+    # Delete profile-scoped data
+    for pid in profile_ids:
+        cursor.execute("DELETE FROM news_items WHERE profile_id = ?", (pid,))
+        cursor.execute("DELETE FROM user_feedback WHERE profile_id = ?", (pid,))
+        cursor.execute("DELETE FROM scan_log WHERE profile_id = ?", (pid,))
+        cursor.execute("DELETE FROM briefings WHERE profile_id = ?", (pid,))
+        cursor.execute("DELETE FROM shadow_scores WHERE profile_id = ?", (pid,))
+    # Delete user-scoped data
+    cursor.execute("DELETE FROM sessions WHERE user_id = ?", (user_id,))
+    cursor.execute("DELETE FROM invite_codes WHERE created_by = ? OR used_by = ?", (user_id, user_id))
+    cursor.execute("DELETE FROM profiles WHERE user_id = ?", (user_id,))
+    cursor.execute("DELETE FROM users WHERE id = ?", (user_id,))
+    db._commit()
