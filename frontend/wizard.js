@@ -1407,23 +1407,28 @@ function renderRail() {
 
   let html = '';
   let totalItems = 0;
+  let catCount = 0;
 
   for (const c of CATS) {
     if (!selCats.has(c.id)) continue;
+    catCount++;
+
+    // Add divider between categories
+    if (catCount > 1) html += `<div class="rail-divider"></div>`;
 
     if (c.id === 'interests') {
       if (!interestTopics.length) continue;
       totalItems += interestTopics.length;
       const col = rvCollapsed.has('interests');
       html += `<div class="rail-sec ${col ? 'collapsed' : ''}">
-        <div class="rail-sec-hdr" onclick="_wiz.togRvCollapse('interests')">
+        <div class="rail-sec-hdr cat-interests" onclick="_wiz.togRvCollapse('interests')">
           <span class="rail-sec-icon">${c.icon}</span> ${c.name}
           <span class="rail-sec-count">${interestTopics.length}</span>
           <span class="rail-sec-chev">\u25BC</span>
         </div>
         <div class="rail-sec-body">
-          <div class="rail-pills">
-            ${interestTopics.map(t => `<span class="rail-pill">${esc(t)}<span class="rp-x" onclick="event.stopPropagation();_wiz.rvRmInt('${escAttr(t)}')">&times;</span></span>`).join('')}
+          <div class="rail-items">
+            ${interestTopics.map(t => `<div class="rail-item"><span class="ri-dot"></span>${esc(t)}<span class="rp-x" onclick="event.stopPropagation();_wiz.rvRmInt('${escAttr(t)}')">&times;</span></div>`).join('')}
           </div>
         </div>
       </div>`;
@@ -1447,7 +1452,7 @@ function renderRail() {
     const col = rvCollapsed.has(c.id);
 
     html += `<div class="rail-sec ${col ? 'collapsed' : ''}">
-      <div class="rail-sec-hdr" onclick="_wiz.togRvCollapse('${c.id}')">
+      <div class="rail-sec-hdr cat-${c.id}" onclick="_wiz.togRvCollapse('${c.id}')">
         <span class="rail-sec-icon">${c.icon}</span> ${c.name}
         <span class="rail-sec-count">${catItems.length || subCount}</span>
         <span class="rail-sec-chev">\u25BC</span>
@@ -1455,26 +1460,31 @@ function renderRail() {
       <div class="rail-sec-body">`;
 
     if (catItems.length) {
-      html += `<div class="rail-pills">`;
+      html += `<div class="rail-items">`;
       for (const it of catItems) {
-        html += `<span class="rail-pill">${esc(it.name)}<span class="rp-x" onclick="event.stopPropagation();_wiz.rvRm('${escAttr(it.sec)}','${escAttr(it.name)}')">&times;</span></span>`;
+        html += `<div class="rail-item"><span class="ri-dot"></span>${esc(it.name)}<span class="rp-x" onclick="event.stopPropagation();_wiz.rvRm('${escAttr(it.sec)}','${escAttr(it.name)}')">&times;</span></div>`;
       }
       html += `</div>`;
     } else if (subCount) {
-      // Show selected sub names as placeholders
+      // Show selected sub names as items
       const subNames = [...subs].map(sid => {
         const sub = [...c.subs, ...customSubs[c.id]].find(s => s.id === sid);
         return sub ? sub.name : sid;
       });
-      html += `<div class="rail-pills">${subNames.map(n => `<span class="rail-pill">${esc(n)}</span>`).join('')}</div>`;
+      html += `<div class="rail-items">${subNames.map(n => `<div class="rail-item"><span class="ri-dot"></span>${esc(n)}</div>`).join('')}</div>`;
     } else {
       html += `<div class="rail-empty">No items yet</div>`;
     }
 
-    // Per-category discover
+    // AI Suggestions (from tab suggest cache)
+    const sugCache = _tabSuggestCache[c.id + '_' + [...(selSubs[c.id] || [])].join(',')];
+    // We'll show the tab-level suggestions inline if available
+    // (main suggestions are shown in details panel, rail shows discover only)
+
+    // Per-category discover — blue themed
     const discoverItems = getRailDiscover(c.id);
     if (discoverItems.length) {
-      html += `<div class="rail-disc-hdr">\u2728 Discover</div>
+      html += `<div class="rail-disc-hdr">\uD83D\uDD0D Discover</div>
         <div class="rail-disc-pills">${discoverItems.map(d =>
           `<div class="disc-pill ${discoverAdded.has(d.name) ? 'added' : ''}" onclick="_wiz.discoverAdd('${escAttr(d.name)}','${escAttr(d.target || '')}')">${esc(d.name)}${d.tag ? `<span class="disc-tag">${esc(d.tag)}</span>` : ''}</div>`
         ).join('')}</div>`;
@@ -1493,6 +1503,9 @@ function renderRail() {
   const handleText = document.getElementById('wiz-rail-handle-text');
   if (handleText) handleText.textContent = `${totalItems} items \u00B7 Build`;
 
+  // Update feed summary
+  renderFeedSummary(totalItems);
+
   updateBuildButton();
   updateRing();
 }
@@ -1509,6 +1522,40 @@ function getRailDiscover(catId) {
     for (const sec of s3) catSubIds.add(sec.id);
   }
   return _rvItemsCache.discover.filter(d => catSubIds.has(d.target));
+}
+
+function renderFeedSummary(totalItems) {
+  const el = document.getElementById('wiz-feed-summary');
+  if (!el) return;
+  const catNum = selCats.size;
+  const isDeep = document.getElementById('wiz-deep-mode')?.checked;
+  if (catNum === 0) { el.innerHTML = ''; return; }
+  el.innerHTML = `<div class="wiz-feed-summary">
+    <div class="wiz-feed-summary-title">Feed Summary</div>
+    <div class="wiz-feed-stat"><span class="wiz-feed-stat-label">Categories</span><span class="wiz-feed-stat-val accent">${catNum} selected</span></div>
+    <div class="wiz-feed-stat"><span class="wiz-feed-stat-label">Tracked topics</span><span class="wiz-feed-stat-val">${totalItems} items</span></div>
+    <div class="wiz-feed-stat"><span class="wiz-feed-stat-label">Feed depth</span><span class="wiz-feed-stat-val accent">${isDeep ? 'Deep analysis' : 'Quick scan'}</span></div>
+  </div>`;
+}
+
+function renderStepBar() {
+  const el = document.getElementById('wiz-step-bar');
+  if (!el) return;
+  const hasCats = selCats.size > 0;
+  const hasDetails = hasCats && [...selCats].some(id => {
+    if (id === 'interests') return interestTopics.length > 0;
+    return selSubs[id] && selSubs[id].size > 0;
+  });
+  el.innerHTML = `<div class="wiz-steps-bar">
+    <div class="wiz-step-circle ${hasCats ? 'done' : 'active'}">1</div>
+    <span class="wiz-step-label ${hasCats ? 'active' : ''}">Priorities</span>
+    <div class="wiz-step-line ${hasCats ? 'done' : ''}"></div>
+    <div class="wiz-step-circle ${hasDetails ? 'done' : hasCats ? 'active' : ''}">2</div>
+    <span class="wiz-step-label ${hasCats ? 'active' : ''}">Details</span>
+    <div class="wiz-step-line ${hasDetails ? 'done' : ''}"></div>
+    <div class="wiz-step-circle ${hasDetails ? 'active' : ''}">3</div>
+    <span class="wiz-step-label ${hasDetails ? 'active' : ''}">Build</span>
+  </div>`;
 }
 
 function toggleRail() {
@@ -1595,6 +1642,7 @@ function clearAll() {
 
 /** Render all sections — called after any toggle */
 function renderAll() {
+  renderStepBar();
   renderPriorities();
   renderDetails();
   renderRail();
