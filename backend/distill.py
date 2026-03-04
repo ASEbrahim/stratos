@@ -150,16 +150,16 @@ def get_dynamic_categories(config_path: str) -> List[Dict]:
         return []
 
 
-def save_corrections(db_path: str, corrections: List[Dict], profile: Dict = None):
+def save_corrections(db_path: str, corrections: List[Dict], profile: Dict = None, profile_id: int = 0):
     """Save teacher corrections into user_feedback table so Tier 1 picks them up.
-    
+
     Also stores the profile context (role, location) so training data can be
     paired with the correct system prompt later.
     """
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
     saved = 0
-    
+
     p_role = (profile or {}).get('role', '')
     p_location = (profile or {}).get('location', '')
     p_context = (profile or {}).get('context', '')
@@ -169,8 +169,8 @@ def save_corrections(db_path: str, corrections: List[Dict], profile: Dict = None
             cursor.execute("""
                 INSERT INTO user_feedback
                 (news_id, title, url, root, category, ai_score, user_score, note, action, created_at,
-                 profile_role, profile_location, profile_context)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                 profile_role, profile_location, profile_context, profile_id)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """, (
                 c.get('id', ''),
                 c.get('title', ''),
@@ -185,6 +185,7 @@ def save_corrections(db_path: str, corrections: List[Dict], profile: Dict = None
                 p_role,
                 p_location,
                 p_context[:500],  # Cap context length
+                profile_id,
             ))
             saved += 1
         except Exception as e:

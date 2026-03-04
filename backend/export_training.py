@@ -195,8 +195,12 @@ Content: {content}"""
 # Data Extraction
 # ═══════════════════════════════════════════════════════════════════════
 
-def get_corrections(db_path: str, min_delta: float = 1.5, after: str = None) -> List[Dict]:
-    """Pull training signals from user_feedback table."""
+def get_corrections(db_path: str, min_delta: float = 1.5, after: str = None, profile_id: int = None) -> List[Dict]:
+    """Pull training signals from user_feedback table.
+
+    If profile_id is given, only that profile's feedback is exported.
+    If None (default), all profiles are included (for generalized training).
+    """
     conn = sqlite3.connect(db_path)
     conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
@@ -208,6 +212,9 @@ def get_corrections(db_path: str, min_delta: float = 1.5, after: str = None) -> 
     if after:
         time_filter = " AND f.created_at > ?"
         time_params = (after,)
+    if profile_id is not None:
+        time_filter += " AND f.profile_id = ?"
+        time_params += (profile_id,)
 
     # 1. Explicit corrections (distillation + user ratings)
     cursor.execute(f"""
