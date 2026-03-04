@@ -127,7 +127,12 @@ def create_handler(strat, auth, frontend_dir, output_dir):
 
             # --- New email-based auth routes (self-authenticating) ---
             if self.path.startswith("/api/auth/") or self.path == "/api/admin/users" or self.path == "/api/profiles":
-                if handle_auth_routes(self, "GET", self.path, {}, strat.db, strat, _send_json, email_service):
+                try:
+                    if handle_auth_routes(self, "GET", self.path, {}, strat.db, strat, _send_json, email_service):
+                        return
+                except Exception as e:
+                    logger.error(f"Auth route error: {e}")
+                    _send_json(self, {"error": "Server busy, please try again."}, 503)
                     return
 
             # --- Auth enforcement for API endpoints ---
@@ -907,7 +912,12 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                             data["email"] = row[0]
                     except Exception:
                         pass  # Fall through — auth will show "user not found"
-                if handle_auth_routes(self, "POST", self.path, data, strat.db, strat, _send_json, email_service):
+                try:
+                    if handle_auth_routes(self, "POST", self.path, data, strat.db, strat, _send_json, email_service):
+                        return
+                except Exception as e:
+                    logger.error(f"Auth route error: {e}")
+                    _send_json(self, {"error": "Server busy, please try again."}, 503)
                     return
 
             # --- Login endpoint (always public, legacy PIN-based) ---
@@ -1598,9 +1608,8 @@ def create_handler(strat, auth, frontend_dir, output_dir):
             self.end_headers()
 
         def do_OPTIONS(self):
-            # Handle CORS preflight
+            # Handle CORS preflight (Access-Control-Allow-Origin added by end_headers())
             self.send_response(200)
-            self.send_header("Access-Control-Allow-Origin", "*")
             self.send_header("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS")
             self.send_header("Access-Control-Allow-Headers", "Content-Type, X-Auth-Token, X-Device-Id")
             self.end_headers()
