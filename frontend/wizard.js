@@ -522,9 +522,9 @@ function _loadPresetState(preset) {
 }
 
 function savePreset() {
-  const role = document.getElementById('wiz-br')?.textContent?.trim() || '';
-  const location = document.getElementById('wiz-bl')?.textContent?.trim() || '';
-  const suggested = role + (location && location !== '\u2014' ? ' \u00B7 ' + location : '');
+  const role = document.getElementById('simple-role')?.value?.trim() || '';
+  const location = document.getElementById('simple-location')?.value?.trim() || '';
+  const suggested = role + (location ? ' \u00B7 ' + location : '');
   const name = prompt('Save profile as:', suggested);
   if (!name || !name.trim()) return;
   const key = name.trim();
@@ -548,17 +548,13 @@ function loadPreset(name) {
   const preset = presets[name];
   if (!preset) return;
   _loadPresetState(preset);
-  // Update role/location display in header
+  // Update role/location inputs
   if (preset.role) {
-    const br = document.getElementById('wiz-br');
-    if (br) br.textContent = preset.role;
     const roleInput = document.getElementById('simple-role');
     if (roleInput) roleInput.value = preset.role;
     _currentDomain = classifyRole(preset.role);
   }
   if (preset.location) {
-    const bl = document.getElementById('wiz-bl');
-    if (bl) bl.textContent = preset.location;
     const locInput = document.getElementById('simple-location');
     if (locInput) locInput.value = preset.location;
   }
@@ -585,7 +581,7 @@ function togglePresetMenu() {
 }
 
 function renderPresetBar() {
-  const el = document.getElementById('wiz-preset-bar');
+  const el = document.getElementById('wiz-preset-dd');
   if (!el) return;
   const presets = _getPresets();
   const names = Object.keys(presets).sort((a, b) => {
@@ -669,331 +665,345 @@ const WIZ_CSS = `
 /* === Variable mapping: wizard → dashboard theme === */
 .wiz-scope {
   --bg: var(--bg-primary);
-  --card: var(--bg-panel-solid);
-  --card-hover: var(--bg-hover);
+  --bg-card: var(--bg-panel-solid);
+  --bg-card-hover: var(--bg-hover);
   --accent: var(--accent);
+  --accent2: #38bdf8;
   --accent-light: var(--accent-light);
   --accent-dim: var(--accent-bg);
   --accent-glow: var(--accent-border);
-  --accent2: #38bdf8;
   --text: var(--text-primary);
   --text2: var(--text-secondary);
   --text3: var(--text-muted);
   --brd: var(--border-color);
-  --radius: 14px;
 }
 /* Theme overrides */
 .wiz-scope[data-wiz-theme="ember"] { --accent:#f59e0b;--accent-light:#fbbf24;--accent-dim:rgba(245,158,11,0.1);--accent-glow:rgba(245,158,11,0.2);--accent2:#ef4444; }
 .wiz-scope[data-wiz-theme="frost"] { --accent:#38bdf8;--accent-light:#7dd3fc;--accent-dim:rgba(56,189,248,0.1);--accent-glow:rgba(56,189,248,0.2);--accent2:#a78bfa; }
 .wiz-scope[data-wiz-theme="violet"] { --accent:#a78bfa;--accent-light:#c4b5fd;--accent-dim:rgba(167,139,250,0.1);--accent-glow:rgba(167,139,250,0.2);--accent2:#ec4899; }
 
-/* ── Backdrop & Modal ── */
-.wiz-bk { position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9998;opacity:0;transition:opacity .35s cubic-bezier(.4,0,.2,1);pointer-events:none;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px); }
-.wiz-bk.open { opacity:1;pointer-events:auto; }
-.wiz-modal { position:fixed;inset:5vh 6vw;z-index:9999;display:flex;flex-direction:column;background:var(--bg);opacity:0;transform:scale(.95) translateY(16px);transition:opacity .35s,transform .35s cubic-bezier(.16,1.11,.36,1.02);pointer-events:none;overflow:hidden;border-radius:24px;border:1px solid color-mix(in srgb, var(--accent) 15%, var(--brd));box-shadow:0 32px 100px rgba(0,0,0,.5),0 0 0 1px rgba(255,255,255,.04) inset,0 0 80px -20px color-mix(in srgb, var(--accent) 8%, transparent); }
-.wiz-modal::before { content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--accent),var(--accent2),var(--accent));background-size:200% 100%;animation:wizBarShift 4s ease infinite;border-radius:24px 24px 0 0;z-index:1; }
+/* ── Backdrop ── */
+.wiz-scope .backdrop { position:fixed;inset:0;background:rgba(0,0,0,0.65);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:9998;opacity:0;transition:opacity .35s;pointer-events:none; }
+.wiz-scope .backdrop.open { opacity:1;pointer-events:auto; }
+
+/* ── Modal ── */
+.wiz-scope .modal { position:fixed;inset:2vh 3vw;background:var(--bg);border-radius:18px;z-index:9999;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 32px 80px rgba(0,0,0,0.6),0 0 0 1px var(--brd);opacity:0;transform:scale(.94) translateY(16px);transition:opacity .4s cubic-bezier(.22,1,.36,1),transform .4s cubic-bezier(.22,1,.36,1);pointer-events:none; }
+.wiz-scope .modal.open { opacity:1;transform:none;pointer-events:auto; }
+.wiz-scope .modal::after { content:'';position:absolute;inset:0;opacity:0.03;pointer-events:none;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='.8'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");z-index:0; }
+.wiz-scope .modal > * { position:relative;z-index:1; }
+
+/* ── Top Gradient Bar ── */
+.wiz-scope .grad-bar { height:3px;background:linear-gradient(90deg,var(--accent),var(--accent2),var(--accent));background-size:200% 100%;animation:wizBarShift 4s ease infinite;flex-shrink:0; }
 @keyframes wizBarShift { 0%,100% { background-position:0% center; } 50% { background-position:100% center; } }
-.wiz-modal::after { content:'';position:absolute;inset:0;opacity:0.03;pointer-events:none;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='.8'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");z-index:0; }
-.wiz-modal > * { position:relative;z-index:1; }
-.wiz-modal.open { opacity:1;transform:none;pointer-events:auto; }
 
 /* ── Header ── */
-.wiz-hdr { display:flex;align-items:center;gap:12px;padding:16px 28px;border-bottom:1px solid var(--brd);flex-shrink:0;min-height:56px;background:linear-gradient(180deg,color-mix(in srgb,var(--accent-dim) 15%,var(--bg) 85%),var(--bg));backdrop-filter:blur(12px); }
-.wiz-brand { font-weight:800;font-size:22px;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:-.5px; }
-.wiz-badge { display:inline-flex;align-items:center;gap:5px;padding:4px 12px;border-radius:20px;font-size:12px;color:var(--accent-light);background:var(--accent-dim);border:1px solid var(--accent-glow);white-space:nowrap;max-width:180px;overflow:hidden;text-overflow:ellipsis; }
-.wiz-hdr-spacer { flex:1; }
-.wiz-hdr-btn { display:inline-flex;align-items:center;gap:6px;padding:7px 16px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;border:1.5px solid var(--accent-glow);background:var(--accent-dim);color:var(--accent-light);transition:background .2s,transform .15s; }
-.wiz-hdr-btn:hover { background:var(--accent-glow);transform:translateY(-1px); }
-.wiz-hdr-btn.primary { background:linear-gradient(135deg,var(--accent),var(--accent-light));color:#fff;border-color:transparent; }
-
-/* ── Progress Ring ── */
-.wiz-ring-wrap { position:relative;width:36px;height:36px;flex-shrink:0; }
-.wiz-ring-svg { width:36px;height:36px;transform:rotate(-90deg); }
-.wiz-ring-bg { fill:none;stroke:var(--brd);stroke-width:3; }
-.wiz-ring-fg { fill:none;stroke:var(--accent);stroke-width:3;stroke-linecap:round;transition:stroke-dashoffset .5s cubic-bezier(.4,0,.2,1);filter:drop-shadow(0 0 3px var(--accent)); }
-.wiz-ring-pct { position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text; }
+.wiz-scope .hdr { display:flex;align-items:center;padding:16px 28px;border-bottom:1px solid var(--brd);flex-shrink:0;gap:14px; }
+.wiz-scope .hdr-logo { font-size:22px;font-weight:800;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:-0.5px; }
+.wiz-scope .hdr-sub { font-size:13px;color:var(--text3);font-weight:500;margin-left:4px; }
+.wiz-scope .hdr-badges { display:flex;gap:8px;margin-left:8px;align-items:center; }
+.wiz-scope .badge { font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;padding:4px 10px;border-radius:6px;background:var(--accent-dim);color:var(--accent);border:1px solid rgba(52,211,153,0.15); }
+.wiz-scope .badge.blue { background:rgba(56,189,248,0.1);color:var(--accent2);border-color:rgba(56,189,248,0.15); }
 
 /* ── Theme Swapper ── */
-.wiz-theme-bar { display:flex;align-items:center;gap:4px;background:rgba(255,255,255,0.03);border:1px solid var(--brd);border-radius:12px;padding:4px; }
-.wiz-theme-dot { width:22px;height:22px;border-radius:8px;cursor:pointer;transition:all .2s;border:2px solid transparent; }
-.wiz-theme-dot:hover { transform:scale(1.15); }
-.wiz-theme-dot.active { border-color:var(--text);box-shadow:0 0 12px rgba(255,255,255,0.15); }
-.wiz-theme-dot[data-t="default"] { background:linear-gradient(135deg,#34d399,#38bdf8); }
-.wiz-theme-dot[data-t="ember"] { background:linear-gradient(135deg,#f59e0b,#ef4444); }
-.wiz-theme-dot[data-t="frost"] { background:linear-gradient(135deg,#38bdf8,#a78bfa); }
-.wiz-theme-dot[data-t="violet"] { background:linear-gradient(135deg,#a78bfa,#ec4899); }
+.wiz-scope .theme-swapper { display:flex;align-items:center;gap:4px;margin-left:auto;background:rgba(255,255,255,0.03);border:1px solid var(--brd);border-radius:12px;padding:4px; }
+.wiz-scope .theme-dot { width:22px;height:22px;border-radius:8px;cursor:pointer;transition:all 0.2s;border:2px solid transparent;position:relative; }
+.wiz-scope .theme-dot:hover { transform:scale(1.15); }
+.wiz-scope .theme-dot.active { border-color:var(--text);box-shadow:0 0 12px rgba(255,255,255,0.15); }
+.wiz-scope .theme-dot[data-t="default"] { background:linear-gradient(135deg,#34d399,#38bdf8); }
+.wiz-scope .theme-dot[data-t="ember"] { background:linear-gradient(135deg,#f59e0b,#ef4444); }
+.wiz-scope .theme-dot[data-t="frost"] { background:linear-gradient(135deg,#38bdf8,#a78bfa); }
+.wiz-scope .theme-dot[data-t="violet"] { background:linear-gradient(135deg,#a78bfa,#ec4899); }
+
+/* ── Progress Ring ── */
+.wiz-scope .ring-wrap { position:relative;width:40px;height:40px;margin:0 4px;cursor:help;flex-shrink:0; }
+.wiz-scope .ring-wrap svg { transform:rotate(-90deg); }
+.wiz-scope .ring-bg { fill:none;stroke:var(--brd);stroke-width:3.5; }
+.wiz-scope .ring-fg { fill:none;stroke:url(#wizRingGrad);stroke-width:3.5;stroke-linecap:round;transition:stroke-dashoffset .5s cubic-bezier(.4,0,.2,1); }
+.wiz-scope .ring-label { position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text; }
 
 /* ── Close button ── */
-.wiz-close { width:32px;height:32px;border-radius:8px;border:none;background:transparent;color:var(--text3);font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s; }
-.wiz-close:hover { background:rgba(255,60,60,.12);color:#ff6b6b;transform:scale(1.05); }
-.wiz-close:active { transform:scale(.9); }
+.wiz-scope .close-btn { width:36px;height:36px;border-radius:10px;border:1px solid var(--brd);background:transparent;color:var(--text3);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s; }
+.wiz-scope .close-btn:hover { background:rgba(255,255,255,0.05);color:var(--text); }
 
-/* ── Two-panel layout ── */
-.wiz-body { display:flex;flex:1;overflow:hidden; }
-.wiz-rail { width:290px;flex-shrink:0;border-right:1px solid var(--brd);display:flex;flex-direction:column;overflow:hidden;background:color-mix(in srgb,var(--card) 60%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px); }
-.wiz-rail-scroll { flex:1;overflow-y:auto;padding:14px 14px;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,0.06) transparent; }
-.wiz-rail-scroll::-webkit-scrollbar { width:5px; }
-.wiz-rail-scroll::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.06);border-radius:10px; }
-.wiz-rail-bottom { padding:14px 14px 16px;border-top:1px solid var(--brd);flex-shrink:0;display:flex;flex-direction:column;gap:10px; }
-.wiz-main { flex:1;overflow-y:auto;padding:28px 36px 60px;scrollbar-width:thin;scrollbar-color:var(--accent-dim) transparent; }
+/* ── Body Layout ── */
+.wiz-scope .body { display:flex;flex:1;overflow:hidden; }
 
-/* ── Rail sections — Glass-inspired tree style ── */
-.rail-sec { margin-bottom:16px; }
-.rail-sec-hdr { display:flex;align-items:center;gap:9px;padding:10px 14px;cursor:pointer;font-size:13px;font-weight:700;color:var(--text);border-radius:10px;transition:background .15s;margin-bottom:4px; }
-.rail-sec-hdr:hover { background:rgba(255,255,255,0.03); }
-.rail-sec-hdr.cat-career { background:rgba(52,211,153,0.06); }
-.rail-sec-hdr.cat-industry { background:rgba(56,189,248,0.06); }
-.rail-sec-hdr.cat-learning { background:rgba(168,85,247,0.06); }
-.rail-sec-hdr.cat-markets { background:rgba(245,158,11,0.06); }
-.rail-sec-hdr.cat-deals { background:rgba(236,72,153,0.06); }
-.rail-sec-hdr.cat-interests { background:rgba(249,115,22,0.06); }
-.rail-sec-icon { width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:8px;font-size:14px; }
-.rail-sec-hdr.cat-career .rail-sec-icon { background:rgba(52,211,153,0.15); }
-.rail-sec-hdr.cat-industry .rail-sec-icon { background:rgba(56,189,248,0.15); }
-.rail-sec-hdr.cat-learning .rail-sec-icon { background:rgba(168,85,247,0.15); }
-.rail-sec-hdr.cat-markets .rail-sec-icon { background:rgba(245,158,11,0.15); }
-.rail-sec-hdr.cat-deals .rail-sec-icon { background:rgba(236,72,153,0.15); }
-.rail-sec-hdr.cat-interests .rail-sec-icon { background:rgba(249,115,22,0.15); }
-.rail-sec-count { margin-left:auto;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:var(--bg); }
-.rail-sec-chev { margin-left:4px;font-size:10px;color:var(--text3);transition:transform .2s; }
-.rail-sec.collapsed .rail-sec-chev { transform:rotate(-90deg); }
-.rail-sec.collapsed .rail-sec-body { display:none; }
-.rail-sec-body { padding:0 0 4px; }
+/* ── Left Rail ── */
+.wiz-scope .rail { width:290px;min-width:290px;background:color-mix(in srgb,var(--bg-card) 60%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-right:1px solid var(--brd);display:flex;flex-direction:column;overflow:hidden;flex-shrink:0; }
+.wiz-scope .rail::-webkit-scrollbar { width:5px; }
+.wiz-scope .rail::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.06);border-radius:10px; }
+.wiz-scope .rail-inner { padding:18px 16px;flex:1;overflow-y:auto;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,0.06) transparent; }
+.wiz-scope .rail-inner::-webkit-scrollbar { width:5px; }
+.wiz-scope .rail-inner::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.06);border-radius:10px; }
 
-/* Rail items — tree style with left border */
-.rail-items { display:flex;flex-direction:column;gap:2px;margin-left:16px;padding-left:14px;border-left:1px solid var(--brd); }
-.rail-item { display:flex;align-items:center;gap:7px;padding:4px 10px;font-size:12px;color:var(--text2);border-radius:6px;cursor:default;transition:all .15s; }
-.rail-item:hover { background:rgba(255,255,255,0.03);color:var(--text); }
-.rail-item .ri-dot { width:4px;height:4px;border-radius:50%;background:var(--text3);flex-shrink:0; }
-.rail-item .rp-x { cursor:pointer;opacity:.5;font-size:13px;margin-left:auto; }
-.rail-item .rp-x:hover { opacity:1; }
-.rail-pills { display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 8px 16px;padding-left:14px;border-left:1px solid var(--brd); }
-.rail-pill { display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:8px;font-size:12px;background:var(--accent-dim);color:var(--accent-light);border:1px solid var(--accent-glow);cursor:default;animation:wizPop .25s cubic-bezier(.3,1.5,.6,1); }
-.rail-pill .rp-x { cursor:pointer;opacity:.6;font-size:14px;margin-left:2px; }
-.rail-pill .rp-x:hover { opacity:1; }
-.rail-empty { font-size:12px;color:var(--text3);font-style:italic;padding:4px 0 4px 30px; }
+/* ── Rail sections ── */
+.wiz-scope .rail-section { margin-bottom:20px; }
+.wiz-scope .rail-cat-hdr { display:flex;align-items:center;gap:9px;padding:10px 14px;margin-bottom:6px;font-size:13px;font-weight:700;color:var(--text);cursor:pointer;border-radius:10px;transition:background 0.15s; }
+.wiz-scope .rail-cat-hdr:hover { background:rgba(255,255,255,0.03); }
+.wiz-scope .rail-cat-hdr.cat-career { background:rgba(52,211,153,0.06); }
+.wiz-scope .rail-cat-hdr.cat-industry { background:rgba(56,189,248,0.06); }
+.wiz-scope .rail-cat-hdr.cat-learning { background:rgba(168,85,247,0.06); }
+.wiz-scope .rail-cat-hdr.cat-markets { background:rgba(245,158,11,0.06); }
+.wiz-scope .rail-cat-hdr.cat-deals { background:rgba(236,72,153,0.06); }
+.wiz-scope .rail-cat-hdr.cat-interests { background:rgba(249,115,22,0.06); }
+.wiz-scope .rail-cat-icon { width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:8px;font-size:14px; }
+.wiz-scope .rail-cat-hdr.cat-career .rail-cat-icon { background:rgba(52,211,153,0.15); }
+.wiz-scope .rail-cat-hdr.cat-industry .rail-cat-icon { background:rgba(56,189,248,0.15); }
+.wiz-scope .rail-cat-hdr.cat-learning .rail-cat-icon { background:rgba(168,85,247,0.15); }
+.wiz-scope .rail-cat-hdr.cat-markets .rail-cat-icon { background:rgba(245,158,11,0.15); }
+.wiz-scope .rail-cat-hdr.cat-deals .rail-cat-icon { background:rgba(236,72,153,0.15); }
+.wiz-scope .rail-cat-hdr.cat-interests .rail-cat-icon { background:rgba(249,115,22,0.15); }
+.wiz-scope .rail-cat-count { margin-left:auto;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#0c1222; }
+.wiz-scope .rail-sec-chev { margin-left:4px;font-size:10px;color:var(--text3);transition:transform .2s; }
+.wiz-scope .rail-section.collapsed .rail-sec-chev { transform:rotate(-90deg); }
+.wiz-scope .rail-section.collapsed .rail-sec-body { display:none; }
+.wiz-scope .rail-sec-body { padding:0 0 4px; }
 
-/* ── AI Suggestions in rail ── */
-.rail-ai-hdr { display:flex;align-items:center;gap:6px;padding:6px 0 4px;margin-left:16px;padding-left:14px;font-size:11px;font-weight:600;color:var(--accent);letter-spacing:.3px; }
-.rail-sug-pills { display:flex;flex-wrap:wrap;gap:5px;margin-left:16px;padding-left:14px;border-left:1px solid var(--brd);padding-bottom:4px; }
-.sug-pill { font-size:11px;padding:4px 10px;border-radius:20px;border:1px dashed rgba(52,211,153,0.3);background:transparent;color:var(--accent-light);cursor:pointer;transition:all .2s;white-space:nowrap; }
-.sug-pill:hover { border-color:var(--accent);background:var(--accent-dim);box-shadow:0 0 12px var(--accent-dim); }
-.sug-pill.added { opacity:.35;border-style:solid;pointer-events:none; }
+/* ── Rail items (tree style) ── */
+.wiz-scope .rail-items { display:flex;flex-direction:column;gap:2px;margin-left:16px;padding-left:14px;border-left:1px solid var(--brd); }
+.wiz-scope .rail-item { display:flex;align-items:center;gap:7px;padding:5px 10px;font-size:12px;color:var(--text2);border-radius:6px;cursor:default;transition:all 0.15s; }
+.wiz-scope .rail-item:hover { background:rgba(255,255,255,0.03);color:var(--text); }
+.wiz-scope .rail-item .bullet { width:4px;height:4px;border-radius:50%;background:var(--text3);flex-shrink:0; }
+.wiz-scope .rail-item .rp-x { cursor:pointer;opacity:.5;font-size:13px;margin-left:auto; }
+.wiz-scope .rail-item .rp-x:hover { opacity:1; }
+.wiz-scope .rail-empty { font-size:12px;color:var(--text3);font-style:italic;padding:4px 0 4px 30px; }
 
-/* ── Discover pills (per-category in rail) — blue themed ── */
-.rail-disc-hdr { display:flex;align-items:center;gap:6px;padding:6px 0 4px;margin-left:16px;padding-left:14px;font-size:11px;font-weight:600;color:#38bdf8;letter-spacing:.3px; }
-.rail-disc-pills { display:flex;flex-wrap:wrap;gap:5px;margin-left:16px;padding-left:14px;border-left:1px solid var(--brd);padding-bottom:4px; }
-.disc-pill { display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:20px;font-size:11px;color:#7dd3fc;background:transparent;border:1px dashed rgba(56,189,248,0.25);cursor:pointer;transition:all .2s;white-space:nowrap; }
-.disc-pill:hover { background:rgba(56,189,248,0.08);border-color:rgba(56,189,248,0.5);transform:translateY(-1px); }
-.disc-pill:active { transform:scale(.95); }
-.disc-pill.added { opacity:.35;pointer-events:none;border-style:solid; }
-.disc-pill .disc-tag { font-size:10px;opacity:.6;margin-left:2px; }
+/* ── Rail AI Suggestions ── */
+.wiz-scope .rail-ai-hdr { display:flex;align-items:center;gap:6px;padding:8px 0 4px 16px;margin-left:16px;padding-left:14px;font-size:11px;font-weight:600;color:var(--accent);letter-spacing:0.3px; }
+.wiz-scope .rail-suggestions { display:flex;flex-wrap:wrap;gap:5px;margin-left:16px;padding-left:14px;border-left:1px solid var(--brd);padding-bottom:4px; }
+.wiz-scope .sug-pill { font-size:11px;padding:4px 10px;border-radius:20px;border:1px dashed rgba(52,211,153,0.3);background:transparent;color:var(--accent-light);cursor:pointer;transition:all 0.2s;white-space:nowrap; }
+.wiz-scope .sug-pill:hover { border-color:var(--accent);background:rgba(52,211,153,0.08);box-shadow:0 0 12px rgba(52,211,153,0.12); }
+.wiz-scope .sug-pill.added { opacity:.35;border-style:solid;pointer-events:none; }
+
+/* ── Discover pills ── */
+.wiz-scope .rail-discover-hdr { display:flex;align-items:center;gap:6px;padding:6px 0 4px 16px;margin-left:16px;padding-left:14px;font-size:11px;font-weight:600;color:var(--accent2);letter-spacing:0.3px; }
+.wiz-scope .disc-pill { font-size:11px;padding:4px 10px;border-radius:20px;border:1px dashed rgba(56,189,248,0.25);background:transparent;color:#7dd3fc;cursor:pointer;transition:all 0.2s;white-space:nowrap; }
+.wiz-scope .disc-pill:hover { background:rgba(56,189,248,0.08);border-color:rgba(56,189,248,0.5); }
+.wiz-scope .disc-pill.added { opacity:.35;pointer-events:none;border-style:solid; }
+.wiz-scope .disc-pill .disc-tag { font-size:10px;opacity:.6;margin-left:2px; }
 
 /* ── Rail divider ── */
-.rail-divider { height:1px;margin:4px 14px;background:var(--brd); }
+.wiz-scope .rail-divider { height:1px;margin:6px 16px;background:var(--brd); }
 
-/* ── Feed Summary (in rail) ── */
-.wiz-feed-summary { padding:12px 14px;margin:0 8px;background:rgba(255,255,255,0.02);border:1px solid var(--brd);border-radius:12px; }
-.wiz-feed-summary-title { font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text3);margin-bottom:8px; }
-.wiz-feed-stat { display:flex;align-items:center;justify-content:space-between;padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.03); }
-.wiz-feed-stat:last-child { border-bottom:none; }
-.wiz-feed-stat-label { font-size:12px;color:var(--text2); }
-.wiz-feed-stat-val { font-size:12px;font-weight:700;color:var(--text); }
-.wiz-feed-stat-val.accent { background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text; }
+/* ── Feed Summary ── */
+.wiz-scope .feed-summary { padding:14px 16px;margin:0 12px;background:rgba(255,255,255,0.02);border:1px solid var(--brd);border-radius:12px; }
+.wiz-scope .feed-summary-title { font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.6px;color:var(--text3);margin-bottom:10px; }
+.wiz-scope .feed-stat { display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.03); }
+.wiz-scope .feed-stat:last-child { border-bottom:none; }
+.wiz-scope .feed-stat-label { font-size:12px;color:var(--text2); }
+.wiz-scope .feed-stat-val { font-size:12px;font-weight:700;color:var(--text); }
+.wiz-scope .feed-stat-val.accent { background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text; }
 
-/* ── Deep/Quick toggle — pill style ── */
-.wiz-mode-row { display:flex;background:rgba(255,255,255,0.04);border-radius:12px;padding:4px;border:1px solid var(--brd);cursor:pointer; }
-.wiz-mode-opt { flex:1;text-align:center;padding:7px;font-size:12px;font-weight:700;color:var(--text3);border-radius:9px;transition:all .25s;display:flex;align-items:center;justify-content:center;gap:5px; }
-.wiz-mode-opt.active { color:var(--text);background:var(--accent-dim);box-shadow:0 2px 8px var(--accent-dim); }
+/* ── Rail Bottom ── */
+.wiz-scope .rail-bottom { margin-top:auto;padding:14px 16px 18px;border-top:1px solid var(--brd);display:flex;flex-direction:column;gap:12px;flex-shrink:0; }
 
-/* ── Build button (in rail) — bold shimmer ── */
-.wiz-build-btn { width:100%;padding:14px 24px;border:none;border-radius:14px;font-size:15px;font-weight:800;cursor:pointer;background:linear-gradient(135deg,var(--accent),var(--accent2));color:var(--bg);transition:all .25s;letter-spacing:.3px;box-shadow:0 8px 32px var(--accent-dim),0 0 0 1px var(--accent-glow);position:relative;overflow:hidden; }
-.wiz-build-btn::after { content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.15),transparent);background-size:200% 100%;animation:wizShimmer2 2.5s infinite;border-radius:inherit; }
+/* ── Depth Toggle ── */
+.wiz-scope .depth-toggle { display:flex;background:rgba(255,255,255,0.04);border-radius:12px;padding:4px;border:1px solid var(--brd);cursor:pointer; }
+.wiz-scope .depth-opt { flex:1;text-align:center;padding:7px;font-size:12px;font-weight:700;color:var(--text3);border-radius:9px;transition:all 0.25s;z-index:1;display:flex;align-items:center;justify-content:center;gap:5px; }
+.wiz-scope .depth-opt.active { color:var(--text);background:rgba(52,211,153,0.12);box-shadow:0 2px 8px rgba(52,211,153,0.1); }
+
+/* ── Build Button ── */
+.wiz-scope .build-btn { position:relative;width:100%;padding:14px 24px;border:none;border-radius:14px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#0c1222;font-size:15px;font-weight:800;letter-spacing:0.3px;cursor:pointer;overflow:hidden;box-shadow:0 8px 32px rgba(52,211,153,0.25),0 0 0 1px rgba(52,211,153,0.3);transition:all 0.25s; }
+.wiz-scope .build-btn:hover:not(:disabled) { transform:translateY(-2px);box-shadow:0 12px 40px rgba(52,211,153,0.35),0 0 0 1px rgba(52,211,153,0.4); }
+.wiz-scope .build-btn:active:not(:disabled) { transform:translateY(0) scale(.98); }
+.wiz-scope .build-btn:disabled { opacity:.3;cursor:not-allowed;transform:none;box-shadow:none; }
+.wiz-scope .build-btn::after { content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.15),transparent);background-size:200% 100%;animation:wizShimmer2 2.5s infinite;border-radius:inherit; }
+.wiz-scope .build-btn:disabled::after { animation:none; }
 @keyframes wizShimmer2 { 0% { background-position:-200% center; } 100% { background-position:200% center; } }
-.wiz-build-btn:hover:not(:disabled) { transform:translateY(-2px);box-shadow:0 12px 40px var(--accent-dim),0 0 0 1px var(--accent-glow); }
-.wiz-build-btn:active:not(:disabled) { transform:translateY(0) scale(.98); }
-.wiz-build-btn:disabled { opacity:.3;cursor:not-allowed;transform:none;box-shadow:none; }
-.wiz-build-btn:disabled::after { animation:none; }
 
-/* ── Card grid (priorities) — Bold cards with icon backgrounds ── */
-.title { font-size:22px;font-weight:800;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin:0 0 6px; }
-.sub { font-size:14px;color:var(--text3);margin:0 0 24px;line-height:1.5;font-weight:500; }
-.card-grid { display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:32px; }
-.gcard { position:relative;border-radius:16px;padding:28px;cursor:pointer;background:var(--card);border:2px solid transparent;transition:all .3s cubic-bezier(.22,1,.36,1);overflow:hidden;animation:wizCardEntry .5s cubic-bezier(.22,1,.36,1) both; }
-.gcard:nth-child(1) { animation-delay:.05s; }
-.gcard:nth-child(2) { animation-delay:.1s; }
-.gcard:nth-child(3) { animation-delay:.15s; }
-.gcard:nth-child(4) { animation-delay:.2s; }
-.gcard:nth-child(5) { animation-delay:.25s; }
-.gcard:nth-child(6) { animation-delay:.3s; }
-.gcard:nth-child(7) { animation-delay:.35s; }
-@keyframes wizCardEntry { from { opacity:0;transform:translateY(20px) scale(.96); } to { opacity:1;transform:translateY(0) scale(1); } }
-.gcard:hover { background:var(--card-hover);transform:translateY(-6px);box-shadow:0 20px 40px rgba(0,0,0,.3); }
-.gcard:active { transform:translateY(-1px) scale(.98);transition-duration:.1s; }
-.gcard.sel { border-color:var(--accent);box-shadow:0 0 0 1px var(--accent-glow),0 8px 32px var(--accent-dim); }
-.gcard.sel::before { content:'';position:absolute;inset:0;background:linear-gradient(135deg,var(--accent-dim),rgba(56,189,248,0.05));pointer-events:none;border-radius:inherit; }
-.gcard-chk { position:absolute;top:14px;right:14px;width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;opacity:0;transform:scale(0);transition:all .35s cubic-bezier(.34,1.56,.64,1); }
-.gcard-chk svg { width:14px;height:14px;stroke:var(--bg);stroke-width:3;fill:none; }
-.gcard.sel .gcard-chk { opacity:1;transform:scale(1); }
-.gcard-head { pointer-events:none; }
-.gcard-icon { width:52px;height:52px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:16px;position:relative;background:var(--accent-dim); }
-.gcard-icon.ci-career { background:rgba(52,211,153,0.15); }
-.gcard-icon.ci-industry { background:rgba(56,189,248,0.15); }
-.gcard-icon.ci-learning { background:rgba(168,85,247,0.15); }
-.gcard-icon.ci-markets { background:rgba(245,158,11,0.15); }
-.gcard-icon.ci-deals { background:rgba(236,72,153,0.15); }
-.gcard-icon.ci-interests { background:rgba(249,115,22,0.15); }
-.gcard-name { font-size:16px;font-weight:700;color:var(--text);margin-bottom:6px; }
-.gcard-desc { font-size:13px;color:var(--text3);line-height:1.5; }
-.gcard-tap { position:absolute;bottom:10px;right:14px;font-size:11px;color:var(--accent-light);opacity:.5;pointer-events:none;transition:opacity .2s; }
-.gcard:hover .gcard-tap { opacity:.8; }
-.gcard-body { max-height:0;overflow:hidden;opacity:0;transition:max-height .35s cubic-bezier(.4,0,.2,1),opacity .3s,margin .3s;margin-top:0; }
-.gcard.sel .gcard-body { max-height:300px;opacity:1;margin-top:14px; }
-.gcard-body-sep { height:1px;background:var(--brd);margin-bottom:10px; }
-.gcard-body-label { font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px; }
-.gcard-body-hint { font-size:13px;color:var(--text3);font-style:italic; }
-.spills { display:flex;flex-wrap:wrap;gap:7px; }
-.sp { padding:5px 13px;border-radius:20px;font-size:13px;cursor:pointer;border:1px solid var(--brd);color:var(--text2);transition:all .2s;user-select:none;position:relative;overflow:hidden; }
-.sp:hover { border-color:var(--accent-glow);color:var(--text);background:var(--card-hover); }
-.sp:active { transform:scale(.95); }
-.sp.on { background:linear-gradient(135deg,var(--accent-dim),color-mix(in srgb,var(--accent-dim) 60%,var(--card) 40%));border-color:var(--accent);color:var(--accent-light);font-weight:500;box-shadow:0 2px 8px var(--accent-dim); }
-.sp.sp-add { border-style:dashed;color:var(--text3); }
-.sp-x { margin-left:4px;cursor:pointer;opacity:.6; }
-.sp-x:hover { opacity:1; }
-.add-inp-card { border:1px solid var(--accent-glow);background:var(--card);color:var(--text);padding:5px 10px;border-radius:20px;font-size:13px;outline:none;width:120px; }
-
-/* ── Details accordion — Clean spacing ── */
-.det-section { margin-bottom:12px;border-radius:14px;border:1px solid var(--brd);background:var(--card);overflow:hidden;transition:border-color .2s; }
-.det-section:not(.collapsed) { border-color:var(--accent-glow); }
-.det-hdr { display:flex;align-items:center;gap:12px;padding:16px 24px;cursor:pointer;transition:background .15s;user-select:none; }
-.det-hdr:hover { background:rgba(255,255,255,0.02); }
-.det-hdr-icon { width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:17px;background:var(--accent-dim); }
-.det-hdr-icon.di-career { background:rgba(52,211,153,0.12); }
-.det-hdr-icon.di-industry { background:rgba(56,189,248,0.12); }
-.det-hdr-icon.di-learning { background:rgba(168,85,247,0.12); }
-.det-hdr-icon.di-markets { background:rgba(245,158,11,0.12); }
-.det-hdr-icon.di-deals { background:rgba(236,72,153,0.12); }
-.det-hdr-icon.di-interests { background:rgba(249,115,22,0.12); }
-.det-hdr-name { font-size:15px;font-weight:700;color:var(--text);flex:1; }
-.det-hdr-tag { font-size:10px;padding:2px 8px;border-radius:10px;background:var(--accent-dim);color:var(--accent-light); }
-.det-hdr-chev { font-size:12px;color:var(--text3);transition:transform .25s; }
-.det-section.collapsed .det-hdr-chev { transform:rotate(-90deg); }
-.det-section.collapsed .det-body { display:none; }
-.det-body { padding:0 24px 24px;display:flex;flex-direction:column;gap:18px; }
-
-/* ── Pills (detail panels) — Clean-spaced ── */
-.s2-label { font-size:12px;font-weight:600;color:var(--text2);margin:0 0 8px;display:flex;align-items:center;gap:6px; }
-.s2-hint { font-weight:400;color:var(--text3);font-size:12px; }
-.pills { display:flex;flex-wrap:wrap;gap:8px; }
-.pill { padding:7px 16px;border-radius:24px;font-size:13px;font-weight:600;cursor:pointer;border:1.5px solid var(--brd);color:var(--text2);transition:all .2s;user-select:none; }
-.pill:hover { border-color:rgba(255,255,255,0.12);color:var(--text);background:rgba(255,255,255,0.04); }
-.pill:active { transform:scale(.95); }
-.pill.on { background:linear-gradient(135deg,var(--accent-dim),color-mix(in srgb,var(--accent-dim) 60%,var(--card) 40%));border-color:var(--accent);color:var(--accent-light);font-weight:600;box-shadow:0 2px 8px var(--accent-dim);animation:wizPillPop .3s cubic-bezier(.34,1.56,.64,1); }
-@keyframes wizPillPop { 0% { transform:scale(.85); } 60% { transform:scale(1.05); } 100% { transform:scale(1); } }
-.pill.pill-decisive { border-width:2px;border-color:var(--accent-glow); }
-.pill.pill-decisive.on { box-shadow:0 0 12px var(--accent-dim);border-color:var(--accent); }
-.pill-add,.pill.pill-add { border-style:dashed;color:var(--text3); }
-.pill-sug { border-style:dashed;color:var(--accent-light);border-color:var(--accent-glow); }
-.pill-x { margin-left:4px;cursor:pointer;opacity:.6; }
-.pill-x:hover { opacity:1; }
-.add-inp { border:1px solid var(--accent-glow);background:var(--card);color:var(--text);padding:6px 12px;border-radius:24px;font-size:13px;outline:none;width:140px; }
-
-/* ── View all / collapse toggle ── */
-.va-tog { background:none;border:none;color:var(--accent-light);font-size:12px;cursor:pointer;padding:4px 0;margin-top:4px; }
-.va-tog:hover { text-decoration:underline; }
-.s2-toolbar { display:flex;justify-content:flex-end;margin-bottom:8px; }
-.s2-coll-btn { background:none;border:1px solid var(--brd);color:var(--text3);font-size:12px;padding:4px 12px;border-radius:8px;cursor:pointer;transition:all .2s; }
-.s2-coll-btn:hover { border-color:var(--accent-glow);color:var(--text); }
-
-/* ── Interests section ── */
-.int-wrap { margin-bottom:16px; }
-.int-inp { width:100%;padding:10px 16px;border-radius:var(--radius);border:1px solid var(--brd);background:var(--card);color:var(--text);font-size:14px;outline:none;transition:border-color .2s; }
-.int-inp:focus { border-color:var(--accent); }
-
-/* ── AI Suggestions ── */
-.ai-sug { margin-top:20px;padding:16px;border-radius:16px;background:color-mix(in srgb,var(--accent-dim) 30%,var(--card) 70%);border:1px solid var(--accent-glow);box-shadow:0 4px 16px color-mix(in srgb, var(--accent) 5%, transparent); }
-.ai-sug-hdr { font-size:13px;font-weight:700;color:var(--accent-light);margin-bottom:10px;display:flex;align-items:center;gap:8px; }
-.ai-sug-hdr.flash { animation:wizFlash .4s; }
-.ai-sug-spin { width:14px;height:14px;border:2px solid var(--accent-glow);border-top-color:var(--accent);border-radius:50%;animation:wizSpin .8s linear infinite; }
-.ai-sug-pill { display:inline-flex;align-items:center;padding:5px 12px;border-radius:16px;font-size:12px;cursor:pointer;border:1px dashed var(--accent-glow);color:var(--accent-light);margin:3px;transition:all .2s; }
-.ai-sug-pill:hover { background:var(--accent-dim);border-style:solid; }
-.ai-sug-pill.added { opacity:.5;border-style:solid;cursor:default; }
-.ai-sug-pill.shimmer { width:80px;height:28px;background:linear-gradient(90deg,var(--card) 25%,var(--accent-dim) 50%,var(--card) 75%);background-size:200% 100%;animation:wizShimmer 1.5s infinite;border:none;border-radius:16px; }
-.ai-ref { background:none;border:none;color:var(--accent-light);cursor:pointer;font-size:16px;padding:2px 4px;border-radius:6px;transition:background .2s; }
-.ai-ref:hover { background:var(--accent-dim); }
-.ai-ref.spin { animation:wizSpin .8s linear infinite; }
-
-/* ── S2 Banner (deterministic hint) ── */
-.s2-banner { display:flex;align-items:center;gap:10px;padding:10px 16px;border-radius:var(--radius);background:var(--accent-dim);border:1px solid var(--accent-glow);margin-bottom:20px;font-size:13px;color:var(--text2);line-height:1.4; }
-.s2-banner-icon { font-size:18px;flex-shrink:0; }
-.s2-banner-x { cursor:pointer;margin-left:auto;opacity:.6;font-size:18px;flex-shrink:0; }
-.s2-banner-x:hover { opacity:1; }
-
-/* ── Quick Setup button (in grid) ── */
-.quick-setup-wrap { display:flex;justify-content:center;margin-top:8px; }
-.quick-setup-btn { display:flex;flex-direction:column;align-items:center;gap:4px;padding:14px 32px;border-radius:var(--radius);border:1.5px solid var(--accent-glow);background:linear-gradient(135deg,var(--accent-dim),color-mix(in srgb,var(--accent-dim) 40%,var(--card) 60%));color:var(--accent-light);font-size:15px;font-weight:700;cursor:pointer;transition:all .25s;letter-spacing:.3px; }
-.quick-setup-btn:hover { background:linear-gradient(135deg,var(--accent),var(--accent-light));color:#fff;border-color:var(--accent);transform:translateY(-2px);box-shadow:0 8px 28px var(--accent-dim); }
-.quick-setup-btn:active { transform:translateY(0) scale(.97); }
-.quick-setup-sub { font-size:11px;font-weight:400;opacity:.7; }
-
-/* ── Loading / Building animation ── */
-.ld { display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;text-align:center;min-height:300px; }
-.ld-t { font-size:22px;font-weight:800;color:var(--text);margin:24px 0 8px; }
-.ld-s { font-size:14px;color:var(--text2);margin-bottom:28px; }
-.ld-bar { width:min(320px,80%);height:6px;border-radius:3px;background:var(--brd);overflow:hidden;margin-bottom:28px;box-shadow:inset 0 1px 3px rgba(0,0,0,.2); }
-.ld-bar-fill { height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--accent-light));border-radius:3px;transition:width .6s cubic-bezier(.4,0,.2,1);box-shadow:0 0 8px var(--accent-dim); }
-.ld-list { text-align:left;display:flex;flex-direction:column;gap:12px; }
-.ls { display:flex;align-items:center;gap:10px;font-size:14px;color:var(--text3);transition:color .3s; }
-.ls.on { color:var(--text); }
-.ls.ok { color:var(--accent-light); }
-.ls.ok .ls-d svg { display:block; }
-.ls.ok .ls-sp { display:none; }
-.ls:not(.ok) .ls-d svg { display:none; }
-.ls-d { width:20px;height:20px;display:flex;align-items:center;justify-content:center; }
-.ls-sp { width:16px;height:16px;border:2px solid var(--brd);border-top-color:var(--accent);border-radius:50%; }
-.ls.on .ls-sp { animation:wizSpin .8s linear infinite; }
-
-/* ── Spinner ring (loading) ── */
-.wiz-ring { width:48px;height:48px;border:3px solid var(--brd);border-top-color:var(--accent);border-radius:50%;animation:wizSpin 1s linear infinite;filter:drop-shadow(0 0 6px var(--accent-dim)); }
-
-/* ── Done state ── */
-.done { display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;text-align:center;animation:wizFadeUp .5s; }
-.done-c { width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,var(--accent-dim),color-mix(in srgb,var(--accent) 20%,var(--card) 80%));border:2px solid var(--accent);display:flex;align-items:center;justify-content:center;animation:wizCheckPop .5s cubic-bezier(.3,1.5,.6,1);box-shadow:0 0 24px var(--accent-dim); }
-.done-c svg { color:var(--accent-light);width:30px;height:30px; }
-.done-c.err { background:rgba(255,60,60,.12);border-color:rgba(255,60,60,.5); }
-.done-c.err svg { color:#ff6b6b; }
-.done-t { font-size:24px;font-weight:700;color:var(--text);margin:20px 0 8px; }
-.done-s { font-size:14px;color:var(--text2);margin-bottom:28px;line-height:1.5;max-width:400px; }
-.btn { padding:10px 24px;border-radius:var(--radius);font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;border:none; }
-.btn.bp { background:linear-gradient(135deg,var(--accent),var(--accent-light));color:#fff; }
-.btn.bp:hover { opacity:.9;transform:translateY(-1px); }
-.btn.bo { background:transparent;border:1.5px solid var(--brd);color:var(--text2); }
-.btn.bo:hover { border-color:var(--accent-glow);color:var(--text); }
-.badge { display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:20px;font-size:13px;font-weight:500;background:var(--accent-dim);color:var(--accent-light);border:1px solid var(--accent-glow); }
-
-/* ── Presets bar (in header) ── */
-.preset-dd { position:relative;display:inline-block; }
-.preset-dd .preset-menu { position:absolute;top:calc(100% + 6px);right:0;min-width:220px;background:var(--card);border:1px solid var(--brd);border-radius:var(--radius);box-shadow:0 8px 32px rgba(0,0,0,.25);z-index:10;padding:8px 0;display:none; }
-.preset-dd .preset-menu.show { display:block; }
-.preset-item { display:flex;align-items:center;gap:8px;padding:8px 16px;font-size:13px;color:var(--text);cursor:pointer;transition:background .15s; }
-.preset-item:hover { background:var(--card-hover); }
-.preset-item .pdel { margin-left:auto;color:var(--text3);font-size:11px;opacity:0;transition:opacity .15s; }
-.preset-item:hover .pdel { opacity:1; }
-.preset-sep { height:1px;background:var(--brd);margin:4px 0; }
-.preset-save-row { padding:6px 12px;display:flex;gap:6px; }
-.preset-save-inp { flex:1;padding:6px 10px;border-radius:8px;border:1px solid var(--brd);background:var(--bg);color:var(--text);font-size:12px;outline:none; }
-.preset-save-inp:focus { border-color:var(--accent); }
-.preset-save-btn { padding:6px 12px;border-radius:8px;border:none;background:var(--accent);color:#fff;font-size:12px;font-weight:600;cursor:pointer; }
+/* ── Main Panel ── */
+.wiz-scope .main { flex:1;overflow-y:auto;padding:28px 36px 40px;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,0.08) transparent; }
+.wiz-scope .main::-webkit-scrollbar { width:5px; }
+.wiz-scope .main::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.08);border-radius:4px; }
 
 /* ── Step Progress Bar ── */
-.wiz-steps-bar { display:flex;align-items:center;margin-bottom:32px; }
-.wiz-step-circle { width:34px;height:34px;display:flex;align-items:center;justify-content:center;border-radius:50%;font-size:13px;font-weight:700;border:2px solid var(--brd);color:var(--text3);transition:all .2s;flex-shrink:0; }
-.wiz-step-circle.done { border-color:var(--accent);background:var(--accent);color:var(--bg); }
-.wiz-step-circle.active { border-color:var(--accent);color:var(--accent);background:var(--accent-dim); }
-.wiz-step-label { font-size:12px;font-weight:600;color:var(--text3);margin-left:8px;white-space:nowrap; }
-.wiz-step-label.active { color:var(--text); }
-.wiz-step-line { flex:1;height:2px;background:var(--brd);margin:0 14px; }
-.wiz-step-line.done { background:linear-gradient(90deg,var(--accent),var(--accent2)); }
+.wiz-scope .steps-bar { display:flex;align-items:center;margin-bottom:32px; }
+.wiz-scope .step-num-circle { width:34px;height:34px;display:flex;align-items:center;justify-content:center;border-radius:50%;font-size:13px;font-weight:700;border:2px solid var(--brd);color:var(--text3);transition:all 0.2s;flex-shrink:0;cursor:help; }
+.wiz-scope .step-num-circle.done { border-color:var(--accent);background:var(--accent);color:#0c1222; }
+.wiz-scope .step-num-circle.active { border-color:var(--accent);color:var(--accent);background:var(--accent-dim); }
+.wiz-scope .step-bar-label { font-size:12px;font-weight:600;color:var(--text3);margin-left:8px;white-space:nowrap; }
+.wiz-scope .step-bar-label.active { color:var(--text); }
+.wiz-scope .step-line { flex:1;height:2px;background:var(--brd);margin:0 14px; }
+.wiz-scope .step-line.done { background:linear-gradient(90deg,var(--accent),var(--accent2)); }
+
+/* ── Section Headers ── */
+.wiz-scope .sec-title { font-size:22px;font-weight:800;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:6px; }
+.wiz-scope .sec-sub { font-size:14px;color:var(--text3);margin-bottom:24px;font-weight:500; }
+.wiz-scope .sec-title2 { font-size:20px;font-weight:800;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:8px; }
+.wiz-scope .sec-sub2 { font-size:13px;color:var(--text3);margin-bottom:20px; }
+.wiz-scope .section-divider { height:1px;background:linear-gradient(90deg,transparent,var(--brd),var(--brd),transparent);margin:8px 0 32px; }
+
+/* ── Priority Cards Grid ── */
+.wiz-scope .cards-grid { display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:40px; }
+.wiz-scope .p-card { position:relative;background:var(--bg-card);border:2px solid transparent;border-radius:16px;padding:28px;cursor:pointer;transition:all 0.3s cubic-bezier(0.22,1,0.36,1);overflow:hidden;animation:wizCardEntry 0.5s cubic-bezier(0.22,1,0.36,1) both; }
+.wiz-scope .p-card:nth-child(1) { animation-delay:0.05s; }
+.wiz-scope .p-card:nth-child(2) { animation-delay:0.1s; }
+.wiz-scope .p-card:nth-child(3) { animation-delay:0.15s; }
+.wiz-scope .p-card:nth-child(4) { animation-delay:0.2s; }
+.wiz-scope .p-card:nth-child(5) { animation-delay:0.25s; }
+.wiz-scope .p-card:nth-child(6) { animation-delay:0.3s; }
+@keyframes wizCardEntry { from { opacity:0;transform:translateY(20px) scale(0.96); } to { opacity:1;transform:translateY(0) scale(1); } }
+.wiz-scope .p-card:hover { background:var(--bg-card-hover);transform:translateY(-6px);box-shadow:0 20px 40px rgba(0,0,0,0.3); }
+.wiz-scope .p-card:active { transform:translateY(-1px) scale(.98);transition-duration:.1s; }
+.wiz-scope .p-card.sel { border-color:var(--accent);box-shadow:0 0 0 1px rgba(52,211,153,0.15),0 8px 32px rgba(52,211,153,0.1); }
+.wiz-scope .p-card.sel::before { content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(52,211,153,0.08),rgba(56,189,248,0.05));border-radius:inherit;pointer-events:none; }
+
+/* ── Card icon ── */
+.wiz-scope .card-icon { width:52px;height:52px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:16px;position:relative; }
+.wiz-scope .card-icon.ci-career { background:rgba(52,211,153,0.15); }
+.wiz-scope .card-icon.ci-industry { background:rgba(56,189,248,0.15); }
+.wiz-scope .card-icon.ci-learning { background:rgba(168,85,247,0.15); }
+.wiz-scope .card-icon.ci-markets { background:rgba(245,158,11,0.15); }
+.wiz-scope .card-icon.ci-deals { background:rgba(236,72,153,0.15); }
+.wiz-scope .card-icon.ci-interests { background:rgba(249,115,22,0.15); }
+.wiz-scope .card-name { font-size:16px;font-weight:700;color:var(--text);margin-bottom:6px; }
+.wiz-scope .card-desc { font-size:13px;color:var(--text3);line-height:1.5; }
+
+/* ── Card checkmark ── */
+.wiz-scope .card-check { position:absolute;top:14px;right:14px;width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;opacity:0;transform:scale(0);transition:all 0.35s cubic-bezier(0.34,1.56,0.64,1); }
+.wiz-scope .p-card.sel .card-check { opacity:1;transform:scale(1); }
+.wiz-scope .card-check svg { width:14px;height:14px;stroke:#0c1222;stroke-width:3;fill:none; }
+
+/* ── Card sub-pills (expand on select) ── */
+.wiz-scope .card-pills { display:flex;flex-wrap:wrap;gap:6px;margin-top:14px;max-height:0;overflow:hidden;transition:max-height 0.4s ease; }
+.wiz-scope .p-card.sel .card-pills { max-height:200px; }
+.wiz-scope .card-pill { font-size:11px;padding:4px 10px;border-radius:20px;background:rgba(52,211,153,0.1);color:var(--accent-light);border:1px solid rgba(52,211,153,0.15);font-weight:600; }
+.wiz-scope .card-pill-x { margin-left:4px;cursor:pointer;opacity:.6; }
+.wiz-scope .card-pill-x:hover { opacity:1; }
+.wiz-scope .card-pill.sp-add { border-style:dashed;background:transparent;cursor:pointer; }
+.wiz-scope .card-pill-hint { font-size:13px;color:var(--text3);font-style:italic;padding:4px 0; }
+.wiz-scope .add-inp-card { border:1px solid var(--accent-glow);background:var(--bg-card);color:var(--text);padding:5px 10px;border-radius:20px;font-size:13px;outline:none;width:120px; }
+.wiz-scope .card-tap { position:absolute;bottom:10px;right:14px;font-size:11px;color:var(--accent-light);opacity:.5;pointer-events:none;transition:opacity .2s; }
+.wiz-scope .p-card:hover .card-tap { opacity:.8; }
+
+/* ── Accordions ── */
+.wiz-scope .accordion { margin-bottom:12px;border-radius:14px;border:1px solid var(--brd);overflow:hidden;background:var(--bg-card);transition:border-color 0.2s; }
+.wiz-scope .accordion.open { border-color:rgba(52,211,153,0.15); }
+.wiz-scope .acc-header { display:flex;align-items:center;gap:12px;padding:16px 24px;cursor:pointer;transition:background 0.15s;user-select:none; }
+.wiz-scope .acc-header:hover { background:rgba(255,255,255,0.02); }
+.wiz-scope .acc-icon { width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:17px; }
+.wiz-scope .acc-icon.ai-career { background:rgba(52,211,153,0.12); }
+.wiz-scope .acc-icon.ai-industry { background:rgba(56,189,248,0.12); }
+.wiz-scope .acc-icon.ai-learning { background:rgba(168,85,247,0.12); }
+.wiz-scope .acc-icon.ai-markets { background:rgba(245,158,11,0.12); }
+.wiz-scope .acc-icon.ai-deals { background:rgba(236,72,153,0.12); }
+.wiz-scope .acc-icon.ai-interests { background:rgba(249,115,22,0.12); }
+.wiz-scope .acc-title { font-size:15px;font-weight:700;color:var(--text); }
+.wiz-scope .acc-tag { font-size:10px;padding:2px 8px;border-radius:10px;background:var(--accent-dim);color:var(--accent);margin-left:auto; }
+.wiz-scope .acc-chevron { color:var(--text3);transition:transform 0.3s;font-size:13px;margin-left:8px; }
+.wiz-scope .accordion.open .acc-chevron { transform:rotate(180deg); }
+.wiz-scope .acc-body { max-height:0;overflow:hidden;transition:max-height 0.4s cubic-bezier(0.22,1,0.36,1); }
+.wiz-scope .accordion.open .acc-body { max-height:800px; }
+.wiz-scope .acc-content { padding:0 24px 24px;display:flex;flex-direction:column;gap:18px; }
+
+/* ── Accordion Pills ── */
+.wiz-scope .acc-group-label { font-size:12px;font-weight:600;color:var(--text2);margin-bottom:8px; }
+.wiz-scope .acc-pills { display:flex;flex-wrap:wrap;gap:8px; }
+.wiz-scope .acc-pill { font-size:13px;font-weight:600;padding:7px 16px;border-radius:24px;background:rgba(255,255,255,0.04);border:1.5px solid var(--brd);color:var(--text2);cursor:pointer;transition:all 0.2s;position:relative;user-select:none; }
+.wiz-scope .acc-pill:hover { background:rgba(255,255,255,0.07);border-color:rgba(255,255,255,0.12);color:var(--text); }
+.wiz-scope .acc-pill:active { transform:scale(.95); }
+.wiz-scope .acc-pill.on { background:linear-gradient(135deg,rgba(52,211,153,0.15),rgba(56,189,248,0.1));border-color:var(--accent);color:var(--accent-light);animation:wizPillPop 0.3s cubic-bezier(0.34,1.56,0.64,1); }
+@keyframes wizPillPop { 0% { transform:scale(0.85); } 60% { transform:scale(1.05); } 100% { transform:scale(1); } }
+.wiz-scope .acc-pill.on::after { content:'\\2713';margin-left:6px;font-size:11px; }
+.wiz-scope .acc-pill.pill-decisive { border-width:2px;border-color:var(--accent-glow); }
+.wiz-scope .acc-pill.pill-decisive.on { box-shadow:0 0 12px var(--accent-dim);border-color:var(--accent); }
+.wiz-scope .acc-pill.pill-sug { border-style:dashed;color:var(--accent-light);border-color:var(--accent-glow); }
+.wiz-scope .acc-pill .pill-x { margin-left:4px;cursor:pointer;opacity:.6; }
+.wiz-scope .acc-pill .pill-x:hover { opacity:1; }
+.wiz-scope .add-pill { font-size:13px;font-weight:600;padding:7px 16px;border-radius:24px;background:transparent;border:1.5px dashed rgba(52,211,153,0.3);color:var(--accent);cursor:pointer;transition:all 0.2s; }
+.wiz-scope .add-pill:hover { background:rgba(52,211,153,0.06);border-color:var(--accent); }
+.wiz-scope .add-inp { border:1px solid var(--accent-glow);background:var(--bg-card);color:var(--text);padding:6px 12px;border-radius:24px;font-size:13px;outline:none;width:140px; }
+.wiz-scope .s2-hint { font-weight:400;color:var(--text3);font-size:12px; }
+
+/* ── View all toggle ── */
+.wiz-scope .va-tog { background:none;border:none;color:var(--accent-light);font-size:12px;cursor:pointer;padding:4px 0;margin-top:4px; }
+.wiz-scope .va-tog:hover { text-decoration:underline; }
+
+/* ── Interests section ── */
+.wiz-scope .int-wrap { margin-bottom:16px; }
+.wiz-scope .int-inp { width:100%;padding:10px 16px;border-radius:14px;border:1px solid var(--brd);background:var(--bg-card);color:var(--text);font-size:14px;outline:none;transition:border-color 0.2s; }
+.wiz-scope .int-inp:focus { border-color:var(--accent); }
+
+/* ── AI Suggestions (in detail panels) ── */
+.wiz-scope .ai-sug { margin-top:20px;padding:16px;border-radius:16px;background:color-mix(in srgb,var(--accent-dim) 30%,var(--bg-card) 70%);border:1px solid var(--accent-glow);box-shadow:0 4px 16px color-mix(in srgb,var(--accent) 5%,transparent); }
+.wiz-scope .ai-sug-hdr { font-size:13px;font-weight:700;color:var(--accent-light);margin-bottom:10px;display:flex;align-items:center;gap:8px; }
+.wiz-scope .ai-sug-hdr.flash { animation:wizFlash .4s; }
+.wiz-scope .ai-sug-spin { width:14px;height:14px;border:2px solid var(--accent-glow);border-top-color:var(--accent);border-radius:50%;animation:wizSpin .8s linear infinite; }
+.wiz-scope .ai-sug-pill { display:inline-flex;align-items:center;padding:5px 12px;border-radius:16px;font-size:12px;cursor:pointer;border:1px dashed var(--accent-glow);color:var(--accent-light);margin:3px;transition:all 0.2s; }
+.wiz-scope .ai-sug-pill:hover { background:var(--accent-dim);border-style:solid; }
+.wiz-scope .ai-sug-pill.added { opacity:.5;border-style:solid;cursor:default; }
+.wiz-scope .ai-sug-pill.shimmer { width:80px;height:28px;background:linear-gradient(90deg,var(--bg-card) 25%,var(--accent-dim) 50%,var(--bg-card) 75%);background-size:200% 100%;animation:wizShimmer 1.5s infinite;border:none;border-radius:16px; }
+.wiz-scope .ai-ref { background:none;border:none;color:var(--accent-light);cursor:pointer;font-size:16px;padding:2px 4px;border-radius:6px;transition:background 0.2s; }
+.wiz-scope .ai-ref:hover { background:var(--accent-dim); }
+.wiz-scope .ai-ref.spin { animation:wizSpin .8s linear infinite; }
+
+/* ── S2 Banner ── */
+.wiz-scope .s2-banner { display:flex;align-items:center;gap:10px;padding:10px 16px;border-radius:14px;background:var(--accent-dim);border:1px solid var(--accent-glow);margin-bottom:20px;font-size:13px;color:var(--text2);line-height:1.4; }
+.wiz-scope .s2-banner-icon { font-size:18px;flex-shrink:0; }
+.wiz-scope .s2-banner-x { cursor:pointer;margin-left:auto;opacity:.6;font-size:18px;flex-shrink:0; }
+.wiz-scope .s2-banner-x:hover { opacity:1; }
+
+/* ── Quick Setup ── */
+.wiz-scope .quick-setup-wrap { display:flex;justify-content:center;margin-top:8px; }
+.wiz-scope .quick-setup-btn { display:flex;flex-direction:column;align-items:center;gap:4px;padding:14px 32px;border-radius:14px;border:1.5px solid var(--accent-glow);background:linear-gradient(135deg,var(--accent-dim),color-mix(in srgb,var(--accent-dim) 40%,var(--bg-card) 60%));color:var(--accent-light);font-size:15px;font-weight:700;cursor:pointer;transition:all 0.25s;letter-spacing:0.3px; }
+.wiz-scope .quick-setup-btn:hover { background:linear-gradient(135deg,var(--accent),var(--accent-light));color:#fff;border-color:var(--accent);transform:translateY(-2px);box-shadow:0 8px 28px var(--accent-dim); }
+.wiz-scope .quick-setup-btn:active { transform:translateY(0) scale(.97); }
+.wiz-scope .quick-setup-sub { font-size:11px;font-weight:400;opacity:.7; }
+
+/* ── Presets ── */
+.wiz-scope .preset-dd { position:relative;display:inline-block; }
+.wiz-scope .preset-dd .preset-menu { position:absolute;top:calc(100% + 6px);right:0;min-width:220px;background:var(--bg-card);border:1px solid var(--brd);border-radius:14px;box-shadow:0 8px 32px rgba(0,0,0,.25);z-index:10;padding:8px 0;display:none; }
+.wiz-scope .preset-dd .preset-menu.show { display:block; }
+.wiz-scope .preset-item { display:flex;align-items:center;gap:8px;padding:8px 16px;font-size:13px;color:var(--text);cursor:pointer;transition:background .15s; }
+.wiz-scope .preset-item:hover { background:var(--bg-card-hover); }
+.wiz-scope .preset-item .pdel { margin-left:auto;color:var(--text3);font-size:11px;opacity:0;transition:opacity .15s; }
+.wiz-scope .preset-item:hover .pdel { opacity:1; }
+.wiz-scope .preset-sep { height:1px;background:var(--brd);margin:4px 0; }
+.wiz-scope .preset-save-row { padding:6px 12px;display:flex;gap:6px; }
+.wiz-scope .preset-save-inp { flex:1;padding:6px 10px;border-radius:8px;border:1px solid var(--brd);background:var(--bg);color:var(--text);font-size:12px;outline:none; }
+.wiz-scope .preset-save-inp:focus { border-color:var(--accent); }
+.wiz-scope .preset-save-btn { padding:6px 12px;border-radius:8px;border:none;background:var(--accent);color:#fff;font-size:12px;font-weight:600;cursor:pointer; }
+
+/* ── Loading / Building ── */
+.wiz-scope .ld { display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;text-align:center;min-height:300px; }
+.wiz-scope .ld-t { font-size:22px;font-weight:800;color:var(--text);margin:24px 0 8px; }
+.wiz-scope .ld-s { font-size:14px;color:var(--text2);margin-bottom:28px; }
+.wiz-scope .ld-bar { width:min(320px,80%);height:6px;border-radius:3px;background:var(--brd);overflow:hidden;margin-bottom:28px;box-shadow:inset 0 1px 3px rgba(0,0,0,.2); }
+.wiz-scope .ld-bar-fill { height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--accent-light));border-radius:3px;transition:width .6s cubic-bezier(.4,0,.2,1);box-shadow:0 0 8px var(--accent-dim); }
+.wiz-scope .ld-list { text-align:left;display:flex;flex-direction:column;gap:12px; }
+.wiz-scope .ls { display:flex;align-items:center;gap:10px;font-size:14px;color:var(--text3);transition:color .3s; }
+.wiz-scope .ls.on { color:var(--text); }
+.wiz-scope .ls.ok { color:var(--accent-light); }
+.wiz-scope .ls.ok .ls-d svg { display:block; }
+.wiz-scope .ls.ok .ls-sp { display:none; }
+.wiz-scope .ls:not(.ok) .ls-d svg { display:none; }
+.wiz-scope .ls-d { width:20px;height:20px;display:flex;align-items:center;justify-content:center; }
+.wiz-scope .ls-sp { width:16px;height:16px;border:2px solid var(--brd);border-top-color:var(--accent);border-radius:50%; }
+.wiz-scope .ls.on .ls-sp { animation:wizSpin .8s linear infinite; }
+
+/* ── Spinner ring ── */
+.wiz-scope .wiz-ring { width:48px;height:48px;border:3px solid var(--brd);border-top-color:var(--accent);border-radius:50%;animation:wizSpin 1s linear infinite;filter:drop-shadow(0 0 6px var(--accent-dim)); }
+
+/* ── Done state ── */
+.wiz-scope .done { display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;text-align:center;animation:wizFadeUp .5s; }
+.wiz-scope .done-c { width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,var(--accent-dim),color-mix(in srgb,var(--accent) 20%,var(--bg-card) 80%));border:2px solid var(--accent);display:flex;align-items:center;justify-content:center;animation:wizCheckPop .5s cubic-bezier(.3,1.5,.6,1);box-shadow:0 0 24px var(--accent-dim); }
+.wiz-scope .done-c svg { color:var(--accent-light);width:30px;height:30px; }
+.wiz-scope .done-c.err { background:rgba(255,60,60,.12);border-color:rgba(255,60,60,.5); }
+.wiz-scope .done-c.err svg { color:#ff6b6b; }
+.wiz-scope .done-t { font-size:24px;font-weight:700;color:var(--text);margin:20px 0 8px; }
+.wiz-scope .done-s { font-size:14px;color:var(--text2);margin-bottom:28px;line-height:1.5;max-width:400px; }
+.wiz-scope .btn { padding:10px 24px;border-radius:14px;font-size:14px;font-weight:600;cursor:pointer;transition:all 0.2s;border:none; }
+.wiz-scope .btn.bp { background:linear-gradient(135deg,var(--accent),var(--accent-light));color:#fff; }
+.wiz-scope .btn.bp:hover { opacity:.9;transform:translateY(-1px); }
+.wiz-scope .btn.bo { background:transparent;border:1.5px solid var(--brd);color:var(--text2); }
+.wiz-scope .btn.bo:hover { border-color:var(--accent-glow);color:var(--text); }
+
+/* ── Tooltip System ── */
+.wiz-scope [data-tip] { position:relative;cursor:help; }
+.wiz-scope [data-tip]::after { content:attr(data-tip);position:absolute;bottom:calc(100% + 10px);left:50%;transform:translateX(-50%);background:rgba(12,18,34,0.98);color:#cbd5e1;font-size:11.5px;font-weight:500;line-height:1.5;padding:10px 14px;border-radius:10px;border:1px solid rgba(52,211,153,0.2);border-left:3px solid var(--accent);width:max-content;max-width:240px;pointer-events:none;opacity:0;transition:opacity 0.15s;z-index:9999;box-shadow:0 8px 32px rgba(0,0,0,0.5);white-space:normal; }
+.wiz-scope [data-tip]:hover::after { opacity:1; }
+.wiz-scope [data-tip-pos="bottom"]::after { bottom:auto;top:calc(100% + 10px); }
+.wiz-scope [data-tip-pos="right"]::after { bottom:auto;left:calc(100% + 10px);top:50%;transform:translateY(-50%); }
 
 /* ── Animations ── */
 @keyframes wizSpin { to { transform:rotate(360deg); } }
@@ -1002,36 +1012,41 @@ const WIZ_CSS = `
 @keyframes wizPop { 0% { transform:scale(.7);opacity:0; } 60% { transform:scale(1.08); } 100% { transform:scale(1);opacity:1; } }
 @keyframes wizFlash { 0%,100% { opacity:1; } 50% { opacity:.4; } }
 @keyframes wizShimmer { 0% { background-position:200% 0; } 100% { background-position:-200% 0; } }
-.wiz-hidden { display:none!important; }
+.wiz-scope .wiz-hidden { display:none!important; }
 
-/* ── Mobile bottom drawer ── */
+/* ── Mobile ── */
+@media (max-width:1000px) {
+  .wiz-scope .modal { inset:1vh 2vw; }
+  .wiz-scope .rail { width:240px;min-width:240px; }
+  .wiz-scope .cards-grid { grid-template-columns:repeat(2,1fr); }
+  .wiz-scope .main { padding:20px 24px 32px; }
+  .wiz-scope .theme-swapper { display:none; }
+}
 @media (max-width:768px) {
-  .wiz-modal { inset:2vh 2vw;border-radius:16px; }
-  .wiz-hdr { padding:10px 16px;gap:8px;flex-wrap:wrap; }
-  .wiz-badge { font-size:11px;max-width:120px; }
-  .wiz-hdr-btn { padding:6px 12px;font-size:12px; }
-  .wiz-theme-bar { display:none; }
-  .wiz-body { flex-direction:column; }
-  .wiz-rail { width:100%;border-right:none;border-top:1px solid var(--brd);position:fixed;bottom:0;left:0;right:0;z-index:10000;max-height:70vh;transform:translateY(calc(100% - 52px));transition:transform .35s cubic-bezier(.4,0,.2,1);background:var(--bg);border-radius:16px 16px 0 0;box-shadow:0 -4px 24px rgba(0,0,0,.3); }
-  .wiz-rail.expanded { transform:translateY(0); }
-  .wiz-rail-handle { display:flex;align-items:center;justify-content:center;padding:10px 16px;cursor:pointer;gap:8px; }
-  .wiz-rail-handle-bar { width:36px;height:4px;border-radius:2px;background:var(--text3);opacity:.4; }
-  .wiz-rail-handle-text { font-size:13px;color:var(--text2);font-weight:500; }
-  .wiz-rail-scroll { display:none; }
-  .wiz-rail.expanded .wiz-rail-scroll { display:block; }
-  .wiz-rail.expanded .wiz-rail-handle-bar { margin-bottom:4px; }
-  .wiz-main { padding:20px 16px 80px; }
-  .card-grid { grid-template-columns:repeat(2,1fr);gap:12px; }
-  .title { font-size:20px; }
-  .sub { font-size:13px; }
-  .ld-t { font-size:18px; }
-  .done-t { font-size:20px; }
-  .done-s { font-size:13px; }
-  .wiz-steps-bar { display:none; }
-  .wiz-feed-summary { display:none; }
+  .wiz-scope .modal { inset:2vh 2vw;border-radius:16px; }
+  .wiz-scope .hdr { padding:10px 16px;gap:8px;flex-wrap:wrap; }
+  .wiz-scope .badge { font-size:9px; }
+  .wiz-scope .theme-swapper { display:none; }
+  .wiz-scope .body { flex-direction:column; }
+  .wiz-scope .rail { width:100%;min-width:unset;border-right:none;border-top:1px solid var(--brd);position:fixed;bottom:0;left:0;right:0;z-index:10000;max-height:70vh;transform:translateY(calc(100% - 52px));transition:transform .35s cubic-bezier(.4,0,.2,1);background:var(--bg);border-radius:16px 16px 0 0;box-shadow:0 -4px 24px rgba(0,0,0,.3); }
+  .wiz-scope .rail.expanded { transform:translateY(0); }
+  .wiz-scope .rail-handle { display:flex;align-items:center;justify-content:center;padding:10px 16px;cursor:pointer;gap:8px; }
+  .wiz-scope .rail-handle-bar { width:36px;height:4px;border-radius:2px;background:var(--text3);opacity:.4; }
+  .wiz-scope .rail-handle-text { font-size:13px;color:var(--text2);font-weight:500; }
+  .wiz-scope .rail-inner { display:none; }
+  .wiz-scope .rail.expanded .rail-inner { display:block; }
+  .wiz-scope .main { padding:20px 16px 80px; }
+  .wiz-scope .cards-grid { grid-template-columns:repeat(2,1fr);gap:12px; }
+  .wiz-scope .sec-title { font-size:20px; }
+  .wiz-scope .sec-sub { font-size:13px; }
+  .wiz-scope .ld-t { font-size:18px; }
+  .wiz-scope .done-t { font-size:20px; }
+  .wiz-scope .done-s { font-size:13px; }
+  .wiz-scope .steps-bar { display:none; }
+  .wiz-scope .feed-summary { display:none; }
 }
 @media (max-width:540px) {
-  .card-grid { grid-template-columns:1fr; }
+  .wiz-scope .cards-grid { grid-template-columns:1fr; }
 }
 `;
 
@@ -1057,48 +1072,53 @@ function injectDOM(role, location) {
   const wrapper = document.createElement('div');
   wrapper.id = 'wiz-root';
   wrapper.className = 'wiz-scope';
-  const circumference = 2 * Math.PI * 14; // r=14 for ring
+  const circumference = 2 * Math.PI * 16; // r=16 for ring
+  const isDeep = document.getElementById('wiz-deep-mode')?.checked;
   wrapper.innerHTML = `
-    <div class="wiz-bk" id="wiz-bk" onclick="_wiz.closeWizard()"></div>
-    <div class="wiz-modal" id="wiz-modal">
-      <div class="wiz-hdr">
-        <span class="wiz-brand">StratOS</span>
-        ${role ? `<span class="wiz-badge">${esc(role)}</span>` : ''}
-        ${location ? `<span class="wiz-badge">${esc(location)}</span>` : ''}
-        <span class="wiz-hdr-spacer"></span>
+    <div class="backdrop" id="wiz-bk" onclick="_wiz.closeWizard()"></div>
+    <div class="modal" id="wiz-modal">
+      <div class="grad-bar"></div>
+      <div class="hdr">
+        <div class="hdr-logo" data-tip="StratOS News Intelligence Platform">StratOS</div>
+        <div class="hdr-sub">Intelligence Wizard</div>
+        <div class="hdr-badges">
+          ${role ? `<span class="badge" data-tip="Your professional role">${esc(role)}</span>` : ''}
+          ${location ? `<span class="badge blue" data-tip="Your location">${esc(location)}</span>` : ''}
+        </div>
         <div class="preset-dd" id="wiz-preset-dd"></div>
-        <div class="wiz-theme-bar" title="Color theme">
-          <div class="wiz-theme-dot active" data-t="default" onclick="_wiz.setTheme(this)" title="Emerald"></div>
-          <div class="wiz-theme-dot" data-t="ember" onclick="_wiz.setTheme(this)" title="Warm Ember"></div>
-          <div class="wiz-theme-dot" data-t="frost" onclick="_wiz.setTheme(this)" title="Arctic Frost"></div>
-          <div class="wiz-theme-dot" data-t="violet" onclick="_wiz.setTheme(this)" title="Neon Violet"></div>
+        <div class="theme-swapper" data-tip="Switch color theme" data-tip-pos="bottom">
+          <div class="theme-dot active" data-t="default" onclick="_wiz.setTheme(this)" data-tip="Emerald (default)" data-tip-pos="bottom"></div>
+          <div class="theme-dot" data-t="ember" onclick="_wiz.setTheme(this)" data-tip="Warm Ember" data-tip-pos="bottom"></div>
+          <div class="theme-dot" data-t="frost" onclick="_wiz.setTheme(this)" data-tip="Arctic Frost" data-tip-pos="bottom"></div>
+          <div class="theme-dot" data-t="violet" onclick="_wiz.setTheme(this)" data-tip="Neon Violet" data-tip-pos="bottom"></div>
         </div>
-        <div class="wiz-ring-wrap" id="wiz-ring-wrap" title="Completion">
-          <svg class="wiz-ring-svg" viewBox="0 0 36 36">
-            <circle class="wiz-ring-bg" cx="18" cy="18" r="14"/>
-            <circle class="wiz-ring-fg" id="wiz-ring-fg" cx="18" cy="18" r="14" stroke-dasharray="${circumference}" stroke-dashoffset="${circumference}"/>
+        <div class="ring-wrap" id="wiz-ring-wrap" data-tip="Profile completion progress">
+          <svg width="40" height="40" viewBox="0 0 42 42">
+            <defs><linearGradient id="wizRingGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="var(--accent)"/><stop offset="100%" stop-color="var(--accent2)"/></linearGradient></defs>
+            <circle class="ring-bg" cx="21" cy="21" r="16"/>
+            <circle class="ring-fg" id="wiz-ring-fg" cx="21" cy="21" r="16" stroke-dasharray="${circumference}" stroke-dashoffset="${circumference}"/>
           </svg>
-          <span class="wiz-ring-pct" id="wiz-ring-pct">0%</span>
+          <span class="ring-label" id="wiz-ring-pct">0%</span>
         </div>
-        <button class="wiz-close" onclick="_wiz.closeWizard()" title="Close">&times;</button>
+        <button class="close-btn" onclick="_wiz.closeWizard()" data-tip="Close wizard (Esc)">&times;</button>
       </div>
-      <div class="wiz-body">
-        <div class="wiz-rail" id="wiz-rail">
-          <div class="wiz-rail-handle" id="wiz-rail-handle" onclick="_wiz.toggleRail()">
-            <div class="wiz-rail-handle-bar"></div>
-            <span class="wiz-rail-handle-text" id="wiz-rail-handle-text">0 items · Build</span>
+      <div class="body">
+        <div class="rail" id="wiz-rail">
+          <div class="rail-handle" id="wiz-rail-handle" onclick="_wiz.toggleRail()">
+            <div class="rail-handle-bar"></div>
+            <span class="rail-handle-text" id="wiz-rail-handle-text">0 items \u00B7 Build</span>
           </div>
-          <div class="wiz-rail-scroll" id="wiz-rail-scroll"></div>
-          <div id="wiz-feed-summary"></div>
-          <div class="wiz-rail-bottom" id="wiz-rail-bottom">
-            <div class="wiz-mode-row" id="wiz-mode-row" onclick="_wiz.toggleDeepMode()">
-              <div class="wiz-mode-opt ${document.getElementById('wiz-deep-mode')?.checked ? '' : 'active'}" id="wiz-mode-quick">&#x26A1; Quick</div>
-              <div class="wiz-mode-opt ${document.getElementById('wiz-deep-mode')?.checked ? 'active' : ''}" id="wiz-mode-deep">&#x25CF; Deep</div>
+          <div class="rail-inner" id="wiz-rail-scroll"></div>
+          <div id="wiz-feed-summary" style="padding:4px 0;"></div>
+          <div class="rail-bottom" id="wiz-rail-bottom">
+            <div class="depth-toggle" id="wiz-depth-toggle" onclick="_wiz.toggleDeepMode()" data-tip="Quick: fast headlines only. Deep: full article analysis">
+              <div class="depth-opt ${isDeep ? '' : 'active'}" id="wiz-mode-quick">&#x26A1; Quick</div>
+              <div class="depth-opt ${isDeep ? 'active' : ''}" id="wiz-mode-deep">&#x25CF; Deep</div>
             </div>
-            <button class="wiz-build-btn" id="wiz-build-btn" onclick="_wiz.doBuild()" disabled>&#x2728; BUILD FEED &#x2728;</button>
+            <button class="build-btn" id="wiz-build-btn" onclick="_wiz.doBuild()" disabled data-tip="Generate your personalized intelligence feed">&#x2728; BUILD FEED &#x2728;</button>
           </div>
         </div>
-        <div class="wiz-main" id="wiz-main">
+        <div class="main" id="wiz-main">
           <div id="wiz-step-bar"></div>
           <div id="wiz-priorities"></div>
           <div id="wiz-details"></div>
@@ -1195,7 +1215,7 @@ function updateRing() {
   if (!fg || !pct) return;
   // Calculate: how many selected categories have at least one detail configured?
   const total = selCats.size;
-  if (total === 0) { pct.textContent = '0%'; fg.style.strokeDashoffset = 2 * Math.PI * 14; return; }
+  if (total === 0) { pct.textContent = '0%'; fg.style.strokeDashoffset = 2 * Math.PI * 16; return; }
   let done = 0;
   for (const cid of selCats) {
     if (cid === 'interests') { if (interestTopics.length > 0) done++; continue; }
@@ -1211,7 +1231,7 @@ function updateRing() {
     if (hasSel) done++;
   }
   const ratio = done / total;
-  const circumference = 2 * Math.PI * 14;
+  const circumference = 2 * Math.PI * 16;
   fg.style.strokeDashoffset = circumference * (1 - ratio);
   pct.textContent = Math.round(ratio * 100) + '%';
 }
@@ -1235,43 +1255,40 @@ function renderPriorities() {
   const el = document.getElementById('wiz-priorities');
   if (!el) return;
   el.innerHTML = `
-    <h1 class="title">Choose Your Focus Areas</h1>
-    <p class="sub">Select the categories that matter most to you</p>
-    <div class="card-grid">${CATS.map(c => renderCard(c)).join('')}</div>
+    <h2 class="sec-title">Choose Your Focus Areas</h2>
+    <p class="sec-sub">Select the categories that matter most to you</p>
+    <div class="cards-grid">${CATS.map(c => renderCard(c)).join('')}</div>
     <div class="quick-setup-wrap">
       <button class="quick-setup-btn" onclick="_wiz.skipToQuick()">&#x26A1; Quick Setup <span class="quick-setup-sub">Auto-configure based on your role</span></button>
     </div>`;
-
 }
 
 function renderCard(c) {
   const sel = selCats.has(c.id);
-  let bodyHTML = '';
+  let pillsHTML = '';
   if (c.dynamic) {
-    bodyHTML = `<div class="gcard-body"><div class="gcard-body-sep"></div><div class="gcard-body-hint">You'll customize these in the details below \u2192</div></div>`;
+    pillsHTML = `<div class="card-pills"><span class="card-pill-hint">You'll customize these in details \u2192</span></div>`;
   } else {
     const allSubs = [...c.subs, ...customSubs[c.id]];
     const subsHTML = allSubs.map(s => {
       const on = selSubs[c.id].has(s.id);
       const isC = customSubs[c.id].some(cs => cs.id === s.id);
-      return `<div class="sp ${on ? 'on' : ''}" onclick="event.stopPropagation();_wiz.togSub('${c.id}','${s.id}',this)">
-        ${s.name}${isC ? `<span class="sp-x" onclick="event.stopPropagation();_wiz.rmCustomSub('${c.id}','${s.id}')">&times;</span>` : ''}
-      </div>`;
+      return `<span class="card-pill ${on ? '' : ''}" onclick="event.stopPropagation();_wiz.togSub('${c.id}','${s.id}',this)" style="cursor:pointer${on ? '' : ';opacity:.5'}">
+        ${s.name}${isC ? `<span class="card-pill-x" onclick="event.stopPropagation();_wiz.rmCustomSub('${c.id}','${s.id}')">&times;</span>` : ''}
+      </span>`;
     }).join('');
-    bodyHTML = `<div class="gcard-body">
-      <div class="gcard-body-sep"></div>
-      <div class="gcard-body-label">Focus areas</div>
-      <div class="spills">${subsHTML}
-        <span id="wiz-saw-${c.id}" style="display:none" onclick="event.stopPropagation()"><input class="add-inp-card" id="wiz-sai-${c.id}" placeholder="Type & Enter" onkeydown="_wiz.addSubKey(event,'${c.id}')"></span>
-        <div class="sp sp-add" id="wiz-sab-${c.id}" onclick="event.stopPropagation();_wiz.showAddSub('${c.id}')">+ Add</div>
-      </div>
+    pillsHTML = `<div class="card-pills">${subsHTML}
+      <span id="wiz-saw-${c.id}" style="display:none" onclick="event.stopPropagation()"><input class="add-inp-card" id="wiz-sai-${c.id}" placeholder="Type & Enter" onkeydown="_wiz.addSubKey(event,'${c.id}')"></span>
+      <span class="card-pill sp-add" id="wiz-sab-${c.id}" onclick="event.stopPropagation();_wiz.showAddSub('${c.id}')" style="cursor:pointer">+ Add</span>
     </div>`;
   }
-  const tapHint = sel ? '' : `<div class="gcard-tap">Tap to add</div>`;
-  return `<div class="gcard ${sel ? 'sel' : ''}" onclick="_wiz.togCat('${c.id}')">
-    <div class="gcard-chk">${CK}</div>
-    <div class="gcard-head"><div class="gcard-icon ci-${c.id}">${c.icon}</div><div class="gcard-name">${c.name}</div><div class="gcard-desc">${c.desc}</div></div>
-    ${bodyHTML}${tapHint}
+  const tapHint = sel ? '' : `<div class="card-tap">Tap to add</div>`;
+  return `<div class="p-card ${sel ? 'sel' : ''}" onclick="_wiz.togCat('${c.id}')" data-tip="${esc(c.desc)}">
+    <div class="card-check">${CK}</div>
+    <div class="card-icon ci-${c.id}">${c.icon}</div>
+    <div class="card-name">${c.name}</div>
+    <div class="card-desc">${c.desc}</div>
+    ${pillsHTML}${tapHint}
   </div>`;
 }
 
@@ -1290,44 +1307,40 @@ function renderDetails() {
   let sectionsHTML = '';
   for (const tab of tabs) {
     if (tab.type === 'interests') {
-      // Interests accordion section
-      const isCol = _collapsedSections.has('interests_det');
-      const itemsH = interestTopics.map(t => `<div class="pill on">${esc(t)}<span class="pill-x" onclick="event.stopPropagation();_wiz.rmIntS2('${escAttr(t)}')">&times;</span></div>`).join('');
+      const isOpen = !_collapsedSections.has('interests_det');
+      const itemsH = interestTopics.map(t => `<span class="acc-pill on">${esc(t)}<span class="pill-x" onclick="event.stopPropagation();_wiz.rmIntS2('${escAttr(t)}')">&times;</span></span>`).join('');
       const sugH = INTEREST_SUGGESTIONS.map(s => {
         const on = interestTopics.includes(s);
-        return `<div class="pill pill-sug ${on ? 'on' : ''}" onclick="_wiz.togIntS2('${escAttr(s)}')">${esc(s)}</div>`;
+        return `<span class="acc-pill pill-sug ${on ? 'on' : ''}" onclick="_wiz.togIntS2('${escAttr(s)}')">${esc(s)}</span>`;
       }).join('');
-      sectionsHTML += `<div class="det-section ${isCol ? 'collapsed' : ''}">
-        <div class="det-hdr" onclick="_wiz.togDetSection('interests_det')">
-          <span class="det-hdr-icon di-${tab.id}">${tab.icon}</span>
-          <span class="det-hdr-name">${tab.name}</span>
-          ${interestTopics.length ? `<span class="det-hdr-tag">${interestTopics.length} topics</span>` : ''}
-          <span class="det-hdr-chev">\u25BC</span>
+      sectionsHTML += `<div class="accordion ${isOpen ? 'open' : ''}">
+        <div class="acc-header" onclick="_wiz.togDetSection('interests_det')" data-tip="Customize your personal interests and hobbies">
+          <span class="acc-icon ai-${tab.id}">${tab.icon}</span>
+          <span class="acc-title">${tab.name}</span>
+          ${interestTopics.length ? `<span class="acc-tag">${interestTopics.length} topics</span>` : ''}
+          <span class="acc-chevron">&#9660;</span>
         </div>
-        <div class="det-body">
-          <div><div class="s2-label">What do you follow? <span class="s2-hint">\u00B7 Type a topic and press Enter</span></div>
+        <div class="acc-body"><div class="acc-content">
+          <div><div class="acc-group-label">What do you follow? <span class="s2-hint">\u00B7 Type a topic and press Enter</span></div>
           <div class="int-wrap"><input class="int-inp" id="wiz-int-inp" placeholder="e.g. Quantum Computing, Gaming..." onkeydown="_wiz.intKeyS2(event)"></div></div>
-          ${interestTopics.length ? `<div><div class="s2-label">Your topics</div><div class="pills">${itemsH}</div></div>` : ''}
-          <div><div class="s2-label">Suggested for your role <span class="s2-hint">\u00B7 tap to add</span></div>
-          <div class="pills">${sugH}</div></div>
-        </div>
+          ${interestTopics.length ? `<div><div class="acc-group-label">Your topics</div><div class="acc-pills">${itemsH}</div></div>` : ''}
+          <div><div class="acc-group-label">Suggested for your role <span class="s2-hint">\u00B7 tap to add</span></div>
+          <div class="acc-pills">${sugH}</div></div>
+        </div></div>
       </div>`;
       continue;
     }
 
-    // Category with subcategories → each sub gets accordion section
     const sections = getTabSections(tab);
     for (const sec of sections) {
       const panel = PANELS[sec.id];
       if (!panel) {
-        // Generic section (custom sub with keywords only)
         sectionsHTML += renderGenericDetSection(sec);
         continue;
       }
       const sel = panelSel[sec.id] || {};
       const custom = panelCustom[sec.id] || {};
-      const isCol = _collapsedSections.has(sec.id);
-      // Count selected items across all questions
+      const isOpen = !_collapsedSections.has(sec.id);
       let selCount = 0;
       for (const q of panel.qs) { selCount += (sel[q.id]?.size || 0); }
 
@@ -1342,16 +1355,16 @@ function renderDetails() {
         const hint = q.hint ? ` <span class="s2-hint">\u00B7 ${q.hint}</span>` : '';
         const isDecisive = DETERMINISTIC_QS.has(q.id);
 
-        let h = `<div><div class="s2-label">${q.label}${hint}</div><div class="pills">`;
+        let h = `<div><div class="acc-group-label">${q.label}${hint}</div><div class="acc-pills">`;
         for (const p of all) {
           const isC = (custom[q.id] || []).includes(p);
-          h += `<div class="pill ${isDecisive ? 'pill-decisive' : ''} ${picked.has(p) ? 'on' : ''}" onclick="_wiz.togPanel('${sec.id}','${q.id}','${escAttr(p)}','${q.type}')">
+          h += `<span class="acc-pill ${isDecisive ? 'pill-decisive' : ''} ${picked.has(p) ? 'on' : ''}" onclick="_wiz.togPanel('${sec.id}','${q.id}','${escAttr(p)}','${q.type}')">
             ${esc(p)}${isC ? `<span class="pill-x" onclick="event.stopPropagation();_wiz.rmPanelCustom('${sec.id}','${q.id}','${escAttr(p)}')">&times;</span>` : ''}
-          </div>`;
+          </span>`;
         }
         if (q.canAdd) {
           h += `<span id="wiz-aw-${sec.id}-${q.id}" style="display:none"><input class="add-inp" id="wiz-ai-${sec.id}-${q.id}" placeholder="Type & Enter" onkeydown="_wiz.addPanelKey(event,'${sec.id}','${q.id}')"></span>`;
-          h += `<div class="pill pill-add" id="wiz-ab-${sec.id}-${q.id}" onclick="_wiz.showPanelAdd('${sec.id}','${q.id}')">+ Add</div>`;
+          h += `<span class="add-pill" id="wiz-ab-${sec.id}-${q.id}" onclick="_wiz.showPanelAdd('${sec.id}','${q.id}')">+ Add</span>`;
         }
         h += `</div>`;
         if (hasMore && q.type !== 's') {
@@ -1361,52 +1374,51 @@ function renderDetails() {
         return h;
       }).join('');
 
-      // AI suggestions inline at bottom
       bodyH += renderTabSuggestions(tab.id);
 
-      sectionsHTML += `<div class="det-section ${isCol ? 'collapsed' : ''}">
-        <div class="det-hdr" onclick="_wiz.togDetSection('${sec.id}')">
-          <span class="det-hdr-icon di-${tab.id}">${sec.icon}</span>
-          <span class="det-hdr-name">${sec.name}</span>
-          ${selCount ? `<span class="det-hdr-tag">${selCount} selected</span>` : ''}
-          <span class="det-hdr-chev">\u25BC</span>
+      sectionsHTML += `<div class="accordion ${isOpen ? 'open' : ''}">
+        <div class="acc-header" onclick="_wiz.togDetSection('${sec.id}')">
+          <span class="acc-icon ai-${tab.id}">${sec.icon}</span>
+          <span class="acc-title">${sec.name}</span>
+          ${selCount ? `<span class="acc-tag">${selCount} selected</span>` : ''}
+          <span class="acc-chevron">&#9660;</span>
         </div>
-        <div class="det-body">${bodyH}</div>
+        <div class="acc-body"><div class="acc-content">${bodyH}</div></div>
       </div>`;
 
-      // Trigger AI suggestion fetch if not cached
       if (tab.id !== 'interests' && !_tabSuggestCache[tab.id]) fetchTabSuggestion(tab.id);
     }
   }
 
   el.innerHTML = `
-    <div style="height:1px;background:linear-gradient(90deg,transparent,var(--brd),var(--brd),transparent);margin:8px 0 32px"></div>
-    <h1 class="title">Fine-tune Your Selections</h1>
-    <p class="sub">Customize each category to get exactly the intelligence you need.</p>
+    <div class="section-divider"></div>
+    <h2 class="sec-title2">Fine-tune Your Selections</h2>
+    <p class="sec-sub2">Customize each category to get exactly the intelligence you need.</p>
     ${bannerH}${sectionsHTML}`;
 }
 
 function renderGenericDetSection(sec) {
   const custom = panelCustom[sec.id]?.kw || [];
-  const isCol = _collapsedSections.has(sec.id);
-  let html = `<div class="det-section ${isCol ? 'collapsed' : ''}">
-    <div class="det-hdr" onclick="_wiz.togDetSection('${sec.id}')">
-      <span class="det-hdr-icon">\uD83D\uDCCC</span>
-      <span class="det-hdr-name">${sec.name}</span>
-      ${custom.length ? `<span class="det-hdr-tag">${custom.length} keywords</span>` : ''}
-      <span class="det-hdr-chev">\u25BC</span>
+  const isOpen = !_collapsedSections.has(sec.id);
+  let html = `<div class="accordion ${isOpen ? 'open' : ''}">
+    <div class="acc-header" onclick="_wiz.togDetSection('${sec.id}')">
+      <span class="acc-icon">\uD83D\uDCCC</span>
+      <span class="acc-title">${sec.name}</span>
+      ${custom.length ? `<span class="acc-tag">${custom.length} keywords</span>` : ''}
+      <span class="acc-chevron">&#9660;</span>
     </div>
-    <div class="det-body">
-      <div><div class="s2-label">Keywords to track <span class="s2-hint">\u00B7 Type and press Enter</span></div><div class="pills">`;
-  for (const p of custom) html += `<div class="pill on">${esc(p)}<span class="pill-x" onclick="event.stopPropagation();_wiz.rmPanelCustom('${sec.id}','kw','${escAttr(p)}')">&times;</span></div>`;
+    <div class="acc-body"><div class="acc-content">
+      <div><div class="acc-group-label">Keywords to track <span class="s2-hint">\u00B7 Type and press Enter</span></div><div class="acc-pills">`;
+  for (const p of custom) html += `<span class="acc-pill on">${esc(p)}<span class="pill-x" onclick="event.stopPropagation();_wiz.rmPanelCustom('${sec.id}','kw','${escAttr(p)}')">&times;</span></span>`;
   html += `<span id="wiz-aw-${sec.id}-kw" style="display:none"><input class="add-inp" id="wiz-ai-${sec.id}-kw" placeholder="Type & Enter" onkeydown="_wiz.addPanelKey(event,'${sec.id}','kw')"></span>`;
-  html += `<div class="pill pill-add" id="wiz-ab-${sec.id}-kw" onclick="_wiz.showPanelAdd('${sec.id}','kw')">+ Add</div></div></div>
-    </div>
+  html += `<span class="add-pill" id="wiz-ab-${sec.id}-kw" onclick="_wiz.showPanelAdd('${sec.id}','kw')">+ Add</span></div></div>
+    </div></div>
   </div>`;
   return html;
 }
 
 function togDetSection(secId) {
+  // Toggle: if in collapsed set, remove (= open). If not, add (= collapse).
   _collapsedSections.has(secId) ? _collapsedSections.delete(secId) : _collapsedSections.add(secId);
   renderDetails();
 }
@@ -1427,22 +1439,22 @@ function renderRail() {
     if (!selCats.has(c.id)) continue;
     catCount++;
 
-    // Add divider between categories
     if (catCount > 1) html += `<div class="rail-divider"></div>`;
 
     if (c.id === 'interests') {
       if (!interestTopics.length) continue;
       totalItems += interestTopics.length;
       const col = rvCollapsed.has('interests');
-      html += `<div class="rail-sec ${col ? 'collapsed' : ''}">
-        <div class="rail-sec-hdr cat-interests" onclick="_wiz.togRvCollapse('interests')">
-          <span class="rail-sec-icon">${c.icon}</span> ${c.name}
-          <span class="rail-sec-count">${interestTopics.length}</span>
+      html += `<div class="rail-section ${col ? 'collapsed' : ''}">
+        <div class="rail-cat-hdr cat-interests" onclick="_wiz.togRvCollapse('interests')" data-tip="Your personal interest topics">
+          <span class="rail-cat-icon">${c.icon}</span>
+          <span>${c.name}</span>
+          <span class="rail-cat-count">${interestTopics.length}</span>
           <span class="rail-sec-chev">\u25BC</span>
         </div>
         <div class="rail-sec-body">
           <div class="rail-items">
-            ${interestTopics.map(t => `<div class="rail-item"><span class="ri-dot"></span>${esc(t)}<span class="rp-x" onclick="event.stopPropagation();_wiz.rvRmInt('${escAttr(t)}')">&times;</span></div>`).join('')}
+            ${interestTopics.map(t => `<div class="rail-item"><span class="bullet"></span>${esc(t)}<span class="rp-x" onclick="event.stopPropagation();_wiz.rvRmInt('${escAttr(t)}')">&times;</span></div>`).join('')}
           </div>
         </div>
       </div>`;
@@ -1452,23 +1464,22 @@ function renderRail() {
     const sections = getS3Sections(c);
     if (!sections.length) continue;
 
-    // Gather items for this category
     let catItems = [];
     for (const sec of sections) {
       const items = rvItems[sec.id] || [];
       catItems.push(...items.map(it => ({name: it, sec: sec.id})));
     }
-    // Also count selected panel items
     const subs = selSubs[c.id];
     let subCount = subs ? subs.size : 0;
 
     totalItems += catItems.length + subCount;
     const col = rvCollapsed.has(c.id);
 
-    html += `<div class="rail-sec ${col ? 'collapsed' : ''}">
-      <div class="rail-sec-hdr cat-${c.id}" onclick="_wiz.togRvCollapse('${c.id}')">
-        <span class="rail-sec-icon">${c.icon}</span> ${c.name}
-        <span class="rail-sec-count">${catItems.length || subCount}</span>
+    html += `<div class="rail-section ${col ? 'collapsed' : ''}">
+      <div class="rail-cat-hdr cat-${c.id}" onclick="_wiz.togRvCollapse('${c.id}')" data-tip="${esc(c.desc)}">
+        <span class="rail-cat-icon">${c.icon}</span>
+        <span>${c.name}</span>
+        <span class="rail-cat-count">${catItems.length || subCount}</span>
         <span class="rail-sec-chev">\u25BC</span>
       </div>
       <div class="rail-sec-body">`;
@@ -1476,31 +1487,35 @@ function renderRail() {
     if (catItems.length) {
       html += `<div class="rail-items">`;
       for (const it of catItems) {
-        html += `<div class="rail-item"><span class="ri-dot"></span>${esc(it.name)}<span class="rp-x" onclick="event.stopPropagation();_wiz.rvRm('${escAttr(it.sec)}','${escAttr(it.name)}')">&times;</span></div>`;
+        html += `<div class="rail-item"><span class="bullet"></span>${esc(it.name)}<span class="rp-x" onclick="event.stopPropagation();_wiz.rvRm('${escAttr(it.sec)}','${escAttr(it.name)}')">&times;</span></div>`;
       }
       html += `</div>`;
     } else if (subCount) {
-      // Show selected sub names as items
       const subNames = [...subs].map(sid => {
         const sub = [...c.subs, ...customSubs[c.id]].find(s => s.id === sid);
         return sub ? sub.name : sid;
       });
-      html += `<div class="rail-items">${subNames.map(n => `<div class="rail-item"><span class="ri-dot"></span>${esc(n)}</div>`).join('')}</div>`;
+      html += `<div class="rail-items">${subNames.map(n => `<div class="rail-item"><span class="bullet"></span>${esc(n)}</div>`).join('')}</div>`;
     } else {
       html += `<div class="rail-empty">No items yet</div>`;
     }
 
-    // AI Suggestions (from tab suggest cache)
-    const sugCache = _tabSuggestCache[c.id + '_' + [...(selSubs[c.id] || [])].join(',')];
-    // We'll show the tab-level suggestions inline if available
-    // (main suggestions are shown in details panel, rail shows discover only)
+    // AI Suggestions in rail
+    const sugCache = _tabSuggestCache[c.id];
+    if (sugCache && sugCache.suggestions?.length) {
+      const added = sugCache.added || new Set();
+      html += `<div class="rail-ai-hdr" data-tip="AI-recommended sources based on your role">&#10024; Suggestions</div>
+        <div class="rail-suggestions">${sugCache.suggestions.slice(0, 4).map(s =>
+          `<span class="sug-pill ${added.has(s) ? 'added' : ''}" onclick="_wiz.addTabSuggestion('${escAttr(c.id)}','${escAttr(s)}')" data-tip="Click to add to your feed">${esc(s)}</span>`
+        ).join('')}</div>`;
+    }
 
-    // Per-category discover — blue themed
+    // Per-category discover
     const discoverItems = getRailDiscover(c.id);
     if (discoverItems.length) {
-      html += `<div class="rail-disc-hdr">\uD83D\uDD0D Discover</div>
-        <div class="rail-disc-pills">${discoverItems.map(d =>
-          `<div class="disc-pill ${discoverAdded.has(d.name) ? 'added' : ''}" onclick="_wiz.discoverAdd('${escAttr(d.name)}','${escAttr(d.target || '')}')">${esc(d.name)}${d.tag ? `<span class="disc-tag">${esc(d.tag)}</span>` : ''}</div>`
+      html += `<div class="rail-discover-hdr" data-tip="Explore related topics you might find useful">&#128269; Discover</div>
+        <div class="rail-suggestions">${discoverItems.map(d =>
+          `<span class="disc-pill ${discoverAdded.has(d.name) ? 'added' : ''}" onclick="_wiz.discoverAdd('${escAttr(d.name)}','${escAttr(d.target || '')}')" data-tip="${d.tag ? esc(d.tag) : 'Click to add'}">${esc(d.name)}</span>`
         ).join('')}</div>`;
     }
 
@@ -1513,13 +1528,10 @@ function renderRail() {
 
   scroll.innerHTML = html;
 
-  // Update handle text for mobile
   const handleText = document.getElementById('wiz-rail-handle-text');
   if (handleText) handleText.textContent = `${totalItems} items \u00B7 Build`;
 
-  // Update feed summary
   renderFeedSummary(totalItems);
-
   updateBuildButton();
   updateRing();
 }
@@ -1544,11 +1556,11 @@ function renderFeedSummary(totalItems) {
   const catNum = selCats.size;
   const isDeep = document.getElementById('wiz-deep-mode')?.checked;
   if (catNum === 0) { el.innerHTML = ''; return; }
-  el.innerHTML = `<div class="wiz-feed-summary">
-    <div class="wiz-feed-summary-title">Feed Summary</div>
-    <div class="wiz-feed-stat"><span class="wiz-feed-stat-label">Categories</span><span class="wiz-feed-stat-val accent">${catNum} selected</span></div>
-    <div class="wiz-feed-stat"><span class="wiz-feed-stat-label">Tracked topics</span><span class="wiz-feed-stat-val">${totalItems} items</span></div>
-    <div class="wiz-feed-stat"><span class="wiz-feed-stat-label">Feed depth</span><span class="wiz-feed-stat-val accent">${isDeep ? 'Deep analysis' : 'Quick scan'}</span></div>
+  el.innerHTML = `<div class="feed-summary">
+    <div class="feed-summary-title">Feed Summary</div>
+    <div class="feed-stat"><span class="feed-stat-label">Categories</span><span class="feed-stat-val accent">${catNum} selected</span></div>
+    <div class="feed-stat"><span class="feed-stat-label">Tracked topics</span><span class="feed-stat-val">${totalItems} items</span></div>
+    <div class="feed-stat"><span class="feed-stat-label">Feed depth</span><span class="feed-stat-val accent">${isDeep ? 'Deep analysis' : 'Quick scan'}</span></div>
   </div>`;
 }
 
@@ -1560,15 +1572,15 @@ function renderStepBar() {
     if (id === 'interests') return interestTopics.length > 0;
     return selSubs[id] && selSubs[id].size > 0;
   });
-  el.innerHTML = `<div class="wiz-steps-bar">
-    <div class="wiz-step-circle ${hasCats ? 'done' : 'active'}">1</div>
-    <span class="wiz-step-label ${hasCats ? 'active' : ''}">Priorities</span>
-    <div class="wiz-step-line ${hasCats ? 'done' : ''}"></div>
-    <div class="wiz-step-circle ${hasDetails ? 'done' : hasCats ? 'active' : ''}">2</div>
-    <span class="wiz-step-label ${hasCats ? 'active' : ''}">Details</span>
-    <div class="wiz-step-line ${hasDetails ? 'done' : ''}"></div>
-    <div class="wiz-step-circle ${hasDetails ? 'active' : ''}">3</div>
-    <span class="wiz-step-label ${hasDetails ? 'active' : ''}">Build</span>
+  el.innerHTML = `<div class="steps-bar">
+    <div class="step-num-circle ${hasCats ? 'done' : 'active'}" data-tip="Step 1: Choose your priority categories">1</div>
+    <span class="step-bar-label ${hasCats ? 'active' : ''}">Priorities</span>
+    <div class="step-line ${hasCats ? 'done' : ''}"></div>
+    <div class="step-num-circle ${hasDetails ? 'done' : hasCats ? 'active' : ''}" data-tip="Step 2: Fine-tune your selections">2</div>
+    <span class="step-bar-label ${hasCats ? 'active' : ''}">Details</span>
+    <div class="step-line ${hasDetails ? 'done' : ''}"></div>
+    <div class="step-num-circle ${hasDetails ? 'active' : ''}" data-tip="Step 3: Preview and build your feed">3</div>
+    <span class="step-bar-label ${hasDetails ? 'active' : ''}">Build</span>
   </div>`;
 }
 
@@ -1581,16 +1593,13 @@ function setTheme(dotEl) {
   const theme = dotEl.getAttribute('data-t');
   const root = document.getElementById('wiz-root');
   if (!root) return;
-  // Update active dot
-  root.querySelectorAll('.wiz-theme-dot').forEach(d => d.classList.remove('active'));
+  root.querySelectorAll('.theme-dot').forEach(d => d.classList.remove('active'));
   dotEl.classList.add('active');
-  // Apply theme
   if (theme === 'default') {
     root.removeAttribute('data-wiz-theme');
   } else {
     root.setAttribute('data-wiz-theme', theme);
   }
-  // Persist
   try { localStorage.setItem('wiz-theme', theme); } catch(e) {}
 }
 
@@ -1601,7 +1610,7 @@ function restoreTheme() {
       const root = document.getElementById('wiz-root');
       if (root) {
         root.setAttribute('data-wiz-theme', t);
-        root.querySelectorAll('.wiz-theme-dot').forEach(d => {
+        root.querySelectorAll('.theme-dot').forEach(d => {
           d.classList.toggle('active', d.getAttribute('data-t') === t);
         });
       }
@@ -1618,7 +1627,7 @@ function toggleDeepMode() {
   if (cb) cb.checked = isOn;
   quick.classList.toggle('active', !isOn);
   deep.classList.toggle('active', isOn);
-  renderRail(); // update feed summary with new depth
+  renderRail();
 }
 
 
@@ -2031,7 +2040,7 @@ function showDone(errorMsg) {
 function restoreMainView() {
   const main = document.getElementById('wiz-main');
   if (!main) return;
-  main.innerHTML = '<div id="wiz-priorities"></div><div id="wiz-details"></div><div id="wiz-loading" class="wiz-hidden"></div>';
+  main.innerHTML = '<div id="wiz-step-bar"></div><div id="wiz-priorities"></div><div id="wiz-details"></div><div id="wiz-loading" class="wiz-hidden"></div>';
   renderAll();
 }
 
@@ -2321,7 +2330,8 @@ function escAttr(s) { return String(s).replace(/\\/g, '\\\\').replace(/'/g, "\\'
 
 function setupKeyboard() {
   document.addEventListener('keydown', function wizKeyHandler(e) {
-    const modal = document.getElementById('wiz-modal');
+    const root = document.getElementById('wiz-root');
+    const modal = root?.querySelector('.modal');
     if (!modal || !modal.classList.contains('open')) return;
     const inInput = e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA';
     if (inInput) {
@@ -2363,10 +2373,13 @@ function openWizard(opts) {
   renderPresetBar();
 
   requestAnimationFrame(() => {
-    const bk = document.getElementById('wiz-bk');
-    const modal = document.getElementById('wiz-modal');
-    if (bk) bk.classList.add('open');
-    if (modal) modal.classList.add('open');
+    const root = document.getElementById('wiz-root');
+    if (root) {
+      const bk = root.querySelector('.backdrop');
+      const modal = root.querySelector('.modal');
+      if (bk) bk.classList.add('open');
+      if (modal) modal.classList.add('open');
+    }
   });
   document.body.style.overflow = 'hidden';
 
@@ -2502,7 +2515,7 @@ function renderTabSuggestions(tabId) {
   if (cache.loading) {
     // Shimmer placeholders instead of just a spinner
     const shimmerPills = '<div class="ai-sug-pill shimmer"></div>'.repeat(5);
-    return `<div class="ai-sug"><div class="ai-sug-hdr ${cache.isRefresh ? 'flash' : ''}"><div class="ai-sug-spin"></div> Suggesting...<button class="ai-ref spin" disabled style="opacity:.3">&#x21bb;</button></div><div class="pills">${shimmerPills}</div></div>`;
+    return `<div class="ai-sug"><div class="ai-sug-hdr ${cache.isRefresh ? 'flash' : ''}"><div class="ai-sug-spin"></div> Suggesting...<button class="ai-ref spin" disabled style="opacity:.3">&#x21bb;</button></div><div class="acc-pills">${shimmerPills}</div></div>`;
   }
   const added = cache.added || new Set();
   const kept = cache.keptFromPrev || new Set();
@@ -2519,7 +2532,7 @@ function renderTabSuggestions(tabId) {
     const isAdded = added.has(s);
     pillsHtml += `<div class="ai-sug-pill ${isAdded ? 'added' : ''}" onclick="_wiz.addTabSuggestion('${escAttr(tabId)}','${escAttr(s)}')">${isAdded ? '\u2713 ' : '+ '}${esc(s)}</div>`;
   }
-  return `<div class="ai-sug"><div class="ai-sug-hdr">\u2728 Suggestions<button class="ai-ref" onclick="_wiz.refreshSuggestions('${escAttr(tabId)}')" title="Get new suggestions">&#x21bb;</button></div><div class="pills">${pillsHtml}</div></div>`;
+  return `<div class="ai-sug"><div class="ai-sug-hdr">\u2728 Suggestions<button class="ai-ref" onclick="_wiz.refreshSuggestions('${escAttr(tabId)}')" title="Get new suggestions">&#x21bb;</button></div><div class="acc-pills">${pillsHtml}</div></div>`;
 }
 
 function refreshSuggestions(tabId) {
@@ -2539,10 +2552,13 @@ function refreshSuggestions(tabId) {
 
 function closeWizard() {
   _wizSaveState();
-  const bk = document.getElementById('wiz-bk');
-  const modal = document.getElementById('wiz-modal');
-  if (bk) bk.classList.remove('open');
-  if (modal) modal.classList.remove('open');
+  const root = document.getElementById('wiz-root');
+  if (root) {
+    const bk = root.querySelector('.backdrop');
+    const modal = root.querySelector('.modal');
+    if (bk) bk.classList.remove('open');
+    if (modal) modal.classList.remove('open');
+  }
   document.body.style.overflow = '';
   setTimeout(() => { removeDOM(); removeCSS(); }, 400);
 }
