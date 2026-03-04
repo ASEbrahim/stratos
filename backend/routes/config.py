@@ -195,7 +195,8 @@ def handle_config_save(handler, strat, auth_helpers):
         json_response(handler, {"status": "saved"}, compress=False)
 
     except Exception as e:
-        error_response(handler, str(e), 500)
+        logger.error(f"Endpoint error: {e}")
+        error_response(handler, "Internal server error", 500)
 
 
 def _sync_to_db_profile(config: dict, token: str, db):

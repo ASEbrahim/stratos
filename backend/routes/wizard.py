@@ -202,7 +202,7 @@ Pick the 2-4 categories and sub-categories most relevant for a "{role}" in "{loc
 
     except Exception as e:
         logger.error(f"Wizard preselect error: {e}")
-        error_response(handler, str(e), 500)
+        error_response(handler, "Internal server error", 500)
 
 
 def handle_wizard_tab_suggest(handler, strat):
@@ -288,7 +288,7 @@ Suggest 5-8 specific entities or keywords for the "{category_label}" category. E
 
     except Exception as e:
         logger.error(f"Wizard tab suggest error: {e}")
-        error_response(handler, str(e), 500)
+        error_response(handler, "Internal server error", 500)
 
 
 RV_ITEMS_SYSTEM = """You are a personalization engine for a professional news dashboard.
@@ -396,4 +396,4 @@ Remember: every entity MUST be relevant to a "{role}" in "{location or 'anywhere
 
     except Exception as e:
         logger.error(f"Wizard rv-items error: {e}")
-        error_response(handler, str(e), 500)
+        error_response(handler, "Internal server error", 500)

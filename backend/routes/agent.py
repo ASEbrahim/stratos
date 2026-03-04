@@ -564,7 +564,7 @@ HISTORICAL DATA:
 
     except Exception as e:
         logger.error(f"Agent chat error: {e}")
-        error_response(handler, str(e))
+        error_response(handler, "Internal server error")
 
 
 # ═══════════════════════════════════════════════════════════
@@ -613,7 +613,8 @@ def handle_ask(handler, strat, output_dir):
             answer = strip_reasoning_preamble(answer)
         json_response(handler, {"answer": answer})
     except Exception as e:
-        error_response(handler, str(e), 500)
+        logger.error(f"Endpoint error: {e}")
+        error_response(handler, "Internal server error", 500)
 
 
 # ═══════════════════════════════════════════════════════════
@@ -729,7 +730,8 @@ TICKERS: 3-8 Yahoo Finance symbols relevant to this role.
 
         json_response(handler, {"suggestion": suggestion, "tickers": tickers})
     except Exception as e:
-        error_response(handler, str(e), 500)
+        logger.error(f"Endpoint error: {e}")
+        error_response(handler, "Internal server error", 500)
 
 
 # ═══════════════════════════════════════════════════════════

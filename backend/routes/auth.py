@@ -710,7 +710,8 @@ def handle_auth_routes(handler, method, path, data, db, strat, send_json, email_
             if "UNIQUE" in str(e):
                 send_json(handler, {"error": "Profile name already exists"}, status=409)
             else:
-                send_json(handler, {"error": str(e)}, status=500)
+                logger.error(f"Endpoint error: {e}")
+                send_json(handler, {"error": "Internal server error"}, status=500)
         return True
 
     if path.startswith("/api/profiles/") and path.endswith("/activate") and method == "POST":

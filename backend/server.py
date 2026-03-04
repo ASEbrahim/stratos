@@ -79,6 +79,9 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                 self.send_header("Pragma", "no-cache")
                 self.send_header("Expires", "0")
             self.send_header("Access-Control-Allow-Origin", "*")
+            self.send_header("X-Content-Type-Options", "nosniff")
+            self.send_header("X-Frame-Options", "DENY")
+            self.send_header("Referrer-Policy", "strict-origin-when-cross-origin")
             super().end_headers()
 
         def do_GET(self):
@@ -244,10 +247,11 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                     self.end_headers()
                     self.wfile.write(json.dumps(tick_data).encode())
                 except Exception as e:
+                    logger.error(f"Endpoint error: {e}")
                     self.send_response(500)
                     self.send_header("Content-type", "application/json")
                     self.end_headers()
-                    self.wfile.write(json.dumps({"error": str(e)}).encode())
+                    self.wfile.write(json.dumps({"error": "Internal server error"}).encode())
                 return
 
             # Serve trigger for news-only refresh (slower, uses API)
@@ -486,7 +490,7 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                     self.send_response(500)
                     self.send_header("Content-type", "application/json")
                     self.end_headers()
-                    self.wfile.write(json.dumps({"error": str(e)}).encode())
+                    self.wfile.write(json.dumps({"error": "Internal server error"}).encode())
                 return
 
             # Feedback stats
@@ -498,7 +502,8 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                 try:
                     stats = strat.db.get_feedback_stats(profile_id=self._profile_id)
                 except Exception as e:
-                    stats = {"error": str(e)}
+                    logger.error(f"Endpoint error: {e}")
+                    stats = {"error": "Internal server error"}
                 self.wfile.write(json.dumps(stats).encode())
                 return
 
@@ -712,7 +717,7 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                     self.send_header("Content-type", "application/json")
                     self.send_header("Access-Control-Allow-Origin", "*")
                     self.end_headers()
-                    self.wfile.write(json.dumps({"error": str(e), "movers": []}).encode())
+                    self.wfile.write(json.dumps({"error": "Internal server error", "movers": []}).encode())
                 return
 
             if clean_path == "/api/shadow-scores":
@@ -1104,11 +1109,12 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                     self.wfile.write(json.dumps({"status": "updated", "credits": credits}).encode())
 
                 except Exception as e:
+                    logger.error(f"Endpoint error: {e}")
                     self.send_response(500)
                     self.send_header("Content-type", "application/json")
                     self.send_header("Access-Control-Allow-Origin", "*")
                     self.end_headers()
-                    self.wfile.write(json.dumps({"error": str(e)}).encode())
+                    self.wfile.write(json.dumps({"error": "Internal server error"}).encode())
                 return
 
             # Dedicated Serper API key save — separate from general config save
@@ -1147,11 +1153,12 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                     self.end_headers()
                     self.wfile.write(json.dumps({"status": "saved"}).encode())
                 except Exception as e:
+                    logger.error(f"Endpoint error: {e}")
                     self.send_response(400)
                     self.send_header("Content-type", "application/json")
                     self.send_header("Access-Control-Allow-Origin", "*")
                     self.end_headers()
-                    self.wfile.write(json.dumps({"error": str(e)}).encode())
+                    self.wfile.write(json.dumps({"error": "Internal server error"}).encode())
                 return
 
             # Ticker presets — save/delete
@@ -1199,11 +1206,12 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                     self.end_headers()
                     self.wfile.write(json.dumps(resp).encode())
                 except Exception as e:
+                    logger.error(f"Endpoint error: {e}")
                     self.send_response(400)
                     self.send_header("Content-type", "application/json")
                     self.send_header("Access-Control-Allow-Origin", "*")
                     self.end_headers()
-                    self.wfile.write(json.dumps({"error": str(e)}).encode())
+                    self.wfile.write(json.dumps({"error": "Internal server error"}).encode())
                 return
 
             # User feedback: click, dismiss, rate
@@ -1241,11 +1249,12 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                     self.end_headers()
                     self.wfile.write(json.dumps({"status": "ok", "action": action}).encode())
                 except Exception as e:
+                    logger.error(f"Endpoint error: {e}")
                     self.send_response(500)
                     self.send_header("Content-type", "application/json")
                     self.send_header("Access-Control-Allow-Origin", "*")
                     self.end_headers()
-                    self.wfile.write(json.dumps({"error": str(e)}).encode())
+                    self.wfile.write(json.dumps({"error": "Internal server error"}).encode())
                 return
 
             # Feedback stats (GET would be cleaner but keeping consistent with POST pattern)
@@ -1258,11 +1267,12 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                     self.end_headers()
                     self.wfile.write(json.dumps(stats).encode())
                 except Exception as e:
+                    logger.error(f"Endpoint error: {e}")
                     self.send_response(500)
                     self.send_header("Content-type", "application/json")
                     self.send_header("Access-Control-Allow-Origin", "*")
                     self.end_headers()
-                    self.wfile.write(json.dumps({"error": str(e)}).encode())
+                    self.wfile.write(json.dumps({"error": "Internal server error"}).encode())
                 return
 
             # Ask AI about a news item
@@ -1419,11 +1429,12 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                         }
                     }).encode())
                 except Exception as e:
-                    self.send_response(400 if "incorrect" in str(e).lower() or "authenticated" in str(e).lower() else 500)
+                    is_client_error = "incorrect" in str(e).lower() or "authenticated" in str(e).lower()
+                    self.send_response(400 if is_client_error else 500)
                     self.send_header("Content-type", "application/json")
                     self.send_header("Access-Control-Allow-Origin", "*")
                     self.end_headers()
-                    self.wfile.write(json.dumps({"error": str(e)}).encode())
+                    self.wfile.write(json.dumps({"error": "Bad request" if is_client_error else "Internal server error"}).encode())
                 return
 
             if self.path == "/api/profiles":
@@ -1515,11 +1526,12 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                         raise ValueError(f"Unknown action: {action}")
 
                 except Exception as e:
+                    logger.error(f"Endpoint error: {e}")
                     self.send_response(500)
                     self.send_header("Content-type", "application/json")
                     self.send_header("Access-Control-Allow-Origin", "*")
                     self.end_headers()
-                    self.wfile.write(json.dumps({"error": str(e)}).encode())
+                    self.wfile.write(json.dumps({"error": "Internal server error"}).encode())
                 return
 
             # ── AI Agent Chat (streaming) ──────────────────────────

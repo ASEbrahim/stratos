@@ -279,4 +279,4 @@ Generate the optimal STRAT_OS configuration for this person. Remember:
         error_response(handler, f"AI returned invalid JSON: {e}", 500)
     except Exception as e:
         logger.error(f"Generate error: {e}")
-        error_response(handler, str(e), 500)
+        error_response(handler, "Internal server error", 500)
