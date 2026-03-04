@@ -880,6 +880,19 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                     data = json.loads(post_data.decode('utf-8')) if post_data.strip() else {}
                 except (json.JSONDecodeError, UnicodeDecodeError):
                     data = {}
+                # Username → email resolution for login
+                if self.path == "/api/auth/login" and data.get("email") and "@" not in data["email"]:
+                    try:
+                        cursor = strat.db.conn.cursor()
+                        cursor.execute(
+                            "SELECT email FROM users WHERE display_name = ? COLLATE NOCASE LIMIT 1",
+                            (data["email"],)
+                        )
+                        row = cursor.fetchone()
+                        if row:
+                            data["email"] = row[0]
+                    except Exception:
+                        pass  # Fall through — auth will show "user not found"
                 if handle_auth_routes(self, "POST", self.path, data, strat.db, strat, _send_json, email_service):
                     return
 
