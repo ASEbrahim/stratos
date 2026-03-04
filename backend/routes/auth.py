@@ -205,7 +205,7 @@ def handle_auth_routes(handler, method, path, data, db, strat, send_json, email_
         cursor = db.conn.cursor()
         # Look up pending registration (user doesn't exist in users table yet)
         cursor.execute(
-            "SELECT id, password_hash, display_name, is_admin, verification_code_hash, verification_expires FROM pending_registrations WHERE email = ?",
+            "SELECT id, password_hash, display_name, is_admin, verification_code_hash, verification_expires, verify_attempts FROM pending_registrations WHERE email = ?",
             (email,)
         )
         row = cursor.fetchone()
@@ -213,12 +213,23 @@ def handle_auth_routes(handler, method, path, data, db, strat, send_json, email_
             send_json(handler, {"error": "No pending registration for this email"}, status=404)
             return True
 
-        pending_id, password_hash, display_name, is_admin, stored_hash, expires = row
+        pending_id, password_hash, display_name, is_admin, stored_hash, expires, attempts = row
+
+        # Brute-force protection: 5 failed attempts → delete pending registration
+        if (attempts or 0) >= 5:
+            cursor.execute("DELETE FROM pending_registrations WHERE id = ?", (pending_id,))
+            db._commit()
+            send_json(handler, {"error": "Too many failed attempts. Please register again."}, status=429)
+            return True
+
         if expires and datetime.fromisoformat(expires) < datetime.now():
             send_json(handler, {"error": "Code expired. Request a new one."}, status=400)
             return True
         if _hash_code(code) != stored_hash:
-            send_json(handler, {"error": "Invalid code"}, status=400)
+            cursor.execute("UPDATE pending_registrations SET verify_attempts = verify_attempts + 1 WHERE id = ?", (pending_id,))
+            db._commit()
+            remaining = 4 - (attempts or 0)
+            send_json(handler, {"error": f"Invalid code. {remaining} attempt(s) remaining."}, status=400)
             return True
 
         # Verification passed — NOW create the user in the users table

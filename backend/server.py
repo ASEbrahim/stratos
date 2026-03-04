@@ -87,6 +87,12 @@ def create_handler(strat, auth, frontend_dir, output_dir):
         def do_GET(self):
             self._profile_id = 0
             self._session_profile = None
+
+            # --- Rate limiting (before any dispatch) ---
+            if auth.rate_limited(self.path):
+                _send_json(self, {"error": "Too many requests. Try again shortly."}, 429)
+                return
+
             # --- Auth check endpoint (always public) ---
             if self.path == "/api/auth-check":
                 token = self.headers.get('X-Auth-Token', '')
@@ -143,14 +149,6 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                 except Exception:
                     pass
                 self._session_profile = _session_profile
-
-            # --- Rate limiting ---
-            if auth.rate_limited(self.path):
-                self.send_response(429)
-                self.send_header("Content-type", "application/json")
-                self.end_headers()
-                self.wfile.write(b'{"error": "Rate limit exceeded. Try again shortly."}')
-                return
 
             # Lightweight briefing-only endpoint (5KB vs 2MB full /api/data)
             if self.path == "/api/briefing":
@@ -850,14 +848,10 @@ def create_handler(strat, auth, frontend_dir, output_dir):
         def do_POST(self):
             self._profile_id = 0
             self._session_profile = None
-            # --- Scan cancellation (no body needed) ---
-            if self.path == "/api/scan/cancel":
-                strat._scan_cancelled.set()
-                self.send_response(200)
-                self.send_header("Content-type", "application/json")
-                self.send_header("Access-Control-Allow-Origin", "*")
-                self.end_headers()
-                self.wfile.write(b'{"status": "cancelling"}')
+
+            # --- Rate limiting (before any dispatch) ---
+            if auth.rate_limited(self.path):
+                _send_json(self, {"error": "Too many requests. Try again shortly."}, 429)
                 return
 
             # --- New email-based auth routes (self-authenticating) ---
@@ -1056,14 +1050,6 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                 except Exception:
                     pass
                 self._session_profile = _session_profile
-
-            # --- Rate limiting ---
-            if auth.rate_limited(self.path):
-                self.send_response(429)
-                self.send_header("Content-type", "application/json")
-                self.end_headers()
-                self.wfile.write(b'{"error": "Rate limit exceeded. Try again shortly."}')
-                return
 
             # --- UI state sync (after auth enforcement) ---
             if self.path == "/api/ui-state":

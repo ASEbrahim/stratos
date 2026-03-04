@@ -33,13 +33,25 @@ class AuthManager:
         '/api/suggest-context': (10, 60),
         '/api/agent-chat': (20, 60),
         '/api/top-movers': (3, 60),
+        # Auth endpoint rate limits (brute-force protection)
+        '/api/auth/register': (5, 300),
+        '/api/auth/login': (10, 300),
+        '/api/auth/verify': (5, 300),
+        '/api/auth/otp-request': (3, 300),
+        '/api/auth/otp-verify': (5, 300),
+        '/api/auth/forgot-password': (3, 300),
+        '/api/auth/reset-password': (5, 300),
+        '/api/auth/resend-verification': (3, 300),
+        # Wizard rate limits (Ollama resource protection)
+        '/api/wizard-preselect': (5, 60),
+        '/api/wizard-tab-suggest': (10, 60),
+        '/api/wizard-rv-items': (10, 60),
     }
 
     AUTH_EXEMPT = {
         '/api/auth-check', '/api/auth', '/api/logout', '/api/register',
-        '/api/suggest-context', '/api/generate-profile',
         '/api/wizard-preselect', '/api/wizard-tab-suggest', '/api/wizard-rv-items',
-        '/api/refresh', '/api/status', '/api/scan/status', '/api/scan/cancel',
+        '/api/status', '/api/scan/status',
         '/api/health', '/api/events',
         # New email auth routes (they handle their own auth internally)
         '/api/auth/registration-status', '/api/auth/register', '/api/auth/login',

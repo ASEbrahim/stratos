@@ -339,6 +339,26 @@ def migration_011(cursor):
     )
 
 
+# -- Migration 012: Brute-force protection for verification codes --
+@migration
+def migration_012(cursor):
+    """Add verify_attempts counter to pending_registrations."""
+    try:
+        cursor.execute("ALTER TABLE pending_registrations ADD COLUMN verify_attempts INTEGER NOT NULL DEFAULT 0")
+    except sqlite3.OperationalError:
+        pass  # Column already exists
+
+
+# -- Migration 013: Composite index for was_dismissed() query --
+@migration
+def migration_013(cursor):
+    """Add composite index for was_dismissed() query (url, action, profile_id)."""
+    cursor.execute(
+        "CREATE INDEX IF NOT EXISTS idx_feedback_url_action_profile "
+        "ON user_feedback(url, action, profile_id)"
+    )
+
+
 # =========================================================================
 # Migration runner
 # =========================================================================
