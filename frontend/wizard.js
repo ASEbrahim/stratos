@@ -681,10 +681,29 @@ const WIZ_CSS = `
   color: var(--text);
 }
 .wiz-scope *, .wiz-scope *::before, .wiz-scope *::after { box-sizing:border-box;margin:0;padding:0; }
-/* Theme overrides */
-.wiz-scope[data-wiz-theme="ember"] { --accent:#f59e0b;--accent-light:#fbbf24;--accent-dim:rgba(245,158,11,0.1);--accent-glow:rgba(245,158,11,0.2);--accent2:#ef4444; }
-.wiz-scope[data-wiz-theme="frost"] { --accent:#38bdf8;--accent-light:#7dd3fc;--accent-dim:rgba(56,189,248,0.1);--accent-glow:rgba(56,189,248,0.2);--accent2:#a78bfa; }
-.wiz-scope[data-wiz-theme="violet"] { --accent:#a78bfa;--accent-light:#c4b5fd;--accent-dim:rgba(167,139,250,0.1);--accent-glow:rgba(167,139,250,0.2);--accent2:#ec4899; }
+/* ── Atmosphere: Deep ── */
+.wiz-scope[data-wiz-atmos="deep"] { --bg:#000000;--bg-primary:#020206;--bg-card:rgba(255,255,255,0.03);--bg-card-hover:rgba(255,255,255,0.06);--brd:rgba(255,255,255,0.04); }
+.wiz-scope[data-wiz-atmos="deep"] .modal { background:#020206;box-shadow:0 32px 80px rgba(0,0,0,0.9),0 0 0 1px rgba(255,255,255,0.04); }
+.wiz-scope[data-wiz-atmos="deep"] .grad-bar { height:2px;opacity:.8; }
+.wiz-scope[data-wiz-atmos="deep"] .rail { background:rgba(0,0,0,0.5);backdrop-filter:blur(20px); }
+.wiz-scope[data-wiz-atmos="deep"] .p-card { border-color:rgba(255,255,255,0.03); }
+.wiz-scope[data-wiz-atmos="deep"] .p-card.sel { box-shadow:0 0 0 1px var(--accent-glow),0 8px 40px rgba(0,0,0,0.5); }
+.wiz-scope[data-wiz-atmos="deep"] .accordion { border-color:rgba(255,255,255,0.03); }
+.wiz-scope[data-wiz-atmos="deep"] .build-btn { box-shadow:0 8px 40px rgba(52,211,153,0.3),0 0 0 1px rgba(52,211,153,0.4); }
+
+/* ── Atmosphere: Arcane ── */
+.wiz-scope[data-wiz-atmos="arcane"] { --bg:#050510;--bg-primary:#08081a;--bg-card:rgba(255,255,255,0.035);--bg-card-hover:rgba(255,255,255,0.06);--brd:rgba(255,255,255,0.05); }
+.wiz-scope[data-wiz-atmos="arcane"] .modal { background:#08081a;box-shadow:0 32px 80px rgba(0,0,0,0.8),0 0 0 1px rgba(52,211,153,0.08);overflow:hidden; }
+.wiz-scope[data-wiz-atmos="arcane"] .wiz-stars-canvas { display:block; }
+.wiz-scope[data-wiz-atmos="arcane"] .grad-bar { height:3px;background:linear-gradient(90deg,var(--accent),var(--accent2),#a78bfa,var(--accent));background-size:300% 100%;animation:wizBarShift 6s ease infinite; }
+.wiz-scope[data-wiz-atmos="arcane"] .rail { background:rgba(8,8,26,0.7);backdrop-filter:blur(16px); }
+.wiz-scope[data-wiz-atmos="arcane"] .p-card { backdrop-filter:blur(8px);background:rgba(255,255,255,0.03);border-color:rgba(255,255,255,0.05); }
+.wiz-scope[data-wiz-atmos="arcane"] .p-card:hover { box-shadow:0 20px 50px rgba(0,0,0,0.4),0 0 20px rgba(52,211,153,0.05); }
+.wiz-scope[data-wiz-atmos="arcane"] .p-card.sel { box-shadow:0 0 0 1px var(--accent-glow),0 0 30px rgba(52,211,153,0.08),0 8px 40px rgba(0,0,0,0.4); }
+.wiz-scope[data-wiz-atmos="arcane"] .accordion { backdrop-filter:blur(8px);background:rgba(255,255,255,0.025); }
+.wiz-scope[data-wiz-atmos="arcane"] .build-btn { box-shadow:0 8px 40px rgba(52,211,153,0.3),0 0 20px rgba(52,211,153,0.15),0 0 0 1px rgba(52,211,153,0.4); }
+.wiz-scope[data-wiz-atmos="arcane"] .hdr-logo { filter:drop-shadow(0 0 8px rgba(52,211,153,0.3)); }
+.wiz-scope[data-wiz-atmos="arcane"] .ring-fg { filter:drop-shadow(0 0 4px rgba(52,211,153,0.4)); }
 
 /* ── Backdrop ── */
 .wiz-scope .backdrop { position:fixed;inset:0;background:rgba(0,0,0,0.65);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:9998;opacity:0;transition:opacity .35s;pointer-events:none; }
@@ -694,7 +713,7 @@ const WIZ_CSS = `
 .wiz-scope .modal { position:fixed;inset:2vh 3vw;background:var(--bg-primary);border-radius:18px;z-index:9999;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 32px 80px rgba(0,0,0,0.6),0 0 0 1px var(--brd);opacity:0;transform:scale(.94) translateY(16px);transition:opacity .4s cubic-bezier(.22,1,.36,1),transform .4s cubic-bezier(.22,1,.36,1);pointer-events:none; }
 .wiz-scope .modal.open { opacity:1;transform:none;pointer-events:auto; }
 .wiz-scope .modal::after { content:'';position:absolute;inset:0;opacity:0.03;pointer-events:none;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='.8'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");z-index:0; }
-.wiz-scope .modal > * { position:relative;z-index:1; }
+.wiz-scope .modal > *:not(.wiz-stars-canvas) { position:relative;z-index:1; }
 
 /* ── Top Gradient Bar ── */
 .wiz-scope .grad-bar { height:3px;background:linear-gradient(90deg,var(--accent),var(--accent2),var(--accent));background-size:200% 100%;animation:wizBarShift 4s ease infinite;flex-shrink:0; }
@@ -708,18 +727,17 @@ const WIZ_CSS = `
 .wiz-scope .badge { font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;padding:4px 10px;border-radius:6px;background:var(--accent-dim);color:var(--accent);border:1px solid rgba(52,211,153,0.15); }
 .wiz-scope .badge.blue { background:rgba(56,189,248,0.1);color:var(--accent2);border-color:rgba(56,189,248,0.15); }
 
-/* ── Theme Swapper ── */
-.wiz-scope .theme-swapper { display:flex;align-items:center;gap:4px;margin-left:auto;background:rgba(255,255,255,0.03);border:1px solid var(--brd);border-radius:12px;padding:4px; }
-.wiz-scope .theme-dot { width:22px;height:22px;border-radius:8px;cursor:pointer;transition:all 0.2s;border:2px solid transparent;position:relative; }
-.wiz-scope .theme-dot:hover { transform:scale(1.15); }
-.wiz-scope .theme-dot.active { border-color:var(--text);box-shadow:0 0 12px rgba(255,255,255,0.15); }
-.wiz-scope .theme-dot[data-t="default"] { background:linear-gradient(135deg,#34d399,#38bdf8); }
-.wiz-scope .theme-dot[data-t="ember"] { background:linear-gradient(135deg,#f59e0b,#ef4444); }
-.wiz-scope .theme-dot[data-t="frost"] { background:linear-gradient(135deg,#38bdf8,#a78bfa); }
-.wiz-scope .theme-dot[data-t="violet"] { background:linear-gradient(135deg,#a78bfa,#ec4899); }
+/* ── Atmosphere Selector ── */
+.wiz-scope .atmos-selector { display:flex;align-items:center;gap:2px;margin-left:auto;background:rgba(255,255,255,0.03);border:1px solid var(--brd);border-radius:10px;padding:3px; }
+.wiz-scope .atmos-btn { padding:5px 12px;border-radius:8px;border:none;background:transparent;color:var(--text3);font-size:11px;font-weight:600;cursor:pointer;transition:all 0.2s;white-space:nowrap;letter-spacing:0.3px; }
+.wiz-scope .atmos-btn:hover { color:var(--text);background:rgba(255,255,255,0.04); }
+.wiz-scope .atmos-btn.active { color:var(--accent);background:var(--accent-dim);box-shadow:0 0 8px var(--accent-dim); }
+
+/* Star canvas for Arcane atmosphere */
+.wiz-scope .wiz-stars-canvas { position:absolute;inset:0;z-index:0;pointer-events:none;display:none; }
 
 /* ── Progress Ring ── */
-.wiz-scope .ring-wrap { position:relative;width:40px;height:40px;margin:0 4px;cursor:help;flex-shrink:0; }
+.wiz-scope .ring-wrap { position:relative;width:40px;height:40px;margin:0 4px;flex-shrink:0; }
 .wiz-scope .ring-wrap svg { transform:rotate(-90deg); }
 .wiz-scope .ring-bg { fill:none;stroke:var(--brd);stroke-width:3.5; }
 .wiz-scope .ring-fg { fill:none;stroke:url(#wizRingGrad);stroke-width:3.5;stroke-linecap:round;transition:stroke-dashoffset .5s cubic-bezier(.4,0,.2,1); }
@@ -822,7 +840,7 @@ const WIZ_CSS = `
 
 /* ── Step Progress Bar ── */
 .wiz-scope .steps-bar { display:flex;align-items:center;margin-bottom:32px; }
-.wiz-scope .step-num-circle { width:34px;height:34px;display:flex;align-items:center;justify-content:center;border-radius:50%;font-size:13px;font-weight:700;border:2px solid var(--brd);color:var(--text3);transition:all 0.2s;flex-shrink:0;cursor:help; }
+.wiz-scope .step-num-circle { width:34px;height:34px;display:flex;align-items:center;justify-content:center;border-radius:50%;font-size:13px;font-weight:700;border:2px solid var(--brd);color:var(--text3);transition:all 0.2s;flex-shrink:0; }
 .wiz-scope .step-num-circle.done { border-color:var(--accent);background:var(--accent);color:#0c1222; }
 .wiz-scope .step-num-circle.active { border-color:var(--accent);color:var(--accent);background:var(--accent-dim); }
 .wiz-scope .step-bar-label { font-size:12px;font-weight:600;color:var(--text3);margin-left:8px;white-space:nowrap; }
@@ -1003,7 +1021,7 @@ const WIZ_CSS = `
 .wiz-scope .btn.bo:hover { border-color:var(--accent-glow);color:var(--text); }
 
 /* ── Tooltip System ── */
-.wiz-scope [data-tip] { position:relative;cursor:help; }
+.wiz-scope [data-tip] { position:relative; }
 .wiz-scope [data-tip]::after { content:attr(data-tip);position:absolute;bottom:calc(100% + 10px);left:50%;transform:translateX(-50%);background:rgba(12,18,34,0.98);color:#cbd5e1;font-size:11.5px;font-weight:500;line-height:1.5;padding:10px 14px;border-radius:10px;border:1px solid rgba(52,211,153,0.2);border-left:3px solid var(--accent);width:max-content;max-width:240px;pointer-events:none;opacity:0;transition:opacity 0.15s;z-index:9999;box-shadow:0 8px 32px rgba(0,0,0,0.5);white-space:normal; }
 .wiz-scope [data-tip]:hover::after { opacity:1; }
 .wiz-scope [data-tip-pos="bottom"]::after { bottom:auto;top:calc(100% + 10px); }
@@ -1024,13 +1042,13 @@ const WIZ_CSS = `
   .wiz-scope .rail { width:240px;min-width:240px; }
   .wiz-scope .cards-grid { grid-template-columns:repeat(2,1fr); }
   .wiz-scope .main { padding:20px 24px 32px; }
-  .wiz-scope .theme-swapper { display:none; }
+  .wiz-scope .atmos-selector { display:none; }
 }
 @media (max-width:768px) {
   .wiz-scope .modal { inset:2vh 2vw;border-radius:16px; }
   .wiz-scope .hdr { padding:10px 16px;gap:8px;flex-wrap:wrap; }
   .wiz-scope .badge { font-size:9px; }
-  .wiz-scope .theme-swapper { display:none; }
+  .wiz-scope .atmos-selector { display:none; }
   .wiz-scope .body { flex-direction:column; }
   .wiz-scope .rail { width:100%;min-width:unset;border-right:none;border-top:1px solid var(--brd);position:fixed;bottom:0;left:0;right:0;z-index:10000;max-height:70vh;transform:translateY(calc(100% - 52px));transition:transform .35s cubic-bezier(.4,0,.2,1);background:var(--bg);border-radius:16px 16px 0 0;box-shadow:0 -4px 24px rgba(0,0,0,.3); }
   .wiz-scope .rail.expanded { transform:translateY(0); }
@@ -1081,6 +1099,7 @@ function injectDOM(role, location) {
   wrapper.innerHTML = `
     <div class="backdrop" id="wiz-bk" onclick="_wiz.closeWizard()"></div>
     <div class="modal" id="wiz-modal">
+      <canvas class="wiz-stars-canvas" id="wiz-stars-canvas"></canvas>
       <div class="grad-bar"></div>
       <div class="hdr">
         <div class="hdr-logo" data-tip="StratOS News Intelligence Platform">StratOS</div>
@@ -1090,11 +1109,10 @@ function injectDOM(role, location) {
           ${location ? `<span class="badge blue" data-tip="Your location">${esc(location)}</span>` : ''}
         </div>
         <div class="preset-dd" id="wiz-preset-dd"></div>
-        <div class="theme-swapper" data-tip="Switch color theme" data-tip-pos="bottom">
-          <div class="theme-dot active" data-t="default" onclick="_wiz.setTheme(this)" data-tip="Emerald (default)" data-tip-pos="bottom"></div>
-          <div class="theme-dot" data-t="ember" onclick="_wiz.setTheme(this)" data-tip="Warm Ember" data-tip-pos="bottom"></div>
-          <div class="theme-dot" data-t="frost" onclick="_wiz.setTheme(this)" data-tip="Arctic Frost" data-tip-pos="bottom"></div>
-          <div class="theme-dot" data-t="violet" onclick="_wiz.setTheme(this)" data-tip="Neon Violet" data-tip-pos="bottom"></div>
+        <div class="atmos-selector">
+          <button class="atmos-btn active" data-atmos="clean" onclick="_wiz.setAtmosphere(this)">Clean</button>
+          <button class="atmos-btn" data-atmos="deep" onclick="_wiz.setAtmosphere(this)">Deep</button>
+          <button class="atmos-btn" data-atmos="arcane" onclick="_wiz.setAtmosphere(this)">Arcane</button>
         </div>
         <div class="ring-wrap" id="wiz-ring-wrap" data-tip="Profile completion progress">
           <svg width="40" height="40" viewBox="0 0 42 42">
@@ -1593,33 +1611,181 @@ function toggleRail() {
   if (rail) rail.classList.toggle('expanded');
 }
 
-function setTheme(dotEl) {
-  const theme = dotEl.getAttribute('data-t');
+/* ── Atmosphere system ── */
+let _wizStarEngine = null;
+
+function setAtmosphere(btnEl) {
+  const atmos = btnEl.getAttribute('data-atmos');
   const root = document.getElementById('wiz-root');
   if (!root) return;
-  root.querySelectorAll('.theme-dot').forEach(d => d.classList.remove('active'));
-  dotEl.classList.add('active');
-  if (theme === 'default') {
-    root.removeAttribute('data-wiz-theme');
+  root.querySelectorAll('.atmos-btn').forEach(b => b.classList.remove('active'));
+  btnEl.classList.add('active');
+  if (atmos === 'clean') {
+    root.removeAttribute('data-wiz-atmos');
   } else {
-    root.setAttribute('data-wiz-theme', theme);
+    root.setAttribute('data-wiz-atmos', atmos);
   }
-  try { localStorage.setItem('wiz-theme', theme); } catch(e) {}
+  // Start/stop star canvas
+  if (atmos === 'arcane') {
+    _startWizStars();
+  } else {
+    _stopWizStars();
+  }
+  try { localStorage.setItem('wiz-atmosphere', atmos); } catch(e) {}
 }
 
-function restoreTheme() {
+function restoreAtmosphere() {
   try {
-    const t = localStorage.getItem('wiz-theme');
-    if (t && t !== 'default') {
+    const a = localStorage.getItem('wiz-atmosphere');
+    if (a && a !== 'clean') {
       const root = document.getElementById('wiz-root');
       if (root) {
-        root.setAttribute('data-wiz-theme', t);
-        root.querySelectorAll('.theme-dot').forEach(d => {
-          d.classList.toggle('active', d.getAttribute('data-t') === t);
+        root.setAttribute('data-wiz-atmos', a);
+        root.querySelectorAll('.atmos-btn').forEach(b => {
+          b.classList.toggle('active', b.getAttribute('data-atmos') === a);
         });
+        if (a === 'arcane') _startWizStars();
       }
     }
   } catch(e) {}
+}
+
+function _stopWizStars() {
+  if (!_wizStarEngine) return;
+  cancelAnimationFrame(_wizStarEngine.raf);
+  _wizStarEngine = null;
+  const c = document.getElementById('wiz-stars-canvas');
+  if (c) { const ctx = c.getContext('2d'); ctx.clearRect(0, 0, c.width, c.height); }
+}
+
+function _startWizStars() {
+  _stopWizStars();
+  const canvas = document.getElementById('wiz-stars-canvas');
+  if (!canvas) return;
+  const modal = canvas.parentElement;
+  if (!modal) return;
+  const ctx = canvas.getContext('2d');
+
+  function resize() {
+    canvas.width = modal.offsetWidth;
+    canvas.height = modal.offsetHeight;
+  }
+  resize();
+
+  const isMobile = window.innerWidth <= 768;
+  const COUNT = isMobile ? 30 : 120;
+  const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#34d399';
+
+  // Parse accent for glow
+  const temp = document.createElement('div');
+  temp.style.color = accent;
+  document.body.appendChild(temp);
+  const rgb = getComputedStyle(temp).color.match(/\d+/g) || [52, 211, 153];
+  temp.remove();
+  const ar = +rgb[0], ag = +rgb[1], ab = +rgb[2];
+
+  const stars = [];
+  for (let i = 0; i < COUNT; i++) {
+    stars.push({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      r: Math.random() * 1.4 + 0.3,
+      a: Math.random() * 0.4 + 0.08,
+      speed: Math.random() * 0.08 + 0.02,
+      phase: Math.random() * Math.PI * 2,
+      cr: Math.random() < 0.3 ? ar : 255,
+      cg: Math.random() < 0.3 ? ag : 255,
+      cb: Math.random() < 0.3 ? ab : 255
+    });
+  }
+
+  // Shooting stars
+  const shooters = [];
+  let lastShoot = Date.now();
+
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const t = Date.now() * 0.001;
+
+    // Stars
+    for (const s of stars) {
+      s.y -= s.speed;
+      if (s.y < -2) { s.y = canvas.height + 2; s.x = Math.random() * canvas.width; }
+      const flicker = 0.6 + 0.4 * Math.sin(t * 2 + s.phase);
+      const alpha = s.a * flicker;
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(${s.cr},${s.cg},${s.cb},${alpha})`;
+      ctx.fill();
+      if (s.r > 1) {
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.r * 3, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(${s.cr},${s.cg},${s.cb},${alpha * 0.15})`;
+        ctx.fill();
+      }
+    }
+
+    // Constellation lines between close stars
+    for (let i = 0; i < stars.length; i++) {
+      for (let j = i + 1; j < stars.length; j++) {
+        const dx = stars[i].x - stars[j].x;
+        const dy = stars[i].y - stars[j].y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < 100) {
+          ctx.beginPath();
+          ctx.moveTo(stars[i].x, stars[i].y);
+          ctx.lineTo(stars[j].x, stars[j].y);
+          ctx.strokeStyle = `rgba(${ar},${ag},${ab},${0.06 * (1 - dist / 100)})`;
+          ctx.lineWidth = 0.5;
+          ctx.stroke();
+        }
+      }
+    }
+
+    // Shooting stars
+    if (Date.now() - lastShoot > 5000 + Math.random() * 4000) {
+      lastShoot = Date.now();
+      const angle = Math.random() * 0.5 + 0.2;
+      const spd = Math.random() * 5 + 3;
+      shooters.push({
+        x: Math.random() * canvas.width * 0.6,
+        y: Math.random() * canvas.height * 0.3,
+        vx: Math.cos(angle) * spd, vy: Math.sin(angle) * spd,
+        life: 1, len: Math.random() * 35 + 20
+      });
+    }
+    for (let i = shooters.length - 1; i >= 0; i--) {
+      const sh = shooters[i];
+      sh.x += sh.vx; sh.y += sh.vy; sh.life -= 0.015;
+      if (sh.life <= 0) { shooters.splice(i, 1); continue; }
+      const grad = ctx.createLinearGradient(sh.x, sh.y, sh.x - sh.vx * sh.len / 5, sh.y - sh.vy * sh.len / 5);
+      grad.addColorStop(0, `rgba(255,255,255,${sh.life * 0.7})`);
+      grad.addColorStop(1, 'rgba(255,255,255,0)');
+      ctx.beginPath();
+      ctx.moveTo(sh.x, sh.y);
+      ctx.lineTo(sh.x - sh.vx * sh.len / 5, sh.y - sh.vy * sh.len / 5);
+      ctx.strokeStyle = grad;
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+    }
+
+    _wizStarEngine.raf = requestAnimationFrame(draw);
+  }
+
+  _wizStarEngine = { raf: requestAnimationFrame(draw) };
+
+  // Resize on window change
+  const onResize = () => { if (_wizStarEngine) resize(); };
+  window.addEventListener('resize', onResize);
+  _wizStarEngine.onResize = onResize;
+}
+
+function _cleanupWizStars() {
+  if (_wizStarEngine) {
+    cancelAnimationFrame(_wizStarEngine.raf);
+    if (_wizStarEngine.onResize) window.removeEventListener('resize', _wizStarEngine.onResize);
+    _wizStarEngine = null;
+  }
 }
 
 function toggleDeepMode() {
@@ -1867,7 +2033,7 @@ function togRvCollapse(id) { rvCollapsed.has(id) ? rvCollapsed.delete(id) : rvCo
 function collapseAllRv() { for (const c of CATS) if (selCats.has(c.id)) rvCollapsed.add(c.id); renderRail(); }
 function expandAllRv() { rvCollapsed.clear(); renderRail(); }
 
-function rvRm(sid, val) { rvItems[sid] = (rvItems[sid] || []).filter(v => v !== val); renderRail(); }
+function rvRm(sid, val) { rvItems[sid] = (rvItems[sid] || []).filter(v => v !== val); discoverAdded.delete(val); renderRail(); }
 function rvRmInt(val) { interestTopics = interestTopics.filter(v => v !== val); renderRail(); renderDetails(); }
 function rvShowAdd(sid) {
   const w = document.getElementById('wiz-rw-' + sid); if (w) w.style.display = 'inline';
@@ -2387,8 +2553,8 @@ function openWizard(opts) {
   });
   document.body.style.overflow = 'hidden';
 
-  // Restore saved theme
-  restoreTheme();
+  // Restore saved atmosphere
+  restoreAtmosphere();
 
   // Render initial state
   renderAll();
@@ -2509,8 +2675,12 @@ function addTabSuggestion(tabId, keyword) {
   cache.added.add(keyword);
   if (tabId === 'interests') {
     if (!interestTopics.includes(keyword)) interestTopics.push(keyword);
+  } else {
+    if (!selSubs[tabId]) selSubs[tabId] = new Set();
+    selSubs[tabId].add(keyword);
   }
   renderDetails();
+  renderRail();
 }
 
 function renderTabSuggestions(tabId) {
@@ -2556,6 +2726,7 @@ function refreshSuggestions(tabId) {
 
 function closeWizard() {
   _wizSaveState();
+  _cleanupWizStars();
   const root = document.getElementById('wiz-root');
   if (root) {
     const bk = root.querySelector('.backdrop');
@@ -2591,7 +2762,7 @@ window._wiz = {
   // Presets
   savePreset, loadPreset, deletePreset, togglePresetMenu,
   // Other
-  skipToQuick, closeWizard, clearAll, setTheme,
+  skipToQuick, closeWizard, clearAll, setAtmosphere,
 };
 
 // Public API
