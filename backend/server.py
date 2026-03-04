@@ -1380,22 +1380,40 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                     profile_file = auth.profiles_dir() / f"{safe}.yaml"
                     _has_yaml = profile_file.exists()
 
-                    # DB-auth users may not have YAML files — handle avatar-only updates via DB
+                    # DB-auth users may not have YAML files — handle updates via DB
                     if not _has_yaml:
                         if self._profile_id:
+                            changes = []
                             avatar_state = {}
                             new_avatar = data.get("avatar", "").strip()[:3]
                             avatar_image = data.get("avatar_image", "")
                             if avatar_image and avatar_image.startswith("data:image/"):
                                 avatar_state["avatar_image"] = avatar_image
+                                changes.append("avatar_image")
                             if new_avatar:
                                 avatar_state["avatar"] = new_avatar
+                                changes.append("avatar")
                             if avatar_state:
                                 strat.db.save_ui_state(self._profile_id, avatar_state)
+                            # Update display_name in users table
+                            new_name = data.get("display_name", "").strip()
+                            resp_name = current_user
+                            if new_name and len(new_name) >= 2:
+                                try:
+                                    cursor = strat.db.conn.cursor()
+                                    cursor.execute("""
+                                        UPDATE users SET display_name = ?
+                                        WHERE id = (SELECT user_id FROM profiles WHERE id = ? LIMIT 1)
+                                    """, (new_name, self._profile_id))
+                                    strat.db.conn.commit()
+                                    changes.append("name")
+                                    resp_name = new_name
+                                except Exception as e:
+                                    logger.warning(f"Failed to update display_name: {e}")
                             _send_json(self, {
                                 "status": "updated",
-                                "changes": list(avatar_state.keys()),
-                                "profile": {"name": current_user, "avatar": new_avatar or "", "avatar_image": avatar_image or ""}
+                                "changes": changes,
+                                "profile": {"name": resp_name, "avatar": new_avatar or "", "avatar_image": avatar_image or ""}
                             })
                             return
                         raise FileNotFoundError(f"Profile '{current_user}' not found")

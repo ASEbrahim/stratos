@@ -1662,6 +1662,7 @@ function restoreAtmosphere() {
 function _stopWizStars() {
   if (!_wizStarEngine) return;
   cancelAnimationFrame(_wizStarEngine.raf);
+  if (_wizStarEngine.onResize) window.removeEventListener('resize', _wizStarEngine.onResize);
   _wizStarEngine = null;
   const c = document.getElementById('wiz-stars-canvas');
   if (c) { const ctx = c.getContext('2d'); ctx.clearRect(0, 0, c.width, c.height); }
