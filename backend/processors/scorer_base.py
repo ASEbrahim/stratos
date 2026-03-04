@@ -899,7 +899,7 @@ class ScorerBase:
 
         key = str(round(raw_score * 10) / 10)
         if key in self._calibration_table:
-            return self._calibration_table[key]
+            return max(0.0, min(10.0, self._calibration_table[key]))
 
         lo = round(raw_score * 10) / 10
         hi = lo + 0.1
@@ -908,7 +908,7 @@ class ScorerBase:
             lo_val = self._calibration_table[lo_key]
             hi_val = self._calibration_table[hi_key]
             frac = (raw_score - lo) / 0.1 if 0.1 > 0 else 0
-            return lo_val + frac * (hi_val - lo_val)
+            return max(0.0, min(10.0, lo_val + frac * (hi_val - lo_val)))
 
         return raw_score
 

@@ -249,7 +249,7 @@ def get_google_client(config: Dict[str, Any]) -> Optional[GoogleSearchClient]:
     if not api_key or not cx:
         return None
 
-    if api_key == 'YOUR_API_KEY' or cx == 'YOUR_SEARCH_ENGINE_ID':
+    if api_key == 'YOUR_API_KEY' or cx == 'YOUR_SEARCH_ENGINE_ID' or api_key.startswith('${') or cx.startswith('${'):
         logger.warning("Google Search not configured - using placeholder values")
         return None
 

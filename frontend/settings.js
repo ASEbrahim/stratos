@@ -434,13 +434,13 @@ async function loadPresets() {
         container.innerHTML = data.presets.map(p => `
             <div class="flex items-center gap-2 p-2 rounded-lg bg-slate-800/50 border border-slate-700/50">
                 <div class="flex-1 min-w-0">
-                    <p class="text-sm font-medium text-slate-200 truncate">${p.has_pin ? '<svg class="inline w-3 h-3 text-slate-500 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>' : ''}${p.name}</p>
-                    <p class="text-xs text-slate-500 truncate">${p.role || 'No role'} · ${p.location || 'No location'}</p>
+                    <p class="text-sm font-medium text-slate-200 truncate">${p.has_pin ? '<svg class="inline w-3 h-3 text-slate-500 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>' : ''}${_escHtml(p.name)}</p>
+                    <p class="text-xs text-slate-500 truncate">${_escHtml(p.role || 'No role')} · ${_escHtml(p.location || 'No location')}</p>
                 </div>
-                <button onclick="loadPreset('${p.name}')" class="px-2.5 py-1.5 bg-blue-700/50 hover:bg-blue-600/50 border border-blue-600/30 rounded text-xs text-blue-300 transition-all" title="Load this preset">
+                <button onclick="loadPreset(decodeURIComponent('${encodeURIComponent(p.name)}'))" class="px-2.5 py-1.5 bg-blue-700/50 hover:bg-blue-600/50 border border-blue-600/30 rounded text-xs text-blue-300 transition-all" title="Load this preset">
                     Load
                 </button>
-                <button onclick="deletePreset('${p.name}')" class="px-2 py-1.5 bg-slate-700/50 hover:bg-red-900/50 border border-slate-600/30 hover:border-red-500/30 rounded text-xs text-slate-400 hover:text-red-400 transition-all" title="Delete this preset">
+                <button onclick="deletePreset(decodeURIComponent('${encodeURIComponent(p.name)}'))" class="px-2 py-1.5 bg-slate-700/50 hover:bg-red-900/50 border border-slate-600/30 hover:border-red-500/30 rounded text-xs text-slate-400 hover:text-red-400 transition-all" title="Delete this preset">
                     ✕
                 </button>
             </div>

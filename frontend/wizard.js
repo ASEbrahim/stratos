@@ -1745,7 +1745,7 @@ function buildWizardContext() {
     parts.push(`${c.name}: ${subDetails.join(', ')}`);
   }
   const result = parts.join('. ');
-  console.log('[Wizard] buildWizardContext:', result);
+  console.debug('[Wizard] buildWizardContext:', result);
   return result;
 }
 
@@ -1777,7 +1777,7 @@ function doBuild() {
 }
 
 async function callGenerateProfile(role, location, context, deep = false) {
-  console.log('[Wizard] callGenerateProfile:', {role, location, context, deep});
+  console.debug('[Wizard] callGenerateProfile:', {role, location, context, deep});
   let stepIdx = 0;
   const bar = document.getElementById('wiz-bar');
   const setBar = (pct) => { if (bar) bar.style.width = pct + '%'; };

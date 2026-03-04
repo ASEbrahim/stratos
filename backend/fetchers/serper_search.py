@@ -327,7 +327,7 @@ def get_serper_client(config: Dict[str, Any]) -> Optional[SerperSearchClient]:
     search_config = config.get('search', {})
     api_key = search_config.get('serper_api_key', '')
 
-    if not api_key or api_key == 'YOUR_SERPER_API_KEY':
+    if not api_key or api_key == 'YOUR_SERPER_API_KEY' or api_key.startswith('${'):
         return None
 
     return SerperSearchClient(api_key)

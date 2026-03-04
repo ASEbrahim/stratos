@@ -767,7 +767,8 @@ function showToast(message, type = 'info', duration = 3000) {
     const toast = document.createElement('div');
     toast.className = 'pointer-events-auto flex items-center gap-2.5 px-4 py-2.5 rounded-lg text-xs font-medium backdrop-blur-md shadow-lg transition-all duration-300';
     toast.style.cssText = `background:${c.bg}; border:1px solid ${c.border}; color:${c.text}; transform:translateX(120%); opacity:0;`;
-    toast.innerHTML = `<i data-lucide="${c.icon}" class="w-3.5 h-3.5 flex-shrink-0"></i> <span>${message}</span>`;
+    const _e = document.createElement('span'); _e.textContent = message;
+    toast.innerHTML = `<i data-lucide="${c.icon}" class="w-3.5 h-3.5 flex-shrink-0"></i> <span>${_e.innerHTML}</span>`;
     
     container.appendChild(toast);
     if (typeof lucide !== 'undefined') lucide.createIcons();
