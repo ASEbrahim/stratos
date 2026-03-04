@@ -1055,6 +1055,12 @@ function injectDOM(role, location) {
         ${location ? `<span class="wiz-badge">${esc(location)}</span>` : ''}
         <span class="wiz-hdr-spacer"></span>
         <div class="preset-dd" id="wiz-preset-dd"></div>
+        <div class="wiz-theme-bar" title="Color theme">
+          <div class="wiz-theme-dot active" data-t="default" onclick="_wiz.setTheme(this)" title="Emerald"></div>
+          <div class="wiz-theme-dot" data-t="ember" onclick="_wiz.setTheme(this)" title="Warm Ember"></div>
+          <div class="wiz-theme-dot" data-t="frost" onclick="_wiz.setTheme(this)" title="Arctic Frost"></div>
+          <div class="wiz-theme-dot" data-t="violet" onclick="_wiz.setTheme(this)" title="Neon Violet"></div>
+        </div>
         <div class="wiz-ring-wrap" id="wiz-ring-wrap" title="Completion">
           <svg class="wiz-ring-svg" viewBox="0 0 36 36">
             <circle class="wiz-ring-bg" cx="18" cy="18" r="14"/>
@@ -1071,17 +1077,17 @@ function injectDOM(role, location) {
             <span class="wiz-rail-handle-text" id="wiz-rail-handle-text">0 items · Build</span>
           </div>
           <div class="wiz-rail-scroll" id="wiz-rail-scroll"></div>
+          <div id="wiz-feed-summary"></div>
           <div class="wiz-rail-bottom" id="wiz-rail-bottom">
-            <div class="wiz-mode-row">
-              <div class="wiz-mode-toggle ${document.getElementById('wiz-deep-mode')?.checked ? 'on' : ''}" id="wiz-mode-tog" onclick="_wiz.toggleDeepMode()">
-                <div class="knob"></div>
-              </div>
-              <span class="wiz-mode-label" id="wiz-mode-label">Quick ~1 min</span>
+            <div class="wiz-mode-row" id="wiz-mode-row" onclick="_wiz.toggleDeepMode()">
+              <div class="wiz-mode-opt ${document.getElementById('wiz-deep-mode')?.checked ? '' : 'active'}" id="wiz-mode-quick">&#x26A1; Quick</div>
+              <div class="wiz-mode-opt ${document.getElementById('wiz-deep-mode')?.checked ? 'active' : ''}" id="wiz-mode-deep">&#x25CF; Deep</div>
             </div>
-            <button class="wiz-build-btn" id="wiz-build-btn" onclick="_wiz.doBuild()" disabled>&#x2728; Build my feed</button>
+            <button class="wiz-build-btn" id="wiz-build-btn" onclick="_wiz.doBuild()" disabled>&#x2728; BUILD FEED &#x2728;</button>
           </div>
         </div>
         <div class="wiz-main" id="wiz-main">
+          <div id="wiz-step-bar"></div>
           <div id="wiz-priorities"></div>
           <div id="wiz-details"></div>
           <div id="wiz-loading" class="wiz-hidden"></div>
@@ -1511,13 +1517,14 @@ function toggleRail() {
 }
 
 function toggleDeepMode() {
-  const tog = document.getElementById('wiz-mode-tog');
-  const lbl = document.getElementById('wiz-mode-label');
+  const quick = document.getElementById('wiz-mode-quick');
+  const deep = document.getElementById('wiz-mode-deep');
   const cb = document.getElementById('wiz-deep-mode');
-  if (!tog) return;
-  const isOn = tog.classList.toggle('on');
-  if (lbl) lbl.textContent = isOn ? 'Deep ~5 min' : 'Quick ~1 min';
+  if (!quick || !deep) return;
+  const isOn = !cb?.checked;
   if (cb) cb.checked = isOn;
+  quick.classList.toggle('active', !isOn);
+  deep.classList.toggle('active', isOn);
 }
 
 
