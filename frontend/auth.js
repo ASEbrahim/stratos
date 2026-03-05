@@ -73,6 +73,10 @@ const AUTH_THEMES = [
       orb1:'rgba(232,185,49,.14)', orb2:'rgba(150,180,255,.10)', orb3:'rgba(100,130,220,.07)',
       grid:'rgba(232,185,49,.04)', bg:'linear-gradient(160deg,#07080f 0%,#0d1225 50%,#07080f 100%)',
       star1:'rgba(232,185,49,.6)', star2:'rgba(150,180,255,.4)', star3:'rgba(255,255,255,.3)' },
+    { name:'Sakura', accent:'#f0a0b8', rgb:'240,160,184',
+      orb1:'rgba(240,160,184,.14)', orb2:'rgba(200,160,220,.10)', orb3:'rgba(255,220,240,.08)',
+      grid:'rgba(240,160,184,.04)', bg:'linear-gradient(160deg,#08050c 0%,#120a1a 50%,#08050c 100%)',
+      star1:'rgba(240,160,184,.5)', star2:'rgba(255,220,240,.35)', star3:'rgba(200,160,220,.3)' },
 ];
 
 function _getAuthTheme() {
