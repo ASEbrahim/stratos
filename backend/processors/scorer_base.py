@@ -894,6 +894,13 @@ class ScorerBase:
 
             clean = re.sub(r'<think>.*?</think>', '', text, flags=re.DOTALL).strip()
 
+            # Handle unclosed <think> tags (truncated at num_predict before </think>)
+            if '<think>' in clean and '</think>' not in clean:
+                clean = re.sub(r'<think>.*$', '', clean, flags=re.DOTALL).strip()
+                if not think_block:
+                    logger.warning("[TRUNCATED] Unclosed <think> tag stripped (response truncated mid-reasoning)")
+                    self._stats['truncated'] = self._stats.get('truncated', 0) + 1
+
             if chunk_count > 0 and not clean and think_block:
                 logger.warning("[TRUNCATED] Response consumed by think block — no SCORE/REASON output")
                 self._stats['truncated'] = self._stats.get('truncated', 0) + 1

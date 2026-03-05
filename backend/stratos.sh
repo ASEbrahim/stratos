@@ -37,31 +37,18 @@ FROM ${GGUF_PATH}
 
 TEMPLATE """{{- if .System }}<|im_start|>system
 {{ .System }}<|im_end|>
-{{- end }}
-<|im_start|>user
+{{ end }}<|im_start|>user
 {{ .Prompt }}<|im_end|>
 <|im_start|>assistant
 """
 
-PARAMETER temperature 0.3
-PARAMETER top_p 0.9
-PARAMETER num_ctx 2048
-PARAMETER num_predict 128
-PARAMETER repeat_penalty 1.3
-PARAMETER stop <|im_end|>
-PARAMETER stop <|endoftext|>
-PARAMETER stop <|im_start|>
-PARAMETER stop <think>
-PARAMETER stop </think>
-
-SYSTEM """You are a relevance scorer for a personalized intelligence dashboard.
-Score each article 0.0-10.0. Never score exactly 5.0.
-9.0-10.0: Directly actionable (job match, breakthrough, money-saving deal)
-7.0-8.9: Highly relevant (useful skills, regional growth, key trend)
-5.0-6.9: Somewhat relevant
-0.0-4.9: Noise (generic ads, clickbait, wrong field)
-Respond with ONLY valid JSON: {"score": X.X, "reason": "brief explanation"}
-Do not use thinking tags. Output only the JSON."""
+PARAMETER stop "<|im_end|>"
+PARAMETER stop "<|endoftext|>"
+PARAMETER temperature 0.6
+PARAMETER top_p 0.95
+PARAMETER top_k 20
+PARAMETER num_predict 512
+PARAMETER repeat_penalty 1.1
 ENDOFFILE
         ollama create "$SCORER_MODEL" -f /tmp/Modelfile
         echo "[✓] $SCORER_MODEL registered"
