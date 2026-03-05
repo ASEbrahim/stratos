@@ -167,6 +167,76 @@ function _initStarParallax() {
     const DRIFT_SPEED = 0.12;
     const _isCosmos = _t.name === 'Cosmos';
     const _isSakura = _t.name === 'Sakura';
+    const _isNebula = _t.name === 'Nebula';
+
+    // ── Black hole data (nebula auth theme) ──
+    const _bhParticles = [];
+    if (_isNebula) {
+        for (let i = 0; i < 260; i++) {
+            const band = Math.random();
+            const dist = 60 + band * 220;
+            _bhParticles.push({
+                angle: Math.random() * Math.PI * 2,
+                dist: dist,
+                speed: (0.08 + Math.random() * 0.12) * (200 / (dist + 40)),
+                r: Math.random() * 1.2 + 0.3,
+                a: Math.random() * 0.5 + 0.15,
+                yOff: (Math.random() - 0.5) * 6,
+                // color band: inner=hot blue-white, mid=purple, outer=dim blue
+                tier: band < 0.25 ? 0 : band < 0.6 ? 1 : 2
+            });
+        }
+    }
+    const _BH_TILT = 0.32, _BH_ROT = -0.1;
+    function _bhProject(cx, cy, dist, angle) {
+        const x3 = Math.cos(angle) * dist, y3 = Math.sin(angle) * dist;
+        const cr = Math.cos(_BH_ROT), sr = Math.sin(_BH_ROT);
+        return { x: cx + x3 * cr - y3 * sr, y: cy + (x3 * sr + y3 * cr) * _BH_TILT, depth: Math.sin(angle) };
+    }
+    function _bhDrawDisk(cx, cy, t) {
+        // Accretion disk — tilted elliptical glow rings
+        ctx.save(); ctx.translate(cx, cy); ctx.rotate(_BH_ROT); ctx.scale(1, _BH_TILT);
+        // Outer haze
+        const g0 = ctx.createRadialGradient(0, 0, 100, 0, 0, 290);
+        g0.addColorStop(0, 'rgba(100,80,200,0.0)');
+        g0.addColorStop(0.3, 'rgba(80,60,180,0.03)');
+        g0.addColorStop(0.6, 'rgba(56,130,220,0.02)');
+        g0.addColorStop(1, 'rgba(56,189,248,0)');
+        ctx.fillStyle = g0; ctx.beginPath(); ctx.arc(0, 0, 290, 0, Math.PI * 2); ctx.fill();
+        // Main disk glow
+        for (let ring = 0; ring < 4; ring++) {
+            const rd = 80 + ring * 45;
+            const alpha = [0.08, 0.06, 0.04, 0.025][ring];
+            ctx.beginPath(); ctx.arc(0, 0, rd, 0, Math.PI * 2);
+            ctx.strokeStyle = `rgba(140,120,250,${alpha})`; ctx.lineWidth = 20 + ring * 8; ctx.stroke();
+        }
+        ctx.restore();
+    }
+    function _bhDrawVoid(cx, cy, t) {
+        const pulse = 1 + Math.sin(t * 0.3) * 0.02;
+        const eventR = 28 * pulse;
+        // Photon ring — bright thin ring at event horizon edge
+        const prGrad = ctx.createRadialGradient(cx, cy, eventR - 2, cx, cy, eventR + 12);
+        prGrad.addColorStop(0, 'rgba(167,139,250,0)');
+        prGrad.addColorStop(0.3, 'rgba(167,139,250,0.35)');
+        prGrad.addColorStop(0.5, 'rgba(200,180,255,0.5)');
+        prGrad.addColorStop(0.7, 'rgba(125,211,252,0.3)');
+        prGrad.addColorStop(1, 'rgba(56,189,248,0)');
+        ctx.fillStyle = prGrad; ctx.beginPath(); ctx.arc(cx, cy, eventR + 12, 0, Math.PI * 2); ctx.fill();
+        // Gravitational lensing glow — wide soft halo
+        const lensGrad = ctx.createRadialGradient(cx, cy, eventR, cx, cy, eventR * 4);
+        lensGrad.addColorStop(0, 'rgba(167,139,250,0.12)');
+        lensGrad.addColorStop(0.3, 'rgba(120,100,220,0.06)');
+        lensGrad.addColorStop(0.6, 'rgba(56,189,248,0.02)');
+        lensGrad.addColorStop(1, 'rgba(56,189,248,0)');
+        ctx.fillStyle = lensGrad; ctx.beginPath(); ctx.arc(cx, cy, eventR * 4, 0, Math.PI * 2); ctx.fill();
+        // Event horizon — pure black void
+        const voidGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, eventR);
+        voidGrad.addColorStop(0, 'rgba(0,0,0,1)');
+        voidGrad.addColorStop(0.85, 'rgba(0,0,0,1)');
+        voidGrad.addColorStop(1, 'rgba(0,0,0,0.7)');
+        ctx.fillStyle = voidGrad; ctx.beginPath(); ctx.arc(cx, cy, eventR, 0, Math.PI * 2); ctx.fill();
+    }
 
     // Solar system data (cosmos auth theme - tilted perspective)
     const _SS_TILT = 0.38, _SS_ROT = -0.15;
@@ -366,6 +436,54 @@ function _initStarParallax() {
                 else if (o.t === 'm') { ctx.beginPath(); ctx.arc(o.x, o.y, o.r, 0, Math.PI * 2); ctx.fillStyle = 'rgba(200,200,210,0.7)'; ctx.fill(); }
                 else if (o.t === 'p') _ssDrawPlanet(o.x, o.y, o.p, o.d);
             }
+        }
+
+        // Black hole (nebula auth theme — drawn behind stars)
+        if (_isNebula) {
+            const bhx = canvas.width * 0.5, bhy = canvas.height * 0.30;
+            // Back half of accretion disk (behind the void)
+            _bhDrawDisk(bhx, bhy, t);
+            // Particles — depth sorted, back half first
+            const _bp = [];
+            const tierColors = [
+                [200, 190, 255],  // inner — hot white-purple
+                [140, 120, 250],  // mid — rich purple
+                [56, 160, 248]    // outer — blue
+            ];
+            for (const p of _bhParticles) {
+                const ang = p.angle + t * p.speed;
+                const pr = _bhProject(bhx, bhy, p.dist, ang);
+                _bp.push({ x: pr.x, y: pr.y + p.yOff, d: pr.depth, r: p.r, a: p.a, tier: p.tier });
+            }
+            _bp.sort((a, b) => a.d - b.d);
+            // Draw back particles (behind void)
+            for (const p of _bp) {
+                if (p.d > 0.15) continue; // front half drawn after void
+                const c = tierColors[p.tier];
+                const da = p.a * (0.6 + p.d * 0.4);
+                ctx.globalAlpha = da;
+                ctx.fillStyle = `rgb(${c[0]},${c[1]},${c[2]})`;
+                ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctx.fill();
+            }
+            // Void + photon ring
+            _bhDrawVoid(bhx, bhy, t);
+            // Front particles (in front of void)
+            for (const p of _bp) {
+                if (p.d <= 0.15) continue;
+                const c = tierColors[p.tier];
+                const da = p.a * (0.7 + p.d * 0.3);
+                ctx.globalAlpha = da;
+                // Inner particles get a glow
+                if (p.tier === 0) {
+                    const glow = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r * 5);
+                    glow.addColorStop(0, `rgba(${c[0]},${c[1]},${c[2]},${da * 0.3})`);
+                    glow.addColorStop(1, `rgba(${c[0]},${c[1]},${c[2]},0)`);
+                    ctx.fillStyle = glow; ctx.beginPath(); ctx.arc(p.x, p.y, p.r * 5, 0, Math.PI * 2); ctx.fill();
+                }
+                ctx.fillStyle = `rgb(${c[0]},${c[1]},${c[2]})`;
+                ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctx.fill();
+            }
+            ctx.globalAlpha = 1;
         }
 
         // Spawn shooting stars
