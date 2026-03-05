@@ -103,8 +103,10 @@
         // Effects sliders → CSS variables
         if (overrides['--te-card-opacity'] !== undefined) {
             const op = parseFloat(overrides['--te-card-opacity']);
-            if (overrides['--bg-panel-solid']) {
-                const { r, g, b } = hexToRgb(overrides['--bg-panel-solid']);
+            // Always compute bg-panel from current panel-solid color
+            const panelHex = overrides['--bg-panel-solid'] || getCurrentHex('--bg-panel-solid');
+            if (panelHex) {
+                const { r, g, b } = hexToRgb(panelHex);
                 derived['--bg-panel'] = `rgba(${r},${g},${b},${op})`;
             }
             derived['--card-opacity'] = String(op);
@@ -123,7 +125,15 @@
             derived['--radius-xl'] = (parseFloat(overrides['--te-border-radius']) + 4) + 'px';
         }
         if (overrides['--te-glow-intensity'] !== undefined) {
-            derived['--glow-intensity'] = String(overrides['--te-glow-intensity']);
+            const gi = parseFloat(overrides['--te-glow-intensity']);
+            derived['--glow-intensity'] = String(gi);
+            // Compute accent glow shadow for glass-panel hover
+            const accentHex = overrides['--accent'] || getCurrentHex('--accent');
+            if (accentHex) {
+                const { r, g, b } = hexToRgb(accentHex);
+                derived['--panel-glow'] = `0 0 ${Math.round(gi * 40)}px rgba(${r},${g},${b},${(gi * 0.4).toFixed(2)}), 0 2px 8px rgba(0,0,0,0.15)`;
+                derived['--panel-glow-border'] = `rgba(${r},${g},${b},${(gi * 0.35).toFixed(2)})`;
+            }
         }
         if (overrides['--te-blur'] !== undefined) {
             derived['--glass-blur'] = overrides['--te-blur'] + 'px';

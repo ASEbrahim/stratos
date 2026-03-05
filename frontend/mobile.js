@@ -2704,17 +2704,99 @@ function _openFullscreenChartInner(sourceEl, title) {
     }
     _fs._fsRedrawCanvas = _fsRedrawCanvas;
 
-    /* Screenshot */
+    /* Screenshot — composites chart + drawings + header info + active tools */
     function _fsScreenshot() {
         try {
-            var canvas = chartEl.querySelector('canvas');
-            if (!canvas) return;
+            /* Find the main chart canvas (TV lightweight-charts) */
+            var tvCanvases = chartEl.querySelectorAll('canvas');
+            var mainCanvas = null;
+            for (var ci = 0; ci < tvCanvases.length; ci++) {
+                if (!tvCanvases[ci].classList.contains('cfs-draw-canvas') && tvCanvases[ci].width > 100) {
+                    mainCanvas = tvCanvases[ci]; break;
+                }
+            }
+            if (!mainCanvas) return;
+
+            var cw = mainCanvas.width, ch = mainCanvas.height;
+            var headerH = 48, footerH = 32, pad = 16;
+            var totalW = cw + pad * 2;
+            var totalH = ch + headerH + footerH + pad * 2;
+
+            var out = document.createElement('canvas');
+            out.width = totalW; out.height = totalH;
+            var ctx = out.getContext('2d');
+
+            /* Background */
+            ctx.fillStyle = '#0f1218';
+            ctx.fillRect(0, 0, totalW, totalH);
+
+            /* Header: ticker + price + change + timeframe */
+            ctx.fillStyle = '#1a1f2e';
+            ctx.fillRect(0, 0, totalW, headerH);
+            ctx.fillStyle = '#848e9c';
+            ctx.font = 'bold 14px ui-monospace, monospace';
+            var sym = _fs.symbol.replace(/-USD/,'').replace(/=F/,'').replace(/=X/,'');
+            ctx.fillText(sym, pad, 28);
+
+            var ad = (typeof _resolveData === 'function') ? _resolveData(_fs.symbol, _fs.tfKey) : null;
+            var price = ad ? (ad.price || 0) : 0;
+            var change = ad ? (ad.change || 0) : 0;
+            var symW = ctx.measureText(sym).width;
+            ctx.font = '13px ui-monospace, monospace';
+            ctx.fillStyle = change >= 0 ? '#0ECB81' : '#F6465D';
+            var priceStr = '$' + price.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
+            ctx.fillText(priceStr + '  ' + (change >= 0 ? '+' : '') + change.toFixed(2) + '%', pad + symW + 12, 28);
+
+            /* Timeframe label */
+            var tfLabel = (_fs.tfKey || '').replace('_','/').toUpperCase();
+            ctx.fillStyle = '#F0B90B';
+            ctx.font = 'bold 11px ui-monospace, monospace';
+            var tfW = ctx.measureText(tfLabel).width;
+            ctx.fillText(tfLabel, totalW - pad - tfW, 28);
+
+            /* Chart canvas */
+            ctx.drawImage(mainCanvas, pad, headerH);
+
+            /* Drawing overlay canvas */
+            if (_fs.drawCanvas && _fs.drawCanvas.width > 0) {
+                ctx.drawImage(_fs.drawCanvas, pad, headerH);
+            }
+
+            /* Footer: active drawing tools used */
+            ctx.fillStyle = '#1a1f2e';
+            ctx.fillRect(0, headerH + ch + pad, totalW, footerH + pad);
+            var tools = [];
+            if (_fs.drawings && _fs.drawings.length > 0) {
+                var types = {};
+                _fs.drawings.forEach(function(d) { if (d.type) types[d.type] = (types[d.type] || 0) + 1; });
+                var names = { trend:'Trend', ray:'Ray', hline:'H-Line', hray:'H-Ray', vline:'V-Line', channel:'Channel', fib:'Fib', rect:'Rect', longpos:'Long', shortpos:'Short', measure:'Measure', text:'Text' };
+                Object.keys(types).forEach(function(t) {
+                    tools.push((names[t] || t) + (types[t] > 1 ? ' x' + types[t] : ''));
+                });
+            }
+            if (_fs.maSeries && _fs.maSeries.length > 0) tools.push('MA');
+            if (_fs.crosshairOn) tools.push('Crosshair');
+            if (_fs.magnetOn) tools.push('Magnet');
+
+            ctx.font = '10px ui-monospace, monospace';
+            ctx.fillStyle = '#848e9c';
+            var toolStr = tools.length ? tools.join('  \u00b7  ') : 'No tools active';
+            ctx.fillText(toolStr, pad, headerH + ch + pad + 20);
+
+            /* Branding */
+            ctx.fillStyle = '#3a3f4c';
+            ctx.font = '9px ui-monospace, monospace';
+            var brand = 'STRAT_OS';
+            ctx.fillText(brand, totalW - pad - ctx.measureText(brand).width, headerH + ch + pad + 20);
+
+            /* Download */
             var link = document.createElement('a');
-            link.download = _fs.symbol + '_chart.png';
-            link.href = canvas.toDataURL('image/png');
+            link.download = 'STRAT_OS_' + sym + '_' + (_fs.tfKey || 'chart') + '_' + new Date().toISOString().slice(0,10) + '.png';
+            link.href = out.toDataURL('image/png');
             link.click();
             if (typeof showToast === 'function') showToast('Chart saved as PNG', 'success');
         } catch(e) {
+            console.error('[Focus] Screenshot error:', e);
             if (typeof showToast === 'function') showToast('Screenshot failed', 'error');
         }
     }

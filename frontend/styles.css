@@ -379,7 +379,7 @@ body { background-color: var(--bg-primary); color: var(--text-primary); }
 .ticker-scroll::-webkit-scrollbar-thumb { background: rgba(100,116,139,0.4); border-radius: 2px; }
 .ticker-scroll::-webkit-scrollbar-thumb:hover { background: rgba(100,116,139,0.6); }
 .glass-panel { background: var(--bg-panel); backdrop-filter: blur(var(--glass-blur, 10px)); -webkit-backdrop-filter: blur(var(--glass-blur, 10px)); border: 1px solid var(--border); border-radius: var(--radius-lg, 12px); transition: border-color 0.2s ease, box-shadow 0.2s ease; }
-.glass-panel:hover { border-color: var(--border-strong); box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
+.glass-panel:hover { border-color: var(--panel-glow-border, var(--border-strong)); box-shadow: var(--panel-glow, 0 2px 8px rgba(0,0,0,0.15)); }
 .active-nav { background: var(--accent-bg); color: var(--accent-light); border: 1px solid var(--accent-border); border-left: 3px solid var(--accent); font-weight: 600; }
 
 /* ═══════════════════════════════════════════════════
@@ -677,31 +677,35 @@ input::placeholder, textarea::placeholder {
 }
 .te-footer-hint {
     font-size: 8px; color: var(--text-faint); text-align: center;
-    letter-spacing: 0.03em;
+    letter-spacing: 0.03em; margin-bottom: 6px;
 }
 .te-preset-row {
-    display: flex; gap: 4px; padding: 6px 0 0;
+    display: flex; align-items: center; gap: 5px;
+    padding: 8px 12px; margin: 0 -14px -8px;
+    border-top: 1px solid var(--border); background: rgba(0,0,0,0.12);
 }
 .te-preset-select {
-    flex: 1; padding: 4px 8px; border-radius: 6px;
+    flex: 1; padding: 5px 8px; border-radius: 8px;
     border: 1px solid var(--border-strong); background: var(--bg-primary);
     color: var(--text-primary); font-size: 11px; font-family: inherit;
-    cursor: pointer;
+    cursor: pointer; outline: none; min-width: 0; transition: border-color 0.2s;
 }
+.te-preset-select:focus { border-color: var(--accent); }
 .te-btn-save {
-    padding: 4px 10px; border-radius: 6px;
-    border: 1px solid var(--accent); background: rgba(52,211,153,0.1);
-    color: var(--accent); font-size: 11px; font-weight: 600;
-    cursor: pointer; transition: background 0.2s;
+    padding: 5px 12px; border-radius: 8px;
+    border: 1px solid rgba(52,211,153,0.3); background: rgba(52,211,153,0.08);
+    color: var(--accent); font-size: 10px; font-weight: 700;
+    cursor: pointer; transition: all 0.2s; letter-spacing: 0.03em;
+    text-transform: uppercase; white-space: nowrap;
 }
-.te-btn-save:hover { background: rgba(52,211,153,0.2); }
+.te-btn-save:hover { background: rgba(52,211,153,0.18); border-color: rgba(52,211,153,0.5); }
 .te-btn-del {
-    padding: 4px 8px; border-radius: 6px;
-    border: 1px solid var(--border-strong); background: none;
+    padding: 5px 7px; border-radius: 8px;
+    border: 1px solid var(--border-strong); background: rgba(255,255,255,0.02);
     color: var(--text-muted); font-size: 11px; cursor: pointer;
-    transition: color 0.2s, border-color 0.2s;
+    transition: all 0.2s; line-height: 1;
 }
-.te-btn-del:hover { color: #f87171; border-color: #f87171; }
+.te-btn-del:hover { color: #f87171; border-color: rgba(248,113,113,0.4); background: rgba(248,113,113,0.08); }
 
 @media (max-width: 640px) {
     .te-container { right: 8px; left: 8px; width: auto; max-height: 75vh; }
