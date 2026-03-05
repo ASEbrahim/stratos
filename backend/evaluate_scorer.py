@@ -66,15 +66,17 @@ def score_with_ollama(messages: List[dict], model: str, host: str) -> Tuple[floa
                 "model": model,
                 "messages": messages[:2],  # system + user only
                 "stream": False,
-                "options": {"temperature": 0.1, "num_predict": 512},
+                "options": {"temperature": 0.1, "num_predict": 2048},
             },
             timeout=120,
         )
         if resp.status_code != 200:
             return -1.0, f"HTTP {resp.status_code}"
         raw = resp.json().get("message", {}).get("content", "")
-        # Strip think blocks
+        # Strip think blocks (closed and unclosed)
         raw = re.sub(r"<think>.*?</think>", "", raw, flags=re.DOTALL).strip()
+        if "<think>" in raw and "</think>" not in raw:
+            raw = re.sub(r"<think>.*$", "", raw, flags=re.DOTALL).strip()
         m = SCORE_RE.search(raw)
         if m:
             return float(m.group(1)), raw

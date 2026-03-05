@@ -102,7 +102,7 @@ def call_scorer(system_prompt, article_text):
                 "temperature": 0.6,
                 "top_p": 0.95,
                 "top_k": 20,
-                "num_predict": 512,
+                "num_predict": 2048,
                 "repeat_penalty": 1.1,
             }
         }, timeout=120)

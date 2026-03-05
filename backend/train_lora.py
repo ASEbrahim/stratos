@@ -813,7 +813,7 @@ PARAMETER stop "<|endoftext|>"
 PARAMETER temperature 0.6
 PARAMETER top_p 0.95
 PARAMETER top_k 20
-PARAMETER num_predict 512
+PARAMETER num_predict 2048
 PARAMETER repeat_penalty 1.1
 """
     
