@@ -931,6 +931,11 @@ Previous automated score was {first_score:.1f} (uncertain). Please re-evaluate c
         if clean == "__TIMEOUT__":
             return rule_score, "__DEFERRED__"
         if not clean:
+            # Think block consumed all output — try to extract score from it
+            if think_block:
+                fallback = self._extract_score_from_think(think_block)
+                if fallback:
+                    return fallback
             return rule_score, "LLM no response, using rule score"
 
         try:
@@ -950,7 +955,38 @@ Previous automated score was {first_score:.1f} (uncertain). Please re-evaluate c
         except (ValueError, AttributeError):
             pass
 
+        # Fallback: extract score from think block when SCORE line is missing
+        if think_block:
+            fallback = self._extract_score_from_think(think_block)
+            if fallback:
+                return fallback
+
         return rule_score, "LLM parse failed, using rule score"
+
+    def _extract_score_from_think(self, think_block: str) -> Optional[Tuple[float, str]]:
+        """Extract score from think block when model fails to produce SCORE line.
+
+        Qwen3 sometimes hits EOS inside <think> before outputting the structured
+        answer. The think block often contains 'Final score: X.X' or 'score: X.X'.
+        """
+        # Try common patterns the model uses inside think blocks
+        patterns = [
+            r'[Ff]inal\s+score:\s*(\d+\.?\d*)',
+            r'SCORE:\s*(\d+\.?\d*)',
+            r'[Ss]core:\s*(\d+\.?\d*)\s*[-—]',
+        ]
+        for pat in patterns:
+            m = re.search(pat, think_block)
+            if m:
+                score = max(0.0, min(10.0, float(m.group(1))))
+                if 4.8 <= score <= 5.2:
+                    score = 5.3 if score >= 5.0 else 4.8
+                # Extract reason from nearby text
+                reason_m = re.search(r'[Rr]eason:\s*(.+?)(?:\n|$)', think_block)
+                reason = reason_m.group(1).strip() if reason_m else "extracted from reasoning"
+                logger.debug(f"[THINK-EXTRACT] Recovered score {score:.1f} from think block")
+                return score, f"LLM(think): {reason}"
+        return None
 
     # ─── Batch LLM scoring (3-4 items per call) ──────────────────
 
