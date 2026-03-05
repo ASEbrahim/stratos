@@ -148,9 +148,6 @@ function _backdrop(inner) {
         <div class="auth-stars" id="auth-star-field">
             <canvas id="auth-star-canvas"></canvas>
         </div>
-        <div class="auth-orb auth-orb-1" style="background:radial-gradient(circle,${_t.orb1} 0%,transparent 70%);"></div>
-        <div class="auth-orb auth-orb-2" style="background:radial-gradient(circle,${_t.orb2} 0%,transparent 70%);"></div>
-        <div class="auth-orb auth-orb-3" style="background:radial-gradient(circle,${_t.orb3} 0%,transparent 70%);"></div>
         ${inner}
     </div>`;
 }
@@ -169,6 +166,7 @@ function _initStarParallax() {
     const LINE_MOUSE_RANGE = 250;
     const DRIFT_SPEED = 0.12;
     const _isCosmos = _t.name === 'Cosmos';
+    const _isSakura = _t.name === 'Sakura';
 
     // Solar system data (cosmos auth theme - tilted perspective)
     const _SS_TILT = 0.38, _SS_ROT = -0.15;
@@ -275,6 +273,7 @@ function _initStarParallax() {
     for (let i = 0; i < COUNT; i++) {
         const pick = pickStar();
         const isBright = pick.bright;
+        const petal = _isSakura && Math.random() < 0.35;
         stars.push({
             x: Math.random() * canvas.width,
             y: Math.random() * canvas.height,
@@ -284,7 +283,13 @@ function _initStarParallax() {
             speed: Math.random() * 0.15 + 0.03,
             phase: Math.random() * Math.PI * 2,
             cr: pick.c.r, cg: pick.c.g, cb: pick.c.b,
-            isBright: isBright
+            isBright: isBright,
+            petal: petal,
+            petalAngle: Math.random() * Math.PI * 2,
+            petalSpin: (Math.random() - 0.5) * 0.008,
+            petalSize: petal ? Math.random() * 3 + 2.5 : 0,
+            petalSway: petal ? Math.random() * 0.4 + 0.2 : 0,
+            petalFall: petal ? Math.random() * 0.25 + 0.1 : 0
         });
         stars[i].baseX = stars[i].x;
         stars[i].baseY = stars[i].y;
@@ -375,13 +380,23 @@ function _initStarParallax() {
         for (let i = 0; i < stars.length; i++) {
             const s = stars[i];
 
-            // Gentle upward drift
-            s.baseY -= DRIFT_SPEED;
-            if (s.baseY < -10) {
-                s.baseY = canvas.height + 10;
-                s.baseX = Math.random() * canvas.width;
-                s.y = s.baseY;
-                s.x = s.baseX;
+            // Gentle drift — petals fall down, stars drift up
+            if (_isSakura && s.petal) {
+                s.baseY += s.petalFall;
+                s.baseX += Math.sin(t * s.petalSway + s.phase) * 0.25;
+                s.petalAngle += s.petalSpin;
+                if (s.baseY > canvas.height + 15) {
+                    s.baseY = -10;
+                    s.baseX = Math.random() * canvas.width;
+                    s.y = s.baseY; s.x = s.baseX;
+                }
+            } else {
+                s.baseY -= DRIFT_SPEED;
+                if (s.baseY < -10) {
+                    s.baseY = canvas.height + 10;
+                    s.baseX = Math.random() * canvas.width;
+                    s.y = s.baseY; s.x = s.baseX;
+                }
             }
 
             let drawX = s.baseX, drawY = s.baseY;
@@ -408,16 +423,40 @@ function _initStarParallax() {
             const radius = s.r * ((!isTouch && dist < MOUSE_RADIUS) ? 1 + (1 - dist / MOUSE_RADIUS) * 0.4 : 1);
 
             ctx.globalAlpha = alpha;
-            ctx.fillStyle = `rgb(${s.cr},${s.cg},${s.cb})`;
-            ctx.beginPath();
-            ctx.arc(s.x, s.y, radius, 0, Math.PI * 2);
-            ctx.fill();
+
+            // Sakura petals: bezier petal shape with notch
+            if (_isSakura && s.petal) {
+                const sz = s.petalSize * ((!isTouch && dist < MOUSE_RADIUS) ? 1 + (1 - dist / MOUSE_RADIUS) * 0.3 : 1);
+                ctx.save();
+                ctx.translate(s.x, s.y);
+                ctx.rotate(s.petalAngle);
+                ctx.fillStyle = `rgba(${s.cr},${s.cg},${s.cb},${alpha})`;
+                ctx.beginPath();
+                ctx.moveTo(0, sz * 1.6);
+                ctx.bezierCurveTo(sz * 1.2, sz * 0.8, sz * 1.4, -sz * 0.6, sz * 0.3, -sz * 1.2);
+                ctx.quadraticCurveTo(0, -sz * 0.7, -sz * 0.3, -sz * 1.2);
+                ctx.bezierCurveTo(-sz * 1.4, -sz * 0.6, -sz * 1.2, sz * 0.8, 0, sz * 1.6);
+                ctx.fill();
+                ctx.globalAlpha = alpha * 0.15;
+                ctx.strokeStyle = `rgb(${s.cr},${s.cg},${s.cb})`;
+                ctx.lineWidth = 0.4;
+                ctx.beginPath();
+                ctx.moveTo(0, sz * 1.4);
+                ctx.quadraticCurveTo(0, 0, 0, -sz * 0.8);
+                ctx.stroke();
+                ctx.restore();
+            } else {
+                ctx.fillStyle = `rgb(${s.cr},${s.cg},${s.cb})`;
+                ctx.beginPath();
+                ctx.arc(s.x, s.y, radius, 0, Math.PI * 2);
+                ctx.fill();
+            }
 
             // Soft glow on bright stars near cursor
             if (!isTouch && s.isBright && dist < MOUSE_RADIUS * 0.7) {
-                ctx.globalAlpha = alpha * 0.15;
+                ctx.globalAlpha = alpha * 0.12;
                 ctx.beginPath();
-                ctx.arc(s.x, s.y, radius * 4, 0, Math.PI * 2);
+                ctx.arc(s.x, s.y, radius * 3.5, 0, Math.PI * 2);
                 ctx.fill();
             }
 
