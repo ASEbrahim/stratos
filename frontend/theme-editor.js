@@ -395,6 +395,9 @@
         const cx = parseFloat(localStorage.getItem('stratos-cosmos-cx') || '0.5');
         const cy = parseFloat(localStorage.getItem('stratos-cosmos-cy') || '0.35');
         const scale = parseFloat(localStorage.getItem('stratos-cosmos-scale') || '1');
+        const blur = parseFloat(localStorage.getItem('stratos-cosmos-blur') || '0');
+        const opacity = parseFloat(localStorage.getItem('stratos-cosmos-opacity') || '1');
+        const density = parseFloat(localStorage.getItem('stratos-cosmos-density') || '1');
 
         section.innerHTML = `
             <div class="te-group-label">Solar System</div>
@@ -427,6 +430,21 @@
                         <input type="range" class="te-range-slider" id="te-cosmos-scale" min="0.3" max="2.5" step="0.05" value="${scale}" style="flex:1;" />
                         <span class="te-range-val" id="te-cosmos-scale-val">${scale.toFixed(2)}x</span>
                     </div>
+                    <label class="te-color-label" style="margin-bottom:2px;margin-top:6px;display:block;">Blur</label>
+                    <div style="display:flex;align-items:center;gap:8px;">
+                        <input type="range" class="te-range-slider" id="te-cosmos-blur" min="0" max="8" step="0.5" value="${blur}" style="flex:1;" />
+                        <span class="te-range-val" id="te-cosmos-blur-val">${blur.toFixed(1)}px</span>
+                    </div>
+                    <label class="te-color-label" style="margin-bottom:2px;margin-top:6px;display:block;">Opacity</label>
+                    <div style="display:flex;align-items:center;gap:8px;">
+                        <input type="range" class="te-range-slider" id="te-cosmos-opacity" min="0.05" max="1" step="0.05" value="${opacity}" style="flex:1;" />
+                        <span class="te-range-val" id="te-cosmos-opacity-val">${Math.round(opacity*100)}%</span>
+                    </div>
+                    <label class="te-color-label" style="margin-bottom:2px;margin-top:6px;display:block;">Density</label>
+                    <div style="display:flex;align-items:center;gap:8px;">
+                        <input type="range" class="te-range-slider" id="te-cosmos-density" min="0.2" max="2" step="0.1" value="${density}" style="flex:1;" />
+                        <span class="te-range-val" id="te-cosmos-density-val">${density.toFixed(1)}x</span>
+                    </div>
                 </div>
             </div>
         `;
@@ -457,14 +475,23 @@
         document.addEventListener('touchmove', (e) => { if (dragging) updatePos(e.touches[0]); }, { passive: false });
         document.addEventListener('touchend', () => { dragging = false; });
 
-        // Wire up scale slider
-        const scaleSlider = section.querySelector('#te-cosmos-scale');
-        const scaleVal = section.querySelector('#te-cosmos-scale-val');
-        scaleSlider.addEventListener('input', (e) => {
-            const v = parseFloat(e.target.value);
-            scaleVal.textContent = v.toFixed(2) + 'x';
-            localStorage.setItem('stratos-cosmos-scale', v.toFixed(2));
-        });
+        // Wire up sliders
+        function _wireSlider(id, valId, key, fmt) {
+            const sl = section.querySelector(id);
+            const vl = section.querySelector(valId);
+            if (!sl) return;
+            sl.addEventListener('input', (e) => {
+                const v = parseFloat(e.target.value);
+                vl.textContent = fmt(v);
+                localStorage.setItem(key, v.toString());
+                // Density triggers star re-init
+                if (key === 'stratos-cosmos-density' && typeof renderStars === 'function') renderStars();
+            });
+        }
+        _wireSlider('#te-cosmos-scale', '#te-cosmos-scale-val', 'stratos-cosmos-scale', v => v.toFixed(2) + 'x');
+        _wireSlider('#te-cosmos-blur', '#te-cosmos-blur-val', 'stratos-cosmos-blur', v => v.toFixed(1) + 'px');
+        _wireSlider('#te-cosmos-opacity', '#te-cosmos-opacity-val', 'stratos-cosmos-opacity', v => Math.round(v * 100) + '%');
+        _wireSlider('#te-cosmos-density', '#te-cosmos-density-val', 'stratos-cosmos-density', v => v.toFixed(1) + 'x');
     }
 
     function applyAndSave(varName, hex) {

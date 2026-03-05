@@ -244,7 +244,8 @@ function renderStars() {
 
     const isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
     const isMobile = window.innerWidth <= 768;
-    const COUNT = isMobile ? 30 : 200;
+    const _cosmosDensityInit = isCosmos ? parseFloat(localStorage.getItem('stratos-cosmos-density') || '1') : 1;
+    const COUNT = Math.round((isMobile ? 30 : 200) * _cosmosDensityInit);
     const MOUSE_RADIUS = 150;
     const LINE_RADIUS = 120;
     const LINE_MOUSE_RANGE = 240;
@@ -279,9 +280,10 @@ function renderStars() {
         { dist: 555, r: 6,   color: [65,100,210],  speed: 0.006,phase: Math.random() * Math.PI * 2 },
     ];
     const _ssPlanets = isCosmos ? (_ssPreset === 'P2' ? _ssP2Planets : _ssP1Planets) : [];
+    const _ssDensity = parseFloat(localStorage.getItem('stratos-cosmos-density') || '1');
     const _ssAsteroids = [];
     if (isCosmos) {
-        const aCount = _ssPreset === 'P2' ? 100 : 80;
+        const aCount = Math.round((_ssPreset === 'P2' ? 100 : 80) * _ssDensity);
         for (let ai = 0; ai < aCount; ai++) {
             _ssAsteroids.push({
                 dist: (_ssPreset === 'P2' ? 232 : 252) + Math.random() * (_ssPreset === 'P2' ? 38 : 30),
@@ -478,8 +480,12 @@ function renderStars() {
             const _cxPct = parseFloat(localStorage.getItem('stratos-cosmos-cx') || '0.5');
             const _cyPct = parseFloat(localStorage.getItem('stratos-cosmos-cy') || '0.35');
             const _sScale = parseFloat(localStorage.getItem('stratos-cosmos-scale') || '1');
+            const _ssOpacity = parseFloat(localStorage.getItem('stratos-cosmos-opacity') || '1');
+            const _ssBlur = parseFloat(localStorage.getItem('stratos-cosmos-blur') || '0');
             const scx = canvas.width * _cxPct, scy = canvas.height * _cyPct;
             ctx.save();
+            ctx.globalAlpha = _ssOpacity;
+            if (_ssBlur > 0) ctx.filter = `blur(${_ssBlur}px)`;
             ctx.translate(scx, scy);
             ctx.scale(_sScale, _sScale);
             ctx.translate(-scx, -scy);
