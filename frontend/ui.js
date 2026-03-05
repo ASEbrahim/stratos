@@ -46,6 +46,7 @@ function setTheme(theme) {
     // Preserve stars toggle UI across theme switches
     const starsOn = localStorage.getItem('stratos-stars') === 'true';
     updateStarsToggleUI(starsOn);
+    updateCosmosPresetUI();
 
     if (window._themeEditor) window._themeEditor.onThemeChange();
     if (!_isApplyingFromServer) _syncUiStateToServer();
@@ -126,6 +127,7 @@ function toggleStars() {
     const starsOn = localStorage.getItem('stratos-stars') !== 'true';
     localStorage.setItem('stratos-stars', starsOn ? 'true' : 'false');
     updateStarsToggleUI(starsOn);
+    updateCosmosPresetUI();
     renderStars();
     if (!_isApplyingFromServer) _syncUiStateToServer();
 }
@@ -151,6 +153,34 @@ function updateStarsToggleUI(starsOn) {
         icon.textContent = '✧';
         label.textContent = 'Stars';
     }
+}
+
+// Cosmos solar system preset toggle (P1 = classic, P2 = tilted)
+function setCosmosPreset(preset) {
+    localStorage.setItem('stratos-cosmos-preset', preset);
+    updateCosmosPresetUI();
+    renderStars(); // re-init with new preset
+}
+
+function updateCosmosPresetUI() {
+    const wrap = document.getElementById('cosmos-preset-wrap');
+    if (!wrap) return;
+    const theme = document.documentElement.getAttribute('data-theme');
+    const starsOn = localStorage.getItem('stratos-stars') === 'true';
+    wrap.style.display = (theme === 'cosmos' && starsOn) ? 'flex' : 'none';
+    const cur = localStorage.getItem('stratos-cosmos-preset') || 'P1';
+    const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
+    document.querySelectorAll('.cosmos-preset-btn').forEach(btn => {
+        if (btn.dataset.preset === cur) {
+            btn.style.color = accent;
+            btn.style.borderColor = accent + '40';
+            btn.style.background = accent + '10';
+        } else {
+            btn.style.color = 'var(--text-muted)';
+            btn.style.borderColor = 'var(--border-strong)';
+            btn.style.background = 'transparent';
+        }
+    });
 }
 
 /* ═══ INTERACTIVE STAR CANVAS ENGINE ═══ */
@@ -224,8 +254,11 @@ function renderStars() {
     const isSakura = theme === 'sakura';
     const isCosmos = theme === 'cosmos';
 
-    // Solar system data (cosmos theme only)
-    const _ssPlanets = isCosmos ? [
+    // Solar system data (cosmos theme only - supports P1 classic & P2 tilted)
+    const _ssPreset = isCosmos ? (localStorage.getItem('stratos-cosmos-preset') || 'P1') : '';
+    const _SS_TILT = 0.38, _SS_ROT = -0.15;
+    // P1: hex colors for classic flat view; P2: rgb arrays for tilted perspective
+    const _ssP1Planets = [
         { dist: 55,  r: 2.5, color: '#b0a090', speed: 4.15,  phase: Math.random() * Math.PI * 2 },
         { dist: 80,  r: 4,   color: '#e8c77a', speed: 1.62,  phase: Math.random() * Math.PI * 2 },
         { dist: 110, r: 4.2, color: '#5b9bd5', speed: 1.0,   phase: Math.random() * Math.PI * 2 },
@@ -234,16 +267,29 @@ function renderStars() {
         { dist: 260, r: 7,   color: '#c9b77a', speed: 0.034, phase: Math.random() * Math.PI * 2, rings: true },
         { dist: 320, r: 5,   color: '#7ec8c8', speed: 0.012, phase: Math.random() * Math.PI * 2 },
         { dist: 380, r: 4.8, color: '#4a6ad4', speed: 0.006, phase: Math.random() * Math.PI * 2 },
-    ] : [];
+    ];
+    const _ssP2Planets = [
+        { dist: 48,  r: 2,   color: [176,160,144], speed: 4.2,  phase: Math.random() * Math.PI * 2 },
+        { dist: 72,  r: 3.5, color: [232,199,122], speed: 1.65, phase: Math.random() * Math.PI * 2 },
+        { dist: 100, r: 3.5, color: [70,140,210],  speed: 1.0,  phase: Math.random() * Math.PI * 2, moon: { dist: 10, r: 1, speed: 5 } },
+        { dist: 132, r: 2.8, color: [210,100,60],  speed: 0.53, phase: Math.random() * Math.PI * 2 },
+        { dist: 190, r: 7.5, color: [210,165,90],  speed: 0.084,phase: Math.random() * Math.PI * 2 },
+        { dist: 248, r: 6,   color: [195,178,115], speed: 0.034,phase: Math.random() * Math.PI * 2, rings: true },
+        { dist: 310, r: 4.2, color: [120,195,195], speed: 0.012,phase: Math.random() * Math.PI * 2 },
+        { dist: 370, r: 4,   color: [65,100,210],  speed: 0.006,phase: Math.random() * Math.PI * 2 },
+    ];
+    const _ssPlanets = isCosmos ? (_ssPreset === 'P2' ? _ssP2Planets : _ssP1Planets) : [];
     const _ssAsteroids = [];
     if (isCosmos) {
-        for (let ai = 0; ai < 80; ai++) {
+        const aCount = _ssPreset === 'P2' ? 100 : 80;
+        for (let ai = 0; ai < aCount; ai++) {
             _ssAsteroids.push({
-                dist: 168 + Math.random() * 20,
+                dist: (_ssPreset === 'P2' ? 155 : 168) + Math.random() * (_ssPreset === 'P2' ? 25 : 20),
                 angle: Math.random() * Math.PI * 2,
-                speed: 0.15 + Math.random() * 0.1,
-                r: Math.random() * 0.8 + 0.3,
-                a: Math.random() * 0.4 + 0.15
+                speed: 0.12 + Math.random() * 0.1,
+                r: Math.random() * 0.7 + 0.2,
+                a: Math.random() * (_ssPreset === 'P2' ? 0.3 : 0.4) + (_ssPreset === 'P2' ? 0.05 : 0.15),
+                yOff: _ssPreset === 'P2' ? (Math.random() - 0.5) * 4 : 0
             });
         }
     }
@@ -329,29 +375,62 @@ function renderStars() {
 
     let raf = 0;
 
-    // Solar system helpers (cosmos theme)
+    // Solar system helpers (cosmos theme - P1 classic + P2 tilted)
     function _ssLighten(hex, pct) {
         const n = parseInt(hex.slice(1), 16);
         let r = (n >> 16) + pct, g = ((n >> 8) & 0xff) + pct, b = (n & 0xff) + pct;
         return `rgb(${Math.min(255,r)},${Math.min(255,g)},${Math.min(255,b)})`;
     }
-    function _ssDrawSun(cx, cy, t) {
-        const pulse = 1 + Math.sin(t * 0.5) * 0.08;
-        const r = 22 * pulse;
-        const g3 = ctx.createRadialGradient(cx, cy, r, cx, cy, r * 6);
-        g3.addColorStop(0, 'rgba(232,185,49,0.12)'); g3.addColorStop(1, 'rgba(232,185,49,0)');
-        ctx.fillStyle = g3; ctx.beginPath(); ctx.arc(cx, cy, r * 6, 0, Math.PI * 2); ctx.fill();
-        const g2 = ctx.createRadialGradient(cx, cy, r * 0.5, cx, cy, r * 2.5);
-        g2.addColorStop(0, 'rgba(255,210,80,0.4)'); g2.addColorStop(1, 'rgba(232,185,49,0)');
-        ctx.fillStyle = g2; ctx.beginPath(); ctx.arc(cx, cy, r * 2.5, 0, Math.PI * 2); ctx.fill();
-        const g1 = ctx.createRadialGradient(cx, cy, 0, cx, cy, r);
-        g1.addColorStop(0, '#fff8e0'); g1.addColorStop(0.3, '#ffd54f');
-        g1.addColorStop(0.7, '#e8b931'); g1.addColorStop(1, '#c98a1a');
-        ctx.fillStyle = g1; ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.fill();
+    // P2 tilted helpers
+    function _ssProject(cx, cy, dist, angle) {
+        const x3 = Math.cos(angle) * dist, y3 = Math.sin(angle) * dist;
+        const cr = Math.cos(_SS_ROT), sr = Math.sin(_SS_ROT);
+        return { x: cx + x3 * cr - y3 * sr, y: cy + (x3 * sr + y3 * cr) * _SS_TILT, depth: Math.sin(angle) };
     }
-    function _ssDrawPlanet(cx, cy, p, angle) {
-        const px = cx + Math.cos(angle) * p.dist;
-        const py = cy + Math.sin(angle) * p.dist;
+    function _ssTiltedOrbit(cx, cy, dist, alpha) {
+        ctx.save(); ctx.translate(cx, cy); ctx.rotate(_SS_ROT); ctx.scale(1, _SS_TILT);
+        ctx.beginPath(); ctx.arc(0, 0, dist, 0, Math.PI * 2);
+        ctx.strokeStyle = `rgba(120,150,210,${alpha})`; ctx.lineWidth = 0.5; ctx.stroke(); ctx.restore();
+    }
+    // Sun — shared by both presets (P2 has extra detail)
+    function _ssDrawSun(cx, cy, t) {
+        const pulse = 1 + Math.sin(t * 0.5) * (_ssPreset === 'P2' ? 0.05 : 0.08);
+        const r = (_ssPreset === 'P2' ? 20 : 22) * pulse;
+        if (_ssPreset === 'P2') {
+            const g4 = ctx.createRadialGradient(cx, cy, r, cx, cy, r * 10);
+            g4.addColorStop(0, 'rgba(232,185,49,0.08)'); g4.addColorStop(0.4, 'rgba(232,185,49,0.02)'); g4.addColorStop(1, 'rgba(232,185,49,0)');
+            ctx.fillStyle = g4; ctx.beginPath(); ctx.arc(cx, cy, r * 10, 0, Math.PI * 2); ctx.fill();
+            const g3 = ctx.createRadialGradient(cx, cy, r * 0.8, cx, cy, r * 3.5);
+            g3.addColorStop(0, 'rgba(255,220,100,0.35)'); g3.addColorStop(0.5, 'rgba(232,185,49,0.1)'); g3.addColorStop(1, 'rgba(232,185,49,0)');
+            ctx.fillStyle = g3; ctx.beginPath(); ctx.arc(cx, cy, r * 3.5, 0, Math.PI * 2); ctx.fill();
+            const g2 = ctx.createRadialGradient(cx, cy, 0, cx, cy, r * 1.5);
+            g2.addColorStop(0, 'rgba(255,245,220,0.6)'); g2.addColorStop(1, 'rgba(232,185,49,0)');
+            ctx.fillStyle = g2; ctx.beginPath(); ctx.arc(cx, cy, r * 1.5, 0, Math.PI * 2); ctx.fill();
+        } else {
+            const g3 = ctx.createRadialGradient(cx, cy, r, cx, cy, r * 6);
+            g3.addColorStop(0, 'rgba(232,185,49,0.12)'); g3.addColorStop(1, 'rgba(232,185,49,0)');
+            ctx.fillStyle = g3; ctx.beginPath(); ctx.arc(cx, cy, r * 6, 0, Math.PI * 2); ctx.fill();
+            const g2 = ctx.createRadialGradient(cx, cy, r * 0.5, cx, cy, r * 2.5);
+            g2.addColorStop(0, 'rgba(255,210,80,0.4)'); g2.addColorStop(1, 'rgba(232,185,49,0)');
+            ctx.fillStyle = g2; ctx.beginPath(); ctx.arc(cx, cy, r * 2.5, 0, Math.PI * 2); ctx.fill();
+        }
+        const g1 = ctx.createRadialGradient(cx, cy, 0, cx, cy, r);
+        g1.addColorStop(0, '#fff8e0'); g1.addColorStop(0.2, _ssPreset === 'P2' ? '#ffe566' : '#ffd54f');
+        g1.addColorStop(0.5, _ssPreset === 'P2' ? '#f0c030' : '#ffd54f');
+        g1.addColorStop(0.8, '#e8b931'); g1.addColorStop(1, _ssPreset === 'P2' ? '#c08520' : '#c98a1a');
+        ctx.fillStyle = g1; ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.fill();
+        if (_ssPreset === 'P2') {
+            for (let i = 0; i < 3; i++) {
+                const a = t * 0.3 + i * 2.1, hx = cx + Math.cos(a) * r * 0.4, hy = cy + Math.sin(a) * r * 0.4;
+                const hg = ctx.createRadialGradient(hx, hy, 0, hx, hy, r * 0.3);
+                hg.addColorStop(0, 'rgba(255,255,230,0.3)'); hg.addColorStop(1, 'rgba(255,255,230,0)');
+                ctx.fillStyle = hg; ctx.beginPath(); ctx.arc(hx, hy, r * 0.3, 0, Math.PI * 2); ctx.fill();
+            }
+        }
+    }
+    // P1 planet (hex colors, flat orbits)
+    function _ssDrawPlanetP1(cx, cy, p, angle) {
+        const px = cx + Math.cos(angle) * p.dist, py = cy + Math.sin(angle) * p.dist;
         const glow = ctx.createRadialGradient(px, py, 0, px, py, p.r * 3);
         glow.addColorStop(0, p.color + '40'); glow.addColorStop(1, p.color + '00');
         ctx.fillStyle = glow; ctx.beginPath(); ctx.arc(px, py, p.r * 3, 0, Math.PI * 2); ctx.fill();
@@ -367,6 +446,26 @@ function renderStars() {
             ctx.restore();
         }
     }
+    // P2 planet (rgb array colors, depth-based sizing)
+    function _ssDrawPlanetP2(px, py, p, depth) {
+        const c = p.color, ds = 1 + depth * 0.08, r = p.r * ds;
+        const glow = ctx.createRadialGradient(px, py, 0, px, py, r * 4);
+        glow.addColorStop(0, `rgba(${c[0]},${c[1]},${c[2]},0.18)`); glow.addColorStop(1, `rgba(${c[0]},${c[1]},${c[2]},0)`);
+        ctx.fillStyle = glow; ctx.beginPath(); ctx.arc(px, py, r * 4, 0, Math.PI * 2); ctx.fill();
+        const bg = ctx.createRadialGradient(px - r * 0.35, py - r * 0.35, 0, px + r * 0.2, py + r * 0.2, r * 1.2);
+        bg.addColorStop(0, `rgba(${Math.min(255,c[0]+50)},${Math.min(255,c[1]+50)},${Math.min(255,c[2]+50)},1)`);
+        bg.addColorStop(0.6, `rgba(${c[0]},${c[1]},${c[2]},1)`);
+        bg.addColorStop(1, `rgba(${Math.max(0,c[0]-40)},${Math.max(0,c[1]-40)},${Math.max(0,c[2]-40)},1)`);
+        ctx.fillStyle = bg; ctx.beginPath(); ctx.arc(px, py, r, 0, Math.PI * 2); ctx.fill();
+        if (p.rings) {
+            ctx.save(); ctx.translate(px, py); ctx.rotate(_SS_ROT * 0.5); ctx.scale(1, 0.28);
+            [{ m: 1.8, a: 0.4, w: 2.5 }, { m: 2.15, a: 0.25, w: 2 }, { m: 2.5, a: 0.12, w: 1.2 }].forEach(ri => {
+                ctx.beginPath(); ctx.arc(0, 0, r * ri.m, 0, Math.PI * 2);
+                ctx.strokeStyle = `rgba(${c[0]},${c[1]},${c[2]},${ri.a})`; ctx.lineWidth = ri.w; ctx.stroke();
+            });
+            ctx.restore();
+        }
+    }
 
     function draw() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -377,23 +476,47 @@ function renderStars() {
         // Solar system (cosmos theme - drawn first, behind stars)
         if (isCosmos) {
             const scx = canvas.width * 0.5, scy = canvas.height * 0.5;
-            // Orbit lines
-            for (const p of _ssPlanets) {
-                ctx.beginPath(); ctx.arc(scx, scy, p.dist, 0, Math.PI * 2);
-                ctx.strokeStyle = 'rgba(150,170,220,0.08)'; ctx.lineWidth = 0.5; ctx.stroke();
+            if (_ssPreset === 'P2') {
+                // P2: Tilted perspective with depth sorting
+                for (const p of _ssPlanets) _ssTiltedOrbit(scx, scy, p.dist, 0.07);
+                _ssTiltedOrbit(scx, scy, 155, 0.03); _ssTiltedOrbit(scx, scy, 180, 0.03);
+                const _rr = [];
+                for (const a of _ssAsteroids) {
+                    const pr = _ssProject(scx, scy, a.dist, a.angle + t * a.speed);
+                    _rr.push({ t: 'a', x: pr.x, y: pr.y + a.yOff, d: pr.depth, r: a.r, a: a.a });
+                }
+                for (const p of _ssPlanets) {
+                    const ang = p.phase + t * p.speed * 0.15;
+                    const pr = _ssProject(scx, scy, p.dist, ang);
+                    _rr.push({ t: 'p', x: pr.x, y: pr.y, d: pr.depth, p, ang });
+                    if (p.moon) {
+                        const mAng = ang + t * p.moon.speed * 0.3;
+                        const mp = _ssProject(pr.x, pr.y, p.moon.dist, mAng);
+                        _rr.push({ t: 'm', x: mp.x, y: mp.y, d: pr.depth + mp.depth * 0.01, r: p.moon.r });
+                    }
+                }
+                _rr.push({ t: 's', x: scx, y: scy, d: 0 });
+                _rr.sort((a, b) => a.d - b.d);
+                for (const o of _rr) {
+                    if (o.t === 'a') { ctx.beginPath(); ctx.arc(o.x, o.y, o.r, 0, Math.PI * 2); ctx.fillStyle = `rgba(150,140,120,${o.a})`; ctx.fill(); }
+                    else if (o.t === 's') _ssDrawSun(scx, scy, t);
+                    else if (o.t === 'm') { ctx.beginPath(); ctx.arc(o.x, o.y, o.r, 0, Math.PI * 2); ctx.fillStyle = 'rgba(200,200,210,0.7)'; ctx.fill(); }
+                    else if (o.t === 'p') _ssDrawPlanetP2(o.x, o.y, o.p, o.d);
+                }
+            } else {
+                // P1: Classic flat orbits
+                for (const p of _ssPlanets) {
+                    ctx.beginPath(); ctx.arc(scx, scy, p.dist, 0, Math.PI * 2);
+                    ctx.strokeStyle = 'rgba(150,170,220,0.08)'; ctx.lineWidth = 0.5; ctx.stroke();
+                }
+                for (const a of _ssAsteroids) {
+                    const ang = a.angle + t * a.speed;
+                    ctx.beginPath(); ctx.arc(scx + Math.cos(ang) * a.dist, scy + Math.sin(ang) * a.dist, a.r, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(160,150,130,${a.a})`; ctx.fill();
+                }
+                for (const p of _ssPlanets) _ssDrawPlanetP1(scx, scy, p, p.phase + t * p.speed * 0.15);
+                _ssDrawSun(scx, scy, t);
             }
-            // Asteroids
-            for (const a of _ssAsteroids) {
-                const ang = a.angle + t * a.speed;
-                ctx.beginPath(); ctx.arc(scx + Math.cos(ang) * a.dist, scy + Math.sin(ang) * a.dist, a.r, 0, Math.PI * 2);
-                ctx.fillStyle = `rgba(160,150,130,${a.a})`; ctx.fill();
-            }
-            // Planets
-            for (const p of _ssPlanets) {
-                _ssDrawPlanet(scx, scy, p, p.phase + t * p.speed * 0.15);
-            }
-            // Sun on top
-            _ssDrawSun(scx, scy, t);
         }
 
         // Shooting stars
@@ -583,6 +706,7 @@ setTheme(savedTheme);
 // Restore stars toggle
 const savedStars = localStorage.getItem('stratos-stars') === 'true';
 updateStarsToggleUI(savedStars);
+updateCosmosPresetUI();
 
 // === UI STATE SYNC (cross-device theme/stars persistence) ===
 
