@@ -244,16 +244,17 @@ function renderStars() {
 
     const isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
     const isMobile = window.innerWidth <= 768;
+
+    const theme = document.documentElement.getAttribute('data-theme');
+    const isSakura = theme === 'sakura';
+    const isCosmos = theme === 'cosmos';
+
     const _cosmosDensityInit = isCosmos ? parseFloat(localStorage.getItem('stratos-cosmos-density') || '1') : 1;
     const COUNT = Math.round((isMobile ? 30 : 200) * _cosmosDensityInit);
     const MOUSE_RADIUS = 150;
     const LINE_RADIUS = 120;
     const LINE_MOUSE_RANGE = 240;
     const DRIFT_SPEED = 0.06;
-
-    const theme = document.documentElement.getAttribute('data-theme');
-    const isSakura = theme === 'sakura';
-    const isCosmos = theme === 'cosmos';
 
     // Solar system data (cosmos theme only - supports P1 classic & P2 tilted)
     const _ssPreset = isCosmos ? (localStorage.getItem('stratos-cosmos-preset') || 'P1') : '';
