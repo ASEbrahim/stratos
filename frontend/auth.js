@@ -203,15 +203,15 @@ function _initStarParallax() {
     }
     function _ssDrawSun(cx, cy, t) {
         const pulse = 1 + Math.sin(t * 0.5) * 0.05, r = 30 * pulse;
-        const g4 = ctx.createRadialGradient(cx, cy, r, cx, cy, r * 10);
-        g4.addColorStop(0, 'rgba(232,185,49,0.08)'); g4.addColorStop(0.4, 'rgba(232,185,49,0.02)'); g4.addColorStop(1, 'rgba(232,185,49,0)');
-        ctx.fillStyle = g4; ctx.beginPath(); ctx.arc(cx, cy, r * 10, 0, Math.PI * 2); ctx.fill();
-        const g3 = ctx.createRadialGradient(cx, cy, r * 0.8, cx, cy, r * 3.5);
-        g3.addColorStop(0, 'rgba(255,220,100,0.35)'); g3.addColorStop(0.5, 'rgba(232,185,49,0.1)'); g3.addColorStop(1, 'rgba(232,185,49,0)');
-        ctx.fillStyle = g3; ctx.beginPath(); ctx.arc(cx, cy, r * 3.5, 0, Math.PI * 2); ctx.fill();
-        const g2 = ctx.createRadialGradient(cx, cy, 0, cx, cy, r * 1.5);
-        g2.addColorStop(0, 'rgba(255,245,220,0.6)'); g2.addColorStop(1, 'rgba(232,185,49,0)');
-        ctx.fillStyle = g2; ctx.beginPath(); ctx.arc(cx, cy, r * 1.5, 0, Math.PI * 2); ctx.fill();
+        const g4 = ctx.createRadialGradient(cx, cy, r, cx, cy, r * 5);
+        g4.addColorStop(0, 'rgba(232,185,49,0.06)'); g4.addColorStop(0.5, 'rgba(232,185,49,0.015)'); g4.addColorStop(1, 'rgba(232,185,49,0)');
+        ctx.fillStyle = g4; ctx.beginPath(); ctx.arc(cx, cy, r * 5, 0, Math.PI * 2); ctx.fill();
+        const g3 = ctx.createRadialGradient(cx, cy, r * 0.8, cx, cy, r * 2.5);
+        g3.addColorStop(0, 'rgba(255,220,100,0.3)'); g3.addColorStop(0.5, 'rgba(232,185,49,0.08)'); g3.addColorStop(1, 'rgba(232,185,49,0)');
+        ctx.fillStyle = g3; ctx.beginPath(); ctx.arc(cx, cy, r * 2.5, 0, Math.PI * 2); ctx.fill();
+        const g2 = ctx.createRadialGradient(cx, cy, 0, cx, cy, r * 1.3);
+        g2.addColorStop(0, 'rgba(255,245,220,0.5)'); g2.addColorStop(1, 'rgba(232,185,49,0)');
+        ctx.fillStyle = g2; ctx.beginPath(); ctx.arc(cx, cy, r * 1.3, 0, Math.PI * 2); ctx.fill();
         const g1 = ctx.createRadialGradient(cx, cy, 0, cx, cy, r);
         g1.addColorStop(0, '#fff8e0'); g1.addColorStop(0.2, '#ffe566'); g1.addColorStop(0.5, '#f0c030');
         g1.addColorStop(0.8, '#e8b931'); g1.addColorStop(1, '#c08520');

@@ -375,6 +375,96 @@
                 applyAndSave(varName, val);
             });
         });
+
+        // ── Cosmos Solar System Controls ──
+        _buildCosmosControls(body);
+    }
+
+    function _buildCosmosControls(body) {
+        // Remove old if exists
+        const old = document.getElementById('te-cosmos-section');
+        if (old) old.remove();
+
+        const theme = document.documentElement.getAttribute('data-theme');
+        if (theme !== 'cosmos') return;
+
+        const section = document.createElement('div');
+        section.id = 'te-cosmos-section';
+        section.className = 'te-group';
+
+        const cx = parseFloat(localStorage.getItem('stratos-cosmos-cx') || '0.5');
+        const cy = parseFloat(localStorage.getItem('stratos-cosmos-cy') || '0.35');
+        const scale = parseFloat(localStorage.getItem('stratos-cosmos-scale') || '1');
+
+        section.innerHTML = `
+            <div class="te-group-label">Solar System</div>
+            <div style="display:flex;gap:12px;align-items:flex-start;">
+                <div style="flex:0 0 auto;">
+                    <label class="te-color-label" style="margin-bottom:4px;display:block;">Position</label>
+                    <div id="te-cosmos-grid" style="
+                        width:110px;height:80px;border-radius:6px;position:relative;cursor:crosshair;
+                        background:var(--bg-primary);border:1px solid var(--border-strong);overflow:hidden;
+                    ">
+                        <div style="position:absolute;inset:0;opacity:0.06;
+                            background:repeating-linear-gradient(0deg,transparent,transparent 19px,var(--text-muted) 19px,var(--text-muted) 20px),
+                            repeating-linear-gradient(90deg,transparent,transparent 21px,var(--text-muted) 21px,var(--text-muted) 22px);
+                        "></div>
+                        <div id="te-cosmos-dot" style="
+                            width:10px;height:10px;border-radius:50%;position:absolute;
+                            background:var(--accent);box-shadow:0 0 6px var(--accent);
+                            transform:translate(-50%,-50%);pointer-events:none;
+                            left:${cx * 100}%;top:${cy * 100}%;
+                        "></div>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;margin-top:3px;">
+                        <span class="te-color-label" style="font-size:9px;opacity:0.5;" id="te-cosmos-pos-label">${Math.round(cx*100)}%, ${Math.round(cy*100)}%</span>
+                        <button onclick="window._themeEditor._resetCosmosPos()" style="font-size:9px;color:var(--accent);background:none;border:none;cursor:pointer;padding:0;">reset</button>
+                    </div>
+                </div>
+                <div style="flex:1;min-width:0;">
+                    <label class="te-color-label" style="margin-bottom:4px;display:block;">Scale</label>
+                    <div style="display:flex;align-items:center;gap:8px;">
+                        <input type="range" class="te-range-slider" id="te-cosmos-scale" min="0.3" max="2.5" step="0.05" value="${scale}" style="flex:1;" />
+                        <span class="te-range-val" id="te-cosmos-scale-val">${scale.toFixed(2)}x</span>
+                    </div>
+                </div>
+            </div>
+        `;
+        body.appendChild(section);
+
+        // Wire up grid drag
+        const grid = section.querySelector('#te-cosmos-grid');
+        const dot = section.querySelector('#te-cosmos-dot');
+        const posLabel = section.querySelector('#te-cosmos-pos-label');
+        let dragging = false;
+
+        function updatePos(e) {
+            const rect = grid.getBoundingClientRect();
+            const x = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+            const y = Math.max(0, Math.min(1, (e.clientY - rect.top) / rect.height));
+            dot.style.left = (x * 100) + '%';
+            dot.style.top = (y * 100) + '%';
+            localStorage.setItem('stratos-cosmos-cx', x.toFixed(3));
+            localStorage.setItem('stratos-cosmos-cy', y.toFixed(3));
+            posLabel.textContent = Math.round(x * 100) + '%, ' + Math.round(y * 100) + '%';
+        }
+
+        grid.addEventListener('mousedown', (e) => { dragging = true; updatePos(e); e.preventDefault(); });
+        document.addEventListener('mousemove', (e) => { if (dragging) updatePos(e); });
+        document.addEventListener('mouseup', () => { dragging = false; });
+        // Touch support
+        grid.addEventListener('touchstart', (e) => { dragging = true; updatePos(e.touches[0]); e.preventDefault(); }, { passive: false });
+        document.addEventListener('touchmove', (e) => { if (dragging) updatePos(e.touches[0]); }, { passive: false });
+        document.addEventListener('touchend', () => { dragging = false; });
+
+        // Wire up scale slider
+        const scaleSlider = section.querySelector('#te-cosmos-scale');
+        const scaleVal = section.querySelector('#te-cosmos-scale-val');
+        scaleSlider.addEventListener('input', (e) => {
+            const v = parseFloat(e.target.value);
+            scaleVal.textContent = v.toFixed(2) + 'x';
+            localStorage.setItem('stratos-cosmos-scale', v.toFixed(2));
+        });
     }
 
     function applyAndSave(varName, hex) {
@@ -426,6 +516,7 @@
             }
             syncPickersToCurrentTheme();
             _refreshPresetList();
+            _buildCosmosControls(document.getElementById('te-body'));
             document.getElementById('theme-editor-panel').classList.add('te-open');
         },
 
@@ -507,8 +598,18 @@
                 if (document.getElementById('theme-editor-panel')?.classList.contains('te-open')) {
                     syncPickersToCurrentTheme();
                     _refreshPresetList();
+                    _buildCosmosControls(document.getElementById('te-body'));
                 }
             }, 50);
+        },
+
+        _resetCosmosPos() {
+            localStorage.removeItem('stratos-cosmos-cx');
+            localStorage.removeItem('stratos-cosmos-cy');
+            const dot = document.getElementById('te-cosmos-dot');
+            const lbl = document.getElementById('te-cosmos-pos-label');
+            if (dot) { dot.style.left = '50%'; dot.style.top = '35%'; }
+            if (lbl) lbl.textContent = '50%, 35%';
         }
     };
 

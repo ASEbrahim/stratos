@@ -397,15 +397,15 @@ function renderStars() {
         const pulse = 1 + Math.sin(t * 0.5) * (_ssPreset === 'P2' ? 0.05 : 0.08);
         const r = (_ssPreset === 'P2' ? 30 : 33) * pulse;
         if (_ssPreset === 'P2') {
-            const g4 = ctx.createRadialGradient(cx, cy, r, cx, cy, r * 10);
-            g4.addColorStop(0, 'rgba(232,185,49,0.08)'); g4.addColorStop(0.4, 'rgba(232,185,49,0.02)'); g4.addColorStop(1, 'rgba(232,185,49,0)');
-            ctx.fillStyle = g4; ctx.beginPath(); ctx.arc(cx, cy, r * 10, 0, Math.PI * 2); ctx.fill();
-            const g3 = ctx.createRadialGradient(cx, cy, r * 0.8, cx, cy, r * 3.5);
-            g3.addColorStop(0, 'rgba(255,220,100,0.35)'); g3.addColorStop(0.5, 'rgba(232,185,49,0.1)'); g3.addColorStop(1, 'rgba(232,185,49,0)');
-            ctx.fillStyle = g3; ctx.beginPath(); ctx.arc(cx, cy, r * 3.5, 0, Math.PI * 2); ctx.fill();
-            const g2 = ctx.createRadialGradient(cx, cy, 0, cx, cy, r * 1.5);
-            g2.addColorStop(0, 'rgba(255,245,220,0.6)'); g2.addColorStop(1, 'rgba(232,185,49,0)');
-            ctx.fillStyle = g2; ctx.beginPath(); ctx.arc(cx, cy, r * 1.5, 0, Math.PI * 2); ctx.fill();
+            const g4 = ctx.createRadialGradient(cx, cy, r, cx, cy, r * 5);
+            g4.addColorStop(0, 'rgba(232,185,49,0.06)'); g4.addColorStop(0.5, 'rgba(232,185,49,0.015)'); g4.addColorStop(1, 'rgba(232,185,49,0)');
+            ctx.fillStyle = g4; ctx.beginPath(); ctx.arc(cx, cy, r * 5, 0, Math.PI * 2); ctx.fill();
+            const g3 = ctx.createRadialGradient(cx, cy, r * 0.8, cx, cy, r * 2.5);
+            g3.addColorStop(0, 'rgba(255,220,100,0.3)'); g3.addColorStop(0.5, 'rgba(232,185,49,0.08)'); g3.addColorStop(1, 'rgba(232,185,49,0)');
+            ctx.fillStyle = g3; ctx.beginPath(); ctx.arc(cx, cy, r * 2.5, 0, Math.PI * 2); ctx.fill();
+            const g2 = ctx.createRadialGradient(cx, cy, 0, cx, cy, r * 1.3);
+            g2.addColorStop(0, 'rgba(255,245,220,0.5)'); g2.addColorStop(1, 'rgba(232,185,49,0)');
+            ctx.fillStyle = g2; ctx.beginPath(); ctx.arc(cx, cy, r * 1.3, 0, Math.PI * 2); ctx.fill();
         } else {
             const g3 = ctx.createRadialGradient(cx, cy, r, cx, cy, r * 6);
             g3.addColorStop(0, 'rgba(232,185,49,0.12)'); g3.addColorStop(1, 'rgba(232,185,49,0)');
@@ -475,9 +475,15 @@ function renderStars() {
 
         // Solar system (cosmos theme - drawn first, behind stars)
         if (isCosmos) {
-            const scx = canvas.width * 0.5, scy = canvas.height * 0.35;
+            const _cxPct = parseFloat(localStorage.getItem('stratos-cosmos-cx') || '0.5');
+            const _cyPct = parseFloat(localStorage.getItem('stratos-cosmos-cy') || '0.35');
+            const _sScale = parseFloat(localStorage.getItem('stratos-cosmos-scale') || '1');
+            const scx = canvas.width * _cxPct, scy = canvas.height * _cyPct;
+            ctx.save();
+            ctx.translate(scx, scy);
+            ctx.scale(_sScale, _sScale);
+            ctx.translate(-scx, -scy);
             if (_ssPreset === 'P2') {
-                // P2: Tilted perspective with depth sorting
                 for (const p of _ssPlanets) _ssTiltedOrbit(scx, scy, p.dist, 0.07);
                 _ssTiltedOrbit(scx, scy, 232, 0.03); _ssTiltedOrbit(scx, scy, 270, 0.03);
                 const _rr = [];
@@ -504,7 +510,6 @@ function renderStars() {
                     else if (o.t === 'p') _ssDrawPlanetP2(o.x, o.y, o.p, o.d);
                 }
             } else {
-                // P1: Classic flat orbits
                 for (const p of _ssPlanets) {
                     ctx.beginPath(); ctx.arc(scx, scy, p.dist, 0, Math.PI * 2);
                     ctx.strokeStyle = 'rgba(150,170,220,0.08)'; ctx.lineWidth = 0.5; ctx.stroke();
@@ -517,6 +522,7 @@ function renderStars() {
                 for (const p of _ssPlanets) _ssDrawPlanetP1(scx, scy, p, p.phase + t * p.speed * 0.15);
                 _ssDrawSun(scx, scy, t);
             }
+            ctx.restore();
         }
 
         // Shooting stars
