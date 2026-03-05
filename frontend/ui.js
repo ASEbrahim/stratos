@@ -259,24 +259,24 @@ function renderStars() {
     const _SS_TILT = 0.38, _SS_ROT = -0.15;
     // P1: hex colors for classic flat view; P2: rgb arrays for tilted perspective
     const _ssP1Planets = [
-        { dist: 55,  r: 2.5, color: '#b0a090', speed: 4.15,  phase: Math.random() * Math.PI * 2 },
-        { dist: 80,  r: 4,   color: '#e8c77a', speed: 1.62,  phase: Math.random() * Math.PI * 2 },
-        { dist: 110, r: 4.2, color: '#5b9bd5', speed: 1.0,   phase: Math.random() * Math.PI * 2 },
-        { dist: 145, r: 3.3, color: '#d4714a', speed: 0.53,  phase: Math.random() * Math.PI * 2 },
-        { dist: 200, r: 8,   color: '#d4a55a', speed: 0.084, phase: Math.random() * Math.PI * 2 },
-        { dist: 260, r: 7,   color: '#c9b77a', speed: 0.034, phase: Math.random() * Math.PI * 2, rings: true },
-        { dist: 320, r: 5,   color: '#7ec8c8', speed: 0.012, phase: Math.random() * Math.PI * 2 },
-        { dist: 380, r: 4.8, color: '#4a6ad4', speed: 0.006, phase: Math.random() * Math.PI * 2 },
+        { dist: 82,  r: 3.8, color: '#b0a090', speed: 4.15,  phase: Math.random() * Math.PI * 2 },
+        { dist: 120, r: 6,   color: '#e8c77a', speed: 1.62,  phase: Math.random() * Math.PI * 2 },
+        { dist: 165, r: 6.3, color: '#5b9bd5', speed: 1.0,   phase: Math.random() * Math.PI * 2 },
+        { dist: 218, r: 5,   color: '#d4714a', speed: 0.53,  phase: Math.random() * Math.PI * 2 },
+        { dist: 300, r: 12,  color: '#d4a55a', speed: 0.084, phase: Math.random() * Math.PI * 2 },
+        { dist: 390, r: 10.5,color: '#c9b77a', speed: 0.034, phase: Math.random() * Math.PI * 2, rings: true },
+        { dist: 480, r: 7.5, color: '#7ec8c8', speed: 0.012, phase: Math.random() * Math.PI * 2 },
+        { dist: 570, r: 7.2, color: '#4a6ad4', speed: 0.006, phase: Math.random() * Math.PI * 2 },
     ];
     const _ssP2Planets = [
-        { dist: 48,  r: 2,   color: [176,160,144], speed: 4.2,  phase: Math.random() * Math.PI * 2 },
-        { dist: 72,  r: 3.5, color: [232,199,122], speed: 1.65, phase: Math.random() * Math.PI * 2 },
-        { dist: 100, r: 3.5, color: [70,140,210],  speed: 1.0,  phase: Math.random() * Math.PI * 2, moon: { dist: 10, r: 1, speed: 5 } },
-        { dist: 132, r: 2.8, color: [210,100,60],  speed: 0.53, phase: Math.random() * Math.PI * 2 },
-        { dist: 190, r: 7.5, color: [210,165,90],  speed: 0.084,phase: Math.random() * Math.PI * 2 },
-        { dist: 248, r: 6,   color: [195,178,115], speed: 0.034,phase: Math.random() * Math.PI * 2, rings: true },
-        { dist: 310, r: 4.2, color: [120,195,195], speed: 0.012,phase: Math.random() * Math.PI * 2 },
-        { dist: 370, r: 4,   color: [65,100,210],  speed: 0.006,phase: Math.random() * Math.PI * 2 },
+        { dist: 72,  r: 3,   color: [176,160,144], speed: 4.2,  phase: Math.random() * Math.PI * 2 },
+        { dist: 108, r: 5.2, color: [232,199,122], speed: 1.65, phase: Math.random() * Math.PI * 2 },
+        { dist: 150, r: 5.2, color: [70,140,210],  speed: 1.0,  phase: Math.random() * Math.PI * 2, moon: { dist: 15, r: 1.5, speed: 5 } },
+        { dist: 198, r: 4.2, color: [210,100,60],  speed: 0.53, phase: Math.random() * Math.PI * 2 },
+        { dist: 285, r: 11,  color: [210,165,90],  speed: 0.084,phase: Math.random() * Math.PI * 2 },
+        { dist: 372, r: 9,   color: [195,178,115], speed: 0.034,phase: Math.random() * Math.PI * 2, rings: true },
+        { dist: 465, r: 6.3, color: [120,195,195], speed: 0.012,phase: Math.random() * Math.PI * 2 },
+        { dist: 555, r: 6,   color: [65,100,210],  speed: 0.006,phase: Math.random() * Math.PI * 2 },
     ];
     const _ssPlanets = isCosmos ? (_ssPreset === 'P2' ? _ssP2Planets : _ssP1Planets) : [];
     const _ssAsteroids = [];
@@ -284,7 +284,7 @@ function renderStars() {
         const aCount = _ssPreset === 'P2' ? 100 : 80;
         for (let ai = 0; ai < aCount; ai++) {
             _ssAsteroids.push({
-                dist: (_ssPreset === 'P2' ? 155 : 168) + Math.random() * (_ssPreset === 'P2' ? 25 : 20),
+                dist: (_ssPreset === 'P2' ? 232 : 252) + Math.random() * (_ssPreset === 'P2' ? 38 : 30),
                 angle: Math.random() * Math.PI * 2,
                 speed: 0.12 + Math.random() * 0.1,
                 r: Math.random() * 0.7 + 0.2,
@@ -395,7 +395,7 @@ function renderStars() {
     // Sun — shared by both presets (P2 has extra detail)
     function _ssDrawSun(cx, cy, t) {
         const pulse = 1 + Math.sin(t * 0.5) * (_ssPreset === 'P2' ? 0.05 : 0.08);
-        const r = (_ssPreset === 'P2' ? 20 : 22) * pulse;
+        const r = (_ssPreset === 'P2' ? 30 : 33) * pulse;
         if (_ssPreset === 'P2') {
             const g4 = ctx.createRadialGradient(cx, cy, r, cx, cy, r * 10);
             g4.addColorStop(0, 'rgba(232,185,49,0.08)'); g4.addColorStop(0.4, 'rgba(232,185,49,0.02)'); g4.addColorStop(1, 'rgba(232,185,49,0)');
@@ -475,11 +475,11 @@ function renderStars() {
 
         // Solar system (cosmos theme - drawn first, behind stars)
         if (isCosmos) {
-            const scx = canvas.width * 0.5, scy = canvas.height * 0.5;
+            const scx = canvas.width * 0.5, scy = canvas.height * 0.35;
             if (_ssPreset === 'P2') {
                 // P2: Tilted perspective with depth sorting
                 for (const p of _ssPlanets) _ssTiltedOrbit(scx, scy, p.dist, 0.07);
-                _ssTiltedOrbit(scx, scy, 155, 0.03); _ssTiltedOrbit(scx, scy, 180, 0.03);
+                _ssTiltedOrbit(scx, scy, 232, 0.03); _ssTiltedOrbit(scx, scy, 270, 0.03);
                 const _rr = [];
                 for (const a of _ssAsteroids) {
                     const pr = _ssProject(scx, scy, a.dist, a.angle + t * a.speed);

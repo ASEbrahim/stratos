@@ -169,20 +169,20 @@ function _initStarParallax() {
     // Solar system data (cosmos auth theme - tilted perspective)
     const _SS_TILT = 0.38, _SS_ROT = -0.15;
     const _ssPlanets = _isCosmos ? [
-        { dist: 48,  r: 2,   color: [176,160,144], speed: 4.2,  phase: Math.random() * Math.PI * 2 },
-        { dist: 72,  r: 3.5, color: [232,199,122], speed: 1.65, phase: Math.random() * Math.PI * 2 },
-        { dist: 100, r: 3.5, color: [70,140,210],  speed: 1.0,  phase: Math.random() * Math.PI * 2, moon: { dist: 10, r: 1, speed: 5 } },
-        { dist: 132, r: 2.8, color: [210,100,60],  speed: 0.53, phase: Math.random() * Math.PI * 2 },
-        { dist: 190, r: 7.5, color: [210,165,90],  speed: 0.084,phase: Math.random() * Math.PI * 2 },
-        { dist: 248, r: 6,   color: [195,178,115], speed: 0.034,phase: Math.random() * Math.PI * 2, rings: true },
-        { dist: 310, r: 4.2, color: [120,195,195], speed: 0.012,phase: Math.random() * Math.PI * 2 },
-        { dist: 370, r: 4,   color: [65,100,210],  speed: 0.006,phase: Math.random() * Math.PI * 2 },
+        { dist: 72,  r: 3,   color: [176,160,144], speed: 4.2,  phase: Math.random() * Math.PI * 2 },
+        { dist: 108, r: 5.2, color: [232,199,122], speed: 1.65, phase: Math.random() * Math.PI * 2 },
+        { dist: 150, r: 5.2, color: [70,140,210],  speed: 1.0,  phase: Math.random() * Math.PI * 2, moon: { dist: 15, r: 1.5, speed: 5 } },
+        { dist: 198, r: 4.2, color: [210,100,60],  speed: 0.53, phase: Math.random() * Math.PI * 2 },
+        { dist: 285, r: 11,  color: [210,165,90],  speed: 0.084,phase: Math.random() * Math.PI * 2 },
+        { dist: 372, r: 9,   color: [195,178,115], speed: 0.034,phase: Math.random() * Math.PI * 2, rings: true },
+        { dist: 465, r: 6.3, color: [120,195,195], speed: 0.012,phase: Math.random() * Math.PI * 2 },
+        { dist: 555, r: 6,   color: [65,100,210],  speed: 0.006,phase: Math.random() * Math.PI * 2 },
     ] : [];
     const _ssAsteroids = [];
     if (_isCosmos) {
         for (let ai = 0; ai < 100; ai++) {
             _ssAsteroids.push({
-                dist: 155 + Math.random() * 25,
+                dist: 232 + Math.random() * 38,
                 angle: Math.random() * Math.PI * 2,
                 speed: 0.12 + Math.random() * 0.1,
                 r: Math.random() * 0.7 + 0.2,
@@ -202,7 +202,7 @@ function _initStarParallax() {
         ctx.strokeStyle = `rgba(120,150,210,${alpha})`; ctx.lineWidth = 0.5; ctx.stroke(); ctx.restore();
     }
     function _ssDrawSun(cx, cy, t) {
-        const pulse = 1 + Math.sin(t * 0.5) * 0.05, r = 20 * pulse;
+        const pulse = 1 + Math.sin(t * 0.5) * 0.05, r = 30 * pulse;
         const g4 = ctx.createRadialGradient(cx, cy, r, cx, cy, r * 10);
         g4.addColorStop(0, 'rgba(232,185,49,0.08)'); g4.addColorStop(0.4, 'rgba(232,185,49,0.02)'); g4.addColorStop(1, 'rgba(232,185,49,0)');
         ctx.fillStyle = g4; ctx.beginPath(); ctx.arc(cx, cy, r * 10, 0, Math.PI * 2); ctx.fill();
@@ -329,10 +329,10 @@ function _initStarParallax() {
 
         // Solar system (cosmos auth theme - tilted perspective, drawn first)
         if (_isCosmos) {
-            const scx = canvas.width * 0.5, scy = canvas.height * 0.5;
+            const scx = canvas.width * 0.5, scy = canvas.height * 0.35;
             // Tilted orbit lines
             for (const p of _ssPlanets) _ssTiltedOrbit(scx, scy, p.dist, 0.07);
-            _ssTiltedOrbit(scx, scy, 155, 0.03); _ssTiltedOrbit(scx, scy, 180, 0.03);
+            _ssTiltedOrbit(scx, scy, 232, 0.03); _ssTiltedOrbit(scx, scy, 270, 0.03);
             // Collect renderables for depth sort
             const _rr = [];
             for (const a of _ssAsteroids) {
