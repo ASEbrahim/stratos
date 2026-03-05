@@ -169,73 +169,72 @@ function _initStarParallax() {
     const _isSakura = _t.name === 'Sakura';
     const _isNebula = _t.name === 'Nebula';
 
-    // ── Black hole data (nebula auth theme) ──
+    // ── Black hole data (nebula auth theme — P1 classic accretion disk) ──
     const _bhParticles = [];
     if (_isNebula) {
-        for (let i = 0; i < 260; i++) {
+        for (let i = 0; i < 400; i++) {
             const band = Math.random();
-            const dist = 60 + band * 220;
+            const dist = 50 + band * 260;
+            const tier = band < 0.2 ? 0 : band < 0.55 ? 1 : 2;
             _bhParticles.push({
                 angle: Math.random() * Math.PI * 2,
-                dist: dist,
-                speed: (0.08 + Math.random() * 0.12) * (200 / (dist + 40)),
-                r: Math.random() * 1.2 + 0.3,
-                a: Math.random() * 0.5 + 0.15,
-                yOff: (Math.random() - 0.5) * 6,
-                // color band: inner=hot blue-white, mid=purple, outer=dim blue
-                tier: band < 0.25 ? 0 : band < 0.6 ? 1 : 2
+                dist,
+                speed: (0.06 + Math.random() * 0.14) * (180 / (dist + 30)),
+                r: tier === 0 ? Math.random() * 2.2 + 0.8 : Math.random() * 1.6 + 0.4,
+                a: tier === 0 ? Math.random() * 0.7 + 0.4 : Math.random() * 0.55 + 0.15,
+                yOff: (Math.random() - 0.5) * 5,
+                tier
             });
         }
     }
-    const _BH_TILT = 0.32, _BH_ROT = -0.1;
+    const _BH_TILT = 0.30, _BH_ROT = -0.12;
+    const _bhTierColors = [[200,190,255],[167,139,250],[56,189,248]];
     function _bhProject(cx, cy, dist, angle) {
         const x3 = Math.cos(angle) * dist, y3 = Math.sin(angle) * dist;
         const cr = Math.cos(_BH_ROT), sr = Math.sin(_BH_ROT);
         return { x: cx + x3 * cr - y3 * sr, y: cy + (x3 * sr + y3 * cr) * _BH_TILT, depth: Math.sin(angle) };
     }
-    function _bhDrawDisk(cx, cy, t) {
-        // Accretion disk — tilted elliptical glow rings
+    function _bhDrawDisk(cx, cy) {
         ctx.save(); ctx.translate(cx, cy); ctx.rotate(_BH_ROT); ctx.scale(1, _BH_TILT);
-        // Outer haze
-        const g0 = ctx.createRadialGradient(0, 0, 100, 0, 0, 290);
-        g0.addColorStop(0, 'rgba(100,80,200,0.0)');
-        g0.addColorStop(0.3, 'rgba(80,60,180,0.03)');
-        g0.addColorStop(0.6, 'rgba(56,130,220,0.02)');
-        g0.addColorStop(1, 'rgba(56,189,248,0)');
-        ctx.fillStyle = g0; ctx.beginPath(); ctx.arc(0, 0, 290, 0, Math.PI * 2); ctx.fill();
-        // Main disk glow
-        for (let ring = 0; ring < 4; ring++) {
-            const rd = 80 + ring * 45;
-            const alpha = [0.08, 0.06, 0.04, 0.025][ring];
+        for (let ring = 0; ring < 5; ring++) {
+            const rd = 70 + ring * 50;
+            const alpha = [0.12, 0.09, 0.07, 0.05, 0.035][ring];
             ctx.beginPath(); ctx.arc(0, 0, rd, 0, Math.PI * 2);
-            ctx.strokeStyle = `rgba(140,120,250,${alpha})`; ctx.lineWidth = 20 + ring * 8; ctx.stroke();
+            ctx.strokeStyle = `rgba(167,139,250,${alpha})`; ctx.lineWidth = 22 + ring * 10; ctx.stroke();
         }
+        // Outer nebula haze
+        const haze = ctx.createRadialGradient(0, 0, 80, 0, 0, 320);
+        haze.addColorStop(0, 'rgba(100,80,200,0.0)');
+        haze.addColorStop(0.4, 'rgba(80,60,180,0.04)');
+        haze.addColorStop(0.7, 'rgba(56,130,220,0.025)');
+        haze.addColorStop(1, 'rgba(56,189,248,0)');
+        ctx.fillStyle = haze; ctx.beginPath(); ctx.arc(0, 0, 320, 0, Math.PI * 2); ctx.fill();
         ctx.restore();
     }
     function _bhDrawVoid(cx, cy, t) {
-        const pulse = 1 + Math.sin(t * 0.3) * 0.02;
-        const eventR = 28 * pulse;
-        // Photon ring — bright thin ring at event horizon edge
-        const prGrad = ctx.createRadialGradient(cx, cy, eventR - 2, cx, cy, eventR + 12);
-        prGrad.addColorStop(0, 'rgba(167,139,250,0)');
-        prGrad.addColorStop(0.3, 'rgba(167,139,250,0.35)');
-        prGrad.addColorStop(0.5, 'rgba(200,180,255,0.5)');
-        prGrad.addColorStop(0.7, 'rgba(125,211,252,0.3)');
-        prGrad.addColorStop(1, 'rgba(56,189,248,0)');
-        ctx.fillStyle = prGrad; ctx.beginPath(); ctx.arc(cx, cy, eventR + 12, 0, Math.PI * 2); ctx.fill();
-        // Gravitational lensing glow — wide soft halo
-        const lensGrad = ctx.createRadialGradient(cx, cy, eventR, cx, cy, eventR * 4);
-        lensGrad.addColorStop(0, 'rgba(167,139,250,0.12)');
-        lensGrad.addColorStop(0.3, 'rgba(120,100,220,0.06)');
-        lensGrad.addColorStop(0.6, 'rgba(56,189,248,0.02)');
-        lensGrad.addColorStop(1, 'rgba(56,189,248,0)');
-        ctx.fillStyle = lensGrad; ctx.beginPath(); ctx.arc(cx, cy, eventR * 4, 0, Math.PI * 2); ctx.fill();
-        // Event horizon — pure black void
-        const voidGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, eventR);
-        voidGrad.addColorStop(0, 'rgba(0,0,0,1)');
-        voidGrad.addColorStop(0.85, 'rgba(0,0,0,1)');
-        voidGrad.addColorStop(1, 'rgba(0,0,0,0.7)');
-        ctx.fillStyle = voidGrad; ctx.beginPath(); ctx.arc(cx, cy, eventR, 0, Math.PI * 2); ctx.fill();
+        const pulse = 1 + Math.sin(t * 0.4) * 0.03;
+        const eventR = 30 * pulse;
+        // Gravitational lensing halo
+        const lens = ctx.createRadialGradient(cx, cy, eventR, cx, cy, eventR * 5);
+        lens.addColorStop(0, 'rgba(167,139,250,0.22)');
+        lens.addColorStop(0.25, 'rgba(120,100,220,0.10)');
+        lens.addColorStop(0.5, 'rgba(56,189,248,0.04)');
+        lens.addColorStop(1, 'rgba(56,189,248,0)');
+        ctx.fillStyle = lens; ctx.beginPath(); ctx.arc(cx, cy, eventR * 5, 0, Math.PI * 2); ctx.fill();
+        // Photon ring
+        const photon = ctx.createRadialGradient(cx, cy, eventR - 3, cx, cy, eventR + 14);
+        photon.addColorStop(0, 'rgba(167,139,250,0)');
+        photon.addColorStop(0.25, 'rgba(167,139,250,0.55)');
+        photon.addColorStop(0.45, 'rgba(220,210,255,0.7)');
+        photon.addColorStop(0.65, 'rgba(125,211,252,0.45)');
+        photon.addColorStop(1, 'rgba(56,189,248,0)');
+        ctx.fillStyle = photon; ctx.beginPath(); ctx.arc(cx, cy, eventR + 14, 0, Math.PI * 2); ctx.fill();
+        // Event horizon void
+        const voidG = ctx.createRadialGradient(cx, cy, 0, cx, cy, eventR);
+        voidG.addColorStop(0, 'rgba(0,0,0,1)');
+        voidG.addColorStop(0.8, 'rgba(0,0,0,1)');
+        voidG.addColorStop(1, 'rgba(0,0,0,0.6)');
+        ctx.fillStyle = voidG; ctx.beginPath(); ctx.arc(cx, cy, eventR, 0, Math.PI * 2); ctx.fill();
     }
 
     // Solar system data (cosmos auth theme - tilted perspective)
@@ -438,47 +437,39 @@ function _initStarParallax() {
             }
         }
 
-        // Black hole (nebula auth theme — drawn behind stars)
+        // Black hole (nebula auth theme — P1 classic accretion disk)
         if (_isNebula) {
             const bhx = canvas.width * 0.5, bhy = canvas.height * 0.30;
-            // Back half of accretion disk (behind the void)
-            _bhDrawDisk(bhx, bhy, t);
-            // Particles — depth sorted, back half first
+            // Accretion disk glow rings
+            _bhDrawDisk(bhx, bhy);
+            // Depth-sorted particles
             const _bp = [];
-            const tierColors = [
-                [200, 190, 255],  // inner — hot white-purple
-                [140, 120, 250],  // mid — rich purple
-                [56, 160, 248]    // outer — blue
-            ];
             for (const p of _bhParticles) {
                 const ang = p.angle + t * p.speed;
                 const pr = _bhProject(bhx, bhy, p.dist, ang);
                 _bp.push({ x: pr.x, y: pr.y + p.yOff, d: pr.depth, r: p.r, a: p.a, tier: p.tier });
             }
             _bp.sort((a, b) => a.d - b.d);
-            // Draw back particles (behind void)
+            // Back particles
             for (const p of _bp) {
-                if (p.d > 0.15) continue; // front half drawn after void
-                const c = tierColors[p.tier];
-                const da = p.a * (0.6 + p.d * 0.4);
-                ctx.globalAlpha = da;
+                if (p.d > 0.1) continue;
+                const c = _bhTierColors[p.tier];
+                ctx.globalAlpha = p.a * (0.65 + p.d * 0.35);
                 ctx.fillStyle = `rgb(${c[0]},${c[1]},${c[2]})`;
                 ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctx.fill();
             }
-            // Void + photon ring
+            // Void + photon ring + lensing
             _bhDrawVoid(bhx, bhy, t);
-            // Front particles (in front of void)
+            // Front particles
             for (const p of _bp) {
-                if (p.d <= 0.15) continue;
-                const c = tierColors[p.tier];
-                const da = p.a * (0.7 + p.d * 0.3);
-                ctx.globalAlpha = da;
-                // Inner particles get a glow
+                if (p.d <= 0.1) continue;
+                const c = _bhTierColors[p.tier];
+                ctx.globalAlpha = p.a * (0.6 + p.d * 0.4);
                 if (p.tier === 0) {
-                    const glow = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r * 5);
-                    glow.addColorStop(0, `rgba(${c[0]},${c[1]},${c[2]},${da * 0.3})`);
+                    const glow = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r * 6);
+                    glow.addColorStop(0, `rgba(${c[0]},${c[1]},${c[2]},${p.a * 0.35})`);
                     glow.addColorStop(1, `rgba(${c[0]},${c[1]},${c[2]},0)`);
-                    ctx.fillStyle = glow; ctx.beginPath(); ctx.arc(p.x, p.y, p.r * 5, 0, Math.PI * 2); ctx.fill();
+                    ctx.fillStyle = glow; ctx.beginPath(); ctx.arc(p.x, p.y, p.r * 6, 0, Math.PI * 2); ctx.fill();
                 }
                 ctx.fillStyle = `rgb(${c[0]},${c[1]},${c[2]})`;
                 ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctx.fill();
