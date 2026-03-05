@@ -164,6 +164,68 @@ function _initStarParallax() {
     const LINE_RADIUS = 130;
     const LINE_MOUSE_RANGE = 250;
     const DRIFT_SPEED = 0.12;
+    const _isCosmos = _t.name === 'Cosmos';
+
+    // Solar system data (cosmos auth theme only)
+    const _ssPlanets = _isCosmos ? [
+        { dist: 55,  r: 2.5, color: '#b0a090', speed: 4.15,  phase: Math.random() * Math.PI * 2 },
+        { dist: 80,  r: 4,   color: '#e8c77a', speed: 1.62,  phase: Math.random() * Math.PI * 2 },
+        { dist: 110, r: 4.2, color: '#5b9bd5', speed: 1.0,   phase: Math.random() * Math.PI * 2 },
+        { dist: 145, r: 3.3, color: '#d4714a', speed: 0.53,  phase: Math.random() * Math.PI * 2 },
+        { dist: 200, r: 8,   color: '#d4a55a', speed: 0.084, phase: Math.random() * Math.PI * 2 },
+        { dist: 260, r: 7,   color: '#c9b77a', speed: 0.034, phase: Math.random() * Math.PI * 2, rings: true },
+        { dist: 320, r: 5,   color: '#7ec8c8', speed: 0.012, phase: Math.random() * Math.PI * 2 },
+        { dist: 380, r: 4.8, color: '#4a6ad4', speed: 0.006, phase: Math.random() * Math.PI * 2 },
+    ] : [];
+    const _ssAsteroids = [];
+    if (_isCosmos) {
+        for (let ai = 0; ai < 80; ai++) {
+            _ssAsteroids.push({
+                dist: 168 + Math.random() * 20,
+                angle: Math.random() * Math.PI * 2,
+                speed: 0.15 + Math.random() * 0.1,
+                r: Math.random() * 0.8 + 0.3,
+                a: Math.random() * 0.4 + 0.15
+            });
+        }
+    }
+    function _ssLighten(hex, pct) {
+        const n = parseInt(hex.slice(1), 16);
+        let r = (n >> 16) + pct, g = ((n >> 8) & 0xff) + pct, b = (n & 0xff) + pct;
+        return `rgb(${Math.min(255,r)},${Math.min(255,g)},${Math.min(255,b)})`;
+    }
+    function _ssDrawSun(scx, scy, t) {
+        const pulse = 1 + Math.sin(t * 0.5) * 0.08;
+        const r = 22 * pulse;
+        const g3 = ctx.createRadialGradient(scx, scy, r, scx, scy, r * 6);
+        g3.addColorStop(0, 'rgba(232,185,49,0.12)'); g3.addColorStop(1, 'rgba(232,185,49,0)');
+        ctx.fillStyle = g3; ctx.beginPath(); ctx.arc(scx, scy, r * 6, 0, Math.PI * 2); ctx.fill();
+        const g2 = ctx.createRadialGradient(scx, scy, r * 0.5, scx, scy, r * 2.5);
+        g2.addColorStop(0, 'rgba(255,210,80,0.4)'); g2.addColorStop(1, 'rgba(232,185,49,0)');
+        ctx.fillStyle = g2; ctx.beginPath(); ctx.arc(scx, scy, r * 2.5, 0, Math.PI * 2); ctx.fill();
+        const g1 = ctx.createRadialGradient(scx, scy, 0, scx, scy, r);
+        g1.addColorStop(0, '#fff8e0'); g1.addColorStop(0.3, '#ffd54f');
+        g1.addColorStop(0.7, '#e8b931'); g1.addColorStop(1, '#c98a1a');
+        ctx.fillStyle = g1; ctx.beginPath(); ctx.arc(scx, scy, r, 0, Math.PI * 2); ctx.fill();
+    }
+    function _ssDrawPlanet(scx, scy, p, angle) {
+        const px = scx + Math.cos(angle) * p.dist;
+        const py = scy + Math.sin(angle) * p.dist;
+        const glow = ctx.createRadialGradient(px, py, 0, px, py, p.r * 3);
+        glow.addColorStop(0, p.color + '40'); glow.addColorStop(1, p.color + '00');
+        ctx.fillStyle = glow; ctx.beginPath(); ctx.arc(px, py, p.r * 3, 0, Math.PI * 2); ctx.fill();
+        const g = ctx.createRadialGradient(px - p.r * 0.3, py - p.r * 0.3, 0, px, py, p.r);
+        g.addColorStop(0, _ssLighten(p.color, 30)); g.addColorStop(1, p.color);
+        ctx.fillStyle = g; ctx.beginPath(); ctx.arc(px, py, p.r, 0, Math.PI * 2); ctx.fill();
+        if (p.rings) {
+            ctx.save(); ctx.translate(px, py); ctx.scale(1, 0.35);
+            ctx.beginPath(); ctx.arc(0, 0, p.r * 2, 0, Math.PI * 2);
+            ctx.strokeStyle = 'rgba(201,183,122,0.5)'; ctx.lineWidth = 2; ctx.stroke();
+            ctx.beginPath(); ctx.arc(0, 0, p.r * 2.5, 0, Math.PI * 2);
+            ctx.strokeStyle = 'rgba(201,183,122,0.25)'; ctx.lineWidth = 1.5; ctx.stroke();
+            ctx.restore();
+        }
+    }
 
     // Parse theme star colors into hex for canvas
     function parseColor(rgba) {
@@ -248,6 +310,24 @@ function _initStarParallax() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         const t = Date.now() * 0.001;
         const now = Date.now();
+
+        // Solar system (cosmos auth theme - drawn first, behind stars)
+        if (_isCosmos) {
+            const scx = canvas.width * 0.5, scy = canvas.height * 0.5;
+            for (const p of _ssPlanets) {
+                ctx.beginPath(); ctx.arc(scx, scy, p.dist, 0, Math.PI * 2);
+                ctx.strokeStyle = 'rgba(150,170,220,0.08)'; ctx.lineWidth = 0.5; ctx.stroke();
+            }
+            for (const a of _ssAsteroids) {
+                const ang = a.angle + t * a.speed;
+                ctx.beginPath(); ctx.arc(scx + Math.cos(ang) * a.dist, scy + Math.sin(ang) * a.dist, a.r, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(160,150,130,${a.a})`; ctx.fill();
+            }
+            for (const p of _ssPlanets) {
+                _ssDrawPlanet(scx, scy, p, p.phase + t * p.speed * 0.15);
+            }
+            _ssDrawSun(scx, scy, t);
+        }
 
         // Spawn shooting stars
         if (now - lastShooter > SHOOT_INTERVAL + Math.random() * 3000) {
