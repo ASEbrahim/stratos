@@ -329,7 +329,7 @@ function _initStarParallax() {
 
         // Solar system (cosmos auth theme - tilted perspective, drawn first)
         if (_isCosmos) {
-            const scx = canvas.width * 0.5, scy = canvas.height * 0.35;
+            const scx = canvas.width * 0.5, scy = canvas.height * 0.28;
             // Tilted orbit lines
             for (const p of _ssPlanets) _ssTiltedOrbit(scx, scy, p.dist, 0.07);
             _ssTiltedOrbit(scx, scy, 232, 0.03); _ssTiltedOrbit(scx, scy, 270, 0.03);
