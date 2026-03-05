@@ -971,7 +971,7 @@ Previous automated score was {first_score:.1f} (uncertain). Please re-evaluate c
         """
         # Try common patterns the model uses inside think blocks
         patterns = [
-            r'[Ff]inal\s+score:\s*(\d+\.?\d*)',
+            r'[Ff]inal\s+[Ss]core:\s*(\d+\.?\d*)',
             r'SCORE:\s*(\d+\.?\d*)',
             r'[Ss]core:\s*(\d+\.?\d*)\s*[-—]',
         ]
