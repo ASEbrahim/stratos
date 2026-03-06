@@ -1,4 +1,4 @@
-FROM /home/ahmad/Downloads/StratOS/StratOS1/backend/data/v2_pipeline/training_output/v2_scorer.gguf
+FROM /home/ahmad/Downloads/StratOS/StratOS1/backend/data/v2_pipeline/v2_model_backup/v2_scorer.gguf
 
 TEMPLATE """{{- if .System }}<|im_start|>system
 {{ .System }}<|im_end|>

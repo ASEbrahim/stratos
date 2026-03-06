@@ -7,8 +7,9 @@ Usage:
     python3 evaluate_scorer.py --model stratos-scorer-v1   # Evaluate a specific model
     python3 evaluate_scorer.py --export drift.jsonl        # Export disagreements for training
 
-This script scores the V2 evaluation set (2,048 Opus-scored samples) using the
-live Ollama model and computes comparison metrics.  Use it to:
+This script scores evaluation samples (Opus ground truth) using the live Ollama
+model and computes comparison metrics.  Default: contaminated eval (3,809 samples).
+Use --eval-file for holdout (1,500 samples).  Use it to:
   1. Validate a newly deployed model before trusting it in production
   2. Detect model drift over time (re-run periodically)
   3. Identify weak profiles or score bands for targeted retraining
@@ -59,8 +60,14 @@ def load_eval_set(path: Path, limit: int = 0) -> List[dict]:
     return samples
 
 
-def score_with_ollama(messages: List[dict], model: str, host: str) -> Tuple[float, str]:
-    """Score a single sample using the Ollama model.  Returns (score, raw_text)."""
+def score_with_ollama(messages: List[dict], model: str, host: str,
+                      temperature: float = 0.1, num_predict: int = 512) -> Tuple[float, str]:
+    """Score a single sample using the Ollama model.  Returns (score, raw_text).
+
+    num_predict=512 gives headroom for think blocks (production scorer_base.py uses 256,
+    but think blocks may consume tokens before SCORE — 512 prevents truncation during eval).
+    temperature=0.1 for reproducible benchmarks, 0.6 for production-realistic eval.
+    """
     try:
         resp = requests.post(
             f"{host}/api/chat",
@@ -68,7 +75,7 @@ def score_with_ollama(messages: List[dict], model: str, host: str) -> Tuple[floa
                 "model": model,
                 "messages": messages[:2],  # system + user only
                 "stream": False,
-                "options": {"temperature": 0.1, "num_predict": 2048},
+                "options": {"temperature": temperature, "num_predict": num_predict},
             },
             timeout=120,
         )
@@ -208,6 +215,8 @@ def main():
     parser.add_argument("--eval-file", default=str(EVAL_FILE), help="Path to eval JSONL")
     parser.add_argument("--limit", type=int, default=0, help="Max samples to evaluate (0=all)")
     parser.add_argument("--export", default=None, help="Export disagreements (delta>=2) to JSONL for V3 training")
+    parser.add_argument("--temperature", type=float, default=0.1,
+                        help="Sampling temperature (0.1=reproducible benchmark, 0.6=production-realistic)")
     parser.add_argument("--output", default="eval_report.json", help="Output report path")
     args = parser.parse_args()
 
@@ -222,6 +231,7 @@ def main():
         except Exception:
             model = "stratos-scorer-v2"
     logger.info(f"Evaluating model: {model}")
+    logger.info(f"Temperature: {args.temperature} ({'benchmark' if args.temperature <= 0.2 else 'production-realistic'})")
 
     # Load eval set
     eval_path = Path(args.eval_file)
@@ -254,7 +264,8 @@ def main():
         title_m = re.search(r"Title:\s*(.+?)(?:\n|$)", user_msg)
         title = title_m.group(1) if title_m else ""
 
-        score, raw = score_with_ollama(sample["messages"], model, args.host)
+        score, raw = score_with_ollama(sample["messages"], model, args.host,
+                                       temperature=args.temperature)
         result = {
             "ground_truth_score": sample["ground_truth_score"],
             "predicted_score": score,
@@ -278,12 +289,14 @@ def main():
     metrics = compute_metrics(results)
     metrics["model"] = model
     metrics["eval_file"] = str(eval_path)
+    metrics["temperature"] = args.temperature
     metrics["elapsed_seconds"] = round(elapsed, 1)
     metrics["timestamp"] = time.strftime("%Y-%m-%dT%H:%M:%S")
 
     # Print report
     print("\n" + "=" * 60)
     print(f"SCORER EVALUATION REPORT — {model}")
+    print(f"Temperature: {args.temperature}  |  Eval file: {eval_path.name}")
     print("=" * 60)
     print(f"Samples:            {metrics['total_samples']}")
     print(f"Parse failures:     {metrics['parse_failures']}")
@@ -304,8 +317,11 @@ def main():
     for w in metrics.get("worst_disagreements", [])[:5]:
         print(f"  delta={w['delta']:+.1f}  pred={w['predicted']:.1f} gt={w['ground_truth']:.1f}  [{w['profile'][:30]}] {w['title'][:60]}")
 
-    # Save report
-    report_path = Path(args.output)
+    # Save report (include temp in default filename for dual-run separation)
+    if args.output == "eval_report.json":
+        report_path = Path(f"eval_report_t{args.temperature}.json")
+    else:
+        report_path = Path(args.output)
     with open(report_path, "w") as f:
         json.dump(metrics, f, indent=2)
     logger.info(f"Report saved to {report_path}")

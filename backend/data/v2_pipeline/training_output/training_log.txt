@@ -1,63 +1,127 @@
-19:30:46 [INFO] Attempting training with batch_size=2...
-19:30:54 [INFO] ======================================================================
-19:30:54 [INFO] PHASE 2 — V2 SCORER TRAINING
-19:30:54 [INFO] ======================================================================
-19:30:54 [INFO] Base model: /home/ahmad/Downloads/StratOS/StratOS1/backend/data/v2_pipeline/v1_merged_base
-19:30:54 [INFO] Training data: /home/ahmad/Downloads/StratOS/StratOS1/backend/data/v2_pipeline/training_v2.jsonl (29 MB)
-19:30:54 [INFO] Eval data: /home/ahmad/Downloads/StratOS/StratOS1/backend/data/v2_pipeline/eval_v2.jsonl (3 MB)
-19:30:54 [INFO] Batch size: 2, Grad accum: 8, LR: 1e-05
-19:30:54 [INFO] Epochs: 1, Dry run: False
-19:30:54 [INFO] Set eos_token = <|im_end|> (id=151645)
-19:30:55 [INFO] Loading V1 merged base in bfloat16...
-19:31:09 [INFO] Forced all parameters to cuda:0 (meta device cleanup)
-19:31:10 [INFO] HTTP Request: HEAD https://s3.amazonaws.com/datasets.huggingface.co/datasets/datasets/json/json.py "HTTP/1.1 200 OK"
-19:31:10 [INFO] Training examples: 19000
-19:31:10 [INFO]   weight=0.5 (noise): 16816 examples (88.5%)
-19:31:10 [INFO]   weight=1.0 (tangential): 1439 examples (7.6%)
-19:31:10 [INFO]   weight=1.5 (moderate): 363 examples (1.9%)
-19:31:10 [INFO]   weight=2.0 (high): 245 examples (1.3%)
-19:31:10 [INFO]   weight=3.0 (critical): 137 examples (0.7%)
-19:31:11 [INFO] Converted messages -> prompt/completion
-19:31:11 [INFO] WeightedRandomSampler: 19000 weights, sum=11292.5
-19:31:11 [INFO] Expected sampling distribution:
-19:31:11 [INFO]   noise           74.5%
-19:31:11 [INFO]   tangential      12.7%
-19:31:11 [INFO]   moderate        4.8%
-19:31:11 [INFO]   high            4.3%
-19:31:11 [INFO]   critical        3.6%
-19:31:11 [INFO] HTTP Request: HEAD https://s3.amazonaws.com/datasets.huggingface.co/datasets/datasets/json/json.py "HTTP/1.1 200 OK"
-19:31:12 [INFO] Eval dataset: 2423 examples
-19:31:12 [INFO] Total optimizer steps: 1188 (batch=2, accum=8, effective=16)
-19:31:12 [INFO] Checkpoints at steps: [200, 400, 600, 800, 1000]
-19:31:14 [INFO] Starting V2 training...
-19:31:17 [INFO] [V2] compute_loss — per-sample weighting ACTIVE
-19:31:17 [INFO] [V2]   weights: [0.5, 0.5], per-example loss: [2.0414, 1.7969]
-19:31:17 [INFO] [V2]   weighted=1.9191 unweighted=1.9191
-19:31:21 [INFO] [V2] compute_loss — per-sample weighting ACTIVE
-19:31:21 [INFO] [V2]   weights: [1.5, 0.5], per-example loss: [2.9946, 2.2696]
-19:31:21 [INFO] [V2]   weighted=2.8133 unweighted=2.6321
-20:36:47 [INFO] ======================================================================
-20:36:47 [INFO] SAMPLER VERIFICATION (1001 batches, 2002 examples)
-20:36:47 [INFO] Bucket            Expected     Actual   Raw(bad)
-20:36:47 [INFO] --------------------------------------------------
-20:36:47 [INFO] noise                74.5%      74.2%      88.5%
-20:36:47 [INFO] tangential           12.7%      14.0%       7.6%
-20:36:47 [INFO] moderate              4.8%       4.6%       1.9%
-20:36:47 [INFO] high                  4.3%       4.5%       1.3%
-20:36:47 [INFO] critical              3.6%       2.6%       0.7%
-20:36:47 [INFO] SAMPLER WORKING — actual matches weighted expectation
-20:36:47 [INFO]   Distance to expected: 0.0290, distance to raw: 0.2856
-20:36:47 [INFO] Verification saved to /home/ahmad/Downloads/StratOS/StratOS1/backend/data/v2_pipeline/training_output/sampler_verification.json
-05:53:11 [INFO] Training complete! Loss: 6.1017, Time: 10.4h
-05:53:11 [INFO] Final V2 adapter saved to: /home/ahmad/Downloads/StratOS/StratOS1/backend/data/v2_pipeline/training_output/final_checkpoint
-05:53:12 [INFO] GPU memory cleared after Phase 2
-05:53:12 [INFO] ======================================================================
-05:53:12 [INFO] PHASE 3 — POST-TRAINING EVALUATION
-05:53:12 [INFO] ======================================================================
-05:53:12 [INFO] Loading V1 merged base from /home/ahmad/Downloads/StratOS/StratOS1/backend/data/v2_pipeline/v1_merged_base...
-05:53:22 [INFO] Loading V2 adapters from /home/ahmad/Downloads/StratOS/StratOS1/backend/data/v2_pipeline/training_output/final_checkpoint...
-05:53:22 [INFO] V2 model loaded for evaluation
-05:53:22 [INFO] Loaded 2423 eval examples
-05:53:22 [INFO] ======================================================================
-05:53:22 [INFO] PROFILE-AWARENESS SANITY CHECK (before merge)
-05:53:22 [INFO] ======================================================================
+10:42:10 [INFO] Attempting training with batch_size=2...
+10:42:21 [INFO] ======================================================================
+10:42:21 [INFO] PHASE 2 — V2 SCORER TRAINING
+10:42:21 [INFO] ======================================================================
+10:42:21 [INFO] Base model: /home/ahmad/Downloads/StratOS/StratOS1/backend/data/v2_pipeline/v1_merged_base
+10:42:21 [INFO] Training data: /home/ahmad/Downloads/StratOS/StratOS1/backend/data/v2_pipeline/training_v2.jsonl (42 MB)
+10:42:21 [INFO] Eval data: /home/ahmad/Downloads/StratOS/StratOS1/backend/data/v2_pipeline/eval_v2.jsonl (8 MB)
+10:42:21 [INFO] Batch size: 2, Grad accum: 8, LR: 1e-05
+10:42:21 [INFO] Epochs: 1, Dry run: False
+10:42:21 [INFO] Set eos_token = <|im_end|> (id=151645)
+10:42:21 [INFO] Loading V1 merged base in bfloat16...
+10:42:52 [INFO] Forced all parameters to cuda:0 (meta device cleanup)
+10:42:53 [INFO] HTTP Request: HEAD https://s3.amazonaws.com/datasets.huggingface.co/datasets/datasets/json/json.py "HTTP/1.1 200 OK"
+10:42:53 [INFO] Training examples: 19000
+10:42:54 [INFO]   weight=0.5 (noise): 17255 examples (90.8%)
+10:42:54 [INFO]   weight=1.0 (tangential): 1125 examples (5.9%)
+10:42:54 [INFO]   weight=1.5 (moderate): 344 examples (1.8%)
+10:42:54 [INFO]   weight=2.0 (high): 175 examples (0.9%)
+10:42:54 [INFO]   weight=3.0 (critical): 101 examples (0.5%)
+10:42:55 [INFO] Converted messages -> prompt/completion
+10:42:56 [INFO] WeightedRandomSampler: 19000 weights, sum=10921.5
+10:42:56 [INFO] Expected sampling distribution:
+10:42:56 [INFO]   noise           79.0%
+10:42:56 [INFO]   tangential      10.3%
+10:42:56 [INFO]   moderate        4.7%
+10:42:56 [INFO]   high            3.2%
+10:42:56 [INFO]   critical        2.8%
+10:42:56 [INFO] HTTP Request: HEAD https://s3.amazonaws.com/datasets.huggingface.co/datasets/datasets/json/json.py "HTTP/1.1 200 OK"
+10:42:57 [INFO] Eval dataset: 3809 examples
+10:42:57 [INFO] Total optimizer steps: 1188 (batch=2, accum=8, effective=16)
+10:42:57 [INFO] Checkpoints at steps: [200, 400, 600, 800, 1000]
+10:43:19 [INFO] Starting V2 training...
+10:43:23 [INFO] [V2] compute_loss — per-sample weighting ACTIVE
+10:43:23 [INFO] [V2]   weights: [1.5, 0.5], per-example loss: [1.6577, 2.7767]
+10:43:23 [INFO] [V2]   weighted=1.9374 unweighted=2.2172
+10:43:28 [INFO] [V2] compute_loss — per-sample weighting ACTIVE
+10:43:28 [INFO] [V2]   weights: [0.5, 0.5], per-example loss: [1.7015, 2.5308]
+10:43:28 [INFO] [V2]   weighted=2.1162 unweighted=2.1162
+12:03:09 [INFO] ======================================================================
+12:03:09 [INFO] SAMPLER VERIFICATION (1001 batches, 2002 examples)
+12:03:09 [INFO] Bucket            Expected     Actual   Raw(bad)
+12:03:09 [INFO] --------------------------------------------------
+12:03:09 [INFO] noise                79.0%      79.5%      90.8%
+12:03:09 [INFO] tangential           10.3%      10.3%       5.9%
+12:03:09 [INFO] moderate              4.7%       4.9%       1.8%
+12:03:09 [INFO] high                  3.2%       2.3%       0.9%
+12:03:09 [INFO] critical              2.8%       2.9%       0.5%
+12:03:09 [INFO] SAMPLER WORKING — actual matches weighted expectation
+12:03:09 [INFO]   Distance to expected: 0.0171, distance to raw: 0.2269
+12:03:09 [INFO] Verification saved to /home/ahmad/Downloads/StratOS/StratOS1/backend/data/v2_pipeline/training_output/sampler_verification.json
+23:24:35 [INFO] Training complete! Loss: 5.7593, Time: 12.7h
+23:24:35 [INFO] Final V2 adapter saved to: /home/ahmad/Downloads/StratOS/StratOS1/backend/data/v2_pipeline/training_output/final_checkpoint
+23:24:35 [INFO] GPU memory cleared after Phase 2
+23:24:35 [INFO] ======================================================================
+23:24:35 [INFO] PHASE 3 — POST-TRAINING EVALUATION
+23:24:35 [INFO] ======================================================================
+23:24:35 [INFO] Loading V1 merged base from /home/ahmad/Downloads/StratOS/StratOS1/backend/data/v2_pipeline/v1_merged_base...
+23:24:57 [INFO] Loading V2 adapters from /home/ahmad/Downloads/StratOS/StratOS1/backend/data/v2_pipeline/training_output/final_checkpoint...
+23:24:58 [INFO] V2 model loaded for evaluation
+23:24:58 [INFO] Loaded 3809 eval examples
+23:24:58 [INFO] ======================================================================
+23:24:58 [INFO] PROFILE-AWARENESS SANITY CHECK (before merge)
+23:24:58 [INFO] ======================================================================
+01:55:16 [INFO] 
+01:55:16 [INFO] Article: "Is U.S.-Iran war imminent? Oil prices spike to $65.01 as 150+ U.S. cargo planes "
+01:55:16 [INFO]   GT spread: 8.7, V1 spread: 0.3, V2 spread: 8.0
+01:55:16 [INFO]     Retired UN diplomat and policy consultant in Vienn GT=9.2 V1=N/A V2=8.5
+01:55:16 [INFO]     Senior geophysicist at KOC in Kuwait               GT=8.5 V1=0.2 V2=6.5
+01:55:16 [INFO]     Undeclared sophomore at University of Chicago in C GT=6.2 V1=N/A V2=6.5
+01:55:16 [INFO]     E-commerce founder and CEO in Istanbul, Turkey     GT=2.0 V1=0.2 V2=6.5
+01:55:16 [INFO]     Emergency department nurse practitioner in Toronto GT=2.0 V1=0.2 V2=1.0
+01:55:16 [INFO]     Retired IT consultant in Lisbon, Portugal          GT=2.0 V1=0.5 V2=2.0
+01:55:16 [INFO]     Electrical contractor and business owner in Manche GT=1.0 V1=0.2 V2=1.0
+01:55:16 [INFO]     IT systems administrator at a manufacturing compan GT=0.5 V1=0.2 V2=0.5
+01:55:16 [INFO] 
+01:55:16 [INFO] Article: "[WHY] Has the Korean market become optional for K-pop?"
+01:55:16 [INFO]   GT spread: 8.7, V1 spread: 0.2, V2 spread: 8.0
+01:55:16 [INFO]     Digital marketing manager at a K-pop entertainment GT=9.2 V1=N/A V2=8.5
+01:55:16 [INFO]     Indie game developer and studio founder in Berlin, GT=2.0 V1=0.2 V2=1.0
+01:55:16 [INFO]     Equity research analyst at an investment bank in H GT=1.5 V1=0.2 V2=0.5
+01:55:16 [INFO]     Emergency department nurse practitioner in Toronto GT=1.0 V1=0.0 V2=1.0
+01:55:16 [INFO]     Supply chain analyst at a logistics company in Man GT=1.0 V1=0.2 V2=1.0
+01:55:16 [INFO]     Sports physiotherapist at a professional rugby clu GT=1.0 V1=0.0 V2=1.0
+01:55:16 [INFO]     Senior construction project manager in Doha, Qatar GT=0.5 V1=0.0 V2=0.5
+01:55:16 [INFO]     Pipeline welder and CWB-certified inspector in Edm GT=0.5 V1=0.0 V2=1.0
+01:55:16 [INFO] 
+01:55:16 [INFO] Article: "PwC Canada launches groundbreaking AI governance certification ..."
+01:55:16 [INFO]   GT spread: 8.7, V1 spread: 1.9, V2 spread: 7.5
+01:55:16 [INFO]     Investigative journalist covering technology and p GT=8.7 V1=N/A V2=6.5
+01:55:16 [INFO]     Senior auditor at a Big Four accounting firm in To GT=7.0 V1=N/A V2=8.5
+01:55:16 [INFO]     Biotech researcher at KAUST studying gene therapy  GT=2.0 V1=0.2 V2=1.0
+01:55:16 [INFO]     Architect working on smart city infrastructure pro GT=2.0 V1=N/A V2=6.5
+01:55:16 [INFO]     Professional bonsai artist and competition judge i GT=1.0 V1=0.2 V2=1.0
+01:55:16 [INFO]     HR director at a tech company in Sydney, Australia GT=0.0 V1=2.1 V2=6.5
+01:55:16 [INFO] 
+01:55:16 [INFO] Article: "ACHR NEWS February 16, 2026, Issue"
+01:55:16 [INFO]   GT spread: 8.7, V1 spread: 0.5, V2 spread: 8.0
+01:55:16 [INFO]     HVAC technician and small business owner in Housto GT=9.2 V1=N/A V2=8.5
+01:55:16 [INFO]     Cybersecurity analyst at a Kuwaiti bank in Kuwait  GT=1.0 V1=0.0 V2=0.5
+01:55:16 [INFO]     Agricultural commodities trader in São Paulo, Braz GT=1.0 V1=0.2 V2=1.0
+01:55:16 [INFO]     Senior construction project manager in Doha, Qatar GT=0.5 V1=0.5 V2=0.5
+01:55:16 [INFO]     Public health researcher and epidemiologist in Gen GT=0.5 V1=0.2 V2=0.5
+01:55:16 [INFO]     IT systems administrator at a manufacturing compan GT=0.5 V1=0.2 V2=0.5
+01:55:16 [INFO] 
+01:55:16 [INFO] Article: "Dataminr Solutions Now Available in AWS Marketplace Through ..."
+01:55:16 [INFO]   GT spread: 8.5, V1 spread: 1.0, V2 spread: 6.5
+01:55:16 [INFO]     IT systems administrator at a manufacturing compan GT=8.5 V1=N/A V2=6.5
+01:55:16 [INFO]     Investigative journalist covering technology and p GT=5.5 V1=1.2 V2=0.0
+01:55:16 [INFO]     Emergency department nurse practitioner in Toronto GT=2.0 V1=0.2 V2=1.0
+01:55:16 [INFO]     Digital marketing manager at a K-pop entertainment GT=2.0 V1=N/A V2=1.0
+01:55:16 [INFO]     Architect working on smart city infrastructure pro GT=2.0 V1=0.2 V2=1.0
+01:55:16 [INFO]     Professional bonsai artist and competition judge i GT=1.0 V1=0.2 V2=0.5
+01:55:16 [INFO]     Marine electrician on offshore wind vessels in Sta GT=1.0 V1=0.2 V2=1.0
+01:55:16 [INFO]     HVAC technician and small business owner in Housto GT=1.0 V1=0.2 V2=1.0
+01:55:16 [INFO]     Pipeline welder and CWB-certified inspector in Edm GT=1.0 V1=0.2 V2=1.0
+01:55:16 [INFO]     Senior construction project manager in Doha, Qatar GT=0.5 V1=0.5 V2=0.5
+01:55:16 [INFO]     Environmental consultant specializing in carbon ma GT=0.0 V1=0.2 V2=0.0
+01:55:16 [INFO] 
+01:55:16 [INFO] Avg V1 spread: 0.78, Avg V2 spread: 7.60
+01:55:16 [INFO] V2 shows profile-awareness (avg spread >= 2.0)
+01:55:16 [INFO] Merging V2 adapters into base for fast inference...
+01:55:16 [INFO] Adapters merged — running bulk eval on merged model
+01:55:16 [INFO] Running V2 inference on eval set...
+01:55:20 [INFO]   V2 eval: 1/3809 (0%)
+02:02:51 [INFO]   V2 eval: 101/3809 (3%)
+02:13:56 [INFO]   V2 eval: 201/3809 (5%)
+02:24:18 [INFO]   V2 eval: 301/3809 (8%)
