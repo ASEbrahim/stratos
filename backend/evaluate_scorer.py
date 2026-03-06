@@ -32,6 +32,8 @@ logger = logging.getLogger("evaluate_scorer")
 EVAL_FILE = Path(__file__).parent / "data" / "v2_pipeline" / "eval_v2.jsonl"
 OLLAMA_HOST = "http://localhost:11434"
 SCORE_RE = re.compile(r"SCORE:\s*(\d+\.?\d*)")
+# Qwen3 sometimes outputs Chinese score format
+SCORE_RE_ZH = re.compile(r"(?:力评分|评分)[：:]\s*(\d+\.?\d*)")
 
 
 def load_eval_set(path: Path, limit: int = 0) -> List[dict]:
@@ -78,6 +80,8 @@ def score_with_ollama(messages: List[dict], model: str, host: str) -> Tuple[floa
         if "<think>" in raw and "</think>" not in raw:
             raw = re.sub(r"<think>.*$", "", raw, flags=re.DOTALL).strip()
         m = SCORE_RE.search(raw)
+        if not m:
+            m = SCORE_RE_ZH.search(raw)
         if m:
             return float(m.group(1)), raw
         return -1.0, raw

@@ -903,7 +903,11 @@ Previous automated score was {first_score:.1f} (uncertain). Please re-evaluate c
 
         try:
             score_matches = re.findall(r'SCORE:\s*(\d+\.?\d*)', clean, re.IGNORECASE)
+            if not score_matches:
+                score_matches = re.findall(r'(?:力评分|评分)[：:]\s*(\d+\.?\d*)', clean)
             reason_matches = re.findall(r'REASON:\s*(.+)', clean, re.IGNORECASE)
+            if not reason_matches:
+                reason_matches = re.findall(r'(?:原因)[：:]\s*(.+)', clean)
             if score_matches:
                 rescore = float(score_matches[-1])  # Last match — avoids title injection
                 rescore = max(0.0, min(10.0, rescore))
@@ -940,7 +944,12 @@ Previous automated score was {first_score:.1f} (uncertain). Please re-evaluate c
 
         try:
             score_matches = re.findall(r'SCORE:\s*(\d+\.?\d*)', clean, re.IGNORECASE)
+            # Fallback: Chinese output (力评分：X.X or 评分：X.X)
+            if not score_matches:
+                score_matches = re.findall(r'(?:力评分|评分)[：:]\s*(\d+\.?\d*)', clean)
             reason_matches = re.findall(r'REASON:\s*(.+)', clean, re.IGNORECASE)
+            if not reason_matches:
+                reason_matches = re.findall(r'(?:原因)[：:]\s*(.+)', clean)
 
             if score_matches:
                 llm_score = float(score_matches[-1])  # Last match — avoids title injection
@@ -1197,6 +1206,26 @@ Reply with EXACTLY one line per article, numbered:
                     item['score_reason'] = f"Rule score (scan cancelled)"
                     scored_items[idx] = item
                     self._stats['rule'] += 1
+
+        # Phase 1.5: Keyword pre-filter — skip LLM for articles with zero keyword overlap
+        if ambiguous and not _cancelled:
+            filtered_ambiguous = []
+            prefilter_skipped = 0
+            for idx, item, rule_score, route in ambiguous:
+                text = (item.get('title', '') + ' ' + item.get('summary', '')).lower()
+                hits, matched = self._keyword_index.match_any(text)
+                if hits == 0 and rule_score <= 3.0:
+                    # No keyword overlap AND low rule score → obvious noise, skip LLM
+                    item['score'] = min(rule_score, 1.5)
+                    item['score_reason'] = f"Pre-filter: no keyword overlap (rule={rule_score:.1f})"
+                    scored_items[idx] = item
+                    self._stats['rule'] += 1
+                    prefilter_skipped += 1
+                else:
+                    filtered_ambiguous.append((idx, item, rule_score, route))
+            if prefilter_skipped:
+                logger.info(f"Keyword pre-filter: {prefilter_skipped} items scored as noise (zero keyword overlap)")
+            ambiguous = filtered_ambiguous
 
         # Phase 2: Batch LLM scoring for ambiguous items
         if ambiguous and not _cancelled:

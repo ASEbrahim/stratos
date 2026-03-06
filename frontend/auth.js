@@ -168,6 +168,7 @@ function _initStarParallax() {
     const _isCosmos = _t.name === 'Cosmos';
     const _isSakura = _t.name === 'Sakura';
     const _isNebula = _t.name === 'Nebula';
+    const _isAurora = _t.name === 'Aurora';
 
     // ── Black hole data (nebula auth theme — P1 classic accretion disk) ──
     const _bhParticles = [];
@@ -235,6 +236,141 @@ function _initStarParallax() {
         voidG.addColorStop(0.8, 'rgba(0,0,0,1)');
         voidG.addColorStop(1, 'rgba(0,0,0,0.6)');
         ctx.fillStyle = voidG; ctx.beginPath(); ctx.arc(cx, cy, eventR, 0, Math.PI * 2); ctx.fill();
+    }
+
+    // ── Binary star system (aurora auth theme) ──
+    const _BIN_ORBIT_R = 45, _BIN_SPEED = 0.12, _BIN_TILT = 0.38;
+    const _binStarA = { r: 22, color: '52,211,153', bright: '200,255,225', glow: '110,231,183' };
+    const _binStarB = { r: 16, color: '56,189,248', bright: '200,235,255', glow: '125,211,252' };
+    const _binParticles = [];
+    if (_isAurora) {
+        for (let i = 0; i < 180; i++) {
+            const band = Math.random();
+            const dist = 55 + band * 180;
+            _binParticles.push({
+                angle: Math.random() * Math.PI * 2,
+                dist,
+                speed: (0.04 + Math.random() * 0.06) * (120 / (dist + 30)),
+                r: Math.random() * 1.2 + 0.3,
+                a: Math.random() * 0.4 + 0.1,
+                yOff: (Math.random() - 0.5) * 4,
+                colorType: band < 0.4 ? 0 : band < 0.7 ? 1 : 2,
+            });
+        }
+    }
+    const _binColors = [[110,231,183],[56,189,248],[200,220,240]];
+    function _binProject(cx, cy, dist, angle) {
+        return { x: cx + Math.cos(angle) * dist, y: cy + Math.sin(angle) * dist * _BIN_TILT, depth: Math.sin(angle) };
+    }
+    function _binDrawSystem(cx, cy, t) {
+        const ang = t * _BIN_SPEED;
+        const s1x = cx + Math.cos(ang) * _BIN_ORBIT_R;
+        const s1y = cy + Math.sin(ang) * _BIN_ORBIT_R * _BIN_TILT;
+        const s1d = Math.sin(ang);
+        const s2x = cx + Math.cos(ang + Math.PI) * _BIN_ORBIT_R;
+        const s2y = cy + Math.sin(ang + Math.PI) * _BIN_ORBIT_R * _BIN_TILT;
+        const s2d = Math.sin(ang + Math.PI);
+
+        // Ambient glow
+        const amb = ctx.createRadialGradient(cx, cy, 0, cx, cy, 300);
+        amb.addColorStop(0, 'rgba(52,211,153,0.06)');
+        amb.addColorStop(0.15, 'rgba(56,189,248,0.03)');
+        amb.addColorStop(0.35, 'rgba(110,231,183,0.012)');
+        amb.addColorStop(0.6, 'rgba(16,185,129,0.004)');
+        amb.addColorStop(1, 'transparent');
+        ctx.fillStyle = amb; ctx.beginPath(); ctx.arc(cx, cy, 300, 0, Math.PI * 2); ctx.fill();
+
+        // Accretion rings
+        ctx.save(); ctx.translate(cx, cy); ctx.scale(1, _BIN_TILT);
+        const ringDefs = [[60,'110,231,183',0.04],[100,'56,189,248',0.025],[140,'52,211,153',0.015]];
+        for (const [rd, rc, ra] of ringDefs) {
+            ctx.beginPath(); ctx.arc(0, 0, rd, 0, Math.PI * 2);
+            ctx.strokeStyle = `rgba(${rc},${ra})`; ctx.lineWidth = 12; ctx.stroke();
+        }
+        ctx.beginPath(); ctx.arc(0, 0, _BIN_ORBIT_R, 0, Math.PI * 2);
+        ctx.strokeStyle = 'rgba(110,231,183,0.035)'; ctx.lineWidth = 2; ctx.stroke();
+        ctx.restore();
+
+        // Back orbital particles
+        const proj = [];
+        for (const p of _binParticles) {
+            const pr = _binProject(cx, cy, p.dist, p.angle + t * p.speed);
+            proj.push({ x: pr.x, y: pr.y + p.yOff, d: pr.depth, r: p.r, a: p.a, ct: p.colorType });
+        }
+        proj.sort((a, b) => a.d - b.d);
+        for (const p of proj) {
+            if (p.d > 0.1) continue;
+            const c = _binColors[p.ct];
+            ctx.globalAlpha = p.a * (0.5 + p.d * 0.5);
+            ctx.fillStyle = `rgb(${c[0]},${c[1]},${c[2]})`;
+            ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctx.fill();
+        }
+
+        // Tidal bridge
+        const bridgePulse = 0.7 + 0.3 * Math.sin(t * 0.8);
+        const bridgeDefs = [['200,255,230',0.06,4],['110,231,183',0.035,8],['56,189,248',0.02,14]];
+        for (const [bc, ba, bw] of bridgeDefs) {
+            const sOff = Math.sin(t * 0.5 + bw) * 4;
+            ctx.beginPath(); ctx.moveTo(s1x, s1y);
+            ctx.quadraticCurveTo((s1x+s2x)/2 + sOff, (s1y+s2y)/2 - 5, s2x, s2y);
+            ctx.strokeStyle = `rgba(${bc},${ba * bridgePulse})`; ctx.lineWidth = bw; ctx.lineCap = 'round'; ctx.stroke();
+        }
+
+        // Draw stars sorted by depth
+        const pair = [
+            { x: s1x, y: s1y, d: s1d, ...(_binStarA), id: 'A' },
+            { x: s2x, y: s2y, d: s2d, ...(_binStarB), id: 'B' },
+        ];
+        pair.sort((a, b) => a.d - b.d);
+        for (const star of pair) {
+            const db = 0.75 + 0.25 * star.d;
+            const pulse = 1 + Math.sin(t * 0.4 + (star.id === 'A' ? 0 : Math.PI)) * 0.08;
+            const sr = star.r * pulse;
+            // Outer halo
+            const oh = ctx.createRadialGradient(star.x, star.y, 0, star.x, star.y, sr * 8);
+            oh.addColorStop(0, `rgba(${star.glow},${0.08 * db})`);
+            oh.addColorStop(0.2, `rgba(${star.color},${0.04 * db})`);
+            oh.addColorStop(0.5, `rgba(${star.color},${0.012 * db})`);
+            oh.addColorStop(1, 'transparent');
+            ctx.fillStyle = oh; ctx.beginPath(); ctx.arc(star.x, star.y, sr * 8, 0, Math.PI * 2); ctx.fill();
+            // Inner glow
+            const ig = ctx.createRadialGradient(star.x, star.y, 0, star.x, star.y, sr * 3);
+            ig.addColorStop(0, `rgba(${star.bright},${0.25 * db})`);
+            ig.addColorStop(0.3, `rgba(${star.glow},${0.15 * db})`);
+            ig.addColorStop(0.7, `rgba(${star.color},${0.04 * db})`);
+            ig.addColorStop(1, 'transparent');
+            ctx.fillStyle = ig; ctx.beginPath(); ctx.arc(star.x, star.y, sr * 3, 0, Math.PI * 2); ctx.fill();
+            // Body
+            const bd = ctx.createRadialGradient(star.x - sr * 0.1, star.y - sr * 0.1, 0, star.x, star.y, sr);
+            bd.addColorStop(0, `rgba(${star.bright},${0.5 * db})`);
+            bd.addColorStop(0.3, `rgba(${star.bright},${0.35 * db})`);
+            bd.addColorStop(0.7, `rgba(${star.color},${0.2 * db})`);
+            bd.addColorStop(1, `rgba(${star.color},${0.05 * db})`);
+            ctx.fillStyle = bd; ctx.beginPath(); ctx.arc(star.x, star.y, sr, 0, Math.PI * 2); ctx.fill();
+            // Lens flare
+            ctx.globalAlpha = 0.08 * db * pulse;
+            ctx.strokeStyle = `rgba(${star.bright},0.4)`; ctx.lineWidth = 1;
+            ctx.beginPath(); ctx.moveTo(star.x - sr * 5, star.y); ctx.lineTo(star.x + sr * 5, star.y); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(star.x, star.y - sr * 3.5); ctx.lineTo(star.x, star.y + sr * 3.5); ctx.stroke();
+            ctx.globalAlpha = 1;
+        }
+
+        // Front particles
+        for (const p of proj) {
+            if (p.d <= 0.1) continue;
+            const c = _binColors[p.ct];
+            const da = p.a * (0.6 + p.d * 0.4);
+            ctx.globalAlpha = da;
+            if (p.ct === 0 && p.r > 0.8) {
+                const pg = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r * 5);
+                pg.addColorStop(0, `rgba(${c[0]},${c[1]},${c[2]},${da * 0.25})`);
+                pg.addColorStop(1, 'transparent');
+                ctx.fillStyle = pg; ctx.beginPath(); ctx.arc(p.x, p.y, p.r * 5, 0, Math.PI * 2); ctx.fill();
+            }
+            ctx.fillStyle = `rgb(${c[0]},${c[1]},${c[2]})`;
+            ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctx.fill();
+        }
+        ctx.globalAlpha = 1;
     }
 
     // Solar system data (cosmos auth theme - tilted perspective)
@@ -475,6 +611,11 @@ function _initStarParallax() {
                 ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctx.fill();
             }
             ctx.globalAlpha = 1;
+        }
+
+        // Binary star system (aurora auth theme)
+        if (_isAurora) {
+            _binDrawSystem(canvas.width * 0.5, canvas.height * 0.28, t);
         }
 
         // Spawn shooting stars

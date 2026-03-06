@@ -32,8 +32,13 @@ SCORES_FILE = OUTPUT_DIR / "scores_v2.json"
 ARTICLES_FILE = OUTPUT_DIR / "articles_v2.json"
 TRAIN_FILE = OUTPUT_DIR / "training_v2.jsonl"
 EVAL_FILE = OUTPUT_DIR / "eval_v2.jsonl"
+HOLDOUT_FILE = OUTPUT_DIR / "eval_holdout_v2.jsonl"
+HOLDOUT_ARTICLES_FILE = OUTPUT_DIR / "holdout_articles.json"
 CONTRASTIVE_FILE = OUTPUT_DIR / "contrastive_pairs_v2.json"
 REPORT_FILE = OUTPUT_DIR / "stage4_report.json"
+
+# Fraction of articles to reserve for holdout (article-level, not example-level)
+HOLDOUT_ARTICLE_FRACTION = 0.06  # ~50 articles from 813
 
 # Profile lookup
 PROFILE_MAP = {p['id']: p for p in ALL_PROFILES}
@@ -120,9 +125,14 @@ Title: {title}
 Content: {content}"""
 
     score = scored['score']
+    # Use think_text (full Opus reasoning) when available, fall back to short reason
+    think_text = scored.get('think_text', '').strip()
     reason = scored.get('reason', 'No reason provided')
 
-    assistant_message = f"SCORE: {score:.1f} | REASON: {reason}"
+    if think_text and len(think_text) > 50:
+        assistant_message = f"SCORE: {score:.1f} | REASON: {think_text}"
+    else:
+        assistant_message = f"SCORE: {score:.1f} | REASON: {reason}"
 
     return {
         "messages": [
@@ -215,6 +225,25 @@ def main():
     if len(contrastive_pairs) < 10000:
         print(f"!! WARNING: Only {len(contrastive_pairs)} contrastive pairs — below 10,000 target")
 
+    # ── 3b. Article-level holdout split ──
+    # Reserve entire articles for holdout — zero article overlap with training
+    # If a holdout_articles.json already exists, use those exact articles
+    all_article_ids = list(scored_by_article.keys())
+    if HOLDOUT_ARTICLES_FILE.exists():
+        with open(HOLDOUT_ARTICLES_FILE) as f:
+            holdout_articles_data = json.load(f)
+        holdout_article_ids = set(a.get('id', a) if isinstance(a, dict) else a for a in holdout_articles_data)
+        print(f"Using existing holdout articles: {len(holdout_article_ids)} articles")
+    else:
+        random.shuffle(all_article_ids)
+        n_holdout = max(30, int(len(all_article_ids) * HOLDOUT_ARTICLE_FRACTION))
+        holdout_article_ids = set(all_article_ids[:n_holdout])
+        print(f"Reserved {len(holdout_article_ids)} articles for holdout (new split)")
+
+    holdout_examples = [s for s in valid if s['article_id'] in holdout_article_ids]
+    valid = [s for s in valid if s['article_id'] not in holdout_article_ids]
+    print(f"After holdout split: {len(valid)} train/eval, {len(holdout_examples)} holdout")
+
     # ── 4. Curriculum sorting (easy → hard) ──
     # Easy = clear noise (0-2) or clear critical (8-10)
     # Hard = ambiguous mid-range (3-7)
@@ -276,6 +305,16 @@ def main():
         example = build_training_example(s, profile, article)
         eval_jsonl.append(example)
 
+    # Build holdout JSONL
+    holdout_jsonl = []
+    for s in holdout_examples:
+        profile = PROFILE_MAP.get(s['profile_id'])
+        article = article_map.get(s['article_id'])
+        if not profile or not article:
+            continue
+        example = build_training_example(s, profile, article)
+        holdout_jsonl.append(example)
+
     # Save
     with open(TRAIN_FILE, 'w') as f:
         for ex in train_jsonl:
@@ -284,6 +323,17 @@ def main():
     with open(EVAL_FILE, 'w') as f:
         for ex in eval_jsonl:
             f.write(json.dumps(ex, ensure_ascii=False) + '\n')
+
+    # Only write holdout if we have examples (don't overwrite external holdout)
+    if holdout_jsonl:
+        with open(HOLDOUT_FILE, 'w') as f:
+            for ex in holdout_jsonl:
+                f.write(json.dumps(ex, ensure_ascii=False) + '\n')
+        print(f"  Holdout: {HOLDOUT_FILE} ({len(holdout_jsonl)} examples)")
+    elif HOLDOUT_FILE.exists():
+        import subprocess
+        existing_count = int(subprocess.check_output(['wc', '-l', str(HOLDOUT_FILE)]).split()[0])
+        print(f"  Holdout: {HOLDOUT_FILE} (kept existing {existing_count} examples)")
 
     print(f"\nSaved:")
     print(f"  Training: {TRAIN_FILE} ({len(train_jsonl)} examples, {TRAIN_FILE.stat().st_size / 1024:.0f} KB)")
