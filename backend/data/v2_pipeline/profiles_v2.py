@@ -1,8 +1,8 @@
 """
-V2 Training Pipeline — Profile Definitions
-============================================
-30 diverse profiles for multi-profile contrastive training data generation.
-10 existing V1 profiles (from autopilot.py) + 20 new profiles.
+V2/V3 Training Pipeline — Profile Definitions
+===============================================
+50 diverse profiles for multi-profile contrastive training data generation.
+10 V1 profiles (from autopilot.py) + 20 V2 profiles + 20 V3 profiles.
 """
 
 # ══════════════════════════════════════════════════════════════
@@ -362,7 +362,273 @@ V2_NEW_PROFILES = [
     },
 ]
 
-ALL_PROFILES = V1_PROFILES + V2_NEW_PROFILES
+# ══════════════════════════════════════════════════════════════
+# V3 NEW PROFILES (20 new — common professions, likely-user markets)
+# ══════════════════════════════════════════════════════════════
+
+V3_NEW_PROFILES = [
+    # ── Education ──
+    {
+        "id": "math_teacher_texas",
+        "role": "High school math teacher",
+        "location": "Austin, Texas, USA",
+        "context": "Teaching AP Calculus and Statistics, tracking education policy, EdTech tools, and STEM curriculum developments",
+        "interests": ["math education", "EdTech", "AP curriculum", "STEM outreach", "Texas education policy"],
+        "tracked_companies": "Texas Instruments, Desmos, Khan Academy, College Board",
+        "tracked_institutions": "TEA, NCTM, UT Austin",
+        "tracked_industries": "education, EdTech",
+        "diversity_tag": "mid-career/education",
+    },
+
+    # ── Software Engineering ──
+    {
+        "id": "backend_engineer_singapore",
+        "role": "Backend software engineer at a cloud infrastructure company",
+        "location": "Singapore",
+        "context": "Building distributed systems and microservices for Southeast Asian markets, tracking cloud and DevOps trends",
+        "interests": ["distributed systems", "Kubernetes", "Go", "cloud infrastructure", "DevOps"],
+        "tracked_companies": "AWS, Google Cloud, Grab, Sea Group",
+        "tracked_institutions": "IMDA, NUS Computing",
+        "tracked_industries": "cloud computing, software engineering, fintech",
+        "diversity_tag": "mid-career/tech",
+    },
+
+    # ── Real Estate ──
+    {
+        "id": "real_estate_dubai",
+        "role": "Real estate developer and investment manager",
+        "location": "Dubai, UAE",
+        "context": "Managing luxury residential and commercial development projects, tracking Dubai property market regulations and foreign investment trends",
+        "interests": ["Dubai real estate", "property development", "off-plan sales", "RERA regulations", "luxury market"],
+        "tracked_companies": "Emaar, DAMAC, Nakheel, Aldar Properties",
+        "tracked_institutions": "RERA, Dubai Land Department, DIFC",
+        "tracked_industries": "real estate, construction, finance",
+        "diversity_tag": "senior/GCC",
+    },
+
+    # ── Marketing ──
+    {
+        "id": "marketing_director_london",
+        "role": "Marketing director at a consumer goods company",
+        "location": "London, UK",
+        "context": "Leading brand strategy for FMCG products across European markets, tracking consumer behavior trends and digital advertising",
+        "interests": ["brand strategy", "digital advertising", "consumer insights", "e-commerce", "sustainability marketing"],
+        "tracked_companies": "Unilever, P&G, Diageo, WPP",
+        "tracked_institutions": "CIM, ASA, IPA",
+        "tracked_industries": "FMCG, advertising, retail",
+        "diversity_tag": "senior/marketing",
+    },
+
+    # ── Accounting ──
+    {
+        "id": "auditor_toronto",
+        "role": "Senior auditor at a Big Four accounting firm",
+        "location": "Toronto, Canada",
+        "context": "Leading audit engagements for TSX-listed companies, tracking IFRS changes, Canadian tax reform, and ESG reporting standards",
+        "interests": ["IFRS standards", "ESG reporting", "Canadian tax policy", "forensic accounting", "audit technology"],
+        "tracked_companies": "Deloitte, KPMG, PwC, EY",
+        "tracked_institutions": "CPA Canada, OSC, IASB",
+        "tracked_industries": "accounting, finance, regulatory",
+        "diversity_tag": "mid-career/finance",
+    },
+
+    # ── Automotive ──
+    {
+        "id": "auto_engineer_stuttgart",
+        "role": "EV powertrain engineer at an automotive manufacturer",
+        "location": "Stuttgart, Germany",
+        "context": "Developing electric vehicle drivetrain systems, tracking battery technology, EU emissions regulation, and EV market competition",
+        "interests": ["EV powertrains", "battery technology", "solid-state batteries", "EU emissions regulation", "autonomous driving"],
+        "tracked_companies": "Mercedes-Benz, Porsche, BMW, CATL, BYD",
+        "tracked_institutions": "VDA, Fraunhofer ISE, KIT",
+        "tracked_industries": "automotive, electric vehicles, energy storage",
+        "diversity_tag": "mid-career/engineering",
+    },
+
+    # ── Journalism ──
+    {
+        "id": "journalist_dc",
+        "role": "Investigative journalist covering technology and policy",
+        "location": "Washington DC, USA",
+        "context": "Covering the intersection of tech regulation, AI policy, and corporate lobbying for a major publication",
+        "interests": ["tech regulation", "AI policy", "antitrust", "data privacy", "congressional hearings"],
+        "tracked_companies": "Google, Meta, Apple, Microsoft, OpenAI",
+        "tracked_institutions": "FTC, FCC, Senate Commerce Committee, NIST",
+        "tracked_industries": "technology, media, government",
+        "diversity_tag": "mid-career/media",
+    },
+
+    # ── E-commerce ──
+    {
+        "id": "ecommerce_istanbul",
+        "role": "E-commerce founder and CEO",
+        "location": "Istanbul, Turkey",
+        "context": "Running a cross-border e-commerce platform selling Turkish goods to EU and GCC markets, tracking logistics, payments, and Turkish trade policy",
+        "interests": ["cross-border e-commerce", "payment gateways", "Turkish exports", "last-mile delivery", "marketplace platforms"],
+        "tracked_companies": "Trendyol, Hepsiburada, Getir, iyzico",
+        "tracked_institutions": "Turkish Trade Ministry, DEIK, Istanbul Chamber of Commerce",
+        "tracked_industries": "e-commerce, logistics, retail",
+        "diversity_tag": "executive/non-English",
+    },
+
+    # ── Environmental ──
+    {
+        "id": "env_consultant_amsterdam",
+        "role": "Environmental consultant specializing in carbon markets",
+        "location": "Amsterdam, Netherlands",
+        "context": "Advising corporations on EU ETS compliance, carbon offset strategies, and sustainability reporting under CSRD",
+        "interests": ["carbon markets", "EU ETS", "CSRD reporting", "climate risk", "circular economy"],
+        "tracked_companies": "Shell, Arcadis, South Pole, Climeworks",
+        "tracked_institutions": "EU Commission, GRI, CDP, Dutch Environment Ministry",
+        "tracked_industries": "environmental consulting, energy, finance",
+        "diversity_tag": "mid-career/sustainability",
+    },
+
+    # ── HR ──
+    {
+        "id": "hr_director_sydney",
+        "role": "HR director at a tech company",
+        "location": "Sydney, Australia",
+        "context": "Managing talent acquisition and retention for a 500-person tech company, tracking Australian employment law and remote work trends",
+        "interests": ["talent acquisition", "remote work policy", "DEI", "Australian employment law", "HR tech"],
+        "tracked_companies": "Atlassian, Canva, Culture Amp, Employment Hero",
+        "tracked_institutions": "Fair Work Commission, AHRI",
+        "tracked_industries": "technology, HR, professional services",
+        "diversity_tag": "senior/HR",
+    },
+
+    # ── Dentistry ──
+    {
+        "id": "dentist_riyadh",
+        "role": "Dentist and private practice owner",
+        "location": "Riyadh, Saudi Arabia",
+        "context": "Running a multi-chair dental clinic, tracking Saudi healthcare licensing, dental technology, and Vision 2030 healthcare privatization",
+        "interests": ["dental implants", "orthodontics", "dental imaging", "Saudi healthcare policy", "practice management"],
+        "tracked_companies": "Align Technology, Dentsply Sirona, Straumann, Henry Schein",
+        "tracked_institutions": "Saudi MOH, SCFHS, Saudi Dental Society",
+        "tracked_industries": "healthcare, dental, medical devices",
+        "diversity_tag": "mid-career/healthcare/GCC",
+    },
+
+    # ── Aviation ──
+    {
+        "id": "airline_pilot_dubai",
+        "role": "Commercial airline pilot (Boeing 777 captain)",
+        "location": "Dubai, UAE",
+        "context": "Flying long-haul routes for a major Gulf carrier, tracking aviation safety, fleet orders, route expansions, and pilot labor market",
+        "interests": ["aviation safety", "fleet management", "pilot training", "airline route strategy", "aviation regulation"],
+        "tracked_companies": "Emirates, Boeing, Airbus, Rolls-Royce",
+        "tracked_institutions": "GCAA, IATA, ICAO",
+        "tracked_industries": "aviation, aerospace, tourism",
+        "diversity_tag": "senior/GCC/aviation",
+    },
+
+    # ── Social Media ──
+    {
+        "id": "social_media_la",
+        "role": "Social media strategist and content creator",
+        "location": "Los Angeles, California, USA",
+        "context": "Managing brand partnerships and content strategy across TikTok, Instagram, and YouTube for lifestyle and tech brands",
+        "interests": ["content creation", "influencer marketing", "TikTok algorithm", "brand partnerships", "video production"],
+        "tracked_companies": "TikTok, Instagram, YouTube, Spotify",
+        "tracked_institutions": "None",
+        "tracked_industries": "social media, entertainment, advertising",
+        "diversity_tag": "mid-career/creative",
+    },
+
+    # ── Electrical Trades ──
+    {
+        "id": "electrician_manchester",
+        "role": "Electrical contractor and business owner",
+        "location": "Manchester, UK",
+        "context": "Running a 10-person electrical contracting firm, tracking UK building regulations, EV charger installations, and smart home technology",
+        "interests": ["EV charging installation", "smart home systems", "UK wiring regulations", "solar PV", "small business"],
+        "tracked_companies": "Tesla (Powerwall), Pod Point, Schneider Electric, Hager",
+        "tracked_institutions": "NICEIC, IET, NAPIT",
+        "tracked_industries": "electrical, construction, renewable energy",
+        "diversity_tag": "mid-career/blue-collar",
+    },
+
+    # ── Construction Management ──
+    {
+        "id": "construction_pm_doha",
+        "role": "Senior construction project manager",
+        "location": "Doha, Qatar",
+        "context": "Managing large-scale infrastructure and commercial building projects, tracking Qatar National Vision 2030 developments and GCC construction markets",
+        "interests": ["project management", "BIM", "construction safety", "Qatar infrastructure", "contract management"],
+        "tracked_companies": "Ashghal, Qatar Rail, Consolidated Contractors, QDVC",
+        "tracked_institutions": "Qatar Ministry of Municipality, PMI",
+        "tracked_industries": "construction, infrastructure, real estate",
+        "diversity_tag": "senior/GCC/construction",
+    },
+
+    # ── Investment Banking ──
+    {
+        "id": "investment_analyst_hk",
+        "role": "Equity research analyst at an investment bank",
+        "location": "Hong Kong",
+        "context": "Covering Asia-Pacific technology and semiconductor sectors, tracking IPOs, earnings, and regulatory changes in Chinese tech",
+        "interests": ["semiconductor industry", "Asia tech equities", "IPO analysis", "Chinese tech regulation", "HKEX listings"],
+        "tracked_companies": "TSMC, Samsung, Alibaba, Tencent, SMIC",
+        "tracked_institutions": "HKEX, SFC, CSRC",
+        "tracked_industries": "investment banking, semiconductors, technology",
+        "diversity_tag": "mid-career/finance",
+    },
+
+    # ── Public Health ──
+    {
+        "id": "public_health_geneva",
+        "role": "Public health researcher and epidemiologist",
+        "location": "Geneva, Switzerland",
+        "context": "Working on global disease surveillance and pandemic preparedness, tracking WHO policy, vaccination programs, and infectious disease outbreaks",
+        "interests": ["epidemiology", "pandemic preparedness", "vaccination policy", "global health governance", "antimicrobial resistance"],
+        "tracked_companies": "Pfizer, Moderna, GSK, bioMerieux",
+        "tracked_institutions": "WHO, GAVI, Wellcome Trust, Swiss TPH",
+        "tracked_industries": "public health, pharmaceuticals, policy",
+        "diversity_tag": "senior/healthcare",
+    },
+
+    # ── Logistics ──
+    {
+        "id": "trucking_owner_atlanta",
+        "role": "Trucking and logistics company owner",
+        "location": "Atlanta, Georgia, USA",
+        "context": "Running a 30-truck fleet serving the Southeast US, tracking diesel prices, FMCSA regulations, driver shortages, and EV truck adoption",
+        "interests": ["fleet management", "diesel markets", "FMCSA regulations", "EV trucks", "freight rates"],
+        "tracked_companies": "Freightliner, Kenworth, Tesla Semi, Samsara",
+        "tracked_institutions": "FMCSA, ATA, Georgia DOT",
+        "tracked_industries": "trucking, logistics, transportation",
+        "diversity_tag": "executive/blue-collar",
+    },
+
+    # ── Veterinary ──
+    {
+        "id": "veterinarian_stockholm",
+        "role": "Veterinarian and animal clinic owner",
+        "location": "Stockholm, Sweden",
+        "context": "Running a companion animal clinic, tracking veterinary medicine advances, Swedish animal welfare regulations, and pet industry trends",
+        "interests": ["veterinary medicine", "animal welfare", "pet nutrition", "veterinary imaging", "Swedish regulations"],
+        "tracked_companies": "Zoetis, IDEXX, Royal Canin, Agria Pet Insurance",
+        "tracked_institutions": "Swedish Board of Agriculture, SVA, SVF",
+        "tracked_industries": "veterinary, pet care, healthcare",
+        "diversity_tag": "mid-career/healthcare/non-English",
+    },
+
+    # ── IT Infrastructure ──
+    {
+        "id": "sysadmin_osaka",
+        "role": "IT systems administrator at a manufacturing company",
+        "location": "Osaka, Japan",
+        "context": "Managing on-prem and hybrid cloud infrastructure for a mid-size manufacturer, tracking cybersecurity threats, cloud migration, and Japanese IT regulations",
+        "interests": ["network security", "cloud migration", "Active Directory", "VMware", "Japanese data protection"],
+        "tracked_companies": "Microsoft, VMware, Cisco, NTT Data",
+        "tracked_institutions": "IPA Japan, NISC",
+        "tracked_industries": "IT infrastructure, manufacturing, cybersecurity",
+        "diversity_tag": "mid-career/tech/non-English",
+    },
+]
+
+ALL_PROFILES = V1_PROFILES + V2_NEW_PROFILES + V3_NEW_PROFILES
 
 
 def print_profile_table():
@@ -383,24 +649,37 @@ def print_profile_table():
     for p in ALL_PROFILES:
         loc = p['location'].lower()
         for country in ['kuwait', 'saudi', 'uae', 'dubai', 'bahrain', 'oman', 'qatar',
-                        'japan', 'brazil', 'france', 'south korea', 'korea', 'usa', 'texas', 'chicago', 'illinois',
-                        'norway', 'canada', 'alberta', 'toronto', 'germany', 'berlin', 'india', 'mumbai',
-                        'australia', 'sydney', 'portugal', 'lisbon', 'uk', 'london',
-                        'nigeria', 'lagos', 'chile', 'santiago', 'austria', 'vienna', 'mexico']:
+                        'japan', 'osaka', 'brazil', 'france', 'south korea', 'korea',
+                        'usa', 'texas', 'austin', 'chicago', 'illinois', 'houston', 'atlanta', 'georgia',
+                        'washington', 'los angeles', 'california',
+                        'norway', 'canada', 'alberta', 'toronto', 'germany', 'stuttgart', 'berlin',
+                        'india', 'mumbai', 'australia', 'sydney', 'portugal', 'lisbon', 'uk', 'london',
+                        'manchester', 'nigeria', 'lagos', 'chile', 'santiago', 'austria', 'vienna',
+                        'mexico', 'singapore', 'turkey', 'istanbul', 'netherlands', 'amsterdam',
+                        'hong kong', 'switzerland', 'geneva', 'sweden', 'stockholm']:
             if country in loc:
                 # Normalize
                 norm = {'texas': 'USA', 'chicago': 'USA', 'illinois': 'USA', 'houston': 'USA',
-                        'dubai': 'UAE', 'berlin': 'Germany', 'mumbai': 'India', 'sydney': 'Australia',
-                        'lisbon': 'Portugal', 'london': 'UK', 'lagos': 'Nigeria',
-                        'santiago': 'Chile', 'vienna': 'Austria', 'toronto': 'Canada',
-                        'alberta': 'Canada', 'seoul': 'South Korea', 'korea': 'South Korea',
+                        'austin': 'USA', 'atlanta': 'USA', 'georgia': 'USA',
+                        'washington': 'USA', 'los angeles': 'USA', 'california': 'USA',
+                        'dubai': 'UAE', 'berlin': 'Germany', 'stuttgart': 'Germany',
+                        'mumbai': 'India', 'sydney': 'Australia', 'osaka': 'Japan',
+                        'lisbon': 'Portugal', 'london': 'UK', 'manchester': 'UK',
+                        'lagos': 'Nigeria', 'santiago': 'Chile', 'vienna': 'Austria',
+                        'toronto': 'Canada', 'alberta': 'Canada',
+                        'seoul': 'South Korea', 'korea': 'South Korea',
                         'saudi': 'Saudi Arabia', 'bahrain': 'Bahrain', 'oman': 'Oman',
                         'qatar': 'Qatar', 'kuwait': 'Kuwait', 'japan': 'Japan',
                         'brazil': 'Brazil', 'france': 'France', 'norway': 'Norway',
                         'germany': 'Germany', 'india': 'India', 'australia': 'Australia',
                         'portugal': 'Portugal', 'nigeria': 'Nigeria', 'chile': 'Chile',
                         'austria': 'Austria', 'mexico': 'Mexico', 'usa': 'USA',
-                        'uae': 'UAE', 'canada': 'Canada', 'uk': 'UK'}.get(country, country.title())
+                        'uae': 'UAE', 'canada': 'Canada', 'uk': 'UK',
+                        'singapore': 'Singapore', 'turkey': 'Turkey', 'istanbul': 'Turkey',
+                        'netherlands': 'Netherlands', 'amsterdam': 'Netherlands',
+                        'hong kong': 'Hong Kong', 'switzerland': 'Switzerland',
+                        'geneva': 'Switzerland', 'sweden': 'Sweden',
+                        'stockholm': 'Sweden'}.get(country, country.title())
                 countries.add(norm)
 
     tags = [p.get('diversity_tag', '') for p in ALL_PROFILES]
