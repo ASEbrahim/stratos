@@ -1,0 +1,402 @@
+[
+  {
+    "article_id": "a18b71229368",
+    "profile_id": "backend_engineer_singapore",
+    "score": 1.5,
+    "reason": "Acquisition of an embedded systems engineering firm is unrelated to backend engineering, cloud infrastructure, or Southeast Asian markets.",
+    "think_text": "This is about Innovobot acquiring Voler Systems, a California-based embedded engineering firm. No relevance to distributed systems, Kubernetes, Go, cloud infrastructure, DevOps, or any tracked companies/industries. Pure hardware/embedded systems acquisition news.",
+    "think_tokens": 45
+  },
+  {
+    "article_id": "a15bbae7cbe8",
+    "profile_id": "backend_engineer_singapore",
+    "score": 2.0,
+    "reason": "India's semiconductor manufacturing plans are tangentially related to tech but not to backend engineering, cloud infrastructure, or Southeast Asian fintech.",
+    "think_text": "This covers India's semiconductor manufacturing milestones at the IndiaAI Impact Summit. While semiconductors underpin computing, this is about chip fabrication policy in India, not about cloud infrastructure, distributed systems, or software engineering. No direct relevance to the profile's interests or tracked companies.",
+    "think_tokens": 50
+  },
+  {
+    "article_id": "6ba7fc22a2c4",
+    "profile_id": "backend_engineer_singapore",
+    "score": 0.5,
+    "reason": "NFL football free agency news has zero relevance to backend engineering or any tracked industry.",
+    "think_text": "This is purely about American football - Aaron Rodgers potentially signing with the Minnesota Vikings. Completely irrelevant to any aspect of the profile.",
+    "think_tokens": 30
+  },
+  {
+    "article_id": "d0055746525c",
+    "profile_id": "backend_engineer_singapore",
+    "score": 0.5,
+    "reason": "Arabic-language article about an AI-generated TV drama series for Ramadan; no relevance to backend engineering or cloud infrastructure.",
+    "think_text": "This is about an AI-generated drama series on an Egyptian media platform. While it mentions AI, it's about entertainment content creation, not software engineering, cloud, or distributed systems.",
+    "think_tokens": 35
+  },
+  {
+    "article_id": "df1d8e259ad7",
+    "profile_id": "backend_engineer_singapore",
+    "score": 1.0,
+    "reason": "Egyptian investment minister discussing fintech and trade technology; tangentially fintech but focused on Egypt, not Southeast Asia or cloud infrastructure.",
+    "think_text": "This covers Egypt's investment minister at a conference discussing TradeTech and SupTech. While fintech is a tracked industry, this is specifically about Egyptian trade policy and regulation, not about cloud infrastructure, distributed systems, or Southeast Asian markets.",
+    "think_tokens": 45
+  },
+  {
+    "article_id": "6a78f264f709",
+    "profile_id": "backend_engineer_singapore",
+    "score": 0.5,
+    "reason": "Oil drilling operations in Venezuela have no relevance to backend engineering, cloud, or Southeast Asian tech.",
+    "think_text": "This is about oil companies competing for drilling projects in Venezuela's Lake Maracaibo region. Completely unrelated to the profile's interests in distributed systems, Kubernetes, cloud infrastructure, or any tracked companies.",
+    "think_tokens": 35
+  },
+  {
+    "article_id": "10c5d75ea54d",
+    "profile_id": "backend_engineer_singapore",
+    "score": 0.5,
+    "reason": "Stock analysis of Halliburton, an oilfield services company, is irrelevant to backend engineering or cloud computing.",
+    "think_text": "This is a financial analysis of Halliburton's stock price after a 65% rally. Oil and gas services have no connection to distributed systems, cloud infrastructure, or software engineering.",
+    "think_tokens": 30
+  },
+  {
+    "article_id": "451e72310c84",
+    "profile_id": "backend_engineer_singapore",
+    "score": 3.5,
+    "reason": "Quantum computing analysis is somewhat relevant as a general tech topic but not directly actionable for a backend engineer focused on cloud infrastructure and distributed systems.",
+    "think_text": "This discusses why quantum computing hasn't reached mainstream enterprise adoption. While it's a technology topic that a software engineer might find intellectually interesting, it doesn't relate to the profile's core interests in Kubernetes, Go, cloud infrastructure, DevOps, or Southeast Asian markets. It's general tech awareness at best.",
+    "think_tokens": 50
+  },
+  {
+    "article_id": "30cfdb6ab21d",
+    "profile_id": "backend_engineer_singapore",
+    "score": 0.5,
+    "reason": "Offshore drilling contracts in Indonesia are about oil and gas operations, not software engineering or cloud infrastructure.",
+    "think_text": "SLB winning offshore drilling contracts from Mubadala Energy in Indonesia. While it's in Southeast Asia geographically, it's about physical oil/gas drilling, not technology or software. No relevance to the profile.",
+    "think_tokens": 35
+  },
+  {
+    "article_id": "7dc51331f9c3",
+    "profile_id": "backend_engineer_singapore",
+    "score": 0.5,
+    "reason": "Arabic article about Egypt's communications minister at an AI summit in India; no relevance to backend engineering or cloud infrastructure.",
+    "think_text": "Egyptian minister participating in AI Impact Summit in India, discussing AI applications in health, education, and agriculture. Not related to distributed systems, cloud infrastructure, or software engineering.",
+    "think_tokens": 30
+  },
+  {
+    "article_id": "2f39d55df30a",
+    "profile_id": "backend_engineer_singapore",
+    "score": 1.5,
+    "reason": "Telangana's digital governance initiatives in India are tangentially related to technology but not to backend engineering, cloud infra, or Southeast Asian markets.",
+    "think_text": "This is about an Indian state government's digital governance ambitions. While it involves technology, it's about government digitization in India rather than distributed systems, Kubernetes, or cloud infrastructure relevant to the profile.",
+    "think_tokens": 35
+  },
+  {
+    "article_id": "7fceeeb9e086",
+    "profile_id": "backend_engineer_singapore",
+    "score": 2.0,
+    "reason": "Tariff impact on semiconductor stocks is peripherally related to tech industry but not to backend engineering, cloud, or distributed systems.",
+    "think_text": "This covers tariff rulings' impact on semiconductor stocks. While semiconductors underpin cloud infrastructure, this is a financial/trade policy discussion, not about software engineering or cloud computing directly. Minimal relevance to the profile.",
+    "think_tokens": 35
+  },
+  {
+    "article_id": "bd39d615a215",
+    "profile_id": "backend_engineer_singapore",
+    "score": 1.0,
+    "reason": "Egyptian investment minister discussing post-fintech technology at a conference; tangentially fintech but focused on Egypt, not relevant markets.",
+    "think_text": "Duplicate coverage of the Egyptian investment minister at Disruptech Sharm 2026. While fintech is a tracked industry, this is about Egyptian policy, not Southeast Asian fintech or cloud infrastructure.",
+    "think_tokens": 30
+  },
+  {
+    "article_id": "ad982e1c2725",
+    "profile_id": "backend_engineer_singapore",
+    "score": 0.5,
+    "reason": "Baseball spring training position battles have zero relevance to backend engineering or any tracked industry.",
+    "think_text": "Cincinnati Reds spring training baseball news. Completely irrelevant to the profile.",
+    "think_tokens": 15
+  },
+  {
+    "article_id": "8555e3f74f4b",
+    "profile_id": "backend_engineer_singapore",
+    "score": 0.5,
+    "reason": "Arabic article about Egypt's speech at an AI summit in India; no relevance to backend engineering or cloud infrastructure.",
+    "think_text": "Egyptian communications minister speaking at AI Impact Summit 2026 in India. Not related to distributed systems, cloud, or Southeast Asian tech markets.",
+    "think_tokens": 25
+  },
+  {
+    "article_id": "b0849c3f10c4",
+    "profile_id": "backend_engineer_singapore",
+    "score": 0.5,
+    "reason": "Turkish yacht shipyard construction is entirely unrelated to backend engineering, cloud, or software.",
+    "think_text": "RMK Marine building a new yacht shipyard in Turkey. No connection to any aspect of the profile.",
+    "think_tokens": 20
+  },
+  {
+    "article_id": "2cb33de2cd2a",
+    "profile_id": "backend_engineer_singapore",
+    "score": 0.5,
+    "reason": "Criminal conviction news has zero relevance to backend engineering or any tracked industry.",
+    "think_text": "Local crime news from Florida. Completely irrelevant to the profile.",
+    "think_tokens": 12
+  },
+  {
+    "article_id": "27192387eb1c",
+    "profile_id": "backend_engineer_singapore",
+    "score": 3.0,
+    "reason": "India AI summit securing $250B in AI infrastructure investments is tangentially relevant to cloud infrastructure but not directly about backend engineering or Southeast Asian markets.",
+    "think_text": "This covers major AI infrastructure investments announced at India's AI Impact Summit. AI infrastructure overlaps with cloud computing, and India is a significant tech market. However, it's about investment announcements rather than technical distributed systems content, and it's not focused on Southeast Asia or the tracked companies.",
+    "think_tokens": 45
+  },
+  {
+    "article_id": "61a23f54a2f3",
+    "profile_id": "backend_engineer_singapore",
+    "score": 0.5,
+    "reason": "Real estate loan default lawsuit has no relevance to backend engineering or cloud infrastructure.",
+    "think_text": "Wells Fargo suing over a defaulted commercial real estate loan. Completely unrelated to the profile.",
+    "think_tokens": 15
+  },
+  {
+    "article_id": "033687e900ca",
+    "profile_id": "backend_engineer_singapore",
+    "score": 0.5,
+    "reason": "Arabic article about an AI-generated Ramadan show; entertainment content with no relevance to backend engineering.",
+    "think_text": "AI-generated traditional Ramadan content on Egyptian media. While it uses AI, it's entertainment, not software engineering or cloud infrastructure.",
+    "think_tokens": 20
+  },
+  {
+    "article_id": "05db001bf764",
+    "profile_id": "backend_engineer_singapore",
+    "score": 0.5,
+    "reason": "Royal family news has zero relevance to backend engineering or any tracked industry.",
+    "think_text": "British royal family gossip. Completely irrelevant.",
+    "think_tokens": 10
+  },
+  {
+    "article_id": "ecfd2068bf24",
+    "profile_id": "backend_engineer_singapore",
+    "score": 0.5,
+    "reason": "Offshore drilling contracts in Indonesia are about oil and gas operations, not software engineering or cloud infrastructure.",
+    "think_text": "Duplicate coverage of SLB's offshore drilling contracts in Indonesia's Andaman Sea. Physical energy infrastructure, not software or cloud.",
+    "think_tokens": 20
+  },
+  {
+    "article_id": "40316b95445f",
+    "profile_id": "backend_engineer_singapore",
+    "score": 2.0,
+    "reason": "IoT and embedded systems hardware partners ranking is tangentially tech-related but not relevant to backend engineering, cloud infrastructure, or distributed systems.",
+    "think_text": "This is about hardware design partners for IoT and embedded systems. While IoT connects to cloud backends, this article focuses on hardware design firms rather than software, cloud infrastructure, or distributed systems. Low relevance to the profile.",
+    "think_tokens": 35
+  },
+  {
+    "article_id": "c4ce036b6329",
+    "profile_id": "backend_engineer_singapore",
+    "score": 0.5,
+    "reason": "Stock price analysis for Halliburton, an energy company, is irrelevant to backend engineering or cloud infrastructure.",
+    "think_text": "Halliburton stock hitting a 52-week high. Oil and gas stock analysis, no relevance to the profile.",
+    "think_tokens": 15
+  },
+  {
+    "article_id": "a32b99c1d219",
+    "profile_id": "backend_engineer_singapore",
+    "score": 0.5,
+    "reason": "German-language article about SLB offshore drilling contracts; oil and gas operations unrelated to backend engineering.",
+    "think_text": "Same SLB/Mubadala drilling contracts story in German. No relevance to the profile.",
+    "think_tokens": 15
+  },
+  {
+    "article_id": "1d15db004bd1",
+    "profile_id": "backend_engineer_singapore",
+    "score": 0.5,
+    "reason": "Archaeological discovery about ancient Egyptian drilling technology has no relevance to backend engineering or cloud infrastructure.",
+    "think_text": "5,300-year-old archaeological artifact. Completely unrelated to the profile.",
+    "think_tokens": 12
+  },
+  {
+    "article_id": "3a53c909fbf7",
+    "profile_id": "backend_engineer_singapore",
+    "score": 0.5,
+    "reason": "ExxonMobil dividend investment analysis has no relevance to backend engineering or cloud computing.",
+    "think_text": "Investment advice about ExxonMobil dividends. Oil and gas stock, no relevance to the profile.",
+    "think_tokens": 15
+  },
+  {
+    "article_id": "b46b796f6f78",
+    "profile_id": "backend_engineer_singapore",
+    "score": 0.5,
+    "reason": "Alaska oil exploration project estimates are unrelated to backend engineering or cloud infrastructure.",
+    "think_text": "88 Energy's oil exploration in Alaska. No connection to the profile.",
+    "think_tokens": 12
+  },
+  {
+    "article_id": "557548914b6f",
+    "profile_id": "backend_engineer_singapore",
+    "score": 0.5,
+    "reason": "Kuwait municipal infrastructure planning has no relevance to backend engineering or cloud computing.",
+    "think_text": "Kuwait's Wafra Economic Zone planning approval. Urban planning in Kuwait, no connection to the profile.",
+    "think_tokens": 15
+  },
+  {
+    "article_id": "26d136bd8170",
+    "profile_id": "backend_engineer_singapore",
+    "score": 0.5,
+    "reason": "Canadian stock picks under $20 have no relevance to backend engineering or cloud infrastructure.",
+    "think_text": "TSX stock investment recommendations. Financial advice for Canadian stocks, no relevance to the profile.",
+    "think_tokens": 15
+  },
+  {
+    "article_id": "effd42efc4e2",
+    "profile_id": "backend_engineer_singapore",
+    "score": 1.0,
+    "reason": "ADNOC Drilling's expansion mentions AI-driven efficiency but is focused on oil and gas operations in the Middle East, not cloud infrastructure or software.",
+    "think_text": "ADNOC Drilling expanding in Oman and Kuwait with AI-driven efficiency. While AI is mentioned, this is about physical oil drilling operations, not cloud infrastructure or software engineering. Very minimal tech crossover.",
+    "think_tokens": 30
+  },
+  {
+    "article_id": "ed0efd6cc749",
+    "profile_id": "backend_engineer_singapore",
+    "score": 0.5,
+    "reason": "Canadian growth stock investment advice has no relevance to backend engineering or cloud infrastructure.",
+    "think_text": "TFSA investment recommendations for Canadian stocks. Financial advice, no relevance to the profile.",
+    "think_tokens": 15
+  },
+  {
+    "article_id": "e69707df7446",
+    "profile_id": "backend_engineer_singapore",
+    "score": 0.5,
+    "reason": "Kazakhstan oil and gas production statistics have no relevance to backend engineering or cloud computing.",
+    "think_text": "Kazakhstan's oil and gas output decline. Energy sector statistics, no relevance to the profile.",
+    "think_tokens": 15
+  },
+  {
+    "article_id": "09017b700f9e",
+    "profile_id": "backend_engineer_singapore",
+    "score": 0.5,
+    "reason": "Coal seam gas project in Mongolia has no relevance to backend engineering or cloud infrastructure.",
+    "think_text": "TMK Energy's coal seam gas project in Mongolia. Energy exploration, no connection to the profile.",
+    "think_tokens": 15
+  },
+  {
+    "article_id": "76d48fff6558",
+    "profile_id": "backend_engineer_singapore",
+    "score": 0.5,
+    "reason": "Kuwait oil and gas contract has no relevance to backend engineering or cloud computing.",
+    "think_text": "Combined Group winning a Kuwait oil/gas contract. Energy sector, no relevance to the profile.",
+    "think_tokens": 12
+  },
+  {
+    "article_id": "57176b32d132",
+    "profile_id": "backend_engineer_singapore",
+    "score": 0.5,
+    "reason": "Torx screws and fastening solutions in mechanical engineering have no relevance to backend software engineering.",
+    "think_text": "Article about torx screw solutions in mechanical engineering. Hardware/mechanical, no connection to software engineering or cloud.",
+    "think_tokens": 15
+  },
+  {
+    "article_id": "4f527e9f16c2",
+    "profile_id": "backend_engineer_singapore",
+    "score": 0.5,
+    "reason": "Saipem acquiring an offshore drilling unit is about oil and gas operations, not software or cloud infrastructure.",
+    "think_text": "Italian energy contractor acquiring an offshore drilling unit. Physical infrastructure in oil/gas, no relevance to the profile.",
+    "think_tokens": 15
+  },
+  {
+    "article_id": "25411729e1b3",
+    "profile_id": "backend_engineer_singapore",
+    "score": 0.5,
+    "reason": "CFO appointment at a Canadian power company has no relevance to backend engineering or cloud infrastructure.",
+    "think_text": "Capital Power appointing a new CFO. Corporate leadership change at an energy company, no relevance to the profile.",
+    "think_tokens": 15
+  },
+  {
+    "article_id": "0650ac3b7607",
+    "profile_id": "backend_engineer_singapore",
+    "score": 0.5,
+    "reason": "Kuwait abolishing an oil services subsidiary is about energy sector restructuring, not software or cloud computing.",
+    "think_text": "Kuwait government restructuring its oil sector by abolishing a subsidiary. Energy industry restructuring, no connection to the profile.",
+    "think_tokens": 15
+  },
+  {
+    "article_id": "c9fbe9501acd",
+    "profile_id": "backend_engineer_singapore",
+    "score": 1.0,
+    "reason": "Islamic finance awards for Pakistan are tangentially related to fintech but not to backend engineering, cloud infrastructure, or Southeast Asian markets.",
+    "think_text": "Pakistan winning Islamic finance deal awards. While fintech is a tracked industry, Islamic finance deals are about banking transactions, not technology infrastructure. Minimal relevance.",
+    "think_tokens": 25
+  },
+  {
+    "article_id": "7116062d2687",
+    "profile_id": "backend_engineer_singapore",
+    "score": 1.0,
+    "reason": "Islamic finance fellowship appointment is tangentially related to fintech but not to backend engineering or cloud infrastructure.",
+    "think_text": "Malaysia's Securities Commission appointing an Islamic finance fellow. While fintech is tracked, this is about Islamic finance thought leadership, not technology or software engineering.",
+    "think_tokens": 25
+  },
+  {
+    "article_id": "20a5fce34960",
+    "profile_id": "backend_engineer_singapore",
+    "score": 3.0,
+    "reason": "Blockchain events calendar is tangentially relevant to a software engineer interested in distributed systems, though blockchain is not a core focus of the profile.",
+    "think_text": "Blockchain conference listings for 2026. Blockchain relates to distributed systems and fintech, both of which are in the profile's interests. However, the article is just an events list rather than technical content, and blockchain isn't a core focus. Moderate peripheral relevance.",
+    "think_tokens": 40
+  },
+  {
+    "article_id": "17ab97cc76d1",
+    "profile_id": "backend_engineer_singapore",
+    "score": 0.5,
+    "reason": "Arabic article about Euro exchange rates at Egyptian banks has no relevance to backend engineering or cloud computing.",
+    "think_text": "Currency exchange rates in Egypt. Financial news completely unrelated to the profile.",
+    "think_tokens": 12
+  },
+  {
+    "article_id": "5fd5d19cfac2",
+    "profile_id": "backend_engineer_singapore",
+    "score": 0.5,
+    "reason": "Indian bank holiday schedule has no relevance to backend engineering or cloud infrastructure.",
+    "think_text": "Whether banks in India are open on a Saturday. No connection to the profile.",
+    "think_tokens": 12
+  },
+  {
+    "article_id": "f5a9f671d904",
+    "profile_id": "backend_engineer_singapore",
+    "score": 0.5,
+    "reason": "Banking personnel appointments in Bahrain have no relevance to backend engineering or cloud infrastructure.",
+    "think_text": "KFH-Bahrain appointing new department heads. Corporate HR news at a bank, no relevance to the profile.",
+    "think_tokens": 15
+  },
+  {
+    "article_id": "526f0dadf495",
+    "profile_id": "backend_engineer_singapore",
+    "score": 3.5,
+    "reason": "AI-first banking platform launch at India's AI summit touches on fintech and AI infrastructure, which are tangentially relevant to the profile's tracked industries.",
+    "think_text": "Intellect launching an AI-first banking platform (eMACH.ai) at India's AI Impact Summit. This touches on fintech (tracked industry) and AI infrastructure. However, it's about a banking software product rather than cloud infrastructure, distributed systems, or the specific tracked companies. The platform likely involves microservices architecture but the article doesn't discuss technical details.",
+    "think_tokens": 50
+  },
+  {
+    "article_id": "227265a0fb09",
+    "profile_id": "backend_engineer_singapore",
+    "score": 1.0,
+    "reason": "Bursa Malaysia stock market opening is tangentially related to Southeast Asian finance but not to backend engineering or cloud infrastructure.",
+    "think_text": "Malaysian stock exchange opening higher. While it's in Southeast Asia and relates to finance, it's a general stock market update, not about technology, cloud infrastructure, or software engineering.",
+    "think_tokens": 25
+  },
+  {
+    "article_id": "f46a7cc1f1fc",
+    "profile_id": "backend_engineer_singapore",
+    "score": 0.5,
+    "reason": "Prog Holdings revenue targets are about a lease-to-own company's financials, not relevant to backend engineering or cloud computing.",
+    "think_text": "Prog Holdings financial outlook. Consumer finance company, no relevance to the profile.",
+    "think_tokens": 15
+  },
+  {
+    "article_id": "ef2caa4ef7ba",
+    "profile_id": "backend_engineer_singapore",
+    "score": 0.5,
+    "reason": "Futurist professional ranking has no relevance to backend engineering, cloud infrastructure, or distributed systems.",
+    "think_text": "A futurist being ranked in a global list. General thought leadership, no connection to the profile.",
+    "think_tokens": 15
+  },
+  {
+    "article_id": "92c1f0f51f84",
+    "profile_id": "backend_engineer_singapore",
+    "score": 0.5,
+    "reason": "Indian mutual fund investment advice for banking/PSU funds has no relevance to backend engineering or cloud infrastructure.",
+    "think_text": "Investment advice about Indian banking and PSU mutual funds. Personal finance, no relevance to the profile.",
+    "think_tokens": 15
+  }
+]
