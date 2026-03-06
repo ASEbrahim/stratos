@@ -1,0 +1,1752 @@
+[
+  {
+    "article_id": "7dd61db77979",
+    "profile_id": "undeclared_student_chicago",
+    "score": 6.5,
+    "reason": "An undeclared UChicago sophomore interested in startup culture and tracking OpenAI would find this AI agents experiment intellectually stimulating and relevant to understanding AI capabilities. However, it is not directly actionable for their academic or career path, and they don't track Anthropic specifically.",
+    "think_text": "Article about 16 Claude AI agents creating a C compiler. Student tracks OpenAI, interested in startup culture. AI is broadly relevant but this is a technical deep-dive about compiler creation, not entry-level opportunity or economics/philosophy. Moderate relevance as general tech/AI awareness."
+  },
+  {
+    "article_id": "7dd61db77979",
+    "profile_id": "cto_fintech_lagos",
+    "score": 5.5,
+    "reason": "As a CTO leading engineering at a fintech startup, understanding AI agent capabilities for software development is professionally relevant. However, this article is about compiler creation, not fintech or mobile payments infrastructure, making it tangentially useful at best.",
+    "think_text": "CTO would care about AI development tools and multi-agent systems from a tech leadership perspective, but this is about C compilers, not fintech. Moderate general tech interest."
+  },
+  {
+    "article_id": "7dd61db77979",
+    "profile_id": "mining_engineer_santiago",
+    "score": 1.5,
+    "reason": "A mining engineer focused on copper extraction, lithium, and ESG compliance has virtually no professional connection to AI agents building C compilers. This is outside their field and not actionable.",
+    "think_text": "Mining engineer has no connection to AI compiler development. Completely outside their domain."
+  },
+  {
+    "article_id": "7dd61db77979",
+    "profile_id": "retired_diplomat_vienna",
+    "score": 2.0,
+    "reason": "A retired diplomat focused on nuclear non-proliferation and geopolitics has minimal interest in AI agents creating compilers. The military/intelligence applications of AI might be tangentially interesting, but this article is about software engineering, not policy.",
+    "think_text": "Diplomat cares about geopolitics and arms control. AI compiler creation is technically interesting but not relevant to their concerns about international law or non-proliferation."
+  },
+  {
+    "article_id": "7dd61db77979",
+    "profile_id": "chef_mexico_city",
+    "score": 0.5,
+    "reason": "An executive chef and restaurant owner has zero professional or personal connection to AI agents creating C compilers. This is completely irrelevant to food service, cuisine, or restaurant management.",
+    "think_text": "Chef has no connection to AI compiler development whatsoever."
+  },
+  {
+    "article_id": "d61d04dc8103",
+    "profile_id": "undeclared_student_chicago",
+    "score": 0.5,
+    "reason": "An Instagram reel about electrical safety from a brand account is social media noise with no academic, career, or intellectual relevance to an undeclared college student interested in economics, philosophy, and climate science.",
+    "think_text": "Instagram electrical safety post - pure noise/spam for everyone."
+  },
+  {
+    "article_id": "d61d04dc8103",
+    "profile_id": "cto_fintech_lagos",
+    "score": 0.5,
+    "reason": "An Instagram post about home electrical safety testing has no relevance to a fintech CTO building mobile payment infrastructure in Lagos. This is social media noise.",
+    "think_text": "Electrical safety Instagram reel - noise for fintech CTO."
+  },
+  {
+    "article_id": "d61d04dc8103",
+    "profile_id": "mining_engineer_santiago",
+    "score": 0.5,
+    "reason": "An Instagram reel about home electrical safety has no connection to copper mining, lithium extraction, or any of this mining engineer's professional interests.",
+    "think_text": "Home electrical safety - not related to mining at all."
+  },
+  {
+    "article_id": "d61d04dc8103",
+    "profile_id": "retired_diplomat_vienna",
+    "score": 0.5,
+    "reason": "An Instagram post about electrical safety testing is completely irrelevant to a retired diplomat focused on nuclear non-proliferation, geopolitics, and international law.",
+    "think_text": "Pure noise for a diplomat."
+  },
+  {
+    "article_id": "d61d04dc8103",
+    "profile_id": "chef_mexico_city",
+    "score": 0.5,
+    "reason": "An Instagram reel about home electrical safety has no relevance to a chef's interests in cuisine, restaurant management, or food supply chains.",
+    "think_text": "Noise content for a chef."
+  },
+  {
+    "article_id": "ddbd379ac378",
+    "profile_id": "undeclared_student_chicago",
+    "score": 4.0,
+    "reason": "AMD's data center growth is loosely connected to the student's interest in startup culture and general tech awareness. However, semiconductor stock analysis is not directly relevant to their academic interests in economics, philosophy, or climate change, and is pitched at an investor level.",
+    "think_text": "Student tracks OpenAI, interested in startup culture. AMD AI chip growth is tangentially related to the AI ecosystem but this is investment analysis, not their level or core interest."
+  },
+  {
+    "article_id": "ddbd379ac378",
+    "profile_id": "cto_fintech_lagos",
+    "score": 3.0,
+    "reason": "AMD's data center AI chip growth is in the broader tech ecosystem but has no direct bearing on mobile payments, USSD technology, or African fintech infrastructure. A CTO would be aware of industry trends but this is not actionable.",
+    "think_text": "Semiconductor investment analysis is far from fintech mobile payments. Low relevance."
+  },
+  {
+    "article_id": "ddbd379ac378",
+    "profile_id": "mining_engineer_santiago",
+    "score": 1.0,
+    "reason": "AMD's data center growth and AI chip ambitions have no connection to copper mining, lithium extraction, or Chilean mining operations.",
+    "think_text": "Semiconductors are irrelevant to mining engineering."
+  },
+  {
+    "article_id": "ddbd379ac378",
+    "profile_id": "retired_diplomat_vienna",
+    "score": 1.0,
+    "reason": "AMD semiconductor business growth is entirely outside the scope of nuclear non-proliferation, geopolitics, and international law that this retired diplomat focuses on.",
+    "think_text": "No connection to diplomacy or arms control."
+  },
+  {
+    "article_id": "ddbd379ac378",
+    "profile_id": "chef_mexico_city",
+    "score": 0.5,
+    "reason": "AMD data center chip growth has absolutely no relevance to restaurant management, Mexican cuisine, or the food industry.",
+    "think_text": "Zero relevance to a chef."
+  },
+  {
+    "article_id": "1c7776bc782d",
+    "profile_id": "undeclared_student_chicago",
+    "score": 4.5,
+    "reason": "The Goldschmidt conference call for abstracts covers carbon capture and AI-driven exploration, which touches on the student's climate change interest. However, it is an academic geochemistry conference at a level above an undeclared sophomore, and not directly in their tracked areas.",
+    "think_text": "Climate change interest overlaps with carbon capture topics. But this is a specialized geochemistry conference - too niche for an undeclared sophomore. Partial relevance through climate angle."
+  },
+  {
+    "article_id": "1c7776bc782d",
+    "profile_id": "cto_fintech_lagos",
+    "score": 0.5,
+    "reason": "A geochemistry academic conference about carbon capture and geological exploration has zero relevance to a fintech CTO building mobile payment systems in Lagos.",
+    "think_text": "Geochemistry conference - no connection to fintech."
+  },
+  {
+    "article_id": "1c7776bc782d",
+    "profile_id": "mining_engineer_santiago",
+    "score": 6.0,
+    "reason": "The Goldschmidt conference covers geological topics including carbon capture and storage, and AI-driven exploration, which overlaps with mining engineering interests in geology, ESG compliance, and resource exploration. A mining engineer could find relevant research on mineral extraction and environmental topics.",
+    "think_text": "Goldschmidt is a major geochemistry conference. Mining engineer deals with geology, carbon capture relates to ESG, AI-driven exploration is relevant to mineral discovery. Moderate-to-good relevance."
+  },
+  {
+    "article_id": "1c7776bc782d",
+    "profile_id": "retired_diplomat_vienna",
+    "score": 1.0,
+    "reason": "A geochemistry conference call for abstracts has no connection to nuclear non-proliferation, Middle East geopolitics, or international law.",
+    "think_text": "No relevance to diplomacy."
+  },
+  {
+    "article_id": "1c7776bc782d",
+    "profile_id": "chef_mexico_city",
+    "score": 0.5,
+    "reason": "A geochemistry academic conference has absolutely no relevance to restaurant management, cuisine, or the food industry.",
+    "think_text": "Zero relevance to a chef."
+  },
+  {
+    "article_id": "f0c8745690b3",
+    "profile_id": "undeclared_student_chicago",
+    "score": 4.5,
+    "reason": "EU support for Ukraine is a major geopolitical topic that could interest a broadly curious student studying economics and philosophy. However, this brief news wire from KUNA lacks depth and analytical content that would enrich academic understanding.",
+    "think_text": "Student is broadly curious, economics interest. EU-Ukraine geopolitics is relevant general knowledge, but this is a shallow news wire piece. Moderate-low relevance."
+  },
+  {
+    "article_id": "f0c8745690b3",
+    "profile_id": "cto_fintech_lagos",
+    "score": 1.5,
+    "reason": "EU support for Ukraine has no direct bearing on mobile payments, African fintech, or the Nigerian tech ecosystem. This is outside the CTO's professional and regional focus.",
+    "think_text": "European geopolitics is irrelevant to Lagos fintech CTO."
+  },
+  {
+    "article_id": "f0c8745690b3",
+    "profile_id": "mining_engineer_santiago",
+    "score": 2.0,
+    "reason": "EU-Ukraine relations could have distant implications for global commodity markets and energy prices, but this brief news wire provides no mining-specific content or analysis relevant to Chilean copper operations.",
+    "think_text": "Very indirect connection through commodity markets, but this article doesn't discuss that angle at all."
+  },
+  {
+    "article_id": "f0c8745690b3",
+    "profile_id": "retired_diplomat_vienna",
+    "score": 7.5,
+    "reason": "EU support for Ukraine directly relates to this retired diplomat's core interests in international relations, geopolitics, and European security policy. As a Vienna-based former UN official, EU foreign policy stances are professionally relevant to their consulting work on international affairs.",
+    "think_text": "Diplomat cares about geopolitics, international relations, EU policy. Ukraine is a major geopolitical issue. Vienna is in the EU. This is directly relevant, though the article itself is brief/shallow."
+  },
+  {
+    "article_id": "f0c8745690b3",
+    "profile_id": "chef_mexico_city",
+    "score": 0.5,
+    "reason": "EU diplomatic support for Ukraine has no relevance to a Mexico City chef's interests in cuisine, restaurant management, or food supply chains.",
+    "think_text": "No connection to food/restaurant industry."
+  },
+  {
+    "article_id": "1e0965efd09c",
+    "profile_id": "undeclared_student_chicago",
+    "score": 0.5,
+    "reason": "A TikTok page about Halloween Roblox outfits is pure social media noise with no academic, intellectual, or career relevance to a UChicago student.",
+    "think_text": "TikTok spam/noise content. Irrelevant to everyone."
+  },
+  {
+    "article_id": "1e0965efd09c",
+    "profile_id": "cto_fintech_lagos",
+    "score": 0.5,
+    "reason": "TikTok content about Roblox Halloween costumes is social media noise completely irrelevant to a fintech CTO.",
+    "think_text": "Pure noise."
+  },
+  {
+    "article_id": "1e0965efd09c",
+    "profile_id": "mining_engineer_santiago",
+    "score": 0.5,
+    "reason": "TikTok Halloween costume content has zero relevance to mining engineering.",
+    "think_text": "Pure noise."
+  },
+  {
+    "article_id": "1e0965efd09c",
+    "profile_id": "retired_diplomat_vienna",
+    "score": 0.5,
+    "reason": "TikTok content about Roblox costumes is completely irrelevant to a retired diplomat focused on international affairs.",
+    "think_text": "Pure noise."
+  },
+  {
+    "article_id": "1e0965efd09c",
+    "profile_id": "chef_mexico_city",
+    "score": 0.5,
+    "reason": "TikTok Halloween Roblox content is pure noise with no culinary or restaurant relevance.",
+    "think_text": "Pure noise."
+  },
+  {
+    "article_id": "8afa6526437b",
+    "profile_id": "undeclared_student_chicago",
+    "score": 3.5,
+    "reason": "US immigration visa policy changes could be tangentially relevant to a university student interested in policy and economics, but this is a legal immigration update primarily for visa applicants and attorneys, not pitched at academic interests.",
+    "think_text": "Student in Chicago might have some interest in US immigration policy from an economics perspective, but this is a legal practice update, not analysis."
+  },
+  {
+    "article_id": "8afa6526437b",
+    "profile_id": "cto_fintech_lagos",
+    "score": 3.0,
+    "reason": "US immigration visa pauses could affect Nigerian tech workers seeking US opportunities, giving this some peripheral relevance to a Lagos-based CTO who may recruit or network internationally. However, it is not about fintech or mobile payments.",
+    "think_text": "Immigration policy could affect talent mobility for Nigerian tech sector, but this is indirect."
+  },
+  {
+    "article_id": "8afa6526437b",
+    "profile_id": "mining_engineer_santiago",
+    "score": 1.0,
+    "reason": "US immigration visa policy has minimal relevance to a Chilean mining engineer working domestically on copper extraction operations.",
+    "think_text": "Not relevant to mining in Chile."
+  },
+  {
+    "article_id": "8afa6526437b",
+    "profile_id": "retired_diplomat_vienna",
+    "score": 4.0,
+    "reason": "US immigration policy changes could interest a retired diplomat from a policy perspective, as it relates to international relations and the US's stance on global mobility. However, this is a US domestic legal update, not focused on multilateral diplomacy or non-proliferation.",
+    "think_text": "Diplomat might find US immigration policy shifts interesting from an international relations angle, but it's domestic US policy, not their core focus."
+  },
+  {
+    "article_id": "8afa6526437b",
+    "profile_id": "chef_mexico_city",
+    "score": 2.5,
+    "reason": "US immigration policy changes could have some relevance to a Mexico City chef if they have business ties to the US or employ workers who might be affected, but this is a stretch and not directly about the food industry.",
+    "think_text": "Mexico-US immigration is culturally relevant but this is a legal practice update, not food industry content."
+  },
+  {
+    "article_id": "0990d2b238a3",
+    "profile_id": "undeclared_student_chicago",
+    "score": 2.0,
+    "reason": "A job posting requiring Kuwait oil sector compliance experience (KOC, KNPC) is not relevant to an undeclared UChicago sophomore. It requires professional experience the student does not have and is in a geography they don't track.",
+    "think_text": "Kuwait professional job posting - wrong geography, wrong career level for an undeclared student."
+  },
+  {
+    "article_id": "0990d2b238a3",
+    "profile_id": "cto_fintech_lagos",
+    "score": 1.0,
+    "reason": "A Kuwait oil sector compliance job posting is entirely outside a Lagos fintech CTO's professional domain and geographic focus.",
+    "think_text": "Kuwait oil compliance job - irrelevant to African fintech."
+  },
+  {
+    "article_id": "0990d2b238a3",
+    "profile_id": "mining_engineer_santiago",
+    "score": 2.5,
+    "reason": "While this is an energy sector job involving compliance processes, it is specific to Kuwait oil companies (KOC, KNPC) and not related to mining operations in Chile. The industrial compliance aspect has slight overlap but wrong geography and sector.",
+    "think_text": "Oil sector in Kuwait vs mining in Chile. Very different sectors and geographies. Minimal overlap."
+  },
+  {
+    "article_id": "0990d2b238a3",
+    "profile_id": "retired_diplomat_vienna",
+    "score": 1.0,
+    "reason": "A Kuwait oil sector job posting has no relevance to a retired diplomat focused on non-proliferation and international law.",
+    "think_text": "Job posting - irrelevant to retired diplomat."
+  },
+  {
+    "article_id": "0990d2b238a3",
+    "profile_id": "chef_mexico_city",
+    "score": 0.5,
+    "reason": "A Kuwait oil sector compliance job posting has zero relevance to a Mexico City chef and restaurant owner.",
+    "think_text": "Completely irrelevant to food industry."
+  },
+  {
+    "article_id": "ddac40adbefb",
+    "profile_id": "undeclared_student_chicago",
+    "score": 1.5,
+    "reason": "A SCADA engineer job requiring 2-4 years of PLC/HVAC experience is far too specialized and senior for an undeclared sophomore with no engineering background declared.",
+    "think_text": "Technical engineering job - wrong level and wrong field for undeclared student."
+  },
+  {
+    "article_id": "ddac40adbefb",
+    "profile_id": "cto_fintech_lagos",
+    "score": 1.0,
+    "reason": "A SCADA/HVAC engineering position has no connection to fintech, mobile payments, or software engineering leadership.",
+    "think_text": "Industrial automation job - irrelevant to fintech CTO."
+  },
+  {
+    "article_id": "ddac40adbefb",
+    "profile_id": "mining_engineer_santiago",
+    "score": 4.0,
+    "reason": "SCADA systems are used in mining operations for process control and monitoring, so there is some professional overlap. However, this job focuses on HVAC/building automation rather than mining SCADA applications, and the geography doesn't match.",
+    "think_text": "SCADA is used in mining but this job is HVAC/building automation focused. Partial overlap in industrial control systems."
+  },
+  {
+    "article_id": "ddac40adbefb",
+    "profile_id": "retired_diplomat_vienna",
+    "score": 0.5,
+    "reason": "A SCADA engineering job posting is completely irrelevant to a retired diplomat's interests in international affairs and policy.",
+    "think_text": "No connection whatsoever."
+  },
+  {
+    "article_id": "ddac40adbefb",
+    "profile_id": "chef_mexico_city",
+    "score": 0.5,
+    "reason": "A SCADA/HVAC engineering job has no relevance to restaurant management or the culinary industry.",
+    "think_text": "Zero relevance."
+  },
+  {
+    "article_id": "922bd1907e2b",
+    "profile_id": "undeclared_student_chicago",
+    "score": 3.0,
+    "reason": "A business analyst certification guide could have some career exploration value for an undeclared student considering business paths. However, BA certification is typically for working professionals, and the student hasn't declared a business major yet.",
+    "think_text": "Student is undeclared. BA cert guide is career-oriented content - could be interesting for career exploration but premature and not aligned with their stated interests."
+  },
+  {
+    "article_id": "922bd1907e2b",
+    "profile_id": "cto_fintech_lagos",
+    "score": 2.0,
+    "reason": "A BA certification guide is below the CTO level and outside the technical leadership domain. A CTO would not be pursuing business analyst certifications.",
+    "think_text": "Way below CTO level. Irrelevant career stage."
+  },
+  {
+    "article_id": "922bd1907e2b",
+    "profile_id": "mining_engineer_santiago",
+    "score": 1.5,
+    "reason": "Business analyst certification has minimal relevance to a mining engineer focused on copper extraction operations and technical mining work.",
+    "think_text": "Wrong field entirely for a mining engineer."
+  },
+  {
+    "article_id": "922bd1907e2b",
+    "profile_id": "retired_diplomat_vienna",
+    "score": 0.5,
+    "reason": "A business analyst certification guide is completely irrelevant to a retired diplomat. They are not seeking new certifications or career transitions into business analysis.",
+    "think_text": "Retired, not seeking certifications."
+  },
+  {
+    "article_id": "922bd1907e2b",
+    "profile_id": "chef_mexico_city",
+    "score": 1.0,
+    "reason": "BA certification for high-paying jobs has no relevance to an executive chef who runs their own restaurant. Completely different career domain.",
+    "think_text": "Irrelevant to food industry."
+  },
+  {
+    "article_id": "c4b08e5e5c93",
+    "profile_id": "undeclared_student_chicago",
+    "score": 1.0,
+    "reason": "An ultrapure water resin market investment report is highly specialized industrial content with no connection to the student's interests in economics, philosophy, climate change, or startup culture.",
+    "think_text": "Niche industrial market report - too specialized and not in student's interest areas."
+  },
+  {
+    "article_id": "c4b08e5e5c93",
+    "profile_id": "cto_fintech_lagos",
+    "score": 0.5,
+    "reason": "An ultrapure water resin market report has zero relevance to mobile payments or fintech in Africa.",
+    "think_text": "No connection to fintech."
+  },
+  {
+    "article_id": "c4b08e5e5c93",
+    "profile_id": "mining_engineer_santiago",
+    "score": 3.5,
+    "reason": "Water treatment is relevant in mining operations for processing and environmental compliance. Ultrapure water resin technology could have some tangential relevance to water management in mining, but this article is focused on semiconductor and pharmaceutical applications rather than mining water treatment.",
+    "think_text": "Mining uses water treatment, but ultrapure water resin is more for electronics/pharma industries. Slight tangential overlap."
+  },
+  {
+    "article_id": "c4b08e5e5c93",
+    "profile_id": "retired_diplomat_vienna",
+    "score": 0.5,
+    "reason": "An ultrapure water resin market report is completely irrelevant to a retired diplomat focused on international affairs and non-proliferation.",
+    "think_text": "No connection to diplomacy."
+  },
+  {
+    "article_id": "c4b08e5e5c93",
+    "profile_id": "chef_mexico_city",
+    "score": 0.5,
+    "reason": "An industrial water purification market report has no relevance to restaurant management or the culinary industry.",
+    "think_text": "Zero relevance."
+  },
+  {
+    "article_id": "d22648d82260",
+    "profile_id": "undeclared_student_chicago",
+    "score": 0.5,
+    "reason": "An Arabic-language Google Play listing for the MBC Shahid streaming app is irrelevant to a UChicago student. It is an app store listing, not substantive content.",
+    "think_text": "App store listing in Arabic - noise/spam for all profiles except possibly Arabic speakers."
+  },
+  {
+    "article_id": "d22648d82260",
+    "profile_id": "cto_fintech_lagos",
+    "score": 0.5,
+    "reason": "An Arabic streaming app listing on Google Play has no relevance to a Nigerian fintech CTO building mobile payment systems.",
+    "think_text": "Arabic entertainment app - irrelevant to fintech."
+  },
+  {
+    "article_id": "d22648d82260",
+    "profile_id": "mining_engineer_santiago",
+    "score": 0.5,
+    "reason": "An Arabic streaming app listing is completely irrelevant to mining engineering in Chile.",
+    "think_text": "No connection."
+  },
+  {
+    "article_id": "d22648d82260",
+    "profile_id": "retired_diplomat_vienna",
+    "score": 0.5,
+    "reason": "An Arabic streaming app store listing is not relevant to a retired diplomat's interests in non-proliferation and international law, even though they focus on Middle East geopolitics.",
+    "think_text": "App store listing - noise even for someone interested in the Middle East."
+  },
+  {
+    "article_id": "d22648d82260",
+    "profile_id": "chef_mexico_city",
+    "score": 0.5,
+    "reason": "An Arabic streaming app listing has zero relevance to a Mexico City chef.",
+    "think_text": "No connection."
+  },
+  {
+    "article_id": "f17f024560ac",
+    "profile_id": "undeclared_student_chicago",
+    "score": 3.0,
+    "reason": "Samsung's on-device AI chip capabilities are part of the broader tech landscape, but the technical depth of ARM SME2 CPU extensions is too specialized for an undeclared sophomore interested in economics and philosophy rather than semiconductor architecture.",
+    "think_text": "Technical semiconductor article. Student has broad tech interest through startup culture but this is deep chip architecture content."
+  },
+  {
+    "article_id": "f17f024560ac",
+    "profile_id": "cto_fintech_lagos",
+    "score": 3.5,
+    "reason": "On-device AI capabilities could eventually matter for mobile payments applications, but this article about ARM SME2 CPU architecture is too low-level and hardware-focused for a fintech CTO who works at the application and API layer.",
+    "think_text": "Mobile AI capabilities have distant relevance to mobile fintech, but this is chip architecture level - too far from application layer."
+  },
+  {
+    "article_id": "f17f024560ac",
+    "profile_id": "mining_engineer_santiago",
+    "score": 1.0,
+    "reason": "Samsung's ARM CPU architecture for on-device AI has no connection to copper mining or mineral extraction operations.",
+    "think_text": "Irrelevant to mining."
+  },
+  {
+    "article_id": "f17f024560ac",
+    "profile_id": "retired_diplomat_vienna",
+    "score": 0.5,
+    "reason": "Semiconductor CPU architecture for on-device AI is completely outside a retired diplomat's interests in international affairs and non-proliferation.",
+    "think_text": "No connection to diplomacy."
+  },
+  {
+    "article_id": "f17f024560ac",
+    "profile_id": "chef_mexico_city",
+    "score": 0.5,
+    "reason": "ARM CPU architecture for AI has zero relevance to a chef and restaurant owner.",
+    "think_text": "No connection to food industry."
+  },
+  {
+    "article_id": "a9d8d2941c33",
+    "profile_id": "undeclared_student_chicago",
+    "score": 1.0,
+    "reason": "A German-language tourism welcome page for Bern, Switzerland is not relevant to a UChicago student's academic or career interests.",
+    "think_text": "Tourism page in German - noise for everyone."
+  },
+  {
+    "article_id": "a9d8d2941c33",
+    "profile_id": "cto_fintech_lagos",
+    "score": 0.5,
+    "reason": "A German tourism page for Bern has no relevance to a Lagos fintech CTO.",
+    "think_text": "Pure noise."
+  },
+  {
+    "article_id": "a9d8d2941c33",
+    "profile_id": "mining_engineer_santiago",
+    "score": 0.5,
+    "reason": "A tourism welcome page for Bern, Switzerland is completely irrelevant to mining engineering in Chile.",
+    "think_text": "Tourism noise."
+  },
+  {
+    "article_id": "a9d8d2941c33",
+    "profile_id": "retired_diplomat_vienna",
+    "score": 1.5,
+    "reason": "While Bern is a European capital with diplomatic significance, this is merely a tourism welcome page, not substantive content about Swiss diplomacy or international affairs.",
+    "think_text": "Vienna diplomat might visit Bern but this is just a tourism page, not policy content."
+  },
+  {
+    "article_id": "a9d8d2941c33",
+    "profile_id": "chef_mexico_city",
+    "score": 0.5,
+    "reason": "A tourism page for Bern has no relevance to a Mexico City chef and restaurant owner.",
+    "think_text": "No connection."
+  },
+  {
+    "article_id": "fa327f996181",
+    "profile_id": "undeclared_student_chicago",
+    "score": 3.0,
+    "reason": "An Indian share market blog covering Reliance Q2 results and OPEC decisions has some tangential relevance to a student interested in economics, but it is focused on Indian equity markets and commodity trading at a level and geography not aligned with the student's tracked areas.",
+    "think_text": "Economics interest gives slight relevance to market analysis, but Indian stock market blog is wrong geography and too specialized."
+  },
+  {
+    "article_id": "fa327f996181",
+    "profile_id": "cto_fintech_lagos",
+    "score": 1.5,
+    "reason": "An Indian share market blog about Reliance and OPEC decisions has no direct relevance to a Nigerian fintech CTO building mobile payment infrastructure.",
+    "think_text": "Indian stock market - irrelevant to African fintech."
+  },
+  {
+    "article_id": "fa327f996181",
+    "profile_id": "mining_engineer_santiago",
+    "score": 2.5,
+    "reason": "OPEC decisions can indirectly affect energy costs for mining operations, but this Indian market blog is focused on Reliance and Indian equity trading, not on mining-relevant commodity markets.",
+    "think_text": "OPEC/commodities have slight mining relevance but article is Indian equity market focused."
+  },
+  {
+    "article_id": "fa327f996181",
+    "profile_id": "retired_diplomat_vienna",
+    "score": 2.0,
+    "reason": "OPEC decisions have geopolitical implications, but this is an Indian stock market blog focused on equity trading rather than geopolitical analysis of energy policy.",
+    "think_text": "OPEC mention has slight geopolitical relevance but article is about Indian stock trading."
+  },
+  {
+    "article_id": "fa327f996181",
+    "profile_id": "chef_mexico_city",
+    "score": 0.5,
+    "reason": "An Indian share market blog has no relevance to a Mexico City chef's interests in cuisine and restaurant management.",
+    "think_text": "No connection."
+  },
+  {
+    "article_id": "062b678ea8ff",
+    "profile_id": "undeclared_student_chicago",
+    "score": 1.0,
+    "reason": "An HSE Officer job posting in the UAE requiring NEBOSH certification and Gulf construction experience is completely mismatched for an undeclared college sophomore in Chicago.",
+    "think_text": "Senior professional job in UAE construction - wrong level, wrong geography, wrong field for student."
+  },
+  {
+    "article_id": "062b678ea8ff",
+    "profile_id": "cto_fintech_lagos",
+    "score": 0.5,
+    "reason": "An HSE construction job in the UAE has zero relevance to a fintech CTO in Lagos.",
+    "think_text": "Construction safety job - irrelevant to fintech."
+  },
+  {
+    "article_id": "062b678ea8ff",
+    "profile_id": "mining_engineer_santiago",
+    "score": 3.5,
+    "reason": "HSE (Health, Safety, and Environment) is relevant to mining operations, and the NEBOSH certification is recognized in the mining industry. However, this is a UAE construction site role, not a mining position, and in a different geography from Chile.",
+    "think_text": "HSE overlaps with mine safety interest, but this is construction in UAE, not mining in Chile. Some professional overlap in safety domain."
+  },
+  {
+    "article_id": "062b678ea8ff",
+    "profile_id": "retired_diplomat_vienna",
+    "score": 0.5,
+    "reason": "A construction HSE job posting in the UAE has no relevance to a retired diplomat focused on international affairs.",
+    "think_text": "Job posting - irrelevant."
+  },
+  {
+    "article_id": "062b678ea8ff",
+    "profile_id": "chef_mexico_city",
+    "score": 0.5,
+    "reason": "A construction safety job in the UAE has no relevance to a chef in Mexico City.",
+    "think_text": "No connection."
+  },
+  {
+    "article_id": "665b05742af2",
+    "profile_id": "undeclared_student_chicago",
+    "score": 3.5,
+    "reason": "The WEF Global Cybersecurity Outlook is a policy-level report that could interest a broadly curious student, touching on economics and technology trends. However, cybersecurity is not among the student's stated interests and the content is aimed at business leaders.",
+    "think_text": "Student has broad interests. WEF report is high-level policy/tech analysis. Some relevance through economics and behavioral science lens, but cybersecurity isn't a stated interest."
+  },
+  {
+    "article_id": "665b05742af2",
+    "profile_id": "cto_fintech_lagos",
+    "score": 7.0,
+    "reason": "As CTO of a fintech handling mobile payments, cybersecurity is critically important. The WEF report covers AI-driven fraud and resilience with regional Middle East data, and the regulatory compliance aspects (PCI DSS, SOC 2) directly relate to payment security requirements. Highly actionable for a fintech executive.",
+    "think_text": "Fintech CTO needs to worry about cybersecurity, fraud prevention, compliance (PCI DSS). WEF cybersecurity outlook is very relevant - AI fraud, resilience, regulatory compliance all matter for mobile payments."
+  },
+  {
+    "article_id": "665b05742af2",
+    "profile_id": "mining_engineer_santiago",
+    "score": 2.0,
+    "reason": "Mining operations do face cybersecurity risks, but this WEF report is focused on enterprise cybersecurity trends with emphasis on Middle East regional data, which is not directly relevant to Chilean mining operations.",
+    "think_text": "Mining has some cyber risk but this report is not mining-focused. Low relevance."
+  },
+  {
+    "article_id": "665b05742af2",
+    "profile_id": "retired_diplomat_vienna",
+    "score": 4.5,
+    "reason": "The WEF cybersecurity report touches on geopolitical dimensions of cyber threats and international security frameworks, which aligns with the diplomat's interest in global governance. The Middle East regional data is relevant to their geographic focus, but cybersecurity is not their core domain.",
+    "think_text": "Diplomat interested in international affairs. WEF report has geopolitical cyber dimensions, Middle East data. Moderate relevance through international security lens."
+  },
+  {
+    "article_id": "665b05742af2",
+    "profile_id": "chef_mexico_city",
+    "score": 1.0,
+    "reason": "Enterprise cybersecurity trends are not relevant to an executive chef, even though restaurants do handle payment data. This report is pitched at a strategic level far above restaurant operations.",
+    "think_text": "Chef might handle PCI compliance tangentially but WEF-level cybersecurity strategy is not relevant."
+  },
+  {
+    "article_id": "548b692edc3e",
+    "profile_id": "undeclared_student_chicago",
+    "score": 3.0,
+    "reason": "A breakthrough in exosome-based CAR-T therapy for solid tumors is cutting-edge biotech that could interest a broadly curious student from a science perspective. However, the student doesn't track biotech or healthcare, and this is highly specialized medical content.",
+    "think_text": "Interesting science but not in student's stated interests. Broadly curious but this is very specialized biotech."
+  },
+  {
+    "article_id": "548b692edc3e",
+    "profile_id": "cto_fintech_lagos",
+    "score": 0.5,
+    "reason": "Exosome-based gene therapy has zero relevance to a fintech CTO building mobile payment systems.",
+    "think_text": "No connection to fintech."
+  },
+  {
+    "article_id": "548b692edc3e",
+    "profile_id": "mining_engineer_santiago",
+    "score": 0.5,
+    "reason": "Biotech gene therapy has no connection to copper mining or mineral extraction.",
+    "think_text": "No connection to mining."
+  },
+  {
+    "article_id": "548b692edc3e",
+    "profile_id": "retired_diplomat_vienna",
+    "score": 1.0,
+    "reason": "Biotech gene therapy breakthroughs are outside a retired diplomat's focus on non-proliferation and international law, unless there were bioweapons implications, which this article does not discuss.",
+    "think_text": "No connection to diplomacy or non-proliferation."
+  },
+  {
+    "article_id": "548b692edc3e",
+    "profile_id": "chef_mexico_city",
+    "score": 0.5,
+    "reason": "Gene therapy and exosome platforms have no relevance to a chef or restaurant owner.",
+    "think_text": "No connection."
+  },
+  {
+    "article_id": "88b668eb784f",
+    "profile_id": "undeclared_student_chicago",
+    "score": 4.0,
+    "reason": "An EU recommendation on science diplomacy touches on international policy and research collaboration, which could interest a broadly curious student interested in philosophy and economics. The mention of ERC grants and Marie Curie actions has some academic relevance, though the student is in the US, not EU.",
+    "think_text": "Science diplomacy is interdisciplinary - philosophy, policy, science. Student is broadly curious. Some relevance but it's an EU policy document, and student is US-based."
+  },
+  {
+    "article_id": "88b668eb784f",
+    "profile_id": "cto_fintech_lagos",
+    "score": 1.0,
+    "reason": "An EU science diplomacy policy recommendation has no relevance to a fintech CTO in Lagos building mobile payment systems.",
+    "think_text": "EU research policy - irrelevant to African fintech."
+  },
+  {
+    "article_id": "88b668eb784f",
+    "profile_id": "mining_engineer_santiago",
+    "score": 1.5,
+    "reason": "EU science diplomacy recommendations do not directly relate to copper mining or Chilean mining operations. While international research collaboration exists in mining, this document is about EU research policy broadly.",
+    "think_text": "Very tangential to mining through research collaboration, but not really relevant."
+  },
+  {
+    "article_id": "88b668eb784f",
+    "profile_id": "retired_diplomat_vienna",
+    "score": 8.0,
+    "reason": "An EU recommendation on science diplomacy is directly in this retired diplomat's wheelhouse, combining international relations, EU policy, and diplomatic frameworks. As a Vienna-based former UN official, EU diplomatic initiatives and international research cooperation are core to their consulting work and interests.",
+    "think_text": "Science diplomacy is exactly the intersection of science and international relations. EU policy document from Vienna-based diplomat's backyard. ERC, Marie Curie actions, EU research policy - highly relevant."
+  },
+  {
+    "article_id": "88b668eb784f",
+    "profile_id": "chef_mexico_city",
+    "score": 0.5,
+    "reason": "An EU science diplomacy recommendation has no relevance to restaurant management or the culinary industry.",
+    "think_text": "No connection."
+  },
+  {
+    "article_id": "a75b1952bf9f",
+    "profile_id": "undeclared_student_chicago",
+    "score": 2.0,
+    "reason": "Entry-level geologist jobs in the Middle East are not relevant to a UChicago undeclared sophomore. The student hasn't declared a geology major and isn't focused on Middle Eastern employment opportunities.",
+    "think_text": "Geology jobs in Middle East - wrong field and geography for Chicago student. Even though 'entry level' matches student status, geology isn't their interest."
+  },
+  {
+    "article_id": "a75b1952bf9f",
+    "profile_id": "cto_fintech_lagos",
+    "score": 0.5,
+    "reason": "Entry-level geologist jobs in the Middle East have zero relevance to a fintech CTO in Lagos.",
+    "think_text": "Wrong field, wrong level, wrong geography."
+  },
+  {
+    "article_id": "a75b1952bf9f",
+    "profile_id": "mining_engineer_santiago",
+    "score": 5.0,
+    "reason": "Geologist positions overlap with mining engineering through geological evaluation and reservoir modeling. However, these are Middle East positions requiring 3-6 years experience, not Chilean mining roles. The geological skills overlap is notable but geography and specific sector (likely oil/gas) differ.",
+    "think_text": "Mining engineer has geological background. Entry-level geologist jobs overlap professionally but are in Middle East (wrong geography) and likely oil/gas rather than mining."
+  },
+  {
+    "article_id": "a75b1952bf9f",
+    "profile_id": "retired_diplomat_vienna",
+    "score": 0.5,
+    "reason": "Entry-level geologist job listings are completely irrelevant to a retired diplomat.",
+    "think_text": "No connection."
+  },
+  {
+    "article_id": "a75b1952bf9f",
+    "profile_id": "chef_mexico_city",
+    "score": 0.5,
+    "reason": "Geologist job listings have no relevance to a chef or restaurant owner.",
+    "think_text": "No connection."
+  },
+  {
+    "article_id": "ee80ac2e4bbf",
+    "profile_id": "undeclared_student_chicago",
+    "score": 1.5,
+    "reason": "A Figma tutorial on animated dropdown menus is a design skill tutorial that has minimal relevance to an undeclared student interested in economics, philosophy, and climate science.",
+    "think_text": "UI design tutorial - not in student's interest areas."
+  },
+  {
+    "article_id": "ee80ac2e4bbf",
+    "profile_id": "cto_fintech_lagos",
+    "score": 3.0,
+    "reason": "As a CTO overseeing product development, Figma design tutorials have some peripheral relevance for understanding UI/UX design practices, but this is a basic tutorial level below what a CTO would engage with.",
+    "think_text": "CTO manages engineering teams that use design tools. Basic Figma tutorial is too tactical/junior level."
+  },
+  {
+    "article_id": "ee80ac2e4bbf",
+    "profile_id": "mining_engineer_santiago",
+    "score": 0.5,
+    "reason": "A Figma UI design tutorial has zero relevance to mining engineering.",
+    "think_text": "No connection."
+  },
+  {
+    "article_id": "ee80ac2e4bbf",
+    "profile_id": "retired_diplomat_vienna",
+    "score": 0.5,
+    "reason": "A UI design tutorial is completely irrelevant to a retired diplomat.",
+    "think_text": "No connection."
+  },
+  {
+    "article_id": "ee80ac2e4bbf",
+    "profile_id": "chef_mexico_city",
+    "score": 0.5,
+    "reason": "A Figma design tutorial has no relevance to restaurant management or cuisine.",
+    "think_text": "No connection."
+  },
+  {
+    "article_id": "1ef2cd186cff",
+    "profile_id": "undeclared_student_chicago",
+    "score": 1.5,
+    "reason": "A foreign job search platform listing is not relevant to a US-based sophomore who is still undeclared and not seeking international employment.",
+    "think_text": "Job search platform - student is in school, not looking for foreign jobs."
+  },
+  {
+    "article_id": "1ef2cd186cff",
+    "profile_id": "cto_fintech_lagos",
+    "score": 1.5,
+    "reason": "A generic foreign job search platform is not relevant to a CTO at a Series B startup. They would use professional networks for hiring, not generic job boards.",
+    "think_text": "Generic job platform - CTO level doesn't use these."
+  },
+  {
+    "article_id": "1ef2cd186cff",
+    "profile_id": "mining_engineer_santiago",
+    "score": 1.5,
+    "reason": "A generic foreign job search platform has minimal relevance to an employed mining engineer in Chile who is not indicated to be job-seeking internationally.",
+    "think_text": "Not job-seeking, and generic platform."
+  },
+  {
+    "article_id": "1ef2cd186cff",
+    "profile_id": "retired_diplomat_vienna",
+    "score": 0.5,
+    "reason": "A foreign job search platform is irrelevant to a retired diplomat who is consulting, not seeking employment.",
+    "think_text": "Retired - not job seeking."
+  },
+  {
+    "article_id": "1ef2cd186cff",
+    "profile_id": "chef_mexico_city",
+    "score": 0.5,
+    "reason": "A foreign job search platform has no relevance to a chef running their own restaurant.",
+    "think_text": "Restaurant owner - not seeking foreign jobs."
+  },
+  {
+    "article_id": "f2e8b8337e48",
+    "profile_id": "undeclared_student_chicago",
+    "score": 3.5,
+    "reason": "Software development trends in the Middle East covering Vision 2030 and AI adoption could interest a student tracking startup culture and economics, but the geographic focus on Saudi Arabia and the Middle East is outside their primary interest areas.",
+    "think_text": "Student interested in startup culture and economics. Middle East tech scene is tangentially relevant but not their geography."
+  },
+  {
+    "article_id": "f2e8b8337e48",
+    "profile_id": "cto_fintech_lagos",
+    "score": 4.5,
+    "reason": "Middle East software development trends and AI adoption are somewhat relevant to a CTO tracking global tech markets, and there could be parallels to African digital transformation. However, this is about Saudi/Middle East specifically, not African fintech markets.",
+    "think_text": "Digital transformation parallels to Africa, but Middle East focus. Software development trends are generally relevant to a CTO but not specific to their market."
+  },
+  {
+    "article_id": "f2e8b8337e48",
+    "profile_id": "mining_engineer_santiago",
+    "score": 1.5,
+    "reason": "Middle East software development trends have no direct relevance to copper mining operations in Chile.",
+    "think_text": "Software dev in Middle East - irrelevant to Chilean mining."
+  },
+  {
+    "article_id": "f2e8b8337e48",
+    "profile_id": "retired_diplomat_vienna",
+    "score": 3.0,
+    "reason": "Middle East digital transformation under Vision 2030 has some relevance to a diplomat who tracks Middle East geopolitics, as technological development is part of the region's strategic evolution. However, this article is about software development, not policy or diplomacy.",
+    "think_text": "Middle East focus overlaps with diplomat's geographic interest, but software development is not their domain. Vision 2030 is a policy initiative though."
+  },
+  {
+    "article_id": "f2e8b8337e48",
+    "profile_id": "chef_mexico_city",
+    "score": 0.5,
+    "reason": "Middle East software development trends have no connection to Mexican cuisine or restaurant management.",
+    "think_text": "No connection."
+  },
+  {
+    "article_id": "ddf69f71cfc1",
+    "profile_id": "undeclared_student_chicago",
+    "score": 3.0,
+    "reason": "IoT becoming core infrastructure is a tech trend that could broadly interest a student curious about startup culture and economics, but the article focuses on connectivity engineering rather than the economic or philosophical implications the student would care about.",
+    "think_text": "IoT as infrastructure - tech trend that student might find interesting generally but not deep enough for their specific interests."
+  },
+  {
+    "article_id": "ddf69f71cfc1",
+    "profile_id": "cto_fintech_lagos",
+    "score": 4.0,
+    "reason": "IoT infrastructure trends are relevant to a CTO thinking about technology strategy, and mobile connectivity infrastructure is important for mobile payments in Africa. However, this article is about general IoT connectivity, not specifically fintech or mobile payments.",
+    "think_text": "IoT connectivity infrastructure has relevance to mobile payments infrastructure. Moderate connection through network reliability for fintech services."
+  },
+  {
+    "article_id": "ddf69f71cfc1",
+    "profile_id": "mining_engineer_santiago",
+    "score": 3.5,
+    "reason": "IoT is increasingly used in mining for equipment monitoring, safety systems, and operational efficiency. This article about IoT becoming core infrastructure has some relevance to mining operations modernization, though it's not mining-specific.",
+    "think_text": "Mining uses IoT for monitoring and safety. General IoT infrastructure article has some relevance to mining modernization."
+  },
+  {
+    "article_id": "ddf69f71cfc1",
+    "profile_id": "retired_diplomat_vienna",
+    "score": 1.0,
+    "reason": "IoT infrastructure trends have no direct connection to nuclear non-proliferation, geopolitics, or international law.",
+    "think_text": "Not relevant to diplomacy."
+  },
+  {
+    "article_id": "ddf69f71cfc1",
+    "profile_id": "chef_mexico_city",
+    "score": 1.5,
+    "reason": "IoT infrastructure has minimal relevance to restaurant management. Smart kitchen devices exist but this article is about enterprise IoT connectivity, not food service applications.",
+    "think_text": "Very tangential through smart restaurant tech, but article is about enterprise IoT. Low relevance."
+  },
+  {
+    "article_id": "18c7756a6756",
+    "profile_id": "undeclared_student_chicago",
+    "score": 7.0,
+    "reason": "MIT Technology Review's 10 Breakthrough Technologies 2026 is exactly the kind of broad, intellectually stimulating content that appeals to a broadly curious undeclared student. It covers cutting-edge innovations across multiple domains, touching on the student's interests in climate, tech, and startup culture.",
+    "think_text": "MIT Tech Review breakthrough technologies is perfect for a broadly curious student - covers multiple fields, intellectually accessible, prestigious source. Aligns well with startup culture and broad academic curiosity."
+  },
+  {
+    "article_id": "18c7756a6756",
+    "profile_id": "cto_fintech_lagos",
+    "score": 5.5,
+    "reason": "MIT's breakthrough technologies list is valuable for any tech leader to stay current with emerging technologies. Some breakthroughs may relate to fintech or mobile technology, but without knowing the specific technologies listed, it is broadly rather than specifically relevant.",
+    "think_text": "CTO should be aware of breakthrough technologies for strategic planning. Moderate general relevance."
+  },
+  {
+    "article_id": "18c7756a6756",
+    "profile_id": "mining_engineer_santiago",
+    "score": 3.5,
+    "reason": "Breakthrough technologies may include mining or energy-relevant innovations, but the MIT list typically skews toward consumer tech, AI, and biotech. Without mining-specific content confirmed, this has uncertain but possible relevance.",
+    "think_text": "Breakthrough tech list might have mining-relevant items (energy, materials) but probably not focused on mining."
+  },
+  {
+    "article_id": "18c7756a6756",
+    "profile_id": "retired_diplomat_vienna",
+    "score": 3.5,
+    "reason": "Breakthrough technologies may include items relevant to arms control or geopolitics (e.g., AI, surveillance, nuclear tech), but the MIT list is primarily science/tech focused rather than policy-oriented.",
+    "think_text": "Some breakthrough technologies might have policy implications, but the list is tech-focused, not policy analysis."
+  },
+  {
+    "article_id": "18c7756a6756",
+    "profile_id": "chef_mexico_city",
+    "score": 2.0,
+    "reason": "Breakthrough technologies might include food tech innovations, but the MIT list typically focuses on computing, energy, and biotech rather than culinary or food service applications.",
+    "think_text": "Unlikely to have food-specific content, but possible. Low relevance for a chef."
+  },
+  {
+    "article_id": "5d029909e649",
+    "profile_id": "undeclared_student_chicago",
+    "score": 7.5,
+    "reason": "A call for a university student partner for a fintech/smart contract project directly matches this student's profile: they are a student, interested in startup culture and potentially fintech, and this is an entry-level collaborative opportunity. Even though smart contracts aren't a stated interest, the fintech and startup angles align strongly.",
+    "think_text": "Student project partner search for fintech - perfect career level match (student), aligns with startup culture interest and potentially economics. Entry-level opportunity that should score HIGH for a student."
+  },
+  {
+    "article_id": "5d029909e649",
+    "profile_id": "cto_fintech_lagos",
+    "score": 3.0,
+    "reason": "While this involves fintech and smart contracts, it is a student project partner search, far below the CTO level. A CTO would not be seeking student project partners for academic work.",
+    "think_text": "Fintech topic matches but this is a student-level project. Too junior for a CTO."
+  },
+  {
+    "article_id": "5d029909e649",
+    "profile_id": "mining_engineer_santiago",
+    "score": 0.5,
+    "reason": "A student fintech/smart contract project has zero relevance to mining engineering.",
+    "think_text": "No connection."
+  },
+  {
+    "article_id": "5d029909e649",
+    "profile_id": "retired_diplomat_vienna",
+    "score": 0.5,
+    "reason": "A student project partner search for smart contracts has no relevance to a retired diplomat.",
+    "think_text": "No connection."
+  },
+  {
+    "article_id": "5d029909e649",
+    "profile_id": "chef_mexico_city",
+    "score": 0.5,
+    "reason": "A student smart contract project has no relevance to a chef.",
+    "think_text": "No connection."
+  },
+  {
+    "article_id": "17358e40141a",
+    "profile_id": "undeclared_student_chicago",
+    "score": 0.5,
+    "reason": "A Microsoft support page about adjusting display brightness in Windows is a generic tech support article with no academic, career, or intellectual relevance to a college student.",
+    "think_text": "Tech support page - noise for everyone."
+  },
+  {
+    "article_id": "17358e40141a",
+    "profile_id": "cto_fintech_lagos",
+    "score": 0.5,
+    "reason": "A Windows display brightness support page is basic consumer tech support, completely below and outside a CTO's professional focus.",
+    "think_text": "Basic tech support - noise."
+  },
+  {
+    "article_id": "17358e40141a",
+    "profile_id": "mining_engineer_santiago",
+    "score": 0.5,
+    "reason": "Windows display settings support is irrelevant to mining engineering.",
+    "think_text": "Noise."
+  },
+  {
+    "article_id": "17358e40141a",
+    "profile_id": "retired_diplomat_vienna",
+    "score": 0.5,
+    "reason": "A Windows display brightness support page has no relevance to a retired diplomat.",
+    "think_text": "Noise."
+  },
+  {
+    "article_id": "17358e40141a",
+    "profile_id": "chef_mexico_city",
+    "score": 0.5,
+    "reason": "Windows display settings have no relevance to a chef.",
+    "think_text": "Noise."
+  },
+  {
+    "article_id": "b5dd892f0d61",
+    "profile_id": "undeclared_student_chicago",
+    "score": 4.0,
+    "reason": "eLearning trends could be relevant to a student as they are actively learning and may benefit from understanding educational technology evolution. The AI and machine learning aspects connect loosely to their interest in startup culture. However, this is aimed at L&D professionals, not students.",
+    "think_text": "Student is a learner - eLearning trends have some personal relevance. But this is aimed at L&D professionals, not students."
+  },
+  {
+    "article_id": "b5dd892f0d61",
+    "profile_id": "cto_fintech_lagos",
+    "score": 3.0,
+    "reason": "As a CTO, understanding eLearning trends could inform employee training strategies, but L&D is not a core CTO responsibility at a Series B startup, and this article is aimed at L&D specialists.",
+    "think_text": "CTO might care about team training but this is too specialized in L&D."
+  },
+  {
+    "article_id": "b5dd892f0d61",
+    "profile_id": "mining_engineer_santiago",
+    "score": 1.5,
+    "reason": "eLearning trends for L&D professionals have minimal relevance to a mining engineer focused on operations, safety, and extraction.",
+    "think_text": "Mining training could use eLearning but this is too generic and L&D focused."
+  },
+  {
+    "article_id": "b5dd892f0d61",
+    "profile_id": "retired_diplomat_vienna",
+    "score": 1.0,
+    "reason": "eLearning trends for L&D professionals are not relevant to a retired diplomat focused on policy and international affairs.",
+    "think_text": "No connection."
+  },
+  {
+    "article_id": "b5dd892f0d61",
+    "profile_id": "chef_mexico_city",
+    "score": 1.0,
+    "reason": "eLearning trends for L&D professionals have minimal relevance to a chef, even though restaurants do train staff. This article is for corporate training specialists.",
+    "think_text": "Restaurant training exists but this L&D professional article isn't relevant."
+  },
+  {
+    "article_id": "eea19c14bae7",
+    "profile_id": "undeclared_student_chicago",
+    "score": 1.5,
+    "reason": "An ETSI event on smart networks and services standards is a specialized telecommunications standards conference with no relevance to an undeclared student interested in economics and philosophy.",
+    "think_text": "Telecom standards event - too specialized for undeclared student."
+  },
+  {
+    "article_id": "eea19c14bae7",
+    "profile_id": "cto_fintech_lagos",
+    "score": 3.5,
+    "reason": "Smart network standards could be relevant to mobile payments infrastructure, especially in Africa where network reliability matters. However, this is a European standards body event focused on research-level networking protocols, not directly applicable to fintech operations.",
+    "think_text": "Network standards have some relevance to mobile payment infrastructure. ETSI standards event has moderate connection through mobile network reliability."
+  },
+  {
+    "article_id": "eea19c14bae7",
+    "profile_id": "mining_engineer_santiago",
+    "score": 1.0,
+    "reason": "Smart network services standards have no direct connection to mining operations in Chile.",
+    "think_text": "Telecom standards - irrelevant to mining."
+  },
+  {
+    "article_id": "eea19c14bae7",
+    "profile_id": "retired_diplomat_vienna",
+    "score": 1.5,
+    "reason": "Telecom standards are tangentially related to international governance, but this is a technical standards event, not a policy or diplomatic forum.",
+    "think_text": "International standards body but too technical for diplomat's interests."
+  },
+  {
+    "article_id": "eea19c14bae7",
+    "profile_id": "chef_mexico_city",
+    "score": 0.5,
+    "reason": "Smart network standards have no relevance to restaurant management or cuisine.",
+    "think_text": "No connection."
+  },
+  {
+    "article_id": "18ca83614646",
+    "profile_id": "undeclared_student_chicago",
+    "score": 1.0,
+    "reason": "Healthcare nursing positions in UAE requiring professional certifications are not relevant to an undeclared sophomore in Chicago. Wrong career level, field, and geography.",
+    "think_text": "Nursing jobs in UAE - wrong everything for an undeclared student."
+  },
+  {
+    "article_id": "18ca83614646",
+    "profile_id": "cto_fintech_lagos",
+    "score": 0.5,
+    "reason": "Healthcare nursing positions in the UAE have no relevance to a fintech CTO in Lagos.",
+    "think_text": "Nursing jobs - no connection to fintech."
+  },
+  {
+    "article_id": "18ca83614646",
+    "profile_id": "mining_engineer_santiago",
+    "score": 0.5,
+    "reason": "Healthcare nursing positions have no relevance to mining engineering.",
+    "think_text": "No connection."
+  },
+  {
+    "article_id": "18ca83614646",
+    "profile_id": "retired_diplomat_vienna",
+    "score": 0.5,
+    "reason": "Healthcare job postings in the UAE are not relevant to a retired diplomat focused on international policy.",
+    "think_text": "Job posting - irrelevant."
+  },
+  {
+    "article_id": "18ca83614646",
+    "profile_id": "chef_mexico_city",
+    "score": 0.5,
+    "reason": "Nursing positions in the UAE have no relevance to a Mexico City chef.",
+    "think_text": "No connection."
+  },
+  {
+    "article_id": "a05884b08a33",
+    "profile_id": "undeclared_student_chicago",
+    "score": 3.5,
+    "reason": "Moroccan and Qatari fintech startup news touches on startup culture, which is one of the student's interests. However, the specific focus on African/GCC fintech is not in their tracked geography, and the content is industry news rather than academic or entry-level content.",
+    "think_text": "Startup culture interest overlaps with fintech startups. But wrong geography and not entry-level content."
+  },
+  {
+    "article_id": "a05884b08a33",
+    "profile_id": "cto_fintech_lagos",
+    "score": 8.0,
+    "reason": "African fintech startup news from Morocco and GCC BNPL expansion is directly relevant to a Lagos fintech CTO. Moroccan fintech growth represents the broader African fintech ecosystem the CTO operates in, and GCC BNPL expansion could represent partnership or competitive dynamics. This is industry intelligence the CTO would act on.",
+    "think_text": "African fintech startups gaining traction - directly in the CTO's industry and region. Morocco is part of the African fintech ecosystem. GCC BNPL expansion could mean market opportunities. Highly relevant and actionable."
+  },
+  {
+    "article_id": "a05884b08a33",
+    "profile_id": "mining_engineer_santiago",
+    "score": 0.5,
+    "reason": "African and Middle Eastern fintech startup news has no connection to copper mining in Chile.",
+    "think_text": "No connection to mining."
+  },
+  {
+    "article_id": "a05884b08a33",
+    "profile_id": "retired_diplomat_vienna",
+    "score": 1.5,
+    "reason": "Fintech startup funding news does not relate to non-proliferation, arms control, or the geopolitical topics this diplomat focuses on.",
+    "think_text": "Fintech news - not relevant to diplomacy."
+  },
+  {
+    "article_id": "a05884b08a33",
+    "profile_id": "chef_mexico_city",
+    "score": 0.5,
+    "reason": "African fintech startup news has no relevance to Mexican cuisine or restaurant management.",
+    "think_text": "No connection."
+  },
+  {
+    "article_id": "6f6ab3fb11be",
+    "profile_id": "undeclared_student_chicago",
+    "score": 3.5,
+    "reason": "Weekly fintech deals covering nearly $500M in funding is interesting from a startup culture perspective that the student tracks. However, this is industry-insider VC deal flow content, not pitched at a student level or matching their academic interests.",
+    "think_text": "Startup culture interest aligns. Student tracks Y Combinator. Fintech deals roundup is somewhat relevant but more for investors/industry insiders."
+  },
+  {
+    "article_id": "6f6ab3fb11be",
+    "profile_id": "cto_fintech_lagos",
+    "score": 8.5,
+    "reason": "A weekly roundup of 19 fintech deals with $500M raised is directly actionable intelligence for a fintech CTO. The mention of Series B and fintech startups enabling bank teams and developers is exactly the competitive and market landscape this CTO needs to track for strategic decisions and potential partnerships.",
+    "think_text": "Fintech deals of the week - extremely relevant for a fintech CTO. Series B, fintech infrastructure, developer tools - directly actionable. This is core industry intelligence."
+  },
+  {
+    "article_id": "6f6ab3fb11be",
+    "profile_id": "mining_engineer_santiago",
+    "score": 0.5,
+    "reason": "Fintech investment deals have no connection to copper mining operations in Chile.",
+    "think_text": "No connection."
+  },
+  {
+    "article_id": "6f6ab3fb11be",
+    "profile_id": "retired_diplomat_vienna",
+    "score": 1.0,
+    "reason": "Fintech investment deal flow is outside a retired diplomat's focus on international affairs and non-proliferation.",
+    "think_text": "Not relevant to diplomacy."
+  },
+  {
+    "article_id": "6f6ab3fb11be",
+    "profile_id": "chef_mexico_city",
+    "score": 0.5,
+    "reason": "Fintech deals have no relevance to restaurant management or cuisine.",
+    "think_text": "No connection."
+  },
+  {
+    "article_id": "5b5e0e3b788a",
+    "profile_id": "undeclared_student_chicago",
+    "score": 0.5,
+    "reason": "A TikTok dance compilation video is pure social media entertainment noise with no academic or intellectual relevance.",
+    "think_text": "TikTok dance video - noise for everyone."
+  },
+  {
+    "article_id": "5b5e0e3b788a",
+    "profile_id": "cto_fintech_lagos",
+    "score": 0.5,
+    "reason": "A TikTok dance compilation has no professional relevance to a fintech CTO.",
+    "think_text": "Pure noise."
+  },
+  {
+    "article_id": "5b5e0e3b788a",
+    "profile_id": "mining_engineer_santiago",
+    "score": 0.5,
+    "reason": "TikTok dance content has zero relevance to mining engineering.",
+    "think_text": "Pure noise."
+  },
+  {
+    "article_id": "5b5e0e3b788a",
+    "profile_id": "retired_diplomat_vienna",
+    "score": 0.5,
+    "reason": "A TikTok dance video is completely irrelevant to a retired diplomat.",
+    "think_text": "Pure noise."
+  },
+  {
+    "article_id": "5b5e0e3b788a",
+    "profile_id": "chef_mexico_city",
+    "score": 0.5,
+    "reason": "A TikTok dance compilation has no relevance to a chef.",
+    "think_text": "Pure noise."
+  },
+  {
+    "article_id": "253ce3ae750b",
+    "profile_id": "undeclared_student_chicago",
+    "score": 1.5,
+    "reason": "Retail cybersecurity services from Redscan is a B2B marketing page for cybersecurity products, not educational or analytical content relevant to a student.",
+    "think_text": "B2B cybersecurity marketing - not relevant to student."
+  },
+  {
+    "article_id": "253ce3ae750b",
+    "profile_id": "cto_fintech_lagos",
+    "score": 3.5,
+    "reason": "Cybersecurity services for retail and ecommerce has some overlap with fintech security needs, including PCI DSS and GDPR compliance. However, this is a UK-focused B2B service marketing page rather than actionable intelligence.",
+    "think_text": "PCI DSS compliance overlaps with fintech, but this is a marketing page for a UK cybersecurity vendor, not industry analysis."
+  },
+  {
+    "article_id": "253ce3ae750b",
+    "profile_id": "mining_engineer_santiago",
+    "score": 0.5,
+    "reason": "Retail cybersecurity services have no connection to mining engineering.",
+    "think_text": "No connection."
+  },
+  {
+    "article_id": "253ce3ae750b",
+    "profile_id": "retired_diplomat_vienna",
+    "score": 1.0,
+    "reason": "A retail cybersecurity services page has no relevance to diplomatic or international affairs interests.",
+    "think_text": "B2B marketing page - irrelevant."
+  },
+  {
+    "article_id": "253ce3ae750b",
+    "profile_id": "chef_mexico_city",
+    "score": 1.5,
+    "reason": "A restaurant owner might handle online orders or ecommerce, making retail cybersecurity tangentially relevant. However, this is a B2B vendor page aimed at enterprise clients, not small restaurant operations.",
+    "think_text": "Restaurants are retail, PCI DSS for payments is relevant, but this is an enterprise cybersecurity vendor marketing page. Very low relevance."
+  },
+  {
+    "article_id": "8552fae8d58d",
+    "profile_id": "undeclared_student_chicago",
+    "score": 1.0,
+    "reason": "An electrical engineer job in Ontario, Canada requiring knowledge of NERC guidelines and IESO market rules is not relevant to an undeclared US sophomore who hasn't chosen engineering as a major.",
+    "think_text": "Engineering job in Canada - wrong field and level for undeclared student."
+  },
+  {
+    "article_id": "8552fae8d58d",
+    "profile_id": "cto_fintech_lagos",
+    "score": 0.5,
+    "reason": "An electrical engineering job in Ontario has no relevance to a fintech CTO in Lagos.",
+    "think_text": "Wrong field and geography."
+  },
+  {
+    "article_id": "8552fae8d58d",
+    "profile_id": "mining_engineer_santiago",
+    "score": 2.0,
+    "reason": "Electrical engineering in the energy sector has some overlap with mining operations (power systems), but this is a Canadian energy sector job, not related to Chilean mining operations.",
+    "think_text": "Some engineering overlap but wrong sector (utility vs mining) and geography."
+  },
+  {
+    "article_id": "8552fae8d58d",
+    "profile_id": "retired_diplomat_vienna",
+    "score": 0.5,
+    "reason": "An electrical engineering job posting has no relevance to a retired diplomat.",
+    "think_text": "No connection."
+  },
+  {
+    "article_id": "8552fae8d58d",
+    "profile_id": "chef_mexico_city",
+    "score": 0.5,
+    "reason": "An electrical engineering position has no relevance to a chef.",
+    "think_text": "No connection."
+  },
+  {
+    "article_id": "5d91b2c4375a",
+    "profile_id": "undeclared_student_chicago",
+    "score": 7.5,
+    "reason": "Climate science news covering microplastics and climate defense systems directly aligns with the student's stated interest in climate change. This is from ScienceDaily, an accessible science news source appropriate for a broadly curious undergraduate exploring potential majors.",
+    "think_text": "Climate change is one of the student's core interests. ScienceDaily climate news is accessible and educational. Strong match."
+  },
+  {
+    "article_id": "5d91b2c4375a",
+    "profile_id": "cto_fintech_lagos",
+    "score": 1.0,
+    "reason": "Climate science about microplastics in oceans has no connection to fintech or mobile payments in Nigeria.",
+    "think_text": "No connection to fintech."
+  },
+  {
+    "article_id": "5d91b2c4375a",
+    "profile_id": "mining_engineer_santiago",
+    "score": 4.5,
+    "reason": "Climate science has some relevance to a mining engineer through ESG compliance requirements and environmental impact assessment. Mining is a major environmental concern, and understanding climate science helps with regulatory compliance. However, this article about ocean microplastics is not directly about mining's environmental impact.",
+    "think_text": "ESG compliance interest gives some climate science relevance. Mining and climate are connected through environmental regulations. But ocean microplastics are not mining-specific."
+  },
+  {
+    "article_id": "5d91b2c4375a",
+    "profile_id": "retired_diplomat_vienna",
+    "score": 3.5,
+    "reason": "Climate change is a major topic in international diplomacy, and a retired diplomat may have been involved in climate negotiations. However, this is a science news article about microplastics research, not a policy or diplomatic angle on climate.",
+    "think_text": "Climate is a diplomatic issue but this article is about scientific research, not policy or international negotiations."
+  },
+  {
+    "article_id": "5d91b2c4375a",
+    "profile_id": "chef_mexico_city",
+    "score": 2.5,
+    "reason": "Climate change and ocean microplastics could affect food supply chains, especially seafood sourcing. A chef interested in sustainable sourcing might find this tangentially relevant, but it's not directly about food systems.",
+    "think_text": "Sustainable sourcing interest has slight overlap with climate/ocean health. Microplastics in oceans could affect seafood. Tangential connection."
+  },
+  {
+    "article_id": "29b05e3fae4d",
+    "profile_id": "undeclared_student_chicago",
+    "score": 6.0,
+    "reason": "An article about 9 scientifically explained 'impossible' phenomena covers science, geography, and natural wonders that would appeal to a broadly curious student. It intersects with their intellectual curiosity, though it doesn't directly match economics, philosophy, or climate change.",
+    "think_text": "Broadly curious student would enjoy science explainer content about natural phenomena. Good for general intellectual curiosity, accessible level. Not specific to their interests but matches their curious disposition."
+  },
+  {
+    "article_id": "29b05e3fae4d",
+    "profile_id": "cto_fintech_lagos",
+    "score": 1.0,
+    "reason": "An article about scientifically explained natural phenomena has no relevance to a fintech CTO's professional interests.",
+    "think_text": "Science trivia - no fintech connection."
+  },
+  {
+    "article_id": "29b05e3fae4d",
+    "profile_id": "mining_engineer_santiago",
+    "score": 3.0,
+    "reason": "Some of the phenomena mentioned (dark oxygen, geological features) could have tangential connections to geoscience and mining. However, this is a popular science article about curiosities rather than actionable geological or mining knowledge.",
+    "think_text": "Geological phenomena have some overlap with mining/geoscience background, but this is pop science, not professional content."
+  },
+  {
+    "article_id": "29b05e3fae4d",
+    "profile_id": "retired_diplomat_vienna",
+    "score": 1.5,
+    "reason": "A popular science article about natural phenomena has no connection to diplomacy, non-proliferation, or international affairs.",
+    "think_text": "No connection to diplomat's interests."
+  },
+  {
+    "article_id": "29b05e3fae4d",
+    "profile_id": "chef_mexico_city",
+    "score": 1.0,
+    "reason": "An article about scientifically explained natural phenomena has no relevance to cuisine or restaurant management.",
+    "think_text": "No connection."
+  },
+  {
+    "article_id": "c6847e13b57d",
+    "profile_id": "undeclared_student_chicago",
+    "score": 2.5,
+    "reason": "An investment fund selling TREX stock is financial news that could mildly interest a student interested in economics, but it is a specific stock trade by a fund manager, not educational or analytical content about economics.",
+    "think_text": "Economics interest but this is a specific fund trade - too granular and specialized for a student."
+  },
+  {
+    "article_id": "c6847e13b57d",
+    "profile_id": "cto_fintech_lagos",
+    "score": 1.0,
+    "reason": "A US investment fund's stock trade has no relevance to a fintech CTO building mobile payments in Africa.",
+    "think_text": "Specific stock trade - irrelevant to fintech operations."
+  },
+  {
+    "article_id": "c6847e13b57d",
+    "profile_id": "mining_engineer_santiago",
+    "score": 1.0,
+    "reason": "TREX Company makes composite decking products. This stock trade has no connection to copper mining or Chilean mining operations.",
+    "think_text": "TREX is a building materials company - no mining connection."
+  },
+  {
+    "article_id": "c6847e13b57d",
+    "profile_id": "retired_diplomat_vienna",
+    "score": 0.5,
+    "reason": "A US fund manager's stock trade is completely irrelevant to a retired diplomat focused on international affairs.",
+    "think_text": "No connection."
+  },
+  {
+    "article_id": "c6847e13b57d",
+    "profile_id": "chef_mexico_city",
+    "score": 0.5,
+    "reason": "A building materials stock trade has no relevance to a chef.",
+    "think_text": "No connection."
+  },
+  {
+    "article_id": "0974c0d9e8bb",
+    "profile_id": "undeclared_student_chicago",
+    "score": 3.5,
+    "reason": "Qualcomm's 2nm chip breakthrough is notable tech news that could interest a broadly curious student, especially the angle about India as a chip design hub. However, semiconductor manufacturing is not among the student's stated interests.",
+    "think_text": "Tech news about semiconductor breakthrough. Student is broadly curious but semiconductors aren't stated interests. India as chip hub could be economics-relevant."
+  },
+  {
+    "article_id": "0974c0d9e8bb",
+    "profile_id": "cto_fintech_lagos",
+    "score": 3.0,
+    "reason": "Qualcomm's chip advancement affects mobile device capabilities long-term, which matters for mobile payments. However, this is a semiconductor manufacturing story, not directly about mobile applications or fintech.",
+    "think_text": "Mobile chip advancement has distant relevance to mobile payments through device capabilities, but this is chip manufacturing news."
+  },
+  {
+    "article_id": "0974c0d9e8bb",
+    "profile_id": "mining_engineer_santiago",
+    "score": 0.5,
+    "reason": "Qualcomm's 2nm chip development has no connection to copper mining or mineral extraction.",
+    "think_text": "No connection to mining."
+  },
+  {
+    "article_id": "0974c0d9e8bb",
+    "profile_id": "retired_diplomat_vienna",
+    "score": 2.0,
+    "reason": "Semiconductor geopolitics (India as chip design hub) has some international relations relevance, as chip supply chains are becoming a geopolitical issue. However, this Instagram reel is light on policy analysis.",
+    "think_text": "Chip geopolitics could interest diplomat but this is a tech news Instagram post, not policy analysis."
+  },
+  {
+    "article_id": "0974c0d9e8bb",
+    "profile_id": "chef_mexico_city",
+    "score": 0.5,
+    "reason": "Semiconductor chip development has no relevance to a chef.",
+    "think_text": "No connection."
+  },
+  {
+    "article_id": "834d9c577dcf",
+    "profile_id": "undeclared_student_chicago",
+    "score": 2.5,
+    "reason": "An AWS CloudOps certification course could be useful for career exploration in tech, but the student is undeclared and hasn't indicated interest in cloud engineering or IT operations certifications.",
+    "think_text": "Certification course - could be career exploration but student's interests are economics, philosophy, climate. Not aligned."
+  },
+  {
+    "article_id": "834d9c577dcf",
+    "profile_id": "cto_fintech_lagos",
+    "score": 3.5,
+    "reason": "AWS certifications are relevant to the tech stack a CTO manages, but an associate-level CloudOps certification course is below the CTO level. This would be more relevant for their engineering team members.",
+    "think_text": "AWS is part of fintech infrastructure but this certification is too junior for a CTO. Might share with team."
+  },
+  {
+    "article_id": "834d9c577dcf",
+    "profile_id": "mining_engineer_santiago",
+    "score": 0.5,
+    "reason": "An AWS cloud certification course has no relevance to copper mining operations.",
+    "think_text": "No connection to mining."
+  },
+  {
+    "article_id": "834d9c577dcf",
+    "profile_id": "retired_diplomat_vienna",
+    "score": 0.5,
+    "reason": "An AWS certification course is irrelevant to a retired diplomat.",
+    "think_text": "No connection."
+  },
+  {
+    "article_id": "834d9c577dcf",
+    "profile_id": "chef_mexico_city",
+    "score": 0.5,
+    "reason": "Cloud computing certification has no relevance to restaurant management.",
+    "think_text": "No connection."
+  },
+  {
+    "article_id": "5bb59f0afab2",
+    "profile_id": "undeclared_student_chicago",
+    "score": 3.0,
+    "reason": "Shell selling a stake in a Brazilian offshore project to a Kuwaiti company is international energy business news. It has some relevance to the student's economics interest through international business and commodity markets, but is quite specialized.",
+    "think_text": "International oil deal - economics interest gives slight relevance but this is specialized energy industry M&A."
+  },
+  {
+    "article_id": "5bb59f0afab2",
+    "profile_id": "cto_fintech_lagos",
+    "score": 1.0,
+    "reason": "Shell selling a stake in a Brazilian offshore oil project to a Kuwaiti company has no connection to fintech or mobile payments in Nigeria.",
+    "think_text": "Oil industry M&A - no fintech connection."
+  },
+  {
+    "article_id": "5bb59f0afab2",
+    "profile_id": "mining_engineer_santiago",
+    "score": 3.0,
+    "reason": "While this is an oil and gas deal rather than mining, it involves extractive industry operations in Latin America (Brazil). A mining engineer in Chile might track major energy deals in the region, and the extractive industry dynamics have some parallels. However, it is a different commodity and sector.",
+    "think_text": "Extractive industry in Latin America. Some parallel to mining through resource extraction business. But oil vs minerals is a different sector."
+  },
+  {
+    "article_id": "5bb59f0afab2",
+    "profile_id": "retired_diplomat_vienna",
+    "score": 3.0,
+    "reason": "International energy deals between Shell, Kuwait, and Brazil have geopolitical dimensions that could interest a diplomat tracking Middle East foreign investment strategies. However, this is a commercial transaction, not a policy or diplomatic development.",
+    "think_text": "Kuwait foreign investment in Brazilian oil has geopolitical interest, but this is a business deal announcement, not policy analysis."
+  },
+  {
+    "article_id": "5bb59f0afab2",
+    "profile_id": "chef_mexico_city",
+    "score": 0.5,
+    "reason": "An oil industry deal between Shell and Kuwait in Brazil has no relevance to a Mexico City chef.",
+    "think_text": "No connection."
+  },
+  {
+    "article_id": "1d99e49cdd52",
+    "profile_id": "undeclared_student_chicago",
+    "score": 0.5,
+    "reason": "A travel nurse job listing for a PCU/CCU position is completely irrelevant to an undeclared college sophomore.",
+    "think_text": "Nursing job posting - irrelevant to student."
+  },
+  {
+    "article_id": "1d99e49cdd52",
+    "profile_id": "cto_fintech_lagos",
+    "score": 0.5,
+    "reason": "A US travel nurse job listing has no relevance to a fintech CTO in Lagos.",
+    "think_text": "Nursing job - no connection."
+  },
+  {
+    "article_id": "1d99e49cdd52",
+    "profile_id": "mining_engineer_santiago",
+    "score": 0.5,
+    "reason": "A travel nurse position has no relevance to mining engineering.",
+    "think_text": "No connection."
+  },
+  {
+    "article_id": "1d99e49cdd52",
+    "profile_id": "retired_diplomat_vienna",
+    "score": 0.5,
+    "reason": "A travel nurse job listing is irrelevant to a retired diplomat.",
+    "think_text": "No connection."
+  },
+  {
+    "article_id": "1d99e49cdd52",
+    "profile_id": "chef_mexico_city",
+    "score": 0.5,
+    "reason": "A nursing job listing has no relevance to a chef.",
+    "think_text": "No connection."
+  },
+  {
+    "article_id": "fd5f0e60a7b1",
+    "profile_id": "undeclared_student_chicago",
+    "score": 5.5,
+    "reason": "D-Wave's quantum computing breakthrough is intellectually stimulating for a broadly curious student, and quantum computing represents the frontier of technology. The student tracks OpenAI and is interested in startup culture, and quantum computing is a major investment and tech trend. Good for intellectual exploration.",
+    "think_text": "Student is broadly curious, tracks OpenAI. Quantum computing is a frontier technology that could interest them from startup/economics angles. Moderate-to-good relevance for a curious student."
+  },
+  {
+    "article_id": "fd5f0e60a7b1",
+    "profile_id": "cto_fintech_lagos",
+    "score": 3.0,
+    "reason": "Quantum computing developments are important for the long-term future of fintech (especially cryptography), but D-Wave's current quantum offerings are not immediately applicable to mobile payment systems in Africa. This is futuristic rather than actionable.",
+    "think_text": "Quantum computing has future fintech implications (crypto, security) but not actionable for current mobile payments operations."
+  },
+  {
+    "article_id": "fd5f0e60a7b1",
+    "profile_id": "mining_engineer_santiago",
+    "score": 1.0,
+    "reason": "Quantum computing developments have no direct application to current copper mining operations.",
+    "think_text": "No connection to mining."
+  },
+  {
+    "article_id": "fd5f0e60a7b1",
+    "profile_id": "retired_diplomat_vienna",
+    "score": 2.0,
+    "reason": "Quantum computing has implications for cryptography and national security, which tangentially relates to arms control. However, this is an investment analysis of a quantum stock, not a policy discussion.",
+    "think_text": "Quantum computing has security implications but this is an investment article, not policy analysis."
+  },
+  {
+    "article_id": "fd5f0e60a7b1",
+    "profile_id": "chef_mexico_city",
+    "score": 0.5,
+    "reason": "Quantum computing stocks have no relevance to restaurant management or cuisine.",
+    "think_text": "No connection."
+  },
+  {
+    "article_id": "aab36685f2ec",
+    "profile_id": "undeclared_student_chicago",
+    "score": 7.0,
+    "reason": "The Pentagon using Anthropic's Claude AI in a military operation is major news at the intersection of AI ethics, startup culture, and geopolitics. The student tracks OpenAI and is interested in startup culture, and this article about a competing AI company being used by the military raises important philosophical and ethical questions that align with their interests.",
+    "think_text": "Student tracks OpenAI, interested in startup culture and philosophy. AI being used in military operations raises philosophical/ethical questions. Anthropic (Claude) is an OpenAI competitor. This is big news the student would care about."
+  },
+  {
+    "article_id": "aab36685f2ec",
+    "profile_id": "cto_fintech_lagos",
+    "score": 3.5,
+    "reason": "The Pentagon's use of AI through Palantir demonstrates growing enterprise AI adoption, which is tangentially relevant to a tech leader. However, military AI applications are not relevant to mobile payment fintech operations in Africa.",
+    "think_text": "AI enterprise adoption is broadly relevant to a CTO, but military use case is far from fintech."
+  },
+  {
+    "article_id": "aab36685f2ec",
+    "profile_id": "mining_engineer_santiago",
+    "score": 1.0,
+    "reason": "Pentagon use of AI in a military operation has no connection to mining engineering in Chile.",
+    "think_text": "No connection to mining."
+  },
+  {
+    "article_id": "aab36685f2ec",
+    "profile_id": "retired_diplomat_vienna",
+    "score": 7.5,
+    "reason": "The Pentagon using AI in a military operation against Venezuela directly relates to this diplomat's interests in international relations, military affairs, and geopolitics. The use of AI in military operations raises international law questions, and the Venezuela dimension adds a Latin America/US foreign policy angle relevant to geopolitical analysis.",
+    "think_text": "Military operation, AI in warfare, Venezuela geopolitics, international law implications. Very relevant to a retired diplomat interested in geopolitics, arms control, and international law."
+  },
+  {
+    "article_id": "aab36685f2ec",
+    "profile_id": "chef_mexico_city",
+    "score": 2.0,
+    "reason": "While a Mexico City chef might have general interest in Venezuela news given Latin American regional connections, this military/AI story has no culinary or restaurant relevance.",
+    "think_text": "Latin American geopolitics might have slight regional interest but no food industry connection."
+  },
+  {
+    "article_id": "0c152569086d",
+    "profile_id": "undeclared_student_chicago",
+    "score": 1.5,
+    "reason": "ITIL certification job trends and salaries in the UK IT market are not relevant to an undeclared US sophomore interested in economics and philosophy rather than IT service management.",
+    "think_text": "IT certification trends - wrong field and geography for student."
+  },
+  {
+    "article_id": "0c152569086d",
+    "profile_id": "cto_fintech_lagos",
+    "score": 2.5,
+    "reason": "ITIL certification trends in the UK have some tangential relevance to a CTO who manages IT operations, but ITIL is more relevant to traditional IT service management than fintech startup engineering. Wrong geography and methodology focus.",
+    "think_text": "ITIL is for IT service management - a CTO might encounter it but it's not core to fintech startup engineering."
+  },
+  {
+    "article_id": "0c152569086d",
+    "profile_id": "mining_engineer_santiago",
+    "score": 0.5,
+    "reason": "ITIL certification job trends have no connection to mining engineering.",
+    "think_text": "No connection."
+  },
+  {
+    "article_id": "0c152569086d",
+    "profile_id": "retired_diplomat_vienna",
+    "score": 0.5,
+    "reason": "IT service management certification trends are irrelevant to a retired diplomat.",
+    "think_text": "No connection."
+  },
+  {
+    "article_id": "0c152569086d",
+    "profile_id": "chef_mexico_city",
+    "score": 0.5,
+    "reason": "ITIL certification trends have no relevance to a chef.",
+    "think_text": "No connection."
+  },
+  {
+    "article_id": "7cdb8ee26e9d",
+    "profile_id": "undeclared_student_chicago",
+    "score": 4.0,
+    "reason": "AMD's 2nm AI chip competition with Nvidia is a major tech industry story that could interest a student tracking startup culture and AI (through OpenAI). However, this is investment-oriented semiconductor analysis, not academic content or at the student's level of interest.",
+    "think_text": "AI chip competition is relevant to OpenAI tracker and startup culture interest, but this is stock analysis level content."
+  },
+  {
+    "article_id": "7cdb8ee26e9d",
+    "profile_id": "cto_fintech_lagos",
+    "score": 3.0,
+    "reason": "The AI chip competition between AMD and Nvidia affects the broader AI ecosystem, but semiconductor competition is not directly relevant to a fintech CTO building mobile payment applications.",
+    "think_text": "AI infrastructure competition - tangentially relevant to a CTO but not actionable for mobile payments."
+  },
+  {
+    "article_id": "7cdb8ee26e9d",
+    "profile_id": "mining_engineer_santiago",
+    "score": 1.0,
+    "reason": "AI chip competition between AMD and Nvidia has no relevance to copper mining operations.",
+    "think_text": "No connection to mining."
+  },
+  {
+    "article_id": "7cdb8ee26e9d",
+    "profile_id": "retired_diplomat_vienna",
+    "score": 1.5,
+    "reason": "The AI chip war has geopolitical dimensions (US-China tech competition), but this article is focused on stock analysis and product specifications rather than geopolitical implications.",
+    "think_text": "Tech competition has geopolitical angles but article is investment analysis."
+  },
+  {
+    "article_id": "7cdb8ee26e9d",
+    "profile_id": "chef_mexico_city",
+    "score": 0.5,
+    "reason": "AI chip competition has no relevance to restaurant management.",
+    "think_text": "No connection."
+  },
+  {
+    "article_id": "02b682ccfc85",
+    "profile_id": "undeclared_student_chicago",
+    "score": 0.5,
+    "reason": "A client reference list for Zamil Process Equipment mentioning SABIC and Saudi utilities is a corporate capability page with no educational or intellectual value for a UChicago student.",
+    "think_text": "Corporate reference page - noise for students."
+  },
+  {
+    "article_id": "02b682ccfc85",
+    "profile_id": "cto_fintech_lagos",
+    "score": 0.5,
+    "reason": "A Saudi process equipment company's client list has no relevance to fintech in Nigeria.",
+    "think_text": "No connection."
+  },
+  {
+    "article_id": "02b682ccfc85",
+    "profile_id": "mining_engineer_santiago",
+    "score": 2.0,
+    "reason": "Process equipment manufacturing has some industrial overlap with mining (SABIC is petrochemical, SWCC is water utility), but this is a Saudi corporate reference page, not mining-relevant content.",
+    "think_text": "Process equipment has slight industrial overlap but wrong sector and geography."
+  },
+  {
+    "article_id": "02b682ccfc85",
+    "profile_id": "retired_diplomat_vienna",
+    "score": 0.5,
+    "reason": "A Saudi industrial equipment company's client references are irrelevant to a retired diplomat.",
+    "think_text": "No connection."
+  },
+  {
+    "article_id": "02b682ccfc85",
+    "profile_id": "chef_mexico_city",
+    "score": 0.5,
+    "reason": "Saudi process equipment references have no relevance to a chef.",
+    "think_text": "No connection."
+  },
+  {
+    "article_id": "9272cab0f19c",
+    "profile_id": "undeclared_student_chicago",
+    "score": 5.0,
+    "reason": "Blockchain investment trends including asset tokenization and BlackRock's involvement could interest a student tracking startup culture and economics. The intersection of traditional finance and crypto technology is an intellectually engaging topic. However, this is investment-focused rather than academic.",
+    "think_text": "Economics and startup culture interests overlap with blockchain/finance intersection. BlackRock involvement makes it mainstream economics relevant."
+  },
+  {
+    "article_id": "9272cab0f19c",
+    "profile_id": "cto_fintech_lagos",
+    "score": 6.5,
+    "reason": "Emerging blockchain investment trends including asset tokenization are directly relevant to a fintech CTO. Blockchain technology, particularly tokenization, could be part of the future of mobile payments and financial services in Africa. This provides strategic intelligence about where the fintech industry is heading.",
+    "think_text": "Blockchain trends, asset tokenization, fintech intersection - relevant to CTO's strategic thinking about mobile payments evolution. Not immediately actionable but strategically important."
+  },
+  {
+    "article_id": "9272cab0f19c",
+    "profile_id": "mining_engineer_santiago",
+    "score": 1.0,
+    "reason": "Blockchain investment trends have no connection to copper mining or mineral extraction operations.",
+    "think_text": "No connection to mining."
+  },
+  {
+    "article_id": "9272cab0f19c",
+    "profile_id": "retired_diplomat_vienna",
+    "score": 1.5,
+    "reason": "Blockchain investment trends are outside a diplomat's focus on non-proliferation and geopolitics, unless there were sanctions-evasion implications, which this article doesn't address.",
+    "think_text": "Blockchain has some international governance angles but this is about investment trends."
+  },
+  {
+    "article_id": "9272cab0f19c",
+    "profile_id": "chef_mexico_city",
+    "score": 0.5,
+    "reason": "Blockchain investment trends have no relevance to restaurant management or cuisine.",
+    "think_text": "No connection."
+  },
+  {
+    "article_id": "eb9e5c6bf732",
+    "profile_id": "undeclared_student_chicago",
+    "score": 3.0,
+    "reason": "Modular construction trends could marginally interest a student through the sustainability and innovation angles, but construction industry content is not among the student's stated interests in economics, philosophy, or climate change.",
+    "think_text": "Sustainability angle has slight overlap with climate interest, but this is construction industry specific."
+  },
+  {
+    "article_id": "eb9e5c6bf732",
+    "profile_id": "cto_fintech_lagos",
+    "score": 1.0,
+    "reason": "Modular construction has no connection to fintech or mobile payments.",
+    "think_text": "No connection."
+  },
+  {
+    "article_id": "eb9e5c6bf732",
+    "profile_id": "mining_engineer_santiago",
+    "score": 2.5,
+    "reason": "Modular construction could have some relevance to mining camp infrastructure, but this article is about residential homebuilding, not industrial or mining applications.",
+    "think_text": "Mining uses modular buildings for camps, but article is about smart homebuilding. Slight tangential overlap."
+  },
+  {
+    "article_id": "eb9e5c6bf732",
+    "profile_id": "retired_diplomat_vienna",
+    "score": 0.5,
+    "reason": "Smart homebuilding construction trends have no relevance to a retired diplomat focused on international affairs.",
+    "think_text": "No connection."
+  },
+  {
+    "article_id": "eb9e5c6bf732",
+    "profile_id": "chef_mexico_city",
+    "score": 1.0,
+    "reason": "Modular construction has minimal relevance to a chef, unless they were planning a restaurant build, but this is about residential construction.",
+    "think_text": "Restaurant construction is a stretch. This is about residential modular buildings."
+  },
+  {
+    "article_id": "80ce92a24085",
+    "profile_id": "undeclared_student_chicago",
+    "score": 1.0,
+    "reason": "A TripAdvisor review page for a beach in Norway is tourism content with no academic or career relevance to a UChicago student.",
+    "think_text": "Tourism review - noise for everyone."
+  },
+  {
+    "article_id": "80ce92a24085",
+    "profile_id": "cto_fintech_lagos",
+    "score": 0.5,
+    "reason": "A Norwegian beach TripAdvisor listing has no relevance to a fintech CTO in Lagos.",
+    "think_text": "Tourism noise."
+  },
+  {
+    "article_id": "80ce92a24085",
+    "profile_id": "mining_engineer_santiago",
+    "score": 0.5,
+    "reason": "A Norwegian beach review has no connection to mining engineering in Chile.",
+    "think_text": "Tourism noise."
+  },
+  {
+    "article_id": "80ce92a24085",
+    "profile_id": "retired_diplomat_vienna",
+    "score": 0.5,
+    "reason": "A TripAdvisor beach review is not relevant to a retired diplomat's professional interests.",
+    "think_text": "Tourism noise."
+  },
+  {
+    "article_id": "80ce92a24085",
+    "profile_id": "chef_mexico_city",
+    "score": 0.5,
+    "reason": "A Norwegian beach review has no relevance to a Mexico City chef.",
+    "think_text": "Tourism noise."
+  }
+]

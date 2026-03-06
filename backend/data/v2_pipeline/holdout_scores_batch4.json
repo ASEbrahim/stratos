@@ -1,0 +1,1752 @@
+[
+  {
+    "article_id": "7dd61db77979",
+    "profile_id": "hvac_tech_texas",
+    "score": 1.0,
+    "reason": "This article about AI agents creating a C compiler has no relevance to HVAC, building codes, refrigerants, or small business operations in Texas. It is a pure software/AI story with no trade or construction connection.",
+    "think_text": "HVAC tech in Houston cares about HVAC systems, EPA regs, heat pumps, building codes, small business. AI agents building a compiler is completely outside his domain. No geographic or industry overlap."
+  },
+  {
+    "article_id": "7dd61db77979",
+    "profile_id": "marine_electrician_norway",
+    "score": 1.0,
+    "reason": "AI agents creating a C compiler has no connection to offshore wind, marine electrical systems, or North Sea operations. Completely outside this profile's professional and personal interests.",
+    "think_text": "Marine electrician in Stavanger works on offshore wind vessels. A story about AI coding a compiler has zero overlap with maritime, electrical, or energy industries."
+  },
+  {
+    "article_id": "7dd61db77979",
+    "profile_id": "welder_pipeline_alberta",
+    "score": 0.5,
+    "reason": "AI agents building a compiler is entirely irrelevant to pipeline welding, oil sands, carbon capture, or Alberta energy policy. No industry, geographic, or career overlap whatsoever.",
+    "think_text": "Pipeline welder in Edmonton cares about welding, oil sands, pipelines, carbon capture. AI compiler story has zero relevance."
+  },
+  {
+    "article_id": "7dd61db77979",
+    "profile_id": "indie_gamedev_berlin",
+    "score": 5.5,
+    "reason": "As a software developer building games, an indie game dev would find AI agents collaborating on complex software projects moderately interesting. The story demonstrates AI coding capabilities that could impact game development tools and workflows, though it's not directly about gaming.",
+    "think_text": "Indie game dev uses Godot, writes code daily. AI agents creating a compiler is relevant to software development broadly - shows AI coding capability that could affect game dev tooling. Not directly gaming but adjacent to their tech interests."
+  },
+  {
+    "article_id": "7dd61db77979",
+    "profile_id": "filmmaker_mumbai",
+    "score": 1.0,
+    "reason": "AI agents creating a C compiler has no connection to documentary filmmaking, film festivals, streaming platforms, or the Indian media industry. Completely irrelevant to this profile.",
+    "think_text": "Documentary filmmaker in Mumbai cares about film, streaming, festivals, social impact. AI compiler story has zero overlap."
+  },
+  {
+    "article_id": "d61d04dc8103",
+    "profile_id": "hvac_tech_texas",
+    "score": 4.0,
+    "reason": "This Instagram post about electrical safety testing in homes has peripheral relevance to an HVAC technician who works in home services and must understand electrical systems for HVAC installations. However, it's a generic social media post with minimal actionable content.",
+    "think_text": "HVAC techs work alongside electrical systems. Electrical safety in homes is tangentially relevant to home services work. But this is just an Instagram reel with very little substance - not actionable."
+  },
+  {
+    "article_id": "d61d04dc8103",
+    "profile_id": "marine_electrician_norway",
+    "score": 3.5,
+    "reason": "While this post is about electrical safety, it focuses on residential/home electrical testing, not marine or offshore electrical systems. A marine electrician may find the safety theme mildly interesting but it's the wrong domain and a low-quality Instagram post.",
+    "think_text": "Marine electrician works with high-voltage marine systems. Home electrical safety testing is a different domain entirely. Slight interest due to electrical profession overlap but wrong context."
+  },
+  {
+    "article_id": "d61d04dc8103",
+    "profile_id": "welder_pipeline_alberta",
+    "score": 1.0,
+    "reason": "An Instagram post about residential electrical safety has no relevance to pipeline welding, oil sands operations, or Alberta energy industry. Different trade, different context entirely.",
+    "think_text": "Pipeline welder has no connection to residential electrical safety testing. Different trade entirely."
+  },
+  {
+    "article_id": "d61d04dc8103",
+    "profile_id": "indie_gamedev_berlin",
+    "score": 0.5,
+    "reason": "A residential electrical safety Instagram post has absolutely no relevance to indie game development, gaming industry, or software development in Berlin.",
+    "think_text": "Zero connection between home electrical safety and indie game development."
+  },
+  {
+    "article_id": "d61d04dc8103",
+    "profile_id": "filmmaker_mumbai",
+    "score": 0.5,
+    "reason": "A generic Instagram reel about home electrical safety has no relevance to documentary filmmaking, film festivals, or streaming platforms in Mumbai.",
+    "think_text": "No connection to filmmaking or media industry."
+  },
+  {
+    "article_id": "ddbd379ac378",
+    "profile_id": "hvac_tech_texas",
+    "score": 1.0,
+    "reason": "AMD's data center AI chip growth has no relevance to HVAC systems, refrigerants, building codes, or small business operations. Semiconductor industry news is outside this profile's scope.",
+    "think_text": "HVAC tech doesn't track semiconductors or data center chips. No overlap."
+  },
+  {
+    "article_id": "ddbd379ac378",
+    "profile_id": "marine_electrician_norway",
+    "score": 1.0,
+    "reason": "AMD's AI chip business has no connection to offshore wind, marine electrical systems, or maritime operations. Semiconductor stock analysis is irrelevant to this blue-collar marine trade role.",
+    "think_text": "Marine electrician has no interest in semiconductor stocks or data center AI chips."
+  },
+  {
+    "article_id": "ddbd379ac378",
+    "profile_id": "welder_pipeline_alberta",
+    "score": 0.5,
+    "reason": "AMD's data center growth and AI ambitions have zero relevance to pipeline welding, oil sands, or Alberta energy operations. Completely outside this profile's domain.",
+    "think_text": "Pipeline welder has no connection to semiconductor industry."
+  },
+  {
+    "article_id": "ddbd379ac378",
+    "profile_id": "indie_gamedev_berlin",
+    "score": 3.5,
+    "reason": "AMD's GPU/chip developments could tangentially affect gaming hardware, but this article specifically focuses on data center AI chips and stock analysis, not gaming GPUs. Only peripherally relevant to a game developer.",
+    "think_text": "AMD makes gaming GPUs too, but this article is about data center AI chips specifically. Indie dev might have passing interest in AMD as a hardware company but this isn't about gaming hardware."
+  },
+  {
+    "article_id": "ddbd379ac378",
+    "profile_id": "filmmaker_mumbai",
+    "score": 0.5,
+    "reason": "AMD semiconductor stock analysis has no relevance to documentary filmmaking, film festivals, or streaming platforms in India.",
+    "think_text": "No connection to filmmaking or media."
+  },
+  {
+    "article_id": "1c7776bc782d",
+    "profile_id": "hvac_tech_texas",
+    "score": 0.5,
+    "reason": "A geoscience conference call for abstracts about carbon capture and AI-driven exploration has no relevance to HVAC work, building codes, or small business in Texas.",
+    "think_text": "Goldschmidt geoscience conference is academic and unrelated to HVAC trades."
+  },
+  {
+    "article_id": "1c7776bc782d",
+    "profile_id": "marine_electrician_norway",
+    "score": 1.5,
+    "reason": "While this geoscience conference touches on carbon capture which relates broadly to energy transition, it is an academic call for abstracts far removed from the practical marine electrical work on offshore wind vessels.",
+    "think_text": "Carbon capture is tangentially energy-related but this is an academic geology conference. Very loose connection to energy industry."
+  },
+  {
+    "article_id": "1c7776bc782d",
+    "profile_id": "welder_pipeline_alberta",
+    "score": 2.5,
+    "reason": "The mention of carbon capture and storage has some relevance since the welder tracks carbon capture projects in Alberta. However, this is an academic geoscience conference call for abstracts, not actionable industry news about actual CCS pipeline projects.",
+    "think_text": "Carbon capture is one of this profile's interests. But this is an academic conference CFP, not industry news about CCS projects or pipelines. Slight relevance but not actionable."
+  },
+  {
+    "article_id": "1c7776bc782d",
+    "profile_id": "indie_gamedev_berlin",
+    "score": 0.5,
+    "reason": "A geoscience academic conference has absolutely no relevance to indie game development, gaming industry, or software development.",
+    "think_text": "Zero connection between geoscience conference and game development."
+  },
+  {
+    "article_id": "1c7776bc782d",
+    "profile_id": "filmmaker_mumbai",
+    "score": 0.5,
+    "reason": "An academic geoscience conference call for abstracts has no connection to documentary filmmaking, film festivals, or streaming in Mumbai.",
+    "think_text": "No overlap with filmmaking or media."
+  },
+  {
+    "article_id": "f0c8745690b3",
+    "profile_id": "hvac_tech_texas",
+    "score": 0.5,
+    "reason": "EU political support for Ukraine has no relevance to HVAC operations, building codes, or small business in Houston, Texas.",
+    "think_text": "European geopolitics has no connection to HVAC trade work in Texas."
+  },
+  {
+    "article_id": "f0c8745690b3",
+    "profile_id": "marine_electrician_norway",
+    "score": 2.5,
+    "reason": "As a Norwegian, EU geopolitics and Ukraine could have some peripheral relevance since Norway is closely aligned with EU policy and energy markets are affected by the conflict. However, this is a generic political statement with no direct impact on offshore wind or maritime work.",
+    "think_text": "Norway is not EU but closely aligned. Ukraine conflict affects European energy markets which could tangentially affect Norwegian energy sector. But this is a generic political statement, not energy-specific."
+  },
+  {
+    "article_id": "f0c8745690b3",
+    "profile_id": "welder_pipeline_alberta",
+    "score": 1.5,
+    "reason": "EU support for Ukraine is mostly irrelevant to Alberta pipeline welding, though geopolitical energy dynamics could indirectly affect Canadian oil exports. The connection is too indirect to be actionable.",
+    "think_text": "Ukraine conflict affects global energy markets which could benefit Canadian oil. Very indirect connection. Not actionable for a welder."
+  },
+  {
+    "article_id": "f0c8745690b3",
+    "profile_id": "indie_gamedev_berlin",
+    "score": 1.5,
+    "reason": "While this profile is based in Berlin, Germany (EU member), EU support for Ukraine is general political news with no specific relevance to indie game development or the gaming industry.",
+    "think_text": "Berlin-based dev lives in EU but this political news doesn't affect gaming industry directly."
+  },
+  {
+    "article_id": "f0c8745690b3",
+    "profile_id": "filmmaker_mumbai",
+    "score": 1.0,
+    "reason": "EU-Ukraine political news has no relevance to Indian documentary filmmaking or the Mumbai film/streaming industry. While a social-impact filmmaker might have broad geopolitical awareness, this generic statement is not actionable.",
+    "think_text": "No connection to Indian filmmaking. Social-impact filmmaker might be vaguely aware of geopolitics but this isn't relevant to their work."
+  },
+  {
+    "article_id": "1e0965efd09c",
+    "profile_id": "hvac_tech_texas",
+    "score": 0.0,
+    "reason": "A TikTok about Roblox Halloween outfits is pure noise content with no relevance to any professional profile, let alone HVAC work in Texas.",
+    "think_text": "Complete noise/spam content. Zero relevance to anything."
+  },
+  {
+    "article_id": "1e0965efd09c",
+    "profile_id": "marine_electrician_norway",
+    "score": 0.0,
+    "reason": "A TikTok about Roblox Halloween outfits is spam content with zero relevance to marine electrical work or offshore wind operations.",
+    "think_text": "Pure noise."
+  },
+  {
+    "article_id": "1e0965efd09c",
+    "profile_id": "welder_pipeline_alberta",
+    "score": 0.0,
+    "reason": "A TikTok about Roblox Halloween costumes is irrelevant noise with no connection to pipeline welding or any professional interest.",
+    "think_text": "Pure spam/noise content."
+  },
+  {
+    "article_id": "1e0965efd09c",
+    "profile_id": "indie_gamedev_berlin",
+    "score": 2.0,
+    "reason": "While Roblox is a gaming platform, this is a low-quality TikTok about Halloween outfits, not about game development, game design, or the gaming industry. The connection to gaming is superficial.",
+    "think_text": "Roblox is a game platform, so there's a thin gaming connection. But this is about Halloween costumes on TikTok, not game dev news. Very low quality."
+  },
+  {
+    "article_id": "1e0965efd09c",
+    "profile_id": "filmmaker_mumbai",
+    "score": 0.0,
+    "reason": "A TikTok about Roblox Halloween outfits is noise content with zero relevance to documentary filmmaking or the Indian film industry.",
+    "think_text": "Pure noise, no connection to filmmaking."
+  },
+  {
+    "article_id": "8afa6526437b",
+    "profile_id": "hvac_tech_texas",
+    "score": 1.0,
+    "reason": "US immigration visa policy updates may have marginal relevance if the HVAC business employs immigrant workers, but this article focuses specifically on immigrant visa pauses for overseas nationals, which is not directly related to HVAC operations or trade interests.",
+    "think_text": "Small business owner might care about labor availability, but this is about immigrant visa issuance pauses - not directly about work visas for trade workers or Texas labor market."
+  },
+  {
+    "article_id": "8afa6526437b",
+    "profile_id": "marine_electrician_norway",
+    "score": 0.5,
+    "reason": "US immigration visa policy has no relevance to a marine electrician working on offshore wind vessels in Norway. Different country, different industry context.",
+    "think_text": "US immigration policy is irrelevant to someone working in Norway's offshore sector."
+  },
+  {
+    "article_id": "8afa6526437b",
+    "profile_id": "welder_pipeline_alberta",
+    "score": 1.0,
+    "reason": "US immigration policy is not directly relevant to a Canadian pipeline welder in Alberta. While some welders cross the US-Canada border for work, this article is about US immigrant visa issuance, not work permits or cross-border trade labor.",
+    "think_text": "Canadian welder in Alberta. US immigration policy is not directly relevant unless they plan to work in the US."
+  },
+  {
+    "article_id": "8afa6526437b",
+    "profile_id": "indie_gamedev_berlin",
+    "score": 0.5,
+    "reason": "US immigration visa policy has no relevance to an indie game developer based in Berlin, Germany. No geographic or industry overlap.",
+    "think_text": "Berlin-based game dev has no reason to track US immigration policy."
+  },
+  {
+    "article_id": "8afa6526437b",
+    "profile_id": "filmmaker_mumbai",
+    "score": 2.5,
+    "reason": "US immigration visa policy could be tangentially relevant to an Indian filmmaker who might attend US film festivals or seek distribution deals. However, this article is about general immigrant visa pauses, not specifically about artist/work visas, making it only marginally useful.",
+    "think_text": "Indian filmmaker might need US visas for festivals like Sundance. Visa policy changes could affect travel plans. But this is about immigrant visas broadly, not specific to cultural/artist visas."
+  },
+  {
+    "article_id": "0990d2b238a3",
+    "profile_id": "hvac_tech_texas",
+    "score": 0.5,
+    "reason": "A job posting for professionals supporting Kuwait oil company prequalification has no relevance to HVAC work in Houston, Texas. Different country, different industry focus.",
+    "think_text": "Kuwait oil company job posting is irrelevant to Texas HVAC business."
+  },
+  {
+    "article_id": "0990d2b238a3",
+    "profile_id": "marine_electrician_norway",
+    "score": 0.5,
+    "reason": "A Kuwait-focused job posting for oil company compliance professionals has no relevance to a marine electrician working on offshore wind in Norway.",
+    "think_text": "Kuwait oil job posting is irrelevant to Norwegian offshore wind work."
+  },
+  {
+    "article_id": "0990d2b238a3",
+    "profile_id": "welder_pipeline_alberta",
+    "score": 0.5,
+    "reason": "A Kuwait oil company job posting is geographically irrelevant to an Alberta-based pipeline welder. Different country and job type entirely.",
+    "think_text": "Kuwait compliance job is irrelevant to Alberta pipeline welder."
+  },
+  {
+    "article_id": "0990d2b238a3",
+    "profile_id": "indie_gamedev_berlin",
+    "score": 0.0,
+    "reason": "A Kuwait oil company job posting has zero relevance to indie game development in Berlin.",
+    "think_text": "No connection whatsoever."
+  },
+  {
+    "article_id": "0990d2b238a3",
+    "profile_id": "filmmaker_mumbai",
+    "score": 0.0,
+    "reason": "A Kuwait oil company compliance job posting has no relevance to documentary filmmaking in Mumbai.",
+    "think_text": "Zero connection."
+  },
+  {
+    "article_id": "ddac40adbefb",
+    "profile_id": "hvac_tech_texas",
+    "score": 7.5,
+    "reason": "This SCADA Engineer job posting explicitly mentions HVAC and building automation controls/BMS experience, which directly overlaps with HVAC systems expertise. While it's a job posting for a different role (SCADA engineer), it signals market demand for HVAC-automation crossover skills that could be relevant to business expansion or hiring decisions.",
+    "think_text": "This job listing mentions HVAC, building automation controls, and BMS - directly relevant to HVAC tech interests. Could signal where the industry is heading (HVAC + automation convergence). As a small business owner, understanding this tech trend matters. Not a direct job match but very relevant industry signal."
+  },
+  {
+    "article_id": "ddac40adbefb",
+    "profile_id": "marine_electrician_norway",
+    "score": 3.0,
+    "reason": "While this SCADA engineer role involves PLC and HMI programming which overlaps with industrial electrical skills, it focuses on HVAC/building automation, not marine or offshore electrical systems. Some transferable skill relevance but wrong industry context.",
+    "think_text": "SCADA/PLC/HMI are industrial automation skills that a marine electrician might have some exposure to. But this is building automation focused, not maritime. Marginal relevance."
+  },
+  {
+    "article_id": "ddac40adbefb",
+    "profile_id": "welder_pipeline_alberta",
+    "score": 1.5,
+    "reason": "A SCADA engineer job for building automation has minimal relevance to pipeline welding. While SCADA systems exist in pipeline operations, this posting is specifically about HVAC/BMS controls, not pipeline SCADA.",
+    "think_text": "SCADA exists in pipelines too, but this is HVAC/building automation SCADA. Wrong application domain for a pipeline welder."
+  },
+  {
+    "article_id": "ddac40adbefb",
+    "profile_id": "indie_gamedev_berlin",
+    "score": 0.5,
+    "reason": "A SCADA engineer job posting for building automation has no relevance to indie game development or the gaming industry.",
+    "think_text": "No connection between building automation engineering and game development."
+  },
+  {
+    "article_id": "ddac40adbefb",
+    "profile_id": "filmmaker_mumbai",
+    "score": 0.0,
+    "reason": "A SCADA engineering job for building automation has absolutely no relevance to documentary filmmaking in Mumbai.",
+    "think_text": "Zero connection."
+  },
+  {
+    "article_id": "922bd1907e2b",
+    "profile_id": "hvac_tech_texas",
+    "score": 0.5,
+    "reason": "A business analyst certification guide has no relevance to HVAC technical work, trade certifications, or small business operations in the HVAC industry.",
+    "think_text": "BA certification is completely different from HVAC trade certifications. No overlap."
+  },
+  {
+    "article_id": "922bd1907e2b",
+    "profile_id": "marine_electrician_norway",
+    "score": 0.5,
+    "reason": "Business analyst certification has no relevance to marine electrical work or offshore wind operations.",
+    "think_text": "BA cert is irrelevant to marine electrician trade."
+  },
+  {
+    "article_id": "922bd1907e2b",
+    "profile_id": "welder_pipeline_alberta",
+    "score": 0.5,
+    "reason": "Business analyst certification is completely unrelated to pipeline welding, CWB certifications, or the oil and gas industry.",
+    "think_text": "Wrong type of certification entirely - BA vs CWB welding certs."
+  },
+  {
+    "article_id": "922bd1907e2b",
+    "profile_id": "indie_gamedev_berlin",
+    "score": 0.5,
+    "reason": "Business analyst certification has no relevance to indie game development. Game devs don't typically pursue BA certifications.",
+    "think_text": "BA cert is irrelevant to game development."
+  },
+  {
+    "article_id": "922bd1907e2b",
+    "profile_id": "filmmaker_mumbai",
+    "score": 0.5,
+    "reason": "Business analyst certification has no relevance to documentary filmmaking or the Indian film industry.",
+    "think_text": "No connection to filmmaking."
+  },
+  {
+    "article_id": "c4b08e5e5c93",
+    "profile_id": "hvac_tech_texas",
+    "score": 0.5,
+    "reason": "Ultrapure water resin market analysis has no connection to HVAC systems, refrigerants, or residential/commercial HVAC work in Texas.",
+    "think_text": "Water purification resin is a different industry entirely from HVAC."
+  },
+  {
+    "article_id": "c4b08e5e5c93",
+    "profile_id": "marine_electrician_norway",
+    "score": 0.5,
+    "reason": "Ultrapure water resin market investment analysis has no relevance to marine electrical work or offshore wind energy operations.",
+    "think_text": "No connection to maritime or offshore wind."
+  },
+  {
+    "article_id": "c4b08e5e5c93",
+    "profile_id": "welder_pipeline_alberta",
+    "score": 0.5,
+    "reason": "Ultrapure water resin market has no connection to pipeline welding, oil sands, or carbon capture in Alberta.",
+    "think_text": "No overlap with pipeline welding or oil and gas."
+  },
+  {
+    "article_id": "c4b08e5e5c93",
+    "profile_id": "indie_gamedev_berlin",
+    "score": 0.0,
+    "reason": "Water resin market analysis has absolutely no relevance to indie game development.",
+    "think_text": "Zero connection."
+  },
+  {
+    "article_id": "c4b08e5e5c93",
+    "profile_id": "filmmaker_mumbai",
+    "score": 0.0,
+    "reason": "Ultrapure water resin market has no connection to documentary filmmaking or the Indian media industry.",
+    "think_text": "Zero connection."
+  },
+  {
+    "article_id": "d22648d82260",
+    "profile_id": "hvac_tech_texas",
+    "score": 0.0,
+    "reason": "An Arabic-language streaming app listing on Google Play has no relevance to HVAC work in Texas.",
+    "think_text": "Arabic streaming app is completely irrelevant."
+  },
+  {
+    "article_id": "d22648d82260",
+    "profile_id": "marine_electrician_norway",
+    "score": 0.0,
+    "reason": "An Arabic streaming app has no relevance to marine electrical work in Norway.",
+    "think_text": "No connection."
+  },
+  {
+    "article_id": "d22648d82260",
+    "profile_id": "welder_pipeline_alberta",
+    "score": 0.0,
+    "reason": "An Arabic streaming app listing has no relevance to pipeline welding in Alberta.",
+    "think_text": "Zero connection."
+  },
+  {
+    "article_id": "d22648d82260",
+    "profile_id": "indie_gamedev_berlin",
+    "score": 0.5,
+    "reason": "While this is an app on Google Play, it's a streaming service listing, not related to game development or the gaming marketplace.",
+    "think_text": "App store listing but for a streaming service, not gaming. No real relevance."
+  },
+  {
+    "article_id": "d22648d82260",
+    "profile_id": "filmmaker_mumbai",
+    "score": 2.0,
+    "reason": "MBC Shahid is a Middle Eastern streaming platform, which is tangentially relevant to a filmmaker tracking streaming platform acquisitions globally. However, it's an Arabic-market platform and this is just a Play Store listing, not news about content acquisition or distribution deals.",
+    "think_text": "Filmmaker tracks streaming platforms like Netflix, Amazon, MUBI. MBC Shahid is a streaming platform but this is just an app store listing, not news about content deals. Marginal relevance."
+  },
+  {
+    "article_id": "f17f024560ac",
+    "profile_id": "hvac_tech_texas",
+    "score": 0.5,
+    "reason": "Samsung's on-device AI CPU capabilities have no relevance to HVAC systems, building codes, or small business operations.",
+    "think_text": "Semiconductor AI chip design is irrelevant to HVAC trade."
+  },
+  {
+    "article_id": "f17f024560ac",
+    "profile_id": "marine_electrician_norway",
+    "score": 0.5,
+    "reason": "Samsung's Arm SME2 CPU architecture for on-device AI has no connection to marine electrical systems or offshore wind operations.",
+    "think_text": "CPU architecture is irrelevant to marine electrical work."
+  },
+  {
+    "article_id": "f17f024560ac",
+    "profile_id": "welder_pipeline_alberta",
+    "score": 0.5,
+    "reason": "On-device AI chip architecture has no relevance to pipeline welding or oil sands operations.",
+    "think_text": "No connection to welding or energy industry."
+  },
+  {
+    "article_id": "f17f024560ac",
+    "profile_id": "indie_gamedev_berlin",
+    "score": 3.0,
+    "reason": "On-device AI capabilities in mobile CPUs could be relevant to a game developer interested in mobile game performance and AI features in games. However, this is specifically about Samsung's Arm architecture details, which is quite technical and not directly about gaming.",
+    "think_text": "Game dev might care about mobile hardware capabilities for mobile games. On-device AI could enable new game features. But this is deep semiconductor architecture, not gaming-focused."
+  },
+  {
+    "article_id": "f17f024560ac",
+    "profile_id": "filmmaker_mumbai",
+    "score": 1.0,
+    "reason": "Samsung's CPU AI capabilities are not relevant to documentary filmmaking. While mobile devices are used for some filming, this is about chip architecture, not filmmaking tools.",
+    "think_text": "Very loose connection through mobile devices used in filmmaking, but this is chip architecture, not production tools."
+  },
+  {
+    "article_id": "a9d8d2941c33",
+    "profile_id": "hvac_tech_texas",
+    "score": 0.0,
+    "reason": "A tourism page for Bern, Switzerland has no relevance to HVAC work in Texas.",
+    "think_text": "Swiss tourism is completely irrelevant."
+  },
+  {
+    "article_id": "a9d8d2941c33",
+    "profile_id": "marine_electrician_norway",
+    "score": 0.5,
+    "reason": "A Bern, Switzerland tourism page has no professional relevance to a marine electrician in Norway, though it's in a neighboring European country.",
+    "think_text": "Tourist website for Swiss city. No professional relevance."
+  },
+  {
+    "article_id": "a9d8d2941c33",
+    "profile_id": "welder_pipeline_alberta",
+    "score": 0.0,
+    "reason": "A Swiss tourism page has zero relevance to pipeline welding in Alberta, Canada.",
+    "think_text": "No connection whatsoever."
+  },
+  {
+    "article_id": "a9d8d2941c33",
+    "profile_id": "indie_gamedev_berlin",
+    "score": 0.5,
+    "reason": "While Bern is relatively close to Berlin geographically, a Swiss tourism page has no relevance to indie game development or the gaming industry.",
+    "think_text": "Neighboring country tourism but no professional relevance."
+  },
+  {
+    "article_id": "a9d8d2941c33",
+    "profile_id": "filmmaker_mumbai",
+    "score": 0.5,
+    "reason": "A Bern tourism page has no relevance to documentary filmmaking in Mumbai. A filmmaker might scout locations, but this is a generic tourism site, not a film-related resource.",
+    "think_text": "No connection to filmmaking."
+  },
+  {
+    "article_id": "fa327f996181",
+    "profile_id": "hvac_tech_texas",
+    "score": 0.5,
+    "reason": "Indian share market analysis and OPEC decisions are not relevant to HVAC operations in Texas. While OPEC affects energy prices globally, this article focuses on Indian stock market trading and Reliance Q2 results.",
+    "think_text": "Indian stock market blog is irrelevant to Texas HVAC business."
+  },
+  {
+    "article_id": "fa327f996181",
+    "profile_id": "marine_electrician_norway",
+    "score": 1.0,
+    "reason": "While OPEC decisions can affect energy markets relevant to Norway, this article is about Indian stock market analysis and Reliance's quarterly results, not actionable energy market intelligence.",
+    "think_text": "OPEC mention but this is Indian stock market blog. Very loose energy connection."
+  },
+  {
+    "article_id": "fa327f996181",
+    "profile_id": "welder_pipeline_alberta",
+    "score": 1.0,
+    "reason": "While OPEC decisions affect oil prices relevant to Alberta's oil sands, this article is primarily about Indian share market updates and Reliance's telecom/retail financials, not actionable oil market news.",
+    "think_text": "OPEC mention but article is Indian stock market focused. Not useful for Alberta pipeline welder."
+  },
+  {
+    "article_id": "fa327f996181",
+    "profile_id": "indie_gamedev_berlin",
+    "score": 0.0,
+    "reason": "Indian share market analysis has zero relevance to indie game development in Berlin.",
+    "think_text": "No connection."
+  },
+  {
+    "article_id": "fa327f996181",
+    "profile_id": "filmmaker_mumbai",
+    "score": 2.5,
+    "reason": "As a Mumbai-based professional, Indian share market news has some geographic relevance. The mention of Reliance (parent of Jio Cinema streaming) could be tangentially relevant to streaming platform dynamics in India, but this is a financial blog about trading, not media industry news.",
+    "think_text": "Mumbai-based filmmaker. Reliance owns Jio Cinema streaming platform. Share market updates could tangentially affect streaming industry funding. But this is really a stock trading blog, not media industry analysis."
+  },
+  {
+    "article_id": "062b678ea8ff",
+    "profile_id": "hvac_tech_texas",
+    "score": 0.5,
+    "reason": "An HSE officer job posting in the UAE has no relevance to HVAC work in Houston, Texas. Different country, different job role.",
+    "think_text": "UAE HSE job is irrelevant to Texas HVAC business."
+  },
+  {
+    "article_id": "062b678ea8ff",
+    "profile_id": "marine_electrician_norway",
+    "score": 1.0,
+    "reason": "An HSE officer construction job in UAE is not relevant to marine electrical work in Norway. While HSE is important in offshore work, this is a different role, different industry (construction), and different geography.",
+    "think_text": "HSE exists in offshore too but this is UAE construction HSE. Wrong geography and specific role."
+  },
+  {
+    "article_id": "062b678ea8ff",
+    "profile_id": "welder_pipeline_alberta",
+    "score": 1.0,
+    "reason": "An HSE officer job in UAE construction is not relevant to pipeline welding in Alberta. While safety is important in pipeline work, this is a different role and geography.",
+    "think_text": "HSE is present in pipeline work but this is a UAE construction job posting. Not relevant."
+  },
+  {
+    "article_id": "062b678ea8ff",
+    "profile_id": "indie_gamedev_berlin",
+    "score": 0.0,
+    "reason": "A UAE construction HSE officer job has zero relevance to indie game development in Berlin.",
+    "think_text": "No connection."
+  },
+  {
+    "article_id": "062b678ea8ff",
+    "profile_id": "filmmaker_mumbai",
+    "score": 0.0,
+    "reason": "A UAE construction safety officer job posting has no relevance to documentary filmmaking in Mumbai.",
+    "think_text": "No connection."
+  },
+  {
+    "article_id": "665b05742af2",
+    "profile_id": "hvac_tech_texas",
+    "score": 0.5,
+    "reason": "Global cybersecurity outlook has no relevance to HVAC systems, building codes, or small business HVAC operations. While small businesses face cyber threats, this is enterprise-level cybersecurity policy analysis.",
+    "think_text": "Enterprise cybersecurity report is irrelevant to HVAC small business. Too high-level and wrong industry."
+  },
+  {
+    "article_id": "665b05742af2",
+    "profile_id": "marine_electrician_norway",
+    "score": 1.0,
+    "reason": "While cybersecurity affects critical infrastructure including energy systems, this WEF cybersecurity outlook focuses on enterprise compliance frameworks (PCI DSS, SOC 2) which are not relevant to a marine electrician's day-to-day work.",
+    "think_text": "Cybersecurity of energy infrastructure is a real concern but this article is about enterprise compliance, not operational technology security on vessels."
+  },
+  {
+    "article_id": "665b05742af2",
+    "profile_id": "welder_pipeline_alberta",
+    "score": 0.5,
+    "reason": "Global cybersecurity trends are not relevant to pipeline welding or hands-on energy sector work in Alberta.",
+    "think_text": "Cybersecurity is irrelevant to welding trade."
+  },
+  {
+    "article_id": "665b05742af2",
+    "profile_id": "indie_gamedev_berlin",
+    "score": 1.5,
+    "reason": "While game developers should care about cybersecurity for their products, this WEF cybersecurity outlook is about enterprise compliance and geopolitical cyber threats, not game security or indie studio concerns.",
+    "think_text": "Game security matters but this is enterprise/compliance focused cybersecurity, not game-specific."
+  },
+  {
+    "article_id": "665b05742af2",
+    "profile_id": "filmmaker_mumbai",
+    "score": 0.5,
+    "reason": "Global cybersecurity outlook has no relevance to documentary filmmaking or the Indian film/streaming industry.",
+    "think_text": "No connection to filmmaking."
+  },
+  {
+    "article_id": "548b692edc3e",
+    "profile_id": "hvac_tech_texas",
+    "score": 0.0,
+    "reason": "A breakthrough in exosome-based CAR-T cancer therapy has no relevance to HVAC systems or small business in Texas.",
+    "think_text": "Biotech/cancer research is completely irrelevant to HVAC."
+  },
+  {
+    "article_id": "548b692edc3e",
+    "profile_id": "marine_electrician_norway",
+    "score": 0.0,
+    "reason": "Cancer therapy biotechnology has no connection to marine electrical work or offshore wind operations.",
+    "think_text": "No connection."
+  },
+  {
+    "article_id": "548b692edc3e",
+    "profile_id": "welder_pipeline_alberta",
+    "score": 0.0,
+    "reason": "Exosome cancer therapy research has zero relevance to pipeline welding or the Alberta energy sector.",
+    "think_text": "No connection."
+  },
+  {
+    "article_id": "548b692edc3e",
+    "profile_id": "indie_gamedev_berlin",
+    "score": 0.0,
+    "reason": "Cancer therapy biotechnology has no relevance to indie game development.",
+    "think_text": "No connection."
+  },
+  {
+    "article_id": "548b692edc3e",
+    "profile_id": "filmmaker_mumbai",
+    "score": 1.5,
+    "reason": "While a social-impact documentary filmmaker might find medical breakthroughs as potential documentary subjects, this specific article about exosome platforms is highly technical biotech press release, not a compelling social impact story.",
+    "think_text": "Social impact filmmaker could make health documentaries, but this is a very technical biotech press release. Weak connection."
+  },
+  {
+    "article_id": "88b668eb784f",
+    "profile_id": "hvac_tech_texas",
+    "score": 0.0,
+    "reason": "An EU science diplomacy policy document about research grants has no relevance to HVAC work in Texas.",
+    "think_text": "EU research policy is irrelevant to HVAC trade."
+  },
+  {
+    "article_id": "88b668eb784f",
+    "profile_id": "marine_electrician_norway",
+    "score": 0.5,
+    "reason": "EU science diplomacy recommendations are not relevant to hands-on marine electrical work. While Norway participates in EU research programs, this is academic policy far removed from trades work.",
+    "think_text": "EU research grants policy. Norway participates in EU research but this is academic policy, not relevant to a marine electrician."
+  },
+  {
+    "article_id": "88b668eb784f",
+    "profile_id": "welder_pipeline_alberta",
+    "score": 0.0,
+    "reason": "An EU science diplomacy document has zero relevance to pipeline welding in Alberta, Canada.",
+    "think_text": "No connection."
+  },
+  {
+    "article_id": "88b668eb784f",
+    "profile_id": "indie_gamedev_berlin",
+    "score": 1.0,
+    "reason": "While this profile is Berlin-based and EU research grants could theoretically fund creative/tech projects, this is about science diplomacy recommendations, not game development funding or creative grants.",
+    "think_text": "EU research policy. Berlin dev is in the EU but this is about science diplomacy, not creative industry funding."
+  },
+  {
+    "article_id": "88b668eb784f",
+    "profile_id": "filmmaker_mumbai",
+    "score": 0.5,
+    "reason": "EU science diplomacy has no relevance to Indian documentary filmmaking or the Mumbai film industry.",
+    "think_text": "No connection."
+  },
+  {
+    "article_id": "a75b1952bf9f",
+    "profile_id": "hvac_tech_texas",
+    "score": 0.0,
+    "reason": "Entry-level geologist jobs in the Middle East have no relevance to HVAC work in Texas.",
+    "think_text": "Geology jobs in Middle East are irrelevant to HVAC tech."
+  },
+  {
+    "article_id": "a75b1952bf9f",
+    "profile_id": "marine_electrician_norway",
+    "score": 0.5,
+    "reason": "Geologist jobs in the Middle East have no relevance to marine electrical work on offshore wind vessels in Norway.",
+    "think_text": "Wrong profession, wrong geography."
+  },
+  {
+    "article_id": "a75b1952bf9f",
+    "profile_id": "welder_pipeline_alberta",
+    "score": 0.5,
+    "reason": "Entry-level geologist positions in the Middle East are irrelevant to an experienced pipeline welder in Alberta. Different profession and geography.",
+    "think_text": "Geology jobs, not welding. Middle East, not Alberta."
+  },
+  {
+    "article_id": "a75b1952bf9f",
+    "profile_id": "indie_gamedev_berlin",
+    "score": 0.0,
+    "reason": "Middle East geologist jobs have zero relevance to indie game development in Berlin.",
+    "think_text": "No connection."
+  },
+  {
+    "article_id": "a75b1952bf9f",
+    "profile_id": "filmmaker_mumbai",
+    "score": 0.0,
+    "reason": "Geologist job listings in the Middle East have no relevance to documentary filmmaking in Mumbai.",
+    "think_text": "No connection."
+  },
+  {
+    "article_id": "ee80ac2e4bbf",
+    "profile_id": "hvac_tech_texas",
+    "score": 0.0,
+    "reason": "A Figma dropdown menu animation tutorial has no relevance to HVAC work or small business operations.",
+    "think_text": "UI/UX design tutorial is irrelevant to HVAC."
+  },
+  {
+    "article_id": "ee80ac2e4bbf",
+    "profile_id": "marine_electrician_norway",
+    "score": 0.0,
+    "reason": "A Figma UI design tutorial has no relevance to marine electrical work or offshore wind.",
+    "think_text": "No connection."
+  },
+  {
+    "article_id": "ee80ac2e4bbf",
+    "profile_id": "welder_pipeline_alberta",
+    "score": 0.0,
+    "reason": "A Figma dropdown menu tutorial has zero relevance to pipeline welding.",
+    "think_text": "No connection."
+  },
+  {
+    "article_id": "ee80ac2e4bbf",
+    "profile_id": "indie_gamedev_berlin",
+    "score": 4.0,
+    "reason": "A Figma prototyping tutorial has moderate relevance to a game developer who may use Figma for UI mockups and game interface design. However, this specific tutorial about e-commerce dropdown menus is not directly about game UI design.",
+    "think_text": "Game devs sometimes use Figma for UI design. This is about prototyping and UI components. Some skill transfer but this is e-commerce focused, not game UI."
+  },
+  {
+    "article_id": "ee80ac2e4bbf",
+    "profile_id": "filmmaker_mumbai",
+    "score": 0.5,
+    "reason": "A Figma UI tutorial has minimal relevance to documentary filmmaking. Filmmakers don't typically use Figma for their work.",
+    "think_text": "No meaningful connection to filmmaking."
+  },
+  {
+    "article_id": "1ef2cd186cff",
+    "profile_id": "hvac_tech_texas",
+    "score": 0.5,
+    "reason": "A foreign job search platform (Sajhajobs, likely South Asian focused) is not relevant to an HVAC business owner in Houston who is hiring locally.",
+    "think_text": "Foreign job platform is irrelevant to Texas HVAC business."
+  },
+  {
+    "article_id": "1ef2cd186cff",
+    "profile_id": "marine_electrician_norway",
+    "score": 0.5,
+    "reason": "A general foreign job search platform has no specific relevance to marine electrical work or the Norwegian offshore wind sector.",
+    "think_text": "Generic job platform, not specialized for maritime or offshore work."
+  },
+  {
+    "article_id": "1ef2cd186cff",
+    "profile_id": "welder_pipeline_alberta",
+    "score": 0.5,
+    "reason": "A foreign job search platform is not relevant to an established pipeline welder working in Alberta.",
+    "think_text": "Not a relevant job platform for Alberta trades."
+  },
+  {
+    "article_id": "1ef2cd186cff",
+    "profile_id": "indie_gamedev_berlin",
+    "score": 0.5,
+    "reason": "A general foreign job search platform has no relevance to indie game development or studio management.",
+    "think_text": "Not relevant to game dev."
+  },
+  {
+    "article_id": "1ef2cd186cff",
+    "profile_id": "filmmaker_mumbai",
+    "score": 1.0,
+    "reason": "As a Mumbai-based professional, a South Asian job search platform has marginal geographic relevance, but it's not focused on film industry jobs or creative roles.",
+    "think_text": "Sajhajobs appears South Asian focused. Mumbai filmmaker might see it but it's not film-industry specific."
+  },
+  {
+    "article_id": "f2e8b8337e48",
+    "profile_id": "hvac_tech_texas",
+    "score": 0.5,
+    "reason": "Software development trends in the Middle East under Vision 2030 have no relevance to HVAC operations in Texas.",
+    "think_text": "Middle East software development is irrelevant to Texas HVAC."
+  },
+  {
+    "article_id": "f2e8b8337e48",
+    "profile_id": "marine_electrician_norway",
+    "score": 0.5,
+    "reason": "Middle East software development market trends have no relevance to marine electrical work in Norway.",
+    "think_text": "No connection."
+  },
+  {
+    "article_id": "f2e8b8337e48",
+    "profile_id": "welder_pipeline_alberta",
+    "score": 0.5,
+    "reason": "Software development in the Middle East is irrelevant to pipeline welding in Alberta.",
+    "think_text": "No connection."
+  },
+  {
+    "article_id": "f2e8b8337e48",
+    "profile_id": "indie_gamedev_berlin",
+    "score": 2.0,
+    "reason": "While this is about software development, it focuses on enterprise/government digital transformation in the Middle East, not gaming or indie software development. The software industry angle provides a thin connection but the context is wrong.",
+    "think_text": "Software development article but about enterprise/government in Middle East. Not about gaming or indie dev. Weak connection."
+  },
+  {
+    "article_id": "f2e8b8337e48",
+    "profile_id": "filmmaker_mumbai",
+    "score": 0.5,
+    "reason": "Middle East software development trends have no relevance to documentary filmmaking in Mumbai.",
+    "think_text": "No connection."
+  },
+  {
+    "article_id": "ddf69f71cfc1",
+    "profile_id": "hvac_tech_texas",
+    "score": 3.5,
+    "reason": "IoT becoming core infrastructure has some relevance to HVAC, as smart thermostats and connected HVAC systems are increasingly IoT-driven. However, this article focuses on industrial/enterprise IoT connectivity infrastructure, not specifically HVAC-related IoT.",
+    "think_text": "HVAC increasingly uses IoT - smart thermostats, connected systems, building automation. This article about IoT infrastructure is tangentially relevant but not HVAC-specific."
+  },
+  {
+    "article_id": "ddf69f71cfc1",
+    "profile_id": "marine_electrician_norway",
+    "score": 2.5,
+    "reason": "IoT infrastructure is used in offshore operations for monitoring and maintenance, but this article discusses IoT at a general business level, not specific to maritime or offshore wind applications.",
+    "think_text": "Offshore operations use IoT for monitoring. But this is generic IoT infrastructure article, not maritime-specific."
+  },
+  {
+    "article_id": "ddf69f71cfc1",
+    "profile_id": "welder_pipeline_alberta",
+    "score": 2.0,
+    "reason": "IoT is used in pipeline monitoring (SCADA, leak detection), but this article discusses IoT at a general infrastructure level, not specific to pipeline or energy sector applications.",
+    "think_text": "Pipelines use IoT for monitoring but this article is generic. Weak connection."
+  },
+  {
+    "article_id": "ddf69f71cfc1",
+    "profile_id": "indie_gamedev_berlin",
+    "score": 1.0,
+    "reason": "IoT infrastructure trends have minimal relevance to indie game development unless the developer is creating IoT-related games, which is not indicated in the profile.",
+    "think_text": "IoT is not related to indie game dev."
+  },
+  {
+    "article_id": "ddf69f71cfc1",
+    "profile_id": "filmmaker_mumbai",
+    "score": 0.5,
+    "reason": "IoT infrastructure trends have no relevance to documentary filmmaking or the Indian media industry.",
+    "think_text": "No connection."
+  },
+  {
+    "article_id": "18c7756a6756",
+    "profile_id": "hvac_tech_texas",
+    "score": 2.0,
+    "reason": "MIT's annual breakthrough technologies list could include HVAC-adjacent innovations (heat pumps, energy efficiency), but without knowing the specific technologies listed, this is general tech news that may or may not be relevant to HVAC.",
+    "think_text": "Breakthrough tech list could include energy/building tech. But it's a general overview - might not mention HVAC at all. Low probability of direct relevance."
+  },
+  {
+    "article_id": "18c7756a6756",
+    "profile_id": "marine_electrician_norway",
+    "score": 2.5,
+    "reason": "MIT's breakthrough technologies could include offshore wind or energy innovations, but this is a general tech overview. Without knowing the specific list, there's moderate chance of some energy-related content.",
+    "think_text": "Breakthrough tech list might include offshore wind or energy tech. General interest but uncertain relevance."
+  },
+  {
+    "article_id": "18c7756a6756",
+    "profile_id": "welder_pipeline_alberta",
+    "score": 2.0,
+    "reason": "MIT's breakthrough technologies could potentially include carbon capture or hydrogen technology relevant to pipelines, but this is a general technology overview with uncertain specific relevance to welding or pipeline construction.",
+    "think_text": "Could include CCS or hydrogen tech. But it's a general overview, uncertain relevance."
+  },
+  {
+    "article_id": "18c7756a6756",
+    "profile_id": "indie_gamedev_berlin",
+    "score": 3.5,
+    "reason": "MIT's breakthrough technologies list often includes AI, computing, and software innovations that could be relevant to game development. As a tech-savvy developer, this general technology overview has moderate interest value.",
+    "think_text": "Game dev is tech-savvy. MIT breakthrough list might include AI, game-relevant computing tech. Moderate general interest."
+  },
+  {
+    "article_id": "18c7756a6756",
+    "profile_id": "filmmaker_mumbai",
+    "score": 2.0,
+    "reason": "MIT's breakthrough technologies might include media or AI-related innovations relevant to filmmaking, but this is a general tech overview with uncertain relevance to the film industry.",
+    "think_text": "Could include AI video tools or media tech. But general overview - uncertain relevance."
+  },
+  {
+    "article_id": "5d029909e649",
+    "profile_id": "hvac_tech_texas",
+    "score": 0.0,
+    "reason": "A Reddit post seeking a student partner for a fintech/smart contracts project has zero relevance to HVAC work in Texas.",
+    "think_text": "Crypto/fintech student project is irrelevant to HVAC."
+  },
+  {
+    "article_id": "5d029909e649",
+    "profile_id": "marine_electrician_norway",
+    "score": 0.0,
+    "reason": "A student project partner request for smart contracts has no relevance to marine electrical work or offshore wind.",
+    "think_text": "No connection."
+  },
+  {
+    "article_id": "5d029909e649",
+    "profile_id": "welder_pipeline_alberta",
+    "score": 0.0,
+    "reason": "A fintech/smart contracts student project has zero relevance to pipeline welding in Alberta.",
+    "think_text": "No connection."
+  },
+  {
+    "article_id": "5d029909e649",
+    "profile_id": "indie_gamedev_berlin",
+    "score": 1.0,
+    "reason": "While this involves software development (smart contracts), it's about fintech/blockchain, not game development. A game dev would have minimal interest in a student fintech project.",
+    "think_text": "Software dev overlap but wrong domain - fintech not gaming. Student project, not professional."
+  },
+  {
+    "article_id": "5d029909e649",
+    "profile_id": "filmmaker_mumbai",
+    "score": 0.0,
+    "reason": "A fintech student project request has no relevance to documentary filmmaking.",
+    "think_text": "No connection."
+  },
+  {
+    "article_id": "17358e40141a",
+    "profile_id": "hvac_tech_texas",
+    "score": 0.0,
+    "reason": "A Microsoft support article about adjusting display brightness has no professional relevance to HVAC operations.",
+    "think_text": "Windows display settings are generic IT support, irrelevant to HVAC."
+  },
+  {
+    "article_id": "17358e40141a",
+    "profile_id": "marine_electrician_norway",
+    "score": 0.0,
+    "reason": "Windows display brightness settings have no relevance to marine electrical work.",
+    "think_text": "Generic IT support article, irrelevant."
+  },
+  {
+    "article_id": "17358e40141a",
+    "profile_id": "welder_pipeline_alberta",
+    "score": 0.0,
+    "reason": "A Windows display settings support article has zero relevance to pipeline welding.",
+    "think_text": "Completely irrelevant."
+  },
+  {
+    "article_id": "17358e40141a",
+    "profile_id": "indie_gamedev_berlin",
+    "score": 0.5,
+    "reason": "While a game developer uses Windows, a basic display brightness support article is generic IT troubleshooting with no meaningful relevance to game development.",
+    "think_text": "Game dev uses computers but this is basic Windows troubleshooting, not development-related."
+  },
+  {
+    "article_id": "17358e40141a",
+    "profile_id": "filmmaker_mumbai",
+    "score": 0.0,
+    "reason": "Windows display brightness settings have no relevance to documentary filmmaking.",
+    "think_text": "Irrelevant."
+  },
+  {
+    "article_id": "b5dd892f0d61",
+    "profile_id": "hvac_tech_texas",
+    "score": 1.0,
+    "reason": "eLearning trends for L&D professionals have no direct relevance to HVAC operations, though a small business owner might use online training for technicians. The article focuses on corporate L&D, not trade training.",
+    "think_text": "HVAC business might use online training but this is about corporate eLearning trends, not trade/vocational training."
+  },
+  {
+    "article_id": "b5dd892f0d61",
+    "profile_id": "marine_electrician_norway",
+    "score": 0.5,
+    "reason": "eLearning trends for corporate L&D professionals have minimal relevance to a marine electrician focused on hands-on offshore work.",
+    "think_text": "Marine electrician might do safety training online but this is about corporate L&D trends, not relevant."
+  },
+  {
+    "article_id": "b5dd892f0d61",
+    "profile_id": "welder_pipeline_alberta",
+    "score": 0.5,
+    "reason": "eLearning trends for L&D experts are not relevant to pipeline welding. While welders do certifications, this is about corporate training platforms, not trade certification.",
+    "think_text": "Not about welding certification or trade training."
+  },
+  {
+    "article_id": "b5dd892f0d61",
+    "profile_id": "indie_gamedev_berlin",
+    "score": 1.5,
+    "reason": "eLearning trends could be tangentially interesting if the game dev considers creating educational games, but this article focuses on corporate L&D platforms and AI in training, not game-based learning.",
+    "think_text": "Slight connection through educational game potential but this is corporate L&D focused."
+  },
+  {
+    "article_id": "b5dd892f0d61",
+    "profile_id": "filmmaker_mumbai",
+    "score": 1.0,
+    "reason": "eLearning trends are not directly relevant to documentary filmmaking, though the growth of digital learning platforms could be a documentary subject. Very weak connection.",
+    "think_text": "eLearning as a documentary subject is a stretch. Not relevant to filmmaker's core interests."
+  },
+  {
+    "article_id": "eea19c14bae7",
+    "profile_id": "hvac_tech_texas",
+    "score": 0.5,
+    "reason": "Smart network standards and telecommunications research have no relevance to HVAC operations in Texas.",
+    "think_text": "Telecom networking standards are irrelevant to HVAC."
+  },
+  {
+    "article_id": "eea19c14bae7",
+    "profile_id": "marine_electrician_norway",
+    "score": 1.5,
+    "reason": "Smart networks and wireless protocols could have applications in offshore operations, but this ETSI event is focused on telecommunications standards research, not maritime or energy sector applications.",
+    "think_text": "Wireless networking has offshore applications but this is telecom standards event, not maritime."
+  },
+  {
+    "article_id": "eea19c14bae7",
+    "profile_id": "welder_pipeline_alberta",
+    "score": 0.5,
+    "reason": "Telecommunications networking standards have no relevance to pipeline welding or oil and gas operations.",
+    "think_text": "No connection."
+  },
+  {
+    "article_id": "eea19c14bae7",
+    "profile_id": "indie_gamedev_berlin",
+    "score": 1.5,
+    "reason": "Network standards could affect online gaming infrastructure, but this is an ETSI telecom research event about protocol standards, not about gaming network performance or latency optimization.",
+    "think_text": "Online gaming cares about networks but this is telecom standards research, not gaming infrastructure."
+  },
+  {
+    "article_id": "eea19c14bae7",
+    "profile_id": "filmmaker_mumbai",
+    "score": 0.5,
+    "reason": "Smart network standards and telecommunications research have no relevance to documentary filmmaking.",
+    "think_text": "No connection."
+  },
+  {
+    "article_id": "18ca83614646",
+    "profile_id": "hvac_tech_texas",
+    "score": 0.0,
+    "reason": "Nursing job postings in UAE have zero relevance to HVAC work in Texas. Different profession, different country.",
+    "think_text": "Healthcare jobs in UAE are irrelevant to HVAC tech."
+  },
+  {
+    "article_id": "18ca83614646",
+    "profile_id": "marine_electrician_norway",
+    "score": 0.0,
+    "reason": "UAE nursing jobs have no relevance to marine electrical work in Norway.",
+    "think_text": "No connection."
+  },
+  {
+    "article_id": "18ca83614646",
+    "profile_id": "welder_pipeline_alberta",
+    "score": 0.0,
+    "reason": "Healthcare nursing positions in UAE have zero relevance to pipeline welding in Alberta.",
+    "think_text": "No connection."
+  },
+  {
+    "article_id": "18ca83614646",
+    "profile_id": "indie_gamedev_berlin",
+    "score": 0.0,
+    "reason": "UAE nursing jobs have no relevance to indie game development.",
+    "think_text": "No connection."
+  },
+  {
+    "article_id": "18ca83614646",
+    "profile_id": "filmmaker_mumbai",
+    "score": 0.0,
+    "reason": "UAE healthcare job postings have no relevance to documentary filmmaking in Mumbai.",
+    "think_text": "No connection."
+  },
+  {
+    "article_id": "a05884b08a33",
+    "profile_id": "hvac_tech_texas",
+    "score": 0.0,
+    "reason": "Moroccan and GCC fintech startup news has no relevance to HVAC operations in Texas.",
+    "think_text": "African/GCC fintech is irrelevant to HVAC."
+  },
+  {
+    "article_id": "a05884b08a33",
+    "profile_id": "marine_electrician_norway",
+    "score": 0.0,
+    "reason": "Fintech startups in Morocco and the GCC have no relevance to marine electrical work in Norway.",
+    "think_text": "No connection."
+  },
+  {
+    "article_id": "a05884b08a33",
+    "profile_id": "welder_pipeline_alberta",
+    "score": 0.0,
+    "reason": "African fintech startups have zero relevance to pipeline welding in Alberta.",
+    "think_text": "No connection."
+  },
+  {
+    "article_id": "a05884b08a33",
+    "profile_id": "indie_gamedev_berlin",
+    "score": 0.5,
+    "reason": "Fintech startups in Africa have no relevance to indie game development in Berlin.",
+    "think_text": "No connection."
+  },
+  {
+    "article_id": "a05884b08a33",
+    "profile_id": "filmmaker_mumbai",
+    "score": 1.0,
+    "reason": "African fintech could be a documentary subject for a social-impact filmmaker, but this is a brief news item about startup funding, not a story that would drive a documentary project.",
+    "think_text": "Social impact filmmaker might be interested in financial inclusion stories but this is startup funding news, not a compelling documentary angle."
+  },
+  {
+    "article_id": "6f6ab3fb11be",
+    "profile_id": "hvac_tech_texas",
+    "score": 0.0,
+    "reason": "Fintech investment deal roundups have no relevance to HVAC operations or small business in Texas.",
+    "think_text": "Fintech deals are irrelevant to HVAC."
+  },
+  {
+    "article_id": "6f6ab3fb11be",
+    "profile_id": "marine_electrician_norway",
+    "score": 0.0,
+    "reason": "Fintech deal roundups have no connection to marine electrical work or offshore wind.",
+    "think_text": "No connection."
+  },
+  {
+    "article_id": "6f6ab3fb11be",
+    "profile_id": "welder_pipeline_alberta",
+    "score": 0.0,
+    "reason": "Fintech investment deals have zero relevance to pipeline welding or oil and gas in Alberta.",
+    "think_text": "No connection."
+  },
+  {
+    "article_id": "6f6ab3fb11be",
+    "profile_id": "indie_gamedev_berlin",
+    "score": 0.5,
+    "reason": "While venture capital funding is relevant to startups generally, this is specifically about fintech deals, not gaming investment or game studio funding.",
+    "think_text": "VC funding tangentially interesting but wrong sector - fintech not gaming."
+  },
+  {
+    "article_id": "6f6ab3fb11be",
+    "profile_id": "filmmaker_mumbai",
+    "score": 0.5,
+    "reason": "Fintech deal roundups have no relevance to documentary filmmaking or the streaming/film industry.",
+    "think_text": "No connection."
+  },
+  {
+    "article_id": "5b5e0e3b788a",
+    "profile_id": "hvac_tech_texas",
+    "score": 0.0,
+    "reason": "A TikTok dance compilation video is pure noise content with no relevance to HVAC work.",
+    "think_text": "Spam/entertainment content, zero relevance."
+  },
+  {
+    "article_id": "5b5e0e3b788a",
+    "profile_id": "marine_electrician_norway",
+    "score": 0.0,
+    "reason": "A TikTok dance video is noise content with no relevance to marine electrical work.",
+    "think_text": "Pure noise."
+  },
+  {
+    "article_id": "5b5e0e3b788a",
+    "profile_id": "welder_pipeline_alberta",
+    "score": 0.0,
+    "reason": "A TikTok dance compilation has zero relevance to pipeline welding or any professional interest.",
+    "think_text": "Pure noise."
+  },
+  {
+    "article_id": "5b5e0e3b788a",
+    "profile_id": "indie_gamedev_berlin",
+    "score": 0.0,
+    "reason": "A TikTok dance video has no relevance to indie game development or the gaming industry.",
+    "think_text": "Pure noise."
+  },
+  {
+    "article_id": "5b5e0e3b788a",
+    "profile_id": "filmmaker_mumbai",
+    "score": 0.5,
+    "reason": "While a filmmaker works in visual media, a TikTok dance compilation is low-quality social media content, not relevant to documentary filmmaking or professional film industry interests.",
+    "think_text": "Filmmaker works in visual media but TikTok dance is not professional content. Minimal connection."
+  },
+  {
+    "article_id": "253ce3ae750b",
+    "profile_id": "hvac_tech_texas",
+    "score": 0.5,
+    "reason": "Retail cybersecurity services have no relevance to HVAC operations or small business in the HVAC industry.",
+    "think_text": "Retail cybersecurity is irrelevant to HVAC trade."
+  },
+  {
+    "article_id": "253ce3ae750b",
+    "profile_id": "marine_electrician_norway",
+    "score": 0.0,
+    "reason": "Retail and ecommerce cybersecurity services have no connection to marine electrical work or offshore operations.",
+    "think_text": "No connection."
+  },
+  {
+    "article_id": "253ce3ae750b",
+    "profile_id": "welder_pipeline_alberta",
+    "score": 0.0,
+    "reason": "Retail cybersecurity has zero relevance to pipeline welding or the energy sector.",
+    "think_text": "No connection."
+  },
+  {
+    "article_id": "253ce3ae750b",
+    "profile_id": "indie_gamedev_berlin",
+    "score": 1.0,
+    "reason": "While game studios sell products online, this is about retail/ecommerce cybersecurity consulting services, not about securing digital game distribution or indie game studio security needs.",
+    "think_text": "Game sales happen online but this is about retail sector cybersecurity services. Weak connection."
+  },
+  {
+    "article_id": "253ce3ae750b",
+    "profile_id": "filmmaker_mumbai",
+    "score": 0.0,
+    "reason": "Retail cybersecurity services have no relevance to documentary filmmaking.",
+    "think_text": "No connection."
+  },
+  {
+    "article_id": "8552fae8d58d",
+    "profile_id": "hvac_tech_texas",
+    "score": 1.5,
+    "reason": "An electrical engineer job at Otter Energy in Ontario, Canada is in the energy sector but focuses on NERC guidelines and electricity market rules, not HVAC systems. Different country, different specialization.",
+    "think_text": "Electrical engineering job in Canada. Not HVAC-specific, wrong geography. Energy sector overlap is thin."
+  },
+  {
+    "article_id": "8552fae8d58d",
+    "profile_id": "marine_electrician_norway",
+    "score": 3.5,
+    "reason": "This electrical engineer job posting shares some skill overlap with marine electrical work (electrical safety, power systems) but is focused on Ontario's electricity grid, not offshore or maritime systems. The electrical profession connection is notable but context is different.",
+    "think_text": "Electrical engineering, electrical safety practices - overlaps with marine electrician skills. But it's about onshore power grid in Canada, not offshore maritime. Some professional interest in the electrical safety and standards aspects."
+  },
+  {
+    "article_id": "8552fae8d58d",
+    "profile_id": "welder_pipeline_alberta",
+    "score": 1.5,
+    "reason": "An electrical engineer job in Ontario's energy sector is in a related industry (energy) but different profession (electrical engineer vs welder) and different province (Ontario vs Alberta).",
+    "think_text": "Energy sector connection but wrong trade (electrical not welding) and wrong province."
+  },
+  {
+    "article_id": "8552fae8d58d",
+    "profile_id": "indie_gamedev_berlin",
+    "score": 0.0,
+    "reason": "An electrical engineering job at a Canadian energy company has no relevance to indie game development.",
+    "think_text": "No connection."
+  },
+  {
+    "article_id": "8552fae8d58d",
+    "profile_id": "filmmaker_mumbai",
+    "score": 0.0,
+    "reason": "A Canadian electrical engineering job has no relevance to documentary filmmaking in Mumbai.",
+    "think_text": "No connection."
+  },
+  {
+    "article_id": "5d91b2c4375a",
+    "profile_id": "hvac_tech_texas",
+    "score": 1.5,
+    "reason": "Climate news about microplastics in oceans has no direct relevance to HVAC work, though climate change broadly affects building codes and energy efficiency standards. This specific article about ocean microplastics is too distant from HVAC concerns.",
+    "think_text": "Climate change affects HVAC industry through regulations and efficiency standards but ocean microplastics research is too removed from HVAC."
+  },
+  {
+    "article_id": "5d91b2c4375a",
+    "profile_id": "marine_electrician_norway",
+    "score": 3.0,
+    "reason": "Climate research has some relevance to a marine electrician working in offshore wind - the industry exists because of climate change concerns. Ocean health research could affect North Sea operations policy. However, this specific article about microplastics is not directly actionable.",
+    "think_text": "Marine electrician works in offshore wind (a climate solution). Ocean health matters to their work environment. Climate defense weakening is relevant context for the energy transition driving their industry."
+  },
+  {
+    "article_id": "5d91b2c4375a",
+    "profile_id": "welder_pipeline_alberta",
+    "score": 2.0,
+    "reason": "Climate research is somewhat relevant as climate policy directly affects Alberta's oil sands industry and drives demand for carbon capture projects. However, this article about ocean microplastics is not about energy policy or carbon regulations.",
+    "think_text": "Climate change drives policy that affects Alberta oil sands. But ocean microplastics research is not about energy policy directly."
+  },
+  {
+    "article_id": "5d91b2c4375a",
+    "profile_id": "indie_gamedev_berlin",
+    "score": 0.5,
+    "reason": "Climate research about ocean microplastics has no relevance to indie game development or the gaming industry.",
+    "think_text": "No connection."
+  },
+  {
+    "article_id": "5d91b2c4375a",
+    "profile_id": "filmmaker_mumbai",
+    "score": 4.0,
+    "reason": "Climate and environmental research could be highly relevant to a social-impact documentary filmmaker. Microplastics weakening Earth's climate defenses is a compelling documentary subject. However, this is a science news summary, not a specific story lead.",
+    "think_text": "Social-impact documentary filmmaker interested in environmental stories. Climate defense weakening by microplastics is a strong documentary angle. Moderate relevance as a story idea source."
+  },
+  {
+    "article_id": "29b05e3fae4d",
+    "profile_id": "hvac_tech_texas",
+    "score": 0.5,
+    "reason": "Science trivia about natural phenomena (dark oxygen, singing dunes) has no relevance to HVAC operations or small business.",
+    "think_text": "Science interest article, no HVAC connection."
+  },
+  {
+    "article_id": "29b05e3fae4d",
+    "profile_id": "marine_electrician_norway",
+    "score": 1.0,
+    "reason": "While some ocean phenomena might be tangentially interesting to someone working at sea, this article about scientific curiosities is not professionally relevant to marine electrical work.",
+    "think_text": "Ocean-related science exists in the article but it's trivia, not professional information."
+  },
+  {
+    "article_id": "29b05e3fae4d",
+    "profile_id": "welder_pipeline_alberta",
+    "score": 0.5,
+    "reason": "Science trivia about natural phenomena has no relevance to pipeline welding or the energy sector.",
+    "think_text": "No connection."
+  },
+  {
+    "article_id": "29b05e3fae4d",
+    "profile_id": "indie_gamedev_berlin",
+    "score": 2.0,
+    "reason": "Natural phenomena like dark oxygen, singing dunes, and uphill rivers could provide inspiration for game world-building and environmental design. A narrative-driven indie game dev might find these interesting as creative inspiration.",
+    "think_text": "Indie game dev builds narrative-driven games. Strange natural phenomena could inspire game environments and world-building. Moderate creative interest."
+  },
+  {
+    "article_id": "29b05e3fae4d",
+    "profile_id": "filmmaker_mumbai",
+    "score": 3.5,
+    "reason": "Impossible natural phenomena explained by science could be compelling documentary subject matter. A filmmaker interested in social impact and storytelling might find 'dark oxygen' or 'uphill rivers' as potential short documentary subjects, though the article itself is a listicle, not a production lead.",
+    "think_text": "Documentary filmmaker could turn science stories into visual content. Natural phenomena are visually compelling. Moderate interest as story ideas."
+  },
+  {
+    "article_id": "c6847e13b57d",
+    "profile_id": "hvac_tech_texas",
+    "score": 1.0,
+    "reason": "While TREX makes composite decking (construction-adjacent), this is an investment management article about selling stock positions. Not actionable for an HVAC technician or small business owner.",
+    "think_text": "TREX is construction-related but this is investment portfolio management news. Not relevant to HVAC operations."
+  },
+  {
+    "article_id": "c6847e13b57d",
+    "profile_id": "marine_electrician_norway",
+    "score": 0.5,
+    "reason": "An investment firm selling TREX Company stock has no relevance to marine electrical work or offshore wind in Norway.",
+    "think_text": "No connection."
+  },
+  {
+    "article_id": "c6847e13b57d",
+    "profile_id": "welder_pipeline_alberta",
+    "score": 0.5,
+    "reason": "Investment fund stock trading in TREX (composite decking) has no relevance to pipeline welding or the Alberta energy sector.",
+    "think_text": "No connection."
+  },
+  {
+    "article_id": "c6847e13b57d",
+    "profile_id": "indie_gamedev_berlin",
+    "score": 0.0,
+    "reason": "Investment portfolio management and TREX stock trading have no relevance to indie game development.",
+    "think_text": "No connection."
+  },
+  {
+    "article_id": "c6847e13b57d",
+    "profile_id": "filmmaker_mumbai",
+    "score": 0.0,
+    "reason": "US stock portfolio management has no relevance to documentary filmmaking in Mumbai.",
+    "think_text": "No connection."
+  },
+  {
+    "article_id": "0974c0d9e8bb",
+    "profile_id": "hvac_tech_texas",
+    "score": 0.5,
+    "reason": "Qualcomm's 2nm chip breakthrough is semiconductor industry news with no connection to HVAC systems or small business operations.",
+    "think_text": "Semiconductor manufacturing is irrelevant to HVAC."
+  },
+  {
+    "article_id": "0974c0d9e8bb",
+    "profile_id": "marine_electrician_norway",
+    "score": 0.5,
+    "reason": "Qualcomm's chip manufacturing has no relevance to marine electrical systems or offshore wind operations.",
+    "think_text": "No connection."
+  },
+  {
+    "article_id": "0974c0d9e8bb",
+    "profile_id": "welder_pipeline_alberta",
+    "score": 0.0,
+    "reason": "Semiconductor chip manufacturing news has zero relevance to pipeline welding or the Alberta energy sector.",
+    "think_text": "No connection."
+  },
+  {
+    "article_id": "0974c0d9e8bb",
+    "profile_id": "indie_gamedev_berlin",
+    "score": 2.5,
+    "reason": "Qualcomm makes mobile processors used in gaming devices, and chip advances could affect mobile gaming performance. However, this is about 2nm chip manufacturing, not gaming-specific applications. Some indirect interest.",
+    "think_text": "Qualcomm powers mobile gaming devices. 2nm advancement could improve mobile gaming. But article is about semiconductor manufacturing, not gaming applications."
+  },
+  {
+    "article_id": "0974c0d9e8bb",
+    "profile_id": "filmmaker_mumbai",
+    "score": 1.5,
+    "reason": "While this article mentions India as a chip design hub which has some geographic relevance to a Mumbai-based professional, it's about semiconductor manufacturing, not filmmaking or media.",
+    "think_text": "India connection (chip design hub) provides geographic relevance. But semiconductor manufacturing is not related to filmmaking."
+  },
+  {
+    "article_id": "834d9c577dcf",
+    "profile_id": "hvac_tech_texas",
+    "score": 0.5,
+    "reason": "AWS cloud certification training has no relevance to HVAC operations or trade certification. This is an IT certification course, completely different domain.",
+    "think_text": "Cloud computing certification is irrelevant to HVAC trade."
+  },
+  {
+    "article_id": "834d9c577dcf",
+    "profile_id": "marine_electrician_norway",
+    "score": 0.5,
+    "reason": "AWS cloud operations certification has no relevance to marine electrical work or offshore wind operations.",
+    "think_text": "IT certification is irrelevant to marine electrical trade."
+  },
+  {
+    "article_id": "834d9c577dcf",
+    "profile_id": "welder_pipeline_alberta",
+    "score": 0.0,
+    "reason": "AWS cloud certification has zero relevance to pipeline welding or CWB certifications.",
+    "think_text": "Completely different type of certification."
+  },
+  {
+    "article_id": "834d9c577dcf",
+    "profile_id": "indie_gamedev_berlin",
+    "score": 2.0,
+    "reason": "AWS cloud operations could be relevant to a game dev who deploys multiplayer games on cloud infrastructure, but this is a certification course for cloud operations engineers, not a game deployment guide.",
+    "think_text": "Game devs might use AWS for game servers. But this is an ops certification course, not game development focused."
+  },
+  {
+    "article_id": "834d9c577dcf",
+    "profile_id": "filmmaker_mumbai",
+    "score": 0.0,
+    "reason": "AWS cloud operations certification has no relevance to documentary filmmaking.",
+    "think_text": "No connection."
+  },
+  {
+    "article_id": "5bb59f0afab2",
+    "profile_id": "hvac_tech_texas",
+    "score": 0.5,
+    "reason": "Shell selling a stake in a Brazilian offshore oil project to a Kuwaiti company has no relevance to HVAC operations in Texas.",
+    "think_text": "Offshore oil deal is not relevant to HVAC."
+  },
+  {
+    "article_id": "5bb59f0afab2",
+    "profile_id": "marine_electrician_norway",
+    "score": 3.0,
+    "reason": "Shell's offshore oil project deal is in the energy/offshore sector, which has some industry overlap with offshore wind work. Shell is a major energy company operating in the North Sea. However, this is about an oil project in Brazil, not offshore wind or Norwegian operations.",
+    "think_text": "Shell is active in North Sea offshore. Offshore energy deals show industry trends. But this is Brazil oil, not offshore wind. Some general industry awareness value."
+  },
+  {
+    "article_id": "5bb59f0afab2",
+    "profile_id": "welder_pipeline_alberta",
+    "score": 3.5,
+    "reason": "This offshore oil deal involves major energy companies and signals continued investment in oil production. While not directly about pipelines or Alberta, global oil industry M&A activity affects the overall energy market that determines demand for pipeline construction.",
+    "think_text": "Oil industry M&A affects global energy market. Pipeline welder tracks energy industry trends. Shell/KUFPEC deal shows continued oil investment. Not directly Alberta or pipelines but industry-adjacent."
+  },
+  {
+    "article_id": "5bb59f0afab2",
+    "profile_id": "indie_gamedev_berlin",
+    "score": 0.0,
+    "reason": "An offshore oil stake sale has no relevance to indie game development.",
+    "think_text": "No connection."
+  },
+  {
+    "article_id": "5bb59f0afab2",
+    "profile_id": "filmmaker_mumbai",
+    "score": 0.5,
+    "reason": "An offshore oil project ownership transfer has no relevance to documentary filmmaking in Mumbai.",
+    "think_text": "No connection."
+  },
+  {
+    "article_id": "1d99e49cdd52",
+    "profile_id": "hvac_tech_texas",
+    "score": 0.0,
+    "reason": "Travel nurse job postings have no relevance to HVAC work in Texas.",
+    "think_text": "Healthcare jobs are irrelevant to HVAC."
+  },
+  {
+    "article_id": "1d99e49cdd52",
+    "profile_id": "marine_electrician_norway",
+    "score": 0.0,
+    "reason": "US travel nurse jobs have no relevance to marine electrical work in Norway.",
+    "think_text": "No connection."
+  },
+  {
+    "article_id": "1d99e49cdd52",
+    "profile_id": "welder_pipeline_alberta",
+    "score": 0.0,
+    "reason": "Travel nursing positions have zero relevance to pipeline welding in Alberta.",
+    "think_text": "No connection."
+  },
+  {
+    "article_id": "1d99e49cdd52",
+    "profile_id": "indie_gamedev_berlin",
+    "score": 0.0,
+    "reason": "Travel nurse job postings have no relevance to indie game development.",
+    "think_text": "No connection."
+  },
+  {
+    "article_id": "1d99e49cdd52",
+    "profile_id": "filmmaker_mumbai",
+    "score": 0.0,
+    "reason": "US travel nursing jobs have no relevance to documentary filmmaking in Mumbai.",
+    "think_text": "No connection."
+  },
+  {
+    "article_id": "fd5f0e60a7b1",
+    "profile_id": "hvac_tech_texas",
+    "score": 0.5,
+    "reason": "D-Wave quantum computing stock analysis has no relevance to HVAC systems or small business operations in Texas.",
+    "think_text": "Quantum computing is irrelevant to HVAC trade."
+  },
+  {
+    "article_id": "fd5f0e60a7b1",
+    "profile_id": "marine_electrician_norway",
+    "score": 0.5,
+    "reason": "Quantum computing company analysis has no connection to marine electrical work or offshore wind operations.",
+    "think_text": "No connection."
+  },
+  {
+    "article_id": "fd5f0e60a7b1",
+    "profile_id": "welder_pipeline_alberta",
+    "score": 0.0,
+    "reason": "Quantum computing stock analysis has zero relevance to pipeline welding or the Alberta energy sector.",
+    "think_text": "No connection."
+  },
+  {
+    "article_id": "fd5f0e60a7b1",
+    "profile_id": "indie_gamedev_berlin",
+    "score": 1.5,
+    "reason": "Quantum computing is an emerging technology that could eventually affect game development (simulation, AI), but this is a stock analysis article about D-Wave's business strategy, not about applications relevant to gaming.",
+    "think_text": "Quantum computing could affect tech broadly but this is investor analysis, not tech applications. Minimal gaming relevance."
+  },
+  {
+    "article_id": "fd5f0e60a7b1",
+    "profile_id": "filmmaker_mumbai",
+    "score": 0.5,
+    "reason": "Quantum computing stock analysis has no relevance to documentary filmmaking or the Indian media industry.",
+    "think_text": "No connection."
+  },
+  {
+    "article_id": "aab36685f2ec",
+    "profile_id": "hvac_tech_texas",
+    "score": 1.0,
+    "reason": "Pentagon using AI for military operations is general news that doesn't directly affect HVAC operations, though as a US-based business owner, geopolitical news has marginal awareness value.",
+    "think_text": "US military AI use is general news. Not relevant to HVAC trade."
+  },
+  {
+    "article_id": "aab36685f2ec",
+    "profile_id": "marine_electrician_norway",
+    "score": 1.0,
+    "reason": "Pentagon's use of AI in military operations has no direct relevance to marine electrical work on offshore wind vessels in Norway.",
+    "think_text": "Military AI is not relevant to offshore wind work."
+  },
+  {
+    "article_id": "aab36685f2ec",
+    "profile_id": "welder_pipeline_alberta",
+    "score": 0.5,
+    "reason": "Pentagon AI military operations have no relevance to pipeline welding or the Alberta energy sector.",
+    "think_text": "No connection."
+  },
+  {
+    "article_id": "aab36685f2ec",
+    "profile_id": "indie_gamedev_berlin",
+    "score": 2.5,
+    "reason": "AI and Palantir are tech topics of general interest to software developers. Military AI applications could inspire game narratives. However, this is a geopolitical/military news story, not a tech development story directly relevant to game development.",
+    "think_text": "AI in military could inspire game narratives. Tech-aware developer might follow AI trends. But this is geopolitics, not game-relevant tech."
+  },
+  {
+    "article_id": "aab36685f2ec",
+    "profile_id": "filmmaker_mumbai",
+    "score": 3.0,
+    "reason": "Pentagon using AI in military operations is a compelling social-impact topic that could interest a documentary filmmaker focused on social issues. The intersection of AI and military power is a timely documentary subject, though this is a US-focused story.",
+    "think_text": "Social-impact filmmaker would be interested in AI used in military operations. Ethical implications of AI in warfare is a documentary-worthy subject. Geographic mismatch (US story, Mumbai filmmaker) but thematically relevant."
+  },
+  {
+    "article_id": "0c152569086d",
+    "profile_id": "hvac_tech_texas",
+    "score": 0.0,
+    "reason": "ITIL certification job trends in the UK have no relevance to HVAC work in Texas. Different certification domain, different country.",
+    "think_text": "IT service management certification is irrelevant to HVAC."
+  },
+  {
+    "article_id": "0c152569086d",
+    "profile_id": "marine_electrician_norway",
+    "score": 0.0,
+    "reason": "ITIL IT certification job trends have no relevance to marine electrical work.",
+    "think_text": "No connection."
+  },
+  {
+    "article_id": "0c152569086d",
+    "profile_id": "welder_pipeline_alberta",
+    "score": 0.0,
+    "reason": "ITIL IT certification has zero relevance to pipeline welding or CWB certifications.",
+    "think_text": "No connection."
+  },
+  {
+    "article_id": "0c152569086d",
+    "profile_id": "indie_gamedev_berlin",
+    "score": 0.5,
+    "reason": "ITIL is an IT service management certification that is not relevant to indie game development. Game studios don't typically follow ITIL frameworks.",
+    "think_text": "ITIL is enterprise IT ops, not game dev. No real connection."
+  },
+  {
+    "article_id": "0c152569086d",
+    "profile_id": "filmmaker_mumbai",
+    "score": 0.0,
+    "reason": "UK ITIL certification job trends have no relevance to documentary filmmaking in Mumbai.",
+    "think_text": "No connection."
+  },
+  {
+    "article_id": "7cdb8ee26e9d",
+    "profile_id": "hvac_tech_texas",
+    "score": 0.5,
+    "reason": "AMD's 2nm AI chip war with Nvidia is semiconductor industry news with no connection to HVAC systems or small business operations.",
+    "think_text": "AI chip competition is irrelevant to HVAC."
+  },
+  {
+    "article_id": "7cdb8ee26e9d",
+    "profile_id": "marine_electrician_norway",
+    "score": 0.5,
+    "reason": "AI chip competition between AMD and Nvidia has no relevance to marine electrical systems or offshore wind operations.",
+    "think_text": "No connection."
+  },
+  {
+    "article_id": "7cdb8ee26e9d",
+    "profile_id": "welder_pipeline_alberta",
+    "score": 0.0,
+    "reason": "AI chip competition has zero relevance to pipeline welding or the Alberta energy sector.",
+    "think_text": "No connection."
+  },
+  {
+    "article_id": "7cdb8ee26e9d",
+    "profile_id": "indie_gamedev_berlin",
+    "score": 4.0,
+    "reason": "AMD's MI400 chip strategy to compete with Nvidia is relevant to a game developer who relies on GPU hardware for development and whose players use these graphics cards. The AI chip war also signals broader hardware industry trends affecting gaming GPUs and AI-assisted game development tools.",
+    "think_text": "AMD and Nvidia make gaming GPUs. AI chip war affects GPU pricing and availability. Game dev cares about GPU market dynamics. MI400 is AI-focused but AMD's overall strategy affects their gaming GPU lineup too."
+  },
+  {
+    "article_id": "7cdb8ee26e9d",
+    "profile_id": "filmmaker_mumbai",
+    "score": 1.0,
+    "reason": "AI chip competition could theoretically affect AI-powered video editing tools, but this article is about data center GPU strategy, not creative tools. Too removed from filmmaking.",
+    "think_text": "AI chips power AI video tools but this is about data center hardware competition, not creative applications."
+  },
+  {
+    "article_id": "02b682ccfc85",
+    "profile_id": "hvac_tech_texas",
+    "score": 0.5,
+    "reason": "Zamil Process Equipment's client references in Saudi Arabia have no relevance to HVAC work in Houston, Texas.",
+    "think_text": "Saudi industrial equipment company is irrelevant to Texas HVAC."
+  },
+  {
+    "article_id": "02b682ccfc85",
+    "profile_id": "marine_electrician_norway",
+    "score": 0.5,
+    "reason": "Saudi industrial process equipment client references have no relevance to marine electrical work in Norway.",
+    "think_text": "No connection."
+  },
+  {
+    "article_id": "02b682ccfc85",
+    "profile_id": "welder_pipeline_alberta",
+    "score": 1.0,
+    "reason": "Zamil Process Equipment works in heavy industry including oil/gas (SABIC, SWCC, Saudi Electricity), which has some industry overlap with pipeline work. However, this is a Saudi company's client list, not relevant to Alberta operations.",
+    "think_text": "Oil and gas industry connection through SABIC etc. But this is a Saudi company page, not relevant to Alberta pipeline work."
+  },
+  {
+    "article_id": "02b682ccfc85",
+    "profile_id": "indie_gamedev_berlin",
+    "score": 0.0,
+    "reason": "Saudi industrial process equipment has zero relevance to indie game development.",
+    "think_text": "No connection."
+  },
+  {
+    "article_id": "02b682ccfc85",
+    "profile_id": "filmmaker_mumbai",
+    "score": 0.0,
+    "reason": "Industrial process equipment client references have no relevance to documentary filmmaking.",
+    "think_text": "No connection."
+  },
+  {
+    "article_id": "9272cab0f19c",
+    "profile_id": "hvac_tech_texas",
+    "score": 0.5,
+    "reason": "Blockchain investment trends have no relevance to HVAC systems or small business operations in the trades.",
+    "think_text": "Crypto/blockchain investing is irrelevant to HVAC."
+  },
+  {
+    "article_id": "9272cab0f19c",
+    "profile_id": "marine_electrician_norway",
+    "score": 0.5,
+    "reason": "Blockchain investment trends have no connection to marine electrical work or offshore wind.",
+    "think_text": "No connection."
+  },
+  {
+    "article_id": "9272cab0f19c",
+    "profile_id": "welder_pipeline_alberta",
+    "score": 0.0,
+    "reason": "Blockchain investment trends have zero relevance to pipeline welding or the energy sector.",
+    "think_text": "No connection."
+  },
+  {
+    "article_id": "9272cab0f19c",
+    "profile_id": "indie_gamedev_berlin",
+    "score": 2.0,
+    "reason": "Blockchain has some intersection with gaming through NFTs and crypto-gaming, but this article focuses on traditional finance asset tokenization and BlackRock's involvement, not gaming applications of blockchain.",
+    "think_text": "Blockchain has gaming applications (NFTs, crypto games) but this is about traditional finance tokenization. Weak gaming connection."
+  },
+  {
+    "article_id": "9272cab0f19c",
+    "profile_id": "filmmaker_mumbai",
+    "score": 0.5,
+    "reason": "Blockchain investment trends have no direct relevance to documentary filmmaking, though blockchain in creative rights management is an emerging topic. This article is about financial investment, not content rights.",
+    "think_text": "Blockchain could affect content rights but this is about financial investing. No real connection."
+  },
+  {
+    "article_id": "eb9e5c6bf732",
+    "profile_id": "hvac_tech_texas",
+    "score": 6.5,
+    "reason": "Modular construction and smart homebuilding are directly relevant to an HVAC technician. Modular construction changes how HVAC systems are installed, and smart home trends affect HVAC technology integration. This article discusses the future of homebuilding which directly impacts the HVAC industry's service model.",
+    "think_text": "HVAC tech works in home services and construction. Modular construction fundamentally changes how HVAC is installed in new homes. Smart homebuilding affects HVAC system integration. This is quite relevant to understanding where the residential construction industry is heading."
+  },
+  {
+    "article_id": "eb9e5c6bf732",
+    "profile_id": "marine_electrician_norway",
+    "score": 1.0,
+    "reason": "Modular smart homebuilding has no relevance to marine electrical work on offshore wind vessels. Different construction domain entirely.",
+    "think_text": "Residential modular construction is not related to offshore maritime work."
+  },
+  {
+    "article_id": "eb9e5c6bf732",
+    "profile_id": "welder_pipeline_alberta",
+    "score": 2.0,
+    "reason": "While modular construction uses welding and steel fabrication, this article focuses on residential homebuilding, not pipeline or industrial construction. Some construction industry overlap but different sector.",
+    "think_text": "Modular construction involves welding but this is residential, not pipeline. Different application of construction skills."
+  },
+  {
+    "article_id": "eb9e5c6bf732",
+    "profile_id": "indie_gamedev_berlin",
+    "score": 0.5,
+    "reason": "Modular construction has no relevance to indie game development or the gaming industry.",
+    "think_text": "No connection."
+  },
+  {
+    "article_id": "eb9e5c6bf732",
+    "profile_id": "filmmaker_mumbai",
+    "score": 1.0,
+    "reason": "Modular construction could be a documentary subject (sustainable building), but this is a promotional article from a modular construction company, not a compelling documentary story lead.",
+    "think_text": "Sustainable building could be documentary material but this is a company blog post, not a story."
+  },
+  {
+    "article_id": "80ce92a24085",
+    "profile_id": "hvac_tech_texas",
+    "score": 0.0,
+    "reason": "A TripAdvisor review of a beach in Norway's Lofoten Islands has no relevance to HVAC work in Texas.",
+    "think_text": "Tourism review, no HVAC connection."
+  },
+  {
+    "article_id": "80ce92a24085",
+    "profile_id": "marine_electrician_norway",
+    "score": 2.0,
+    "reason": "Uttakleiv Beach is in the Lofoten Islands, Norway - the same country where this marine electrician is based. As a Norwegian, they might have personal interest in domestic travel destinations, but this has no professional relevance to offshore wind or marine electrical work.",
+    "think_text": "Same country (Norway). Lofoten is a popular Norwegian destination. Personal geographic interest but no professional relevance."
+  },
+  {
+    "article_id": "80ce92a24085",
+    "profile_id": "welder_pipeline_alberta",
+    "score": 0.0,
+    "reason": "A Norwegian beach tourism review has zero relevance to pipeline welding in Alberta.",
+    "think_text": "No connection."
+  },
+  {
+    "article_id": "80ce92a24085",
+    "profile_id": "indie_gamedev_berlin",
+    "score": 0.5,
+    "reason": "A Norwegian beach review has no relevance to indie game development, though scenic locations could theoretically inspire game environments. This is a stretch.",
+    "think_text": "Tourism page, no gaming connection. Environment inspiration is too much of a stretch."
+  },
+  {
+    "article_id": "80ce92a24085",
+    "profile_id": "filmmaker_mumbai",
+    "score": 1.5,
+    "reason": "A scenic Norwegian beach could potentially be a filming location, but this is a TripAdvisor review page, not a location scouting resource. Only marginally relevant to a filmmaker's work.",
+    "think_text": "Filmmaker might scout locations but this is a tourist review. Very weak connection."
+  }
+]

@@ -244,6 +244,15 @@ def main():
         eval_examples.extend(examples[:n_eval])
         train_examples.extend(examples[n_eval:])
 
+    # ── 5b. Cap training set to avoid GPU OOM ──
+    # V2 succeeded at 18,502. V3 crashed at 24,479. Cap at 19,000.
+    MAX_TRAIN = 19000
+    if len(train_examples) > MAX_TRAIN:
+        # Stratified downsampling: keep proportional band distribution
+        random.shuffle(train_examples)
+        train_examples = train_examples[:MAX_TRAIN]
+        print(f"  Capped training to {MAX_TRAIN} (was {len(train_examples) + len(eval_examples)})")
+
     print(f"\nTrain: {len(train_examples)}, Eval: {len(eval_examples)}")
 
     # ── 6. Format for training ──

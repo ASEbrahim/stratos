@@ -1,0 +1,1752 @@
+[
+  {
+    "article_id": "7dd61db77979",
+    "profile_id": "meche_grad_sa",
+    "score": 2.0,
+    "reason": "This article about AI agents building a C compiler is a general tech/AI news piece with no connection to mechanical engineering, Saudi Vision 2030 projects, NEOM, or Aramco. It has no geographic or industry relevance to a fresh ME graduate in Saudi Arabia.",
+    "think_text": "Article is about AI coding agents creating a compiler. meche_grad_sa is a fresh ME grad looking for NEOM/Aramco roles in construction/energy. No overlap with mechanical engineering, no Saudi context, no job opportunity. Pure software/AI research story. Score: low."
+  },
+  {
+    "article_id": "7dd61db77979",
+    "profile_id": "data_scientist_dubai",
+    "score": 5.5,
+    "reason": "As a data scientist working with AI/ML, multi-agent AI systems are tangentially relevant to understanding AI capabilities and trends. However, this is about code compilation, not fraud detection, NLP, or fintech applications. Mildly interesting but not actionable.",
+    "think_text": "Data scientist in Dubai fintech. Article about AI agents collaborating on software engineering tasks. Relevant to AI field broadly - shows multi-agent capabilities. But not directly about ML, fraud detection, or fintech. Mid-range interest."
+  },
+  {
+    "article_id": "7dd61db77979",
+    "profile_id": "supply_chain_bahrain",
+    "score": 1.0,
+    "reason": "This article about AI agents writing a C compiler has no relevance to supply chain management, logistics, port operations, or trade in Bahrain or the GCC region.",
+    "think_text": "Supply chain analyst in Bahrain. Article about AI coding. Zero overlap with logistics, trade, ports, or supply chain. Noise."
+  },
+  {
+    "article_id": "7dd61db77979",
+    "profile_id": "biotech_researcher_sa",
+    "score": 1.5,
+    "reason": "This AI-coding article has no connection to gene therapy, CRISPR, bioinformatics, or biotechnology research. While AI tools could theoretically be used in bioinformatics, this specific article about compiler creation is not relevant.",
+    "think_text": "Biotech researcher at KAUST. Article about AI writing compilers. No biotech, pharma, CRISPR, or gene therapy content. Very distant from their field."
+  },
+  {
+    "article_id": "7dd61db77979",
+    "profile_id": "architect_qatar",
+    "score": 1.5,
+    "reason": "This article about AI agents creating a compiler has no relevance to architecture, smart cities, urban planning, or construction in Qatar.",
+    "think_text": "Architect in Qatar doing smart city work. AI compiler article has no architecture, construction, urban planning, or BIM relevance. Noise."
+  },
+  {
+    "article_id": "d61d04dc8103",
+    "profile_id": "meche_grad_sa",
+    "score": 1.5,
+    "reason": "A generic Instagram post about electrical safety from a small brand has no actionable value for a mechanical engineering graduate seeking NEOM/Aramco roles. While tangentially related to engineering, it is social media noise.",
+    "think_text": "Instagram reel about electrical safety. Very generic, no Saudi context, no job posting, no industry insight. ME grad wouldn't find this useful."
+  },
+  {
+    "article_id": "d61d04dc8103",
+    "profile_id": "data_scientist_dubai",
+    "score": 0.5,
+    "reason": "An Instagram post about electrical safety testing has zero relevance to data science, machine learning, fintech, or any of this profile's tracked interests.",
+    "think_text": "Electrical safety Instagram post. Completely irrelevant to data science/fintech."
+  },
+  {
+    "article_id": "d61d04dc8103",
+    "profile_id": "supply_chain_bahrain",
+    "score": 0.5,
+    "reason": "An Instagram post about electrical safety has no connection to supply chain management, logistics, or trade operations.",
+    "think_text": "Electrical safety post. No supply chain relevance."
+  },
+  {
+    "article_id": "d61d04dc8103",
+    "profile_id": "biotech_researcher_sa",
+    "score": 0.5,
+    "reason": "An Instagram post about electrical safety has no relevance to biotechnology, gene therapy, or CRISPR research.",
+    "think_text": "Electrical safety post. No biotech relevance."
+  },
+  {
+    "article_id": "d61d04dc8103",
+    "profile_id": "architect_qatar",
+    "score": 1.5,
+    "reason": "While electrical safety is loosely related to building systems, this generic Instagram post from a small brand offers no actionable information for an architect working on smart city projects in Qatar.",
+    "think_text": "Electrical safety post. Very loosely related to building safety but too generic and social-media-noise-level to be useful to an architect."
+  },
+  {
+    "article_id": "ddbd379ac378",
+    "profile_id": "meche_grad_sa",
+    "score": 1.5,
+    "reason": "AMD's AI chip sales growth is a semiconductor/tech sector story with no relevance to mechanical engineering, NEOM construction, Aramco, or Vision 2030 projects.",
+    "think_text": "AMD AI chips. Not relevant to ME grad seeking construction/energy roles in Saudi."
+  },
+  {
+    "article_id": "ddbd379ac378",
+    "profile_id": "data_scientist_dubai",
+    "score": 5.0,
+    "reason": "As a data scientist working with ML, AMD's AI chip developments affect the broader AI infrastructure landscape. However, this is more of an investment/hardware story than something directly actionable for an ML practitioner building fraud detection models.",
+    "think_text": "AMD AI chip growth is relevant to AI practitioners broadly - affects hardware availability and costs for ML workloads. But this is a stock/investment angle, not technical ML content. Moderate relevance."
+  },
+  {
+    "article_id": "ddbd379ac378",
+    "profile_id": "supply_chain_bahrain",
+    "score": 1.0,
+    "reason": "AMD's data center chip sales have no relevance to supply chain logistics, port operations, or trade in the GCC.",
+    "think_text": "AMD chip sales story. No supply chain relevance."
+  },
+  {
+    "article_id": "ddbd379ac378",
+    "profile_id": "biotech_researcher_sa",
+    "score": 1.0,
+    "reason": "AMD's AI chip advancements have no direct relevance to gene therapy, CRISPR, or biotechnology research.",
+    "think_text": "AMD AI chips. No biotech relevance."
+  },
+  {
+    "article_id": "ddbd379ac378",
+    "profile_id": "architect_qatar",
+    "score": 1.0,
+    "reason": "AMD's data center growth has no relevance to architecture, construction, or urban development in Qatar.",
+    "think_text": "AMD chips. No architecture relevance."
+  },
+  {
+    "article_id": "1c7776bc782d",
+    "profile_id": "meche_grad_sa",
+    "score": 3.5,
+    "reason": "The Goldschmidt conference touches on carbon capture and AI-driven exploration which have tangential connections to energy and renewables. However, this is a geoscience academic conference, not directly relevant to a mechanical engineer seeking NEOM/Aramco roles.",
+    "think_text": "Geoscience conference with carbon capture and AI exploration themes. Some energy sector overlap but this is academic geoscience, not mechanical engineering or construction. Slight relevance to renewable energy interest."
+  },
+  {
+    "article_id": "1c7776bc782d",
+    "profile_id": "data_scientist_dubai",
+    "score": 1.5,
+    "reason": "A geoscience conference call for abstracts has minimal relevance to a data scientist working in fintech, despite the mention of AI-driven exploration.",
+    "think_text": "Geoscience conference. Not relevant to fintech data science despite AI mention."
+  },
+  {
+    "article_id": "1c7776bc782d",
+    "profile_id": "supply_chain_bahrain",
+    "score": 1.0,
+    "reason": "A geoscience academic conference has no relevance to supply chain logistics or trade operations.",
+    "think_text": "Geoscience conference. No supply chain relevance."
+  },
+  {
+    "article_id": "1c7776bc782d",
+    "profile_id": "biotech_researcher_sa",
+    "score": 1.5,
+    "reason": "While this is an academic conference (relevant format for a researcher), the subject matter is geoscience, not biotechnology or gene therapy.",
+    "think_text": "Academic conference but wrong field - geoscience not biotech."
+  },
+  {
+    "article_id": "1c7776bc782d",
+    "profile_id": "architect_qatar",
+    "score": 2.0,
+    "reason": "Carbon capture and geological research have minimal relevance to architecture and urban planning, though sustainable development has tangential connections.",
+    "think_text": "Geoscience conference. Very tangential to sustainability in architecture."
+  },
+  {
+    "article_id": "f0c8745690b3",
+    "profile_id": "meche_grad_sa",
+    "score": 1.5,
+    "reason": "EU-Ukraine geopolitics is not relevant to a mechanical engineering graduate in Saudi Arabia seeking construction and energy roles, despite the KUNA source.",
+    "think_text": "EU-Ukraine politics. No ME engineering, Saudi, or NEOM relevance."
+  },
+  {
+    "article_id": "f0c8745690b3",
+    "profile_id": "data_scientist_dubai",
+    "score": 1.0,
+    "reason": "EU foreign policy regarding Ukraine has no connection to data science, fintech, or ML in Dubai.",
+    "think_text": "EU-Ukraine politics. No fintech/data science relevance."
+  },
+  {
+    "article_id": "f0c8745690b3",
+    "profile_id": "supply_chain_bahrain",
+    "score": 2.5,
+    "reason": "EU-Ukraine geopolitics can affect global trade routes and supply chains indirectly, but this article lacks specifics about trade disruptions or logistics impacts. The KUNA source provides a GCC news angle.",
+    "think_text": "EU-Ukraine politics could affect trade routes but article doesn't discuss supply chain impacts specifically. Marginal relevance."
+  },
+  {
+    "article_id": "f0c8745690b3",
+    "profile_id": "biotech_researcher_sa",
+    "score": 0.5,
+    "reason": "EU-Ukraine geopolitics has no relevance to biotechnology research.",
+    "think_text": "Pure politics. No biotech relevance."
+  },
+  {
+    "article_id": "f0c8745690b3",
+    "profile_id": "architect_qatar",
+    "score": 0.5,
+    "reason": "EU-Ukraine geopolitics has no relevance to architecture or urban development in Qatar.",
+    "think_text": "EU politics. No architecture relevance."
+  },
+  {
+    "article_id": "1e0965efd09c",
+    "profile_id": "meche_grad_sa",
+    "score": 0.0,
+    "reason": "A TikTok page about Roblox Halloween costumes is pure social media noise with zero relevance to any professional or educational interest.",
+    "think_text": "Complete noise. Roblox/TikTok content."
+  },
+  {
+    "article_id": "1e0965efd09c",
+    "profile_id": "data_scientist_dubai",
+    "score": 0.0,
+    "reason": "A TikTok page about Roblox Halloween costumes is pure noise.",
+    "think_text": "Complete noise."
+  },
+  {
+    "article_id": "1e0965efd09c",
+    "profile_id": "supply_chain_bahrain",
+    "score": 0.0,
+    "reason": "Pure social media noise with no professional relevance.",
+    "think_text": "Complete noise."
+  },
+  {
+    "article_id": "1e0965efd09c",
+    "profile_id": "biotech_researcher_sa",
+    "score": 0.0,
+    "reason": "Pure social media noise with no professional relevance.",
+    "think_text": "Complete noise."
+  },
+  {
+    "article_id": "1e0965efd09c",
+    "profile_id": "architect_qatar",
+    "score": 0.0,
+    "reason": "Pure social media noise with no professional relevance.",
+    "think_text": "Complete noise."
+  },
+  {
+    "article_id": "8afa6526437b",
+    "profile_id": "meche_grad_sa",
+    "score": 2.0,
+    "reason": "US immigration policy changes could be tangentially relevant if the graduate were considering US opportunities, but their focus is on Saudi domestic roles (NEOM/Aramco). Not directly relevant.",
+    "think_text": "US immigration law update. ME grad is focused on Saudi roles, not US immigration. Low relevance."
+  },
+  {
+    "article_id": "8afa6526437b",
+    "profile_id": "data_scientist_dubai",
+    "score": 2.0,
+    "reason": "US immigration visa changes could affect tech workers considering US opportunities, but this data scientist is based in Dubai and focused on GCC fintech.",
+    "think_text": "US immigration. Dubai-based data scientist focused on GCC. Limited relevance."
+  },
+  {
+    "article_id": "8afa6526437b",
+    "profile_id": "supply_chain_bahrain",
+    "score": 1.5,
+    "reason": "US immigration policy has minimal direct impact on a supply chain analyst based in Bahrain unless they're considering relocation.",
+    "think_text": "US immigration. Bahrain-based supply chain analyst. Minimal relevance."
+  },
+  {
+    "article_id": "8afa6526437b",
+    "profile_id": "biotech_researcher_sa",
+    "score": 3.0,
+    "reason": "As a postdoctoral researcher, US immigration policy could be relevant for potential research collaborations, conference attendance, or future career moves to US institutions. Academic researchers frequently need US visas.",
+    "think_text": "US visa pause could affect researchers. Postdocs often consider US positions or need visas for conferences. Moderate relevance for academic career."
+  },
+  {
+    "article_id": "8afa6526437b",
+    "profile_id": "architect_qatar",
+    "score": 1.5,
+    "reason": "US immigration policy has minimal relevance to an architect working in Qatar.",
+    "think_text": "US immigration. Qatar-based architect. Minimal relevance."
+  },
+  {
+    "article_id": "0990d2b238a3",
+    "profile_id": "meche_grad_sa",
+    "score": 6.0,
+    "reason": "This job posting involves KOC and KNPC compliance work in Kuwait, which is adjacent to the Saudi oil and gas sector. As a fresh ME graduate interested in oil and gas, this could be relevant, though it's in Kuwait rather than Saudi Arabia. The role mentions contract monitoring which requires some experience.",
+    "think_text": "Job posting for Kuwait oil/gas client prequalification. Mentions KOC and KNPC which are oil/gas companies the grad might be aware of. Not in Saudi Arabia but same GCC region and industry. Doesn't specify engineering role but compliance/contracts. Moderate relevance - right industry, wrong country, unclear if entry-level."
+  },
+  {
+    "article_id": "0990d2b238a3",
+    "profile_id": "data_scientist_dubai",
+    "score": 1.5,
+    "reason": "A Kuwait oil/gas compliance job posting has no relevance to data science or fintech in Dubai.",
+    "think_text": "Kuwait O&G compliance job. Not relevant to data science/fintech."
+  },
+  {
+    "article_id": "0990d2b238a3",
+    "profile_id": "supply_chain_bahrain",
+    "score": 4.0,
+    "reason": "This job involves prequalification processes and contract monitoring in Kuwait's oil sector, which has some overlap with supply chain compliance and procurement. Bahrain and Kuwait are neighboring GCC countries.",
+    "think_text": "Kuwait compliance/contracts job. Some overlap with supply chain processes and procurement. GCC region proximity. Moderate relevance."
+  },
+  {
+    "article_id": "0990d2b238a3",
+    "profile_id": "biotech_researcher_sa",
+    "score": 0.5,
+    "reason": "A Kuwait oil/gas compliance job has no relevance to biotechnology research.",
+    "think_text": "Oil/gas compliance job. No biotech relevance."
+  },
+  {
+    "article_id": "0990d2b238a3",
+    "profile_id": "architect_qatar",
+    "score": 1.0,
+    "reason": "A Kuwait oil/gas compliance job has no relevance to architecture or urban development.",
+    "think_text": "Oil/gas compliance job. No architecture relevance."
+  },
+  {
+    "article_id": "ddac40adbefb",
+    "profile_id": "meche_grad_sa",
+    "score": 7.0,
+    "reason": "This SCADA Engineer role involves HVAC and building automation controls, directly aligning with this profile's interest in HVAC design. The 2-4 years experience requirement is slightly above entry-level but within reach for a motivated fresh graduate. PLC/SCADA skills are common in mechanical engineering curricula.",
+    "think_text": "SCADA Engineer job with HVAC/building automation focus. Directly matches HVAC design interest. 2-4 years exp is slightly above fresh grad level but close enough to be aspirational. No location specified but the role type is relevant to NEOM/Saudi construction projects. Good match."
+  },
+  {
+    "article_id": "ddac40adbefb",
+    "profile_id": "data_scientist_dubai",
+    "score": 1.0,
+    "reason": "A SCADA/HVAC engineering role has no relevance to data science or fintech.",
+    "think_text": "SCADA/HVAC engineering. No data science relevance."
+  },
+  {
+    "article_id": "ddac40adbefb",
+    "profile_id": "supply_chain_bahrain",
+    "score": 1.0,
+    "reason": "A SCADA engineering role has no relevance to supply chain management.",
+    "think_text": "SCADA engineering job. No supply chain relevance."
+  },
+  {
+    "article_id": "ddac40adbefb",
+    "profile_id": "biotech_researcher_sa",
+    "score": 0.5,
+    "reason": "A SCADA/HVAC engineering role has no relevance to biotechnology research.",
+    "think_text": "SCADA job. No biotech relevance."
+  },
+  {
+    "article_id": "ddac40adbefb",
+    "profile_id": "architect_qatar",
+    "score": 4.0,
+    "reason": "Building automation and SCADA systems are integrated into smart building design, which overlaps with this architect's interest in smart cities. However, this is an engineering operations role rather than a design/architecture position.",
+    "think_text": "SCADA/building automation overlaps with smart building design for smart cities. But this is an engineering role, not architecture. Tangential relevance."
+  },
+  {
+    "article_id": "922bd1907e2b",
+    "profile_id": "meche_grad_sa",
+    "score": 1.5,
+    "reason": "Business Analyst certification is not relevant to a mechanical engineering graduate seeking engineering roles at NEOM or Aramco.",
+    "think_text": "BA certification. Not relevant to ME engineering career path."
+  },
+  {
+    "article_id": "922bd1907e2b",
+    "profile_id": "data_scientist_dubai",
+    "score": 2.5,
+    "reason": "Business Analyst roles overlap somewhat with data science in terms of analytical skills, but BA certification is a different career path from ML/data science. Marginally relevant as career context.",
+    "think_text": "BA certification. Different from data science but some analytical overlap. Not very relevant."
+  },
+  {
+    "article_id": "922bd1907e2b",
+    "profile_id": "supply_chain_bahrain",
+    "score": 3.5,
+    "reason": "Business Analyst certifications can be relevant to supply chain professionals looking to advance in analytics roles. Supply chain analysts sometimes pursue BA certifications for career growth.",
+    "think_text": "BA certification could be relevant to a supply chain analyst looking to formalize analytical skills. Some career development value."
+  },
+  {
+    "article_id": "922bd1907e2b",
+    "profile_id": "biotech_researcher_sa",
+    "score": 0.5,
+    "reason": "BA certification has no relevance to biotechnology research.",
+    "think_text": "BA certification. No biotech relevance."
+  },
+  {
+    "article_id": "922bd1907e2b",
+    "profile_id": "architect_qatar",
+    "score": 1.0,
+    "reason": "BA certification has no relevance to architecture or urban planning.",
+    "think_text": "BA certification. No architecture relevance."
+  },
+  {
+    "article_id": "c4b08e5e5c93",
+    "profile_id": "meche_grad_sa",
+    "score": 2.0,
+    "reason": "A market report on ultrapure water resin is a niche industrial chemical topic. While water treatment could relate to some engineering projects, this is too specialized and market-research focused for a fresh ME graduate.",
+    "think_text": "Water resin market report. Niche industrial chemistry, not mechanical engineering or construction/energy."
+  },
+  {
+    "article_id": "c4b08e5e5c93",
+    "profile_id": "data_scientist_dubai",
+    "score": 1.0,
+    "reason": "An ultrapure water resin market report has no relevance to data science or fintech, despite mentioning AI-driven monitoring.",
+    "think_text": "Water resin market. No fintech/ML relevance."
+  },
+  {
+    "article_id": "c4b08e5e5c93",
+    "profile_id": "supply_chain_bahrain",
+    "score": 2.0,
+    "reason": "While market reports can have supply chain implications, ultrapure water resin is a very specialized niche unrelated to this analyst's tracked logistics and trade sectors.",
+    "think_text": "Water resin market. Too niche and unrelated to GCC logistics."
+  },
+  {
+    "article_id": "c4b08e5e5c93",
+    "profile_id": "biotech_researcher_sa",
+    "score": 2.5,
+    "reason": "Ultrapure water is used in some laboratory and pharmaceutical manufacturing processes. However, this market report is about industrial water treatment resin, not directly about biotech research applications.",
+    "think_text": "Ultrapure water has lab/pharma manufacturing use but this is a market report on resin products, not a research article. Tangential."
+  },
+  {
+    "article_id": "c4b08e5e5c93",
+    "profile_id": "architect_qatar",
+    "score": 1.0,
+    "reason": "Ultrapure water resin market has no relevance to architecture or urban development.",
+    "think_text": "Water resin market. No architecture relevance."
+  },
+  {
+    "article_id": "d22648d82260",
+    "profile_id": "meche_grad_sa",
+    "score": 0.5,
+    "reason": "An Arabic streaming app listing on Google Play is consumer entertainment content with no professional relevance to mechanical engineering or job seeking.",
+    "think_text": "Arabic streaming app. Consumer entertainment, no professional relevance."
+  },
+  {
+    "article_id": "d22648d82260",
+    "profile_id": "data_scientist_dubai",
+    "score": 0.5,
+    "reason": "A streaming app listing has no relevance to data science or fintech work.",
+    "think_text": "Streaming app. No professional relevance."
+  },
+  {
+    "article_id": "d22648d82260",
+    "profile_id": "supply_chain_bahrain",
+    "score": 0.5,
+    "reason": "A streaming app listing has no relevance to supply chain management.",
+    "think_text": "Streaming app. No professional relevance."
+  },
+  {
+    "article_id": "d22648d82260",
+    "profile_id": "biotech_researcher_sa",
+    "score": 0.5,
+    "reason": "A streaming app listing has no relevance to biotech research.",
+    "think_text": "Streaming app. No professional relevance."
+  },
+  {
+    "article_id": "d22648d82260",
+    "profile_id": "architect_qatar",
+    "score": 0.5,
+    "reason": "A streaming app listing has no relevance to architecture.",
+    "think_text": "Streaming app. No professional relevance."
+  },
+  {
+    "article_id": "f17f024560ac",
+    "profile_id": "meche_grad_sa",
+    "score": 1.5,
+    "reason": "Samsung's ARM processor capabilities for on-device AI is a semiconductor/embedded systems topic with no relevance to mechanical engineering or Saudi mega-projects.",
+    "think_text": "Semiconductor/AI chip tech blog. Not relevant to ME grad."
+  },
+  {
+    "article_id": "f17f024560ac",
+    "profile_id": "data_scientist_dubai",
+    "score": 4.0,
+    "reason": "On-device AI and processor capabilities are relevant to a data scientist interested in ML deployment, though this is more hardware-focused than the ML model development work this profile does. Edge AI deployment could affect how fintech fraud detection models are served.",
+    "think_text": "On-device AI is relevant to ML deployment considerations. Data scientist might care about edge inference capabilities. But this is a Samsung semiconductor blog, quite hardware-focused."
+  },
+  {
+    "article_id": "f17f024560ac",
+    "profile_id": "supply_chain_bahrain",
+    "score": 1.0,
+    "reason": "Semiconductor AI capabilities have no relevance to supply chain logistics.",
+    "think_text": "ARM chip tech. No supply chain relevance."
+  },
+  {
+    "article_id": "f17f024560ac",
+    "profile_id": "biotech_researcher_sa",
+    "score": 1.0,
+    "reason": "ARM processor AI capabilities have no relevance to gene therapy or CRISPR research.",
+    "think_text": "Chip AI tech. No biotech relevance."
+  },
+  {
+    "article_id": "f17f024560ac",
+    "profile_id": "architect_qatar",
+    "score": 1.5,
+    "reason": "ARM AI capabilities have minimal relevance to architecture, though smart building IoT could theoretically use such chips. Too hardware-focused.",
+    "think_text": "ARM chip AI. Very distant from architecture."
+  },
+  {
+    "article_id": "a9d8d2941c33",
+    "profile_id": "meche_grad_sa",
+    "score": 0.0,
+    "reason": "A German-language tourism page for Bern, Switzerland has zero professional or geographic relevance.",
+    "think_text": "Swiss tourism page in German. Complete noise."
+  },
+  {
+    "article_id": "a9d8d2941c33",
+    "profile_id": "data_scientist_dubai",
+    "score": 0.0,
+    "reason": "A tourism page has no professional relevance.",
+    "think_text": "Swiss tourism. Complete noise."
+  },
+  {
+    "article_id": "a9d8d2941c33",
+    "profile_id": "supply_chain_bahrain",
+    "score": 0.0,
+    "reason": "A tourism page has no professional relevance.",
+    "think_text": "Swiss tourism. Complete noise."
+  },
+  {
+    "article_id": "a9d8d2941c33",
+    "profile_id": "biotech_researcher_sa",
+    "score": 0.0,
+    "reason": "A tourism page has no professional relevance.",
+    "think_text": "Swiss tourism. Complete noise."
+  },
+  {
+    "article_id": "a9d8d2941c33",
+    "profile_id": "architect_qatar",
+    "score": 0.5,
+    "reason": "Bern is known for its medieval architecture and UNESCO heritage, but this is a generic tourism page, not an architectural analysis or urban planning resource.",
+    "think_text": "Swiss tourism page. Not architectural content despite Bern's historic architecture."
+  },
+  {
+    "article_id": "fa327f996181",
+    "profile_id": "meche_grad_sa",
+    "score": 1.0,
+    "reason": "Indian stock market analysis and OPEC news is not relevant to a mechanical engineering graduate in Saudi Arabia.",
+    "think_text": "Indian stock market blog. Not relevant to ME grad in Saudi."
+  },
+  {
+    "article_id": "fa327f996181",
+    "profile_id": "data_scientist_dubai",
+    "score": 2.0,
+    "reason": "Indian stock market analysis has minimal relevance to a Dubai fintech data scientist, though the OPEC mention touches on GCC economics tangentially.",
+    "think_text": "Indian stock market. Not directly relevant to Dubai fintech, though OPEC mention is tangentially GCC-related."
+  },
+  {
+    "article_id": "fa327f996181",
+    "profile_id": "supply_chain_bahrain",
+    "score": 2.0,
+    "reason": "Indian stock market analysis with OPEC mentions has slight relevance to trade patterns but is primarily an Indian equity market story.",
+    "think_text": "Indian stock market. OPEC mention tangentially relevant to trade but primarily Indian equity focus."
+  },
+  {
+    "article_id": "fa327f996181",
+    "profile_id": "biotech_researcher_sa",
+    "score": 0.5,
+    "reason": "Indian stock market analysis has no relevance to biotech research.",
+    "think_text": "Indian stocks. No biotech relevance."
+  },
+  {
+    "article_id": "fa327f996181",
+    "profile_id": "architect_qatar",
+    "score": 0.5,
+    "reason": "Indian stock market analysis has no relevance to architecture in Qatar.",
+    "think_text": "Indian stocks. No architecture relevance."
+  },
+  {
+    "article_id": "062b678ea8ff",
+    "profile_id": "meche_grad_sa",
+    "score": 5.0,
+    "reason": "HSE (Health, Safety, Environment) Officer role in UAE construction is in a related GCC market and construction sector. However, it requires NEBOSH certification and proven experience, making it less suitable for a fresh graduate. The Gulf construction context is relevant to someone who might eventually work in Saudi construction.",
+    "think_text": "HSE Officer in UAE construction. GCC region, construction sector overlap with NEOM interest. But requires NEBOSH cert and experience - not ideal for fresh grad. Right region and industry but wrong seniority."
+  },
+  {
+    "article_id": "062b678ea8ff",
+    "profile_id": "data_scientist_dubai",
+    "score": 1.0,
+    "reason": "An HSE Officer construction role has no relevance to data science, despite being in the UAE.",
+    "think_text": "HSE construction job in UAE. Not relevant to data science despite same country."
+  },
+  {
+    "article_id": "062b678ea8ff",
+    "profile_id": "supply_chain_bahrain",
+    "score": 1.5,
+    "reason": "An HSE Officer role in UAE construction has minimal relevance to supply chain logistics, despite GCC proximity.",
+    "think_text": "HSE construction job. Not supply chain relevant."
+  },
+  {
+    "article_id": "062b678ea8ff",
+    "profile_id": "biotech_researcher_sa",
+    "score": 0.5,
+    "reason": "An HSE construction job has no relevance to biotech research.",
+    "think_text": "HSE construction. No biotech relevance."
+  },
+  {
+    "article_id": "062b678ea8ff",
+    "profile_id": "architect_qatar",
+    "score": 3.5,
+    "reason": "HSE in Gulf construction is tangentially relevant to an architect working on infrastructure projects, as safety compliance is part of the construction ecosystem. However, this is an operational safety role, not an architectural one.",
+    "think_text": "HSE in Gulf construction. Related to the construction ecosystem the architect operates in, but different role type."
+  },
+  {
+    "article_id": "665b05742af2",
+    "profile_id": "meche_grad_sa",
+    "score": 1.5,
+    "reason": "The WEF cybersecurity outlook is not relevant to a mechanical engineering graduate, despite the Middle East regional focus.",
+    "think_text": "Cybersecurity outlook. Not relevant to ME engineering."
+  },
+  {
+    "article_id": "665b05742af2",
+    "profile_id": "data_scientist_dubai",
+    "score": 5.5,
+    "reason": "The WEF Global Cybersecurity Outlook with Middle East regional focus is relevant to a Dubai-based data scientist working on fraud detection. Cybersecurity and fraud detection overlap significantly, and the Middle East focus adds geographic relevance.",
+    "think_text": "WEF cybersecurity outlook with Middle East focus. Fraud detection in fintech is closely related to cybersecurity. Dubai geographic match. Good relevance to security aspects of their work."
+  },
+  {
+    "article_id": "665b05742af2",
+    "profile_id": "supply_chain_bahrain",
+    "score": 3.5,
+    "reason": "Cybersecurity affects supply chain operations, and the Middle East focus adds geographic relevance. Supply chain cybersecurity is an emerging concern, though this report appears focused on broader enterprise security.",
+    "think_text": "Cybersecurity affects supply chains. Middle East focus adds relevance. But not supply-chain-specific cybersecurity."
+  },
+  {
+    "article_id": "665b05742af2",
+    "profile_id": "biotech_researcher_sa",
+    "score": 1.0,
+    "reason": "Cybersecurity trends have no direct relevance to biotechnology research.",
+    "think_text": "Cybersecurity. No biotech relevance."
+  },
+  {
+    "article_id": "665b05742af2",
+    "profile_id": "architect_qatar",
+    "score": 2.0,
+    "reason": "Cybersecurity has minimal direct relevance to architecture, though smart city infrastructure does require cybersecurity consideration.",
+    "think_text": "Cybersecurity. Tangential to smart city security but not an architecture topic."
+  },
+  {
+    "article_id": "548b692edc3e",
+    "profile_id": "meche_grad_sa",
+    "score": 0.5,
+    "reason": "An exosome platform for CAR-T cancer therapy has no relevance to mechanical engineering.",
+    "think_text": "Biotech CAR-T therapy. No ME engineering relevance."
+  },
+  {
+    "article_id": "548b692edc3e",
+    "profile_id": "data_scientist_dubai",
+    "score": 1.0,
+    "reason": "A biotech therapy platform has no relevance to data science or fintech.",
+    "think_text": "CAR-T therapy. No data science/fintech relevance."
+  },
+  {
+    "article_id": "548b692edc3e",
+    "profile_id": "supply_chain_bahrain",
+    "score": 0.5,
+    "reason": "A biotech therapy article has no relevance to supply chain logistics.",
+    "think_text": "CAR-T therapy. No supply chain relevance."
+  },
+  {
+    "article_id": "548b692edc3e",
+    "profile_id": "biotech_researcher_sa",
+    "score": 9.0,
+    "reason": "This article about a world-first exosome platform enabling in vivo multi-target CAR-T for solid tumors is directly relevant to this biotech researcher's field. It mentions Gilead Sciences (tracked company via Yescarta), relates to gene therapy delivery methods, and represents a breakthrough in the type of therapeutic approaches this researcher works on. Highly actionable for research awareness.",
+    "think_text": "Exosome platform for in vivo CAR-T therapy. Directly relevant to gene therapy researcher - novel delivery mechanism, mentions tracked company Gilead. Breakthrough in cell/gene therapy for solid tumors. Core research interest."
+  },
+  {
+    "article_id": "548b692edc3e",
+    "profile_id": "architect_qatar",
+    "score": 0.5,
+    "reason": "Biotech therapy has no relevance to architecture.",
+    "think_text": "CAR-T therapy. No architecture relevance."
+  },
+  {
+    "article_id": "88b668eb784f",
+    "profile_id": "meche_grad_sa",
+    "score": 1.0,
+    "reason": "EU science diplomacy policy and research grants (ERC, Marie Curie) are not relevant to a mechanical engineering graduate focused on Saudi industry.",
+    "think_text": "EU science policy. Not relevant to Saudi ME grad."
+  },
+  {
+    "article_id": "88b668eb784f",
+    "profile_id": "data_scientist_dubai",
+    "score": 1.0,
+    "reason": "EU science diplomacy has no relevance to data science or fintech in Dubai.",
+    "think_text": "EU science policy. No fintech relevance."
+  },
+  {
+    "article_id": "88b668eb784f",
+    "profile_id": "supply_chain_bahrain",
+    "score": 0.5,
+    "reason": "EU science diplomacy has no relevance to supply chain logistics.",
+    "think_text": "EU science policy. No supply chain relevance."
+  },
+  {
+    "article_id": "88b668eb784f",
+    "profile_id": "biotech_researcher_sa",
+    "score": 4.5,
+    "reason": "EU science diplomacy recommendations mentioning ERC grants and Marie Curie Actions could be relevant for a postdoctoral researcher considering European research funding or collaborations. However, this is a policy document rather than a funding call, and the researcher is based at KAUST in Saudi Arabia.",
+    "think_text": "EU research grants and science diplomacy. Relevant to academic researchers for potential funding/collaboration opportunities. ERC and Marie Curie are prestigious. But this is a policy doc, not a direct funding call, and the researcher is Saudi-based."
+  },
+  {
+    "article_id": "88b668eb784f",
+    "profile_id": "architect_qatar",
+    "score": 0.5,
+    "reason": "EU science diplomacy has no relevance to architecture in Qatar.",
+    "think_text": "EU science policy. No architecture relevance."
+  },
+  {
+    "article_id": "a75b1952bf9f",
+    "profile_id": "meche_grad_sa",
+    "score": 3.5,
+    "reason": "Entry-level geology jobs in the Middle East are in a related energy/resources sector and same geographic region, but geology is a different field from mechanical engineering. The 3-6 years experience requirement also makes it less suitable for a fresh graduate.",
+    "think_text": "Geology jobs in Middle East. Related energy sector, same region, but different discipline. Not ME engineering. Also requires 3-6 years experience despite 'entry level' label."
+  },
+  {
+    "article_id": "a75b1952bf9f",
+    "profile_id": "data_scientist_dubai",
+    "score": 0.5,
+    "reason": "Geologist jobs have no relevance to data science.",
+    "think_text": "Geology jobs. No data science relevance."
+  },
+  {
+    "article_id": "a75b1952bf9f",
+    "profile_id": "supply_chain_bahrain",
+    "score": 1.0,
+    "reason": "Geologist jobs have no relevance to supply chain management.",
+    "think_text": "Geology jobs. No supply chain relevance."
+  },
+  {
+    "article_id": "a75b1952bf9f",
+    "profile_id": "biotech_researcher_sa",
+    "score": 0.5,
+    "reason": "Geologist jobs have no relevance to biotechnology research.",
+    "think_text": "Geology jobs. No biotech relevance."
+  },
+  {
+    "article_id": "a75b1952bf9f",
+    "profile_id": "architect_qatar",
+    "score": 1.0,
+    "reason": "Geologist jobs have no relevance to architecture, though geological surveys can inform construction projects.",
+    "think_text": "Geology jobs. Minimal architecture relevance."
+  },
+  {
+    "article_id": "ee80ac2e4bbf",
+    "profile_id": "meche_grad_sa",
+    "score": 0.5,
+    "reason": "A Figma UI/UX tutorial has no relevance to mechanical engineering.",
+    "think_text": "Figma tutorial. No ME relevance."
+  },
+  {
+    "article_id": "ee80ac2e4bbf",
+    "profile_id": "data_scientist_dubai",
+    "score": 1.0,
+    "reason": "A Figma design tutorial has minimal relevance to data science, though data scientists occasionally work with UI prototypes. Too design-focused.",
+    "think_text": "Figma tutorial. Not relevant to data science work."
+  },
+  {
+    "article_id": "ee80ac2e4bbf",
+    "profile_id": "supply_chain_bahrain",
+    "score": 0.5,
+    "reason": "A Figma tutorial has no relevance to supply chain management.",
+    "think_text": "Figma tutorial. No supply chain relevance."
+  },
+  {
+    "article_id": "ee80ac2e4bbf",
+    "profile_id": "biotech_researcher_sa",
+    "score": 0.5,
+    "reason": "A Figma tutorial has no relevance to biotech research.",
+    "think_text": "Figma tutorial. No biotech relevance."
+  },
+  {
+    "article_id": "ee80ac2e4bbf",
+    "profile_id": "architect_qatar",
+    "score": 2.5,
+    "reason": "Figma is sometimes used for architectural presentation and design mockups, but this specific tutorial about dropdown menus is for app/web UI design, not architectural applications.",
+    "think_text": "Figma is used in design broadly. This tutorial is web UI focused, not architecture-specific. Some crossover in design tools but wrong application."
+  },
+  {
+    "article_id": "1ef2cd186cff",
+    "profile_id": "meche_grad_sa",
+    "score": 3.0,
+    "reason": "An international job search platform could be useful for a fresh graduate exploring opportunities, but the platform appears to be generic and not focused on engineering or GCC roles specifically.",
+    "think_text": "Generic international job platform. Could be useful for job-seeking fresh grad but not specialized for engineering or GCC market."
+  },
+  {
+    "article_id": "1ef2cd186cff",
+    "profile_id": "data_scientist_dubai",
+    "score": 1.5,
+    "reason": "A generic job search platform has minimal relevance to an employed data scientist.",
+    "think_text": "Generic job platform. Already employed at Dubai fintech."
+  },
+  {
+    "article_id": "1ef2cd186cff",
+    "profile_id": "supply_chain_bahrain",
+    "score": 1.5,
+    "reason": "A generic job search platform has minimal relevance to an employed supply chain analyst.",
+    "think_text": "Generic job platform. Already employed."
+  },
+  {
+    "article_id": "1ef2cd186cff",
+    "profile_id": "biotech_researcher_sa",
+    "score": 1.5,
+    "reason": "A generic job platform has minimal relevance to a postdoctoral researcher at KAUST.",
+    "think_text": "Generic job platform. Academic researcher has different hiring channels."
+  },
+  {
+    "article_id": "1ef2cd186cff",
+    "profile_id": "architect_qatar",
+    "score": 1.5,
+    "reason": "A generic job platform has minimal relevance to an employed architect.",
+    "think_text": "Generic job platform. Already employed."
+  },
+  {
+    "article_id": "f2e8b8337e48",
+    "profile_id": "meche_grad_sa",
+    "score": 6.5,
+    "reason": "This article directly discusses Saudi Vision 2030, digital infrastructure, and AI adoption - all highly relevant to someone targeting Vision 2030 mega-projects. While focused on software rather than mechanical engineering, it provides context about the Saudi technology landscape and potential project management opportunities at NEOM.",
+    "think_text": "Vision 2030, Saudi digital infrastructure, AI adoption. Directly mentions Saudi Arabia's technology priorities. Relevant to understanding the ecosystem the grad wants to work in. Not ME-specific but NEOM/Vision 2030 context is valuable."
+  },
+  {
+    "article_id": "f2e8b8337e48",
+    "profile_id": "data_scientist_dubai",
+    "score": 7.0,
+    "reason": "Software development and AI adoption trends in the Middle East are directly relevant to a Dubai-based data scientist. The Vision 2030 context describes the regional tech ecosystem, and AI adoption trends affect the fintech market this profile operates in.",
+    "think_text": "Middle East software/AI development trends. Directly relevant to a tech professional in the region. Vision 2030 creates opportunities and shapes the market. Good geographic and industry match."
+  },
+  {
+    "article_id": "f2e8b8337e48",
+    "profile_id": "supply_chain_bahrain",
+    "score": 3.5,
+    "reason": "Middle East software development trends touch on digital transformation that could affect supply chain technology adoption in the GCC, but the article focuses on software development specifically.",
+    "think_text": "Middle East tech trends. Tangential to supply chain digitization but focused on software development."
+  },
+  {
+    "article_id": "f2e8b8337e48",
+    "profile_id": "biotech_researcher_sa",
+    "score": 3.0,
+    "reason": "Saudi Vision 2030 digital infrastructure relates to the broader Saudi development context the researcher operates in, but this is about software, not biotech or healthcare.",
+    "think_text": "Saudi Vision 2030 context relevant as background but article is about software, not biotech."
+  },
+  {
+    "article_id": "f2e8b8337e48",
+    "profile_id": "architect_qatar",
+    "score": 5.0,
+    "reason": "Software development and smart infrastructure in the Middle East are relevant to a smart city architect, as digital infrastructure is a component of smart urban development. The Vision 2030 context is similar to Qatar's own development agenda.",
+    "think_text": "Middle East digital infrastructure. Smart cities require software/digital infrastructure. Regional development context relevant. Moderate match."
+  },
+  {
+    "article_id": "ddf69f71cfc1",
+    "profile_id": "meche_grad_sa",
+    "score": 3.5,
+    "reason": "IoT infrastructure has connections to smart building systems and HVAC automation, which relates to this graduate's HVAC design interest. However, the article appears to be a general IoT trends piece without specific application to mechanical engineering or Saudi projects.",
+    "think_text": "IoT infrastructure. Connects to HVAC/building automation and smart building systems. Tangential to ME interests but not specific to Saudi/NEOM."
+  },
+  {
+    "article_id": "ddf69f71cfc1",
+    "profile_id": "data_scientist_dubai",
+    "score": 3.5,
+    "reason": "IoT infrastructure generates data relevant to data science, and IoT in financial systems could touch on fraud detection. However, this is a general IoT infrastructure article, not specific to fintech.",
+    "think_text": "IoT generates data for ML. General infrastructure article, not fintech-specific."
+  },
+  {
+    "article_id": "ddf69f71cfc1",
+    "profile_id": "supply_chain_bahrain",
+    "score": 5.5,
+    "reason": "IoT is increasingly critical for supply chain monitoring, inventory tracking, and logistics optimization. This article about IoT becoming core infrastructure is relevant to a supply chain analyst interested in technology-driven optimization.",
+    "think_text": "IoT is core to supply chain modernization - tracking, monitoring, real-time visibility. Relevant to supply chain analytics and optimization interests."
+  },
+  {
+    "article_id": "ddf69f71cfc1",
+    "profile_id": "biotech_researcher_sa",
+    "score": 2.0,
+    "reason": "IoT infrastructure is not relevant to gene therapy, CRISPR, or molecular biology research. While IoT devices exist in lab settings, this article about industrial IoT connectivity is unrelated to biotech research.",
+    "think_text": "IoT core infrastructure article. No connection to gene therapy, CRISPR, or biotech research. Lab IoT is a stretch."
+  },
+  {
+    "article_id": "ddf69f71cfc1",
+    "profile_id": "architect_qatar",
+    "score": 6.5,
+    "reason": "IoT as core infrastructure is directly relevant to a smart city architect. Smart cities depend heavily on IoT networks for building management, urban monitoring, and sustainable infrastructure. This aligns with the profile's smart city and sustainable architecture interests.",
+    "think_text": "IoT is fundamental to smart cities. Directly relevant to smart city architecture and sustainable urban development. Good alignment with profile interests."
+  },
+  {
+    "article_id": "18c7756a6756",
+    "profile_id": "meche_grad_sa",
+    "score": 4.0,
+    "reason": "MIT's breakthrough technologies list could include renewable energy or construction innovations relevant to this profile, but without knowing the specific technologies, it's a general interest tech overview article.",
+    "think_text": "MIT breakthrough tech list. Could include relevant energy/construction tech. General interest but potentially relevant depending on actual content."
+  },
+  {
+    "article_id": "18c7756a6756",
+    "profile_id": "data_scientist_dubai",
+    "score": 5.0,
+    "reason": "MIT's breakthrough technologies list likely includes AI/ML advancements relevant to a data scientist. This is a reputable source for understanding technology trends that could inform their work.",
+    "think_text": "MIT breakthrough tech list likely includes AI/ML items. Good for staying current on tech trends relevant to data science."
+  },
+  {
+    "article_id": "18c7756a6756",
+    "profile_id": "supply_chain_bahrain",
+    "score": 3.0,
+    "reason": "MIT's breakthrough technologies list could include logistics or supply chain innovations, but this is a general technology trends article.",
+    "think_text": "MIT tech list. Could include supply chain tech but general overview."
+  },
+  {
+    "article_id": "18c7756a6756",
+    "profile_id": "biotech_researcher_sa",
+    "score": 5.5,
+    "reason": "MIT's breakthrough technologies list often includes biotech innovations (CRISPR, gene therapy advances). This is relevant for a researcher tracking cutting-edge developments in their field. High-quality source.",
+    "think_text": "MIT breakthrough tech list often features biotech breakthroughs. Reputable source, likely relevant items for gene therapy/CRISPR researcher."
+  },
+  {
+    "article_id": "18c7756a6756",
+    "profile_id": "architect_qatar",
+    "score": 4.5,
+    "reason": "MIT's breakthrough technologies list could include smart city or sustainable construction innovations. General interest for a technology-aware architect.",
+    "think_text": "MIT tech list could include sustainable/smart city tech. General interest for forward-looking architect."
+  },
+  {
+    "article_id": "5d029909e649",
+    "profile_id": "meche_grad_sa",
+    "score": 1.5,
+    "reason": "A fintech/smart contracts student project is outside mechanical engineering, though the student angle is appropriate for a fresh graduate. However, the field mismatch makes this largely irrelevant.",
+    "think_text": "Fintech student project. Wrong field for ME grad despite student angle."
+  },
+  {
+    "article_id": "5d029909e649",
+    "profile_id": "data_scientist_dubai",
+    "score": 4.0,
+    "reason": "A fintech student project involving smart contracts has some relevance to a fintech data scientist, touching on blockchain/fintech innovation. However, this is a student-level project posting on Reddit, and this profile is a working professional.",
+    "think_text": "Fintech/smart contracts student project. Right industry (fintech) but student-level and blockchain-focused rather than ML/data science."
+  },
+  {
+    "article_id": "5d029909e649",
+    "profile_id": "supply_chain_bahrain",
+    "score": 1.0,
+    "reason": "A fintech smart contracts student project has no relevance to supply chain logistics.",
+    "think_text": "Fintech student project. No supply chain relevance."
+  },
+  {
+    "article_id": "5d029909e649",
+    "profile_id": "biotech_researcher_sa",
+    "score": 0.5,
+    "reason": "A fintech student project has no relevance to biotech research.",
+    "think_text": "Fintech student project. No biotech relevance."
+  },
+  {
+    "article_id": "5d029909e649",
+    "profile_id": "architect_qatar",
+    "score": 0.5,
+    "reason": "A fintech student project has no relevance to architecture.",
+    "think_text": "Fintech student project. No architecture relevance."
+  },
+  {
+    "article_id": "17358e40141a",
+    "profile_id": "meche_grad_sa",
+    "score": 0.0,
+    "reason": "A Microsoft support article about Windows display brightness is generic tech support noise.",
+    "think_text": "Windows settings help article. Pure noise."
+  },
+  {
+    "article_id": "17358e40141a",
+    "profile_id": "data_scientist_dubai",
+    "score": 0.0,
+    "reason": "A Windows display settings article is pure noise.",
+    "think_text": "Windows settings. Pure noise."
+  },
+  {
+    "article_id": "17358e40141a",
+    "profile_id": "supply_chain_bahrain",
+    "score": 0.0,
+    "reason": "A Windows display settings article is pure noise.",
+    "think_text": "Windows settings. Pure noise."
+  },
+  {
+    "article_id": "17358e40141a",
+    "profile_id": "biotech_researcher_sa",
+    "score": 0.0,
+    "reason": "A Windows display settings article is pure noise.",
+    "think_text": "Windows settings. Pure noise."
+  },
+  {
+    "article_id": "17358e40141a",
+    "profile_id": "architect_qatar",
+    "score": 0.0,
+    "reason": "A Windows display settings article is pure noise.",
+    "think_text": "Windows settings. Pure noise."
+  },
+  {
+    "article_id": "b5dd892f0d61",
+    "profile_id": "meche_grad_sa",
+    "score": 2.0,
+    "reason": "eLearning trends are tangentially relevant to a recent graduate who may use online learning platforms, but this is about L&D industry trends, not engineering education.",
+    "think_text": "eLearning trends for L&D professionals. Not relevant to ME engineering job search."
+  },
+  {
+    "article_id": "b5dd892f0d61",
+    "profile_id": "data_scientist_dubai",
+    "score": 3.0,
+    "reason": "ML's impact on eLearning is tangentially relevant to a data scientist as an application domain. However, this is about L&D industry trends, not ML techniques.",
+    "think_text": "eLearning trends mention ML. Application domain, not core ML work. Tangential."
+  },
+  {
+    "article_id": "b5dd892f0d61",
+    "profile_id": "supply_chain_bahrain",
+    "score": 1.5,
+    "reason": "eLearning trends have minimal relevance to supply chain management.",
+    "think_text": "eLearning trends. Not supply chain relevant."
+  },
+  {
+    "article_id": "b5dd892f0d61",
+    "profile_id": "biotech_researcher_sa",
+    "score": 1.5,
+    "reason": "eLearning trends have minimal relevance to biotech research, though researchers use digital learning tools.",
+    "think_text": "eLearning trends. Not biotech relevant."
+  },
+  {
+    "article_id": "b5dd892f0d61",
+    "profile_id": "architect_qatar",
+    "score": 1.5,
+    "reason": "eLearning trends have minimal relevance to architecture.",
+    "think_text": "eLearning trends. Not architecture relevant."
+  },
+  {
+    "article_id": "eea19c14bae7",
+    "profile_id": "meche_grad_sa",
+    "score": 1.0,
+    "reason": "An ETSI event on smart networks and wireless protocols is a telecom/networking topic unrelated to mechanical engineering.",
+    "think_text": "ETSI networking event. No ME relevance."
+  },
+  {
+    "article_id": "eea19c14bae7",
+    "profile_id": "data_scientist_dubai",
+    "score": 2.0,
+    "reason": "Smart networks and services have tangential relevance to a data scientist through IoT data and network-based ML applications, but this is a telecom standards event.",
+    "think_text": "ETSI networking event. Tangential to data science through IoT/network data."
+  },
+  {
+    "article_id": "eea19c14bae7",
+    "profile_id": "supply_chain_bahrain",
+    "score": 2.0,
+    "reason": "Smart networks could support supply chain IoT applications, but this is a telecom standards event, not supply-chain focused.",
+    "think_text": "ETSI networking event. Tangential to supply chain IoT."
+  },
+  {
+    "article_id": "eea19c14bae7",
+    "profile_id": "biotech_researcher_sa",
+    "score": 0.5,
+    "reason": "A telecom standards event has no relevance to biotech research.",
+    "think_text": "ETSI networking. No biotech relevance."
+  },
+  {
+    "article_id": "eea19c14bae7",
+    "profile_id": "architect_qatar",
+    "score": 4.0,
+    "reason": "Smart networks and services are relevant to smart city infrastructure design. An architect working on smart city projects needs to understand the networking infrastructure that supports urban IoT systems.",
+    "think_text": "ETSI smart networks event. Relevant to smart city infrastructure. Architect needs to understand networking for smart urban design."
+  },
+  {
+    "article_id": "18ca83614646",
+    "profile_id": "meche_grad_sa",
+    "score": 0.5,
+    "reason": "Nursing jobs in UAE have no relevance to a mechanical engineering graduate.",
+    "think_text": "Nursing jobs. No ME relevance."
+  },
+  {
+    "article_id": "18ca83614646",
+    "profile_id": "data_scientist_dubai",
+    "score": 0.5,
+    "reason": "Nursing jobs have no relevance to data science, even though they're in UAE.",
+    "think_text": "Nursing jobs in UAE. No data science relevance."
+  },
+  {
+    "article_id": "18ca83614646",
+    "profile_id": "supply_chain_bahrain",
+    "score": 0.5,
+    "reason": "Nursing jobs have no relevance to supply chain management.",
+    "think_text": "Nursing jobs. No supply chain relevance."
+  },
+  {
+    "article_id": "18ca83614646",
+    "profile_id": "biotech_researcher_sa",
+    "score": 1.5,
+    "reason": "Healthcare jobs in the GCC region are tangentially related to the healthcare/pharma ecosystem a biotech researcher operates in, but nursing positions are not relevant to research.",
+    "think_text": "Nursing jobs in UAE. Healthcare sector but not research/biotech relevant."
+  },
+  {
+    "article_id": "18ca83614646",
+    "profile_id": "architect_qatar",
+    "score": 0.5,
+    "reason": "Nursing jobs have no relevance to architecture.",
+    "think_text": "Nursing jobs. No architecture relevance."
+  },
+  {
+    "article_id": "a05884b08a33",
+    "profile_id": "meche_grad_sa",
+    "score": 1.0,
+    "reason": "Fintech startup funding in Morocco and Qatar is not relevant to mechanical engineering.",
+    "think_text": "Fintech funding. No ME relevance."
+  },
+  {
+    "article_id": "a05884b08a33",
+    "profile_id": "data_scientist_dubai",
+    "score": 7.5,
+    "reason": "Qatari fintech PayLater raising $10M for BNPL/embedded finance in the GCC is directly relevant to a Dubai fintech data scientist. This is the same industry, same region, and the type of company that could be a competitor, partner, or potential employer. BNPL and embedded finance use ML for credit scoring.",
+    "think_text": "GCC fintech funding, Qatari PayLater $10M for BNPL. Directly relevant to Dubai fintech - same region, same industry. BNPL/credit scoring directly uses ML. Highly relevant."
+  },
+  {
+    "article_id": "a05884b08a33",
+    "profile_id": "supply_chain_bahrain",
+    "score": 2.0,
+    "reason": "Fintech funding in the GCC is tangentially relevant to the Bahrain economic ecosystem but not to supply chain operations.",
+    "think_text": "GCC fintech funding. Not supply chain relevant, though Bahrain is a fintech hub."
+  },
+  {
+    "article_id": "a05884b08a33",
+    "profile_id": "biotech_researcher_sa",
+    "score": 0.5,
+    "reason": "Fintech funding has no relevance to biotech research.",
+    "think_text": "Fintech funding. No biotech relevance."
+  },
+  {
+    "article_id": "a05884b08a33",
+    "profile_id": "architect_qatar",
+    "score": 1.5,
+    "reason": "While the article mentions Qatar, fintech funding is not relevant to architecture or urban planning.",
+    "think_text": "Qatari fintech. Qatar location match but wrong industry."
+  },
+  {
+    "article_id": "6f6ab3fb11be",
+    "profile_id": "meche_grad_sa",
+    "score": 0.5,
+    "reason": "FinTech funding roundup has no relevance to mechanical engineering.",
+    "think_text": "Fintech deals. No ME relevance."
+  },
+  {
+    "article_id": "6f6ab3fb11be",
+    "profile_id": "data_scientist_dubai",
+    "score": 6.5,
+    "reason": "A fintech funding roundup covering nearly $500M in deals is relevant for a fintech data scientist to understand market dynamics, emerging competitors, and technology trends in their industry. Series B expansions suggest scaling companies that need ML engineers.",
+    "think_text": "Fintech funding roundup. Relevant to understanding fintech market dynamics. Shows where capital is flowing in the industry. Good for market awareness."
+  },
+  {
+    "article_id": "6f6ab3fb11be",
+    "profile_id": "supply_chain_bahrain",
+    "score": 1.0,
+    "reason": "FinTech funding deals have no relevance to supply chain logistics.",
+    "think_text": "Fintech deals. No supply chain relevance."
+  },
+  {
+    "article_id": "6f6ab3fb11be",
+    "profile_id": "biotech_researcher_sa",
+    "score": 0.5,
+    "reason": "FinTech deals have no relevance to biotech research.",
+    "think_text": "Fintech deals. No biotech relevance."
+  },
+  {
+    "article_id": "6f6ab3fb11be",
+    "profile_id": "architect_qatar",
+    "score": 0.5,
+    "reason": "FinTech deals have no relevance to architecture.",
+    "think_text": "Fintech deals. No architecture relevance."
+  },
+  {
+    "article_id": "5b5e0e3b788a",
+    "profile_id": "meche_grad_sa",
+    "score": 0.0,
+    "reason": "A TikTok dance video compilation is pure social media noise.",
+    "think_text": "TikTok dance. Complete noise."
+  },
+  {
+    "article_id": "5b5e0e3b788a",
+    "profile_id": "data_scientist_dubai",
+    "score": 0.0,
+    "reason": "A TikTok dance video is pure noise.",
+    "think_text": "TikTok dance. Complete noise."
+  },
+  {
+    "article_id": "5b5e0e3b788a",
+    "profile_id": "supply_chain_bahrain",
+    "score": 0.0,
+    "reason": "A TikTok dance video is pure noise.",
+    "think_text": "TikTok dance. Complete noise."
+  },
+  {
+    "article_id": "5b5e0e3b788a",
+    "profile_id": "biotech_researcher_sa",
+    "score": 0.0,
+    "reason": "A TikTok dance video is pure noise.",
+    "think_text": "TikTok dance. Complete noise."
+  },
+  {
+    "article_id": "5b5e0e3b788a",
+    "profile_id": "architect_qatar",
+    "score": 0.0,
+    "reason": "A TikTok dance video is pure noise.",
+    "think_text": "TikTok dance. Complete noise."
+  },
+  {
+    "article_id": "253ce3ae750b",
+    "profile_id": "meche_grad_sa",
+    "score": 0.5,
+    "reason": "Retail cybersecurity services have no relevance to mechanical engineering.",
+    "think_text": "Retail cybersecurity. No ME relevance."
+  },
+  {
+    "article_id": "253ce3ae750b",
+    "profile_id": "data_scientist_dubai",
+    "score": 3.0,
+    "reason": "Retail cybersecurity touches on fraud detection themes relevant to a fintech data scientist, and GDPR/PCI DSS compliance is part of the financial security landscape. However, this is a marketing page for a cybersecurity vendor, not actionable content.",
+    "think_text": "Retail cybersecurity vendor page. Some overlap with fraud/compliance themes but it's a marketing page, not actionable content."
+  },
+  {
+    "article_id": "253ce3ae750b",
+    "profile_id": "supply_chain_bahrain",
+    "score": 2.0,
+    "reason": "Retail/ecommerce cybersecurity has tangential relevance to supply chain through the retail logistics ecosystem, but this is a vendor marketing page.",
+    "think_text": "Retail cybersecurity vendor page. Tangential retail/supply chain connection."
+  },
+  {
+    "article_id": "253ce3ae750b",
+    "profile_id": "biotech_researcher_sa",
+    "score": 0.5,
+    "reason": "Retail cybersecurity has no relevance to biotech research.",
+    "think_text": "Retail cybersecurity. No biotech relevance."
+  },
+  {
+    "article_id": "253ce3ae750b",
+    "profile_id": "architect_qatar",
+    "score": 0.5,
+    "reason": "Retail cybersecurity has no relevance to architecture.",
+    "think_text": "Retail cybersecurity. No architecture relevance."
+  },
+  {
+    "article_id": "8552fae8d58d",
+    "profile_id": "meche_grad_sa",
+    "score": 2.0,
+    "reason": "An electrical engineering job in Ontario, Canada is in a related engineering field but wrong geography (Canada vs Saudi Arabia) and wrong discipline (electrical vs mechanical). The fresh graduate is focused on Saudi/GCC opportunities.",
+    "think_text": "Electrical engineer job in Canada. Engineering but wrong discipline and geography for Saudi-focused ME grad."
+  },
+  {
+    "article_id": "8552fae8d58d",
+    "profile_id": "data_scientist_dubai",
+    "score": 0.5,
+    "reason": "An electrical engineering job in Canada has no relevance to data science in Dubai.",
+    "think_text": "Electrical engineer job. No data science relevance."
+  },
+  {
+    "article_id": "8552fae8d58d",
+    "profile_id": "supply_chain_bahrain",
+    "score": 0.5,
+    "reason": "An electrical engineering job has no relevance to supply chain management.",
+    "think_text": "Electrical engineer job. No supply chain relevance."
+  },
+  {
+    "article_id": "8552fae8d58d",
+    "profile_id": "biotech_researcher_sa",
+    "score": 0.5,
+    "reason": "An electrical engineering job has no relevance to biotech research.",
+    "think_text": "Electrical engineer job. No biotech relevance."
+  },
+  {
+    "article_id": "8552fae8d58d",
+    "profile_id": "architect_qatar",
+    "score": 1.0,
+    "reason": "An electrical engineering job in Canada has no relevance to architecture in Qatar.",
+    "think_text": "Electrical engineer job in Canada. No architecture relevance."
+  },
+  {
+    "article_id": "5d91b2c4375a",
+    "profile_id": "meche_grad_sa",
+    "score": 3.0,
+    "reason": "Climate research is tangentially relevant to this profile's interest in renewable energy, as climate science drives renewable energy policy. However, this specific article about microplastics in oceans is not directly actionable.",
+    "think_text": "Climate research - microplastics. Tangential to renewable energy interest but not directly relevant to ME career or Saudi projects."
+  },
+  {
+    "article_id": "5d91b2c4375a",
+    "profile_id": "data_scientist_dubai",
+    "score": 1.0,
+    "reason": "Climate research about ocean microplastics has no relevance to fintech data science.",
+    "think_text": "Climate research. No fintech/data science relevance."
+  },
+  {
+    "article_id": "5d91b2c4375a",
+    "profile_id": "supply_chain_bahrain",
+    "score": 2.0,
+    "reason": "Climate and ocean health can indirectly affect maritime logistics and shipping routes, but this specific article about microplastics is not directly supply-chain relevant.",
+    "think_text": "Climate/ocean research. Very tangential to maritime logistics."
+  },
+  {
+    "article_id": "5d91b2c4375a",
+    "profile_id": "biotech_researcher_sa",
+    "score": 2.0,
+    "reason": "Climate and environmental science is adjacent to life sciences but microplastics research is not related to gene therapy or CRISPR.",
+    "think_text": "Climate/environmental research. Different life science domain from biotech."
+  },
+  {
+    "article_id": "5d91b2c4375a",
+    "profile_id": "architect_qatar",
+    "score": 3.5,
+    "reason": "Climate research is relevant to sustainable architecture and urban planning, as environmental concerns drive sustainable design standards. Microplastics specifically are less directly relevant than climate policy.",
+    "think_text": "Climate research. Relevant to sustainability aspect of architecture but microplastics topic is tangential."
+  },
+  {
+    "article_id": "29b05e3fae4d",
+    "profile_id": "meche_grad_sa",
+    "score": 1.0,
+    "reason": "A popular science article about natural phenomena is general interest content with no professional relevance.",
+    "think_text": "Popular science article. No ME engineering relevance."
+  },
+  {
+    "article_id": "29b05e3fae4d",
+    "profile_id": "data_scientist_dubai",
+    "score": 0.5,
+    "reason": "A popular science article has no professional relevance to data science.",
+    "think_text": "Popular science. No relevance."
+  },
+  {
+    "article_id": "29b05e3fae4d",
+    "profile_id": "supply_chain_bahrain",
+    "score": 0.5,
+    "reason": "A popular science article has no professional relevance to supply chain.",
+    "think_text": "Popular science. No relevance."
+  },
+  {
+    "article_id": "29b05e3fae4d",
+    "profile_id": "biotech_researcher_sa",
+    "score": 1.5,
+    "reason": "A popular science article about natural phenomena is mildly interesting for a scientist but not relevant to their specific biotech research.",
+    "think_text": "Popular science. Mildly interesting for a scientist but not biotech-relevant."
+  },
+  {
+    "article_id": "29b05e3fae4d",
+    "profile_id": "architect_qatar",
+    "score": 1.0,
+    "reason": "A popular science article has no professional relevance to architecture.",
+    "think_text": "Popular science. No relevance."
+  },
+  {
+    "article_id": "c6847e13b57d",
+    "profile_id": "meche_grad_sa",
+    "score": 0.5,
+    "reason": "An investment fund selling a stock position has no relevance to mechanical engineering.",
+    "think_text": "Stock transaction. No ME relevance."
+  },
+  {
+    "article_id": "c6847e13b57d",
+    "profile_id": "data_scientist_dubai",
+    "score": 1.0,
+    "reason": "A US equity fund transaction has minimal relevance to a Dubai fintech data scientist unless they track US equities.",
+    "think_text": "Stock transaction. Not fintech-relevant, pure equity trading news."
+  },
+  {
+    "article_id": "c6847e13b57d",
+    "profile_id": "supply_chain_bahrain",
+    "score": 0.5,
+    "reason": "A stock transaction has no relevance to supply chain management.",
+    "think_text": "Stock transaction. No supply chain relevance."
+  },
+  {
+    "article_id": "c6847e13b57d",
+    "profile_id": "biotech_researcher_sa",
+    "score": 0.5,
+    "reason": "A stock transaction has no relevance to biotech research.",
+    "think_text": "Stock transaction. No biotech relevance."
+  },
+  {
+    "article_id": "c6847e13b57d",
+    "profile_id": "architect_qatar",
+    "score": 0.5,
+    "reason": "A stock transaction has no relevance to architecture.",
+    "think_text": "Stock transaction. No relevance."
+  },
+  {
+    "article_id": "0974c0d9e8bb",
+    "profile_id": "meche_grad_sa",
+    "score": 1.5,
+    "reason": "Qualcomm's semiconductor breakthrough is not relevant to mechanical engineering or Saudi energy/construction projects.",
+    "think_text": "Semiconductor news. No ME/Saudi relevance."
+  },
+  {
+    "article_id": "0974c0d9e8bb",
+    "profile_id": "data_scientist_dubai",
+    "score": 3.5,
+    "reason": "Qualcomm's 2nm chip advancement is relevant to the broader AI/tech ecosystem a data scientist operates in, as mobile chips affect on-device ML deployment. However, this is hardware news, not directly actionable for ML work.",
+    "think_text": "2nm chip news. Affects AI/ML hardware ecosystem. Relevant as tech trend but not directly actionable for fintech data science."
+  },
+  {
+    "article_id": "0974c0d9e8bb",
+    "profile_id": "supply_chain_bahrain",
+    "score": 1.5,
+    "reason": "Semiconductor manufacturing news has minimal relevance to logistics supply chain, though global chip supply chains have been a topic of interest.",
+    "think_text": "Chip manufacturing. Tangential to global supply chain discussion."
+  },
+  {
+    "article_id": "0974c0d9e8bb",
+    "profile_id": "biotech_researcher_sa",
+    "score": 0.5,
+    "reason": "Semiconductor manufacturing has no relevance to biotech research.",
+    "think_text": "Chip news. No biotech relevance."
+  },
+  {
+    "article_id": "0974c0d9e8bb",
+    "profile_id": "architect_qatar",
+    "score": 1.0,
+    "reason": "Semiconductor advancement has no direct relevance to architecture.",
+    "think_text": "Chip news. No architecture relevance."
+  },
+  {
+    "article_id": "834d9c577dcf",
+    "profile_id": "meche_grad_sa",
+    "score": 1.0,
+    "reason": "An AWS CloudOps certification course is not relevant to mechanical engineering career goals.",
+    "think_text": "AWS cloud certification. Not relevant to ME career."
+  },
+  {
+    "article_id": "834d9c577dcf",
+    "profile_id": "data_scientist_dubai",
+    "score": 4.0,
+    "reason": "AWS CloudOps certification could be relevant to a data scientist interested in MLOps, as cloud infrastructure is part of the ML deployment pipeline. However, this is an operations/DevOps certification, not specifically data science or ML.",
+    "think_text": "AWS CloudOps cert. Relevant to MLOps interest - cloud infra for ML deployment. But it's a DevOps cert, not DS/ML specific."
+  },
+  {
+    "article_id": "834d9c577dcf",
+    "profile_id": "supply_chain_bahrain",
+    "score": 1.5,
+    "reason": "AWS certification has minimal relevance to supply chain management.",
+    "think_text": "AWS cloud cert. Not supply chain relevant."
+  },
+  {
+    "article_id": "834d9c577dcf",
+    "profile_id": "biotech_researcher_sa",
+    "score": 1.0,
+    "reason": "AWS certification has minimal relevance to biotech research, though some bioinformatics uses cloud computing.",
+    "think_text": "AWS cloud cert. Tangential to bioinformatics cloud use but not relevant."
+  },
+  {
+    "article_id": "834d9c577dcf",
+    "profile_id": "architect_qatar",
+    "score": 1.0,
+    "reason": "AWS certification has no relevance to architecture.",
+    "think_text": "AWS cloud cert. No architecture relevance."
+  },
+  {
+    "article_id": "5bb59f0afab2",
+    "profile_id": "meche_grad_sa",
+    "score": 6.0,
+    "reason": "Shell selling a stake to Kuwait's KUFPEC in an offshore Brazil project demonstrates GCC oil companies' international expansion. This is relevant to the oil and gas industry context, though it's about Kuwait rather than Saudi Arabia. The ME grad interested in Aramco would find this informative about GCC oil industry dynamics.",
+    "think_text": "Shell-KUFPEC deal. GCC oil/gas industry deal showing regional companies' international expansion. Relevant to oil/gas interest though Kuwait-focused not Saudi. Good industry context."
+  },
+  {
+    "article_id": "5bb59f0afab2",
+    "profile_id": "data_scientist_dubai",
+    "score": 1.5,
+    "reason": "An oil/gas asset transaction between Shell and KUFPEC has minimal relevance to fintech data science.",
+    "think_text": "Oil/gas deal. Not fintech relevant."
+  },
+  {
+    "article_id": "5bb59f0afab2",
+    "profile_id": "supply_chain_bahrain",
+    "score": 3.5,
+    "reason": "An oil/gas asset deal between Shell and a Kuwaiti company has some relevance to GCC economic activity and energy trade, which affects regional supply chain dynamics.",
+    "think_text": "Shell-KUFPEC oil deal. Affects GCC energy economics and trade. Some relevance to regional supply chain dynamics."
+  },
+  {
+    "article_id": "5bb59f0afab2",
+    "profile_id": "biotech_researcher_sa",
+    "score": 0.5,
+    "reason": "An oil/gas transaction has no relevance to biotech research.",
+    "think_text": "Oil/gas deal. No biotech relevance."
+  },
+  {
+    "article_id": "5bb59f0afab2",
+    "profile_id": "architect_qatar",
+    "score": 1.0,
+    "reason": "An oil/gas transaction has no relevance to architecture.",
+    "think_text": "Oil/gas deal. No architecture relevance."
+  },
+  {
+    "article_id": "1d99e49cdd52",
+    "profile_id": "meche_grad_sa",
+    "score": 0.0,
+    "reason": "A US travel nursing job has no relevance to mechanical engineering.",
+    "think_text": "US nursing job. No relevance."
+  },
+  {
+    "article_id": "1d99e49cdd52",
+    "profile_id": "data_scientist_dubai",
+    "score": 0.0,
+    "reason": "A nursing job has no relevance to data science.",
+    "think_text": "Nursing job. No relevance."
+  },
+  {
+    "article_id": "1d99e49cdd52",
+    "profile_id": "supply_chain_bahrain",
+    "score": 0.0,
+    "reason": "A nursing job has no relevance to supply chain.",
+    "think_text": "Nursing job. No relevance."
+  },
+  {
+    "article_id": "1d99e49cdd52",
+    "profile_id": "biotech_researcher_sa",
+    "score": 0.5,
+    "reason": "A US travel nursing job is in healthcare but has no relevance to biotech research.",
+    "think_text": "Nursing job. Healthcare but not research/biotech."
+  },
+  {
+    "article_id": "1d99e49cdd52",
+    "profile_id": "architect_qatar",
+    "score": 0.0,
+    "reason": "A nursing job has no relevance to architecture.",
+    "think_text": "Nursing job. No relevance."
+  },
+  {
+    "article_id": "fd5f0e60a7b1",
+    "profile_id": "meche_grad_sa",
+    "score": 1.5,
+    "reason": "Quantum computing developments are not relevant to mechanical engineering or Saudi construction/energy projects.",
+    "think_text": "Quantum computing. No ME/Saudi relevance."
+  },
+  {
+    "article_id": "fd5f0e60a7b1",
+    "profile_id": "data_scientist_dubai",
+    "score": 3.5,
+    "reason": "Quantum computing could eventually impact ML/AI capabilities, making this tangentially relevant to a data scientist. However, quantum ML is not yet practical for fintech applications, making this more of a future-awareness item.",
+    "think_text": "Quantum computing. Future impact on ML/AI but not yet practical for fintech fraud detection. Tangential forward-looking interest."
+  },
+  {
+    "article_id": "fd5f0e60a7b1",
+    "profile_id": "supply_chain_bahrain",
+    "score": 1.0,
+    "reason": "Quantum computing has no current relevance to supply chain operations.",
+    "think_text": "Quantum computing. No supply chain relevance."
+  },
+  {
+    "article_id": "fd5f0e60a7b1",
+    "profile_id": "biotech_researcher_sa",
+    "score": 2.0,
+    "reason": "Quantum computing could eventually impact computational biology and drug discovery, but this article about D-Wave's hardware is not directly relevant to current gene therapy research.",
+    "think_text": "Quantum computing. Future potential for comp bio but not currently relevant to gene therapy research."
+  },
+  {
+    "article_id": "fd5f0e60a7b1",
+    "profile_id": "architect_qatar",
+    "score": 1.0,
+    "reason": "Quantum computing has no relevance to architecture.",
+    "think_text": "Quantum computing. No architecture relevance."
+  },
+  {
+    "article_id": "aab36685f2ec",
+    "profile_id": "meche_grad_sa",
+    "score": 1.5,
+    "reason": "Pentagon military AI use is a geopolitical/defense story with no relevance to mechanical engineering or Saudi projects.",
+    "think_text": "Military AI use. No ME/Saudi relevance."
+  },
+  {
+    "article_id": "aab36685f2ec",
+    "profile_id": "data_scientist_dubai",
+    "score": 4.0,
+    "reason": "The use of AI models (Claude/Palantir) in military operations is relevant to a data scientist as it shows real-world AI deployment at scale. It touches on AI ethics and policy discussions relevant to the broader AI community, though not directly to fintech.",
+    "think_text": "Military AI deployment via Palantir. Relevant as AI deployment case study and AI ethics discussion. Not fintech-specific but important AI industry context."
+  },
+  {
+    "article_id": "aab36685f2ec",
+    "profile_id": "supply_chain_bahrain",
+    "score": 1.0,
+    "reason": "Military AI operations have no relevance to supply chain logistics.",
+    "think_text": "Military AI. No supply chain relevance."
+  },
+  {
+    "article_id": "aab36685f2ec",
+    "profile_id": "biotech_researcher_sa",
+    "score": 0.5,
+    "reason": "Military AI operations have no relevance to biotech research.",
+    "think_text": "Military AI. No biotech relevance."
+  },
+  {
+    "article_id": "aab36685f2ec",
+    "profile_id": "architect_qatar",
+    "score": 0.5,
+    "reason": "Military AI operations have no relevance to architecture.",
+    "think_text": "Military AI. No relevance."
+  },
+  {
+    "article_id": "0c152569086d",
+    "profile_id": "meche_grad_sa",
+    "score": 0.5,
+    "reason": "ITIL certification job trends in the UK have no relevance to a mechanical engineering graduate in Saudi Arabia.",
+    "think_text": "ITIL cert trends UK. No ME/Saudi relevance."
+  },
+  {
+    "article_id": "0c152569086d",
+    "profile_id": "data_scientist_dubai",
+    "score": 1.5,
+    "reason": "ITIL certification is IT operations focused, not data science. UK job market data is not relevant to Dubai.",
+    "think_text": "ITIL cert in UK. Not data science relevant."
+  },
+  {
+    "article_id": "0c152569086d",
+    "profile_id": "supply_chain_bahrain",
+    "score": 1.5,
+    "reason": "ITIL certification is IT service management, which has some overlap with supply chain IT systems, but this is UK-focused job market data.",
+    "think_text": "ITIL cert in UK. Tangential IT overlap but wrong geography."
+  },
+  {
+    "article_id": "0c152569086d",
+    "profile_id": "biotech_researcher_sa",
+    "score": 0.5,
+    "reason": "ITIL certification has no relevance to biotech research.",
+    "think_text": "ITIL cert. No biotech relevance."
+  },
+  {
+    "article_id": "0c152569086d",
+    "profile_id": "architect_qatar",
+    "score": 0.5,
+    "reason": "ITIL certification has no relevance to architecture.",
+    "think_text": "ITIL cert. No architecture relevance."
+  },
+  {
+    "article_id": "7cdb8ee26e9d",
+    "profile_id": "meche_grad_sa",
+    "score": 1.5,
+    "reason": "AMD's AI chip competition with Nvidia is semiconductor/tech sector news unrelated to mechanical engineering.",
+    "think_text": "AMD AI chip vs Nvidia. No ME relevance."
+  },
+  {
+    "article_id": "7cdb8ee26e9d",
+    "profile_id": "data_scientist_dubai",
+    "score": 5.0,
+    "reason": "AMD's MI400 AI accelerator competing with Nvidia directly affects the AI hardware ecosystem a data scientist works within. Hardware competition drives down costs and improves capabilities for ML workloads. This is relevant market intelligence for someone building ML models.",
+    "think_text": "AMD MI400 vs Nvidia AI chip competition. Directly affects ML hardware ecosystem - costs, capabilities, and availability of GPU compute. Relevant to data scientist's work infrastructure."
+  },
+  {
+    "article_id": "7cdb8ee26e9d",
+    "profile_id": "supply_chain_bahrain",
+    "score": 1.0,
+    "reason": "AI chip competition has no relevance to supply chain logistics.",
+    "think_text": "AI chip competition. No supply chain relevance."
+  },
+  {
+    "article_id": "7cdb8ee26e9d",
+    "profile_id": "biotech_researcher_sa",
+    "score": 1.5,
+    "reason": "AI chip competition has minimal relevance to biotech, though bioinformatics uses GPU compute. This is too hardware/market focused.",
+    "think_text": "AI chip competition. Tangential to bioinformatics GPU use but too market-focused."
+  },
+  {
+    "article_id": "7cdb8ee26e9d",
+    "profile_id": "architect_qatar",
+    "score": 1.0,
+    "reason": "AI chip competition has no relevance to architecture.",
+    "think_text": "AI chip news. No architecture relevance."
+  },
+  {
+    "article_id": "02b682ccfc85",
+    "profile_id": "meche_grad_sa",
+    "score": 7.5,
+    "reason": "Zamil Process Equipment works with SABIC (a tracked company), SWCC, and Saudi Electricity Company - all major Saudi industrial entities relevant to a mechanical engineering graduate. This client reference page could indicate potential employers or project opportunities in the Saudi industrial sector. Directly relevant to Vision 2030 infrastructure.",
+    "think_text": "Zamil Process Equipment with SABIC (tracked company), SWCC, Saudi Electricity as clients. Major Saudi industrial companies. Potential employer or project context for ME grad. Strong Saudi industrial relevance."
+  },
+  {
+    "article_id": "02b682ccfc85",
+    "profile_id": "data_scientist_dubai",
+    "score": 0.5,
+    "reason": "Saudi industrial equipment client references have no relevance to fintech data science.",
+    "think_text": "Saudi industrial equipment. No fintech relevance."
+  },
+  {
+    "article_id": "02b682ccfc85",
+    "profile_id": "supply_chain_bahrain",
+    "score": 3.0,
+    "reason": "Saudi industrial companies like SABIC and SWCC are major players in the GCC industrial supply chain, but this is a vendor client list, not supply chain operational content.",
+    "think_text": "Saudi industrial companies. Relevant to GCC industrial ecosystem but not supply chain operations content."
+  },
+  {
+    "article_id": "02b682ccfc85",
+    "profile_id": "biotech_researcher_sa",
+    "score": 0.5,
+    "reason": "Industrial process equipment has no relevance to biotech research, despite being Saudi-based.",
+    "think_text": "Industrial equipment. No biotech relevance despite Saudi location."
+  },
+  {
+    "article_id": "02b682ccfc85",
+    "profile_id": "architect_qatar",
+    "score": 2.0,
+    "reason": "Saudi industrial infrastructure is tangentially related to construction but this is process equipment, not architecture.",
+    "think_text": "Saudi industrial equipment. Not architecture relevant."
+  },
+  {
+    "article_id": "9272cab0f19c",
+    "profile_id": "meche_grad_sa",
+    "score": 1.0,
+    "reason": "Blockchain investment trends have no relevance to mechanical engineering.",
+    "think_text": "Blockchain investments. No ME relevance."
+  },
+  {
+    "article_id": "9272cab0f19c",
+    "profile_id": "data_scientist_dubai",
+    "score": 5.0,
+    "reason": "Blockchain and asset tokenization are part of the fintech ecosystem. BlackRock's involvement in blockchain validates the technology for institutional finance. Relevant to a fintech data scientist for understanding market trends and potential ML applications in blockchain/DeFi.",
+    "think_text": "Blockchain investment trends, asset tokenization, BlackRock. Part of the fintech ecosystem. Relevant to understanding fintech market evolution and potential ML applications."
+  },
+  {
+    "article_id": "9272cab0f19c",
+    "profile_id": "supply_chain_bahrain",
+    "score": 2.0,
+    "reason": "Blockchain has supply chain applications (provenance tracking, smart contracts), but this article focuses on financial investment trends, not supply chain use cases.",
+    "think_text": "Blockchain investments. Supply chain blockchain exists but article is about financial investing."
+  },
+  {
+    "article_id": "9272cab0f19c",
+    "profile_id": "biotech_researcher_sa",
+    "score": 0.5,
+    "reason": "Blockchain investments have no relevance to biotech research.",
+    "think_text": "Blockchain. No biotech relevance."
+  },
+  {
+    "article_id": "9272cab0f19c",
+    "profile_id": "architect_qatar",
+    "score": 0.5,
+    "reason": "Blockchain investments have no relevance to architecture.",
+    "think_text": "Blockchain. No architecture relevance."
+  },
+  {
+    "article_id": "eb9e5c6bf732",
+    "profile_id": "meche_grad_sa",
+    "score": 6.5,
+    "reason": "Modular construction is directly relevant to construction innovation, one of this profile's tracked industries. Smart and sustainable building approaches align with NEOM's vision for innovative construction methods. This could inform project management knowledge for mega-projects.",
+    "think_text": "Modular construction as future of building. Directly relevant to construction industry interest. NEOM uses innovative construction methods. Smart/sustainable building aligns with Vision 2030."
+  },
+  {
+    "article_id": "eb9e5c6bf732",
+    "profile_id": "data_scientist_dubai",
+    "score": 0.5,
+    "reason": "Modular construction has no relevance to data science or fintech.",
+    "think_text": "Modular construction. No fintech/data science relevance."
+  },
+  {
+    "article_id": "eb9e5c6bf732",
+    "profile_id": "supply_chain_bahrain",
+    "score": 3.0,
+    "reason": "Modular construction affects building material supply chains and logistics. Off-site manufacturing changes the supply chain dynamics for construction projects.",
+    "think_text": "Modular construction changes supply chain dynamics - off-site manufacturing, logistics changes. Some supply chain relevance."
+  },
+  {
+    "article_id": "eb9e5c6bf732",
+    "profile_id": "biotech_researcher_sa",
+    "score": 0.5,
+    "reason": "Modular construction has no relevance to biotech research.",
+    "think_text": "Modular construction. No biotech relevance."
+  },
+  {
+    "article_id": "eb9e5c6bf732",
+    "profile_id": "architect_qatar",
+    "score": 8.0,
+    "reason": "Modular construction for smarter, faster, and more sustainable buildings is directly relevant to this architect's work on smart city infrastructure. Sustainable architecture is a core interest, and modular construction is a major trend in the field. Highly actionable for understanding construction innovation in urban development.",
+    "think_text": "Modular construction is directly relevant to smart city architecture. Sustainable, faster building methods align with core interests. Major construction innovation relevant to Qatar's infrastructure expansion. Highly relevant."
+  },
+  {
+    "article_id": "80ce92a24085",
+    "profile_id": "meche_grad_sa",
+    "score": 0.0,
+    "reason": "A TripAdvisor beach review in Norway has no professional relevance.",
+    "think_text": "Norwegian beach review. Complete noise."
+  },
+  {
+    "article_id": "80ce92a24085",
+    "profile_id": "data_scientist_dubai",
+    "score": 0.0,
+    "reason": "A beach review has no professional relevance.",
+    "think_text": "Beach review. Complete noise."
+  },
+  {
+    "article_id": "80ce92a24085",
+    "profile_id": "supply_chain_bahrain",
+    "score": 0.0,
+    "reason": "A beach review has no professional relevance.",
+    "think_text": "Beach review. Complete noise."
+  },
+  {
+    "article_id": "80ce92a24085",
+    "profile_id": "biotech_researcher_sa",
+    "score": 0.0,
+    "reason": "A beach review has no professional relevance.",
+    "think_text": "Beach review. Complete noise."
+  },
+  {
+    "article_id": "80ce92a24085",
+    "profile_id": "architect_qatar",
+    "score": 0.0,
+    "reason": "A beach review has no professional relevance.",
+    "think_text": "Beach review. Complete noise."
+  }
+]

@@ -1,0 +1,1752 @@
+[
+  {
+    "article_id": "7dd61db77979",
+    "profile_id": "cpeg_student_kw",
+    "score": 7.5,
+    "reason": "AI agents collaborating to build a C compiler is directly relevant to a CompEng student interested in AI and software engineering. Demonstrates cutting-edge AI capabilities in systems programming, though not Kuwait-specific or job-related.",
+    "think_text": "CompEng student interested in AI. This is a major AI achievement - building a compiler with multi-agent AI. Very relevant to AI interest but not to Kuwait job market or tracked companies."
+  },
+  {
+    "article_id": "7dd61db77979",
+    "profile_id": "petrol_eng_kw",
+    "score": 1.5,
+    "reason": "A story about AI agents building a C compiler has no connection to petroleum engineering, reservoir simulation, or upstream operations. Pure tech news outside this student's field.",
+    "think_text": "PetE student focused on drilling, reservoir sim, upstream. A C compiler built by AI is pure CS/AI news with zero oil and gas relevance."
+  },
+  {
+    "article_id": "7dd61db77979",
+    "profile_id": "finance_student_kw",
+    "score": 2.0,
+    "reason": "AI agents building a compiler is a tech story with no direct relevance to finance, banking, or GCC capital markets. Only tangential interest as a general tech trend that could affect fintech long-term.",
+    "think_text": "Finance student tracking GCC markets and banking. This is pure tech/AI news, not finance-related. Very peripheral."
+  },
+  {
+    "article_id": "7dd61db77979",
+    "profile_id": "cybersecurity_kw",
+    "score": 4.0,
+    "reason": "AI agents autonomously writing code has security implications - AI-generated code could introduce vulnerabilities or be used in attack tooling. Moderately interesting from a threat landscape perspective but not directly actionable for a SOC analyst.",
+    "think_text": "Cybersecurity analyst. AI writing code has security implications (AI-generated vulnerabilities, AI in attack tools). Tangentially relevant but not directly about cybersecurity threats or banking security."
+  },
+  {
+    "article_id": "7dd61db77979",
+    "profile_id": "geophysicist_koc_kw",
+    "score": 1.0,
+    "reason": "AI agents building a C compiler has no relevance to seismic processing, geophysical tenders, or oil and gas operations. Completely outside this senior geophysicist's professional scope.",
+    "think_text": "Senior geophysicist at KOC. This is about AI coding a C compiler - zero connection to seismic data, velocity modeling, or geophysical services."
+  },
+  {
+    "article_id": "d61d04dc8103",
+    "profile_id": "cpeg_student_kw",
+    "score": 1.0,
+    "reason": "An Instagram reel about electrical safety for homes is social media noise with no relevance to computer engineering studies, AI, or Kuwait's tech/oil sector job market.",
+    "think_text": "CompEng student. This is a random Instagram post about home electrical safety - social media noise, not relevant."
+  },
+  {
+    "article_id": "d61d04dc8103",
+    "profile_id": "petrol_eng_kw",
+    "score": 0.5,
+    "reason": "An Instagram post about home electrical safety has zero relevance to petroleum engineering, drilling, or upstream operations.",
+    "think_text": "PetE student. Home electrical safety Instagram reel - complete noise."
+  },
+  {
+    "article_id": "d61d04dc8103",
+    "profile_id": "finance_student_kw",
+    "score": 0.5,
+    "reason": "Social media content about electrical safety has no connection to finance, banking, or capital markets.",
+    "think_text": "Finance student. Instagram electrical safety post - zero relevance to finance or GCC markets."
+  },
+  {
+    "article_id": "d61d04dc8103",
+    "profile_id": "cybersecurity_kw",
+    "score": 0.5,
+    "reason": "An Instagram reel about home electrical safety is social media noise with no cybersecurity relevance.",
+    "think_text": "Cybersecurity analyst. This is an Instagram reel about electrical safety - no cyber relevance whatsoever."
+  },
+  {
+    "article_id": "d61d04dc8103",
+    "profile_id": "geophysicist_koc_kw",
+    "score": 0.5,
+    "reason": "Home electrical safety Instagram content has no connection to geophysics, seismic processing, or oil and gas.",
+    "think_text": "Senior geophysicist. Random Instagram post - complete noise."
+  },
+  {
+    "article_id": "ddbd379ac378",
+    "profile_id": "cpeg_student_kw",
+    "score": 7.0,
+    "reason": "AMD's data center and AI chip growth is highly relevant to a CompEng student interested in semiconductors and AI. AMD is a key semiconductor company and this covers AI hardware trends directly aligned with their interests.",
+    "think_text": "CompEng student interested in semiconductors and AI. AMD is a major semiconductor company gaining in AI chips. Directly hits two interest areas. Not Kuwait-specific but very relevant to field knowledge."
+  },
+  {
+    "article_id": "ddbd379ac378",
+    "profile_id": "petrol_eng_kw",
+    "score": 1.0,
+    "reason": "AMD's data center growth and AI chip business has no relevance to petroleum engineering or upstream oil and gas operations.",
+    "think_text": "PetE student. Semiconductor/AI chip company news - no connection to petroleum engineering."
+  },
+  {
+    "article_id": "ddbd379ac378",
+    "profile_id": "finance_student_kw",
+    "score": 3.5,
+    "reason": "AMD stock and data center growth could be of moderate interest from an equity research perspective, but AMD is not a tracked company and this is US-focused, not GCC markets.",
+    "think_text": "Finance student tracking GCC markets. AMD is a US stock not in their tracked universe. Some general equity research interest but wrong geography and sector focus."
+  },
+  {
+    "article_id": "ddbd379ac378",
+    "profile_id": "cybersecurity_kw",
+    "score": 1.5,
+    "reason": "AMD's data center AI chip growth is primarily a semiconductor/business story with no direct cybersecurity implications.",
+    "think_text": "Cybersecurity analyst. AMD data center chips - not a cybersecurity story, just hardware business news."
+  },
+  {
+    "article_id": "ddbd379ac378",
+    "profile_id": "geophysicist_koc_kw",
+    "score": 1.0,
+    "reason": "Semiconductor company business performance has no relevance to geophysics, seismic processing, or KOC operations.",
+    "think_text": "Senior geophysicist. AMD chip business news - no connection to geoscience or oil and gas."
+  },
+  {
+    "article_id": "1c7776bc782d",
+    "profile_id": "cpeg_student_kw",
+    "score": 2.5,
+    "reason": "A geoscience conference call for abstracts mentioning AI-driven exploration and carbon capture has marginal relevance. The AI aspect is tangential and this is primarily a geoscience event, not targeted at CompEng students.",
+    "think_text": "CompEng student. Goldschmidt is a geochemistry conference. Mentions AI-driven exploration but this is academic geoscience, not CompEng territory. Slight AI interest overlap."
+  },
+  {
+    "article_id": "1c7776bc782d",
+    "profile_id": "petrol_eng_kw",
+    "score": 5.5,
+    "reason": "The Goldschmidt conference covers carbon capture and geological storage which connects to petroleum geology. The mention of AI-driven exploration is relevant to modern upstream tech. Somewhat relevant as academic exposure for a final-year PetE student.",
+    "think_text": "PetE student. Carbon capture/storage and AI-driven exploration mentioned. Goldschmidt is geoscience-focused. Relevant to petroleum geology aspects but it's a geochemistry conference, not primarily petroleum."
+  },
+  {
+    "article_id": "1c7776bc782d",
+    "profile_id": "finance_student_kw",
+    "score": 0.5,
+    "reason": "A geoscience academic conference call for abstracts has no relevance to finance, banking, or GCC capital markets.",
+    "think_text": "Finance student. Academic geoscience conference - zero finance relevance."
+  },
+  {
+    "article_id": "1c7776bc782d",
+    "profile_id": "cybersecurity_kw",
+    "score": 0.5,
+    "reason": "A geoscience conference call for papers has no connection to cybersecurity, threat intelligence, or banking security.",
+    "think_text": "Cybersecurity analyst. Geoscience conference - completely irrelevant."
+  },
+  {
+    "article_id": "1c7776bc782d",
+    "profile_id": "geophysicist_koc_kw",
+    "score": 7.0,
+    "reason": "The Goldschmidt conference is a major geoscience event, and sessions on carbon capture, geological storage, and AI-driven exploration are directly relevant to a senior geophysicist. Could be valuable for professional development and staying current with geoscience trends.",
+    "think_text": "Senior geophysicist at KOC. Goldschmidt is a premier geoscience conference. Topics include geological carbon storage and AI-driven exploration - both highly relevant. Professional development opportunity."
+  },
+  {
+    "article_id": "f0c8745690b3",
+    "profile_id": "cpeg_student_kw",
+    "score": 2.0,
+    "reason": "EU-Ukraine geopolitics reported through KUNA (Kuwait News Agency) has regional news value but no direct relevance to computer engineering, AI, semiconductors, or job-seeking in Kuwait's tech sector.",
+    "think_text": "CompEng student in Kuwait. This is EU-Ukraine geopolitics via KUNA. General news, no tech or career relevance. Slight Kuwait connection through KUNA source."
+  },
+  {
+    "article_id": "f0c8745690b3",
+    "profile_id": "petrol_eng_kw",
+    "score": 2.5,
+    "reason": "EU-Ukraine tensions can indirectly affect global energy markets and oil prices, which is tangentially relevant to a petroleum engineering student. However, this article is about political support, not energy policy specifically.",
+    "think_text": "PetE student. EU-Ukraine geopolitics can affect energy markets indirectly, but this article is about political support statements, not energy supply impacts directly."
+  },
+  {
+    "article_id": "f0c8745690b3",
+    "profile_id": "finance_student_kw",
+    "score": 3.0,
+    "reason": "EU-Ukraine geopolitics can impact global markets and energy prices, which could affect GCC economies. The KUNA source gives it Kuwait relevance. However, the article is about political statements, not direct financial impact.",
+    "think_text": "Finance student in Kuwait. Geopolitics affects markets. KUNA source gives local relevance. But the article is political statements, not financial analysis. Moderate general awareness value."
+  },
+  {
+    "article_id": "f0c8745690b3",
+    "profile_id": "cybersecurity_kw",
+    "score": 2.0,
+    "reason": "EU-Ukraine geopolitics has some cybersecurity relevance given state-sponsored cyber warfare, but this article is about diplomatic support, not cyber threats or attacks.",
+    "think_text": "Cybersecurity analyst. Ukraine conflict has cyber warfare dimensions but this article is about EU political support, not cyber incidents or threats."
+  },
+  {
+    "article_id": "f0c8745690b3",
+    "profile_id": "geophysicist_koc_kw",
+    "score": 1.5,
+    "reason": "EU-Ukraine political news has minimal relevance to a geophysicist at KOC. While energy geopolitics matter broadly, this article about diplomatic support doesn't address oil and gas or geoscience directly.",
+    "think_text": "Senior geophysicist. EU-Ukraine politics - not relevant to seismic processing or KOC operations."
+  },
+  {
+    "article_id": "1e0965efd09c",
+    "profile_id": "cpeg_student_kw",
+    "score": 0.0,
+    "reason": "A TikTok about Halloween Roblox outfits is complete social media noise with zero professional, educational, or industry relevance.",
+    "think_text": "Random TikTok content about Roblox Halloween costumes. Pure noise for any professional or student profile."
+  },
+  {
+    "article_id": "1e0965efd09c",
+    "profile_id": "petrol_eng_kw",
+    "score": 0.0,
+    "reason": "A TikTok about Halloween Roblox outfits is complete social media noise with zero professional, educational, or industry relevance.",
+    "think_text": "Random TikTok content about Roblox Halloween costumes. Pure noise for any professional or student profile."
+  },
+  {
+    "article_id": "1e0965efd09c",
+    "profile_id": "finance_student_kw",
+    "score": 0.0,
+    "reason": "A TikTok about Halloween Roblox outfits is complete social media noise with zero professional, educational, or industry relevance.",
+    "think_text": "Random TikTok content about Roblox Halloween costumes. Pure noise for any professional or student profile."
+  },
+  {
+    "article_id": "1e0965efd09c",
+    "profile_id": "cybersecurity_kw",
+    "score": 0.0,
+    "reason": "A TikTok about Halloween Roblox outfits is complete social media noise with zero professional, educational, or industry relevance.",
+    "think_text": "Random TikTok content about Roblox Halloween costumes. Pure noise for any professional or student profile."
+  },
+  {
+    "article_id": "1e0965efd09c",
+    "profile_id": "geophysicist_koc_kw",
+    "score": 0.0,
+    "reason": "A TikTok about Halloween Roblox outfits is complete social media noise with zero professional, educational, or industry relevance.",
+    "think_text": "Random TikTok content about Roblox Halloween costumes. Pure noise for any professional or student profile."
+  },
+  {
+    "article_id": "8afa6526437b",
+    "profile_id": "cpeg_student_kw",
+    "score": 2.0,
+    "reason": "US immigration visa pause is only relevant if the student is considering US opportunities. As a Kuwait-based student seeking positions in Kuwait's oil/gas or tech sector, this has limited relevance.",
+    "think_text": "CompEng student in Kuwait seeking local positions. US immigration policy is peripheral unless they want to study/work in the US."
+  },
+  {
+    "article_id": "8afa6526437b",
+    "profile_id": "petrol_eng_kw",
+    "score": 2.0,
+    "reason": "US immigration policy changes have minimal relevance to a petroleum engineering student at Kuwait University focused on local upstream operations.",
+    "think_text": "PetE student in Kuwait. US visa policy - not relevant to Kuwait-focused petroleum career path."
+  },
+  {
+    "article_id": "8afa6526437b",
+    "profile_id": "finance_student_kw",
+    "score": 1.5,
+    "reason": "US immigration visa changes have minimal relevance to a finance student at GUST tracking GCC markets and banking.",
+    "think_text": "Finance student in Kuwait. US immigration policy - peripheral to GCC finance career."
+  },
+  {
+    "article_id": "8afa6526437b",
+    "profile_id": "cybersecurity_kw",
+    "score": 1.0,
+    "reason": "US immigration visa policy has no relevance to cybersecurity operations, threat intelligence, or banking security in Kuwait.",
+    "think_text": "Cybersecurity analyst in Kuwait. US immigration - no cyber relevance."
+  },
+  {
+    "article_id": "8afa6526437b",
+    "profile_id": "geophysicist_koc_kw",
+    "score": 1.0,
+    "reason": "US immigration policy has no relevance to a senior geophysicist at KOC working on seismic data acquisition in Kuwait.",
+    "think_text": "Senior geophysicist at KOC. US immigration - irrelevant to geophysics work."
+  },
+  {
+    "article_id": "0990d2b238a3",
+    "profile_id": "cpeg_student_kw",
+    "score": 8.5,
+    "reason": "A job posting requiring knowledge of KOC and KNPC requirements in Kuwait is highly relevant. This directly involves tracked companies (KOC, KNPC) in Kuwait, though the role appears to be compliance/prequalification rather than engineering. Still very actionable for a student exploring Kuwait oil sector careers.",
+    "think_text": "CompEng student tracking KOC and KNPC, seeking first position in Kuwait. This is a Kuwait job posting involving KOC/KNPC compliance. Directly actionable - even if not pure engineering, it's in the target companies and location."
+  },
+  {
+    "article_id": "0990d2b238a3",
+    "profile_id": "petrol_eng_kw",
+    "score": 9.0,
+    "reason": "A Kuwait-based job posting requiring KOC and KNPC knowledge is directly actionable for a final-year petroleum engineering student. These are the exact tracked companies, and working with Kuwait oil authority requirements aligns with upstream career goals.",
+    "think_text": "PetE student tracking KOC, KNPC. This is a job in Kuwait working with these exact companies on compliance and prequalification. Highly actionable for career entry."
+  },
+  {
+    "article_id": "0990d2b238a3",
+    "profile_id": "finance_student_kw",
+    "score": 3.0,
+    "reason": "A job posting involving KOC/KNPC compliance in Kuwait has some geographic relevance but is in the oil and gas sector, not finance or banking. Not aligned with this student's career path.",
+    "think_text": "Finance student in Kuwait. Oil sector job posting - wrong industry. Geographic match but career mismatch."
+  },
+  {
+    "article_id": "0990d2b238a3",
+    "profile_id": "cybersecurity_kw",
+    "score": 2.0,
+    "reason": "A Kuwait oil sector compliance job is not relevant to cybersecurity. While it's in Kuwait and involves compliance, it's operational/contract compliance, not information security compliance.",
+    "think_text": "Cybersecurity analyst. Kuwait oil sector compliance job - not infosec compliance, not relevant."
+  },
+  {
+    "article_id": "0990d2b238a3",
+    "profile_id": "geophysicist_koc_kw",
+    "score": 6.5,
+    "reason": "A job posting involving KOC and KNPC requirements in Kuwait is relevant to a KOC geophysicist from an organizational awareness perspective. Understanding prequalification and compliance processes at KOC is valuable, though this is an administrative role rather than a geophysical position.",
+    "think_text": "Senior geophysicist at KOC. Job involving KOC/KNPC compliance - relevant for understanding organizational processes and tenders, though not a geophysics role specifically."
+  },
+  {
+    "article_id": "ddac40adbefb",
+    "profile_id": "cpeg_student_kw",
+    "score": 5.5,
+    "reason": "A SCADA Engineer role requiring PLC/HMI programming and building automation has moderate relevance to a CompEng student interested in embedded systems. However, it requires 2-4 years experience (not entry-level) and appears to be US-based, not Kuwait.",
+    "think_text": "CompEng student interested in embedded systems. SCADA/PLC programming is related to embedded systems. But requires 2-4 years experience (not entry level) and wrong geography. Partial interest match."
+  },
+  {
+    "article_id": "ddac40adbefb",
+    "profile_id": "petrol_eng_kw",
+    "score": 3.5,
+    "reason": "SCADA systems are used in oil and gas operations, so there's some industry overlap. However, this posting is for building automation/HVAC controls, not petroleum operations, and requires experience a student wouldn't have.",
+    "think_text": "PetE student. SCADA is used in O&G but this specific role is HVAC/building automation, not upstream petroleum. Requires experience. Tangential."
+  },
+  {
+    "article_id": "ddac40adbefb",
+    "profile_id": "finance_student_kw",
+    "score": 0.5,
+    "reason": "A SCADA engineering position has no relevance to finance, banking, or capital markets.",
+    "think_text": "Finance student. SCADA engineering job - completely outside finance domain."
+  },
+  {
+    "article_id": "ddac40adbefb",
+    "profile_id": "cybersecurity_kw",
+    "score": 4.5,
+    "reason": "SCADA/ICS security is a major cybersecurity domain. While this is a SCADA engineering job (not a security role), understanding SCADA systems is valuable context for a cybersecurity analyst, especially one protecting critical infrastructure in banking.",
+    "think_text": "Cybersecurity analyst. SCADA/ICS security is an important cyber domain. This is an engineering role not security, but SCADA knowledge is relevant to understanding OT security threats."
+  },
+  {
+    "article_id": "ddac40adbefb",
+    "profile_id": "geophysicist_koc_kw",
+    "score": 1.0,
+    "reason": "A SCADA/building automation engineering role has no relevance to geophysics or seismic data processing.",
+    "think_text": "Senior geophysicist. SCADA/HVAC engineering - no geophysics connection."
+  },
+  {
+    "article_id": "922bd1907e2b",
+    "profile_id": "cpeg_student_kw",
+    "score": 2.0,
+    "reason": "Business Analyst certification guidance is not directly relevant to a Computer Engineering student unless they pivot to business analysis. Not aligned with their technical interests in AI, semiconductors, or embedded systems.",
+    "think_text": "CompEng student. BA certification is business/management track, not engineering. Low relevance."
+  },
+  {
+    "article_id": "922bd1907e2b",
+    "profile_id": "petrol_eng_kw",
+    "score": 1.5,
+    "reason": "Business Analyst certification has minimal relevance to a petroleum engineering student focused on upstream operations and reservoir simulation.",
+    "think_text": "PetE student. BA certification - wrong career track for petroleum engineering."
+  },
+  {
+    "article_id": "922bd1907e2b",
+    "profile_id": "finance_student_kw",
+    "score": 4.0,
+    "reason": "Business Analyst certification could be tangentially useful for a finance student as BA roles exist in banking and financial services. However, this is generic career advice, not specific to GCC finance or banking.",
+    "think_text": "Finance student. BA roles exist in banking/finance sector. Some career relevance but generic, not Kuwait/GCC-specific."
+  },
+  {
+    "article_id": "922bd1907e2b",
+    "profile_id": "cybersecurity_kw",
+    "score": 1.5,
+    "reason": "Business Analyst certification has no direct relevance to cybersecurity operations or threat intelligence.",
+    "think_text": "Cybersecurity analyst. BA certification - not relevant to security career path."
+  },
+  {
+    "article_id": "922bd1907e2b",
+    "profile_id": "geophysicist_koc_kw",
+    "score": 0.5,
+    "reason": "Business Analyst certification is irrelevant to a senior geophysicist's work in seismic processing and geophysical services.",
+    "think_text": "Senior geophysicist. BA certification - no relevance to geoscience."
+  },
+  {
+    "article_id": "c4b08e5e5c93",
+    "profile_id": "cpeg_student_kw",
+    "score": 0.5,
+    "reason": "An ultrapure water resin market report is a niche industrial chemical market analysis with no meaningful relevance to this profile's interests, tracked companies, or industries.",
+    "think_text": "Ultrapure water resin market - very niche industrial chemistry topic. No connection to any of the 5 target profiles."
+  },
+  {
+    "article_id": "c4b08e5e5c93",
+    "profile_id": "petrol_eng_kw",
+    "score": 0.5,
+    "reason": "An ultrapure water resin market report is a niche industrial chemical market analysis with no meaningful relevance to this profile's interests, tracked companies, or industries.",
+    "think_text": "Ultrapure water resin market - very niche industrial chemistry topic. No connection to any of the 5 target profiles."
+  },
+  {
+    "article_id": "c4b08e5e5c93",
+    "profile_id": "finance_student_kw",
+    "score": 0.5,
+    "reason": "An ultrapure water resin market report is a niche industrial chemical market analysis with no meaningful relevance to this profile's interests, tracked companies, or industries.",
+    "think_text": "Ultrapure water resin market - very niche industrial chemistry topic. No connection to any of the 5 target profiles."
+  },
+  {
+    "article_id": "c4b08e5e5c93",
+    "profile_id": "cybersecurity_kw",
+    "score": 0.5,
+    "reason": "An ultrapure water resin market report is a niche industrial chemical market analysis with no meaningful relevance to this profile's interests, tracked companies, or industries.",
+    "think_text": "Ultrapure water resin market - very niche industrial chemistry topic. No connection to any of the 5 target profiles."
+  },
+  {
+    "article_id": "c4b08e5e5c93",
+    "profile_id": "geophysicist_koc_kw",
+    "score": 0.5,
+    "reason": "An ultrapure water resin market report is a niche industrial chemical market analysis with no meaningful relevance to this profile's interests, tracked companies, or industries.",
+    "think_text": "Ultrapure water resin market - very niche industrial chemistry topic. No connection to any of the 5 target profiles."
+  },
+  {
+    "article_id": "d22648d82260",
+    "profile_id": "cpeg_student_kw",
+    "score": 0.5,
+    "reason": "An Arabic-language Google Play listing for the MBC Shahid streaming app is entertainment/consumer content with no professional, academic, or industry relevance.",
+    "think_text": "MBC Shahid app listing - entertainment streaming app. No professional relevance for any of these profiles."
+  },
+  {
+    "article_id": "d22648d82260",
+    "profile_id": "petrol_eng_kw",
+    "score": 0.5,
+    "reason": "An Arabic-language Google Play listing for the MBC Shahid streaming app is entertainment/consumer content with no professional, academic, or industry relevance.",
+    "think_text": "MBC Shahid app listing - entertainment streaming app. No professional relevance for any of these profiles."
+  },
+  {
+    "article_id": "d22648d82260",
+    "profile_id": "finance_student_kw",
+    "score": 0.5,
+    "reason": "An Arabic-language Google Play listing for the MBC Shahid streaming app is entertainment/consumer content with no professional, academic, or industry relevance.",
+    "think_text": "MBC Shahid app listing - entertainment streaming app. No professional relevance for any of these profiles."
+  },
+  {
+    "article_id": "d22648d82260",
+    "profile_id": "cybersecurity_kw",
+    "score": 0.5,
+    "reason": "An Arabic-language Google Play listing for the MBC Shahid streaming app is entertainment/consumer content with no professional, academic, or industry relevance.",
+    "think_text": "MBC Shahid app listing - entertainment streaming app. No professional relevance for any of these profiles."
+  },
+  {
+    "article_id": "d22648d82260",
+    "profile_id": "geophysicist_koc_kw",
+    "score": 0.5,
+    "reason": "An Arabic-language Google Play listing for the MBC Shahid streaming app is entertainment/consumer content with no professional, academic, or industry relevance.",
+    "think_text": "MBC Shahid app listing - entertainment streaming app. No professional relevance for any of these profiles."
+  },
+  {
+    "article_id": "f17f024560ac",
+    "profile_id": "cpeg_student_kw",
+    "score": 7.0,
+    "reason": "Samsung expanding CPU capabilities for on-device AI using Arm SME2 is directly relevant to a CompEng student interested in AI and semiconductors. Covers chip architecture, AI hardware, and mobile computing - core CompEng topics.",
+    "think_text": "CompEng student interested in AI, semiconductors, embedded systems. Samsung's Arm SME2 for on-device AI hits all three interests. Highly relevant technical content."
+  },
+  {
+    "article_id": "f17f024560ac",
+    "profile_id": "petrol_eng_kw",
+    "score": 0.5,
+    "reason": "Semiconductor chip architecture for on-device AI has no connection to petroleum engineering or upstream operations.",
+    "think_text": "PetE student. Chip architecture for AI - no petroleum engineering relevance."
+  },
+  {
+    "article_id": "f17f024560ac",
+    "profile_id": "finance_student_kw",
+    "score": 1.0,
+    "reason": "Samsung's chip technology news has no direct relevance to finance, GCC banking, or capital markets.",
+    "think_text": "Finance student. Samsung semiconductor tech - not finance-related."
+  },
+  {
+    "article_id": "f17f024560ac",
+    "profile_id": "cybersecurity_kw",
+    "score": 2.0,
+    "reason": "On-device AI processing could have security implications (edge computing security, on-device threat detection) but this article is about CPU architecture, not security applications.",
+    "think_text": "Cybersecurity analyst. On-device AI chips - tangential security implications but not a security article."
+  },
+  {
+    "article_id": "f17f024560ac",
+    "profile_id": "geophysicist_koc_kw",
+    "score": 0.5,
+    "reason": "Mobile chip architecture has no relevance to geophysics or seismic data processing.",
+    "think_text": "Senior geophysicist. Mobile CPU/AI chip tech - no geoscience relevance."
+  },
+  {
+    "article_id": "a9d8d2941c33",
+    "profile_id": "cpeg_student_kw",
+    "score": 0.0,
+    "reason": "A tourism welcome page for Bern, Switzerland is completely irrelevant to this profile's professional interests, industry tracking, or geographic focus.",
+    "think_text": "Tourism page for Bern Switzerland - pure noise for all 5 profiles."
+  },
+  {
+    "article_id": "a9d8d2941c33",
+    "profile_id": "petrol_eng_kw",
+    "score": 0.0,
+    "reason": "A tourism welcome page for Bern, Switzerland is completely irrelevant to this profile's professional interests, industry tracking, or geographic focus.",
+    "think_text": "Tourism page for Bern Switzerland - pure noise for all 5 profiles."
+  },
+  {
+    "article_id": "a9d8d2941c33",
+    "profile_id": "finance_student_kw",
+    "score": 0.0,
+    "reason": "A tourism welcome page for Bern, Switzerland is completely irrelevant to this profile's professional interests, industry tracking, or geographic focus.",
+    "think_text": "Tourism page for Bern Switzerland - pure noise for all 5 profiles."
+  },
+  {
+    "article_id": "a9d8d2941c33",
+    "profile_id": "cybersecurity_kw",
+    "score": 0.0,
+    "reason": "A tourism welcome page for Bern, Switzerland is completely irrelevant to this profile's professional interests, industry tracking, or geographic focus.",
+    "think_text": "Tourism page for Bern Switzerland - pure noise for all 5 profiles."
+  },
+  {
+    "article_id": "a9d8d2941c33",
+    "profile_id": "geophysicist_koc_kw",
+    "score": 0.0,
+    "reason": "A tourism welcome page for Bern, Switzerland is completely irrelevant to this profile's professional interests, industry tracking, or geographic focus.",
+    "think_text": "Tourism page for Bern Switzerland - pure noise for all 5 profiles."
+  },
+  {
+    "article_id": "fa327f996181",
+    "profile_id": "cpeg_student_kw",
+    "score": 0.5,
+    "reason": "Indian share market updates and Reliance Q2 results are irrelevant to a CompEng student in Kuwait focused on AI, semiconductors, and local oil/tech sector.",
+    "think_text": "CompEng student in Kuwait. Indian stock market blog - wrong geography, wrong domain."
+  },
+  {
+    "article_id": "fa327f996181",
+    "profile_id": "petrol_eng_kw",
+    "score": 1.0,
+    "reason": "Indian share market blog mentions OPEC decisions tangentially, but this is an Indian market analysis blog, not relevant to Kuwait petroleum engineering.",
+    "think_text": "PetE student. Indian market blog with passing OPEC mention - not relevant."
+  },
+  {
+    "article_id": "fa327f996181",
+    "profile_id": "finance_student_kw",
+    "score": 2.5,
+    "reason": "A financial blog covering Indian share markets and OPEC mentions has some broad finance relevance, but focuses on Indian equities (Reliance, MCX) rather than GCC markets. OPEC discussion provides slight energy-market overlap.",
+    "think_text": "Finance student tracking GCC markets. Indian market blog - wrong geography. OPEC mention provides thin connection to Gulf economics."
+  },
+  {
+    "article_id": "fa327f996181",
+    "profile_id": "cybersecurity_kw",
+    "score": 0.5,
+    "reason": "Indian share market analysis has no relevance to cybersecurity.",
+    "think_text": "Cybersecurity analyst. Indian stock market blog - zero relevance."
+  },
+  {
+    "article_id": "fa327f996181",
+    "profile_id": "geophysicist_koc_kw",
+    "score": 1.0,
+    "reason": "Indian market updates mentioning OPEC decisions have only the most peripheral connection to an oil and gas geophysicist.",
+    "think_text": "Senior geophysicist. Indian market blog - not relevant to geophysics."
+  },
+  {
+    "article_id": "062b678ea8ff",
+    "profile_id": "cpeg_student_kw",
+    "score": 1.5,
+    "reason": "An HSE Officer position in UAE construction requires NEBOSH certification and Gulf construction experience. This is health/safety/environment, not computer engineering, and in the wrong country.",
+    "think_text": "CompEng student. HSE officer role - wrong field (health & safety, not engineering), UAE not Kuwait."
+  },
+  {
+    "article_id": "062b678ea8ff",
+    "profile_id": "petrol_eng_kw",
+    "score": 3.0,
+    "reason": "HSE roles exist within the oil and gas sector and Gulf region experience is valued. However, this is a construction HSE role, not petroleum engineering, and requires existing certification a student wouldn't have. Still somewhat relevant to understanding Gulf energy sector hiring.",
+    "think_text": "PetE student. HSE in Gulf construction - related to O&G sector broadly but not petroleum engineering specifically. Requires NEBOSH cert and experience."
+  },
+  {
+    "article_id": "062b678ea8ff",
+    "profile_id": "finance_student_kw",
+    "score": 0.5,
+    "reason": "An HSE officer construction job in UAE has no relevance to finance or banking.",
+    "think_text": "Finance student. HSE construction job - completely irrelevant to finance."
+  },
+  {
+    "article_id": "062b678ea8ff",
+    "profile_id": "cybersecurity_kw",
+    "score": 0.5,
+    "reason": "HSE officer role in UAE construction has no cybersecurity relevance.",
+    "think_text": "Cybersecurity analyst. HSE job - no cyber connection."
+  },
+  {
+    "article_id": "062b678ea8ff",
+    "profile_id": "geophysicist_koc_kw",
+    "score": 1.5,
+    "reason": "An HSE officer role in UAE construction is not relevant to geophysics. While HSE is important in oil and gas field operations, this is a construction position, not geophysical operations.",
+    "think_text": "Senior geophysicist. HSE construction role UAE - not geophysics-related."
+  },
+  {
+    "article_id": "665b05742af2",
+    "profile_id": "cpeg_student_kw",
+    "score": 3.5,
+    "reason": "The WEF Cybersecurity Outlook has some relevance to a CompEng student interested in the broader tech landscape, but cybersecurity is not their primary focus. The Middle East regional data adds some geographic relevance.",
+    "think_text": "CompEng student. WEF cybersecurity report - cybersecurity is adjacent to CompEng. Middle East mention adds some relevance. But not a core interest area."
+  },
+  {
+    "article_id": "665b05742af2",
+    "profile_id": "petrol_eng_kw",
+    "score": 1.0,
+    "reason": "A global cybersecurity outlook report has minimal relevance to petroleum engineering studies focused on upstream operations and reservoir simulation.",
+    "think_text": "PetE student. Cybersecurity outlook - not relevant to petroleum engineering."
+  },
+  {
+    "article_id": "665b05742af2",
+    "profile_id": "finance_student_kw",
+    "score": 3.0,
+    "reason": "The WEF Cybersecurity Outlook mentions compliance (PCI DSS, SOC 2) and Middle East regional data, which is relevant to banking sector security that a finance student should be aware of. However, this is a cybersecurity report, not a finance publication.",
+    "think_text": "Finance student. Cybersecurity affects banking sector. Middle East data included. PCI DSS/compliance mentioned. Some cross-domain relevance for banking awareness."
+  },
+  {
+    "article_id": "665b05742af2",
+    "profile_id": "cybersecurity_kw",
+    "score": 9.5,
+    "reason": "The WEF Global Cybersecurity Outlook 2026 is directly actionable for a SOC analyst at a Kuwaiti bank. It covers regional cybersecurity trends (84% Middle East respondents highlighted), compliance frameworks (PCI DSS, SOC 2), and AI-driven fraud resilience. This is essential reading for strategic planning and compliance awareness.",
+    "think_text": "Cybersecurity analyst at Kuwaiti bank. This is the WEF's annual cybersecurity report with Middle East regional data, compliance frameworks (PCI DSS, SOC 2), and AI fraud resilience. Directly relevant to every aspect of their role - threat landscape, compliance, and regional context."
+  },
+  {
+    "article_id": "665b05742af2",
+    "profile_id": "geophysicist_koc_kw",
+    "score": 0.5,
+    "reason": "A global cybersecurity outlook has no relevance to geophysics or seismic data processing at KOC.",
+    "think_text": "Senior geophysicist. Cybersecurity report - not relevant to geoscience work."
+  },
+  {
+    "article_id": "548b692edc3e",
+    "profile_id": "cpeg_student_kw",
+    "score": 0.5,
+    "reason": "A biotech breakthrough in exosome-based CAR-T therapy for solid tumors is highly specialized biomedical research with no relevance to this profile's field, interests, or tracked industries.",
+    "think_text": "Biotech/CAR-T exosome platform - highly specialized medical research. Not relevant to any of the 5 target profiles (CompEng, PetE, Finance, Cyber, Geophysics)."
+  },
+  {
+    "article_id": "548b692edc3e",
+    "profile_id": "petrol_eng_kw",
+    "score": 0.5,
+    "reason": "A biotech breakthrough in exosome-based CAR-T therapy for solid tumors is highly specialized biomedical research with no relevance to this profile's field, interests, or tracked industries.",
+    "think_text": "Biotech/CAR-T exosome platform - highly specialized medical research. Not relevant to any of the 5 target profiles (CompEng, PetE, Finance, Cyber, Geophysics)."
+  },
+  {
+    "article_id": "548b692edc3e",
+    "profile_id": "finance_student_kw",
+    "score": 0.5,
+    "reason": "A biotech breakthrough in exosome-based CAR-T therapy for solid tumors is highly specialized biomedical research with no relevance to this profile's field, interests, or tracked industries.",
+    "think_text": "Biotech/CAR-T exosome platform - highly specialized medical research. Not relevant to any of the 5 target profiles (CompEng, PetE, Finance, Cyber, Geophysics)."
+  },
+  {
+    "article_id": "548b692edc3e",
+    "profile_id": "cybersecurity_kw",
+    "score": 0.5,
+    "reason": "A biotech breakthrough in exosome-based CAR-T therapy for solid tumors is highly specialized biomedical research with no relevance to this profile's field, interests, or tracked industries.",
+    "think_text": "Biotech/CAR-T exosome platform - highly specialized medical research. Not relevant to any of the 5 target profiles (CompEng, PetE, Finance, Cyber, Geophysics)."
+  },
+  {
+    "article_id": "548b692edc3e",
+    "profile_id": "geophysicist_koc_kw",
+    "score": 0.5,
+    "reason": "A biotech breakthrough in exosome-based CAR-T therapy for solid tumors is highly specialized biomedical research with no relevance to this profile's field, interests, or tracked industries.",
+    "think_text": "Biotech/CAR-T exosome platform - highly specialized medical research. Not relevant to any of the 5 target profiles (CompEng, PetE, Finance, Cyber, Geophysics)."
+  },
+  {
+    "article_id": "88b668eb784f",
+    "profile_id": "cpeg_student_kw",
+    "score": 0.5,
+    "reason": "An EU policy document on science diplomacy and research grants (ERC, Marie Curie) is primarily relevant to EU-based academics. It has no meaningful connection to this Kuwait-based profile's interests or career.",
+    "think_text": "EU science diplomacy recommendation - EU research policy document. Not relevant to Kuwait-based professionals or students in engineering, finance, cybersecurity, or geoscience."
+  },
+  {
+    "article_id": "88b668eb784f",
+    "profile_id": "petrol_eng_kw",
+    "score": 0.5,
+    "reason": "An EU policy document on science diplomacy and research grants (ERC, Marie Curie) is primarily relevant to EU-based academics. It has no meaningful connection to this Kuwait-based profile's interests or career.",
+    "think_text": "EU science diplomacy recommendation - EU research policy document. Not relevant to Kuwait-based professionals or students in engineering, finance, cybersecurity, or geoscience."
+  },
+  {
+    "article_id": "88b668eb784f",
+    "profile_id": "finance_student_kw",
+    "score": 0.5,
+    "reason": "An EU policy document on science diplomacy and research grants (ERC, Marie Curie) is primarily relevant to EU-based academics. It has no meaningful connection to this Kuwait-based profile's interests or career.",
+    "think_text": "EU science diplomacy recommendation - EU research policy document. Not relevant to Kuwait-based professionals or students in engineering, finance, cybersecurity, or geoscience."
+  },
+  {
+    "article_id": "88b668eb784f",
+    "profile_id": "cybersecurity_kw",
+    "score": 0.5,
+    "reason": "An EU policy document on science diplomacy and research grants (ERC, Marie Curie) is primarily relevant to EU-based academics. It has no meaningful connection to this Kuwait-based profile's interests or career.",
+    "think_text": "EU science diplomacy recommendation - EU research policy document. Not relevant to Kuwait-based professionals or students in engineering, finance, cybersecurity, or geoscience."
+  },
+  {
+    "article_id": "88b668eb784f",
+    "profile_id": "geophysicist_koc_kw",
+    "score": 0.5,
+    "reason": "An EU policy document on science diplomacy and research grants (ERC, Marie Curie) is primarily relevant to EU-based academics. It has no meaningful connection to this Kuwait-based profile's interests or career.",
+    "think_text": "EU science diplomacy recommendation - EU research policy document. Not relevant to Kuwait-based professionals or students in engineering, finance, cybersecurity, or geoscience."
+  },
+  {
+    "article_id": "a75b1952bf9f",
+    "profile_id": "cpeg_student_kw",
+    "score": 1.5,
+    "reason": "Entry-level geologist jobs in the Middle East are not relevant to computer engineering. Wrong field entirely, despite the geographic match.",
+    "think_text": "CompEng student. Geologist jobs - wrong discipline, even though Middle East location matches."
+  },
+  {
+    "article_id": "a75b1952bf9f",
+    "profile_id": "petrol_eng_kw",
+    "score": 7.5,
+    "reason": "Entry-level geologist jobs in the Middle East are highly relevant to a final-year petroleum engineering student. Geology and petroleum engineering overlap significantly in upstream operations. The posting mentions geological evaluations and reservoir modeling - directly aligned with their interests. The 3-6 years experience requirement is slightly above entry level.",
+    "think_text": "PetE student. Entry-level geologist roles in Middle East - strong overlap with petroleum engineering (reservoir modeling, geological evaluation). Geographic match. Experience requirement (3-6 years) is slightly high for a graduating student but still very relevant."
+  },
+  {
+    "article_id": "a75b1952bf9f",
+    "profile_id": "finance_student_kw",
+    "score": 0.5,
+    "reason": "Geologist job listings have no relevance to finance or banking careers.",
+    "think_text": "Finance student. Geologist jobs - completely wrong field."
+  },
+  {
+    "article_id": "a75b1952bf9f",
+    "profile_id": "cybersecurity_kw",
+    "score": 0.5,
+    "reason": "Entry-level geologist positions have no cybersecurity relevance.",
+    "think_text": "Cybersecurity analyst. Geologist jobs - irrelevant."
+  },
+  {
+    "article_id": "a75b1952bf9f",
+    "profile_id": "geophysicist_koc_kw",
+    "score": 8.0,
+    "reason": "Entry-level geologist jobs in the Middle East are directly relevant to a geophysicist at KOC. As a senior professional, they may be involved in hiring or mentoring new geoscientists, and understanding the job market for geological roles in the region is valuable. The mention of reservoir modeling aligns with their subsurface imaging work.",
+    "think_text": "Senior geophysicist at KOC. Middle East geologist jobs - directly in their field and region. May be relevant for hiring/team building. Reservoir modeling mentioned. Though the 'entry level' aspect doesn't match their seniority, market awareness is valuable."
+  },
+  {
+    "article_id": "ee80ac2e4bbf",
+    "profile_id": "cpeg_student_kw",
+    "score": 0.5,
+    "reason": "A Figma UI design tutorial for dropdown menus is relevant only to UX/UI designers. A CompEng student might have passing interest in UI development but this is a basic design tutorial.",
+    "think_text": "Figma tutorial for dropdown menu animation. UI/UX design content, not relevant to engineering, finance, cybersecurity, or geoscience profiles."
+  },
+  {
+    "article_id": "ee80ac2e4bbf",
+    "profile_id": "petrol_eng_kw",
+    "score": 0.0,
+    "reason": "A Figma UI design tutorial for dropdown menus is relevant only to UX/UI designers. This has no connection to this profile's professional field or interests.",
+    "think_text": "Figma tutorial for dropdown menu animation. UI/UX design content, not relevant to engineering, finance, cybersecurity, or geoscience profiles."
+  },
+  {
+    "article_id": "ee80ac2e4bbf",
+    "profile_id": "finance_student_kw",
+    "score": 0.0,
+    "reason": "A Figma UI design tutorial for dropdown menus is relevant only to UX/UI designers. This has no connection to this profile's professional field or interests.",
+    "think_text": "Figma tutorial for dropdown menu animation. UI/UX design content, not relevant to engineering, finance, cybersecurity, or geoscience profiles."
+  },
+  {
+    "article_id": "ee80ac2e4bbf",
+    "profile_id": "cybersecurity_kw",
+    "score": 0.0,
+    "reason": "A Figma UI design tutorial for dropdown menus is relevant only to UX/UI designers. This has no connection to this profile's professional field or interests.",
+    "think_text": "Figma tutorial for dropdown menu animation. UI/UX design content, not relevant to engineering, finance, cybersecurity, or geoscience profiles."
+  },
+  {
+    "article_id": "ee80ac2e4bbf",
+    "profile_id": "geophysicist_koc_kw",
+    "score": 0.0,
+    "reason": "A Figma UI design tutorial for dropdown menus is relevant only to UX/UI designers. This has no connection to this profile's professional field or interests.",
+    "think_text": "Figma tutorial for dropdown menu animation. UI/UX design content, not relevant to engineering, finance, cybersecurity, or geoscience profiles."
+  },
+  {
+    "article_id": "1ef2cd186cff",
+    "profile_id": "cpeg_student_kw",
+    "score": 2.0,
+    "reason": "A foreign job search platform could have some utility for a student seeking international opportunities, but as a CompEng student focused on Kuwait's oil/tech sector, this generic job platform is not very targeted.",
+    "think_text": "CompEng student seeking Kuwait positions. Generic international job platform - not targeted to their specific interests or geography."
+  },
+  {
+    "article_id": "1ef2cd186cff",
+    "profile_id": "petrol_eng_kw",
+    "score": 2.0,
+    "reason": "A generic international job search platform has limited value for a PetE student focused on Kuwait's upstream oil and gas sector.",
+    "think_text": "PetE student. Generic job search platform - not targeted to petroleum engineering in Kuwait/Gulf."
+  },
+  {
+    "article_id": "1ef2cd186cff",
+    "profile_id": "finance_student_kw",
+    "score": 2.0,
+    "reason": "A generic foreign job search platform is not specifically relevant to a finance student tracking GCC banking and fintech opportunities.",
+    "think_text": "Finance student. Generic job platform - not GCC finance-specific."
+  },
+  {
+    "article_id": "1ef2cd186cff",
+    "profile_id": "cybersecurity_kw",
+    "score": 1.0,
+    "reason": "A generic international job search platform has no specific cybersecurity or banking security relevance.",
+    "think_text": "Cybersecurity analyst (mid-career). Generic job platform - not relevant to their established career."
+  },
+  {
+    "article_id": "1ef2cd186cff",
+    "profile_id": "geophysicist_koc_kw",
+    "score": 0.5,
+    "reason": "A generic job search platform is irrelevant to a senior geophysicist already established at KOC.",
+    "think_text": "Senior geophysicist at KOC. Generic job platform - they're already in a senior established role."
+  },
+  {
+    "article_id": "f2e8b8337e48",
+    "profile_id": "cpeg_student_kw",
+    "score": 8.0,
+    "reason": "An article about software development in the Middle East covering Vision 2030, AI adoption, and digital infrastructure is highly relevant to a CompEng student in Kuwait. It describes the regional tech job market they're entering, with direct mentions of AI and software-driven services in the Gulf.",
+    "think_text": "CompEng student in Kuwait seeking tech positions. This article covers Middle East software development, AI adoption, Vision 2030 digital push. Directly relevant to understanding the regional job market and technology landscape. Highly actionable for career planning."
+  },
+  {
+    "article_id": "f2e8b8337e48",
+    "profile_id": "petrol_eng_kw",
+    "score": 2.0,
+    "reason": "Middle East software development trends are tangentially relevant as digital transformation touches oil and gas, but this article focuses on ICT/software careers, not petroleum engineering.",
+    "think_text": "PetE student. Middle East software development - digital transformation touches O&G but this is about software careers, not petroleum."
+  },
+  {
+    "article_id": "f2e8b8337e48",
+    "profile_id": "finance_student_kw",
+    "score": 4.0,
+    "reason": "Middle East digital infrastructure and Vision 2030 coverage has moderate relevance to a finance student as fintech growth depends on regional tech adoption. However, the article focuses on software development, not financial services specifically.",
+    "think_text": "Finance student in Kuwait. Middle East tech landscape affects fintech sector. Vision 2030 is relevant to GCC economics. But article is about software development, not finance directly."
+  },
+  {
+    "article_id": "f2e8b8337e48",
+    "profile_id": "cybersecurity_kw",
+    "score": 4.5,
+    "reason": "Middle East digital infrastructure growth means expanding attack surfaces and increased demand for cybersecurity. Relevant as background context for a cybersecurity professional in the region, though the article focuses on software development, not security.",
+    "think_text": "Cybersecurity analyst in Kuwait. More digital infrastructure = more cyber risk. Regional tech growth context is valuable. But article doesn't cover security specifically."
+  },
+  {
+    "article_id": "f2e8b8337e48",
+    "profile_id": "geophysicist_koc_kw",
+    "score": 1.5,
+    "reason": "Middle East software development trends have minimal direct relevance to a geophysicist's work in seismic data processing, though digital transformation broadly touches all industries.",
+    "think_text": "Senior geophysicist. Software development in ME - peripheral to geophysics work."
+  },
+  {
+    "article_id": "ddf69f71cfc1",
+    "profile_id": "cpeg_student_kw",
+    "score": 5.0,
+    "reason": "IoT as core infrastructure is relevant to a CompEng student interested in embedded systems. IoT involves hardware-software integration, networking, and embedded computing. However, the article is general industry commentary, not technical or Kuwait-specific.",
+    "think_text": "CompEng student interested in embedded systems. IoT is closely related to embedded systems. General industry trend piece - relevant but not deeply technical or geographically targeted."
+  },
+  {
+    "article_id": "ddf69f71cfc1",
+    "profile_id": "petrol_eng_kw",
+    "score": 2.0,
+    "reason": "IoT in infrastructure has some oil and gas applications (wellhead monitoring, pipeline sensors) but this article is about general IoT infrastructure, not petroleum-specific applications.",
+    "think_text": "PetE student. IoT is used in O&G but this is general IoT commentary, not petroleum-specific."
+  },
+  {
+    "article_id": "ddf69f71cfc1",
+    "profile_id": "cybersecurity_kw",
+    "score": 5.0,
+    "reason": "IoT as core infrastructure raises significant cybersecurity concerns - IoT device security, network segmentation, and OT/IT convergence are key issues for security professionals. Relevant as a threat landscape context article.",
+    "think_text": "Cybersecurity analyst. IoT infrastructure = expanded attack surface, IoT security challenges. Relevant to understanding evolving threat landscape, especially for banking infrastructure."
+  },
+  {
+    "article_id": "ddf69f71cfc1",
+    "profile_id": "finance_student_kw",
+    "score": 1.5,
+    "reason": "IoT infrastructure trends have minimal direct relevance to finance, banking, or capital markets in the GCC.",
+    "think_text": "Finance student. IoT infrastructure - not finance-relevant."
+  },
+  {
+    "article_id": "ddf69f71cfc1",
+    "profile_id": "geophysicist_koc_kw",
+    "score": 2.0,
+    "reason": "IoT in infrastructure has some applications in geophysical monitoring (seismic sensors, field instrumentation) but this article is too general to be specifically useful.",
+    "think_text": "Senior geophysicist. IoT has some geophysical sensor applications but article is general, not geoscience-specific."
+  },
+  {
+    "article_id": "18c7756a6756",
+    "profile_id": "cpeg_student_kw",
+    "score": 7.5,
+    "reason": "MIT Technology Review's annual breakthrough technologies list is essential reading for a CompEng student interested in AI, quantum computing, and semiconductors. This typically covers cutting-edge advances directly relevant to their field and career planning.",
+    "think_text": "CompEng student interested in AI, quantum, semiconductors. MIT Tech Review's breakthrough list is a flagship publication covering exactly these areas. Highly relevant for staying current and career awareness."
+  },
+  {
+    "article_id": "18c7756a6756",
+    "profile_id": "petrol_eng_kw",
+    "score": 3.0,
+    "reason": "MIT Technology Review's breakthrough technologies sometimes include energy and materials innovations relevant to petroleum engineering, but the focus is typically broad tech innovation, not petroleum-specific.",
+    "think_text": "PetE student. MIT breakthrough list may include energy tech but is broad technology, not petroleum-specific."
+  },
+  {
+    "article_id": "18c7756a6756",
+    "profile_id": "finance_student_kw",
+    "score": 3.5,
+    "reason": "Breakthrough technology trends can impact financial markets and fintech. A finance student should be aware of major tech shifts, but this is a technology publication, not a financial analysis.",
+    "think_text": "Finance student. Tech breakthroughs can impact markets and fintech. General awareness value but not finance-focused."
+  },
+  {
+    "article_id": "18c7756a6756",
+    "profile_id": "cybersecurity_kw",
+    "score": 4.0,
+    "reason": "MIT's breakthrough technologies may include cybersecurity-relevant advances (AI, encryption, quantum computing threats). Useful for a cybersecurity professional tracking emerging threats and defensive technologies.",
+    "think_text": "Cybersecurity analyst. Breakthrough tech list may cover AI, quantum - both have cybersecurity implications. General awareness value."
+  },
+  {
+    "article_id": "18c7756a6756",
+    "profile_id": "geophysicist_koc_kw",
+    "score": 2.0,
+    "reason": "General breakthrough technologies are unlikely to specifically address geophysics or seismic processing, making this only broadly interesting.",
+    "think_text": "Senior geophysicist. Broad tech breakthrough list - unlikely to cover geophysics specifically."
+  },
+  {
+    "article_id": "5d029909e649",
+    "profile_id": "cpeg_student_kw",
+    "score": 6.0,
+    "reason": "A student seeking a project partner for a fintech/smart contracts project aligns with this CompEng student's interests in fintech and could provide hands-on blockchain experience. However, the posting is on r/ethdev and may not be Kuwait-based.",
+    "think_text": "CompEng student interested in fintech. Student project partner for smart contracts/fintech - good learning opportunity, aligns with fintech interest. Location unclear."
+  },
+  {
+    "article_id": "5d029909e649",
+    "profile_id": "petrol_eng_kw",
+    "score": 0.5,
+    "reason": "A fintech student project partner request has no connection to petroleum engineering.",
+    "think_text": "PetE student. Fintech smart contracts project - completely unrelated to petroleum engineering."
+  },
+  {
+    "article_id": "5d029909e649",
+    "profile_id": "finance_student_kw",
+    "score": 7.0,
+    "reason": "A student fintech project involving smart contracts directly aligns with this finance student's interests in fintech and blockchain. This is an actionable opportunity for hands-on experience in blockchain finance - exactly the kind of project that builds a fintech-focused resume.",
+    "think_text": "Finance student interested in fintech and blockchain. This is a student project in fintech/smart contracts - directly actionable opportunity matching their interests. Great resume-builder for fintech career."
+  },
+  {
+    "article_id": "5d029909e649",
+    "profile_id": "cybersecurity_kw",
+    "score": 1.5,
+    "reason": "A fintech student project has minimal cybersecurity relevance, though smart contract security is a niche area.",
+    "think_text": "Cybersecurity analyst. Student fintech project - tangential smart contract security angle but not relevant to banking SOC work."
+  },
+  {
+    "article_id": "5d029909e649",
+    "profile_id": "geophysicist_koc_kw",
+    "score": 0.0,
+    "reason": "A fintech student project request is completely irrelevant to geophysics.",
+    "think_text": "Senior geophysicist. Fintech project - zero relevance."
+  },
+  {
+    "article_id": "17358e40141a",
+    "profile_id": "cpeg_student_kw",
+    "score": 0.0,
+    "reason": "A Microsoft support article about adjusting Windows display brightness is basic consumer tech support with zero professional or academic relevance.",
+    "think_text": "Windows display settings help page - pure noise for all professional profiles."
+  },
+  {
+    "article_id": "17358e40141a",
+    "profile_id": "petrol_eng_kw",
+    "score": 0.0,
+    "reason": "A Microsoft support article about adjusting Windows display brightness is basic consumer tech support with zero professional or academic relevance.",
+    "think_text": "Windows display settings help page - pure noise for all professional profiles."
+  },
+  {
+    "article_id": "17358e40141a",
+    "profile_id": "finance_student_kw",
+    "score": 0.0,
+    "reason": "A Microsoft support article about adjusting Windows display brightness is basic consumer tech support with zero professional or academic relevance.",
+    "think_text": "Windows display settings help page - pure noise for all professional profiles."
+  },
+  {
+    "article_id": "17358e40141a",
+    "profile_id": "cybersecurity_kw",
+    "score": 0.0,
+    "reason": "A Microsoft support article about adjusting Windows display brightness is basic consumer tech support with zero professional or academic relevance.",
+    "think_text": "Windows display settings help page - pure noise for all professional profiles."
+  },
+  {
+    "article_id": "17358e40141a",
+    "profile_id": "geophysicist_koc_kw",
+    "score": 0.0,
+    "reason": "A Microsoft support article about adjusting Windows display brightness is basic consumer tech support with zero professional or academic relevance.",
+    "think_text": "Windows display settings help page - pure noise for all professional profiles."
+  },
+  {
+    "article_id": "b5dd892f0d61",
+    "profile_id": "cpeg_student_kw",
+    "score": 2.0,
+    "reason": "eLearning trends for L&D professionals are primarily relevant to education/training specialists. Has some AI/ML relevance for a CompEng student but is focused on learning & development, not engineering.",
+    "think_text": "eLearning trends article for L&D experts. Very niche to education/training industry. Minimal relevance to engineering, finance, cybersecurity, or geoscience professionals."
+  },
+  {
+    "article_id": "b5dd892f0d61",
+    "profile_id": "petrol_eng_kw",
+    "score": 1.0,
+    "reason": "eLearning trends for L&D professionals are primarily relevant to education/training specialists. Not aligned with this profile's field or interests.",
+    "think_text": "eLearning trends article for L&D experts. Very niche to education/training industry. Minimal relevance to engineering, finance, cybersecurity, or geoscience professionals."
+  },
+  {
+    "article_id": "b5dd892f0d61",
+    "profile_id": "finance_student_kw",
+    "score": 1.0,
+    "reason": "eLearning trends for L&D professionals are primarily relevant to education/training specialists. Not aligned with this profile's field or interests.",
+    "think_text": "eLearning trends article for L&D experts. Very niche to education/training industry. Minimal relevance to engineering, finance, cybersecurity, or geoscience professionals."
+  },
+  {
+    "article_id": "b5dd892f0d61",
+    "profile_id": "cybersecurity_kw",
+    "score": 1.0,
+    "reason": "eLearning trends for L&D professionals are primarily relevant to education/training specialists. Not aligned with this profile's field or interests.",
+    "think_text": "eLearning trends article for L&D experts. Very niche to education/training industry. Minimal relevance to engineering, finance, cybersecurity, or geoscience professionals."
+  },
+  {
+    "article_id": "b5dd892f0d61",
+    "profile_id": "geophysicist_koc_kw",
+    "score": 1.0,
+    "reason": "eLearning trends for L&D professionals are primarily relevant to education/training specialists. Not aligned with this profile's field or interests.",
+    "think_text": "eLearning trends article for L&D experts. Very niche to education/training industry. Minimal relevance to engineering, finance, cybersecurity, or geoscience professionals."
+  },
+  {
+    "article_id": "eea19c14bae7",
+    "profile_id": "cpeg_student_kw",
+    "score": 4.0,
+    "reason": "ETSI standards for smart networks and services relate to networking and communications systems. Moderately relevant to a CompEng student as networking is part of the curriculum, but this is a standards body event, not directly about AI, semiconductors, or Kuwait job market.",
+    "think_text": "CompEng student. ETSI networking standards event - related to communications/networking. Moderate technical relevance but not a core interest area."
+  },
+  {
+    "article_id": "eea19c14bae7",
+    "profile_id": "petrol_eng_kw",
+    "score": 0.5,
+    "reason": "Smart network standards have no connection to petroleum engineering.",
+    "think_text": "PetE student. Networking standards event - irrelevant to petroleum engineering."
+  },
+  {
+    "article_id": "eea19c14bae7",
+    "profile_id": "finance_student_kw",
+    "score": 0.5,
+    "reason": "ETSI networking standards have no direct relevance to finance or banking.",
+    "think_text": "Finance student. Smart network standards - no finance connection."
+  },
+  {
+    "article_id": "eea19c14bae7",
+    "profile_id": "cybersecurity_kw",
+    "score": 3.5,
+    "reason": "Smart network security standards and protocols from ETSI have some relevance to cybersecurity, particularly for securing network infrastructure. ETSI sets security standards that affect banking network compliance.",
+    "think_text": "Cybersecurity analyst. ETSI sets network security standards. Smart networks and real-time protocols have security implications. Moderate relevance for compliance and infrastructure security."
+  },
+  {
+    "article_id": "eea19c14bae7",
+    "profile_id": "geophysicist_koc_kw",
+    "score": 0.5,
+    "reason": "Smart network standards have no relevance to geophysics or seismic data processing.",
+    "think_text": "Senior geophysicist. Networking standards - irrelevant to geoscience work."
+  },
+  {
+    "article_id": "18ca83614646",
+    "profile_id": "cpeg_student_kw",
+    "score": 0.5,
+    "reason": "Nursing and healthcare positions in UAE are completely outside this profile's field. No overlap with engineering, finance, cybersecurity, or geoscience careers.",
+    "think_text": "Healthcare/nursing jobs in UAE. Not relevant to any of the 5 target profiles in engineering, finance, cybersecurity, or geoscience."
+  },
+  {
+    "article_id": "18ca83614646",
+    "profile_id": "petrol_eng_kw",
+    "score": 0.5,
+    "reason": "Nursing and healthcare positions in UAE are completely outside this profile's field. No overlap with engineering, finance, cybersecurity, or geoscience careers.",
+    "think_text": "Healthcare/nursing jobs in UAE. Not relevant to any of the 5 target profiles in engineering, finance, cybersecurity, or geoscience."
+  },
+  {
+    "article_id": "18ca83614646",
+    "profile_id": "finance_student_kw",
+    "score": 0.5,
+    "reason": "Nursing and healthcare positions in UAE are completely outside this profile's field. No overlap with engineering, finance, cybersecurity, or geoscience careers.",
+    "think_text": "Healthcare/nursing jobs in UAE. Not relevant to any of the 5 target profiles in engineering, finance, cybersecurity, or geoscience."
+  },
+  {
+    "article_id": "18ca83614646",
+    "profile_id": "cybersecurity_kw",
+    "score": 0.5,
+    "reason": "Nursing and healthcare positions in UAE are completely outside this profile's field. No overlap with engineering, finance, cybersecurity, or geoscience careers.",
+    "think_text": "Healthcare/nursing jobs in UAE. Not relevant to any of the 5 target profiles in engineering, finance, cybersecurity, or geoscience."
+  },
+  {
+    "article_id": "18ca83614646",
+    "profile_id": "geophysicist_koc_kw",
+    "score": 0.5,
+    "reason": "Nursing and healthcare positions in UAE are completely outside this profile's field. No overlap with engineering, finance, cybersecurity, or geoscience careers.",
+    "think_text": "Healthcare/nursing jobs in UAE. Not relevant to any of the 5 target profiles in engineering, finance, cybersecurity, or geoscience."
+  },
+  {
+    "article_id": "a05884b08a33",
+    "profile_id": "cpeg_student_kw",
+    "score": 3.0,
+    "reason": "GCC fintech news (Qatari PayLater raising $10M for BNPL) has some relevance given the student's fintech interest, but this is about Moroccan/Qatari startups, not Kuwait-specific, and is more business than engineering.",
+    "think_text": "CompEng student interested in fintech. GCC fintech funding news - somewhat relevant to fintech interest but business-focused, not engineering."
+  },
+  {
+    "article_id": "a05884b08a33",
+    "profile_id": "petrol_eng_kw",
+    "score": 0.5,
+    "reason": "African and GCC fintech startup news has no connection to petroleum engineering.",
+    "think_text": "PetE student. Fintech startups - no petroleum relevance."
+  },
+  {
+    "article_id": "a05884b08a33",
+    "profile_id": "finance_student_kw",
+    "score": 7.5,
+    "reason": "Qatari fintech startup PayLater raising $10M for BNPL/embedded finance across the GCC is highly relevant to a finance student tracking GCC fintech disruption. This covers fintech fundraising, buy-now-pay-later trends, and GCC expansion - directly in their interest areas.",
+    "think_text": "Finance student tracking GCC fintech. Qatari PayLater $10M for BNPL across GCC - directly covers fintech disruption in the Gulf region. Highly relevant to fintech and capital markets interests."
+  },
+  {
+    "article_id": "a05884b08a33",
+    "profile_id": "cybersecurity_kw",
+    "score": 1.5,
+    "reason": "Fintech startup funding news has minimal direct cybersecurity relevance, though fintech growth means more targets requiring protection.",
+    "think_text": "Cybersecurity analyst. Fintech funding news - tangential (more fintech = more banking cyber targets) but not directly actionable."
+  },
+  {
+    "article_id": "a05884b08a33",
+    "profile_id": "geophysicist_koc_kw",
+    "score": 0.0,
+    "reason": "Fintech startup news has zero relevance to geophysics or oil and gas.",
+    "think_text": "Senior geophysicist. Fintech news - completely irrelevant."
+  },
+  {
+    "article_id": "6f6ab3fb11be",
+    "profile_id": "cpeg_student_kw",
+    "score": 3.0,
+    "reason": "A weekly fintech deals roundup with $500M raised is relevant to the student's fintech interest but is deal/investment focused rather than technical. Useful for understanding the fintech landscape.",
+    "think_text": "CompEng student interested in fintech. Weekly fintech deals summary - shows industry momentum. Business-focused rather than technical."
+  },
+  {
+    "article_id": "6f6ab3fb11be",
+    "profile_id": "petrol_eng_kw",
+    "score": 0.5,
+    "reason": "Fintech investment deals have no relevance to petroleum engineering.",
+    "think_text": "PetE student. Fintech deals - no petroleum connection."
+  },
+  {
+    "article_id": "6f6ab3fb11be",
+    "profile_id": "finance_student_kw",
+    "score": 8.0,
+    "reason": "A weekly roundup of 19 fintech deals totaling ~$500M is highly relevant to a finance student tracking fintech disruption. Covers Series B funding, self-serve banking platforms, and fintech startup ecosystem - directly aligned with their fintech, banking, and capital markets interests.",
+    "think_text": "Finance student tracking fintech. This is a comprehensive weekly fintech deals roundup - covers funding rounds, banking platforms, fintech startups. Directly relevant to fintech and capital markets interests. Actionable market intelligence."
+  },
+  {
+    "article_id": "6f6ab3fb11be",
+    "profile_id": "cybersecurity_kw",
+    "score": 1.0,
+    "reason": "Fintech investment deals have no direct cybersecurity operational relevance.",
+    "think_text": "Cybersecurity analyst. Fintech deal roundup - not cybersecurity-relevant."
+  },
+  {
+    "article_id": "6f6ab3fb11be",
+    "profile_id": "geophysicist_koc_kw",
+    "score": 0.0,
+    "reason": "Fintech investment news has zero relevance to geophysics.",
+    "think_text": "Senior geophysicist. Fintech deals - completely irrelevant."
+  },
+  {
+    "article_id": "5b5e0e3b788a",
+    "profile_id": "cpeg_student_kw",
+    "score": 0.0,
+    "reason": "A TikTok dance video compilation is entertainment/social media noise with zero professional or academic relevance.",
+    "think_text": "TikTok dance video - pure noise for all professional profiles."
+  },
+  {
+    "article_id": "5b5e0e3b788a",
+    "profile_id": "petrol_eng_kw",
+    "score": 0.0,
+    "reason": "A TikTok dance video compilation is entertainment/social media noise with zero professional or academic relevance.",
+    "think_text": "TikTok dance video - pure noise for all professional profiles."
+  },
+  {
+    "article_id": "5b5e0e3b788a",
+    "profile_id": "finance_student_kw",
+    "score": 0.0,
+    "reason": "A TikTok dance video compilation is entertainment/social media noise with zero professional or academic relevance.",
+    "think_text": "TikTok dance video - pure noise for all professional profiles."
+  },
+  {
+    "article_id": "5b5e0e3b788a",
+    "profile_id": "cybersecurity_kw",
+    "score": 0.0,
+    "reason": "A TikTok dance video compilation is entertainment/social media noise with zero professional or academic relevance.",
+    "think_text": "TikTok dance video - pure noise for all professional profiles."
+  },
+  {
+    "article_id": "5b5e0e3b788a",
+    "profile_id": "geophysicist_koc_kw",
+    "score": 0.0,
+    "reason": "A TikTok dance video compilation is entertainment/social media noise with zero professional or academic relevance.",
+    "think_text": "TikTok dance video - pure noise for all professional profiles."
+  },
+  {
+    "article_id": "253ce3ae750b",
+    "profile_id": "cpeg_student_kw",
+    "score": 1.0,
+    "reason": "A cybersecurity vendor's retail/ecommerce services page has no relevance to computer engineering studies or Kuwait's tech job market.",
+    "think_text": "CompEng student. Retail cybersecurity vendor page - not relevant to their engineering interests."
+  },
+  {
+    "article_id": "253ce3ae750b",
+    "profile_id": "petrol_eng_kw",
+    "score": 0.5,
+    "reason": "Retail cybersecurity services have no connection to petroleum engineering.",
+    "think_text": "PetE student. Retail cybersecurity - no petroleum connection."
+  },
+  {
+    "article_id": "253ce3ae750b",
+    "profile_id": "finance_student_kw",
+    "score": 1.0,
+    "reason": "Retail cybersecurity services (GDPR, PCI DSS) are tangentially related to financial compliance but this is a vendor marketing page for retail, not banking.",
+    "think_text": "Finance student. Retail cybersecurity vendor page - tangential PCI DSS overlap with banking but focused on retail sector."
+  },
+  {
+    "article_id": "253ce3ae750b",
+    "profile_id": "cybersecurity_kw",
+    "score": 5.5,
+    "reason": "Redscan's retail cybersecurity services page covers GDPR, DPA 2018, and PCI DSS compliance - relevant compliance frameworks for a cybersecurity analyst. However, this is a vendor marketing page (not a threat report) and focused on retail, not banking. PCI DSS is relevant to their banking work.",
+    "think_text": "Cybersecurity analyst. Retail cybersecurity services - PCI DSS compliance is relevant to banking. GDPR/DPA coverage. But it's a vendor marketing page and retail-focused, not banking. Moderate relevance."
+  },
+  {
+    "article_id": "253ce3ae750b",
+    "profile_id": "geophysicist_koc_kw",
+    "score": 0.0,
+    "reason": "Retail cybersecurity services have zero relevance to geophysics.",
+    "think_text": "Senior geophysicist. Retail cybersecurity vendor - completely irrelevant."
+  },
+  {
+    "article_id": "8552fae8d58d",
+    "profile_id": "cpeg_student_kw",
+    "score": 2.0,
+    "reason": "An electrical engineer position in Ontario, Canada is in a related engineering field but wrong geography (Canada, not Kuwait) and requires knowledge of Ontario-specific standards (IESO, NERC). Not suitable for a Kuwait-based CompEng student.",
+    "think_text": "CompEng student in Kuwait. Electrical engineer role in Ontario Canada - related field but wrong geography and requires local regulatory knowledge."
+  },
+  {
+    "article_id": "8552fae8d58d",
+    "profile_id": "petrol_eng_kw",
+    "score": 1.0,
+    "reason": "An electrical engineering position in Ontario energy has no relevance to petroleum engineering in Kuwait.",
+    "think_text": "PetE student. Electrical engineer job in Canada - wrong field, wrong geography."
+  },
+  {
+    "article_id": "8552fae8d58d",
+    "profile_id": "finance_student_kw",
+    "score": 0.5,
+    "reason": "An electrical engineering job in Canada has no relevance to finance.",
+    "think_text": "Finance student. Electrical engineering job - completely irrelevant to finance."
+  },
+  {
+    "article_id": "8552fae8d58d",
+    "profile_id": "cybersecurity_kw",
+    "score": 1.0,
+    "reason": "An electrical engineering position has no direct cybersecurity relevance.",
+    "think_text": "Cybersecurity analyst. Electrical engineer job - no cybersecurity connection."
+  },
+  {
+    "article_id": "8552fae8d58d",
+    "profile_id": "geophysicist_koc_kw",
+    "score": 0.5,
+    "reason": "An electrical engineering job in Ontario has no relevance to geophysics at KOC.",
+    "think_text": "Senior geophysicist. Electrical engineer in Canada - irrelevant."
+  },
+  {
+    "article_id": "5d91b2c4375a",
+    "profile_id": "cpeg_student_kw",
+    "score": 1.0,
+    "reason": "Climate news about microplastics in oceans has no relevance to computer engineering, AI, or semiconductor interests.",
+    "think_text": "CompEng student. Climate/microplastics news - not related to CompEng or tech interests."
+  },
+  {
+    "article_id": "5d91b2c4375a",
+    "profile_id": "petrol_eng_kw",
+    "score": 2.5,
+    "reason": "Climate science news has some peripheral relevance to petroleum engineering as the oil industry faces increasing environmental scrutiny. However, this is about ocean microplastics, not directly about petroleum operations.",
+    "think_text": "PetE student. Climate news about ocean microplastics - peripheral to oil industry environmental concerns but not about petroleum operations directly."
+  },
+  {
+    "article_id": "5d91b2c4375a",
+    "profile_id": "finance_student_kw",
+    "score": 1.5,
+    "reason": "Climate science news has minimal direct relevance to GCC finance and banking, though climate risk is an emerging factor in investment decisions.",
+    "think_text": "Finance student. Climate news - tangential ESG/climate risk angle but this is science news, not financial analysis."
+  },
+  {
+    "article_id": "5d91b2c4375a",
+    "profile_id": "cybersecurity_kw",
+    "score": 0.5,
+    "reason": "Climate science news about ocean microplastics has no cybersecurity relevance.",
+    "think_text": "Cybersecurity analyst. Climate/microplastics - zero relevance."
+  },
+  {
+    "article_id": "5d91b2c4375a",
+    "profile_id": "geophysicist_koc_kw",
+    "score": 3.0,
+    "reason": "Climate science and ocean research have some overlap with geoscience broadly. A geophysicist may have academic interest in earth science phenomena, though ocean microplastics are not related to seismic processing or petroleum geoscience.",
+    "think_text": "Senior geophysicist. Earth science news - some general geoscience interest. Ocean research is adjacent to marine geophysics. But microplastics are not related to their specific work."
+  },
+  {
+    "article_id": "29b05e3fae4d",
+    "profile_id": "cpeg_student_kw",
+    "score": 1.5,
+    "reason": "A popular science article about geological and oceanographic phenomena is interesting but not relevant to computer engineering, AI, or tech career interests.",
+    "think_text": "CompEng student. Popular science about geological phenomena - interesting but not career or field relevant."
+  },
+  {
+    "article_id": "29b05e3fae4d",
+    "profile_id": "petrol_eng_kw",
+    "score": 3.5,
+    "reason": "Geological phenomena including 'singing dunes' and subsurface processes are tangentially related to petroleum geology and geoscience. A PetE student may find the earth science content academically interesting.",
+    "think_text": "PetE student. Geological phenomena article - some earth science overlap with petroleum geology. 'Singing dunes' and subsurface processes are loosely connected to geoscience education."
+  },
+  {
+    "article_id": "29b05e3fae4d",
+    "profile_id": "finance_student_kw",
+    "score": 0.5,
+    "reason": "Popular science about geological phenomena has no connection to finance or banking.",
+    "think_text": "Finance student. Popular science article - no finance relevance."
+  },
+  {
+    "article_id": "29b05e3fae4d",
+    "profile_id": "cybersecurity_kw",
+    "score": 0.5,
+    "reason": "Geological science phenomena have no cybersecurity relevance.",
+    "think_text": "Cybersecurity analyst. Earth science curiosities - no cyber connection."
+  },
+  {
+    "article_id": "29b05e3fae4d",
+    "profile_id": "geophysicist_koc_kw",
+    "score": 5.0,
+    "reason": "A science article about geological phenomena including subsurface processes, desert dunes, and deep earth discoveries has moderate relevance to a geophysicist. 'Singing dunes' relates to seismic/acoustic properties of sediments, and deep earth phenomena connect to their subsurface imaging work.",
+    "think_text": "Senior geophysicist. Earth science phenomena article - singing dunes involves acoustic/seismic properties of sand, deep earth processes connect to subsurface understanding. General geoscience interest and professional curiosity."
+  },
+  {
+    "article_id": "c6847e13b57d",
+    "profile_id": "cpeg_student_kw",
+    "score": 0.5,
+    "reason": "A US investment fund selling a construction materials stock has no relevance to computer engineering or Kuwait tech sector.",
+    "think_text": "CompEng student. US fund selling TREX stock - no engineering or Kuwait relevance."
+  },
+  {
+    "article_id": "c6847e13b57d",
+    "profile_id": "petrol_eng_kw",
+    "score": 0.5,
+    "reason": "A US investment fund's stock trade in construction materials has no petroleum engineering relevance.",
+    "think_text": "PetE student. TREX stock sale - no petroleum connection."
+  },
+  {
+    "article_id": "c6847e13b57d",
+    "profile_id": "finance_student_kw",
+    "score": 3.0,
+    "reason": "An investment management firm's portfolio decision (selling TREX for better opportunities) is somewhat relevant to a finance student studying equity research and portfolio management. However, this is a US small-cap story, not GCC markets.",
+    "think_text": "Finance student interested in equity research and portfolio management. Investment fund portfolio decision - relevant to learning about equity research methodology, but US small-cap, not GCC markets."
+  },
+  {
+    "article_id": "c6847e13b57d",
+    "profile_id": "cybersecurity_kw",
+    "score": 0.0,
+    "reason": "Stock trading of a construction materials company has zero cybersecurity relevance.",
+    "think_text": "Cybersecurity analyst. Investment fund stock trade - no cyber relevance."
+  },
+  {
+    "article_id": "c6847e13b57d",
+    "profile_id": "geophysicist_koc_kw",
+    "score": 0.0,
+    "reason": "A fund selling a construction materials stock has zero relevance to geophysics.",
+    "think_text": "Senior geophysicist. Stock trade news - irrelevant."
+  },
+  {
+    "article_id": "0974c0d9e8bb",
+    "profile_id": "cpeg_student_kw",
+    "score": 7.5,
+    "reason": "Qualcomm taping out a 2nm chip is a major semiconductor breakthrough directly aligned with this student's interests in semiconductors. India's role as a chip design hub adds industry context. Very relevant for understanding the semiconductor industry landscape.",
+    "think_text": "CompEng student interested in semiconductors. Qualcomm's 2nm chip is a landmark semiconductor achievement. India as chip design hub shows industry trends. Directly hits semiconductor interest."
+  },
+  {
+    "article_id": "0974c0d9e8bb",
+    "profile_id": "petrol_eng_kw",
+    "score": 0.5,
+    "reason": "Qualcomm's semiconductor achievements have no connection to petroleum engineering.",
+    "think_text": "PetE student. Semiconductor chip news - no petroleum relevance."
+  },
+  {
+    "article_id": "0974c0d9e8bb",
+    "profile_id": "finance_student_kw",
+    "score": 1.5,
+    "reason": "Qualcomm's chip breakthrough is primarily a tech story. Some investment angle exists (Qualcomm stock) but not relevant to GCC banking or fintech.",
+    "think_text": "Finance student. Semiconductor company news - marginal investment angle but wrong sector and geography."
+  },
+  {
+    "article_id": "0974c0d9e8bb",
+    "profile_id": "cybersecurity_kw",
+    "score": 1.0,
+    "reason": "Qualcomm's chip manufacturing achievement has no direct cybersecurity implications.",
+    "think_text": "Cybersecurity analyst. Semiconductor manufacturing news - no security relevance."
+  },
+  {
+    "article_id": "0974c0d9e8bb",
+    "profile_id": "geophysicist_koc_kw",
+    "score": 0.5,
+    "reason": "Semiconductor chip manufacturing news has no relevance to geophysics.",
+    "think_text": "Senior geophysicist. Qualcomm chip - irrelevant to geoscience."
+  },
+  {
+    "article_id": "834d9c577dcf",
+    "profile_id": "cpeg_student_kw",
+    "score": 4.0,
+    "reason": "AWS CloudOps certification could be valuable for a CompEng student building cloud computing skills. However, this is a Udemy course listing, not industry news, and AWS cloud ops is not their primary interest area (AI, semiconductors, embedded systems).",
+    "think_text": "CompEng student. AWS certification course - cloud computing is relevant to tech careers. But it's a course ad, not news, and cloud ops isn't their primary focus."
+  },
+  {
+    "article_id": "834d9c577dcf",
+    "profile_id": "petrol_eng_kw",
+    "score": 1.0,
+    "reason": "AWS cloud certification has no relevance to petroleum engineering studies.",
+    "think_text": "PetE student. Cloud certification course - not relevant to petroleum engineering."
+  },
+  {
+    "article_id": "834d9c577dcf",
+    "profile_id": "finance_student_kw",
+    "score": 1.5,
+    "reason": "AWS cloud certification is tangentially relevant as banking increasingly uses cloud infrastructure, but this is an IT operations certification, not finance-related.",
+    "think_text": "Finance student. AWS cloud cert - tangential to banking IT but not a finance skill."
+  },
+  {
+    "article_id": "834d9c577dcf",
+    "profile_id": "cybersecurity_kw",
+    "score": 3.5,
+    "reason": "AWS CloudOps certification covers cloud infrastructure that a cybersecurity analyst should understand, especially as banking moves to cloud. Knowledge of cloud operations helps with cloud security. However, this is an IT ops cert, not a security cert.",
+    "think_text": "Cybersecurity analyst. Cloud infrastructure knowledge supports cloud security understanding. AWS is widely used in banking. But this is ops cert, not security cert."
+  },
+  {
+    "article_id": "834d9c577dcf",
+    "profile_id": "geophysicist_koc_kw",
+    "score": 0.5,
+    "reason": "AWS cloud certification has no relevance to a geophysicist's work at KOC.",
+    "think_text": "Senior geophysicist. Cloud ops certification - irrelevant to geoscience work."
+  },
+  {
+    "article_id": "5bb59f0afab2",
+    "profile_id": "cpeg_student_kw",
+    "score": 5.0,
+    "reason": "Shell selling a stake in an offshore Brazil project to Kuwait's KUFPEC is Kuwait oil sector business news. Relevant as it involves a Kuwait company in international petroleum operations, though it's an upstream deal, not tech or engineering.",
+    "think_text": "CompEng student in Kuwait. KUFPEC is a Kuwaiti company acquiring upstream assets. Relevant for Kuwait industry awareness though not directly CompEng. Shows Kuwait oil sector activity."
+  },
+  {
+    "article_id": "5bb59f0afab2",
+    "profile_id": "petrol_eng_kw",
+    "score": 9.0,
+    "reason": "Shell selling a 20% stake in an offshore Brazil project to KUFPEC (Kuwait Foreign Petroleum Exploration Company) is directly actionable for a petroleum engineering student in Kuwait. This involves a Kuwait upstream company making an international acquisition - exactly the type of deal that could create job opportunities. Offshore operations and international E&P are core to their career interests.",
+    "think_text": "PetE student in Kuwait. KUFPEC (Kuwait's international upstream arm) acquiring Shell's Orca project stake in offshore Brazil. Directly involves tracked industry (upstream oil and gas), Kuwait company, and international E&P operations. Potentially creates career opportunities. Highly actionable."
+  },
+  {
+    "article_id": "5bb59f0afab2",
+    "profile_id": "finance_student_kw",
+    "score": 5.5,
+    "reason": "A major oil deal involving a Kuwaiti company (KUFPEC) acquiring a Shell stake is relevant to a finance student tracking Kuwaiti business activity. This is M&A/investment activity in the energy sector that could affect Kuwait's financial landscape.",
+    "think_text": "Finance student in Kuwait. KUFPEC (Kuwait company) acquiring Shell stake - M&A deal relevant to Kuwait business landscape. Energy sector investment activity touches their tracked industries indirectly."
+  },
+  {
+    "article_id": "5bb59f0afab2",
+    "profile_id": "cybersecurity_kw",
+    "score": 1.0,
+    "reason": "An oil and gas asset acquisition between Shell and KUFPEC has no cybersecurity relevance.",
+    "think_text": "Cybersecurity analyst. Oil deal between Shell and KUFPEC - no cyber connection."
+  },
+  {
+    "article_id": "5bb59f0afab2",
+    "profile_id": "geophysicist_koc_kw",
+    "score": 7.5,
+    "reason": "KUFPEC acquiring a 20% stake in Shell's offshore Brazil Orca project is relevant to a KOC geophysicist. KUFPEC is part of the Kuwait Petroleum Corporation group alongside KOC, and this offshore acquisition may require geophysical expertise for subsurface evaluation.",
+    "think_text": "Senior geophysicist at KOC. KUFPEC is part of KPC group (same parent as KOC). Offshore Brazil acquisition likely involves subsurface evaluation and geophysical assessment. Relevant to their professional network and industry awareness."
+  },
+  {
+    "article_id": "1d99e49cdd52",
+    "profile_id": "cpeg_student_kw",
+    "score": 0.0,
+    "reason": "A US travel nurse job listing has zero relevance to this profile in engineering, finance, cybersecurity, or geoscience.",
+    "think_text": "Travel nurse job listing in US - no relevance to any of the 5 target profiles."
+  },
+  {
+    "article_id": "1d99e49cdd52",
+    "profile_id": "petrol_eng_kw",
+    "score": 0.0,
+    "reason": "A US travel nurse job listing has zero relevance to this profile in engineering, finance, cybersecurity, or geoscience.",
+    "think_text": "Travel nurse job listing in US - no relevance to any of the 5 target profiles."
+  },
+  {
+    "article_id": "1d99e49cdd52",
+    "profile_id": "finance_student_kw",
+    "score": 0.0,
+    "reason": "A US travel nurse job listing has zero relevance to this profile in engineering, finance, cybersecurity, or geoscience.",
+    "think_text": "Travel nurse job listing in US - no relevance to any of the 5 target profiles."
+  },
+  {
+    "article_id": "1d99e49cdd52",
+    "profile_id": "cybersecurity_kw",
+    "score": 0.0,
+    "reason": "A US travel nurse job listing has zero relevance to this profile in engineering, finance, cybersecurity, or geoscience.",
+    "think_text": "Travel nurse job listing in US - no relevance to any of the 5 target profiles."
+  },
+  {
+    "article_id": "1d99e49cdd52",
+    "profile_id": "geophysicist_koc_kw",
+    "score": 0.0,
+    "reason": "A US travel nurse job listing has zero relevance to this profile in engineering, finance, cybersecurity, or geoscience.",
+    "think_text": "Travel nurse job listing in US - no relevance to any of the 5 target profiles."
+  },
+  {
+    "article_id": "fd5f0e60a7b1",
+    "profile_id": "cpeg_student_kw",
+    "score": 7.0,
+    "reason": "D-Wave's quantum computing advancement (post-NISQ universal gate machine by 2026) is directly relevant to a CompEng student interested in quantum computing. This represents a major industry milestone in one of their declared interest areas.",
+    "think_text": "CompEng student interested in quantum computing. D-Wave delivering universal gate quantum computer is a major quantum milestone. Directly hits their quantum computing interest."
+  },
+  {
+    "article_id": "fd5f0e60a7b1",
+    "profile_id": "petrol_eng_kw",
+    "score": 0.5,
+    "reason": "Quantum computing company developments have no relevance to petroleum engineering.",
+    "think_text": "PetE student. Quantum computing - no petroleum relevance."
+  },
+  {
+    "article_id": "fd5f0e60a7b1",
+    "profile_id": "finance_student_kw",
+    "score": 2.5,
+    "reason": "D-Wave as a publicly traded quantum computing company (NYSE:QBTS) has some investment interest, and quantum computing could eventually impact financial modeling, but this is primarily a tech story.",
+    "think_text": "Finance student. D-Wave is public (QBTS) - marginal investment/equity research interest. Quantum computing may impact finance long-term. But primarily a tech story, not GCC markets."
+  },
+  {
+    "article_id": "fd5f0e60a7b1",
+    "profile_id": "cybersecurity_kw",
+    "score": 3.0,
+    "reason": "Quantum computing poses long-term threats to current cryptographic systems. D-Wave's progress toward post-NISQ computing is relevant for a cybersecurity professional tracking quantum threats to encryption, though not immediately actionable.",
+    "think_text": "Cybersecurity analyst. Quantum computing threatens current encryption standards. D-Wave's progress matters for post-quantum cryptography planning. Relevant for long-term threat awareness but not immediately actionable for SOC operations."
+  },
+  {
+    "article_id": "fd5f0e60a7b1",
+    "profile_id": "geophysicist_koc_kw",
+    "score": 0.5,
+    "reason": "Quantum computing company developments have no relevance to geophysics or seismic processing.",
+    "think_text": "Senior geophysicist. Quantum computing company - no geoscience connection."
+  },
+  {
+    "article_id": "aab36685f2ec",
+    "profile_id": "cpeg_student_kw",
+    "score": 5.0,
+    "reason": "Military use of AI (Claude via Palantir) for operations is relevant to a CompEng student interested in AI, showing real-world AI deployment in critical applications. However, it's a defense/geopolitics story, not directly career-relevant.",
+    "think_text": "CompEng student interested in AI. Pentagon using Claude AI in military operations demonstrates significant AI capabilities. Interesting for AI interest but defense-focused, not career-relevant for Kuwait."
+  },
+  {
+    "article_id": "aab36685f2ec",
+    "profile_id": "petrol_eng_kw",
+    "score": 0.5,
+    "reason": "Military AI use in a Venezuela raid has no petroleum engineering relevance.",
+    "think_text": "PetE student. Pentagon AI military operations - no petroleum connection."
+  },
+  {
+    "article_id": "aab36685f2ec",
+    "profile_id": "finance_student_kw",
+    "score": 1.5,
+    "reason": "Pentagon's AI usage in military operations has minimal finance relevance, though Palantir stock could be of marginal investment interest.",
+    "think_text": "Finance student. Military AI news - tangential Palantir investment angle but not GCC finance relevant."
+  },
+  {
+    "article_id": "aab36685f2ec",
+    "profile_id": "cybersecurity_kw",
+    "score": 5.5,
+    "reason": "Military AI deployment via Palantir raises significant cybersecurity and AI governance questions. The intersection of AI and national security is relevant to a cybersecurity professional tracking AI-driven threats and defense capabilities.",
+    "think_text": "Cybersecurity analyst. AI in military operations via Palantir - relevant to understanding AI in national security, AI-driven threats, and the growing role of AI in cyber-adjacent operations. Also raises AI governance questions."
+  },
+  {
+    "article_id": "aab36685f2ec",
+    "profile_id": "geophysicist_koc_kw",
+    "score": 0.5,
+    "reason": "Pentagon AI use in military operations has no geophysics relevance.",
+    "think_text": "Senior geophysicist. Military AI news - no geoscience connection."
+  },
+  {
+    "article_id": "0c152569086d",
+    "profile_id": "cpeg_student_kw",
+    "score": 1.5,
+    "reason": "UK ITIL certification job trends are about IT service management careers in the UK. Not relevant to a CompEng student in Kuwait focused on AI, semiconductors, and local opportunities.",
+    "think_text": "CompEng student in Kuwait. UK ITIL cert trends - wrong geography, wrong specialization (IT service mgmt vs engineering)."
+  },
+  {
+    "article_id": "0c152569086d",
+    "profile_id": "petrol_eng_kw",
+    "score": 0.5,
+    "reason": "ITIL certification trends in UK have no petroleum engineering relevance.",
+    "think_text": "PetE student. IT service management certs - completely unrelated to petroleum."
+  },
+  {
+    "article_id": "0c152569086d",
+    "profile_id": "finance_student_kw",
+    "score": 1.0,
+    "reason": "UK IT certification job trends have minimal relevance to a Kuwait finance student.",
+    "think_text": "Finance student. UK ITIL cert trends - wrong field, wrong geography."
+  },
+  {
+    "article_id": "0c152569086d",
+    "profile_id": "cybersecurity_kw",
+    "score": 2.0,
+    "reason": "ITIL certification overlaps with IT operations and service management which a cybersecurity professional should understand, but this is UK job market data, not Middle East, and ITIL is operations, not security.",
+    "think_text": "Cybersecurity analyst. ITIL touches IT operations - some overlap with security ops. But UK market data, not Kuwait. ITIL is ops framework, not security."
+  },
+  {
+    "article_id": "0c152569086d",
+    "profile_id": "geophysicist_koc_kw",
+    "score": 0.0,
+    "reason": "ITIL certification job trends have zero relevance to geophysics.",
+    "think_text": "Senior geophysicist. IT certification trends - completely irrelevant."
+  },
+  {
+    "article_id": "7cdb8ee26e9d",
+    "profile_id": "cpeg_student_kw",
+    "score": 8.0,
+    "reason": "AMD's MI400 at 2nm challenging NVIDIA's AI chip dominance is a major semiconductor and AI story directly aligned with this student's interests in AI and semiconductors. This covers the cutting edge of the AI hardware race - essential reading for their field.",
+    "think_text": "CompEng student interested in AI and semiconductors. AMD MI400 2nm AI chip vs NVIDIA is the hottest topic in semiconductor industry. Directly hits both core interests. Major industry development."
+  },
+  {
+    "article_id": "7cdb8ee26e9d",
+    "profile_id": "petrol_eng_kw",
+    "score": 0.5,
+    "reason": "The AI chip race between AMD and NVIDIA has no relevance to petroleum engineering.",
+    "think_text": "PetE student. AI chip competition - no petroleum engineering connection."
+  },
+  {
+    "article_id": "7cdb8ee26e9d",
+    "profile_id": "finance_student_kw",
+    "score": 3.0,
+    "reason": "The AMD vs NVIDIA AI chip competition has investment relevance (both are major public companies), but these are US tech stocks not tracked by this GCC-focused finance student.",
+    "think_text": "Finance student. AMD/NVIDIA chip war - investment angle exists but wrong geography (US stocks) and wrong sector (semiconductors vs banking/fintech)."
+  },
+  {
+    "article_id": "7cdb8ee26e9d",
+    "profile_id": "cybersecurity_kw",
+    "score": 1.5,
+    "reason": "AI chip competition between AMD and NVIDIA has no direct cybersecurity operational relevance.",
+    "think_text": "Cybersecurity analyst. AI chip hardware race - not a cybersecurity story."
+  },
+  {
+    "article_id": "7cdb8ee26e9d",
+    "profile_id": "geophysicist_koc_kw",
+    "score": 1.0,
+    "reason": "AI chip hardware competition has no relevance to geophysics, though GPU computing is used in seismic processing. The article focuses on the business competition, not computational geoscience applications.",
+    "think_text": "Senior geophysicist. AI chip race - GPUs are used for seismic processing but this article is about AI market competition, not geoscience computing."
+  },
+  {
+    "article_id": "02b682ccfc85",
+    "profile_id": "cpeg_student_kw",
+    "score": 2.0,
+    "reason": "Zamil Process Equipment's client list (SABIC, SWCC, Saudi Electricity) is a Saudi industrial company page. Not directly relevant to a CompEng student in Kuwait, though SABIC is a major regional industrial player.",
+    "think_text": "CompEng student in Kuwait. Saudi industrial equipment manufacturer client list - peripheral Gulf industry awareness but not tech or CompEng relevant."
+  },
+  {
+    "article_id": "02b682ccfc85",
+    "profile_id": "petrol_eng_kw",
+    "score": 4.0,
+    "reason": "Zamil Process Equipment serves SABIC, SWCC, and Saudi Electricity Company - major Saudi industrial clients in the energy sector. Relevant as industry context for a petroleum engineering student considering regional career options, though this is Saudi-based manufacturing, not upstream petroleum.",
+    "think_text": "PetE student. Saudi process equipment manufacturer serving SABIC and energy clients. Gulf energy sector context. Some relevance to understanding regional industrial landscape but not upstream petroleum engineering specifically."
+  },
+  {
+    "article_id": "02b682ccfc85",
+    "profile_id": "finance_student_kw",
+    "score": 1.0,
+    "reason": "A Saudi process equipment company's client reference page has minimal finance relevance.",
+    "think_text": "Finance student. Saudi manufacturing client list - no finance connection."
+  },
+  {
+    "article_id": "02b682ccfc85",
+    "profile_id": "cybersecurity_kw",
+    "score": 0.5,
+    "reason": "An industrial equipment manufacturer's client references have no cybersecurity relevance.",
+    "think_text": "Cybersecurity analyst. Process equipment manufacturer - no cyber connection."
+  },
+  {
+    "article_id": "02b682ccfc85",
+    "profile_id": "geophysicist_koc_kw",
+    "score": 2.0,
+    "reason": "Zamil Process Equipment serves Saudi energy/industrial clients but is not in the geophysical services or oil exploration space.",
+    "think_text": "Senior geophysicist. Saudi process equipment company - industrial manufacturing, not geophysics or exploration services."
+  },
+  {
+    "article_id": "9272cab0f19c",
+    "profile_id": "cpeg_student_kw",
+    "score": 4.5,
+    "reason": "Blockchain investment trends including asset tokenization and traditional finance adoption are relevant to the student's fintech interest. BlackRock's involvement in tokenization shows mainstream adoption. Moderate relevance.",
+    "think_text": "CompEng student interested in fintech. Blockchain/tokenization trends with BlackRock involvement - touches fintech interest. Not core engineering but relevant to fintech landscape understanding."
+  },
+  {
+    "article_id": "9272cab0f19c",
+    "profile_id": "petrol_eng_kw",
+    "score": 0.5,
+    "reason": "Blockchain investment trends have no connection to petroleum engineering.",
+    "think_text": "PetE student. Blockchain investment trends - no petroleum relevance."
+  },
+  {
+    "article_id": "9272cab0f19c",
+    "profile_id": "finance_student_kw",
+    "score": 7.0,
+    "reason": "Blockchain investment trends covering asset tokenization and traditional finance adoption (BlackRock) are highly relevant to a finance student interested in blockchain and fintech disruption. Tokenization of assets directly affects capital markets and portfolio management.",
+    "think_text": "Finance student interested in blockchain and fintech. Asset tokenization, BlackRock involvement, traditional finance embracing blockchain - directly aligned with blockchain and capital markets interests. Highly relevant to understanding fintech disruption in traditional finance."
+  },
+  {
+    "article_id": "9272cab0f19c",
+    "profile_id": "cybersecurity_kw",
+    "score": 2.0,
+    "reason": "Blockchain investment trends have some tangential cybersecurity relevance (crypto security, smart contract vulnerabilities) but this article is about investment trends, not security aspects.",
+    "think_text": "Cybersecurity analyst. Blockchain investment trends - crypto has security aspects but this is investment-focused, not security-focused."
+  },
+  {
+    "article_id": "9272cab0f19c",
+    "profile_id": "geophysicist_koc_kw",
+    "score": 0.0,
+    "reason": "Blockchain investment trends have zero relevance to geophysics.",
+    "think_text": "Senior geophysicist. Blockchain investing - completely irrelevant."
+  },
+  {
+    "article_id": "eb9e5c6bf732",
+    "profile_id": "cpeg_student_kw",
+    "score": 1.0,
+    "reason": "Modular construction technology for homebuilding has no direct relevance to computer engineering, AI, or semiconductors.",
+    "think_text": "Modular construction article - niche construction industry topic. Not relevant to any of the 5 Kuwait-based profiles in engineering, finance, cyber, or geoscience."
+  },
+  {
+    "article_id": "eb9e5c6bf732",
+    "profile_id": "petrol_eng_kw",
+    "score": 1.0,
+    "reason": "Modular construction technology for homebuilding has no direct relevance to petroleum engineering or upstream operations.",
+    "think_text": "Modular construction article - niche construction industry topic. Not relevant to any of the 5 Kuwait-based profiles in engineering, finance, cyber, or geoscience."
+  },
+  {
+    "article_id": "eb9e5c6bf732",
+    "profile_id": "finance_student_kw",
+    "score": 0.5,
+    "reason": "Modular construction technology for homebuilding has no direct relevance to finance, banking, or capital markets.",
+    "think_text": "Modular construction article - niche construction industry topic. Not relevant to any of the 5 Kuwait-based profiles in engineering, finance, cyber, or geoscience."
+  },
+  {
+    "article_id": "eb9e5c6bf732",
+    "profile_id": "cybersecurity_kw",
+    "score": 0.5,
+    "reason": "Modular construction technology for homebuilding has no direct relevance to cybersecurity or banking security.",
+    "think_text": "Modular construction article - niche construction industry topic. Not relevant to any of the 5 Kuwait-based profiles in engineering, finance, cyber, or geoscience."
+  },
+  {
+    "article_id": "eb9e5c6bf732",
+    "profile_id": "geophysicist_koc_kw",
+    "score": 0.5,
+    "reason": "Modular construction technology for homebuilding has no direct relevance to geophysics or seismic data processing.",
+    "think_text": "Modular construction article - niche construction industry topic. Not relevant to any of the 5 Kuwait-based profiles in engineering, finance, cyber, or geoscience."
+  },
+  {
+    "article_id": "80ce92a24085",
+    "profile_id": "cpeg_student_kw",
+    "score": 0.0,
+    "reason": "A TripAdvisor review of a Norwegian beach is travel/tourism content with zero professional, academic, or industry relevance.",
+    "think_text": "TripAdvisor beach review - pure noise for all professional profiles."
+  },
+  {
+    "article_id": "80ce92a24085",
+    "profile_id": "petrol_eng_kw",
+    "score": 0.0,
+    "reason": "A TripAdvisor review of a Norwegian beach is travel/tourism content with zero professional, academic, or industry relevance.",
+    "think_text": "TripAdvisor beach review - pure noise for all professional profiles."
+  },
+  {
+    "article_id": "80ce92a24085",
+    "profile_id": "finance_student_kw",
+    "score": 0.0,
+    "reason": "A TripAdvisor review of a Norwegian beach is travel/tourism content with zero professional, academic, or industry relevance.",
+    "think_text": "TripAdvisor beach review - pure noise for all professional profiles."
+  },
+  {
+    "article_id": "80ce92a24085",
+    "profile_id": "cybersecurity_kw",
+    "score": 0.0,
+    "reason": "A TripAdvisor review of a Norwegian beach is travel/tourism content with zero professional, academic, or industry relevance.",
+    "think_text": "TripAdvisor beach review - pure noise for all professional profiles."
+  },
+  {
+    "article_id": "80ce92a24085",
+    "profile_id": "geophysicist_koc_kw",
+    "score": 0.0,
+    "reason": "A TripAdvisor review of a Norwegian beach is travel/tourism content with zero professional, academic, or industry relevance.",
+    "think_text": "TripAdvisor beach review - pure noise for all professional profiles."
+  }
+]

@@ -1,0 +1,1752 @@
+[
+  {
+    "article_id": "7dd61db77979",
+    "profile_id": "ux_designer_tokyo",
+    "score": 3.5,
+    "reason": "AI agents building a C compiler is a general tech story. While a UX designer in Tokyo may find AI trends mildly interesting for understanding the tech landscape, this is about compiler engineering and has no direct relevance to UX design, mobile interfaces, or consumer electronics.",
+    "think_text": "UX designer in Tokyo at consumer electronics company. Interests: mobile UX, design systems, accessibility, user research, Japanese consumer tech. This article is about AI agents creating a C compiler. It's general AI/tech news but not related to UX, design, or consumer electronics. Tangential at best."
+  },
+  {
+    "article_id": "7dd61db77979",
+    "profile_id": "agribiz_sao_paulo",
+    "score": 1.5,
+    "reason": "AI agents creating a C compiler is general tech news with no relevance to agricultural commodities trading, Brazilian agriculture, or commodity markets.",
+    "think_text": "AI compiler story. No connection to agriculture or commodities trading."
+  },
+  {
+    "article_id": "7dd61db77979",
+    "profile_id": "pharmacist_paris",
+    "score": 1.5,
+    "reason": "AI agents creating a C compiler is general tech news. While AI is transforming drug discovery, this specific story about compiler engineering has no relevance to hospital pharmacy or oncology.",
+    "think_text": "AI compiler story. AI broadly relevant to pharma but this specific application is not."
+  },
+  {
+    "article_id": "7dd61db77979",
+    "profile_id": "kpop_marketer_seoul",
+    "score": 2.0,
+    "reason": "AI agents building a compiler is general tech news. While a digital marketing manager may track AI developments for potential marketing applications, this specific story about compiler engineering has no relevance to K-pop marketing or fan engagement.",
+    "think_text": "AI compiler story. AI broadly interesting for marketing but this is about compilers, not marketing applications."
+  },
+  {
+    "article_id": "7dd61db77979",
+    "profile_id": "pediatric_oncologist_riyadh",
+    "score": 1.5,
+    "reason": "AI agents creating a C compiler is general tech news. While AI is increasingly used in oncology research, this specific story about compiler engineering has no relevance to pediatric oncology or clinical practice.",
+    "think_text": "AI compiler. AI broadly relevant to oncology research but this is about compiler engineering."
+  },
+  {
+    "article_id": "d61d04dc8103",
+    "profile_id": "ux_designer_tokyo",
+    "score": 0.5,
+    "reason": "An Instagram reel about electrical safety from a small brand has zero relevance to UX design, consumer electronics, or the Japanese market. This is noise.",
+    "think_text": "Electrical safety Instagram reel. Completely irrelevant to a UX designer in Tokyo."
+  },
+  {
+    "article_id": "d61d04dc8103",
+    "profile_id": "agribiz_sao_paulo",
+    "score": 0.0,
+    "reason": "An Instagram reel about electrical safety has zero relevance to agricultural commodities trading.",
+    "think_text": "Electrical safety reel. Irrelevant."
+  },
+  {
+    "article_id": "d61d04dc8103",
+    "profile_id": "pharmacist_paris",
+    "score": 0.0,
+    "reason": "An Instagram reel about electrical safety has zero relevance to hospital pharmacy or oncology.",
+    "think_text": "Electrical safety reel. Irrelevant."
+  },
+  {
+    "article_id": "d61d04dc8103",
+    "profile_id": "kpop_marketer_seoul",
+    "score": 0.0,
+    "reason": "An electrical safety Instagram reel has zero relevance to K-pop digital marketing.",
+    "think_text": "Electrical safety reel. Irrelevant."
+  },
+  {
+    "article_id": "d61d04dc8103",
+    "profile_id": "pediatric_oncologist_riyadh",
+    "score": 0.0,
+    "reason": "An electrical safety Instagram reel has zero relevance to pediatric oncology.",
+    "think_text": "Electrical safety reel. Irrelevant."
+  },
+  {
+    "article_id": "ddbd379ac378",
+    "profile_id": "ux_designer_tokyo",
+    "score": 2.5,
+    "reason": "AMD's datacenter growth is semiconductor news that could tangentially relate to the broader tech ecosystem, but it has no direct bearing on UX design, mobile interfaces, or Japanese consumer electronics markets.",
+    "think_text": "AMD datacenter/AI chips. UX designer tracks Sony, Nintendo, LINE, Rakuten - none related. Semiconductors are upstream but not in their direct interest sphere."
+  },
+  {
+    "article_id": "ddbd379ac378",
+    "profile_id": "agribiz_sao_paulo",
+    "score": 1.0,
+    "reason": "AMD's datacenter growth and AI chips have no direct relevance to agricultural commodities trading. This is pure tech/semiconductor news.",
+    "think_text": "AMD AI chips. Not relevant to commodities trading."
+  },
+  {
+    "article_id": "ddbd379ac378",
+    "profile_id": "pharmacist_paris",
+    "score": 0.5,
+    "reason": "AMD's datacenter growth has no relevance to hospital pharmacy, oncology drugs, or clinical pharmacology.",
+    "think_text": "AMD AI chips. Not relevant to pharmacy."
+  },
+  {
+    "article_id": "ddbd379ac378",
+    "profile_id": "kpop_marketer_seoul",
+    "score": 0.5,
+    "reason": "AMD's datacenter growth has no relevance to K-pop marketing or entertainment industry.",
+    "think_text": "AMD AI chips. Irrelevant to entertainment marketing."
+  },
+  {
+    "article_id": "ddbd379ac378",
+    "profile_id": "pediatric_oncologist_riyadh",
+    "score": 0.5,
+    "reason": "AMD's datacenter growth has no relevance to pediatric oncology or clinical practice in Riyadh.",
+    "think_text": "AMD chips. Irrelevant."
+  },
+  {
+    "article_id": "1c7776bc782d",
+    "profile_id": "ux_designer_tokyo",
+    "score": 0.5,
+    "reason": "A geoscience conference call for abstracts on carbon capture and AI-driven exploration has no relevance to UX design or consumer electronics.",
+    "think_text": "Geoscience conference. Zero overlap with UX design interests."
+  },
+  {
+    "article_id": "1c7776bc782d",
+    "profile_id": "agribiz_sao_paulo",
+    "score": 1.0,
+    "reason": "A geoscience conference on carbon capture has minimal relevance to agricultural commodities trading, though climate/carbon topics can tangentially affect agriculture policy.",
+    "think_text": "Geoscience conference. Very tangential agricultural policy connection."
+  },
+  {
+    "article_id": "1c7776bc782d",
+    "profile_id": "pharmacist_paris",
+    "score": 0.0,
+    "reason": "A geoscience conference has zero relevance to hospital pharmacy or oncology.",
+    "think_text": "Geoscience conference. Irrelevant."
+  },
+  {
+    "article_id": "1c7776bc782d",
+    "profile_id": "kpop_marketer_seoul",
+    "score": 0.0,
+    "reason": "A geoscience conference has zero relevance to K-pop digital marketing.",
+    "think_text": "Geoscience conference. Irrelevant."
+  },
+  {
+    "article_id": "1c7776bc782d",
+    "profile_id": "pediatric_oncologist_riyadh",
+    "score": 0.0,
+    "reason": "A geoscience conference has zero relevance to pediatric oncology.",
+    "think_text": "Geoscience conference. Irrelevant."
+  },
+  {
+    "article_id": "f0c8745690b3",
+    "profile_id": "ux_designer_tokyo",
+    "score": 0.5,
+    "reason": "EU-Ukraine geopolitical news has no relevance to a UX designer in Tokyo focused on mobile interfaces and Japanese consumer tech.",
+    "think_text": "EU-Ukraine politics. No connection to UX design or Tokyo."
+  },
+  {
+    "article_id": "f0c8745690b3",
+    "profile_id": "agribiz_sao_paulo",
+    "score": 1.5,
+    "reason": "EU-Ukraine geopolitical developments can have indirect effects on global grain markets and commodity prices, but this specific article about EU political support doesn't contain actionable commodity market information.",
+    "think_text": "EU-Ukraine politics. Ukraine conflict affects global grain supply but this article lacks specific commodity implications."
+  },
+  {
+    "article_id": "f0c8745690b3",
+    "profile_id": "pharmacist_paris",
+    "score": 2.0,
+    "reason": "EU political developments can indirectly affect EU drug regulation and healthcare policy. As a pharmacist in Paris tracking EU drug regulation, major EU political stances matter, but this Ukraine support article has no specific drug regulatory content.",
+    "think_text": "EU politics. Tangentially relevant to EU regulatory environment but no drug-specific content."
+  },
+  {
+    "article_id": "f0c8745690b3",
+    "profile_id": "kpop_marketer_seoul",
+    "score": 0.5,
+    "reason": "EU-Ukraine geopolitics has no relevance to K-pop marketing in Seoul.",
+    "think_text": "EU politics. Irrelevant."
+  },
+  {
+    "article_id": "f0c8745690b3",
+    "profile_id": "pediatric_oncologist_riyadh",
+    "score": 1.0,
+    "reason": "EU-Ukraine politics have minimal relevance to a pediatric oncologist in Riyadh. No direct connection to Saudi healthcare policy or oncology.",
+    "think_text": "EU politics. Not relevant to Riyadh-based oncologist."
+  },
+  {
+    "article_id": "1e0965efd09c",
+    "profile_id": "ux_designer_tokyo",
+    "score": 0.5,
+    "reason": "A TikTok about Roblox Halloween outfits is random social media content with no relevance to professional UX design or consumer electronics.",
+    "think_text": "Random TikTok content. Noise for any professional profile."
+  },
+  {
+    "article_id": "1e0965efd09c",
+    "profile_id": "agribiz_sao_paulo",
+    "score": 0.0,
+    "reason": "A TikTok about Roblox Halloween outfits is noise with zero relevance to agricultural commodities.",
+    "think_text": "Random TikTok. Pure noise."
+  },
+  {
+    "article_id": "1e0965efd09c",
+    "profile_id": "pharmacist_paris",
+    "score": 0.0,
+    "reason": "A TikTok about Roblox costumes has zero relevance to hospital pharmacy.",
+    "think_text": "Random TikTok. Noise."
+  },
+  {
+    "article_id": "1e0965efd09c",
+    "profile_id": "kpop_marketer_seoul",
+    "score": 3.0,
+    "reason": "A TikTok about Roblox Halloween outfits shows cross-platform content trends. As a K-pop marketer managing social media, TikTok trends and gaming crossover content are mildly relevant for understanding platform dynamics and potential K-pop marketing opportunities in gaming spaces.",
+    "think_text": "TikTok/Roblox crossover. Tangentially relevant as K-pop marketer tracks social media trends and TikTok platform dynamics. Gaming tie-ins are an emerging K-pop marketing channel."
+  },
+  {
+    "article_id": "1e0965efd09c",
+    "profile_id": "pediatric_oncologist_riyadh",
+    "score": 0.0,
+    "reason": "A TikTok about Roblox costumes has zero relevance to pediatric oncology.",
+    "think_text": "Random TikTok. Noise."
+  },
+  {
+    "article_id": "8afa6526437b",
+    "profile_id": "ux_designer_tokyo",
+    "score": 0.5,
+    "reason": "US immigration visa policy has no relevance to a UX designer based in Tokyo working on Japanese consumer electronics.",
+    "think_text": "US immigration news. Not relevant to Japan-based UX designer."
+  },
+  {
+    "article_id": "8afa6526437b",
+    "profile_id": "agribiz_sao_paulo",
+    "score": 1.0,
+    "reason": "US immigration visa policy changes have no direct relevance to agricultural commodities trading in São Paulo, though US policy shifts can have broad economic implications.",
+    "think_text": "US immigration policy. No direct commodity market relevance."
+  },
+  {
+    "article_id": "8afa6526437b",
+    "profile_id": "pharmacist_paris",
+    "score": 0.5,
+    "reason": "US immigration visa policy has no relevance to a hospital pharmacist in Paris.",
+    "think_text": "US immigration. Irrelevant."
+  },
+  {
+    "article_id": "8afa6526437b",
+    "profile_id": "kpop_marketer_seoul",
+    "score": 0.5,
+    "reason": "US immigration visa policy has minimal relevance to a K-pop marketer in Seoul, though it could tangentially affect artist touring visas.",
+    "think_text": "US immigration. Very tangential artist visa connection but article is about immigrant visas broadly."
+  },
+  {
+    "article_id": "8afa6526437b",
+    "profile_id": "pediatric_oncologist_riyadh",
+    "score": 0.5,
+    "reason": "US immigration visa policy has minimal relevance to a Saudi-based pediatric oncologist, though it could tangentially affect international medical collaboration.",
+    "think_text": "US immigration. Very tangential."
+  },
+  {
+    "article_id": "0990d2b238a3",
+    "profile_id": "ux_designer_tokyo",
+    "score": 0.0,
+    "reason": "A Kuwait oil/gas compliance job posting has zero relevance to a UX designer in Tokyo.",
+    "think_text": "Kuwait oil compliance job. Completely irrelevant."
+  },
+  {
+    "article_id": "0990d2b238a3",
+    "profile_id": "agribiz_sao_paulo",
+    "score": 0.0,
+    "reason": "A Kuwait oil company compliance job posting has zero relevance to Brazilian agricultural commodities trading.",
+    "think_text": "Kuwait oil job. Irrelevant."
+  },
+  {
+    "article_id": "0990d2b238a3",
+    "profile_id": "pharmacist_paris",
+    "score": 0.0,
+    "reason": "A Kuwait oil compliance job has zero relevance to hospital pharmacy.",
+    "think_text": "Kuwait oil job. Irrelevant."
+  },
+  {
+    "article_id": "0990d2b238a3",
+    "profile_id": "kpop_marketer_seoul",
+    "score": 0.0,
+    "reason": "Kuwait oil compliance job has zero relevance to K-pop marketing.",
+    "think_text": "Kuwait oil job. Irrelevant."
+  },
+  {
+    "article_id": "0990d2b238a3",
+    "profile_id": "pediatric_oncologist_riyadh",
+    "score": 0.0,
+    "reason": "Kuwait oil compliance job has zero relevance to pediatric oncology.",
+    "think_text": "Kuwait oil job. Irrelevant."
+  },
+  {
+    "article_id": "ddac40adbefb",
+    "profile_id": "ux_designer_tokyo",
+    "score": 0.5,
+    "reason": "A SCADA engineer job posting for building automation has no relevance to UX design or consumer electronics.",
+    "think_text": "SCADA engineer job. Wrong industry and role entirely."
+  },
+  {
+    "article_id": "ddac40adbefb",
+    "profile_id": "agribiz_sao_paulo",
+    "score": 0.0,
+    "reason": "A SCADA engineer job posting has zero relevance to agricultural commodities trading.",
+    "think_text": "SCADA job. Irrelevant."
+  },
+  {
+    "article_id": "ddac40adbefb",
+    "profile_id": "pharmacist_paris",
+    "score": 0.0,
+    "reason": "A SCADA engineer job has zero relevance to hospital pharmacy.",
+    "think_text": "SCADA job. Irrelevant."
+  },
+  {
+    "article_id": "ddac40adbefb",
+    "profile_id": "kpop_marketer_seoul",
+    "score": 0.0,
+    "reason": "A SCADA engineer job has zero relevance to K-pop marketing.",
+    "think_text": "SCADA job. Irrelevant."
+  },
+  {
+    "article_id": "ddac40adbefb",
+    "profile_id": "pediatric_oncologist_riyadh",
+    "score": 0.0,
+    "reason": "A SCADA engineer job has zero relevance to pediatric oncology.",
+    "think_text": "SCADA job. Irrelevant."
+  },
+  {
+    "article_id": "922bd1907e2b",
+    "profile_id": "ux_designer_tokyo",
+    "score": 0.5,
+    "reason": "Business analyst certification guide has no relevance to UX design. Different career path entirely.",
+    "think_text": "BA certification. Not relevant to UX design career."
+  },
+  {
+    "article_id": "922bd1907e2b",
+    "profile_id": "agribiz_sao_paulo",
+    "score": 0.5,
+    "reason": "Business analyst certification has no specific relevance to agricultural commodities trading.",
+    "think_text": "BA certification. Not relevant to commodities trading."
+  },
+  {
+    "article_id": "922bd1907e2b",
+    "profile_id": "pharmacist_paris",
+    "score": 0.0,
+    "reason": "Business analyst certification has zero relevance to hospital pharmacy or oncology.",
+    "think_text": "BA certification. Irrelevant."
+  },
+  {
+    "article_id": "922bd1907e2b",
+    "profile_id": "kpop_marketer_seoul",
+    "score": 0.5,
+    "reason": "Business analyst certification has no relevance to K-pop digital marketing.",
+    "think_text": "BA certification. Irrelevant."
+  },
+  {
+    "article_id": "922bd1907e2b",
+    "profile_id": "pediatric_oncologist_riyadh",
+    "score": 0.0,
+    "reason": "Business analyst certification has zero relevance to pediatric oncology.",
+    "think_text": "BA certification. Irrelevant."
+  },
+  {
+    "article_id": "c4b08e5e5c93",
+    "profile_id": "ux_designer_tokyo",
+    "score": 0.0,
+    "reason": "Ultrapure water resin market report is a niche industrial chemistry topic with no relevance to UX design or consumer electronics.",
+    "think_text": "Water resin market. Zero relevance."
+  },
+  {
+    "article_id": "c4b08e5e5c93",
+    "profile_id": "agribiz_sao_paulo",
+    "score": 1.0,
+    "reason": "Ultrapure water resin market is an industrial chemistry topic with no relevance to agricultural commodities. Water quality is tangentially related to agriculture but this is about industrial-grade water purification.",
+    "think_text": "Water purification market. Not agricultural."
+  },
+  {
+    "article_id": "c4b08e5e5c93",
+    "profile_id": "pharmacist_paris",
+    "score": 1.0,
+    "reason": "Ultrapure water is used in pharmaceutical manufacturing, so there's a tangential connection. However, this market report focuses on water resin investment rather than pharmaceutical applications.",
+    "think_text": "Water resin market. Tangential pharma manufacturing connection but investment-focused."
+  },
+  {
+    "article_id": "c4b08e5e5c93",
+    "profile_id": "kpop_marketer_seoul",
+    "score": 0.0,
+    "reason": "Water resin market report has zero relevance to K-pop marketing.",
+    "think_text": "Water resin market. Irrelevant."
+  },
+  {
+    "article_id": "c4b08e5e5c93",
+    "profile_id": "pediatric_oncologist_riyadh",
+    "score": 0.0,
+    "reason": "Water resin market report has zero relevance to pediatric oncology.",
+    "think_text": "Water resin market. Irrelevant."
+  },
+  {
+    "article_id": "d22648d82260",
+    "profile_id": "ux_designer_tokyo",
+    "score": 2.0,
+    "reason": "An Arabic streaming app on Google Play is tangentially related to mobile app design, but it targets the Arab market and is not relevant to Japanese consumer tech or this designer's tracked companies.",
+    "think_text": "Arabic streaming app. Slight mobile app relevance but wrong market/language entirely."
+  },
+  {
+    "article_id": "d22648d82260",
+    "profile_id": "agribiz_sao_paulo",
+    "score": 0.0,
+    "reason": "An Arabic streaming app has zero relevance to agricultural commodities trading in Brazil.",
+    "think_text": "Arabic streaming app. Irrelevant."
+  },
+  {
+    "article_id": "d22648d82260",
+    "profile_id": "pharmacist_paris",
+    "score": 0.0,
+    "reason": "An Arabic streaming app has zero relevance to hospital pharmacy in Paris.",
+    "think_text": "Streaming app. Irrelevant."
+  },
+  {
+    "article_id": "d22648d82260",
+    "profile_id": "kpop_marketer_seoul",
+    "score": 3.0,
+    "reason": "MBC Shahid is a Middle Eastern streaming platform. For a K-pop marketer managing global fan engagement, awareness of international streaming platforms where K-pop content might be distributed is somewhat relevant, especially as K-pop expands into MENA markets.",
+    "think_text": "Arabic streaming platform. K-pop is expanding into MENA markets; knowing about regional streaming platforms could be useful for content distribution strategy. Mildly relevant."
+  },
+  {
+    "article_id": "d22648d82260",
+    "profile_id": "pediatric_oncologist_riyadh",
+    "score": 1.0,
+    "reason": "MBC Shahid is a regional Arabic streaming app. As a Saudi-based professional, they might use it personally, but it has no professional relevance to pediatric oncology.",
+    "think_text": "Arabic streaming app. Regional platform but no professional relevance to oncology."
+  },
+  {
+    "article_id": "f17f024560ac",
+    "profile_id": "ux_designer_tokyo",
+    "score": 5.5,
+    "reason": "Samsung's on-device AI capabilities using Arm SME2 is relevant to a UX designer at a consumer electronics company in Tokyo. On-device AI directly impacts what UX features are possible on mobile devices, and Samsung is a major player in the ecosystem Sony and others compete in.",
+    "think_text": "On-device AI for CPUs, Samsung semiconductor. Directly relevant to mobile UX capabilities - on-device AI enables new UX features. Consumer electronics adjacent. Moderately relevant."
+  },
+  {
+    "article_id": "f17f024560ac",
+    "profile_id": "agribiz_sao_paulo",
+    "score": 0.5,
+    "reason": "Samsung's on-device AI CPU capabilities have no relevance to agricultural commodities trading.",
+    "think_text": "Semiconductor/AI hardware. Irrelevant to agriculture."
+  },
+  {
+    "article_id": "f17f024560ac",
+    "profile_id": "pharmacist_paris",
+    "score": 0.5,
+    "reason": "Samsung's on-device AI CPU capabilities have no relevance to hospital pharmacy or oncology drugs.",
+    "think_text": "Semiconductor AI. Irrelevant to pharmacy."
+  },
+  {
+    "article_id": "f17f024560ac",
+    "profile_id": "kpop_marketer_seoul",
+    "score": 2.0,
+    "reason": "Samsung's on-device AI capabilities are from a major Korean company. While Samsung is not a tracked company for this profile, as a Seoul-based professional they may track Korean tech developments. However, this is semiconductor-focused, not marketing-relevant.",
+    "think_text": "Samsung AI semiconductor. Korean company but semiconductor-focused, not marketing-relevant."
+  },
+  {
+    "article_id": "f17f024560ac",
+    "profile_id": "pediatric_oncologist_riyadh",
+    "score": 0.5,
+    "reason": "Samsung's AI CPU capabilities have no relevance to pediatric oncology.",
+    "think_text": "Samsung semiconductor. Irrelevant."
+  },
+  {
+    "article_id": "a9d8d2941c33",
+    "profile_id": "ux_designer_tokyo",
+    "score": 0.0,
+    "reason": "A Swiss tourism website has no relevance to UX design work or consumer electronics in Japan.",
+    "think_text": "Bern tourism. Zero relevance."
+  },
+  {
+    "article_id": "a9d8d2941c33",
+    "profile_id": "agribiz_sao_paulo",
+    "score": 0.0,
+    "reason": "A Swiss tourism website has zero relevance to agricultural commodities trading.",
+    "think_text": "Tourism website. Irrelevant."
+  },
+  {
+    "article_id": "a9d8d2941c33",
+    "profile_id": "pharmacist_paris",
+    "score": 0.0,
+    "reason": "A Swiss tourism website has zero relevance to hospital pharmacy.",
+    "think_text": "Tourism. Irrelevant."
+  },
+  {
+    "article_id": "a9d8d2941c33",
+    "profile_id": "kpop_marketer_seoul",
+    "score": 0.0,
+    "reason": "A Swiss tourism website has zero relevance to K-pop marketing.",
+    "think_text": "Tourism website. Irrelevant."
+  },
+  {
+    "article_id": "a9d8d2941c33",
+    "profile_id": "pediatric_oncologist_riyadh",
+    "score": 0.0,
+    "reason": "A Swiss tourism website has zero relevance to pediatric oncology.",
+    "think_text": "Tourism. Irrelevant."
+  },
+  {
+    "article_id": "fa327f996181",
+    "profile_id": "ux_designer_tokyo",
+    "score": 0.0,
+    "reason": "Indian share market updates and Reliance Q2 results have no relevance to a UX designer in Tokyo.",
+    "think_text": "Indian stock market blog. Irrelevant."
+  },
+  {
+    "article_id": "fa327f996181",
+    "profile_id": "agribiz_sao_paulo",
+    "score": 2.0,
+    "reason": "Indian share market updates cover Reliance and OPEC decisions. OPEC oil price decisions can indirectly affect agricultural commodity prices through input costs (fuel, fertilizers), but this is primarily an Indian equity market blog with limited direct relevance.",
+    "think_text": "Indian stock market blog with OPEC mentions. OPEC decisions indirectly affect agricultural input costs, but this is mostly Indian equity focused."
+  },
+  {
+    "article_id": "fa327f996181",
+    "profile_id": "pharmacist_paris",
+    "score": 0.0,
+    "reason": "Indian share market updates have zero relevance to a hospital pharmacist in Paris.",
+    "think_text": "Indian stocks. Irrelevant."
+  },
+  {
+    "article_id": "fa327f996181",
+    "profile_id": "kpop_marketer_seoul",
+    "score": 0.0,
+    "reason": "Indian share market updates have zero relevance to K-pop marketing.",
+    "think_text": "Indian stocks. Irrelevant."
+  },
+  {
+    "article_id": "fa327f996181",
+    "profile_id": "pediatric_oncologist_riyadh",
+    "score": 0.0,
+    "reason": "Indian share market updates have zero relevance to pediatric oncology.",
+    "think_text": "Indian stocks. Irrelevant."
+  },
+  {
+    "article_id": "062b678ea8ff",
+    "profile_id": "ux_designer_tokyo",
+    "score": 0.0,
+    "reason": "An HSE officer job posting in UAE construction has zero relevance to UX design.",
+    "think_text": "UAE construction safety job. Irrelevant."
+  },
+  {
+    "article_id": "062b678ea8ff",
+    "profile_id": "agribiz_sao_paulo",
+    "score": 0.0,
+    "reason": "An HSE officer job posting in UAE has zero relevance to agricultural commodities trading in Brazil.",
+    "think_text": "UAE safety job. Irrelevant."
+  },
+  {
+    "article_id": "062b678ea8ff",
+    "profile_id": "pharmacist_paris",
+    "score": 0.0,
+    "reason": "An HSE officer job in UAE has zero relevance to hospital pharmacy.",
+    "think_text": "UAE construction job. Irrelevant."
+  },
+  {
+    "article_id": "062b678ea8ff",
+    "profile_id": "kpop_marketer_seoul",
+    "score": 0.0,
+    "reason": "An HSE officer job in UAE has zero relevance to K-pop marketing.",
+    "think_text": "UAE safety job. Irrelevant."
+  },
+  {
+    "article_id": "062b678ea8ff",
+    "profile_id": "pediatric_oncologist_riyadh",
+    "score": 0.0,
+    "reason": "An HSE officer job in UAE has zero relevance to pediatric oncology.",
+    "think_text": "UAE safety job. Irrelevant."
+  },
+  {
+    "article_id": "665b05742af2",
+    "profile_id": "ux_designer_tokyo",
+    "score": 1.5,
+    "reason": "WEF cybersecurity report is a general business/tech topic. A UX designer might have passing interest in cybersecurity trends as they affect product design, but this is not directly relevant to their work.",
+    "think_text": "Cybersecurity outlook. Very tangential to UX design - maybe security UX considerations but that's a stretch."
+  },
+  {
+    "article_id": "665b05742af2",
+    "profile_id": "agribiz_sao_paulo",
+    "score": 1.0,
+    "reason": "WEF cybersecurity outlook has no direct relevance to agricultural commodities trading, though commodity exchanges face cyber threats.",
+    "think_text": "Cybersecurity report. Very tangential - commodity exchanges need cybersecurity but not actionable for a trader."
+  },
+  {
+    "article_id": "665b05742af2",
+    "profile_id": "pharmacist_paris",
+    "score": 1.5,
+    "reason": "WEF cybersecurity outlook touches on healthcare cybersecurity indirectly, and hospital pharmacy systems need cybersecurity. But this report is general cybersecurity strategy, not healthcare-specific.",
+    "think_text": "Cybersecurity report. Tangential hospital IT security connection but not pharmacy-specific."
+  },
+  {
+    "article_id": "665b05742af2",
+    "profile_id": "kpop_marketer_seoul",
+    "score": 1.0,
+    "reason": "WEF cybersecurity outlook has minimal relevance to K-pop marketing, though digital marketing platforms face cyber threats and data protection is a concern for fan data.",
+    "think_text": "Cybersecurity. Very tangential fan data protection connection."
+  },
+  {
+    "article_id": "665b05742af2",
+    "profile_id": "pediatric_oncologist_riyadh",
+    "score": 2.5,
+    "reason": "WEF cybersecurity outlook mentions Middle East regional data (84% of respondents). Hospital cybersecurity is increasingly important for patient data protection. As a Riyadh-based clinician, Middle East cybersecurity trends could affect their institution's operations.",
+    "think_text": "Cybersecurity report with Middle East data. Relevant to hospital IT security and patient data protection. Geographic relevance with Middle East focus."
+  },
+  {
+    "article_id": "548b692edc3e",
+    "profile_id": "ux_designer_tokyo",
+    "score": 0.0,
+    "reason": "An exosome platform for CAR-T cancer therapy has no relevance to UX design or consumer electronics.",
+    "think_text": "Biotech/oncology breakthrough. Zero relevance to UX design."
+  },
+  {
+    "article_id": "548b692edc3e",
+    "profile_id": "agribiz_sao_paulo",
+    "score": 0.0,
+    "reason": "An exosome platform for cancer therapy has zero relevance to agricultural commodities trading.",
+    "think_text": "Cancer therapy biotech. Irrelevant."
+  },
+  {
+    "article_id": "548b692edc3e",
+    "profile_id": "pharmacist_paris",
+    "score": 9.0,
+    "reason": "This exosome platform enabling in vivo multi-target CAR-T for solid tumors is directly relevant to an oncology pharmacist. It involves tracked companies (Gilead, AstraZeneca, BMS) and relates to immunotherapy and oncology drug development — core interests. This could affect future chemotherapy protocols.",
+    "think_text": "Exosome platform for CAR-T solid tumors. Directly relevant: oncology immunotherapy breakthrough, involves tracked companies (Gilead, AstraZeneca), relates to clinical pharmacology and drug development. Highly actionable for oncology pharmacist."
+  },
+  {
+    "article_id": "548b692edc3e",
+    "profile_id": "kpop_marketer_seoul",
+    "score": 0.0,
+    "reason": "An exosome platform for cancer therapy has zero relevance to K-pop marketing.",
+    "think_text": "Cancer therapy biotech. Irrelevant."
+  },
+  {
+    "article_id": "548b692edc3e",
+    "profile_id": "pediatric_oncologist_riyadh",
+    "score": 9.5,
+    "reason": "This exosome platform enabling in vivo multi-target CAR-T therapy for solid tumors is directly in this oncologist's core interest area. It involves tracked company Gilead and relates to CAR-T therapy, a key interest. This breakthrough could directly impact treatment protocols for pediatric solid tumors and is actionable for clinical trial awareness.",
+    "think_text": "Exosome CAR-T platform for solid tumors. Directly actionable: CAR-T is a core interest, Gilead is tracked, solid tumor therapy is relevant to pediatric oncology. Breakthrough that could change clinical protocols."
+  },
+  {
+    "article_id": "88b668eb784f",
+    "profile_id": "ux_designer_tokyo",
+    "score": 0.0,
+    "reason": "EU science diplomacy policy document has no relevance to UX design or Japanese consumer tech.",
+    "think_text": "EU science policy. Irrelevant."
+  },
+  {
+    "article_id": "88b668eb784f",
+    "profile_id": "agribiz_sao_paulo",
+    "score": 0.5,
+    "reason": "EU science diplomacy recommendations have no relevance to agricultural commodities trading in Brazil.",
+    "think_text": "EU science policy. Irrelevant."
+  },
+  {
+    "article_id": "88b668eb784f",
+    "profile_id": "pharmacist_paris",
+    "score": 2.5,
+    "reason": "EU science diplomacy recommendations from the European Commission could have indirect implications for research funding in healthcare and pharmaceuticals. As a pharmacist tracking EU drug regulation, EU research policy is tangentially relevant.",
+    "think_text": "EU science policy. Tangential relevance to EU research funding for pharmaceutical research. Not directly actionable."
+  },
+  {
+    "article_id": "88b668eb784f",
+    "profile_id": "kpop_marketer_seoul",
+    "score": 0.0,
+    "reason": "EU science diplomacy has zero relevance to K-pop marketing.",
+    "think_text": "EU science policy. Irrelevant."
+  },
+  {
+    "article_id": "88b668eb784f",
+    "profile_id": "pediatric_oncologist_riyadh",
+    "score": 1.0,
+    "reason": "EU science diplomacy recommendations are about research funding and international collaboration. Tangentially relevant if it affects clinical trial cooperation, but too broad and policy-focused.",
+    "think_text": "EU science policy. Tangential research collaboration connection."
+  },
+  {
+    "article_id": "a75b1952bf9f",
+    "profile_id": "ux_designer_tokyo",
+    "score": 0.0,
+    "reason": "Entry-level geologist jobs in the Middle East have no relevance to UX design.",
+    "think_text": "Geology jobs. Irrelevant."
+  },
+  {
+    "article_id": "a75b1952bf9f",
+    "profile_id": "agribiz_sao_paulo",
+    "score": 0.0,
+    "reason": "Geologist jobs in the Middle East have zero relevance to agricultural commodities trading.",
+    "think_text": "Geology jobs. Irrelevant."
+  },
+  {
+    "article_id": "a75b1952bf9f",
+    "profile_id": "pharmacist_paris",
+    "score": 0.0,
+    "reason": "Geologist jobs in the Middle East have zero relevance to hospital pharmacy.",
+    "think_text": "Geology jobs. Irrelevant."
+  },
+  {
+    "article_id": "a75b1952bf9f",
+    "profile_id": "kpop_marketer_seoul",
+    "score": 0.0,
+    "reason": "Geologist jobs have zero relevance to K-pop marketing.",
+    "think_text": "Geology jobs. Irrelevant."
+  },
+  {
+    "article_id": "a75b1952bf9f",
+    "profile_id": "pediatric_oncologist_riyadh",
+    "score": 0.0,
+    "reason": "Geologist jobs have zero relevance to pediatric oncology.",
+    "think_text": "Geology jobs. Irrelevant."
+  },
+  {
+    "article_id": "ee80ac2e4bbf",
+    "profile_id": "ux_designer_tokyo",
+    "score": 8.5,
+    "reason": "A Figma tutorial on animated dropdown menus with variants and variables is directly relevant to a UX designer's daily toolset. Figma is a core design tool, and prototyping interactive components is a key UX skill. This is actionable content they could immediately apply to their work.",
+    "think_text": "Figma prototyping tutorial - animated dropdown with variants/variables. This is a core UX design tool tutorial. Directly actionable for a UX designer. Highly relevant to design systems and prototyping workflows."
+  },
+  {
+    "article_id": "ee80ac2e4bbf",
+    "profile_id": "agribiz_sao_paulo",
+    "score": 0.0,
+    "reason": "A Figma prototyping tutorial has zero relevance to agricultural commodities trading.",
+    "think_text": "Figma UI tutorial. Irrelevant."
+  },
+  {
+    "article_id": "ee80ac2e4bbf",
+    "profile_id": "pharmacist_paris",
+    "score": 0.0,
+    "reason": "A Figma UI tutorial has zero relevance to hospital pharmacy or oncology.",
+    "think_text": "Figma tutorial. Irrelevant."
+  },
+  {
+    "article_id": "ee80ac2e4bbf",
+    "profile_id": "kpop_marketer_seoul",
+    "score": 2.5,
+    "reason": "A Figma prototyping tutorial is tangentially relevant since a digital marketing manager may work with design teams on fan engagement interfaces, but this is a technical UI design tutorial rather than marketing-focused content.",
+    "think_text": "Figma tutorial. Marketing manager may work with design teams but this is too technical/design-focused to be directly useful."
+  },
+  {
+    "article_id": "ee80ac2e4bbf",
+    "profile_id": "pediatric_oncologist_riyadh",
+    "score": 0.0,
+    "reason": "A Figma UI tutorial has zero relevance to pediatric oncology.",
+    "think_text": "Figma tutorial. Irrelevant."
+  },
+  {
+    "article_id": "1ef2cd186cff",
+    "profile_id": "ux_designer_tokyo",
+    "score": 0.5,
+    "reason": "A generic international job search platform has no specific relevance to a mid-career UX designer in Tokyo.",
+    "think_text": "Generic job platform. Not relevant to established UX designer."
+  },
+  {
+    "article_id": "1ef2cd186cff",
+    "profile_id": "agribiz_sao_paulo",
+    "score": 0.0,
+    "reason": "A generic job search platform has no relevance to an established commodities trader in São Paulo.",
+    "think_text": "Job search platform. Irrelevant."
+  },
+  {
+    "article_id": "1ef2cd186cff",
+    "profile_id": "pharmacist_paris",
+    "score": 0.0,
+    "reason": "A generic job search platform has no relevance to an established hospital pharmacist in Paris.",
+    "think_text": "Job platform. Irrelevant."
+  },
+  {
+    "article_id": "1ef2cd186cff",
+    "profile_id": "kpop_marketer_seoul",
+    "score": 0.0,
+    "reason": "A generic job search platform has no relevance to K-pop marketing.",
+    "think_text": "Job platform. Irrelevant."
+  },
+  {
+    "article_id": "1ef2cd186cff",
+    "profile_id": "pediatric_oncologist_riyadh",
+    "score": 0.0,
+    "reason": "A generic job search platform has no relevance to a senior pediatric oncologist.",
+    "think_text": "Job platform. Irrelevant."
+  },
+  {
+    "article_id": "f2e8b8337e48",
+    "profile_id": "ux_designer_tokyo",
+    "score": 1.5,
+    "reason": "Software development trends in the Middle East under Saudi Vision 2030 are geographically and professionally distant from a UX designer in Tokyo. Slight general tech industry interest at best.",
+    "think_text": "Middle East software development. Wrong geography, not UX-focused."
+  },
+  {
+    "article_id": "f2e8b8337e48",
+    "profile_id": "agribiz_sao_paulo",
+    "score": 0.5,
+    "reason": "Software development trends in the Middle East have no relevance to agricultural commodities trading in Brazil.",
+    "think_text": "Middle East software trends. Irrelevant."
+  },
+  {
+    "article_id": "f2e8b8337e48",
+    "profile_id": "pharmacist_paris",
+    "score": 0.5,
+    "reason": "Middle East software development trends have no relevance to hospital pharmacy in Paris.",
+    "think_text": "Middle East software. Irrelevant."
+  },
+  {
+    "article_id": "f2e8b8337e48",
+    "profile_id": "kpop_marketer_seoul",
+    "score": 1.0,
+    "reason": "Middle East software development trends have minimal relevance to K-pop marketing, though understanding digital infrastructure in growing K-pop fan markets (Middle East) could be marginally useful.",
+    "think_text": "Middle East software. Very tangential MENA K-pop expansion connection."
+  },
+  {
+    "article_id": "f2e8b8337e48",
+    "profile_id": "pediatric_oncologist_riyadh",
+    "score": 4.5,
+    "reason": "Software development in the Middle East under Saudi Vision 2030 includes digital health infrastructure. As a Riyadh-based oncologist, Saudi's digital transformation directly affects healthcare delivery, electronic health records, and potentially AI-driven oncology tools at their hospital.",
+    "think_text": "Saudi Vision 2030 digital transformation. Geographic relevance - Saudi ICT market growth includes healthcare digitization. Could affect hospital systems and clinical tools at King Faisal."
+  },
+  {
+    "article_id": "ddf69f71cfc1",
+    "profile_id": "ux_designer_tokyo",
+    "score": 2.5,
+    "reason": "IoT becoming core infrastructure could have tangential relevance to a UX designer thinking about designing interfaces for IoT consumer devices, but this article focuses on enterprise/industrial IoT infrastructure rather than consumer UX.",
+    "think_text": "IoT infrastructure. Tangentially relevant - IoT devices need UX, but this is about enterprise infrastructure, not consumer design."
+  },
+  {
+    "article_id": "ddf69f71cfc1",
+    "profile_id": "agribiz_sao_paulo",
+    "score": 2.0,
+    "reason": "IoT as core infrastructure could be tangentially relevant since precision agriculture uses IoT sensors for crop monitoring and supply chain tracking, but this article focuses on enterprise/industrial IoT generally rather than agricultural applications.",
+    "think_text": "IoT infrastructure. Some agricultural IoT connection but article is general enterprise focused."
+  },
+  {
+    "article_id": "ddf69f71cfc1",
+    "profile_id": "pharmacist_paris",
+    "score": 1.0,
+    "reason": "IoT as core infrastructure could tangentially relate to hospital IoT devices for patient monitoring, but this article focuses on enterprise/industrial IoT, not healthcare applications.",
+    "think_text": "IoT infrastructure. Tangential hospital IoT connection but article is general."
+  },
+  {
+    "article_id": "ddf69f71cfc1",
+    "profile_id": "kpop_marketer_seoul",
+    "score": 1.5,
+    "reason": "IoT becoming core infrastructure has minimal relevance to K-pop marketing. Connected devices could enable new fan engagement channels but this article is about enterprise infrastructure.",
+    "think_text": "IoT infrastructure. Very tangential fan engagement technology connection."
+  },
+  {
+    "article_id": "ddf69f71cfc1",
+    "profile_id": "pediatric_oncologist_riyadh",
+    "score": 1.5,
+    "reason": "IoT as core infrastructure could tangentially relate to hospital IoT devices and remote patient monitoring, but this article is about enterprise/industrial IoT, not healthcare applications.",
+    "think_text": "IoT infrastructure. Tangential hospital IoT connection but general article."
+  },
+  {
+    "article_id": "18c7756a6756",
+    "profile_id": "ux_designer_tokyo",
+    "score": 5.0,
+    "reason": "MIT Technology Review's annual breakthrough technologies list is broadly relevant to a tech professional. A UX designer at a consumer electronics company would benefit from knowing which technologies are emerging, as they may need to design interfaces for them. General tech awareness piece.",
+    "think_text": "MIT breakthrough tech 2026. Broadly relevant to any tech professional. UX designer at consumer electronics co should track emerging tech. Moderate relevance."
+  },
+  {
+    "article_id": "18c7756a6756",
+    "profile_id": "agribiz_sao_paulo",
+    "score": 2.5,
+    "reason": "MIT's breakthrough technologies list could include agricultural or climate-related technologies relevant to a commodities trader monitoring crop yields and weather patterns. Broadly useful general knowledge for any professional.",
+    "think_text": "MIT breakthrough tech 2026. May include agritech or climate tech relevant to agriculture. General interest."
+  },
+  {
+    "article_id": "18c7756a6756",
+    "profile_id": "pharmacist_paris",
+    "score": 3.5,
+    "reason": "MIT's breakthrough technologies list for 2026 could include medical/pharmaceutical technologies relevant to an oncology pharmacist. Broadly interesting as it often covers healthcare breakthroughs, but without knowing the specific list contents, moderate general relevance.",
+    "think_text": "MIT breakthrough tech. Often includes healthcare/pharma breakthroughs. General professional interest."
+  },
+  {
+    "article_id": "18c7756a6756",
+    "profile_id": "kpop_marketer_seoul",
+    "score": 3.0,
+    "reason": "MIT's breakthrough technologies list could include content creation, streaming, or AI technologies relevant to the entertainment and marketing industries. Broadly interesting for a tech-savvy digital marketer.",
+    "think_text": "MIT breakthrough tech. May include entertainment/AI marketing tech. General professional interest."
+  },
+  {
+    "article_id": "18c7756a6756",
+    "profile_id": "pediatric_oncologist_riyadh",
+    "score": 4.0,
+    "reason": "MIT's breakthrough technologies list for 2026 frequently includes medical breakthroughs. A pediatric oncologist would benefit from knowing which technologies are emerging that could affect cancer treatment. Broadly relevant as MIT often covers healthcare innovation.",
+    "think_text": "MIT breakthrough tech. Often includes medical/oncology breakthroughs. Relevant to track emerging treatments."
+  },
+  {
+    "article_id": "5d029909e649",
+    "profile_id": "ux_designer_tokyo",
+    "score": 0.5,
+    "reason": "A Reddit post seeking a student partner for a smart contracts project has no relevance to a mid-career UX designer in Tokyo.",
+    "think_text": "Student fintech project request. Irrelevant to established UX designer."
+  },
+  {
+    "article_id": "5d029909e649",
+    "profile_id": "agribiz_sao_paulo",
+    "score": 0.0,
+    "reason": "A student looking for a smart contracts project partner has zero relevance to agricultural commodities trading.",
+    "think_text": "Student project post. Irrelevant."
+  },
+  {
+    "article_id": "5d029909e649",
+    "profile_id": "pharmacist_paris",
+    "score": 0.0,
+    "reason": "A student fintech/smart contracts project has zero relevance to hospital pharmacy.",
+    "think_text": "Student project. Irrelevant."
+  },
+  {
+    "article_id": "5d029909e649",
+    "profile_id": "kpop_marketer_seoul",
+    "score": 0.0,
+    "reason": "A student fintech project has zero relevance to K-pop marketing.",
+    "think_text": "Student fintech project. Irrelevant."
+  },
+  {
+    "article_id": "5d029909e649",
+    "profile_id": "pediatric_oncologist_riyadh",
+    "score": 0.0,
+    "reason": "A student fintech project has zero relevance to pediatric oncology.",
+    "think_text": "Student project. Irrelevant."
+  },
+  {
+    "article_id": "17358e40141a",
+    "profile_id": "ux_designer_tokyo",
+    "score": 1.0,
+    "reason": "A Microsoft support page for Windows display brightness settings is basic tech support content, not relevant to UX design work, though display settings are tangentially related to accessibility.",
+    "think_text": "Windows display settings support page. Very basic, tangential accessibility connection but not really useful."
+  },
+  {
+    "article_id": "17358e40141a",
+    "profile_id": "agribiz_sao_paulo",
+    "score": 0.0,
+    "reason": "Windows display brightness settings support page has zero relevance to agricultural commodities trading.",
+    "think_text": "Windows support page. Irrelevant."
+  },
+  {
+    "article_id": "17358e40141a",
+    "profile_id": "pharmacist_paris",
+    "score": 0.0,
+    "reason": "Windows display brightness settings have zero relevance to hospital pharmacy.",
+    "think_text": "Windows support. Irrelevant."
+  },
+  {
+    "article_id": "17358e40141a",
+    "profile_id": "kpop_marketer_seoul",
+    "score": 0.0,
+    "reason": "Windows display brightness settings have zero relevance to K-pop marketing.",
+    "think_text": "Windows support. Irrelevant."
+  },
+  {
+    "article_id": "17358e40141a",
+    "profile_id": "pediatric_oncologist_riyadh",
+    "score": 0.0,
+    "reason": "Windows display settings have zero relevance to pediatric oncology.",
+    "think_text": "Windows support. Irrelevant."
+  },
+  {
+    "article_id": "b5dd892f0d61",
+    "profile_id": "ux_designer_tokyo",
+    "score": 2.0,
+    "reason": "eLearning trends could tangentially interest a UX designer since eLearning platforms need good UX, but this article focuses on L&D strategy rather than design patterns or user experience.",
+    "think_text": "eLearning trends for L&D. Tangential UX connection but focuses on learning strategy not design."
+  },
+  {
+    "article_id": "b5dd892f0d61",
+    "profile_id": "agribiz_sao_paulo",
+    "score": 0.5,
+    "reason": "eLearning trends have no relevance to agricultural commodities trading.",
+    "think_text": "eLearning trends. Irrelevant."
+  },
+  {
+    "article_id": "b5dd892f0d61",
+    "profile_id": "pharmacist_paris",
+    "score": 2.0,
+    "reason": "eLearning trends could be tangentially relevant for continuing medical/pharmacy education, but this article focuses on L&D industry trends rather than healthcare-specific training.",
+    "think_text": "eLearning trends. Tangential continuing education connection but not healthcare-focused."
+  },
+  {
+    "article_id": "b5dd892f0d61",
+    "profile_id": "kpop_marketer_seoul",
+    "score": 3.5,
+    "reason": "eLearning trends and digital platforms in 2026 could be relevant to a K-pop marketer thinking about fan education content, interactive learning experiences for fan communities, and AI-driven content personalization for engagement campaigns.",
+    "think_text": "eLearning trends. Relevant for fan engagement content strategy - K-pop agencies increasingly use educational/interactive content. AI personalization applicable to marketing."
+  },
+  {
+    "article_id": "b5dd892f0d61",
+    "profile_id": "pediatric_oncologist_riyadh",
+    "score": 1.5,
+    "reason": "eLearning trends could tangentially relate to medical education and continuing medical education, but this article focuses on corporate L&D rather than healthcare training.",
+    "think_text": "eLearning trends. Tangential medical education connection but corporate-focused."
+  },
+  {
+    "article_id": "eea19c14bae7",
+    "profile_id": "ux_designer_tokyo",
+    "score": 0.5,
+    "reason": "An ETSI event on smart network standards and wireless protocols has no direct relevance to UX design or consumer electronics interfaces.",
+    "think_text": "Network standards event. Technical infrastructure, not UX-related."
+  },
+  {
+    "article_id": "eea19c14bae7",
+    "profile_id": "agribiz_sao_paulo",
+    "score": 0.0,
+    "reason": "Smart network standards for wireless networking have no relevance to agricultural commodities trading.",
+    "think_text": "Network standards event. Irrelevant."
+  },
+  {
+    "article_id": "eea19c14bae7",
+    "profile_id": "pharmacist_paris",
+    "score": 0.0,
+    "reason": "Smart network standards have zero relevance to hospital pharmacy.",
+    "think_text": "Network standards. Irrelevant."
+  },
+  {
+    "article_id": "eea19c14bae7",
+    "profile_id": "kpop_marketer_seoul",
+    "score": 0.5,
+    "reason": "Smart network standards have no relevance to K-pop marketing.",
+    "think_text": "Network standards. Irrelevant."
+  },
+  {
+    "article_id": "eea19c14bae7",
+    "profile_id": "pediatric_oncologist_riyadh",
+    "score": 0.0,
+    "reason": "Smart network standards have zero relevance to pediatric oncology.",
+    "think_text": "Network standards. Irrelevant."
+  },
+  {
+    "article_id": "18ca83614646",
+    "profile_id": "ux_designer_tokyo",
+    "score": 0.0,
+    "reason": "Healthcare nursing job postings in UAE have zero relevance to a UX designer in Tokyo.",
+    "think_text": "UAE nursing jobs. Irrelevant."
+  },
+  {
+    "article_id": "18ca83614646",
+    "profile_id": "agribiz_sao_paulo",
+    "score": 0.0,
+    "reason": "Healthcare nursing positions in UAE have zero relevance to agricultural commodities trading.",
+    "think_text": "UAE nursing jobs. Irrelevant."
+  },
+  {
+    "article_id": "18ca83614646",
+    "profile_id": "pharmacist_paris",
+    "score": 2.0,
+    "reason": "Healthcare hiring in UAE is in the healthcare industry but nursing positions in the UAE are not relevant to a hospital pharmacist in Paris. Different role, different geography.",
+    "think_text": "UAE nursing jobs. Same industry but wrong role and geography."
+  },
+  {
+    "article_id": "18ca83614646",
+    "profile_id": "kpop_marketer_seoul",
+    "score": 0.0,
+    "reason": "Healthcare positions in UAE have zero relevance to K-pop marketing.",
+    "think_text": "UAE nursing jobs. Irrelevant."
+  },
+  {
+    "article_id": "18ca83614646",
+    "profile_id": "pediatric_oncologist_riyadh",
+    "score": 3.5,
+    "reason": "Healthcare hiring at Royal Hospital UAE is in the regional healthcare market. While these are nursing positions (not oncology physician roles), healthcare workforce developments in the Gulf region are relevant context for a Riyadh-based clinician tracking regional healthcare capacity.",
+    "think_text": "UAE healthcare hiring. Same regional healthcare market, relevant for understanding GCC healthcare workforce trends. Not directly oncology but same industry and geography."
+  },
+  {
+    "article_id": "a05884b08a33",
+    "profile_id": "ux_designer_tokyo",
+    "score": 0.5,
+    "reason": "Moroccan and Qatari fintech startups have no relevance to a UX designer working on Japanese consumer electronics.",
+    "think_text": "African/GCC fintech. Irrelevant to Tokyo UX design."
+  },
+  {
+    "article_id": "a05884b08a33",
+    "profile_id": "agribiz_sao_paulo",
+    "score": 0.5,
+    "reason": "Moroccan fintech startups and GCC BNPL services have no relevance to Brazilian agricultural commodities trading.",
+    "think_text": "African/GCC fintech. Irrelevant."
+  },
+  {
+    "article_id": "a05884b08a33",
+    "profile_id": "pharmacist_paris",
+    "score": 0.0,
+    "reason": "Moroccan fintech startups have zero relevance to hospital pharmacy.",
+    "think_text": "Fintech news. Irrelevant."
+  },
+  {
+    "article_id": "a05884b08a33",
+    "profile_id": "kpop_marketer_seoul",
+    "score": 0.5,
+    "reason": "Moroccan fintech startups have no relevance to K-pop marketing.",
+    "think_text": "African fintech. Irrelevant."
+  },
+  {
+    "article_id": "a05884b08a33",
+    "profile_id": "pediatric_oncologist_riyadh",
+    "score": 0.5,
+    "reason": "Moroccan fintech startups have no relevance to pediatric oncology.",
+    "think_text": "African fintech. Irrelevant."
+  },
+  {
+    "article_id": "6f6ab3fb11be",
+    "profile_id": "ux_designer_tokyo",
+    "score": 0.5,
+    "reason": "Global fintech deal roundups have no relevance to UX design at a Japanese consumer electronics company.",
+    "think_text": "Fintech deals. Wrong industry entirely."
+  },
+  {
+    "article_id": "6f6ab3fb11be",
+    "profile_id": "agribiz_sao_paulo",
+    "score": 0.5,
+    "reason": "Global fintech deal roundups have no direct relevance to agricultural commodities trading, though fintech can affect commodity trading platforms.",
+    "think_text": "Fintech deals. Not relevant to commodities."
+  },
+  {
+    "article_id": "6f6ab3fb11be",
+    "profile_id": "pharmacist_paris",
+    "score": 0.0,
+    "reason": "Fintech deal roundups have zero relevance to hospital pharmacy.",
+    "think_text": "Fintech deals. Irrelevant."
+  },
+  {
+    "article_id": "6f6ab3fb11be",
+    "profile_id": "kpop_marketer_seoul",
+    "score": 0.5,
+    "reason": "Global fintech deals have no relevance to K-pop marketing.",
+    "think_text": "Fintech deals. Irrelevant."
+  },
+  {
+    "article_id": "6f6ab3fb11be",
+    "profile_id": "pediatric_oncologist_riyadh",
+    "score": 0.0,
+    "reason": "Fintech deal roundups have zero relevance to pediatric oncology.",
+    "think_text": "Fintech deals. Irrelevant."
+  },
+  {
+    "article_id": "5b5e0e3b788a",
+    "profile_id": "ux_designer_tokyo",
+    "score": 0.0,
+    "reason": "A TikTok dance compilation video is social media noise with no professional relevance.",
+    "think_text": "TikTok dance video. Pure noise."
+  },
+  {
+    "article_id": "5b5e0e3b788a",
+    "profile_id": "agribiz_sao_paulo",
+    "score": 0.0,
+    "reason": "A TikTok dance compilation has zero professional relevance.",
+    "think_text": "TikTok dance. Pure noise."
+  },
+  {
+    "article_id": "5b5e0e3b788a",
+    "profile_id": "pharmacist_paris",
+    "score": 0.0,
+    "reason": "A TikTok dance compilation has zero professional relevance.",
+    "think_text": "TikTok dance. Noise."
+  },
+  {
+    "article_id": "5b5e0e3b788a",
+    "profile_id": "kpop_marketer_seoul",
+    "score": 3.5,
+    "reason": "A TikTok dance compilation demonstrates viral content mechanics and platform engagement. As a K-pop marketer focused on social media strategy and content virality, understanding what makes dance content go viral on TikTok is professionally relevant, as dance challenges are a core K-pop marketing tactic.",
+    "think_text": "TikTok viral dance content. Directly relevant to K-pop social media marketing - dance challenges are a key K-pop promotion strategy. Understanding viral mechanics on TikTok matters."
+  },
+  {
+    "article_id": "5b5e0e3b788a",
+    "profile_id": "pediatric_oncologist_riyadh",
+    "score": 0.0,
+    "reason": "A TikTok dance compilation has zero professional relevance.",
+    "think_text": "TikTok dance. Noise."
+  },
+  {
+    "article_id": "253ce3ae750b",
+    "profile_id": "ux_designer_tokyo",
+    "score": 0.5,
+    "reason": "Retail cybersecurity services have no relevance to UX design or consumer electronics.",
+    "think_text": "Retail cybersecurity. Irrelevant."
+  },
+  {
+    "article_id": "253ce3ae750b",
+    "profile_id": "agribiz_sao_paulo",
+    "score": 0.0,
+    "reason": "Retail cybersecurity services have no relevance to agricultural commodities trading.",
+    "think_text": "Retail cybersecurity. Irrelevant."
+  },
+  {
+    "article_id": "253ce3ae750b",
+    "profile_id": "pharmacist_paris",
+    "score": 0.0,
+    "reason": "Retail cybersecurity services have zero relevance to hospital pharmacy.",
+    "think_text": "Retail cybersecurity. Irrelevant."
+  },
+  {
+    "article_id": "253ce3ae750b",
+    "profile_id": "kpop_marketer_seoul",
+    "score": 0.5,
+    "reason": "Retail cybersecurity has no relevance to K-pop marketing.",
+    "think_text": "Retail cybersecurity. Irrelevant."
+  },
+  {
+    "article_id": "253ce3ae750b",
+    "profile_id": "pediatric_oncologist_riyadh",
+    "score": 0.5,
+    "reason": "Retail cybersecurity services have no relevance to pediatric oncology.",
+    "think_text": "Retail cybersecurity. Irrelevant."
+  },
+  {
+    "article_id": "8552fae8d58d",
+    "profile_id": "ux_designer_tokyo",
+    "score": 0.0,
+    "reason": "An electrical engineer job in Ontario, Canada has zero relevance to a UX designer in Tokyo.",
+    "think_text": "Electrical engineer job Canada. Irrelevant."
+  },
+  {
+    "article_id": "8552fae8d58d",
+    "profile_id": "agribiz_sao_paulo",
+    "score": 0.0,
+    "reason": "An electrical engineer job in Ontario has zero relevance to agricultural commodities trading.",
+    "think_text": "Electrical engineer job. Irrelevant."
+  },
+  {
+    "article_id": "8552fae8d58d",
+    "profile_id": "pharmacist_paris",
+    "score": 0.0,
+    "reason": "An electrical engineer job in Ontario has zero relevance to hospital pharmacy.",
+    "think_text": "Electrical engineer job. Irrelevant."
+  },
+  {
+    "article_id": "8552fae8d58d",
+    "profile_id": "kpop_marketer_seoul",
+    "score": 0.0,
+    "reason": "An electrical engineer job has zero relevance to K-pop marketing.",
+    "think_text": "Electrical engineer job. Irrelevant."
+  },
+  {
+    "article_id": "8552fae8d58d",
+    "profile_id": "pediatric_oncologist_riyadh",
+    "score": 0.0,
+    "reason": "An electrical engineer job in Ontario has zero relevance to pediatric oncology.",
+    "think_text": "Electrical engineer job. Irrelevant."
+  },
+  {
+    "article_id": "5d91b2c4375a",
+    "profile_id": "ux_designer_tokyo",
+    "score": 0.5,
+    "reason": "Climate science news about microplastics has no direct relevance to UX design or consumer electronics, though environmental awareness is generally important.",
+    "think_text": "Climate science. No direct professional relevance."
+  },
+  {
+    "article_id": "5d91b2c4375a",
+    "profile_id": "agribiz_sao_paulo",
+    "score": 5.5,
+    "reason": "Climate science news about microplastics affecting ocean climate systems is relevant to an agricultural commodities trader who monitors weather patterns and climate impacts on crop yields. Climate disruptions directly affect agricultural output and commodity prices.",
+    "think_text": "Climate science - microplastics weakening ocean climate defenses. Relevant because climate patterns directly affect crop yields, weather patterns, and commodity prices. Agricultural trader monitors weather."
+  },
+  {
+    "article_id": "5d91b2c4375a",
+    "profile_id": "pharmacist_paris",
+    "score": 1.0,
+    "reason": "Climate science about microplastics has no direct relevance to hospital pharmacy, though environmental health is a broad healthcare concern.",
+    "think_text": "Climate science. Very tangential environmental health connection."
+  },
+  {
+    "article_id": "5d91b2c4375a",
+    "profile_id": "kpop_marketer_seoul",
+    "score": 0.5,
+    "reason": "Climate science news has no relevance to K-pop marketing.",
+    "think_text": "Climate science. Irrelevant."
+  },
+  {
+    "article_id": "5d91b2c4375a",
+    "profile_id": "pediatric_oncologist_riyadh",
+    "score": 1.5,
+    "reason": "Climate science about microplastics has no direct relevance to pediatric oncology, though environmental carcinogens are a broad concern. This article doesn't discuss cancer implications.",
+    "think_text": "Climate science. Tangential environmental health concern but no cancer-specific content."
+  },
+  {
+    "article_id": "29b05e3fae4d",
+    "profile_id": "ux_designer_tokyo",
+    "score": 0.5,
+    "reason": "A popular science article about unusual natural phenomena is general interest content with no professional relevance to UX design.",
+    "think_text": "Pop science article. General interest, no UX relevance."
+  },
+  {
+    "article_id": "29b05e3fae4d",
+    "profile_id": "agribiz_sao_paulo",
+    "score": 1.0,
+    "reason": "Popular science about unusual natural phenomena is general interest content. While some phenomena might relate to weather/climate, this article is too broad and non-specific to be actionable for a commodities trader.",
+    "think_text": "Pop science article. General interest but not actionable for commodity trading."
+  },
+  {
+    "article_id": "29b05e3fae4d",
+    "profile_id": "pharmacist_paris",
+    "score": 0.5,
+    "reason": "Popular science about unusual natural phenomena has no relevance to hospital pharmacy or oncology.",
+    "think_text": "Pop science. Irrelevant."
+  },
+  {
+    "article_id": "29b05e3fae4d",
+    "profile_id": "kpop_marketer_seoul",
+    "score": 0.0,
+    "reason": "Popular science about natural phenomena has no relevance to K-pop marketing.",
+    "think_text": "Pop science. Irrelevant."
+  },
+  {
+    "article_id": "29b05e3fae4d",
+    "profile_id": "pediatric_oncologist_riyadh",
+    "score": 0.5,
+    "reason": "Popular science about unusual natural phenomena has no relevance to pediatric oncology.",
+    "think_text": "Pop science. Irrelevant."
+  },
+  {
+    "article_id": "c6847e13b57d",
+    "profile_id": "ux_designer_tokyo",
+    "score": 0.0,
+    "reason": "A stock sale by an investment fund has zero relevance to UX design.",
+    "think_text": "Stock market transaction. Irrelevant."
+  },
+  {
+    "article_id": "c6847e13b57d",
+    "profile_id": "agribiz_sao_paulo",
+    "score": 1.5,
+    "reason": "An investment fund selling TREX stock is a financial market move but in construction/building materials, not agricultural commodities. Not directly relevant though the trader may track broader financial markets.",
+    "think_text": "Investment fund stock sale. Financial markets but not agricultural commodities."
+  },
+  {
+    "article_id": "c6847e13b57d",
+    "profile_id": "pharmacist_paris",
+    "score": 0.0,
+    "reason": "An investment fund stock sale has zero relevance to hospital pharmacy.",
+    "think_text": "Stock transaction. Irrelevant."
+  },
+  {
+    "article_id": "c6847e13b57d",
+    "profile_id": "kpop_marketer_seoul",
+    "score": 0.0,
+    "reason": "An investment fund stock sale has zero relevance to K-pop marketing.",
+    "think_text": "Stock transaction. Irrelevant."
+  },
+  {
+    "article_id": "c6847e13b57d",
+    "profile_id": "pediatric_oncologist_riyadh",
+    "score": 0.0,
+    "reason": "An investment fund stock sale has zero relevance to pediatric oncology.",
+    "think_text": "Stock transaction. Irrelevant."
+  },
+  {
+    "article_id": "0974c0d9e8bb",
+    "profile_id": "ux_designer_tokyo",
+    "score": 4.0,
+    "reason": "Qualcomm's 2nm chip breakthrough is relevant to the broader consumer electronics and mobile device ecosystem. As a UX designer at a consumer electronics company, chip advances can influence what's possible in mobile device UX. However, this is more of a semiconductor/hardware story.",
+    "think_text": "Qualcomm 2nm chip, India as design hub. Relevant to consumer electronics ecosystem - better chips enable better UX experiences on devices. Moderately relevant but more hardware-focused."
+  },
+  {
+    "article_id": "0974c0d9e8bb",
+    "profile_id": "agribiz_sao_paulo",
+    "score": 0.5,
+    "reason": "Qualcomm's 2nm chip breakthrough has no relevance to agricultural commodities trading.",
+    "think_text": "Semiconductor news. Irrelevant to agriculture."
+  },
+  {
+    "article_id": "0974c0d9e8bb",
+    "profile_id": "pharmacist_paris",
+    "score": 0.5,
+    "reason": "Qualcomm's 2nm chip has no relevance to hospital pharmacy or oncology drugs.",
+    "think_text": "Semiconductor news. Irrelevant."
+  },
+  {
+    "article_id": "0974c0d9e8bb",
+    "profile_id": "kpop_marketer_seoul",
+    "score": 1.0,
+    "reason": "Qualcomm's semiconductor breakthrough has minimal relevance. While mobile device capabilities matter for content consumption, this is too technical and hardware-focused for a marketing professional.",
+    "think_text": "Semiconductor news. Mobile device capabilities matter for content consumption but too technical."
+  },
+  {
+    "article_id": "0974c0d9e8bb",
+    "profile_id": "pediatric_oncologist_riyadh",
+    "score": 0.5,
+    "reason": "Qualcomm's semiconductor breakthrough has no relevance to pediatric oncology.",
+    "think_text": "Semiconductor news. Irrelevant."
+  },
+  {
+    "article_id": "834d9c577dcf",
+    "profile_id": "ux_designer_tokyo",
+    "score": 0.5,
+    "reason": "An AWS CloudOps certification course has no relevance to UX design.",
+    "think_text": "AWS certification. Wrong domain entirely."
+  },
+  {
+    "article_id": "834d9c577dcf",
+    "profile_id": "agribiz_sao_paulo",
+    "score": 0.0,
+    "reason": "AWS certification course has zero relevance to agricultural commodities trading.",
+    "think_text": "AWS certification. Irrelevant."
+  },
+  {
+    "article_id": "834d9c577dcf",
+    "profile_id": "pharmacist_paris",
+    "score": 0.0,
+    "reason": "AWS certification course has zero relevance to hospital pharmacy.",
+    "think_text": "AWS certification. Irrelevant."
+  },
+  {
+    "article_id": "834d9c577dcf",
+    "profile_id": "kpop_marketer_seoul",
+    "score": 0.0,
+    "reason": "AWS certification has zero relevance to K-pop marketing.",
+    "think_text": "AWS certification. Irrelevant."
+  },
+  {
+    "article_id": "834d9c577dcf",
+    "profile_id": "pediatric_oncologist_riyadh",
+    "score": 0.0,
+    "reason": "AWS certification has zero relevance to pediatric oncology.",
+    "think_text": "AWS certification. Irrelevant."
+  },
+  {
+    "article_id": "5bb59f0afab2",
+    "profile_id": "ux_designer_tokyo",
+    "score": 0.0,
+    "reason": "Shell selling an oil project stake to a Kuwaiti company has zero relevance to UX design.",
+    "think_text": "Oil & gas deal. Irrelevant."
+  },
+  {
+    "article_id": "5bb59f0afab2",
+    "profile_id": "agribiz_sao_paulo",
+    "score": 4.5,
+    "reason": "Shell selling a 20% stake in an offshore Brazil project to Kuwait's KUFPEC is relevant as it involves Brazil's energy sector. Oil & gas developments in Brazil affect the broader Brazilian economy, the real, and indirectly agricultural export competitiveness and input costs (fuel, fertilizers).",
+    "think_text": "Shell selling Brazil offshore stake to KUFPEC. Brazil-relevant energy deal. Oil prices affect agricultural input costs (fuel, fertilizers) and Brazilian real exchange rate, which impacts commodity export pricing."
+  },
+  {
+    "article_id": "5bb59f0afab2",
+    "profile_id": "pharmacist_paris",
+    "score": 0.0,
+    "reason": "Shell selling an oil project stake has zero relevance to hospital pharmacy.",
+    "think_text": "Oil & gas deal. Irrelevant."
+  },
+  {
+    "article_id": "5bb59f0afab2",
+    "profile_id": "kpop_marketer_seoul",
+    "score": 0.0,
+    "reason": "Shell selling an oil project stake has zero relevance to K-pop marketing.",
+    "think_text": "Oil deal. Irrelevant."
+  },
+  {
+    "article_id": "5bb59f0afab2",
+    "profile_id": "pediatric_oncologist_riyadh",
+    "score": 0.5,
+    "reason": "Shell selling an offshore Brazil stake has no relevance to pediatric oncology. Though the buyer is Kuwaiti, this is an oil deal with no healthcare connection.",
+    "think_text": "Oil deal. Irrelevant despite regional proximity."
+  },
+  {
+    "article_id": "1d99e49cdd52",
+    "profile_id": "ux_designer_tokyo",
+    "score": 0.0,
+    "reason": "A travel nurse job posting has zero relevance to UX design.",
+    "think_text": "Nursing job. Irrelevant."
+  },
+  {
+    "article_id": "1d99e49cdd52",
+    "profile_id": "agribiz_sao_paulo",
+    "score": 0.0,
+    "reason": "A travel nurse job posting has zero relevance to agricultural commodities trading.",
+    "think_text": "Nursing job. Irrelevant."
+  },
+  {
+    "article_id": "1d99e49cdd52",
+    "profile_id": "pharmacist_paris",
+    "score": 1.5,
+    "reason": "A travel nurse job posting is in the healthcare industry but focuses on US nursing, not pharmacy in France. Different role and geography.",
+    "think_text": "US nursing job. Same broad industry but wrong role and geography."
+  },
+  {
+    "article_id": "1d99e49cdd52",
+    "profile_id": "kpop_marketer_seoul",
+    "score": 0.0,
+    "reason": "A travel nurse job has zero relevance to K-pop marketing.",
+    "think_text": "Nursing job. Irrelevant."
+  },
+  {
+    "article_id": "1d99e49cdd52",
+    "profile_id": "pediatric_oncologist_riyadh",
+    "score": 2.0,
+    "reason": "A travel nurse job in the US healthcare system is in the broader healthcare industry but a completely different specialty, role, and geography. Regional nursing shortages can affect hospital operations globally but this is US-specific.",
+    "think_text": "US nursing job. Same broad industry but wrong specialty, role, and geography."
+  },
+  {
+    "article_id": "fd5f0e60a7b1",
+    "profile_id": "ux_designer_tokyo",
+    "score": 2.0,
+    "reason": "Quantum computing advances are interesting general tech news but have no near-term relevance to UX design or consumer electronics interfaces.",
+    "think_text": "Quantum computing. General tech but not UX-relevant in the near term."
+  },
+  {
+    "article_id": "fd5f0e60a7b1",
+    "profile_id": "agribiz_sao_paulo",
+    "score": 0.5,
+    "reason": "Quantum computing advances have no near-term relevance to agricultural commodities trading.",
+    "think_text": "Quantum computing. Irrelevant."
+  },
+  {
+    "article_id": "fd5f0e60a7b1",
+    "profile_id": "pharmacist_paris",
+    "score": 1.0,
+    "reason": "Quantum computing advances could eventually impact drug discovery, but this article about D-Wave's gate quantum computer is too removed from practical pharmaceutical applications.",
+    "think_text": "Quantum computing. Distant future drug discovery connection but not practical for hospital pharmacist."
+  },
+  {
+    "article_id": "fd5f0e60a7b1",
+    "profile_id": "kpop_marketer_seoul",
+    "score": 0.5,
+    "reason": "Quantum computing advances have no relevance to K-pop marketing.",
+    "think_text": "Quantum computing. Irrelevant."
+  },
+  {
+    "article_id": "fd5f0e60a7b1",
+    "profile_id": "pediatric_oncologist_riyadh",
+    "score": 1.5,
+    "reason": "Quantum computing advances could eventually impact drug discovery and precision medicine, but D-Wave's gate quantum computer is too early-stage to be relevant to current clinical oncology practice.",
+    "think_text": "Quantum computing. Distant future drug discovery potential but not practically relevant."
+  },
+  {
+    "article_id": "aab36685f2ec",
+    "profile_id": "ux_designer_tokyo",
+    "score": 2.0,
+    "reason": "Pentagon's use of AI in military operations is notable tech/AI news. A UX designer may find AI deployment trends mildly interesting but this has no direct relevance to their work on mobile interfaces or consumer electronics.",
+    "think_text": "Military AI usage. General AI news but not relevant to UX design work."
+  },
+  {
+    "article_id": "aab36685f2ec",
+    "profile_id": "agribiz_sao_paulo",
+    "score": 1.5,
+    "reason": "Pentagon using AI in a Venezuela operation is notable geopolitical news. Venezuela is a neighbor of Brazil and geopolitical instability in the region can affect commodity trade routes and Brazilian markets, but the AI angle is not relevant.",
+    "think_text": "Pentagon AI in Venezuela. Geopolitical relevance to Brazil as neighbor, could affect regional stability and trade, but tangential."
+  },
+  {
+    "article_id": "aab36685f2ec",
+    "profile_id": "pharmacist_paris",
+    "score": 0.5,
+    "reason": "Pentagon using AI in military operations has no relevance to hospital pharmacy or oncology.",
+    "think_text": "Military AI. Irrelevant."
+  },
+  {
+    "article_id": "aab36685f2ec",
+    "profile_id": "kpop_marketer_seoul",
+    "score": 1.5,
+    "reason": "Pentagon using AI in a military operation is notable news. For a K-pop marketer, AI developments broadly matter for content creation and marketing automation, but military AI use is not applicable.",
+    "think_text": "Military AI use. AI broadly interesting for marketing but military application is irrelevant."
+  },
+  {
+    "article_id": "aab36685f2ec",
+    "profile_id": "pediatric_oncologist_riyadh",
+    "score": 1.0,
+    "reason": "Pentagon using AI in military operations has no direct relevance to pediatric oncology, though AI in healthcare is a broader trend. This article is about military AI, not medical AI.",
+    "think_text": "Military AI. Not relevant to oncology despite broader AI interest."
+  },
+  {
+    "article_id": "0c152569086d",
+    "profile_id": "ux_designer_tokyo",
+    "score": 0.0,
+    "reason": "ITIL certification job trends in the UK have zero relevance to a UX designer in Tokyo.",
+    "think_text": "UK ITIL certification stats. Irrelevant."
+  },
+  {
+    "article_id": "0c152569086d",
+    "profile_id": "agribiz_sao_paulo",
+    "score": 0.0,
+    "reason": "ITIL certification job trends in the UK have zero relevance to agricultural commodities trading.",
+    "think_text": "UK IT certification. Irrelevant."
+  },
+  {
+    "article_id": "0c152569086d",
+    "profile_id": "pharmacist_paris",
+    "score": 0.0,
+    "reason": "ITIL certification trends in the UK have zero relevance to hospital pharmacy.",
+    "think_text": "IT certification. Irrelevant."
+  },
+  {
+    "article_id": "0c152569086d",
+    "profile_id": "kpop_marketer_seoul",
+    "score": 0.0,
+    "reason": "ITIL certification trends have zero relevance to K-pop marketing.",
+    "think_text": "ITIL certification. Irrelevant."
+  },
+  {
+    "article_id": "0c152569086d",
+    "profile_id": "pediatric_oncologist_riyadh",
+    "score": 0.0,
+    "reason": "ITIL certification trends have zero relevance to pediatric oncology.",
+    "think_text": "ITIL certification. Irrelevant."
+  },
+  {
+    "article_id": "7cdb8ee26e9d",
+    "profile_id": "ux_designer_tokyo",
+    "score": 2.5,
+    "reason": "AMD's MI400 AI chip at 2nm competing with NVIDIA is semiconductor/AI hardware news. Tangentially relevant to a consumer electronics UX designer as AI capabilities drive new UX possibilities, but this is enterprise AI hardware focused.",
+    "think_text": "AMD vs NVIDIA AI chip war. Tangentially relevant to understanding what AI capabilities will be available for consumer devices."
+  },
+  {
+    "article_id": "7cdb8ee26e9d",
+    "profile_id": "agribiz_sao_paulo",
+    "score": 0.5,
+    "reason": "AMD's AI chip competition with NVIDIA has no relevance to agricultural commodities trading.",
+    "think_text": "AI chip competition. Irrelevant to agriculture."
+  },
+  {
+    "article_id": "7cdb8ee26e9d",
+    "profile_id": "pharmacist_paris",
+    "score": 0.5,
+    "reason": "AMD's AI chip competition has no relevance to hospital pharmacy or oncology.",
+    "think_text": "AI chip war. Irrelevant."
+  },
+  {
+    "article_id": "7cdb8ee26e9d",
+    "profile_id": "kpop_marketer_seoul",
+    "score": 0.5,
+    "reason": "AMD's AI chip competition has no relevance to K-pop marketing.",
+    "think_text": "AI chip war. Irrelevant."
+  },
+  {
+    "article_id": "7cdb8ee26e9d",
+    "profile_id": "pediatric_oncologist_riyadh",
+    "score": 0.5,
+    "reason": "AMD's AI chip competition has no relevance to pediatric oncology.",
+    "think_text": "AI chip war. Irrelevant."
+  },
+  {
+    "article_id": "02b682ccfc85",
+    "profile_id": "ux_designer_tokyo",
+    "score": 0.0,
+    "reason": "Saudi industrial equipment company client references have zero relevance to UX design.",
+    "think_text": "Saudi industrial company. Irrelevant."
+  },
+  {
+    "article_id": "02b682ccfc85",
+    "profile_id": "agribiz_sao_paulo",
+    "score": 0.0,
+    "reason": "Saudi industrial equipment company references have zero relevance to Brazilian agricultural commodities.",
+    "think_text": "Saudi industrial company. Irrelevant."
+  },
+  {
+    "article_id": "02b682ccfc85",
+    "profile_id": "pharmacist_paris",
+    "score": 0.0,
+    "reason": "Saudi industrial equipment references have zero relevance to hospital pharmacy in Paris.",
+    "think_text": "Saudi industrial. Irrelevant."
+  },
+  {
+    "article_id": "02b682ccfc85",
+    "profile_id": "kpop_marketer_seoul",
+    "score": 0.0,
+    "reason": "Saudi industrial equipment company has zero relevance to K-pop marketing.",
+    "think_text": "Saudi industrial. Irrelevant."
+  },
+  {
+    "article_id": "02b682ccfc85",
+    "profile_id": "pediatric_oncologist_riyadh",
+    "score": 1.5,
+    "reason": "Zamil Process Equipment references SABIC, SWCC, and Saudi Electricity Company - all Saudi entities. As a Riyadh-based professional, there's geographic relevance, but industrial equipment has no connection to pediatric oncology.",
+    "think_text": "Saudi industrial company. Geographic proximity but no healthcare connection."
+  },
+  {
+    "article_id": "9272cab0f19c",
+    "profile_id": "ux_designer_tokyo",
+    "score": 1.0,
+    "reason": "Blockchain investment trends including asset tokenization have no direct relevance to UX design at a consumer electronics company. Crypto/blockchain is not among this profile's interests.",
+    "think_text": "Blockchain investment. Not in UX designer's interest area."
+  },
+  {
+    "article_id": "9272cab0f19c",
+    "profile_id": "agribiz_sao_paulo",
+    "score": 1.0,
+    "reason": "Blockchain investment trends could tangentially relate to commodity trading platforms using blockchain for trade settlement, but this article focuses on general crypto/DeFi investment, not commodity-specific applications.",
+    "think_text": "Blockchain investment. Tangential commodity trading connection but article is general crypto focused."
+  },
+  {
+    "article_id": "9272cab0f19c",
+    "profile_id": "pharmacist_paris",
+    "score": 0.0,
+    "reason": "Blockchain investment trends have zero relevance to hospital pharmacy.",
+    "think_text": "Blockchain investing. Irrelevant."
+  },
+  {
+    "article_id": "9272cab0f19c",
+    "profile_id": "kpop_marketer_seoul",
+    "score": 1.0,
+    "reason": "Blockchain investment trends could tangentially relate to NFTs and fan token economies that some K-pop agencies explore, but this article focuses on traditional finance and asset tokenization rather than entertainment applications.",
+    "think_text": "Blockchain trends. Tangential K-pop NFT/fan token connection but article focuses on traditional finance."
+  },
+  {
+    "article_id": "9272cab0f19c",
+    "profile_id": "pediatric_oncologist_riyadh",
+    "score": 0.0,
+    "reason": "Blockchain investment trends have zero relevance to pediatric oncology.",
+    "think_text": "Blockchain investing. Irrelevant."
+  },
+  {
+    "article_id": "eb9e5c6bf732",
+    "profile_id": "ux_designer_tokyo",
+    "score": 1.0,
+    "reason": "Modular construction and smart homebuilding is not related to UX design or consumer electronics, though smart home interfaces are a tangential connection.",
+    "think_text": "Modular construction. Very tangential smart home UX connection at best."
+  },
+  {
+    "article_id": "eb9e5c6bf732",
+    "profile_id": "agribiz_sao_paulo",
+    "score": 0.0,
+    "reason": "Modular construction has zero relevance to agricultural commodities trading.",
+    "think_text": "Construction article. Irrelevant."
+  },
+  {
+    "article_id": "eb9e5c6bf732",
+    "profile_id": "pharmacist_paris",
+    "score": 0.0,
+    "reason": "Modular construction has zero relevance to hospital pharmacy.",
+    "think_text": "Construction. Irrelevant."
+  },
+  {
+    "article_id": "eb9e5c6bf732",
+    "profile_id": "kpop_marketer_seoul",
+    "score": 0.0,
+    "reason": "Modular construction has zero relevance to K-pop marketing.",
+    "think_text": "Construction. Irrelevant."
+  },
+  {
+    "article_id": "eb9e5c6bf732",
+    "profile_id": "pediatric_oncologist_riyadh",
+    "score": 0.5,
+    "reason": "Modular construction has minimal relevance to pediatric oncology, though hospital construction methods could tangentially apply.",
+    "think_text": "Construction. Very tangential hospital building connection."
+  },
+  {
+    "article_id": "80ce92a24085",
+    "profile_id": "ux_designer_tokyo",
+    "score": 0.0,
+    "reason": "A TripAdvisor beach review in Norway has zero professional relevance to a UX designer in Tokyo.",
+    "think_text": "Norway beach travel review. Irrelevant."
+  },
+  {
+    "article_id": "80ce92a24085",
+    "profile_id": "agribiz_sao_paulo",
+    "score": 0.0,
+    "reason": "A beach travel review in Norway has zero relevance to agricultural commodities trading.",
+    "think_text": "Travel review. Irrelevant."
+  },
+  {
+    "article_id": "80ce92a24085",
+    "profile_id": "pharmacist_paris",
+    "score": 0.0,
+    "reason": "A beach travel review has zero professional relevance to hospital pharmacy.",
+    "think_text": "Travel review. Irrelevant."
+  },
+  {
+    "article_id": "80ce92a24085",
+    "profile_id": "kpop_marketer_seoul",
+    "score": 0.0,
+    "reason": "A beach travel review has zero relevance to K-pop marketing.",
+    "think_text": "Travel review. Irrelevant."
+  },
+  {
+    "article_id": "80ce92a24085",
+    "profile_id": "pediatric_oncologist_riyadh",
+    "score": 0.0,
+    "reason": "A beach travel review has zero professional relevance.",
+    "think_text": "Travel review. Irrelevant."
+  }
+]

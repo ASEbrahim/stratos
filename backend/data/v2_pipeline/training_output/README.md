@@ -3,8 +3,8 @@ library_name: transformers
 model_name: training_output
 tags:
 - generated_from_trainer
-- sft
 - trl
+- sft
 licence: license
 ---
 
@@ -34,7 +34,7 @@ This model was trained with SFT.
 ### Framework versions
 
 - TRL: 0.28.0
-- Transformers: 5.1.0
+- Transformers: 5.3.0
 - Pytorch: 2.5.1+rocm6.2
 - Datasets: 4.5.0
 - Tokenizers: 0.22.2

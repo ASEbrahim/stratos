@@ -1,0 +1,1752 @@
+[
+  {
+    "article_id": "7dd61db77979",
+    "profile_id": "physical_therapist_sydney",
+    "score": 1.0,
+    "reason": "This article about AI agents building a C compiler has no relevance to sports physiotherapy, rehabilitation, or healthcare in Australia. It is purely a software engineering/AI story with no sports medicine angle.",
+    "think_text": "Physical therapist in Sydney interested in sports rehab, ACL, concussion protocols. An AI-built C compiler is completely outside their professional domain and personal interests."
+  },
+  {
+    "article_id": "7dd61db77979",
+    "profile_id": "nurse_practitioner_toronto",
+    "score": 1.0,
+    "reason": "An AI experiment creating a C compiler is unrelated to emergency medicine, nursing workforce issues, or Canadian healthcare policy. No healthcare angle whatsoever.",
+    "think_text": "NP in Toronto ED cares about nursing staffing, telehealth, trauma care. AI building compilers is irrelevant to their work."
+  },
+  {
+    "article_id": "7dd61db77979",
+    "profile_id": "hobbyist_crypto_f1",
+    "score": 2.5,
+    "reason": "As a retired IT consultant, this person might have passing interest in a novel AI experiment, but it does not relate to their core hobbies of crypto, F1, whisky, or watches. Mildly interesting as a former tech professional.",
+    "think_text": "Retired IT consultant might find AI news mildly interesting from their former career, but their tracked interests are crypto, F1, whisky, watches. This is tangential at best."
+  },
+  {
+    "article_id": "7dd61db77979",
+    "profile_id": "lawyer_ai_disruption",
+    "score": 7.5,
+    "reason": "This article demonstrates AI's growing capability to perform complex technical work autonomously, which directly feeds into this lawyer's concern about AI disrupting professional services. The fact that AI agents needed 'deep human management' is relevant to the AI regulation and workforce replacement debate.",
+    "think_text": "Corporate lawyer tracking AI disruption of professions. AI agents collaborating to build a compiler shows AI capability advancement. The 'needed deep human management' angle is relevant to the AI-replacing-jobs discourse. Relevant to AI regulation interests."
+  },
+  {
+    "article_id": "7dd61db77979",
+    "profile_id": "bonsai_competitor_kyoto",
+    "score": 0.5,
+    "reason": "An article about AI agents building a C compiler has zero connection to bonsai cultivation, Japanese horticulture, rare plant species, or any of this profile's interests.",
+    "think_text": "Bonsai artist in Kyoto. AI compiler experiment is completely irrelevant to horticulture and bonsai."
+  },
+  {
+    "article_id": "d61d04dc8103",
+    "profile_id": "physical_therapist_sydney",
+    "score": 0.5,
+    "reason": "An Instagram reel about electrical safety has no relevance to sports physiotherapy, rehabilitation, or healthcare. This is noise content.",
+    "think_text": "Electrical safety ad on Instagram. Completely irrelevant to physio."
+  },
+  {
+    "article_id": "d61d04dc8103",
+    "profile_id": "nurse_practitioner_toronto",
+    "score": 0.5,
+    "reason": "An electrical safety Instagram post has no connection to emergency nursing, healthcare policy, or any of this NP's interests.",
+    "think_text": "Electrical safety ad. No healthcare relevance."
+  },
+  {
+    "article_id": "d61d04dc8103",
+    "profile_id": "hobbyist_crypto_f1",
+    "score": 0.5,
+    "reason": "An Instagram post about electrical safety is irrelevant to crypto, F1, whisky, watches, or travel interests.",
+    "think_text": "Random electrical safety content. No hobby match."
+  },
+  {
+    "article_id": "d61d04dc8103",
+    "profile_id": "lawyer_ai_disruption",
+    "score": 0.5,
+    "reason": "An electrical safety Instagram reel has no connection to legal practice, AI regulation, M&A, or technology.",
+    "think_text": "Electrical safety ad. No legal or AI relevance."
+  },
+  {
+    "article_id": "d61d04dc8103",
+    "profile_id": "bonsai_competitor_kyoto",
+    "score": 0.5,
+    "reason": "Electrical safety content has no relevance to bonsai cultivation, horticulture, or Japanese art traditions.",
+    "think_text": "Electrical safety. No bonsai relevance."
+  },
+  {
+    "article_id": "ddbd379ac378",
+    "profile_id": "physical_therapist_sydney",
+    "score": 0.5,
+    "reason": "AMD's data center and AI chip business has no relevance to sports physiotherapy, rehabilitation, or sports medicine in Australia.",
+    "think_text": "Semiconductor/AI chip news. No physio relevance."
+  },
+  {
+    "article_id": "ddbd379ac378",
+    "profile_id": "nurse_practitioner_toronto",
+    "score": 0.5,
+    "reason": "AMD's data center growth is irrelevant to emergency nursing, healthcare policy, or clinical practice.",
+    "think_text": "Chip company financials. No healthcare relevance."
+  },
+  {
+    "article_id": "ddbd379ac378",
+    "profile_id": "hobbyist_crypto_f1",
+    "score": 2.0,
+    "reason": "AMD is involved in crypto mining hardware historically, but this article focuses on data center/AI chip sales rather than crypto-relevant GPU mining. Only tangentially relevant to a crypto hobbyist.",
+    "think_text": "AMD has crypto mining connections but this is about data center AI chips. Retired IT person might have mild interest. Not directly about crypto or other hobbies."
+  },
+  {
+    "article_id": "ddbd379ac378",
+    "profile_id": "lawyer_ai_disruption",
+    "score": 5.5,
+    "reason": "AMD's AI chip growth relates to the broader AI industry expansion that this lawyer tracks. Understanding AI infrastructure investment helps contextualize how quickly AI capabilities will advance, relevant to their interest in AI disruption of legal work.",
+    "think_text": "Lawyer tracking AI disruption. AI chip infrastructure growth is tangentially relevant - shows AI industry acceleration. Not directly about legal tech or regulation, but part of the broader AI landscape they monitor."
+  },
+  {
+    "article_id": "ddbd379ac378",
+    "profile_id": "bonsai_competitor_kyoto",
+    "score": 0.5,
+    "reason": "Semiconductor and AI chip business news has no connection to bonsai, horticulture, or Japanese art.",
+    "think_text": "AI chips. Zero bonsai relevance."
+  },
+  {
+    "article_id": "1c7776bc782d",
+    "profile_id": "physical_therapist_sydney",
+    "score": 0.5,
+    "reason": "A geoscience conference on carbon capture and AI-driven exploration has no relevance to sports physiotherapy or sports medicine.",
+    "think_text": "Geoscience conference. No physio connection."
+  },
+  {
+    "article_id": "1c7776bc782d",
+    "profile_id": "nurse_practitioner_toronto",
+    "score": 0.5,
+    "reason": "A geoscience/carbon capture conference is unrelated to emergency medicine or nursing.",
+    "think_text": "Geoscience. No healthcare angle."
+  },
+  {
+    "article_id": "1c7776bc782d",
+    "profile_id": "hobbyist_crypto_f1",
+    "score": 0.5,
+    "reason": "A geoscience conference call for abstracts has no connection to crypto, F1, whisky, watches, or travel.",
+    "think_text": "Academic geoscience conference. No hobby match."
+  },
+  {
+    "article_id": "1c7776bc782d",
+    "profile_id": "lawyer_ai_disruption",
+    "score": 0.5,
+    "reason": "A geoscience conference is irrelevant to legal practice, AI regulation, or technology disruption of the legal profession.",
+    "think_text": "Geoscience abstracts. No legal or AI disruption relevance."
+  },
+  {
+    "article_id": "1c7776bc782d",
+    "profile_id": "bonsai_competitor_kyoto",
+    "score": 0.5,
+    "reason": "Carbon capture and geological exploration research has no connection to bonsai cultivation or horticulture.",
+    "think_text": "Geology conference. No bonsai relevance."
+  },
+  {
+    "article_id": "f0c8745690b3",
+    "profile_id": "physical_therapist_sydney",
+    "score": 0.5,
+    "reason": "EU-Ukraine geopolitics has no relevance to sports physiotherapy in Australia.",
+    "think_text": "EU geopolitics. No physio connection."
+  },
+  {
+    "article_id": "f0c8745690b3",
+    "profile_id": "nurse_practitioner_toronto",
+    "score": 1.0,
+    "reason": "EU support for Ukraine is general geopolitics with no direct impact on Canadian healthcare or emergency nursing practice.",
+    "think_text": "General geopolitics. Slightly more relevant than zero since healthcare workers may care about global conflicts but no direct professional relevance."
+  },
+  {
+    "article_id": "f0c8745690b3",
+    "profile_id": "hobbyist_crypto_f1",
+    "score": 1.5,
+    "reason": "EU-Ukraine politics could have minor implications for crypto markets or European travel, but this is too general to be actionable for any of this person's hobbies.",
+    "think_text": "Geopolitics can affect crypto and travel, but this is too high-level and not directly about either."
+  },
+  {
+    "article_id": "f0c8745690b3",
+    "profile_id": "lawyer_ai_disruption",
+    "score": 2.0,
+    "reason": "As a London-based corporate lawyer, EU politics has some peripheral relevance to M&A transactions and regulatory environment, but this specific article about Ukraine support is not directly actionable for their legal practice or AI interests.",
+    "think_text": "London lawyer doing M&A. EU politics affects regulatory landscape broadly. But Ukraine support specifically is not directly relevant to their work."
+  },
+  {
+    "article_id": "f0c8745690b3",
+    "profile_id": "bonsai_competitor_kyoto",
+    "score": 0.5,
+    "reason": "EU-Ukraine geopolitics has no connection to bonsai or Japanese horticulture.",
+    "think_text": "Geopolitics. No bonsai relevance."
+  },
+  {
+    "article_id": "1e0965efd09c",
+    "profile_id": "physical_therapist_sydney",
+    "score": 0.0,
+    "reason": "A TikTok about Roblox Halloween costumes is pure noise with no relevance to any professional or personal interest of a sports physiotherapist.",
+    "think_text": "Roblox costumes TikTok. Complete noise."
+  },
+  {
+    "article_id": "1e0965efd09c",
+    "profile_id": "nurse_practitioner_toronto",
+    "score": 0.0,
+    "reason": "Random TikTok content about Roblox costumes is completely irrelevant to emergency medicine or nursing.",
+    "think_text": "Noise content."
+  },
+  {
+    "article_id": "1e0965efd09c",
+    "profile_id": "hobbyist_crypto_f1",
+    "score": 0.0,
+    "reason": "A TikTok about Roblox Halloween costumes has zero relevance to crypto, F1, whisky, watches, or travel.",
+    "think_text": "Complete noise."
+  },
+  {
+    "article_id": "1e0965efd09c",
+    "profile_id": "lawyer_ai_disruption",
+    "score": 0.0,
+    "reason": "Roblox costume TikTok content is pure noise, completely irrelevant to legal practice or AI.",
+    "think_text": "Noise."
+  },
+  {
+    "article_id": "1e0965efd09c",
+    "profile_id": "bonsai_competitor_kyoto",
+    "score": 0.0,
+    "reason": "TikTok content about Roblox costumes has zero relevance to bonsai or horticulture.",
+    "think_text": "Noise."
+  },
+  {
+    "article_id": "8afa6526437b",
+    "profile_id": "physical_therapist_sydney",
+    "score": 0.5,
+    "reason": "US immigrant visa policy changes are irrelevant to a sports physiotherapist working in Sydney, Australia.",
+    "think_text": "US immigration policy. No connection to Australian physio."
+  },
+  {
+    "article_id": "8afa6526437b",
+    "profile_id": "nurse_practitioner_toronto",
+    "score": 1.5,
+    "reason": "US immigration visa policy changes are not directly relevant to Canadian healthcare, though healthcare workforce mobility between US and Canada could be tangentially affected. Too indirect to be meaningful.",
+    "think_text": "US visa changes. Canadian NP might be mildly aware of cross-border workforce implications but this is about US green cards specifically."
+  },
+  {
+    "article_id": "8afa6526437b",
+    "profile_id": "hobbyist_crypto_f1",
+    "score": 1.0,
+    "reason": "US immigration policy has minimal relevance to a retired IT consultant in Portugal interested in crypto, F1, and luxury collectibles.",
+    "think_text": "US immigration. Could slightly affect travel plans but very indirect."
+  },
+  {
+    "article_id": "8afa6526437b",
+    "profile_id": "lawyer_ai_disruption",
+    "score": 2.5,
+    "reason": "As a corporate M&A lawyer, immigration policy changes could tangentially affect cross-border transactions and talent mobility, but this specific visa pause article is not directly actionable for their practice area.",
+    "think_text": "London corporate lawyer. US immigration policy is peripheral - could affect cross-border M&A talent movement. But not core interest."
+  },
+  {
+    "article_id": "8afa6526437b",
+    "profile_id": "bonsai_competitor_kyoto",
+    "score": 0.5,
+    "reason": "US immigration visa policy has no relevance to bonsai cultivation or Japanese horticulture.",
+    "think_text": "Immigration policy. No bonsai connection."
+  },
+  {
+    "article_id": "0990d2b238a3",
+    "profile_id": "physical_therapist_sydney",
+    "score": 0.0,
+    "reason": "A Kuwait oil/gas compliance job posting is completely irrelevant to sports physiotherapy in Australia.",
+    "think_text": "Kuwait job posting. No physio relevance."
+  },
+  {
+    "article_id": "0990d2b238a3",
+    "profile_id": "nurse_practitioner_toronto",
+    "score": 0.0,
+    "reason": "A Kuwait oil/gas prequalification job has no relevance to Canadian emergency nursing.",
+    "think_text": "Kuwait compliance job. No nursing relevance."
+  },
+  {
+    "article_id": "0990d2b238a3",
+    "profile_id": "hobbyist_crypto_f1",
+    "score": 0.0,
+    "reason": "A Kuwait oil sector job posting is irrelevant to a retired IT consultant's hobbies in crypto, F1, and collectibles.",
+    "think_text": "Kuwait job. No hobby match."
+  },
+  {
+    "article_id": "0990d2b238a3",
+    "profile_id": "lawyer_ai_disruption",
+    "score": 0.0,
+    "reason": "A Kuwait oil sector compliance job posting has no relevance to a London corporate lawyer's interests in AI and legal tech.",
+    "think_text": "Kuwait job posting. No legal or AI relevance."
+  },
+  {
+    "article_id": "0990d2b238a3",
+    "profile_id": "bonsai_competitor_kyoto",
+    "score": 0.0,
+    "reason": "A Kuwait job posting has zero relevance to bonsai or horticulture.",
+    "think_text": "Job posting. No bonsai connection."
+  },
+  {
+    "article_id": "ddac40adbefb",
+    "profile_id": "physical_therapist_sydney",
+    "score": 0.0,
+    "reason": "A SCADA/PLC engineering job posting is completely irrelevant to sports physiotherapy.",
+    "think_text": "SCADA engineer job. No physio relevance."
+  },
+  {
+    "article_id": "ddac40adbefb",
+    "profile_id": "nurse_practitioner_toronto",
+    "score": 0.0,
+    "reason": "A SCADA engineering position has no connection to nursing or healthcare.",
+    "think_text": "Engineering job. No nursing connection."
+  },
+  {
+    "article_id": "ddac40adbefb",
+    "profile_id": "hobbyist_crypto_f1",
+    "score": 0.0,
+    "reason": "A SCADA engineering job is irrelevant to crypto, F1, watches, whisky, or travel hobbies.",
+    "think_text": "Technical job posting. No hobby match."
+  },
+  {
+    "article_id": "ddac40adbefb",
+    "profile_id": "lawyer_ai_disruption",
+    "score": 0.0,
+    "reason": "A SCADA engineering position is unrelated to legal practice, AI disruption, or technology regulation.",
+    "think_text": "Engineering job. No legal relevance."
+  },
+  {
+    "article_id": "ddac40adbefb",
+    "profile_id": "bonsai_competitor_kyoto",
+    "score": 0.0,
+    "reason": "Industrial automation engineering has no connection to bonsai or horticulture.",
+    "think_text": "SCADA job. No bonsai relevance."
+  },
+  {
+    "article_id": "922bd1907e2b",
+    "profile_id": "physical_therapist_sydney",
+    "score": 0.0,
+    "reason": "A business analyst certification guide is irrelevant to sports physiotherapy practice.",
+    "think_text": "BA cert guide. No physio relevance."
+  },
+  {
+    "article_id": "922bd1907e2b",
+    "profile_id": "nurse_practitioner_toronto",
+    "score": 0.0,
+    "reason": "Business analyst certification is unrelated to nursing or emergency medicine.",
+    "think_text": "BA cert. No nursing connection."
+  },
+  {
+    "article_id": "922bd1907e2b",
+    "profile_id": "hobbyist_crypto_f1",
+    "score": 0.0,
+    "reason": "A business analyst certification guide is irrelevant to a retired person with hobbies in crypto, F1, and collectibles.",
+    "think_text": "Career certification. Irrelevant to retired hobbyist."
+  },
+  {
+    "article_id": "922bd1907e2b",
+    "profile_id": "lawyer_ai_disruption",
+    "score": 0.5,
+    "reason": "A business analyst certification guide has no relevance to corporate law, AI regulation, or legal tech.",
+    "think_text": "BA cert. Not relevant to law or AI."
+  },
+  {
+    "article_id": "922bd1907e2b",
+    "profile_id": "bonsai_competitor_kyoto",
+    "score": 0.0,
+    "reason": "Business analyst certification has no connection to bonsai or horticulture.",
+    "think_text": "BA cert. No bonsai relevance."
+  },
+  {
+    "article_id": "c4b08e5e5c93",
+    "profile_id": "physical_therapist_sydney",
+    "score": 0.0,
+    "reason": "Ultrapure water resin market analysis has no relevance to sports physiotherapy or sports medicine.",
+    "think_text": "Industrial water market. No physio connection."
+  },
+  {
+    "article_id": "c4b08e5e5c93",
+    "profile_id": "nurse_practitioner_toronto",
+    "score": 0.0,
+    "reason": "Water purification resin market research is unrelated to emergency nursing or healthcare policy.",
+    "think_text": "Industrial market report. No nursing relevance."
+  },
+  {
+    "article_id": "c4b08e5e5c93",
+    "profile_id": "hobbyist_crypto_f1",
+    "score": 0.0,
+    "reason": "Water resin market analysis has no connection to crypto, F1, whisky, watches, or travel.",
+    "think_text": "Niche industrial market. No hobby match."
+  },
+  {
+    "article_id": "c4b08e5e5c93",
+    "profile_id": "lawyer_ai_disruption",
+    "score": 0.0,
+    "reason": "Water purification market research has no relevance to corporate law, AI, or legal technology.",
+    "think_text": "Water resin market. No legal/AI relevance."
+  },
+  {
+    "article_id": "c4b08e5e5c93",
+    "profile_id": "bonsai_competitor_kyoto",
+    "score": 1.0,
+    "reason": "Water quality is tangentially relevant to plant care and horticulture, but ultrapure water resin market investment analysis is an industrial market report, not actionable for bonsai cultivation.",
+    "think_text": "Water quality matters for plants, but this is about industrial ultrapure water resin markets - not gardening water quality."
+  },
+  {
+    "article_id": "d22648d82260",
+    "profile_id": "physical_therapist_sydney",
+    "score": 0.0,
+    "reason": "An Arabic streaming app listing on Google Play has no relevance to sports physiotherapy in Australia.",
+    "think_text": "Arabic streaming app. No physio relevance."
+  },
+  {
+    "article_id": "d22648d82260",
+    "profile_id": "nurse_practitioner_toronto",
+    "score": 0.0,
+    "reason": "An Arabic streaming app is unrelated to emergency nursing or Canadian healthcare.",
+    "think_text": "Streaming app. No nursing relevance."
+  },
+  {
+    "article_id": "d22648d82260",
+    "profile_id": "hobbyist_crypto_f1",
+    "score": 0.0,
+    "reason": "An Arabic streaming app has no connection to crypto, F1, whisky, watches, or travel interests.",
+    "think_text": "Arabic streaming app. No hobby match."
+  },
+  {
+    "article_id": "d22648d82260",
+    "profile_id": "lawyer_ai_disruption",
+    "score": 0.0,
+    "reason": "An Arabic streaming app listing has no relevance to corporate law, AI regulation, or legal technology.",
+    "think_text": "Streaming app. No legal/AI relevance."
+  },
+  {
+    "article_id": "d22648d82260",
+    "profile_id": "bonsai_competitor_kyoto",
+    "score": 0.0,
+    "reason": "An Arabic streaming app has no connection to bonsai or Japanese horticulture.",
+    "think_text": "Streaming app. No bonsai relevance."
+  },
+  {
+    "article_id": "f17f024560ac",
+    "profile_id": "physical_therapist_sydney",
+    "score": 0.5,
+    "reason": "Samsung's CPU architecture for on-device AI is irrelevant to sports physiotherapy or rehabilitation.",
+    "think_text": "Semiconductor architecture. No physio connection."
+  },
+  {
+    "article_id": "f17f024560ac",
+    "profile_id": "nurse_practitioner_toronto",
+    "score": 0.5,
+    "reason": "Samsung's on-device AI CPU capabilities are not relevant to emergency nursing or healthcare policy.",
+    "think_text": "Chip architecture. No nursing relevance."
+  },
+  {
+    "article_id": "f17f024560ac",
+    "profile_id": "hobbyist_crypto_f1",
+    "score": 1.5,
+    "reason": "As a former IT consultant, there might be mild passing interest in semiconductor technology, but this is about CPU architecture details rather than any of their hobbies.",
+    "think_text": "Chip tech. Former IT person might have slight interest but not about their hobbies."
+  },
+  {
+    "article_id": "f17f024560ac",
+    "profile_id": "lawyer_ai_disruption",
+    "score": 4.0,
+    "reason": "On-device AI advancement is part of the broader AI capability trend this lawyer tracks, but this is a deep technical piece about CPU architecture rather than AI applications, regulation, or legal impact.",
+    "think_text": "On-device AI is relevant to AI landscape but this is very technical semiconductor detail. Moderate tangential relevance."
+  },
+  {
+    "article_id": "f17f024560ac",
+    "profile_id": "bonsai_competitor_kyoto",
+    "score": 0.0,
+    "reason": "Semiconductor CPU architecture for AI has no connection to bonsai cultivation or horticulture.",
+    "think_text": "Chip tech. No bonsai relevance."
+  },
+  {
+    "article_id": "a9d8d2941c33",
+    "profile_id": "physical_therapist_sydney",
+    "score": 0.5,
+    "reason": "A tourism page for Bern, Switzerland has no professional relevance to sports physiotherapy. Only general travel interest.",
+    "think_text": "Tourism page. No physio relevance."
+  },
+  {
+    "article_id": "a9d8d2941c33",
+    "profile_id": "nurse_practitioner_toronto",
+    "score": 0.5,
+    "reason": "Bern tourism information is unrelated to emergency nursing or Canadian healthcare.",
+    "think_text": "Tourism. No nursing connection."
+  },
+  {
+    "article_id": "a9d8d2941c33",
+    "profile_id": "hobbyist_crypto_f1",
+    "score": 2.5,
+    "reason": "As someone interested in travel, a Bern tourism page has some minor relevance, but it's a generic city homepage rather than actionable travel content or a specific destination review.",
+    "think_text": "Travel is one of their interests. Bern is a travel destination. But this is just a generic tourism homepage, not curated content."
+  },
+  {
+    "article_id": "a9d8d2941c33",
+    "profile_id": "lawyer_ai_disruption",
+    "score": 0.5,
+    "reason": "A Swiss city tourism page has no relevance to corporate law, AI regulation, or legal technology.",
+    "think_text": "Tourism page. No legal/AI relevance."
+  },
+  {
+    "article_id": "a9d8d2941c33",
+    "profile_id": "bonsai_competitor_kyoto",
+    "score": 0.5,
+    "reason": "A Bern tourism homepage has no connection to bonsai or Japanese horticulture.",
+    "think_text": "Swiss tourism. No bonsai relevance."
+  },
+  {
+    "article_id": "fa327f996181",
+    "profile_id": "physical_therapist_sydney",
+    "score": 0.0,
+    "reason": "Indian stock market updates on Reliance and OPEC decisions are irrelevant to sports physiotherapy in Australia.",
+    "think_text": "Indian share market blog. No physio relevance."
+  },
+  {
+    "article_id": "fa327f996181",
+    "profile_id": "nurse_practitioner_toronto",
+    "score": 0.0,
+    "reason": "Indian equity market analysis is unrelated to emergency nursing or Canadian healthcare.",
+    "think_text": "Indian stocks. No nursing connection."
+  },
+  {
+    "article_id": "fa327f996181",
+    "profile_id": "hobbyist_crypto_f1",
+    "score": 1.0,
+    "reason": "Indian share market updates are not directly relevant to this person's interests in crypto, F1, or luxury collectibles, though MCX commodity trading is tangentially related to financial markets.",
+    "think_text": "Indian stock market. Not crypto or F1 focused. Minor financial markets overlap."
+  },
+  {
+    "article_id": "fa327f996181",
+    "profile_id": "lawyer_ai_disruption",
+    "score": 0.5,
+    "reason": "Indian share market analysis on Reliance and telecom/retail sectors has no relevance to UK corporate law, AI disruption, or legal tech.",
+    "think_text": "Indian equity markets. No legal or AI relevance."
+  },
+  {
+    "article_id": "fa327f996181",
+    "profile_id": "bonsai_competitor_kyoto",
+    "score": 0.0,
+    "reason": "Indian stock market updates have no connection to bonsai or horticulture.",
+    "think_text": "Stock market. No bonsai relevance."
+  },
+  {
+    "article_id": "062b678ea8ff",
+    "profile_id": "physical_therapist_sydney",
+    "score": 0.0,
+    "reason": "A UAE construction site HSE officer position is irrelevant to sports physiotherapy in Australia.",
+    "think_text": "UAE HSE job. No physio relevance."
+  },
+  {
+    "article_id": "062b678ea8ff",
+    "profile_id": "nurse_practitioner_toronto",
+    "score": 0.5,
+    "reason": "A UAE construction HSE officer job is in a different field from emergency nursing. While occupational health is tangentially related to healthcare, this is a construction safety role in the UAE.",
+    "think_text": "HSE officer job in UAE construction. Tangential health connection but wrong geography and specialty."
+  },
+  {
+    "article_id": "062b678ea8ff",
+    "profile_id": "hobbyist_crypto_f1",
+    "score": 0.0,
+    "reason": "A UAE construction HSE job has no relevance to crypto, F1, whisky, watches, or travel hobbies.",
+    "think_text": "Job posting. No hobby match."
+  },
+  {
+    "article_id": "062b678ea8ff",
+    "profile_id": "lawyer_ai_disruption",
+    "score": 0.0,
+    "reason": "A construction HSE officer role in UAE has no relevance to UK corporate law or AI technology.",
+    "think_text": "UAE construction job. No legal/AI relevance."
+  },
+  {
+    "article_id": "062b678ea8ff",
+    "profile_id": "bonsai_competitor_kyoto",
+    "score": 0.0,
+    "reason": "Construction safety in UAE has no connection to bonsai or horticulture.",
+    "think_text": "HSE job. No bonsai relevance."
+  },
+  {
+    "article_id": "665b05742af2",
+    "profile_id": "physical_therapist_sydney",
+    "score": 1.0,
+    "reason": "Global cybersecurity outlook is not directly relevant to sports physiotherapy, though healthcare organizations face cyber threats. Too general to be actionable for a clinician.",
+    "think_text": "Cybersecurity outlook. Healthcare sector faces cyber threats but this is too high-level for a physio clinician."
+  },
+  {
+    "article_id": "665b05742af2",
+    "profile_id": "nurse_practitioner_toronto",
+    "score": 1.5,
+    "reason": "Cybersecurity is a growing concern in healthcare (hospital systems, patient data), but this WEF report is focused on enterprise cybersecurity broadly, not healthcare-specific threats. Marginally relevant to a healthcare professional.",
+    "think_text": "Cybersecurity in healthcare is real but this report is general enterprise focused. Slight tangential relevance."
+  },
+  {
+    "article_id": "665b05742af2",
+    "profile_id": "hobbyist_crypto_f1",
+    "score": 3.0,
+    "reason": "Cybersecurity is relevant to cryptocurrency safety and exchange security. As a retired IT consultant, this person may also have professional background interest. The WEF outlook touches on AI-driven fraud which could affect crypto markets.",
+    "think_text": "Retired IT consultant + crypto investor. Cybersecurity report mentioning AI fraud is tangentially relevant to crypto security concerns."
+  },
+  {
+    "article_id": "665b05742af2",
+    "profile_id": "lawyer_ai_disruption",
+    "score": 5.0,
+    "reason": "The WEF cybersecurity report covers AI-driven fraud and compliance standards, which intersects with AI regulation and corporate risk management relevant to M&A due diligence. Cybersecurity compliance is increasingly part of corporate transactions.",
+    "think_text": "Lawyer doing M&A tracks AI regulation. Cybersecurity compliance and AI-driven fraud are relevant to due diligence and corporate governance. Moderate relevance."
+  },
+  {
+    "article_id": "665b05742af2",
+    "profile_id": "bonsai_competitor_kyoto",
+    "score": 0.0,
+    "reason": "Global cybersecurity outlook has no connection to bonsai cultivation or horticulture.",
+    "think_text": "Cybersecurity. No bonsai relevance."
+  },
+  {
+    "article_id": "548b692edc3e",
+    "profile_id": "physical_therapist_sydney",
+    "score": 1.5,
+    "reason": "An exosome-based CAR-T therapy for solid tumors is a biotech/oncology breakthrough. While healthcare-adjacent, this is far from sports physiotherapy and rehabilitation. A physio might have general health science interest.",
+    "think_text": "Biotech breakthrough in oncology. Sports physio has healthcare background but this is oncology/biotech, not sports medicine."
+  },
+  {
+    "article_id": "548b692edc3e",
+    "profile_id": "nurse_practitioner_toronto",
+    "score": 3.5,
+    "reason": "As a healthcare professional in a Level 1 trauma center, this NP would have some interest in major medical breakthroughs. CAR-T therapy advancements could eventually affect cancer patients who present in emergency settings. However, oncology drug development is outside their core emergency medicine focus.",
+    "think_text": "NP in trauma/ED. Biotech breakthrough in CAR-T for solid tumors is healthcare-adjacent. NPs have broad medical knowledge. Moderately interesting but not their specialty."
+  },
+  {
+    "article_id": "548b692edc3e",
+    "profile_id": "hobbyist_crypto_f1",
+    "score": 0.5,
+    "reason": "A biotech/oncology breakthrough has no connection to crypto, F1, whisky, watches, or travel.",
+    "think_text": "Biotech. No hobby match."
+  },
+  {
+    "article_id": "548b692edc3e",
+    "profile_id": "lawyer_ai_disruption",
+    "score": 1.0,
+    "reason": "A biotech platform for CAR-T therapy is outside this lawyer's focus areas of AI, legal tech, and M&A unless it involves a major acquisition target. The article mentions Gilead, AstraZeneca, BMS, AbbVie investments but isn't about M&A specifically.",
+    "think_text": "Biotech breakthrough. Mentions major pharma companies investing. M&A lawyer might note this but biotech isn't their tracked sector."
+  },
+  {
+    "article_id": "548b692edc3e",
+    "profile_id": "bonsai_competitor_kyoto",
+    "score": 0.0,
+    "reason": "Exosome-based cancer therapy has no connection to bonsai or horticulture.",
+    "think_text": "Biotech/oncology. No bonsai relevance."
+  },
+  {
+    "article_id": "88b668eb784f",
+    "profile_id": "physical_therapist_sydney",
+    "score": 0.5,
+    "reason": "EU science diplomacy and research grants are not relevant to sports physiotherapy practice in Australia.",
+    "think_text": "EU research policy. No physio relevance."
+  },
+  {
+    "article_id": "88b668eb784f",
+    "profile_id": "nurse_practitioner_toronto",
+    "score": 0.5,
+    "reason": "EU science diplomacy recommendations about research grants are not directly relevant to Canadian emergency nursing.",
+    "think_text": "EU research grants. No nursing relevance."
+  },
+  {
+    "article_id": "88b668eb784f",
+    "profile_id": "hobbyist_crypto_f1",
+    "score": 0.5,
+    "reason": "EU science diplomacy policy has no connection to crypto, F1, or personal hobbies.",
+    "think_text": "EU policy document. No hobby match."
+  },
+  {
+    "article_id": "88b668eb784f",
+    "profile_id": "lawyer_ai_disruption",
+    "score": 1.5,
+    "reason": "EU science diplomacy and research policy is tangentially related to EU regulatory frameworks, but this is about academic grants (ERC, Marie Curie) rather than AI regulation or legal tech.",
+    "think_text": "EU policy. Not about AI regulation specifically. Minor regulatory landscape interest."
+  },
+  {
+    "article_id": "88b668eb784f",
+    "profile_id": "bonsai_competitor_kyoto",
+    "score": 0.0,
+    "reason": "EU research grants policy has no connection to bonsai or horticulture.",
+    "think_text": "Science policy. No bonsai relevance."
+  },
+  {
+    "article_id": "a75b1952bf9f",
+    "profile_id": "physical_therapist_sydney",
+    "score": 0.0,
+    "reason": "Geologist job listings in the Middle East are irrelevant to sports physiotherapy in Australia.",
+    "think_text": "Geology jobs. No physio connection."
+  },
+  {
+    "article_id": "a75b1952bf9f",
+    "profile_id": "nurse_practitioner_toronto",
+    "score": 0.0,
+    "reason": "Middle East geologist positions have no relevance to emergency nursing in Canada.",
+    "think_text": "Geology jobs. No nursing connection."
+  },
+  {
+    "article_id": "a75b1952bf9f",
+    "profile_id": "hobbyist_crypto_f1",
+    "score": 0.0,
+    "reason": "Geologist job listings are irrelevant to a retired person's hobbies in crypto, F1, and collectibles.",
+    "think_text": "Geology jobs. No hobby match."
+  },
+  {
+    "article_id": "a75b1952bf9f",
+    "profile_id": "lawyer_ai_disruption",
+    "score": 0.0,
+    "reason": "Entry-level geologist positions in the Middle East have no relevance to UK corporate law or AI technology.",
+    "think_text": "Geology jobs. No legal/AI relevance."
+  },
+  {
+    "article_id": "a75b1952bf9f",
+    "profile_id": "bonsai_competitor_kyoto",
+    "score": 0.0,
+    "reason": "Geologist job listings have no connection to bonsai or horticulture.",
+    "think_text": "Geology jobs. No bonsai relevance."
+  },
+  {
+    "article_id": "ee80ac2e4bbf",
+    "profile_id": "physical_therapist_sydney",
+    "score": 0.0,
+    "reason": "A Figma UI design tutorial is irrelevant to sports physiotherapy.",
+    "think_text": "UI design tutorial. No physio relevance."
+  },
+  {
+    "article_id": "ee80ac2e4bbf",
+    "profile_id": "nurse_practitioner_toronto",
+    "score": 0.0,
+    "reason": "A Figma prototyping tutorial has no relevance to emergency nursing or healthcare.",
+    "think_text": "Design tutorial. No nursing connection."
+  },
+  {
+    "article_id": "ee80ac2e4bbf",
+    "profile_id": "hobbyist_crypto_f1",
+    "score": 0.0,
+    "reason": "A Figma design tutorial has no connection to crypto, F1, whisky, watches, or travel.",
+    "think_text": "UI design tutorial. No hobby match."
+  },
+  {
+    "article_id": "ee80ac2e4bbf",
+    "profile_id": "lawyer_ai_disruption",
+    "score": 0.0,
+    "reason": "A Figma prototyping tutorial is irrelevant to corporate law, AI regulation, or legal tech.",
+    "think_text": "Design tutorial. No legal/AI relevance."
+  },
+  {
+    "article_id": "ee80ac2e4bbf",
+    "profile_id": "bonsai_competitor_kyoto",
+    "score": 0.0,
+    "reason": "A UI design tutorial has no connection to bonsai or horticulture.",
+    "think_text": "Design tutorial. No bonsai relevance."
+  },
+  {
+    "article_id": "1ef2cd186cff",
+    "profile_id": "physical_therapist_sydney",
+    "score": 0.5,
+    "reason": "A generic international job search platform is not specifically relevant to sports physiotherapy. Not targeted to healthcare professionals in Australia.",
+    "think_text": "Generic job platform. Not physio-specific."
+  },
+  {
+    "article_id": "1ef2cd186cff",
+    "profile_id": "nurse_practitioner_toronto",
+    "score": 0.5,
+    "reason": "A generic foreign job platform is not specifically relevant to nursing or Canadian healthcare roles.",
+    "think_text": "Generic job platform. Not nursing-specific."
+  },
+  {
+    "article_id": "1ef2cd186cff",
+    "profile_id": "hobbyist_crypto_f1",
+    "score": 0.0,
+    "reason": "A job search platform is irrelevant to a retired person's hobbies.",
+    "think_text": "Job platform. Retired person. No relevance."
+  },
+  {
+    "article_id": "1ef2cd186cff",
+    "profile_id": "lawyer_ai_disruption",
+    "score": 0.0,
+    "reason": "A generic job search platform has no relevance to corporate law, AI, or legal technology.",
+    "think_text": "Job platform. No legal/AI relevance."
+  },
+  {
+    "article_id": "1ef2cd186cff",
+    "profile_id": "bonsai_competitor_kyoto",
+    "score": 0.0,
+    "reason": "A job search platform has no connection to bonsai or horticulture.",
+    "think_text": "Job platform. No bonsai relevance."
+  },
+  {
+    "article_id": "f2e8b8337e48",
+    "profile_id": "physical_therapist_sydney",
+    "score": 0.0,
+    "reason": "Middle East software development trends and Vision 2030 are irrelevant to sports physiotherapy in Australia.",
+    "think_text": "ME software dev. No physio relevance."
+  },
+  {
+    "article_id": "f2e8b8337e48",
+    "profile_id": "nurse_practitioner_toronto",
+    "score": 0.0,
+    "reason": "Saudi Arabia's ICT market and software development trends are unrelated to Canadian emergency nursing.",
+    "think_text": "ME tech industry. No nursing connection."
+  },
+  {
+    "article_id": "f2e8b8337e48",
+    "profile_id": "hobbyist_crypto_f1",
+    "score": 0.5,
+    "reason": "Middle East software development trends are not related to crypto, F1, whisky, watches, or travel hobbies.",
+    "think_text": "ME software industry. No hobby match."
+  },
+  {
+    "article_id": "f2e8b8337e48",
+    "profile_id": "lawyer_ai_disruption",
+    "score": 3.0,
+    "reason": "The article discusses AI adoption under Vision 2030, which has some relevance to AI's global expansion. However, it focuses on Middle East software development rather than AI's impact on the legal profession or UK regulatory landscape.",
+    "think_text": "AI adoption mention. But focused on ME software dev, not legal tech. Mild relevance to broader AI landscape tracking."
+  },
+  {
+    "article_id": "f2e8b8337e48",
+    "profile_id": "bonsai_competitor_kyoto",
+    "score": 0.0,
+    "reason": "Middle East software development has no connection to bonsai or horticulture.",
+    "think_text": "Software dev. No bonsai relevance."
+  },
+  {
+    "article_id": "ddf69f71cfc1",
+    "profile_id": "physical_therapist_sydney",
+    "score": 1.0,
+    "reason": "IoT as core infrastructure could peripherally relate to wearable health monitoring in sports, but this article focuses on business operations connectivity rather than healthcare or sports technology applications.",
+    "think_text": "IoT infrastructure. Wearables are IoT but this article is about business/industrial IoT, not sports medicine wearables."
+  },
+  {
+    "article_id": "ddf69f71cfc1",
+    "profile_id": "nurse_practitioner_toronto",
+    "score": 1.5,
+    "reason": "IoT has healthcare applications (remote patient monitoring, hospital systems), but this article focuses on general business infrastructure rather than healthcare-specific IoT applications.",
+    "think_text": "IoT could be relevant to telehealth/remote monitoring but this is about general business infrastructure."
+  },
+  {
+    "article_id": "ddf69f71cfc1",
+    "profile_id": "hobbyist_crypto_f1",
+    "score": 1.0,
+    "reason": "IoT infrastructure is tangentially related to tech but not to crypto, F1, whisky, watches, or travel hobbies specifically.",
+    "think_text": "IoT infrastructure. Former IT person might have mild interest but not about their hobbies."
+  },
+  {
+    "article_id": "ddf69f71cfc1",
+    "profile_id": "lawyer_ai_disruption",
+    "score": 2.0,
+    "reason": "IoT as infrastructure has some relevance to technology trends but is not about AI regulation, legal tech, or M&A. Too tangential to AI disruption of law.",
+    "think_text": "IoT, not AI. Technology adjacent but not about legal disruption."
+  },
+  {
+    "article_id": "ddf69f71cfc1",
+    "profile_id": "bonsai_competitor_kyoto",
+    "score": 0.0,
+    "reason": "IoT infrastructure has no connection to bonsai cultivation or horticulture.",
+    "think_text": "IoT. No bonsai relevance."
+  },
+  {
+    "article_id": "18c7756a6756",
+    "profile_id": "physical_therapist_sydney",
+    "score": 3.0,
+    "reason": "MIT Tech Review's annual breakthrough technologies list often includes healthcare and biotech innovations. A sports physiotherapist with scientific interests might find value in understanding emerging technologies that could affect sports medicine, though the specific list content is unknown.",
+    "think_text": "MIT breakthrough tech list could include health/sports tech. Broad interest piece. Moderate general relevance."
+  },
+  {
+    "article_id": "18c7756a6756",
+    "profile_id": "nurse_practitioner_toronto",
+    "score": 3.0,
+    "reason": "MIT's breakthrough technologies list often includes healthcare innovations. An NP with broad medical knowledge would find some value in understanding emerging health technologies, though the list covers all sectors.",
+    "think_text": "Annual breakthrough tech list. Often includes health tech. Moderate general interest for healthcare professional."
+  },
+  {
+    "article_id": "18c7756a6756",
+    "profile_id": "hobbyist_crypto_f1",
+    "score": 3.5,
+    "reason": "As a former IT consultant interested in technology trends, MIT's breakthrough technologies list is broadly interesting. Could include crypto/blockchain or other technologies relevant to their interests. General tech enthusiasm from former career.",
+    "think_text": "Former IT consultant would enjoy breakthrough tech overview. Could include crypto/blockchain tech."
+  },
+  {
+    "article_id": "18c7756a6756",
+    "profile_id": "lawyer_ai_disruption",
+    "score": 6.0,
+    "reason": "MIT's 10 Breakthrough Technologies frequently includes AI advancements. For a lawyer tracking AI disruption, this curated list would help identify which AI technologies are maturing and could affect legal practice. Directly useful for staying informed about the AI landscape.",
+    "think_text": "MIT breakthrough tech list almost certainly includes AI innovations. Highly relevant for lawyer tracking AI disruption. Curated expert overview."
+  },
+  {
+    "article_id": "18c7756a6756",
+    "profile_id": "bonsai_competitor_kyoto",
+    "score": 0.5,
+    "reason": "General technology breakthroughs list is unlikely to include anything directly relevant to bonsai cultivation or Japanese horticulture.",
+    "think_text": "General tech breakthroughs. Very unlikely to include bonsai-relevant content."
+  },
+  {
+    "article_id": "5d029909e649",
+    "profile_id": "physical_therapist_sydney",
+    "score": 0.0,
+    "reason": "A Reddit post seeking a fintech/smart contract student project partner is irrelevant to sports physiotherapy.",
+    "think_text": "Student project post. No physio relevance."
+  },
+  {
+    "article_id": "5d029909e649",
+    "profile_id": "nurse_practitioner_toronto",
+    "score": 0.0,
+    "reason": "A fintech student project partnership request has no relevance to emergency nursing.",
+    "think_text": "Crypto/fintech student project. No nursing connection."
+  },
+  {
+    "article_id": "5d029909e649",
+    "profile_id": "hobbyist_crypto_f1",
+    "score": 1.5,
+    "reason": "This involves smart contracts and fintech, touching on crypto interests, but it's a student project partnership request - not actionable for a retired person and not news/analysis content.",
+    "think_text": "Smart contracts relate to crypto interest. But it's a student seeking a project partner - not relevant to a retired hobbyist."
+  },
+  {
+    "article_id": "5d029909e649",
+    "profile_id": "lawyer_ai_disruption",
+    "score": 0.5,
+    "reason": "A student seeking a fintech project partner is not relevant to corporate law, AI regulation, or M&A transactions.",
+    "think_text": "Student project. No legal relevance."
+  },
+  {
+    "article_id": "5d029909e649",
+    "profile_id": "bonsai_competitor_kyoto",
+    "score": 0.0,
+    "reason": "A fintech student project has no connection to bonsai or horticulture.",
+    "think_text": "Fintech student project. No bonsai relevance."
+  },
+  {
+    "article_id": "17358e40141a",
+    "profile_id": "physical_therapist_sydney",
+    "score": 0.0,
+    "reason": "A Microsoft support article about Windows display settings is generic tech support with no relevance to sports physiotherapy.",
+    "think_text": "Windows support article. No physio relevance."
+  },
+  {
+    "article_id": "17358e40141a",
+    "profile_id": "nurse_practitioner_toronto",
+    "score": 0.0,
+    "reason": "Windows display settings support article has no relevance to emergency nursing or healthcare.",
+    "think_text": "Tech support. No nursing connection."
+  },
+  {
+    "article_id": "17358e40141a",
+    "profile_id": "hobbyist_crypto_f1",
+    "score": 0.0,
+    "reason": "A basic Windows display settings support article is irrelevant to crypto, F1, or other hobbies.",
+    "think_text": "Basic tech support. No hobby match."
+  },
+  {
+    "article_id": "17358e40141a",
+    "profile_id": "lawyer_ai_disruption",
+    "score": 0.0,
+    "reason": "Windows display settings help article has no relevance to law, AI, or technology disruption.",
+    "think_text": "Basic tech support. No legal/AI relevance."
+  },
+  {
+    "article_id": "17358e40141a",
+    "profile_id": "bonsai_competitor_kyoto",
+    "score": 0.0,
+    "reason": "Windows display settings have no connection to bonsai or horticulture.",
+    "think_text": "Tech support. No bonsai relevance."
+  },
+  {
+    "article_id": "b5dd892f0d61",
+    "profile_id": "physical_therapist_sydney",
+    "score": 1.5,
+    "reason": "eLearning trends could be tangentially relevant to continuing professional development in physiotherapy, but this article focuses on L&D for corporate training rather than healthcare education specifically.",
+    "think_text": "eLearning trends. Physios do CPD but this is corporate L&D focused."
+  },
+  {
+    "article_id": "b5dd892f0d61",
+    "profile_id": "nurse_practitioner_toronto",
+    "score": 2.0,
+    "reason": "eLearning trends are somewhat relevant to nursing education and telehealth training. NPs require ongoing education, and ML-driven learning platforms could affect healthcare training. However, this article focuses on general L&D rather than healthcare education specifically.",
+    "think_text": "Nursing education uses eLearning. Telehealth training is relevant. But this is general corporate L&D, not healthcare-specific."
+  },
+  {
+    "article_id": "b5dd892f0d61",
+    "profile_id": "hobbyist_crypto_f1",
+    "score": 0.5,
+    "reason": "eLearning trends for L&D professionals are not relevant to a retired person's hobbies in crypto, F1, or collectibles.",
+    "think_text": "Corporate eLearning. No hobby match for retired person."
+  },
+  {
+    "article_id": "b5dd892f0d61",
+    "profile_id": "lawyer_ai_disruption",
+    "score": 3.5,
+    "reason": "eLearning trends featuring ML/AI-driven platforms have some relevance to how AI is transforming professional training, including legal education. The AI/ML angle connects to broader AI disruption tracking, though this is about L&D specifically, not legal practice.",
+    "think_text": "AI/ML in learning platforms. Connects to AI disruption theme. Legal training is being transformed by tech. Moderate relevance."
+  },
+  {
+    "article_id": "b5dd892f0d61",
+    "profile_id": "bonsai_competitor_kyoto",
+    "score": 0.0,
+    "reason": "Corporate eLearning trends have no connection to bonsai cultivation or horticulture.",
+    "think_text": "eLearning. No bonsai relevance."
+  },
+  {
+    "article_id": "eea19c14bae7",
+    "profile_id": "physical_therapist_sydney",
+    "score": 0.0,
+    "reason": "An ETSI event on smart networks and wireless protocols has no relevance to sports physiotherapy.",
+    "think_text": "Networking protocols event. No physio relevance."
+  },
+  {
+    "article_id": "eea19c14bae7",
+    "profile_id": "nurse_practitioner_toronto",
+    "score": 0.5,
+    "reason": "Smart networking standards could tangentially support telehealth infrastructure, but this is a deeply technical networking standards event, not healthcare-focused.",
+    "think_text": "Networking standards. Very indirect telehealth infrastructure connection."
+  },
+  {
+    "article_id": "eea19c14bae7",
+    "profile_id": "hobbyist_crypto_f1",
+    "score": 0.5,
+    "reason": "Networking standards events are not relevant to crypto, F1, whisky, watches, or travel.",
+    "think_text": "Tech standards event. No hobby match."
+  },
+  {
+    "article_id": "eea19c14bae7",
+    "profile_id": "lawyer_ai_disruption",
+    "score": 1.0,
+    "reason": "Smart networking standards are technology-related but not about AI, legal tech, or M&A. Too niche and technical to be relevant to this lawyer's interests.",
+    "think_text": "Networking standards. Not AI or legal focused."
+  },
+  {
+    "article_id": "eea19c14bae7",
+    "profile_id": "bonsai_competitor_kyoto",
+    "score": 0.0,
+    "reason": "Networking protocols and standards have no connection to bonsai or horticulture.",
+    "think_text": "Network standards. No bonsai relevance."
+  },
+  {
+    "article_id": "18ca83614646",
+    "profile_id": "physical_therapist_sydney",
+    "score": 2.0,
+    "reason": "Nursing positions in UAE are in the healthcare sector but not physiotherapy-specific, and the geography (UAE) doesn't match (Australia). Some professional awareness interest as a fellow healthcare worker.",
+    "think_text": "Healthcare jobs in UAE. Same broad sector but wrong specialty and geography."
+  },
+  {
+    "article_id": "18ca83614646",
+    "profile_id": "nurse_practitioner_toronto",
+    "score": 4.0,
+    "reason": "This is directly about nursing hiring (registered nurse positions in general ward and other specialties), matching this profile's profession. However, the location is UAE, not Canada, reducing relevance. An NP tracking nursing workforce trends might note international demand patterns.",
+    "think_text": "Nursing positions - direct profession match. But UAE location vs Toronto. The global nursing shortage makes international hiring patterns somewhat relevant to workforce discussions."
+  },
+  {
+    "article_id": "18ca83614646",
+    "profile_id": "hobbyist_crypto_f1",
+    "score": 0.0,
+    "reason": "UAE nursing job postings are irrelevant to crypto, F1, whisky, watches, or travel hobbies.",
+    "think_text": "Healthcare jobs. No hobby match."
+  },
+  {
+    "article_id": "18ca83614646",
+    "profile_id": "lawyer_ai_disruption",
+    "score": 0.0,
+    "reason": "Healthcare job postings in UAE have no relevance to UK corporate law, AI, or legal technology.",
+    "think_text": "Nursing jobs. No legal/AI relevance."
+  },
+  {
+    "article_id": "18ca83614646",
+    "profile_id": "bonsai_competitor_kyoto",
+    "score": 0.0,
+    "reason": "Healthcare job postings have no connection to bonsai or horticulture.",
+    "think_text": "Nursing jobs. No bonsai relevance."
+  },
+  {
+    "article_id": "a05884b08a33",
+    "profile_id": "physical_therapist_sydney",
+    "score": 0.0,
+    "reason": "African/GCC fintech startup funding has no relevance to sports physiotherapy in Australia.",
+    "think_text": "Fintech news. No physio relevance."
+  },
+  {
+    "article_id": "a05884b08a33",
+    "profile_id": "nurse_practitioner_toronto",
+    "score": 0.0,
+    "reason": "Fintech startup funding in Morocco and GCC is unrelated to emergency nursing or Canadian healthcare.",
+    "think_text": "Fintech. No nursing connection."
+  },
+  {
+    "article_id": "a05884b08a33",
+    "profile_id": "hobbyist_crypto_f1",
+    "score": 2.0,
+    "reason": "Fintech news is adjacent to cryptocurrency interests - PayLater's BNPL and embedded finance solutions touch on financial technology evolution. However, this is about traditional fintech (BNPL) in Morocco/GCC, not crypto specifically.",
+    "think_text": "Fintech funding. Tangentially relevant to crypto interest as financial innovation, but BNPL is not crypto."
+  },
+  {
+    "article_id": "a05884b08a33",
+    "profile_id": "lawyer_ai_disruption",
+    "score": 1.0,
+    "reason": "Fintech startup funding is not directly relevant to AI disruption of law or UK M&A, though fintech M&A could be tangentially interesting. Too geographically distant and sector-specific.",
+    "think_text": "Fintech funding in Morocco. Not about AI or legal tech. Minor M&A angle."
+  },
+  {
+    "article_id": "a05884b08a33",
+    "profile_id": "bonsai_competitor_kyoto",
+    "score": 0.0,
+    "reason": "Fintech startup funding has no connection to bonsai or horticulture.",
+    "think_text": "Fintech. No bonsai relevance."
+  },
+  {
+    "article_id": "6f6ab3fb11be",
+    "profile_id": "physical_therapist_sydney",
+    "score": 0.0,
+    "reason": "Weekly fintech deal roundup is irrelevant to sports physiotherapy.",
+    "think_text": "Fintech deals. No physio relevance."
+  },
+  {
+    "article_id": "6f6ab3fb11be",
+    "profile_id": "nurse_practitioner_toronto",
+    "score": 0.0,
+    "reason": "Fintech funding deals are unrelated to emergency nursing or healthcare.",
+    "think_text": "Fintech deals. No nursing connection."
+  },
+  {
+    "article_id": "6f6ab3fb11be",
+    "profile_id": "hobbyist_crypto_f1",
+    "score": 2.5,
+    "reason": "Fintech deal roundup (~$500M raised) is tangentially relevant to crypto interests as part of the broader financial technology landscape. Some fintech deals may involve blockchain or crypto-adjacent companies, but the article focuses on traditional fintech (Uptiq Series B).",
+    "think_text": "Fintech deals could include crypto-adjacent companies. Financial technology landscape interest. Moderate tangential relevance."
+  },
+  {
+    "article_id": "6f6ab3fb11be",
+    "profile_id": "lawyer_ai_disruption",
+    "score": 2.5,
+    "reason": "Fintech M&A activity (Series B funding, nearly $500M raised) has moderate relevance to an M&A lawyer. However, the focus is on fintech specifically, not AI or legal tech, and the geography is not UK-specific.",
+    "think_text": "M&A/investment activity in fintech. Lawyer does M&A. Some relevance but not AI or legal sector."
+  },
+  {
+    "article_id": "6f6ab3fb11be",
+    "profile_id": "bonsai_competitor_kyoto",
+    "score": 0.0,
+    "reason": "Fintech investment deals have no connection to bonsai or horticulture.",
+    "think_text": "Fintech deals. No bonsai relevance."
+  },
+  {
+    "article_id": "5b5e0e3b788a",
+    "profile_id": "physical_therapist_sydney",
+    "score": 0.0,
+    "reason": "A random TikTok dance compilation is pure noise content with no relevance to sports physiotherapy.",
+    "think_text": "TikTok dance. Complete noise."
+  },
+  {
+    "article_id": "5b5e0e3b788a",
+    "profile_id": "nurse_practitioner_toronto",
+    "score": 0.0,
+    "reason": "TikTok dance content is irrelevant to emergency nursing or healthcare.",
+    "think_text": "Noise content."
+  },
+  {
+    "article_id": "5b5e0e3b788a",
+    "profile_id": "hobbyist_crypto_f1",
+    "score": 0.0,
+    "reason": "A TikTok dance compilation has no connection to crypto, F1, whisky, watches, or travel.",
+    "think_text": "Noise content."
+  },
+  {
+    "article_id": "5b5e0e3b788a",
+    "profile_id": "lawyer_ai_disruption",
+    "score": 0.0,
+    "reason": "TikTok dance content is pure noise, irrelevant to law, AI, or technology.",
+    "think_text": "Noise."
+  },
+  {
+    "article_id": "5b5e0e3b788a",
+    "profile_id": "bonsai_competitor_kyoto",
+    "score": 0.0,
+    "reason": "TikTok dance content has no connection to bonsai or horticulture.",
+    "think_text": "Noise."
+  },
+  {
+    "article_id": "253ce3ae750b",
+    "profile_id": "physical_therapist_sydney",
+    "score": 0.0,
+    "reason": "Retail cybersecurity services are irrelevant to sports physiotherapy.",
+    "think_text": "Retail cybersecurity. No physio relevance."
+  },
+  {
+    "article_id": "253ce3ae750b",
+    "profile_id": "nurse_practitioner_toronto",
+    "score": 0.0,
+    "reason": "Retail/ecommerce cybersecurity services are unrelated to healthcare or nursing.",
+    "think_text": "Retail cybersecurity. No nursing connection."
+  },
+  {
+    "article_id": "253ce3ae750b",
+    "profile_id": "hobbyist_crypto_f1",
+    "score": 1.0,
+    "reason": "Cybersecurity services for retail are tangentially related to crypto security concerns, but this is specifically about retail/ecommerce GDPR/PCI compliance, not cryptocurrency security.",
+    "think_text": "Retail cybersecurity. Crypto has security overlap but this is retail-specific compliance."
+  },
+  {
+    "article_id": "253ce3ae750b",
+    "profile_id": "lawyer_ai_disruption",
+    "score": 1.5,
+    "reason": "GDPR and data protection compliance is tangentially relevant to corporate law (data privacy in M&A due diligence), but this is a vendor service page for retail cybersecurity rather than legal analysis or AI content.",
+    "think_text": "GDPR compliance is legal-adjacent but this is a vendor page, not legal analysis. Not about AI."
+  },
+  {
+    "article_id": "253ce3ae750b",
+    "profile_id": "bonsai_competitor_kyoto",
+    "score": 0.0,
+    "reason": "Retail cybersecurity services have no connection to bonsai or horticulture.",
+    "think_text": "Cybersecurity vendor page. No bonsai relevance."
+  },
+  {
+    "article_id": "8552fae8d58d",
+    "profile_id": "physical_therapist_sydney",
+    "score": 0.0,
+    "reason": "An electrical engineering job in Ontario is irrelevant to sports physiotherapy in Australia.",
+    "think_text": "Engineering job. No physio relevance."
+  },
+  {
+    "article_id": "8552fae8d58d",
+    "profile_id": "nurse_practitioner_toronto",
+    "score": 0.5,
+    "reason": "An electrical engineering job in Ontario is in the same province but completely different field from nursing. No healthcare relevance.",
+    "think_text": "Ontario job but wrong field entirely. No nursing connection."
+  },
+  {
+    "article_id": "8552fae8d58d",
+    "profile_id": "hobbyist_crypto_f1",
+    "score": 0.0,
+    "reason": "An electrical engineering job posting is irrelevant to crypto, F1, whisky, watches, or travel.",
+    "think_text": "Engineering job. No hobby match."
+  },
+  {
+    "article_id": "8552fae8d58d",
+    "profile_id": "lawyer_ai_disruption",
+    "score": 0.0,
+    "reason": "An electrical engineering position in Ontario has no relevance to UK corporate law or AI.",
+    "think_text": "Engineering job. No legal/AI relevance."
+  },
+  {
+    "article_id": "8552fae8d58d",
+    "profile_id": "bonsai_competitor_kyoto",
+    "score": 0.0,
+    "reason": "An electrical engineering job has no connection to bonsai or horticulture.",
+    "think_text": "Engineering job. No bonsai relevance."
+  },
+  {
+    "article_id": "5d91b2c4375a",
+    "profile_id": "physical_therapist_sydney",
+    "score": 1.0,
+    "reason": "Climate and environmental science news about ocean microplastics has no direct relevance to sports physiotherapy, though an Australian might have general interest in ocean health. Not professionally relevant.",
+    "think_text": "Climate/ocean science. No sports medicine connection. Australian might care about ocean health personally."
+  },
+  {
+    "article_id": "5d91b2c4375a",
+    "profile_id": "nurse_practitioner_toronto",
+    "score": 1.0,
+    "reason": "Climate change has long-term public health implications, but this specific article about ocean microplastics is not directly relevant to emergency nursing or Canadian health policy.",
+    "think_text": "Climate/health link exists but this is ocean microplastics specifically. Not directly relevant to ED nursing."
+  },
+  {
+    "article_id": "5d91b2c4375a",
+    "profile_id": "hobbyist_crypto_f1",
+    "score": 0.5,
+    "reason": "Ocean microplastics research has no connection to crypto, F1, whisky, watches, or travel hobbies.",
+    "think_text": "Climate science. No hobby match."
+  },
+  {
+    "article_id": "5d91b2c4375a",
+    "profile_id": "lawyer_ai_disruption",
+    "score": 0.5,
+    "reason": "Climate research on ocean microplastics is not relevant to corporate law, AI regulation, or legal technology.",
+    "think_text": "Climate science. No legal/AI relevance."
+  },
+  {
+    "article_id": "5d91b2c4375a",
+    "profile_id": "bonsai_competitor_kyoto",
+    "score": 1.5,
+    "reason": "Climate change and environmental science have a tangential connection to horticulture and plant health. Microplastics in soil and water could eventually affect plant cultivation, but this article is about ocean impacts specifically.",
+    "think_text": "Environmental science. Indirect connection to plant health/horticulture but article is about ocean microplastics, not soil/plant impacts."
+  },
+  {
+    "article_id": "29b05e3fae4d",
+    "profile_id": "physical_therapist_sydney",
+    "score": 0.5,
+    "reason": "A pop-science article about geological phenomena is general interest with no connection to sports physiotherapy or sports medicine.",
+    "think_text": "Pop science article. No physio relevance."
+  },
+  {
+    "article_id": "29b05e3fae4d",
+    "profile_id": "nurse_practitioner_toronto",
+    "score": 0.5,
+    "reason": "Geological and natural phenomena science has no relevance to emergency nursing or healthcare.",
+    "think_text": "Pop science. No nursing connection."
+  },
+  {
+    "article_id": "29b05e3fae4d",
+    "profile_id": "hobbyist_crypto_f1",
+    "score": 1.0,
+    "reason": "An interesting pop-science article might appeal to general curiosity but has no specific connection to crypto, F1, whisky, watches, or travel hobbies.",
+    "think_text": "General science article. Mildly interesting to curious people but no hobby match."
+  },
+  {
+    "article_id": "29b05e3fae4d",
+    "profile_id": "lawyer_ai_disruption",
+    "score": 0.5,
+    "reason": "Pop-science about geological phenomena has no relevance to corporate law, AI, or technology.",
+    "think_text": "Science article. No legal/AI relevance."
+  },
+  {
+    "article_id": "29b05e3fae4d",
+    "profile_id": "bonsai_competitor_kyoto",
+    "score": 0.5,
+    "reason": "Geological phenomena like dark oxygen and singing dunes have no practical connection to bonsai cultivation or horticulture.",
+    "think_text": "Natural phenomena. No bonsai relevance."
+  },
+  {
+    "article_id": "c6847e13b57d",
+    "profile_id": "physical_therapist_sydney",
+    "score": 0.0,
+    "reason": "Investment fund selling TREX stock is irrelevant to sports physiotherapy.",
+    "think_text": "Investment/stocks. No physio relevance."
+  },
+  {
+    "article_id": "c6847e13b57d",
+    "profile_id": "nurse_practitioner_toronto",
+    "score": 0.0,
+    "reason": "An investment management firm selling a building materials stock is unrelated to nursing or healthcare.",
+    "think_text": "Stock trading news. No nursing connection."
+  },
+  {
+    "article_id": "c6847e13b57d",
+    "profile_id": "hobbyist_crypto_f1",
+    "score": 1.0,
+    "reason": "Investment fund portfolio decisions are tangentially financial, but TREX (a composite decking company) is not in crypto, F1, watches, or whisky sectors. Not relevant to this person's specific investment interests.",
+    "think_text": "Stock market news. Not crypto or any hobby match. Generic investment news."
+  },
+  {
+    "article_id": "c6847e13b57d",
+    "profile_id": "lawyer_ai_disruption",
+    "score": 1.0,
+    "reason": "An investment fund selling a position in TREX Company is minor financial news. While M&A adjacent, this is a simple portfolio rebalancing, not a corporate transaction requiring legal work.",
+    "think_text": "Fund selling stock. Not M&A, not AI, not legal tech."
+  },
+  {
+    "article_id": "c6847e13b57d",
+    "profile_id": "bonsai_competitor_kyoto",
+    "score": 0.0,
+    "reason": "Investment fund portfolio management has no connection to bonsai or horticulture.",
+    "think_text": "Stock trading. No bonsai relevance."
+  },
+  {
+    "article_id": "0974c0d9e8bb",
+    "profile_id": "physical_therapist_sydney",
+    "score": 0.0,
+    "reason": "Qualcomm's semiconductor manufacturing advancement has no relevance to sports physiotherapy.",
+    "think_text": "Chip technology. No physio relevance."
+  },
+  {
+    "article_id": "0974c0d9e8bb",
+    "profile_id": "nurse_practitioner_toronto",
+    "score": 0.0,
+    "reason": "Qualcomm's 2nm chip is irrelevant to emergency nursing or healthcare.",
+    "think_text": "Semiconductor news. No nursing connection."
+  },
+  {
+    "article_id": "0974c0d9e8bb",
+    "profile_id": "hobbyist_crypto_f1",
+    "score": 1.5,
+    "reason": "As a former IT consultant, semiconductor breakthroughs might have mild interest, but Qualcomm's 2nm chip is not directly related to crypto, F1, or their tracked hobbies.",
+    "think_text": "Chip technology. Former IT interest but not about hobbies."
+  },
+  {
+    "article_id": "0974c0d9e8bb",
+    "profile_id": "lawyer_ai_disruption",
+    "score": 3.5,
+    "reason": "Qualcomm's 2nm chip advancement enables more powerful AI processing on devices. This is part of the AI infrastructure buildout that this lawyer tracks for understanding AI's trajectory and its potential to disrupt professional services. Hardware advances accelerate AI capability.",
+    "think_text": "Semiconductor advance enables AI. Lawyer tracking AI disruption would note hardware advances that accelerate AI capability. Moderate relevance."
+  },
+  {
+    "article_id": "0974c0d9e8bb",
+    "profile_id": "bonsai_competitor_kyoto",
+    "score": 0.0,
+    "reason": "Semiconductor chip technology has no connection to bonsai or horticulture.",
+    "think_text": "Chip tech. No bonsai relevance."
+  },
+  {
+    "article_id": "834d9c577dcf",
+    "profile_id": "physical_therapist_sydney",
+    "score": 0.0,
+    "reason": "An AWS certification Udemy course is irrelevant to sports physiotherapy.",
+    "think_text": "Cloud certification. No physio relevance."
+  },
+  {
+    "article_id": "834d9c577dcf",
+    "profile_id": "nurse_practitioner_toronto",
+    "score": 0.0,
+    "reason": "AWS cloud certification training has no relevance to emergency nursing.",
+    "think_text": "Cloud tech cert. No nursing connection."
+  },
+  {
+    "article_id": "834d9c577dcf",
+    "profile_id": "hobbyist_crypto_f1",
+    "score": 0.5,
+    "reason": "An AWS certification course is not relevant to a retired person's hobbies in crypto, F1, and collectibles. Even their former IT career is behind them.",
+    "think_text": "Cloud cert. Retired, not looking for career training."
+  },
+  {
+    "article_id": "834d9c577dcf",
+    "profile_id": "lawyer_ai_disruption",
+    "score": 0.5,
+    "reason": "An AWS certification training course is irrelevant to corporate law or AI disruption analysis.",
+    "think_text": "Cloud cert. No legal relevance."
+  },
+  {
+    "article_id": "834d9c577dcf",
+    "profile_id": "bonsai_competitor_kyoto",
+    "score": 0.0,
+    "reason": "AWS certification has no connection to bonsai or horticulture.",
+    "think_text": "Cloud cert. No bonsai relevance."
+  },
+  {
+    "article_id": "5bb59f0afab2",
+    "profile_id": "physical_therapist_sydney",
+    "score": 0.0,
+    "reason": "Shell's offshore oil project stake sale to a Kuwaiti company is irrelevant to sports physiotherapy.",
+    "think_text": "Oil and gas M&A. No physio relevance."
+  },
+  {
+    "article_id": "5bb59f0afab2",
+    "profile_id": "nurse_practitioner_toronto",
+    "score": 0.0,
+    "reason": "An oil company selling a project stake has no relevance to emergency nursing or healthcare.",
+    "think_text": "Oil deal. No nursing connection."
+  },
+  {
+    "article_id": "5bb59f0afab2",
+    "profile_id": "hobbyist_crypto_f1",
+    "score": 0.5,
+    "reason": "An oil company stake sale is not relevant to crypto, F1, whisky, watches, or travel.",
+    "think_text": "Oil deal. No hobby match."
+  },
+  {
+    "article_id": "5bb59f0afab2",
+    "profile_id": "lawyer_ai_disruption",
+    "score": 3.0,
+    "reason": "Shell selling a 20% stake in an offshore project is an M&A transaction, which is relevant to this lawyer's corporate M&A practice. However, it's an oil/gas sector deal rather than tech/AI, and involves Brazil/Kuwait geography rather than UK. Moderate M&A interest.",
+    "think_text": "M&A transaction - Shell selling project stake. Direct M&A relevance for corporate lawyer, though not in their AI/tech focus area."
+  },
+  {
+    "article_id": "5bb59f0afab2",
+    "profile_id": "bonsai_competitor_kyoto",
+    "score": 0.0,
+    "reason": "Oil project stake sales have no connection to bonsai or horticulture.",
+    "think_text": "Oil deal. No bonsai relevance."
+  },
+  {
+    "article_id": "1d99e49cdd52",
+    "profile_id": "physical_therapist_sydney",
+    "score": 1.5,
+    "reason": "A travel nurse job listing is in the healthcare sector and shows nursing workforce dynamics, but it's nursing (not physiotherapy) and US-based (not Australia). Tangential professional awareness.",
+    "think_text": "Healthcare job but wrong specialty and geography. Shows workforce mobility trends."
+  },
+  {
+    "article_id": "1d99e49cdd52",
+    "profile_id": "nurse_practitioner_toronto",
+    "score": 5.0,
+    "reason": "This is a travel nursing job listing in the US (PCU/CCU roles), directly relevant to the nursing profession. As someone tracking nursing workforce issues, travel nursing demand patterns indicate staffing shortages. However, the US geography reduces direct actionability for a Toronto-based NP.",
+    "think_text": "Travel nursing job - directly relevant profession. Shows US nursing demand/staffing patterns which connect to North American nursing workforce issues the NP tracks. US not Canada but close geographic relevance."
+  },
+  {
+    "article_id": "1d99e49cdd52",
+    "profile_id": "hobbyist_crypto_f1",
+    "score": 0.0,
+    "reason": "A nursing job posting is irrelevant to crypto, F1, whisky, watches, or travel hobbies.",
+    "think_text": "Nursing job. No hobby match."
+  },
+  {
+    "article_id": "1d99e49cdd52",
+    "profile_id": "lawyer_ai_disruption",
+    "score": 0.0,
+    "reason": "A travel nurse job listing has no relevance to corporate law, AI, or legal technology.",
+    "think_text": "Nursing job. No legal/AI relevance."
+  },
+  {
+    "article_id": "1d99e49cdd52",
+    "profile_id": "bonsai_competitor_kyoto",
+    "score": 0.0,
+    "reason": "A nursing job posting has no connection to bonsai or horticulture.",
+    "think_text": "Nursing job. No bonsai relevance."
+  },
+  {
+    "article_id": "fd5f0e60a7b1",
+    "profile_id": "physical_therapist_sydney",
+    "score": 0.5,
+    "reason": "Quantum computing advancement is irrelevant to sports physiotherapy or sports medicine.",
+    "think_text": "Quantum computing. No physio relevance."
+  },
+  {
+    "article_id": "fd5f0e60a7b1",
+    "profile_id": "nurse_practitioner_toronto",
+    "score": 0.5,
+    "reason": "Quantum computing business developments have no direct relevance to emergency nursing or healthcare policy.",
+    "think_text": "Quantum computing. No nursing connection."
+  },
+  {
+    "article_id": "fd5f0e60a7b1",
+    "profile_id": "hobbyist_crypto_f1",
+    "score": 3.0,
+    "reason": "Quantum computing has implications for cryptocurrency security (quantum threats to encryption). As a crypto enthusiast and former IT consultant, D-Wave's advancement toward a universal gate quantum computer is notable for potential blockchain impact. However, this article focuses on D-Wave's stock/business rather than crypto implications.",
+    "think_text": "Quantum computing threatens crypto encryption. Former IT consultant + crypto interest = moderate relevance. But article is about D-Wave business, not crypto impact."
+  },
+  {
+    "article_id": "fd5f0e60a7b1",
+    "profile_id": "lawyer_ai_disruption",
+    "score": 3.0,
+    "reason": "Quantum computing is a frontier technology that could affect the broader tech landscape, but it's not AI specifically and has no direct legal tech application yet. This lawyer tracks AI and technology broadly, so quantum developments are peripherally interesting.",
+    "think_text": "Quantum computing is frontier tech. Not AI specifically but part of broader tech disruption landscape. Moderate tangential interest."
+  },
+  {
+    "article_id": "fd5f0e60a7b1",
+    "profile_id": "bonsai_competitor_kyoto",
+    "score": 0.0,
+    "reason": "Quantum computing business has no connection to bonsai or horticulture.",
+    "think_text": "Quantum computing. No bonsai relevance."
+  },
+  {
+    "article_id": "aab36685f2ec",
+    "profile_id": "physical_therapist_sydney",
+    "score": 1.0,
+    "reason": "Pentagon using AI in military operations is major news but has no relevance to sports physiotherapy or sports medicine in Australia.",
+    "think_text": "Military AI use. No physio relevance but notable general news."
+  },
+  {
+    "article_id": "aab36685f2ec",
+    "profile_id": "nurse_practitioner_toronto",
+    "score": 1.0,
+    "reason": "Military use of AI is significant general news but has no direct relevance to emergency nursing or Canadian healthcare policy.",
+    "think_text": "Military AI. Notable general news but no nursing connection."
+  },
+  {
+    "article_id": "aab36685f2ec",
+    "profile_id": "hobbyist_crypto_f1",
+    "score": 2.0,
+    "reason": "As a former IT consultant, Pentagon's use of AI is interesting from a technology perspective, but it's not about crypto, F1, or personal hobbies. Geopolitical news that might tangentially affect markets.",
+    "think_text": "Military AI use. Former IT person might find interesting. Could affect markets tangentially. But not about specific hobbies."
+  },
+  {
+    "article_id": "aab36685f2ec",
+    "profile_id": "lawyer_ai_disruption",
+    "score": 8.0,
+    "reason": "Pentagon's operational use of Anthropic's Claude via Palantir is a landmark article for AI governance and regulation. This directly relates to AI regulation debates, the growing role of AI in high-stakes decision-making, and the ethical/legal frameworks around AI deployment. Highly relevant to a lawyer tracking AI disruption and regulation.",
+    "think_text": "Military AI use of Claude via Palantir contract. Directly relevant to AI regulation, AI governance, AI ethics - all core interests. This is a major AI policy story that affects regulation discussions. Highly actionable."
+  },
+  {
+    "article_id": "aab36685f2ec",
+    "profile_id": "bonsai_competitor_kyoto",
+    "score": 0.0,
+    "reason": "Military AI operations have no connection to bonsai or horticulture.",
+    "think_text": "Military AI. No bonsai relevance."
+  },
+  {
+    "article_id": "0c152569086d",
+    "profile_id": "physical_therapist_sydney",
+    "score": 0.0,
+    "reason": "ITIL certification job trends in the UK are irrelevant to sports physiotherapy in Australia.",
+    "think_text": "IT certification trends. No physio relevance."
+  },
+  {
+    "article_id": "0c152569086d",
+    "profile_id": "nurse_practitioner_toronto",
+    "score": 0.0,
+    "reason": "IT service management certification trends are unrelated to nursing or healthcare.",
+    "think_text": "ITIL cert trends. No nursing connection."
+  },
+  {
+    "article_id": "0c152569086d",
+    "profile_id": "hobbyist_crypto_f1",
+    "score": 0.5,
+    "reason": "ITIL certification job trends are not relevant to a retired IT consultant's hobbies. Even their former IT career is behind them.",
+    "think_text": "IT cert. Retired, not job seeking."
+  },
+  {
+    "article_id": "0c152569086d",
+    "profile_id": "lawyer_ai_disruption",
+    "score": 0.5,
+    "reason": "ITIL certification job market data is irrelevant to corporate law, AI regulation, or legal technology.",
+    "think_text": "IT cert job data. No legal/AI relevance."
+  },
+  {
+    "article_id": "0c152569086d",
+    "profile_id": "bonsai_competitor_kyoto",
+    "score": 0.0,
+    "reason": "IT certification job trends have no connection to bonsai or horticulture.",
+    "think_text": "ITIL jobs. No bonsai relevance."
+  },
+  {
+    "article_id": "7cdb8ee26e9d",
+    "profile_id": "physical_therapist_sydney",
+    "score": 0.5,
+    "reason": "AMD's AI chip competition with NVIDIA is irrelevant to sports physiotherapy and rehabilitation.",
+    "think_text": "AI chip race. No physio relevance."
+  },
+  {
+    "article_id": "7cdb8ee26e9d",
+    "profile_id": "nurse_practitioner_toronto",
+    "score": 0.5,
+    "reason": "The AI chip hardware competition between AMD and NVIDIA has no direct relevance to emergency nursing or healthcare.",
+    "think_text": "AI chip competition. No nursing connection."
+  },
+  {
+    "article_id": "7cdb8ee26e9d",
+    "profile_id": "hobbyist_crypto_f1",
+    "score": 2.5,
+    "reason": "AMD GPUs have been used for crypto mining, and the AI chip race could have implications for GPU availability and pricing. As a former IT consultant, semiconductor competition is mildly interesting. However, this article focuses on data center AI rather than consumer/mining GPUs.",
+    "think_text": "AMD chips. Crypto mining connection via GPUs. Former IT interest. But this is about data center AI chips, not mining."
+  },
+  {
+    "article_id": "7cdb8ee26e9d",
+    "profile_id": "lawyer_ai_disruption",
+    "score": 6.0,
+    "reason": "AMD's bold strategy to challenge NVIDIA in the AI hardware race directly relates to AI industry growth and acceleration. Understanding the AI infrastructure arms race helps this lawyer gauge how quickly AI capabilities will advance and disrupt professional services including law. The competitive dynamics also have M&A implications.",
+    "think_text": "AI hardware arms race. Directly relevant to understanding AI capability trajectory. AMD challenging NVIDIA affects AI industry dynamics. M&A angle possible. Relevant to AI disruption tracking."
+  },
+  {
+    "article_id": "7cdb8ee26e9d",
+    "profile_id": "bonsai_competitor_kyoto",
+    "score": 0.0,
+    "reason": "AI chip competition has no connection to bonsai or horticulture.",
+    "think_text": "AI chips. No bonsai relevance."
+  },
+  {
+    "article_id": "02b682ccfc85",
+    "profile_id": "physical_therapist_sydney",
+    "score": 0.0,
+    "reason": "Saudi industrial equipment company client references are irrelevant to sports physiotherapy.",
+    "think_text": "Saudi industrial equipment. No physio relevance."
+  },
+  {
+    "article_id": "02b682ccfc85",
+    "profile_id": "nurse_practitioner_toronto",
+    "score": 0.0,
+    "reason": "Saudi process equipment company references are unrelated to nursing or healthcare.",
+    "think_text": "Industrial equipment. No nursing connection."
+  },
+  {
+    "article_id": "02b682ccfc85",
+    "profile_id": "hobbyist_crypto_f1",
+    "score": 0.0,
+    "reason": "Saudi industrial equipment client references have no connection to crypto, F1, or hobbies.",
+    "think_text": "Industrial equipment. No hobby match."
+  },
+  {
+    "article_id": "02b682ccfc85",
+    "profile_id": "lawyer_ai_disruption",
+    "score": 0.0,
+    "reason": "A Saudi process equipment manufacturer's client list is irrelevant to UK corporate law, AI, or legal tech.",
+    "think_text": "Industrial equipment. No legal/AI relevance."
+  },
+  {
+    "article_id": "02b682ccfc85",
+    "profile_id": "bonsai_competitor_kyoto",
+    "score": 0.0,
+    "reason": "Industrial process equipment has no connection to bonsai or horticulture.",
+    "think_text": "Process equipment. No bonsai relevance."
+  },
+  {
+    "article_id": "9272cab0f19c",
+    "profile_id": "physical_therapist_sydney",
+    "score": 0.0,
+    "reason": "Blockchain investment trends are irrelevant to sports physiotherapy and sports medicine.",
+    "think_text": "Blockchain investing. No physio relevance."
+  },
+  {
+    "article_id": "9272cab0f19c",
+    "profile_id": "nurse_practitioner_toronto",
+    "score": 0.0,
+    "reason": "Blockchain investment trends have no relevance to emergency nursing or healthcare.",
+    "think_text": "Blockchain. No nursing connection."
+  },
+  {
+    "article_id": "9272cab0f19c",
+    "profile_id": "hobbyist_crypto_f1",
+    "score": 8.0,
+    "reason": "This article about blockchain investment trends, asset tokenization, and BlackRock's involvement is directly relevant to this person's cryptocurrency interest. Traditional finance embracing blockchain validates and could enhance their crypto portfolio. Highly actionable for investment decisions.",
+    "think_text": "Blockchain investment trends. Direct crypto interest match. BlackRock involvement is major institutional signal. Asset tokenization is key trend. Highly relevant to crypto hobbyist."
+  },
+  {
+    "article_id": "9272cab0f19c",
+    "profile_id": "lawyer_ai_disruption",
+    "score": 3.0,
+    "reason": "Blockchain investment trends and asset tokenization have regulatory implications that a corporate lawyer might note. However, this is about blockchain/crypto rather than AI specifically, and doesn't focus on legal disruption.",
+    "think_text": "Blockchain/crypto trends. Some regulatory/M&A angle for corporate lawyer. Not AI-focused though."
+  },
+  {
+    "article_id": "9272cab0f19c",
+    "profile_id": "bonsai_competitor_kyoto",
+    "score": 0.0,
+    "reason": "Blockchain investment trends have no connection to bonsai or horticulture.",
+    "think_text": "Blockchain. No bonsai relevance."
+  },
+  {
+    "article_id": "eb9e5c6bf732",
+    "profile_id": "physical_therapist_sydney",
+    "score": 0.0,
+    "reason": "Modular construction industry trends are irrelevant to sports physiotherapy.",
+    "think_text": "Construction industry. No physio relevance."
+  },
+  {
+    "article_id": "eb9e5c6bf732",
+    "profile_id": "nurse_practitioner_toronto",
+    "score": 0.5,
+    "reason": "Modular construction could be relevant to hospital infrastructure, but this article focuses on homebuilding rather than healthcare facility construction.",
+    "think_text": "Modular construction for homes. Distant connection to healthcare infrastructure. Not relevant."
+  },
+  {
+    "article_id": "eb9e5c6bf732",
+    "profile_id": "hobbyist_crypto_f1",
+    "score": 0.5,
+    "reason": "Modular construction trends have no connection to crypto, F1, whisky, watches, or travel.",
+    "think_text": "Construction industry. No hobby match."
+  },
+  {
+    "article_id": "eb9e5c6bf732",
+    "profile_id": "lawyer_ai_disruption",
+    "score": 0.5,
+    "reason": "Modular construction trends are unrelated to corporate law, AI regulation, or legal technology.",
+    "think_text": "Construction. No legal/AI relevance."
+  },
+  {
+    "article_id": "eb9e5c6bf732",
+    "profile_id": "bonsai_competitor_kyoto",
+    "score": 0.0,
+    "reason": "Modular homebuilding has no connection to bonsai or horticulture.",
+    "think_text": "Construction. No bonsai relevance."
+  },
+  {
+    "article_id": "80ce92a24085",
+    "profile_id": "physical_therapist_sydney",
+    "score": 0.5,
+    "reason": "A TripAdvisor beach review for Norway is general travel content with no connection to sports physiotherapy.",
+    "think_text": "Travel review. No physio relevance."
+  },
+  {
+    "article_id": "80ce92a24085",
+    "profile_id": "nurse_practitioner_toronto",
+    "score": 0.5,
+    "reason": "A Norwegian beach tourism review has no relevance to emergency nursing or healthcare.",
+    "think_text": "Travel review. No nursing connection."
+  },
+  {
+    "article_id": "80ce92a24085",
+    "profile_id": "hobbyist_crypto_f1",
+    "score": 3.0,
+    "reason": "As someone interested in travel, a TripAdvisor review of a scenic Norwegian beach (Lofoten Islands) has direct relevance. However, it's just a review page rather than actionable travel planning content.",
+    "think_text": "Travel is listed interest. Lofoten Islands is a notable travel destination. TripAdvisor review is travel content. Moderate relevance to travel hobby."
+  },
+  {
+    "article_id": "80ce92a24085",
+    "profile_id": "lawyer_ai_disruption",
+    "score": 0.0,
+    "reason": "A Norwegian beach tourism review has no relevance to corporate law, AI, or legal technology.",
+    "think_text": "Travel review. No legal/AI relevance."
+  },
+  {
+    "article_id": "80ce92a24085",
+    "profile_id": "bonsai_competitor_kyoto",
+    "score": 0.5,
+    "reason": "A Norwegian beach review has no connection to bonsai cultivation or Japanese horticulture.",
+    "think_text": "Beach tourism. No bonsai relevance."
+  }
+]
