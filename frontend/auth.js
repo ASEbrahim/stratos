@@ -802,19 +802,19 @@ function _initStarParallax() {
         function _genSakuraTree(w, h) {
             _tSeed = 12345;
             const br = [], bl = [], tips = [];
-            const cx = w * 0.5, baseY = h * 0.68;
-            const trunkTop = h * 0.36;
+            const cx = w * 0.5, baseY = h * 0.58;
+            const trunkTop = h * 0.38;
 
-            // Elegant curved trunk with slight lean
-            const lean = w * 0.008;
-            br.push({ x0:cx-w*0.012, y0:baseY, x1:cx+lean, y1:trunkTop,
-                cpx:cx-w*0.005, cpy:h*0.52, w0:w*0.022, d:0 });
-            br.push({ x0:cx+w*0.012, y0:baseY, x1:cx+lean, y1:trunkTop,
-                cpx:cx+w*0.008, cpy:h*0.52, w0:w*0.022, d:0 });
+            // Slim trunk with slight lean
+            const lean = w * 0.005;
+            br.push({ x0:cx-w*0.005, y0:baseY, x1:cx+lean, y1:trunkTop,
+                cpx:cx-w*0.002, cpy:h*0.48, w0:w*0.010, d:0 });
+            br.push({ x0:cx+w*0.005, y0:baseY, x1:cx+lean, y1:trunkTop,
+                cpx:cx+w*0.004, cpy:h*0.48, w0:w*0.010, d:0 });
 
-            // Recursive branch generator
+            // Recursive branch generator — delicate and airy
             function addBranch(sx, sy, angle, length, width, depth) {
-                if (depth > 4 || length < h * 0.02) return;
+                if (depth > 3 || length < h * 0.015) return;
                 const curve = _tRandR(-0.3, 0.3);
                 const ex = sx + Math.cos(angle) * length;
                 const ey = sy + Math.sin(angle) * length;
@@ -825,7 +825,7 @@ function _initStarParallax() {
 
                 if (depth >= 2) {
                     tips.push({ x: ex, y: ey });
-                    bl.push({ x:ex, y:ey, r:_tRandR(8, 16 - depth*2), phase:_tRand()*Math.PI*2 });
+                    bl.push({ x:ex, y:ey, r:_tRandR(4, 9 - depth), phase:_tRand()*Math.PI*2 });
                 }
 
                 // Fork into sub-branches
@@ -840,34 +840,30 @@ function _initStarParallax() {
                 }
             }
 
-            // Main branches from trunk top — asymmetric, more to the right
+            // Main branches — delicate, fewer
             const mainAngles = [
-                -Math.PI*0.75 + _tRandR(-0.1,0.1),   // upper-left
-                -Math.PI*0.55 + _tRandR(-0.1,0.1),   // left
-                -Math.PI*0.42 + _tRandR(-0.05,0.05), // slight-left-up
-                -Math.PI*0.28 + _tRandR(-0.05,0.05), // slight-right-up
-                -Math.PI*0.15 + _tRandR(-0.1,0.1),   // right
-                -0.05 + _tRandR(-0.1,0.1),            // far right (drooping)
+                -Math.PI*0.7 + _tRandR(-0.1,0.1),
+                -Math.PI*0.45 + _tRandR(-0.08,0.08),
+                -Math.PI*0.3 + _tRandR(-0.05,0.05),
+                -Math.PI*0.12 + _tRandR(-0.1,0.1),
             ];
             for (let i = 0; i < mainAngles.length; i++) {
-                const len = _tRandR(h*0.12, h*0.22);
-                const wid = w * _tRandR(0.006, 0.010);
+                const len = _tRandR(h*0.07, h*0.13);
+                const wid = w * _tRandR(0.003, 0.005);
                 addBranch(cx + lean, trunkTop, mainAngles[i], len, wid, 1);
             }
 
-            // A couple of lower branches off trunk mid-section
-            const midY1 = h * 0.48, midY2 = h * 0.54;
-            addBranch(cx, midY1, -Math.PI*0.65 + _tRandR(-0.1,0.1), h*0.09, w*0.005, 2);
-            addBranch(cx + lean*0.5, midY2, -Math.PI*0.2 + _tRandR(-0.1,0.1), h*0.08, w*0.004, 2);
+            // One small lower branch
+            addBranch(cx, h * 0.48, -Math.PI*0.6 + _tRandR(-0.1,0.1), h*0.05, w*0.002, 2);
 
             // Generate blossom dots within clusters
             for (const c of bl) {
                 c.dots = [];
-                const count = Math.floor(_tRandR(5, 10));
+                const count = Math.floor(_tRandR(3, 6));
                 for (let i = 0; i < count; i++) {
                     const ba = _tRand() * Math.PI * 2, bd = _tRand() * c.r;
                     c.dots.push({ ox: Math.cos(ba)*bd, oy: Math.sin(ba)*bd,
-                        r: _tRandR(1.2, 3.5), bright: _tRand(), ph: _tRand()*Math.PI*2 });
+                        r: _tRandR(0.8, 2.2), bright: _tRand(), ph: _tRand()*Math.PI*2 });
                 }
             }
             return { branches: br, blossoms: bl, tips };
@@ -891,71 +887,58 @@ function _initStarParallax() {
         }
         ctx.save();
 
-        // Wind sway — gentle oscillation that increases with depth
-        const windBase = Math.sin(t * 0.4) * 1.5 + Math.sin(t * 0.7) * 0.8;
+        // Gentle wind sway
+        const windBase = Math.sin(t * 0.4) * 0.8 + Math.sin(t * 0.7) * 0.4;
 
-        // Soft ambient glow around canopy
-        const gcx = cw * 0.5, gcy = ch * 0.28;
+        // Very subtle ambient glow
+        const gcx = cw * 0.5, gcy = ch * 0.33;
         const pulse = 0.85 + 0.15 * Math.sin(t * 0.6);
-        const ambR = Math.min(cw, ch) * 0.32;
+        const ambR = Math.min(cw, ch) * 0.18;
         const amb = ctx.createRadialGradient(gcx, gcy, 0, gcx, gcy, ambR);
-        amb.addColorStop(0, `rgba(240,170,195,${0.08 * pulse})`);
-        amb.addColorStop(0.4, `rgba(220,150,180,${0.04 * pulse})`);
-        amb.addColorStop(0.7, `rgba(200,130,160,${0.015 * pulse})`);
+        amb.addColorStop(0, `rgba(240,180,200,${0.035 * pulse})`);
+        amb.addColorStop(0.6, `rgba(220,160,185,${0.015 * pulse})`);
         amb.addColorStop(1, 'transparent');
         ctx.fillStyle = amb; ctx.beginPath(); ctx.arc(gcx, gcy, ambR, 0, Math.PI * 2); ctx.fill();
 
-        // Draw branches — thicker ones first, with wind sway
+        // Draw branches — subtle, blended
         const sorted = [..._sakuraTree.branches].sort((a,b) => b.w0 - a.w0);
         for (const b of sorted) {
-            // Wind displacement increases with depth (trunk doesn't move, tips sway most)
-            const sway = windBase * b.d * 1.2;
+            const sway = windBase * b.d * 0.8;
             ctx.beginPath();
             ctx.moveTo(b.x0 + (b.d > 0 ? sway * 0.3 : 0), b.y0);
             if (b.cpx !== undefined) {
-                ctx.quadraticCurveTo(b.cpx + sway * 0.6, b.cpy, b.x1 + sway, b.y1);
+                ctx.quadraticCurveTo(b.cpx + sway * 0.5, b.cpy, b.x1 + sway, b.y1);
             } else {
                 ctx.lineTo(b.x1 + sway, b.y1);
             }
-            // Rich dark bark with depth-based coloring
-            const alpha = b.d === 0 ? 0.92 : b.d === 1 ? 0.78 : b.d === 2 ? 0.6 : b.d === 3 ? 0.45 : 0.3;
-            const rr = b.d <= 1 ? 28 : b.d === 2 ? 40 : 55;
-            const gg = b.d <= 1 ? 10 : b.d === 2 ? 16 : 22;
-            const bb = b.d <= 1 ? 18 : b.d === 2 ? 28 : 35;
-            ctx.strokeStyle = `rgba(${rr},${gg},${bb},${alpha})`;
+            // Muted, semi-transparent bark
+            const alpha = b.d === 0 ? 0.45 : b.d === 1 ? 0.32 : b.d === 2 ? 0.22 : 0.14;
+            ctx.strokeStyle = `rgba(60,30,45,${alpha})`;
             ctx.lineWidth = b.w0;
             ctx.lineCap = 'round';
             ctx.lineJoin = 'round';
             ctx.stroke();
         }
 
-        // Draw blossom clusters with soft glow — swayed by wind
-        ctx.globalAlpha = 1;
+        // Draw blossom clusters — very soft, ghostly
         for (const cl of _sakuraTree.blossoms) {
-            const clSway = windBase * 2.5;
+            const clSway = windBase * 1.5;
             const clX = cl.x + clSway, clY = cl.y;
 
-            // Cluster glow — larger, softer
-            const cg = ctx.createRadialGradient(clX, clY, 0, clX, clY, cl.r * 3);
-            cg.addColorStop(0, `rgba(255,200,220,${0.14 * pulse})`);
-            cg.addColorStop(0.5, `rgba(255,185,210,${0.06 * pulse})`);
+            // Faint cluster glow
+            const cg = ctx.createRadialGradient(clX, clY, 0, clX, clY, cl.r * 2);
+            cg.addColorStop(0, `rgba(255,200,220,${0.06 * pulse})`);
             cg.addColorStop(1, 'transparent');
             ctx.fillStyle = cg;
-            ctx.fillRect(clX - cl.r*3, clY - cl.r*3, cl.r*6, cl.r*6);
+            ctx.fillRect(clX - cl.r*2, clY - cl.r*2, cl.r*4, cl.r*4);
 
             for (const dot of cl.dots) {
                 const dp = 0.7 + 0.3 * Math.sin(t * 1.5 + dot.ph);
                 const x = clX + dot.ox, y = clY + dot.oy;
                 const r = dot.r * (0.85 + 0.15 * dp);
-                const c = dot.bright > 0.6 ? [255,228,238] : dot.bright > 0.3 ? [255,195,215] : [248,170,195];
-                // Soft halo
-                const gr = ctx.createRadialGradient(x, y, 0, x, y, r * 2.2);
-                gr.addColorStop(0, `rgba(${c[0]},${c[1]},${c[2]},${0.3 * dp})`);
-                gr.addColorStop(1, `rgba(${c[0]},${c[1]},${c[2]},0)`);
-                ctx.fillStyle = gr; ctx.fillRect(x - r*2.2, y - r*2.2, r*4.4, r*4.4);
-                // Core blossom dot
+                const c = dot.bright > 0.5 ? [255,215,230] : [245,185,205];
                 ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2);
-                ctx.fillStyle = `rgba(${c[0]},${c[1]},${c[2]},${0.5 + 0.4*dp})`;
+                ctx.fillStyle = `rgba(${c[0]},${c[1]},${c[2]},${0.2 + 0.2*dp})`;
                 ctx.fill();
             }
         }
