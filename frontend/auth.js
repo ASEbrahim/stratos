@@ -697,9 +697,9 @@ function _initStarParallax() {
                     stream: s, streams: numStreams,
                     life: Math.floor(Math.random() * 180),
                     maxLife: Math.random() * 180 + 120,
-                    speed: Math.random() * 0.6 + 0.3,
-                    amplitude: Math.random() * 25 + 12,
-                    frequency: Math.random() * 0.012 + 0.006,
+                    speed: Math.random() * 0.25 + 0.12,
+                    amplitude: Math.random() * 20 + 10,
+                    frequency: Math.random() * 0.008 + 0.004,
                     phaseOff: Math.random() * Math.PI * 2,
                     size: Math.random() * 1.8 + 0.8,
                     baseX: 0, x: 0, y: 0,
@@ -974,11 +974,11 @@ function _initStarParallax() {
             // Generate blossom dots within clusters
             for (const c of bl) {
                 c.dots = [];
-                const count = Math.floor(_tRandR(5, 12));
+                const count = Math.floor(_tRandR(8, 18));
                 for (let i = 0; i < count; i++) {
-                    const ba = _tRand() * Math.PI * 2, bd = _tRand() * c.r;
+                    const ba = _tRand() * Math.PI * 2, bd = _tRand() * c.r * 1.2;
                     c.dots.push({ ox: Math.cos(ba)*bd, oy: Math.sin(ba)*bd,
-                        r: _tRandR(1.0, 3.0), bright: _tRand(), ph: _tRand()*Math.PI*2 });
+                        r: _tRandR(1.0, 3.5), bright: _tRand(), ph: _tRand()*Math.PI*2 });
                 }
             }
             return { branches: br, blossoms: bl, tips };
@@ -1098,12 +1098,14 @@ function _initStarParallax() {
         // Petals start scattered from tree area downward; stars anywhere
         let initX = Math.random() * canvas.width;
         let initY = Math.random() * canvas.height;
-        if (petal && _sakuraTree.tips.length > 0) {
-            const tip = _sakuraTree.tips[Math.floor(Math.random() * _sakuraTree.tips.length)];
-            // Scale from 800x600 generation size to current canvas
-            const sx = canvas.width / 800, sy = canvas.height / 600;
-            initX = tip.x * sx + (Math.random() - 0.3) * 60 - Math.random() * canvas.width * 0.3;
-            initY = tip.y * sy + Math.random() * canvas.height * 0.6;
+        if (petal) {
+            if (_sakuraTree.tips.length > 0 && Math.random() < 0.5) {
+                const tip = _sakuraTree.tips[Math.floor(Math.random() * _sakuraTree.tips.length)];
+                const sx = canvas.width / 800, sy = canvas.height / 600;
+                initX = tip.x * sx + (Math.random() - 0.3) * 60 - Math.random() * canvas.width * 0.3;
+                initY = tip.y * sy + Math.random() * canvas.height * 0.6;
+            }
+            // else keep random position — petals scattered everywhere
         }
         stars.push({
             x: initX,
@@ -1304,16 +1306,18 @@ function _initStarParallax() {
                 s._prevSpiralX = spiralX;
                 s._prevSpiralY = spiralY;
                 if (s.baseY > canvas.height + 15 || s.baseX < -20) {
-                    if (_sakuraTree.tips.length > 0) {
+                    if (_sakuraTree.tips.length > 0 && Math.random() < 0.55) {
+                        // From tree branch tips
                         const tip = _sakuraTree.tips[Math.floor(Math.random() * _sakuraTree.tips.length)];
                         s.baseX = tip.x + (Math.random() - 0.3) * 20;
                         s.baseY = tip.y + (Math.random() - 0.5) * 10;
                     } else {
-                        s.baseY = -10;
-                        s.baseX = canvas.width * 0.3 + Math.random() * canvas.width * 0.5;
+                        // From random sky positions — petals drifting in from above
+                        s.baseY = -10 - Math.random() * 30;
+                        s.baseX = Math.random() * canvas.width;
                     }
                     s.y = s.baseY; s.x = s.baseX;
-                    s.petalAge = 0;
+                    s.petalAge = Math.random() < 0.45 ? 0 : 80 + Math.random() * 40;
                     s._prevSpiralX = 0; s._prevSpiralY = 0;
                 }
             } else {
