@@ -77,6 +77,18 @@ const AUTH_THEMES = [
       orb1:'rgba(240,160,184,.14)', orb2:'rgba(200,160,220,.10)', orb3:'rgba(255,220,240,.08)',
       grid:'rgba(240,160,184,.04)', bg:'linear-gradient(160deg,#08050c 0%,#120a1a 50%,#08050c 100%)',
       star1:'rgba(240,160,184,.5)', star2:'rgba(255,220,240,.35)', star3:'rgba(200,160,220,.3)' },
+    { name:'Rose', accent:'#f43f5e', rgb:'244,63,94',
+      orb1:'rgba(244,63,94,.14)', orb2:'rgba(251,113,133,.10)', orb3:'rgba(225,29,72,.08)',
+      grid:'rgba(244,63,94,.04)', bg:'linear-gradient(160deg,#080507 0%,#120a0e 50%,#080507 100%)',
+      star1:'rgba(244,63,94,.5)', star2:'rgba(251,113,133,.35)', star3:'rgba(253,164,175,.25)' },
+    { name:'Coffee', accent:'#d4943c', rgb:'212,148,60',
+      orb1:'rgba(212,148,60,.14)', orb2:'rgba(184,122,46,.10)', orb3:'rgba(232,170,84,.08)',
+      grid:'rgba(212,148,60,.04)', bg:'linear-gradient(160deg,#0c0806 0%,#14100a 50%,#0c0806 100%)',
+      star1:'rgba(212,148,60,.5)', star2:'rgba(184,122,46,.35)', star3:'rgba(255,240,220,.25)' },
+    { name:'Midnight', accent:'#10b981', rgb:'16,185,129',
+      orb1:'rgba(16,185,129,.14)', orb2:'rgba(52,211,153,.10)', orb3:'rgba(5,150,105,.07)',
+      grid:'rgba(16,185,129,.04)', bg:'linear-gradient(160deg,#050810 0%,#080d18 50%,#050810 100%)',
+      star1:'rgba(16,185,129,.5)', star2:'rgba(52,211,153,.35)', star3:'rgba(209,250,229,.25)' },
 ];
 
 function _getAuthTheme() {
@@ -169,6 +181,10 @@ function _initStarParallax() {
     const _isSakura = _t.name === 'Sakura';
     const _isNebula = _t.name === 'Nebula';
     const _isAurora = _t.name === 'Aurora';
+    const _isNoir = _t.name === 'Noir';
+    const _isRose = _t.name === 'Rose';
+    const _isCoffee = _t.name === 'Coffee';
+    const _isMidnight = _t.name === 'Midnight';
 
     // ── Black hole data (nebula auth theme — P1 classic accretion disk) ──
     const _bhParticles = [];
@@ -450,6 +466,431 @@ function _initStarParallax() {
         }
     }
 
+    // ── Noir: Pulsar with twin sweeping beams ──
+    const _noirPulsarParticles = [];
+    if (_isNoir) {
+        for (let i = 0; i < 200; i++) {
+            const band = Math.random();
+            const dist = 30 + band * 200;
+            _noirPulsarParticles.push({
+                angle: Math.random() * Math.PI * 2,
+                dist,
+                speed: (0.03 + Math.random() * 0.05) * (100 / (dist + 20)),
+                r: Math.random() * 1.0 + 0.3,
+                a: Math.random() * 0.35 + 0.08,
+                yOff: (Math.random() - 0.5) * 3,
+                colorType: band < 0.35 ? 0 : band < 0.65 ? 1 : 2,
+            });
+        }
+    }
+    const _noirMagColors = [[167,139,250],[192,132,252],[139,92,246]];
+    function _noirDrawPulsar(cx, cy, t) {
+        const beamAngle = t * 0.4;
+        const beamLen = 350;
+        // Twin beams
+        for (let b = 0; b < 2; b++) {
+            const bAng = beamAngle + b * Math.PI;
+            const bx = Math.cos(bAng), by = Math.sin(bAng);
+            for (let layer = 0; layer < 4; layer++) {
+                const spread = [0.03,0.06,0.1,0.16][layer];
+                const alpha = [0.12,0.06,0.03,0.015][layer];
+                ctx.beginPath(); ctx.moveTo(cx, cy);
+                const perpX = -by, perpY = bx;
+                const endX = cx + bx * beamLen, endY = cy + by * beamLen;
+                const sd = beamLen * spread;
+                ctx.lineTo(endX + perpX * sd, endY + perpY * sd);
+                ctx.lineTo(endX - perpX * sd, endY - perpY * sd);
+                ctx.closePath();
+                const bg = ctx.createLinearGradient(cx, cy, endX, endY);
+                bg.addColorStop(0, `rgba(192,132,252,${alpha * 1.5})`);
+                bg.addColorStop(0.1, `rgba(167,139,250,${alpha})`);
+                bg.addColorStop(0.5, `rgba(139,92,246,${alpha * 0.5})`);
+                bg.addColorStop(1, 'transparent');
+                ctx.fillStyle = bg; ctx.fill();
+            }
+        }
+        // Magnetic field rings
+        ctx.save(); ctx.translate(cx, cy); ctx.scale(1, 0.35);
+        for (let ring = 0; ring < 4; ring++) {
+            const rd = 40 + ring * 35;
+            ctx.beginPath(); ctx.arc(0, 0, rd, 0, Math.PI * 2);
+            ctx.strokeStyle = `rgba(167,139,250,${0.035 - ring * 0.006})`; ctx.lineWidth = 1.5; ctx.stroke();
+        }
+        ctx.restore();
+        // Back magnetosphere particles
+        const proj = [];
+        for (const p of _noirPulsarParticles) {
+            const a = p.angle + t * p.speed;
+            const px2 = cx + Math.cos(a) * p.dist;
+            const py2 = cy + Math.sin(a) * p.dist * 0.35 + p.yOff;
+            proj.push({ x: px2, y: py2, d: Math.sin(a), r: p.r, a: p.a, ct: p.colorType });
+        }
+        proj.sort((a2, b2) => a2.d - b2.d);
+        for (const p of proj) {
+            if (p.d > 0.1) continue;
+            const c = _noirMagColors[p.ct];
+            ctx.globalAlpha = p.a * (0.5 + p.d * 0.5);
+            ctx.fillStyle = `rgb(${c[0]},${c[1]},${c[2]})`;
+            ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctx.fill();
+        }
+        // Pulsar core
+        const pulse = 1 + Math.sin(t * 2) * 0.15;
+        const pr = 14 * pulse;
+        const outerG = ctx.createRadialGradient(cx, cy, 0, cx, cy, pr * 10);
+        outerG.addColorStop(0, 'rgba(167,139,250,0.08)'); outerG.addColorStop(0.2, 'rgba(139,92,246,0.04)');
+        outerG.addColorStop(0.5, 'rgba(99,102,241,0.015)'); outerG.addColorStop(1, 'transparent');
+        ctx.globalAlpha = 1;
+        ctx.fillStyle = outerG; ctx.beginPath(); ctx.arc(cx, cy, pr * 10, 0, Math.PI * 2); ctx.fill();
+        // Pulsing rings
+        for (let i = 0; i < 3; i++) {
+            const ringT = (t * 0.8 + i * 0.7) % 3.0;
+            const ringR = pr + ringT * 40;
+            const ringA = Math.max(0, 0.15 * (1 - ringT / 3.0));
+            if (ringA < 0.005) continue;
+            ctx.beginPath(); ctx.arc(cx, cy, ringR, 0, Math.PI * 2);
+            ctx.strokeStyle = `rgba(192,132,252,${ringA})`; ctx.lineWidth = 2; ctx.stroke();
+        }
+        // Core
+        const innerG = ctx.createRadialGradient(cx, cy, 0, cx, cy, pr * 3);
+        innerG.addColorStop(0, `rgba(230,220,255,${0.3 * pulse})`); innerG.addColorStop(0.3, `rgba(192,132,252,${0.15 * pulse})`);
+        innerG.addColorStop(0.7, `rgba(139,92,246,${0.04 * pulse})`); innerG.addColorStop(1, 'transparent');
+        ctx.fillStyle = innerG; ctx.beginPath(); ctx.arc(cx, cy, pr * 3, 0, Math.PI * 2); ctx.fill();
+        const coreG = ctx.createRadialGradient(cx, cy, 0, cx, cy, pr);
+        coreG.addColorStop(0, 'rgba(240,235,255,0.6)'); coreG.addColorStop(0.4, 'rgba(192,132,252,0.4)');
+        coreG.addColorStop(0.8, 'rgba(139,92,246,0.2)'); coreG.addColorStop(1, 'rgba(99,102,241,0.05)');
+        ctx.fillStyle = coreG; ctx.beginPath(); ctx.arc(cx, cy, pr, 0, Math.PI * 2); ctx.fill();
+        // Front particles
+        for (const p of proj) {
+            if (p.d <= 0.1) continue;
+            const c = _noirMagColors[p.ct];
+            ctx.globalAlpha = p.a * (0.6 + p.d * 0.4);
+            ctx.fillStyle = `rgb(${c[0]},${c[1]},${c[2]})`;
+            ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctx.fill();
+        }
+        ctx.globalAlpha = 1;
+    }
+
+    // ── Rose: Geometric rose bloom ──
+    function _roseDrawBloom(cx, cy, t) {
+        const breathe = 1 + 0.06 * Math.sin(t * 0.8);
+        const rotation = t * 0.05;
+        // Ambient glow
+        const amb = ctx.createRadialGradient(cx, cy, 0, cx, cy, 180);
+        amb.addColorStop(0, 'rgba(244,63,94,0.08)'); amb.addColorStop(0.3, 'rgba(251,113,133,0.04)');
+        amb.addColorStop(0.6, 'rgba(225,29,72,0.015)'); amb.addColorStop(1, 'transparent');
+        ctx.fillStyle = amb; ctx.beginPath(); ctx.arc(cx, cy, 180, 0, Math.PI * 2); ctx.fill();
+        // Pollen particles rising
+        for (let i = 0; i < 20; i++) {
+            const age = (t * 0.3 + i * 0.5) % 5;
+            const px2 = cx + Math.sin(t * 0.2 + i * 1.7) * (10 + age * 8);
+            const py2 = cy - age * 25;
+            const pa = Math.max(0, 0.3 * (1 - age / 5));
+            if (pa < 0.01) continue;
+            ctx.globalAlpha = pa;
+            ctx.fillStyle = 'rgba(253,164,175,0.8)';
+            ctx.beginPath(); ctx.arc(px2, py2, 1 + (1 - age / 5), 0, Math.PI * 2); ctx.fill();
+        }
+        ctx.globalAlpha = 1;
+        // Draw petals — 5 layers, each rotated
+        for (let layer = 4; layer >= 0; layer--) {
+            const layerScale = (0.5 + layer * 0.12) * breathe;
+            const petalCount = 5 + layer;
+            const layerRot = rotation + layer * 0.15;
+            const openFactor = 0.7 + layer * 0.08;
+            for (let i = 0; i < petalCount; i++) {
+                const angle = layerRot + (i / petalCount) * Math.PI * 2;
+                const pr = 30 * layerScale * openFactor;
+                const tipX = cx + Math.cos(angle) * pr;
+                const tipY = cy + Math.sin(angle) * pr;
+                const cp1Angle = angle - 0.3;
+                const cp2Angle = angle + 0.3;
+                const cpDist = pr * 0.7;
+                ctx.beginPath();
+                ctx.moveTo(cx, cy);
+                ctx.quadraticCurveTo(
+                    cx + Math.cos(cp1Angle) * cpDist, cy + Math.sin(cp1Angle) * cpDist, tipX, tipY
+                );
+                ctx.quadraticCurveTo(
+                    cx + Math.cos(cp2Angle) * cpDist, cy + Math.sin(cp2Angle) * cpDist, cx, cy
+                );
+                const bright = 0.5 + 0.5 * Math.sin(t * 0.5 + i + layer);
+                const r = layer < 2 ? 244 : 251;
+                const g = layer < 2 ? 63 + bright * 30 : 113;
+                const b = layer < 2 ? 94 : 133;
+                const alpha = (0.12 + layer * 0.04) * bright;
+                ctx.fillStyle = `rgba(${r},${g|0},${b},${alpha})`;
+                ctx.fill();
+                // Petal edge
+                ctx.strokeStyle = `rgba(253,164,175,${alpha * 0.5})`;
+                ctx.lineWidth = 0.5;
+                ctx.stroke();
+            }
+        }
+        // Center core
+        const coreG = ctx.createRadialGradient(cx, cy, 0, cx, cy, 12 * breathe);
+        coreG.addColorStop(0, 'rgba(255,240,243,0.5)'); coreG.addColorStop(0.5, 'rgba(244,63,94,0.3)');
+        coreG.addColorStop(1, 'rgba(225,29,72,0)');
+        ctx.fillStyle = coreG; ctx.beginPath(); ctx.arc(cx, cy, 12 * breathe, 0, Math.PI * 2); ctx.fill();
+    }
+
+    // ── Coffee: Ember with rising sparks ──
+    const _coffeeEmbers = [];
+    if (_isCoffee) {
+        for (let i = 0; i < 50; i++) {
+            _coffeeEmbers.push({
+                angle: Math.random() * Math.PI * 2,
+                speed: 0.3 + Math.random() * 0.7,
+                drift: (Math.random() - 0.5) * 0.4,
+                size: 0.8 + Math.random() * 2,
+                phase: Math.random() * 5,
+                bright: Math.random()
+            });
+        }
+    }
+    function _coffeeDrawEmber(cx, cy, t) {
+        const pulse = 1 + 0.08 * Math.sin(t * 1.2);
+        // Wide ambient warmth
+        const amb = ctx.createRadialGradient(cx, cy, 0, cx, cy, 200);
+        amb.addColorStop(0, 'rgba(212,148,60,0.08)'); amb.addColorStop(0.3, 'rgba(184,122,46,0.04)');
+        amb.addColorStop(0.6, 'rgba(232,170,84,0.015)'); amb.addColorStop(1, 'transparent');
+        ctx.fillStyle = amb; ctx.beginPath(); ctx.arc(cx, cy, 200, 0, Math.PI * 2); ctx.fill();
+        // Pulsing warm rings
+        for (let i = 0; i < 3; i++) {
+            const ringT = (t * 0.6 + i * 1.0) % 4.0;
+            const ringR = 20 + ringT * 35;
+            const ringA = Math.max(0, 0.08 * (1 - ringT / 4.0));
+            if (ringA < 0.003) continue;
+            ctx.beginPath(); ctx.arc(cx, cy, ringR, 0, Math.PI * 2);
+            ctx.strokeStyle = `rgba(232,170,84,${ringA})`; ctx.lineWidth = 2; ctx.stroke();
+        }
+        // Core ember
+        const coreR = 22 * pulse;
+        const g1 = ctx.createRadialGradient(cx, cy, 0, cx, cy, coreR * 4);
+        g1.addColorStop(0, 'rgba(255,240,212,0.15)'); g1.addColorStop(0.2, 'rgba(232,170,84,0.1)');
+        g1.addColorStop(0.5, 'rgba(212,148,60,0.04)'); g1.addColorStop(1, 'transparent');
+        ctx.fillStyle = g1; ctx.beginPath(); ctx.arc(cx, cy, coreR * 4, 0, Math.PI * 2); ctx.fill();
+        const g2 = ctx.createRadialGradient(cx, cy, 0, cx, cy, coreR);
+        g2.addColorStop(0, 'rgba(255,245,220,0.5)'); g2.addColorStop(0.3, 'rgba(232,170,84,0.35)');
+        g2.addColorStop(0.7, 'rgba(212,148,60,0.15)'); g2.addColorStop(1, 'rgba(184,122,46,0.02)');
+        ctx.fillStyle = g2; ctx.beginPath(); ctx.arc(cx, cy, coreR, 0, Math.PI * 2); ctx.fill();
+        // Rising sparks
+        for (const e of _coffeeEmbers) {
+            const age = (t * e.speed + e.phase) % 5;
+            const progress = age / 5;
+            const sx = cx + Math.sin(t * 0.3 + e.angle) * (8 + age * 12) + e.drift * age * 20;
+            const sy = cy - age * 30 - Math.sin(age * 2) * 5;
+            const sa = (1 - progress) * 0.6 * (0.5 + e.bright * 0.5);
+            if (sa < 0.02) continue;
+            const sr = e.size * (1 - progress * 0.5);
+            ctx.globalAlpha = sa;
+            const sparkColor = e.bright > 0.6 ? '255,240,212' : e.bright > 0.3 ? '232,170,84' : '184,122,46';
+            const sg = ctx.createRadialGradient(sx, sy, 0, sx, sy, sr * 4);
+            sg.addColorStop(0, `rgba(${sparkColor},${sa * 0.4})`);
+            sg.addColorStop(1, 'transparent');
+            ctx.fillStyle = sg; ctx.beginPath(); ctx.arc(sx, sy, sr * 4, 0, Math.PI * 2); ctx.fill();
+            ctx.fillStyle = `rgba(${sparkColor},${sa})`;
+            ctx.beginPath(); ctx.arc(sx, sy, sr, 0, Math.PI * 2); ctx.fill();
+        }
+        ctx.globalAlpha = 1;
+    }
+
+    // ── Midnight: Crescent moon with emerald glow ──
+    const _midnightFireflies = [];
+    if (_isMidnight) {
+        for (let i = 0; i < 30; i++) {
+            _midnightFireflies.push({
+                x: 0.3 + Math.random() * 0.4,
+                y: 0.2 + Math.random() * 0.3,
+                phase: Math.random() * Math.PI * 2,
+                glowSpeed: 0.3 + Math.random() * 0.7,
+                wanderRx: 0.01 + Math.random() * 0.02,
+                wanderRy: 0.005 + Math.random() * 0.015,
+                wanderSpeed: 0.06 + Math.random() * 0.1,
+                wanderPhase: Math.random() * Math.PI * 2,
+                r: 0.8 + Math.random() * 1.2
+            });
+        }
+    }
+    const _midnightClouds = [];
+    if (_isMidnight) {
+        for (let i = 0; i < 5; i++) {
+            _midnightClouds.push({
+                x: Math.random(), y: 0.25 + Math.random() * 0.15,
+                w: 0.06 + Math.random() * 0.1, h: 0.015 + Math.random() * 0.02,
+                speed: 0.001 + Math.random() * 0.002,
+                alpha: 0.02 + Math.random() * 0.02,
+                phase: Math.random() * Math.PI * 2
+            });
+        }
+    }
+    function _midnightDrawMoon(cx, cy, t, cw) {
+        const moonR = 35;
+        // Emerald halo
+        const halo = ctx.createRadialGradient(cx, cy, moonR * 0.8, cx, cy, moonR * 6);
+        halo.addColorStop(0, 'rgba(16,185,129,0.06)'); halo.addColorStop(0.3, 'rgba(52,211,153,0.03)');
+        halo.addColorStop(0.6, 'rgba(5,150,105,0.01)'); halo.addColorStop(1, 'transparent');
+        ctx.fillStyle = halo; ctx.beginPath(); ctx.arc(cx, cy, moonR * 6, 0, Math.PI * 2); ctx.fill();
+        // Full moon disk (dark side visible)
+        const moonBg = ctx.createRadialGradient(cx - moonR * 0.2, cy - moonR * 0.2, 0, cx, cy, moonR);
+        moonBg.addColorStop(0, 'rgba(200,210,230,0.12)'); moonBg.addColorStop(0.5, 'rgba(150,160,180,0.08)');
+        moonBg.addColorStop(1, 'rgba(100,110,130,0.04)');
+        ctx.fillStyle = moonBg; ctx.beginPath(); ctx.arc(cx, cy, moonR, 0, Math.PI * 2); ctx.fill();
+        // Crescent — clip the dark shadow
+        ctx.save();
+        ctx.beginPath(); ctx.arc(cx, cy, moonR + 1, 0, Math.PI * 2); ctx.clip();
+        const shadowOff = moonR * 0.6;
+        ctx.fillStyle = 'rgba(5,8,16,0.95)';
+        ctx.beginPath(); ctx.arc(cx + shadowOff, cy, moonR * 0.95, 0, Math.PI * 2); ctx.fill();
+        ctx.restore();
+        // Bright crescent edge glow
+        const crescentG = ctx.createRadialGradient(cx - moonR * 0.3, cy, moonR * 0.5, cx, cy, moonR * 1.2);
+        crescentG.addColorStop(0, 'rgba(209,250,229,0.25)'); crescentG.addColorStop(0.4, 'rgba(52,211,153,0.08)');
+        crescentG.addColorStop(1, 'transparent');
+        ctx.fillStyle = crescentG; ctx.beginPath(); ctx.arc(cx, cy, moonR * 1.2, 0, Math.PI * 2); ctx.fill();
+        // Subtle crater marks
+        const craters = [[0.25,-0.3,0.12],[0.15,0.2,0.08],[-0.1,-0.15,0.06]];
+        for (const [ox, oy, cr] of craters) {
+            const crx = cx + moonR * ox - moonR * 0.15;
+            const cry = cy + moonR * oy;
+            ctx.globalAlpha = 0.04;
+            ctx.fillStyle = 'rgba(100,130,160,1)';
+            ctx.beginPath(); ctx.arc(crx, cry, moonR * cr, 0, Math.PI * 2); ctx.fill();
+        }
+        ctx.globalAlpha = 1;
+        // Drifting cloud wisps
+        for (const cl of _midnightClouds) {
+            cl.x += cl.speed * 0.008;
+            if (cl.x > 1.4) cl.x = -0.4;
+            const breathe = 0.5 + 0.5 * Math.sin(t * 0.15 + cl.phase);
+            const clx = cl.x * cw, cly = cl.y * canvas.height;
+            const clw = cl.w * cw;
+            const cg = ctx.createRadialGradient(clx, cly, 0, clx, cly, clw);
+            cg.addColorStop(0, `rgba(16,185,129,${cl.alpha * breathe})`);
+            cg.addColorStop(0.5, `rgba(52,211,153,${cl.alpha * breathe * 0.3})`);
+            cg.addColorStop(1, 'transparent');
+            ctx.fillStyle = cg;
+            ctx.fillRect(clx - clw, cly - clw * cl.h / cl.w, clw * 2, clw * cl.h / cl.w * 2);
+        }
+        // Emerald fireflies
+        for (const f of _midnightFireflies) {
+            const wp = t * f.wanderSpeed + f.wanderPhase;
+            const fx = (f.x + Math.sin(wp) * f.wanderRx) * cw;
+            const fy = (f.y + Math.sin(wp * 2) * f.wanderRy) * canvas.height;
+            const rawGlow = Math.sin(t * f.glowSpeed + f.phase);
+            const glow = Math.pow(Math.max(0, rawGlow), 1.5);
+            if (glow < 0.03) continue;
+            ctx.globalAlpha = glow;
+            const fHalo = ctx.createRadialGradient(fx, fy, 0, fx, fy, f.r * 12);
+            fHalo.addColorStop(0, 'rgba(52,211,153,0.10)'); fHalo.addColorStop(0.3, 'rgba(16,185,129,0.03)');
+            fHalo.addColorStop(1, 'transparent');
+            ctx.fillStyle = fHalo; ctx.beginPath(); ctx.arc(fx, fy, f.r * 12, 0, Math.PI * 2); ctx.fill();
+            const fCore = ctx.createRadialGradient(fx, fy, 0, fx, fy, f.r * 2);
+            fCore.addColorStop(0, `rgba(209,250,229,${glow * 0.8})`); fCore.addColorStop(0.4, `rgba(52,211,153,${glow * 0.5})`);
+            fCore.addColorStop(1, 'transparent');
+            ctx.fillStyle = fCore; ctx.beginPath(); ctx.arc(fx, fy, f.r * 2, 0, Math.PI * 2); ctx.fill();
+        }
+        ctx.globalAlpha = 1;
+    }
+
+    // ── Sakura: Tree with blossoms ──
+    const _sakuraTree = { branches: [], blossoms: [] };
+    if (_isSakura) {
+        // Seeded random for deterministic tree
+        let _tSeed = 12345;
+        function _tRand() { _tSeed = (_tSeed * 16807 + 0) % 2147483647; return _tSeed / 2147483647; }
+        function _tRandR(a, b) { return a + _tRand() * (b - a); }
+
+        function _genSakuraTree(w, h) {
+            _tSeed = 12345;
+            const br = [], bl = [];
+            const baseX = w * 0.5, baseY = h * 0.62;
+            const topX = baseX + _tRandR(-w*0.01, w*0.01), topY = h * 0.38;
+            // Trunk
+            br.push({ x0:baseX, y0:baseY, cpx:baseX + _tRandR(-w*0.02, w*0.02), cpy:h*0.50, x1:topX, y1:topY, w0:w*0.018, w1:w*0.009, d:0 });
+            // Major branches
+            const mc = 3 + Math.floor(_tRand() * 3);
+            for (let i = 0; i < mc; i++) {
+                const ang = -Math.PI/2 + _tRandR(-1.1, 1.1);
+                const len = _tRandR(h*0.10, h*0.18);
+                const ex = topX + Math.cos(ang)*len, ey = topY + Math.sin(ang)*len;
+                const cp = _tRandR(0.3,0.7);
+                br.push({ x0:topX, y0:topY, cpx:topX + Math.cos(ang)*len*cp + _tRandR(-w*0.02,w*0.02), cpy:topY + Math.sin(ang)*len*cp, x1:ex, y1:ey, w0:w*0.007, w1:w*0.003, d:1 });
+                bl.push({ x:ex, y:ey, r:_tRandR(10,18), count:Math.floor(_tRandR(6,12)), phase:_tRand()*Math.PI*2 });
+                // Sub-branches
+                const sc = 2 + Math.floor(_tRand()*3);
+                for (let j = 0; j < sc; j++) {
+                    const st = _tRandR(0.35,0.9);
+                    const bx2 = (1-st)*(1-st)*topX + 2*(1-st)*st*br[br.length-1].cpx + st*st*ex;
+                    const by2 = (1-st)*(1-st)*topY + 2*(1-st)*st*br[br.length-1].cpy + st*st*ey;
+                    const sa = ang + _tRandR(-0.8,0.8);
+                    const sl = _tRandR(h*0.04, h*0.10);
+                    const sex = bx2 + Math.cos(sa)*sl, sey = by2 + Math.sin(sa)*sl;
+                    br.push({ x0:bx2, y0:by2, cpx:(bx2+sex)/2 + _tRandR(-w*0.01,w*0.01), cpy:(by2+sey)/2, x1:sex, y1:sey, w0:w*0.003, w1:w*0.001, d:2 });
+                    bl.push({ x:sex, y:sey, r:_tRandR(6,12), count:Math.floor(_tRandR(4,8)), phase:_tRand()*Math.PI*2 });
+                }
+            }
+            // Generate blossom positions within clusters
+            for (const c of bl) {
+                c.dots = [];
+                for (let i = 0; i < c.count; i++) {
+                    const ba = _tRand() * Math.PI * 2, bd = _tRand() * c.r;
+                    c.dots.push({ ox: Math.cos(ba)*bd, oy: Math.sin(ba)*bd, r: _tRandR(1.5,4), bright: _tRand(), ph: _tRand()*Math.PI*2 });
+                }
+            }
+            return { branches: br, blossoms: bl };
+        }
+        const _stData = _genSakuraTree(800, 600); // will be scaled in draw
+        _sakuraTree.genFn = _genSakuraTree;
+        _sakuraTree.branches = _stData.branches;
+        _sakuraTree.blossoms = _stData.blossoms;
+        _sakuraTree.lastW = 800;
+        _sakuraTree.lastH = 600;
+    }
+    function _sakuraDrawTree(cw, ch, t) {
+        // Regenerate if canvas size changed significantly
+        if (Math.abs(cw - _sakuraTree.lastW) > 50 || Math.abs(ch - _sakuraTree.lastH) > 50) {
+            const d = _sakuraTree.genFn(cw, ch);
+            _sakuraTree.branches = d.branches;
+            _sakuraTree.blossoms = d.blossoms;
+            _sakuraTree.lastW = cw;
+            _sakuraTree.lastH = ch;
+        }
+        // Ambient pink glow at canopy
+        const gcx = cw * 0.5, gcy = ch * 0.32;
+        const pulse = 0.85 + 0.15 * Math.sin(t * 0.8);
+        const amb = ctx.createRadialGradient(gcx, gcy, 0, gcx, gcy, 180);
+        amb.addColorStop(0, `rgba(240,160,184,${0.06 * pulse})`);
+        amb.addColorStop(0.5, `rgba(200,136,168,${0.025 * pulse})`);
+        amb.addColorStop(1, 'transparent');
+        ctx.fillStyle = amb; ctx.beginPath(); ctx.arc(gcx, gcy, 180, 0, Math.PI * 2); ctx.fill();
+        // Draw branches
+        for (const b of _sakuraTree.branches) {
+            ctx.beginPath();
+            ctx.moveTo(b.x0, b.y0);
+            ctx.quadraticCurveTo(b.cpx, b.cpy, b.x1, b.y1);
+            ctx.strokeStyle = 'rgba(20,8,16,0.85)';
+            ctx.lineWidth = b.w0; ctx.lineCap = 'round'; ctx.stroke();
+        }
+        // Draw blossom clusters
+        for (const cl of _sakuraTree.blossoms) {
+            for (const dot of cl.dots) {
+                const dp = 0.7 + 0.3 * Math.sin(t * 2 + dot.ph);
+                const x = cl.x + dot.ox, y = cl.y + dot.oy;
+                const r = dot.r * (0.8 + 0.2 * dp);
+                // Glow
+                const gr = ctx.createRadialGradient(x, y, 0, x, y, r * 3);
+                const c = dot.bright > 0.6 ? [255,220,232] : dot.bright > 0.3 ? [255,184,204] : [240,160,184];
+                gr.addColorStop(0, `rgba(${c[0]},${c[1]},${c[2]},${0.3 * dp})`);
+                gr.addColorStop(1, `rgba(${c[0]},${c[1]},${c[2]},0)`);
+                ctx.fillStyle = gr; ctx.fillRect(x - r * 3, y - r * 3, r * 6, r * 6);
+                // Core
+                ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2);
+                ctx.fillStyle = dot.bright > 0.6 ? `rgba(255,235,245,${0.5 + 0.5*dp})` : `rgba(${c[0]},${c[1]},${c[2]},${(0.4 + 0.4*dp)})`;
+                ctx.fill();
+            }
+        }
+    }
+
     // Parse theme star colors into hex for canvas
     function parseColor(rgba) {
         const m = rgba.match(/rgba?\(([^)]+)\)/);
@@ -616,6 +1057,31 @@ function _initStarParallax() {
         // Binary star system (aurora auth theme)
         if (_isAurora) {
             _binDrawSystem(canvas.width * 0.5, canvas.height * 0.28, t);
+        }
+
+        // Pulsar (noir auth theme)
+        if (_isNoir) {
+            _noirDrawPulsar(canvas.width * 0.5, canvas.height * 0.30, t);
+        }
+
+        // Rose bloom (rose auth theme)
+        if (_isRose) {
+            _roseDrawBloom(canvas.width * 0.5, canvas.height * 0.30, t);
+        }
+
+        // Ember (coffee auth theme)
+        if (_isCoffee) {
+            _coffeeDrawEmber(canvas.width * 0.5, canvas.height * 0.30, t);
+        }
+
+        // Crescent moon (midnight auth theme)
+        if (_isMidnight) {
+            _midnightDrawMoon(canvas.width * 0.5, canvas.height * 0.28, t, canvas.width);
+        }
+
+        // Sakura tree (sakura auth theme)
+        if (_isSakura) {
+            _sakuraDrawTree(canvas.width, canvas.height, t);
         }
 
         // Spawn shooting stars
