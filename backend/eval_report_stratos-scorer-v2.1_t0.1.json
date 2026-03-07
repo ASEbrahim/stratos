@@ -1,0 +1,261 @@
+{
+  "total_samples": 1432,
+  "parse_failures": 68,
+  "mae": 3.244,
+  "rmse": 3.898,
+  "direction_accuracy": 0.5349,
+  "spearman_rho": 0.5393,
+  "agreement_pct_1pt": 23.6,
+  "agreement_pct_2pt": 36.2,
+  "band_breakdown": {
+    "noise": {
+      "count": 1166,
+      "mae": 3.358
+    },
+    "tangential": {
+      "count": 170,
+      "mae": 3.29
+    },
+    "moderate": {
+      "count": 48,
+      "mae": 2.219
+    },
+    "high": {
+      "count": 39,
+      "mae": 1.328
+    },
+    "critical": {
+      "count": 9,
+      "mae": 1.378
+    }
+  },
+  "profile_breakdown": {
+    "Agricultural commodities trader": {
+      "count": 49,
+      "mae": 2.535,
+      "direction_acc": 0.7143
+    },
+    "Architect working on smart city infrastructure projects": {
+      "count": 47,
+      "mae": 3.183,
+      "direction_acc": 0.5532
+    },
+    "Biotech researcher at KAUST studying gene therapy": {
+      "count": 50,
+      "mae": 2.92,
+      "direction_acc": 0.58
+    },
+    "CTO of a mobile payments startup": {
+      "count": 50,
+      "mae": 2.63,
+      "direction_acc": 0.58
+    },
+    "Computer Engineering student at American University of Kuwait": {
+      "count": 50,
+      "mae": 3.412,
+      "direction_acc": 0.44
+    },
+    "Corporate lawyer at a major law firm": {
+      "count": 42,
+      "mae": 3.783,
+      "direction_acc": 0.5
+    },
+    "Cybersecurity analyst at a Kuwaiti bank": {
+      "count": 49,
+      "mae": 3.947,
+      "direction_acc": 0.2857
+    },
+    "Data Scientist at a Dubai fintech startup": {
+      "count": 49,
+      "mae": 2.112,
+      "direction_acc": 0.6122
+    },
+    "Digital marketing manager at a K-pop entertainment agency": {
+      "count": 50,
+      "mae": 4.266,
+      "direction_acc": 0.46
+    },
+    "Emergency department nurse practitioner": {
+      "count": 50,
+      "mae": 2.626,
+      "direction_acc": 0.72
+    },
+    "Executive chef and restaurant owner": {
+      "count": 49,
+      "mae": 1.835,
+      "direction_acc": 0.8163
+    },
+    "Finance & Accounting student at GUST Kuwait": {
+      "count": 50,
+      "mae": 4.264,
+      "direction_acc": 0.26
+    },
+    "HVAC technician and small business owner": {
+      "count": 47,
+      "mae": 3.936,
+      "direction_acc": 0.5106
+    },
+    "Hospital pharmacist specializing": {
+      "count": 41,
+      "mae": 1.876,
+      "direction_acc": 0.9024
+    },
+    "Independent documentary filmmaker": {
+      "count": 50,
+      "mae": 4.44,
+      "direction_acc": 0.34
+    },
+    "Indie game developer and studio founder": {
+      "count": 42,
+      "mae": 3.267,
+      "direction_acc": 0.5714
+    },
+    "Marine electrician on offshore wind vessels": {
+      "count": 47,
+      "mae": 3.638,
+      "direction_acc": 0.5319
+    },
+    "Mechanical Engineering fresh graduate seeking NEOM/Aramco roles": {
+      "count": 39,
+      "mae": 2.987,
+      "direction_acc": 0.5385
+    },
+    "Mining engineer at a copper mine": {
+      "count": 50,
+      "mae": 3.602,
+      "direction_acc": 0.48
+    },
+    "Pediatric oncologist at King Faisal Specialist Hospital": {
+      "count": 45,
+      "mae": 3.289,
+      "direction_acc": 0.6889
+    },
+    "Petroleum Engineering student at Kuwait University": {
+      "count": 50,
+      "mae": 3.506,
+      "direction_acc": 0.38
+    },
+    "Pipeline welder and CWB-certified inspector": {
+      "count": 45,
+      "mae": 4.071,
+      "direction_acc": 0.4889
+    },
+    "Professional bonsai artist and competition judge": {
+      "count": 50,
+      "mae": 2.196,
+      "direction_acc": 0.84
+    },
+    "Retired IT consultant": {
+      "count": 47,
+      "mae": 3.913,
+      "direction_acc": 0.3617
+    },
+    "Retired UN diplomat and policy consultant": {
+      "count": 50,
+      "mae": 3.006,
+      "direction_acc": 0.48
+    },
+    "Senior geophysicist at KOC": {
+      "count": 48,
+      "mae": 3.017,
+      "direction_acc": 0.6458
+    },
+    "Sports physiotherapist at a professional rugby club": {
+      "count": 49,
+      "mae": 2.347,
+      "direction_acc": 0.7959
+    },
+    "Supply chain analyst at a logistics company": {
+      "count": 50,
+      "mae": 3.062,
+      "direction_acc": 0.36
+    },
+    "UX Designer at a consumer electronics company": {
+      "count": 50,
+      "mae": 4.076,
+      "direction_acc": 0.4
+    },
+    "Undeclared sophomore at University of Chicago": {
+      "count": 47,
+      "mae": 3.491,
+      "direction_acc": 0.2766
+    }
+  },
+  "worst_disagreements": [
+    {
+      "profile": "Professional bonsai artist and competition judge",
+      "predicted": 8.9,
+      "ground_truth": 0.0,
+      "delta": 8.9,
+      "title": "The 2nm AI War Begins: AMD's MI400 and the Bold Strategy to ..."
+    },
+    {
+      "profile": "Finance & Accounting student at GUST Kuwait",
+      "predicted": 8.5,
+      "ground_truth": 0.0,
+      "delta": 8.5,
+      "title": "Willkommen in Bern - Bern Welcome"
+    },
+    {
+      "profile": "Digital marketing manager at a K-pop entertainment agency",
+      "predicted": 8.5,
+      "ground_truth": 0.0,
+      "delta": 8.5,
+      "title": "Call for Abstracts - My Goldschmidt"
+    },
+    {
+      "profile": "Digital marketing manager at a K-pop entertainment agency",
+      "predicted": 8.5,
+      "ground_truth": 0.0,
+      "delta": 8.5,
+      "title": "Willkommen in Bern - Bern Welcome"
+    },
+    {
+      "profile": "Digital marketing manager at a K-pop entertainment agency",
+      "predicted": 8.5,
+      "ground_truth": 0.0,
+      "delta": 8.5,
+      "title": "World-First EXO 001 Exosome Platform Enables In Vivo Multi-Target ..."
+    },
+    {
+      "profile": "Agricultural commodities trader",
+      "predicted": 8.5,
+      "ground_truth": 0.0,
+      "delta": 8.5,
+      "title": "Best foreign job search platform - Sajhajobs"
+    },
+    {
+      "profile": "Digital marketing manager at a K-pop entertainment agency",
+      "predicted": 8.5,
+      "ground_truth": 0.0,
+      "delta": 8.5,
+      "title": "Best foreign job search platform - Sajhajobs"
+    },
+    {
+      "profile": "Digital marketing manager at a K-pop entertainment agency",
+      "predicted": 8.5,
+      "ground_truth": 0.0,
+      "delta": 8.5,
+      "title": "Dark Oxygen, Singing Dunes, Uphill Rivers: 9 \u201cImpossible\u201d Things ..."
+    },
+    {
+      "profile": "Independent documentary filmmaker",
+      "predicted": 8.5,
+      "ground_truth": 0.0,
+      "delta": 8.5,
+      "title": "Ultrapure Water Resin Market Investment: Regional Overview & Size ..."
+    },
+    {
+      "profile": "Independent documentary filmmaker",
+      "predicted": 8.5,
+      "ground_truth": 0.0,
+      "delta": 8.5,
+      "title": "SouthernSun Sold TREX Company (TREX) for More Attractive Opportunities"
+    }
+  ],
+  "model": "stratos-scorer-v2.1",
+  "eval_file": "data/v2_pipeline/eval_holdout_v2.jsonl",
+  "temperature": 0.1,
+  "elapsed_seconds": 1348.4,
+  "timestamp": "2026-03-07T04:39:12"
+}

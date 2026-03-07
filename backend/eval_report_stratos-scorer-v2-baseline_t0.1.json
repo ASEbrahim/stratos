@@ -1,0 +1,261 @@
+{
+  "total_samples": 1425,
+  "parse_failures": 75,
+  "mae": 1.544,
+  "rmse": 2.131,
+  "direction_accuracy": 0.9172,
+  "spearman_rho": 0.5545,
+  "agreement_pct_1pt": 53.4,
+  "agreement_pct_2pt": 81.1,
+  "band_breakdown": {
+    "noise": {
+      "count": 1157,
+      "mae": 1.384
+    },
+    "tangential": {
+      "count": 167,
+      "mae": 2.025
+    },
+    "moderate": {
+      "count": 50,
+      "mae": 2.74
+    },
+    "high": {
+      "count": 42,
+      "mae": 2.688
+    },
+    "critical": {
+      "count": 9,
+      "mae": 1.111
+    }
+  },
+  "profile_breakdown": {
+    "Agricultural commodities trader": {
+      "count": 50,
+      "mae": 1.19,
+      "direction_acc": 0.98
+    },
+    "Architect working on smart city infrastructure projects": {
+      "count": 49,
+      "mae": 1.814,
+      "direction_acc": 0.8367
+    },
+    "Biotech researcher at KAUST studying gene therapy": {
+      "count": 48,
+      "mae": 1.094,
+      "direction_acc": 0.9792
+    },
+    "CTO of a mobile payments startup": {
+      "count": 48,
+      "mae": 1.625,
+      "direction_acc": 0.8542
+    },
+    "Computer Engineering student at American University of Kuwait": {
+      "count": 49,
+      "mae": 2.418,
+      "direction_acc": 0.7551
+    },
+    "Corporate lawyer at a major law firm": {
+      "count": 49,
+      "mae": 1.949,
+      "direction_acc": 0.898
+    },
+    "Cybersecurity analyst at a Kuwaiti bank": {
+      "count": 47,
+      "mae": 1.723,
+      "direction_acc": 0.8936
+    },
+    "Data Scientist at a Dubai fintech startup": {
+      "count": 48,
+      "mae": 1.454,
+      "direction_acc": 0.8958
+    },
+    "Digital marketing manager at a K-pop entertainment agency": {
+      "count": 49,
+      "mae": 1.759,
+      "direction_acc": 0.9592
+    },
+    "Emergency department nurse practitioner": {
+      "count": 48,
+      "mae": 1.171,
+      "direction_acc": 0.9792
+    },
+    "Executive chef and restaurant owner": {
+      "count": 48,
+      "mae": 0.827,
+      "direction_acc": 1.0
+    },
+    "Finance & Accounting student at GUST Kuwait": {
+      "count": 50,
+      "mae": 1.826,
+      "direction_acc": 0.82
+    },
+    "HVAC technician and small business owner": {
+      "count": 44,
+      "mae": 1.72,
+      "direction_acc": 0.9091
+    },
+    "Hospital pharmacist specializing": {
+      "count": 48,
+      "mae": 1.088,
+      "direction_acc": 1.0
+    },
+    "Independent documentary filmmaker": {
+      "count": 47,
+      "mae": 1.557,
+      "direction_acc": 0.9362
+    },
+    "Indie game developer and studio founder": {
+      "count": 47,
+      "mae": 1.43,
+      "direction_acc": 0.9787
+    },
+    "Marine electrician on offshore wind vessels": {
+      "count": 44,
+      "mae": 1.261,
+      "direction_acc": 0.9773
+    },
+    "Mechanical Engineering fresh graduate seeking NEOM/Aramco roles": {
+      "count": 50,
+      "mae": 2.204,
+      "direction_acc": 0.78
+    },
+    "Mining engineer at a copper mine": {
+      "count": 49,
+      "mae": 1.051,
+      "direction_acc": 0.9592
+    },
+    "Pediatric oncologist at King Faisal Specialist Hospital": {
+      "count": 44,
+      "mae": 1.227,
+      "direction_acc": 1.0
+    },
+    "Petroleum Engineering student at Kuwait University": {
+      "count": 50,
+      "mae": 1.19,
+      "direction_acc": 0.96
+    },
+    "Pipeline welder and CWB-certified inspector": {
+      "count": 41,
+      "mae": 1.946,
+      "direction_acc": 0.9268
+    },
+    "Professional bonsai artist and competition judge": {
+      "count": 42,
+      "mae": 1.338,
+      "direction_acc": 1.0
+    },
+    "Retired IT consultant": {
+      "count": 48,
+      "mae": 2.212,
+      "direction_acc": 0.8542
+    },
+    "Retired UN diplomat and policy consultant": {
+      "count": 41,
+      "mae": 1.846,
+      "direction_acc": 0.8049
+    },
+    "Senior geophysicist at KOC": {
+      "count": 49,
+      "mae": 1.459,
+      "direction_acc": 0.9388
+    },
+    "Sports physiotherapist at a professional rugby club": {
+      "count": 49,
+      "mae": 1.212,
+      "direction_acc": 0.9796
+    },
+    "Supply chain analyst at a logistics company": {
+      "count": 50,
+      "mae": 0.974,
+      "direction_acc": 0.94
+    },
+    "UX Designer at a consumer electronics company": {
+      "count": 49,
+      "mae": 2.061,
+      "direction_acc": 0.8776
+    },
+    "Undeclared sophomore at University of Chicago": {
+      "count": 50,
+      "mae": 1.7,
+      "direction_acc": 0.86
+    }
+  },
+  "worst_disagreements": [
+    {
+      "profile": "Sports physiotherapist at a professional rugby club",
+      "predicted": 10.2,
+      "ground_truth": 0.0,
+      "delta": 10.2,
+      "title": "SouthernSun Sold TREX Company (TREX) for More Attractive Opportunities"
+    },
+    {
+      "profile": "Independent documentary filmmaker",
+      "predicted": 10.5,
+      "ground_truth": 1.0,
+      "delta": 9.5,
+      "title": "Best foreign job search platform - Sajhajobs"
+    },
+    {
+      "profile": "Finance & Accounting student at GUST Kuwait",
+      "predicted": 8.5,
+      "ground_truth": 0.5,
+      "delta": 8.0,
+      "title": "Call for Abstracts - My Goldschmidt"
+    },
+    {
+      "profile": "Computer Engineering student at American University of Kuwait",
+      "predicted": 8.5,
+      "ground_truth": 0.5,
+      "delta": 8.0,
+      "title": "World-First EXO 001 Exosome Platform Enables In Vivo Multi-Target ..."
+    },
+    {
+      "profile": "UX Designer at a consumer electronics company",
+      "predicted": 8.5,
+      "ground_truth": 0.5,
+      "delta": 8.0,
+      "title": "Software & Standards for Smart Networks & Services 2026"
+    },
+    {
+      "profile": "Digital marketing manager at a K-pop entertainment agency",
+      "predicted": 8.5,
+      "ground_truth": 0.5,
+      "delta": 8.0,
+      "title": "The 2nm AI War Begins: AMD's MI400 and the Bold Strategy to ..."
+    },
+    {
+      "profile": "HVAC technician and small business owner",
+      "predicted": 8.5,
+      "ground_truth": 0.5,
+      "delta": 8.0,
+      "title": "Call for Abstracts - My Goldschmidt"
+    },
+    {
+      "profile": "Retired IT consultant",
+      "predicted": 8.5,
+      "ground_truth": 0.5,
+      "delta": 8.0,
+      "title": "Call for Abstracts - My Goldschmidt"
+    },
+    {
+      "profile": "Corporate lawyer at a major law firm",
+      "predicted": 8.5,
+      "ground_truth": 0.5,
+      "delta": 8.0,
+      "title": "Call for Abstracts - My Goldschmidt"
+    },
+    {
+      "profile": "Computer Engineering student at American University of Kuwait",
+      "predicted": 8.5,
+      "ground_truth": 1.0,
+      "delta": 7.5,
+      "title": "Why Modular Construction Is the Future of Smart Homebuilding and ..."
+    }
+  ],
+  "model": "stratos-scorer-v2-baseline",
+  "eval_file": "data/v2_pipeline/eval_holdout_v2.jsonl",
+  "temperature": 0.1,
+  "elapsed_seconds": 1384.5,
+  "timestamp": "2026-03-07T03:52:58"
+}

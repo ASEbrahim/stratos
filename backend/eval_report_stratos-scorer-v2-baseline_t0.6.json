@@ -1,0 +1,261 @@
+{
+  "total_samples": 1381,
+  "parse_failures": 119,
+  "mae": 1.745,
+  "rmse": 2.459,
+  "direction_accuracy": 0.8776,
+  "spearman_rho": 0.5271,
+  "agreement_pct_1pt": 50.3,
+  "agreement_pct_2pt": 76.0,
+  "band_breakdown": {
+    "noise": {
+      "count": 1123,
+      "mae": 1.629
+    },
+    "tangential": {
+      "count": 161,
+      "mae": 2.155
+    },
+    "moderate": {
+      "count": 49,
+      "mae": 2.48
+    },
+    "high": {
+      "count": 39,
+      "mae": 2.238
+    },
+    "critical": {
+      "count": 9,
+      "mae": 2.667
+    }
+  },
+  "profile_breakdown": {
+    "Agricultural commodities trader": {
+      "count": 49,
+      "mae": 1.263,
+      "direction_acc": 0.9388
+    },
+    "Architect working on smart city infrastructure projects": {
+      "count": 47,
+      "mae": 1.715,
+      "direction_acc": 0.9149
+    },
+    "Biotech researcher at KAUST studying gene therapy": {
+      "count": 48,
+      "mae": 1.494,
+      "direction_acc": 0.9375
+    },
+    "CTO of a mobile payments startup": {
+      "count": 47,
+      "mae": 1.86,
+      "direction_acc": 0.766
+    },
+    "Computer Engineering student at American University of Kuwait": {
+      "count": 47,
+      "mae": 2.538,
+      "direction_acc": 0.7447
+    },
+    "Corporate lawyer at a major law firm": {
+      "count": 46,
+      "mae": 2.026,
+      "direction_acc": 0.913
+    },
+    "Cybersecurity analyst at a Kuwaiti bank": {
+      "count": 49,
+      "mae": 2.269,
+      "direction_acc": 0.7551
+    },
+    "Data Scientist at a Dubai fintech startup": {
+      "count": 46,
+      "mae": 1.228,
+      "direction_acc": 0.913
+    },
+    "Digital marketing manager at a K-pop entertainment agency": {
+      "count": 45,
+      "mae": 1.987,
+      "direction_acc": 0.9111
+    },
+    "Emergency department nurse practitioner": {
+      "count": 46,
+      "mae": 1.265,
+      "direction_acc": 0.9565
+    },
+    "Executive chef and restaurant owner": {
+      "count": 48,
+      "mae": 0.902,
+      "direction_acc": 1.0
+    },
+    "Finance & Accounting student at GUST Kuwait": {
+      "count": 48,
+      "mae": 1.96,
+      "direction_acc": 0.8333
+    },
+    "HVAC technician and small business owner": {
+      "count": 47,
+      "mae": 1.887,
+      "direction_acc": 0.8936
+    },
+    "Hospital pharmacist specializing": {
+      "count": 44,
+      "mae": 1.232,
+      "direction_acc": 0.9773
+    },
+    "Independent documentary filmmaker": {
+      "count": 45,
+      "mae": 1.896,
+      "direction_acc": 0.8889
+    },
+    "Indie game developer and studio founder": {
+      "count": 45,
+      "mae": 2.024,
+      "direction_acc": 0.8667
+    },
+    "Marine electrician on offshore wind vessels": {
+      "count": 44,
+      "mae": 1.243,
+      "direction_acc": 0.9545
+    },
+    "Mechanical Engineering fresh graduate seeking NEOM/Aramco roles": {
+      "count": 48,
+      "mae": 2.337,
+      "direction_acc": 0.6875
+    },
+    "Mining engineer at a copper mine": {
+      "count": 48,
+      "mae": 1.517,
+      "direction_acc": 0.8958
+    },
+    "Pediatric oncologist at King Faisal Specialist Hospital": {
+      "count": 41,
+      "mae": 1.449,
+      "direction_acc": 0.9512
+    },
+    "Petroleum Engineering student at Kuwait University": {
+      "count": 48,
+      "mae": 1.315,
+      "direction_acc": 0.9167
+    },
+    "Pipeline welder and CWB-certified inspector": {
+      "count": 41,
+      "mae": 2.28,
+      "direction_acc": 0.8537
+    },
+    "Professional bonsai artist and competition judge": {
+      "count": 40,
+      "mae": 1.302,
+      "direction_acc": 1.0
+    },
+    "Retired IT consultant": {
+      "count": 47,
+      "mae": 2.664,
+      "direction_acc": 0.7872
+    },
+    "Retired UN diplomat and policy consultant": {
+      "count": 42,
+      "mae": 1.664,
+      "direction_acc": 0.8571
+    },
+    "Senior geophysicist at KOC": {
+      "count": 48,
+      "mae": 1.769,
+      "direction_acc": 0.8542
+    },
+    "Sports physiotherapist at a professional rugby club": {
+      "count": 45,
+      "mae": 1.313,
+      "direction_acc": 0.9778
+    },
+    "Supply chain analyst at a logistics company": {
+      "count": 47,
+      "mae": 1.457,
+      "direction_acc": 0.8723
+    },
+    "UX Designer at a consumer electronics company": {
+      "count": 46,
+      "mae": 2.467,
+      "direction_acc": 0.7826
+    },
+    "Undeclared sophomore at University of Chicago": {
+      "count": 49,
+      "mae": 1.929,
+      "direction_acc": 0.7755
+    }
+  },
+  "worst_disagreements": [
+    {
+      "profile": "Sports physiotherapist at a professional rugby club",
+      "predicted": 10.3,
+      "ground_truth": 0.5,
+      "delta": 9.8,
+      "title": "EU Chief Reaffirms EU's Unwavering Support For Ukraine"
+    },
+    {
+      "profile": "Mechanical Engineering fresh graduate seeking NEOM/Aramco roles",
+      "predicted": 10.5,
+      "ground_truth": 1.0,
+      "delta": 9.5,
+      "title": "Swastika Blog - Share Market Updates, Latest News and Expert & Tips"
+    },
+    {
+      "profile": "Digital marketing manager at a K-pop entertainment agency",
+      "predicted": 9.2,
+      "ground_truth": 0.5,
+      "delta": 8.7,
+      "title": "D-Wave: The First Quantum Company To Go Post-NISQ (NYSE:QBTS)"
+    },
+    {
+      "profile": "Cybersecurity analyst at a Kuwaiti bank",
+      "predicted": 10.5,
+      "ground_truth": 2.0,
+      "delta": 8.5,
+      "title": "We're looking for talented professionals ..."
+    },
+    {
+      "profile": "Digital marketing manager at a K-pop entertainment agency",
+      "predicted": 8.5,
+      "ground_truth": 0.0,
+      "delta": 8.5,
+      "title": "Call for Abstracts - My Goldschmidt"
+    },
+    {
+      "profile": "Pediatric oncologist at King Faisal Specialist Hospital",
+      "predicted": 8.5,
+      "ground_truth": 0.0,
+      "delta": 8.5,
+      "title": "We're looking for talented professionals ..."
+    },
+    {
+      "profile": "Indie game developer and studio founder",
+      "predicted": 8.5,
+      "ground_truth": 0.0,
+      "delta": 8.5,
+      "title": "SouthernSun Sold TREX Company (TREX) for More Attractive Opportunities"
+    },
+    {
+      "profile": "Retired IT consultant",
+      "predicted": 9.5,
+      "ground_truth": 1.0,
+      "delta": 8.5,
+      "title": "2026: The year IoT became core infrastructure - The Journal News"
+    },
+    {
+      "profile": "Finance & Accounting student at GUST Kuwait",
+      "predicted": 8.5,
+      "ground_truth": 0.5,
+      "delta": 8.0,
+      "title": "Call for Abstracts - My Goldschmidt"
+    },
+    {
+      "profile": "Petroleum Engineering student at Kuwait University",
+      "predicted": 8.5,
+      "ground_truth": 0.5,
+      "delta": 8.0,
+      "title": "Software & Standards for Smart Networks & Services 2026"
+    }
+  ],
+  "model": "stratos-scorer-v2-baseline",
+  "eval_file": "data/v2_pipeline/eval_holdout_v2.jsonl",
+  "temperature": 0.6,
+  "elapsed_seconds": 1419.4,
+  "timestamp": "2026-03-07T04:16:37"
+}
