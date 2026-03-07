@@ -1,27 +1,27 @@
 {
-  "train_examples": 19000,
-  "eval_examples": 3809,
-  "contrastive_pairs": 71694,
-  "sparse_rejects": 0,
-  "train_file_kb": 43038.0625,
-  "eval_file_kb": 8551.0908203125,
+  "train_examples": 11785,
+  "eval_examples": 1296,
+  "contrastive_pairs": 21862,
+  "rejected": 2,
+  "train_file_kb": 19266.6796875,
+  "eval_file_kb": 2091.451171875,
   "band_distribution": {
     "train": {
-      "noise": 17255,
-      "tangential": 1125,
-      "high": 175,
-      "moderate": 344,
-      "critical": 101
+      "noise": 8121,
+      "high": 363,
+      "critical": 201,
+      "tangential": 2353,
+      "moderate": 747
     },
     "eval": {
-      "noise": 3448,
-      "critical": 35,
-      "high": 43,
-      "tangential": 210,
-      "moderate": 73
+      "noise": 879,
+      "high": 50,
+      "critical": 38,
+      "tangential": 247,
+      "moderate": 82
     }
   },
-  "profiles_in_train": 47,
-  "profiles_in_eval": 47,
-  "profiles_in_both": 47
+  "profiles_in_train": 50,
+  "profiles_in_eval": 50,
+  "profiles_in_both": 50
 }
