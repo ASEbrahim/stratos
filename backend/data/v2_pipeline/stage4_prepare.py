@@ -36,6 +36,8 @@ HOLDOUT_FILE = OUTPUT_DIR / "eval_holdout_v2.jsonl"
 HOLDOUT_ARTICLES_FILE = OUTPUT_DIR / "holdout_articles.json"
 CONTRASTIVE_FILE = OUTPUT_DIR / "contrastive_pairs_v2.json"
 REPORT_FILE = OUTPUT_DIR / "stage4_report.json"
+EXPANSION_SCORES_FILE = OUTPUT_DIR / "expansion_scores.json"
+EXPANSION_ARTICLES_FILE = OUTPUT_DIR / "expansion_articles.json"
 
 # Fraction of articles to reserve for holdout (article-level, not example-level)
 HOLDOUT_ARTICLE_FRACTION = 0.06  # ~50 articles from 813
@@ -106,6 +108,7 @@ Tracked institutions: {institutions}
 Tracked interests: {interests if interests else 'None specified'}
 Tracked industries: {industries}
 {level_note}
+LANGUAGE: Articles must be in English. Other languages score 0.0-2.0.
 
 Score each article 0.0-10.0:
 9-10: Directly actionable (hiring match, breakthrough in tracked area)
@@ -117,9 +120,10 @@ Reply ONLY with: SCORE: X.X | REASON: brief explanation"""
 
     title = article.get('title', '')[:200]
     content = article.get('summary', '')[:500]
+    category = article.get('category', 'general') or 'general'
 
     user_message = f"""Score this article:
-Category: general
+Category: {category}
 Keywords: {interests}
 Title: {title}
 Content: {content}"""
@@ -182,18 +186,34 @@ def main():
     article_map = {a.get('id', ''): a for a in articles}
     print(f"Loaded {len(scored_examples)} scored examples, {len(articles)} articles")
 
-    # ── 1. Filter sparse reasoning ──
+    # Load expansion data (V2.2 Gemini-scored articles)
+    if EXPANSION_SCORES_FILE.exists() and EXPANSION_ARTICLES_FILE.exists():
+        with open(EXPANSION_SCORES_FILE) as f:
+            expansion_scores = json.load(f)
+        with open(EXPANSION_ARTICLES_FILE) as f:
+            expansion_articles = json.load(f)
+        for a in expansion_articles:
+            if a.get('id') and a['id'] not in article_map:
+                article_map[a['id']] = a
+        scored_examples.extend(expansion_scores)
+        print(f"Added {len(expansion_scores)} expansion scores, {len(expansion_articles)} expansion articles")
+        print(f"Total: {len(scored_examples)} scored examples, {len(article_map)} articles")
+
+    # ── 1. Filter invalid scores ──
     valid = []
-    sparse_rejects = 0
+    rejected = 0
     for s in scored_examples:
-        if s.get('think_tokens', 0) < 20:
-            sparse_rejects += 1
-            continue
         if s['score'] < 0 or s['score'] > 10:
+            rejected += 1
+            continue
+        # Require a reason (but don't require think_tokens — expansion data lacks it)
+        reason = s.get('reason', '')
+        if not reason or len(reason) < 3:
+            rejected += 1
             continue
         valid.append(s)
 
-    print(f"After sparse reasoning filter: {len(valid)} (rejected {sparse_rejects})")
+    print(f"After validation filter: {len(valid)} (rejected {rejected})")
 
     # ── 2. Loss weighting ──
     for s in valid:
@@ -202,11 +222,21 @@ def main():
         s['weight'] = LOSS_WEIGHTS[band]
 
     band_dist = Counter(s['band'] for s in valid)
-    print(f"\nScore band distribution:")
+    print(f"\nScore band distribution (before noise cap):")
     for band in ['noise', 'tangential', 'moderate', 'high', 'critical']:
         count = band_dist.get(band, 0)
         pct = count / max(len(valid), 1) * 100
         print(f"  {band:>12}: {count:>6} ({pct:>5.1f}%) weight={LOSS_WEIGHTS[band]}")
+
+    # ── 2b. Noise cap ──
+    NOISE_CAP = 9000
+    noise_examples = [s for s in valid if s['band'] == 'noise']
+    non_noise = [s for s in valid if s['band'] != 'noise']
+    if len(noise_examples) > NOISE_CAP:
+        random.shuffle(noise_examples)
+        noise_examples = noise_examples[:NOISE_CAP]
+        print(f"\nCapped noise band: {band_dist.get('noise', 0)} → {NOISE_CAP}")
+    valid = non_noise + noise_examples
 
     # ── 3. Contrastive pair extraction ──
     scored_by_article = defaultdict(list)
@@ -362,7 +392,7 @@ def main():
     print(f"Total training examples: {len(train_jsonl)}")
     print(f"Total eval examples: {len(eval_jsonl)}")
     print(f"Total contrastive pairs: {len(contrastive_pairs)}")
-    print(f"Sparse reasoning rejects: {sparse_rejects}")
+    print(f"Sparse reasoning rejects: {rejected}")
     print(f"Training file size: {TRAIN_FILE.stat().st_size / 1024:.0f} KB")
     print(f"Eval file size: {EVAL_FILE.stat().st_size / 1024:.0f} KB")
     print(f"\nScore distribution (Train vs Eval):")
@@ -385,7 +415,7 @@ def main():
         "train_examples": len(train_jsonl),
         "eval_examples": len(eval_jsonl),
         "contrastive_pairs": len(contrastive_pairs),
-        "sparse_rejects": sparse_rejects,
+        "rejected": rejected,
         "train_file_kb": TRAIN_FILE.stat().st_size / 1024,
         "eval_file_kb": EVAL_FILE.stat().st_size / 1024,
         "band_distribution": {

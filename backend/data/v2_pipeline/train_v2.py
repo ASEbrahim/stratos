@@ -42,6 +42,7 @@ os.environ.setdefault("PYTORCH_HIP_ALLOC_CONF", "expandable_segments:True")
 # ═══════════════════════════════════════════════════════════════════
 BASE_DIR = Path(__file__).resolve().parent.parent.parent  # backend/
 V1_MERGED_BASE = BASE_DIR / "data" / "v2_pipeline" / "v1_merged_base"
+QWEN35_9B_BASE = BASE_DIR / "data" / "v2_pipeline" / "qwen35_9b_base"
 TRAINING_FILE = BASE_DIR / "data" / "v2_pipeline" / "training_v2.jsonl"
 EVAL_FILE = BASE_DIR / "data" / "v2_pipeline" / "eval_v2.jsonl"
 OUTPUT_DIR = BASE_DIR / "data" / "v2_pipeline" / "training_output"
@@ -53,7 +54,7 @@ FINAL_CHECKPOINT = OUTPUT_DIR / "final_checkpoint"
 LORA_R = 16
 LORA_ALPHA = 32
 LORA_DROPOUT = 0.05
-MAX_SEQ_LENGTH = 1024
+MAX_SEQ_LENGTH = 512     # V2.2: 512 (all examples <458 tokens). V2 used 1024.
 LEARNING_RATE = 1e-5     # Lower than V1's 2e-5 — fine-tuning, not from scratch
 GRAD_ACCUM = 8
 WARMUP_RATIO = 0.05
@@ -327,15 +328,17 @@ def run_phase2(batch_size=4, dry_run=False):
     # ── Load tokenizer ──
     tokenizer = AutoTokenizer.from_pretrained(str(V1_MERGED_BASE), trust_remote_code=True)
 
-    # v19 CRITICAL: Qwen3 eos_token fix
+    # Set eos_token to <|im_end|> for ChatML training
     tokenizer.eos_token = "<|im_end|>"
     tokenizer.eos_token_id = tokenizer.convert_tokens_to_ids("<|im_end|>")
     logger.info("Set eos_token = <|im_end|> (id=%d)", tokenizer.eos_token_id)
 
-    if tokenizer.pad_token_id != 151643:
-        tokenizer.pad_token_id = 151643
-        tokenizer.pad_token = tokenizer.convert_ids_to_tokens(151643)
-        logger.info("Set pad_token_id = 151643 (endoftext)")
+    # Set pad_token to <|endoftext|> (works for both Qwen3 and Qwen3.5)
+    endoftext_id = tokenizer.convert_tokens_to_ids("<|endoftext|>")
+    if tokenizer.pad_token_id != endoftext_id:
+        tokenizer.pad_token_id = endoftext_id
+        tokenizer.pad_token = tokenizer.convert_ids_to_tokens(endoftext_id)
+        logger.info("Set pad_token_id = %d (endoftext)", endoftext_id)
 
     # ── Load model in bf16 ──
     logger.info("Loading V1 merged base in bfloat16...")
@@ -918,9 +921,10 @@ def run_phase3(training_loss=None, training_time=None):
     tokenizer = AutoTokenizer.from_pretrained(str(V1_MERGED_BASE), trust_remote_code=True)
     tokenizer.eos_token = "<|im_end|>"
     tokenizer.eos_token_id = tokenizer.convert_tokens_to_ids("<|im_end|>")
-    if tokenizer.pad_token_id != 151643:
-        tokenizer.pad_token_id = 151643
-        tokenizer.pad_token = tokenizer.convert_ids_to_tokens(151643)
+    endoftext_id = tokenizer.convert_tokens_to_ids("<|endoftext|>")
+    if tokenizer.pad_token_id != endoftext_id:
+        tokenizer.pad_token_id = endoftext_id
+        tokenizer.pad_token = tokenizer.convert_ids_to_tokens(endoftext_id)
 
     model = AutoModelForCausalLM.from_pretrained(
         str(V1_MERGED_BASE),
@@ -1080,10 +1084,12 @@ def main():
     parser.add_argument("--training-file", type=str, default=None, help="Custom training JSONL path (default: V2 data)")
     parser.add_argument("--eval-file", type=str, default=None, help="Custom eval JSONL path (default: V2 eval)")
     parser.add_argument("--output-dir", type=str, default=None, help="Custom output directory")
+    parser.add_argument("--base-model", type=str, default=None,
+                        help="Base model path. Default: v1_merged_base. Use 'qwen35' for Qwen3.5-9B.")
     args = parser.parse_args()
 
     # Override paths if custom data provided (for V3 training)
-    global TRAINING_FILE, EVAL_FILE, OUTPUT_DIR, FINAL_CHECKPOINT
+    global TRAINING_FILE, EVAL_FILE, OUTPUT_DIR, FINAL_CHECKPOINT, V1_MERGED_BASE
     if args.training_file:
         TRAINING_FILE = Path(args.training_file)
     if args.eval_file:
@@ -1092,6 +1098,13 @@ def main():
         OUTPUT_DIR = Path(args.output_dir)
         OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
         FINAL_CHECKPOINT = OUTPUT_DIR / "final_checkpoint"
+    if args.base_model:
+        if args.base_model == 'qwen35':
+            V1_MERGED_BASE = QWEN35_9B_BASE
+            logger.info("Using Qwen3.5-9B base model: %s", V1_MERGED_BASE)
+        else:
+            V1_MERGED_BASE = Path(args.base_model)
+            logger.info("Using custom base model: %s", V1_MERGED_BASE)
 
     training_loss = None
     training_time = None

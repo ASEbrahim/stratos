@@ -74,6 +74,36 @@ AGENT_TOOLS = [
     {
         "type": "function",
         "function": {
+            "name": "search_feed",
+            "description": "Search the user's scored news feed history. Use when the user asks about past articles, what scored highest, what they missed, or wants to find articles about a specific topic. Examples: 'what scored highest this week', 'articles about NVIDIA', 'what did I miss yesterday', 'show me dismissed articles about oil'.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "action": {
+                        "type": "string",
+                        "enum": ["search", "top_signals", "daily_summary"],
+                        "description": "search = keyword search in past articles, top_signals = highest-scoring articles, daily_summary = signal counts by day"
+                    },
+                    "query": {
+                        "type": "string",
+                        "description": "Search keyword(s) for 'search' action. Not needed for top_signals/daily_summary."
+                    },
+                    "days": {
+                        "type": "integer",
+                        "description": "How many days back to search. Default: 7"
+                    },
+                    "min_score": {
+                        "type": "number",
+                        "description": "Minimum score filter for top_signals. Default: 7.0"
+                    }
+                },
+                "required": ["action"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
             "name": "manage_categories",
             "description": "View, modify, or toggle the user's news feed categories and their search keywords. Use when the user asks about categories, wants to add/remove search terms, or enable/disable a category. Understand natural language: 'what topics am I tracking' = list, 'add Ethereum to crypto' = add_keyword, 'turn off oil and gas' = disable.",
             "parameters": {
@@ -105,11 +135,13 @@ AGENT_TOOLS = [
 # TOOL EXECUTION
 # ═══════════════════════════════════════════════════════════
 
-def _execute_tool(tool_name, args, strat):
+def _execute_tool(tool_name, args, strat, profile_id=0):
     """Execute a tool call and return the result string."""
     try:
         if tool_name == "web_search":
             return _tool_web_search(args, strat)
+        elif tool_name == "search_feed":
+            return _tool_search_feed(args, strat, profile_id=profile_id)
         elif tool_name == "manage_watchlist":
             return _tool_manage_watchlist(args, strat)
         elif tool_name == "manage_categories":
@@ -186,7 +218,7 @@ def _try_parse_tool_json(text: str) -> dict:
         data = json.loads(text)
         name = data.get("name", "")
         arguments = data.get("arguments", data.get("parameters", {}))
-        if name and name in ("web_search", "manage_watchlist", "manage_categories"):
+        if name and name in ("web_search", "search_feed", "manage_watchlist", "manage_categories"):
             if isinstance(arguments, str):
                 try:
                     arguments = json.loads(arguments)
@@ -239,6 +271,39 @@ def _tool_web_search(args, strat):
         return f"Search: '{query}' ({len(results)} results, {remaining} left):\n\n" + "\n\n".join(lines)
     except Exception as e:
         return f"Search failed: {e}"
+
+
+def _tool_search_feed(args, strat, profile_id=0):
+    action = args.get("action", "search")
+    days = int(args.get("days", 7))
+    db = strat.db
+
+    if action == "search":
+        query = args.get("query", "").strip()
+        if not query:
+            return "Error: No search query provided."
+        results = db.search_news_history(query, days=days, limit=15, profile_id=profile_id)
+        if not results:
+            return f"No articles matching '{query}' in the past {days} days."
+        lines = [f"{i}. [{r.get('score',0):.1f}] {r.get('title','')[:80]} ({r.get('category','')}, {r.get('fetched_at','')[:10]})\n   {r.get('score_reason','')[:120]}" for i, r in enumerate(results, 1)]
+        return f"Feed search '{query}' ({len(results)} results, past {days}d):\n\n" + "\n\n".join(lines)
+
+    if action == "top_signals":
+        min_score = float(args.get("min_score", 7.0))
+        results = db.get_top_signals(days=days, min_score=min_score, limit=15, profile_id=profile_id)
+        if not results:
+            return f"No signals scoring above {min_score} in the past {days} days."
+        lines = [f"{i}. [{r.get('score',0):.1f}] {r.get('title','')[:80]} ({r.get('category','')}, {r.get('fetched_at','')[:10]})\n   {r.get('score_reason','')[:120]}" for i, r in enumerate(results, 1)]
+        return f"Top signals (>={min_score}, past {days}d, {len(results)} results):\n\n" + "\n\n".join(lines)
+
+    if action == "daily_summary":
+        results = db.get_daily_signal_counts(days=days, profile_id=profile_id)
+        if not results:
+            return f"No scan data in the past {days} days."
+        lines = [f"  {d.get('day','?')}: {d.get('total',0)} total, {d.get('critical',0)} critical, {d.get('high',0)} high, {d.get('medium',0)} medium" for d in results]
+        return f"Daily signal summary (past {days}d):\n" + "\n".join(lines)
+
+    return f"Unknown action: {action}"
 
 
 def _tool_manage_watchlist(args, strat):
@@ -419,8 +484,9 @@ CATEGORIES: {cat_summary or '(none)'}
 
 TOOLS:
 1. {search_note}
-2. manage_watchlist — add/remove/list tickers. Understand natural language: "track Tesla" = add TSLA, "stop following gold" = remove GC=F, "what's on my watchlist" = list.
-3. manage_categories — add/remove keywords, list/toggle categories. "add Ethereum to crypto" = add_keyword, "what topics am I tracking" = list, "show me what's in hardware" = show_keywords.
+2. search_feed — search your scored news feed history. "what scored highest this week" = top_signals, "articles about NVIDIA" = search, "daily summary" = daily_summary. Shows scores, reasons, and dates.
+3. manage_watchlist — add/remove/list tickers. "track Tesla" = add TSLA, "stop following gold" = remove GC=F, "what's on my watchlist" = list.
+4. manage_categories — add/remove keywords, list/toggle categories. "add Ethereum to crypto" = add_keyword, "what topics am I tracking" = list, "show me what's in hardware" = show_keywords.
 
 RULES:
 - Be concise. Lead with the most actionable insight. Use bullet points for multiple items. Keep total response under 200 words unless the user explicitly asks for detail.
@@ -557,7 +623,7 @@ HISTORICAL DATA:
                         args = {}
                 logger.info(f"Agent tool: {name}({json.dumps(args)[:200]})")
                 sse_event(handler, {"status": f"🔍 {name}..." if name == "web_search" else f"⚙️ {name}..."})
-                result = _execute_tool(name, args, strat)
+                result = _execute_tool(name, args, strat, profile_id=profile_id)
                 messages.append({"role": "tool", "content": result})
 
         sse_event(handler, {"error": "Max tool rounds exceeded"})

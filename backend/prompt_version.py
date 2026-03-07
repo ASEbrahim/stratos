@@ -50,8 +50,8 @@ def _normalize_template(text: str) -> str:
     t = re.sub(r'(?<=Title: ).*', '{TITLE}', t)
     t = re.sub(r'(?<=Content: ).*', '{CONTENT}', t, flags=re.DOTALL)
 
-    # Remove runtime-only lines (LANGUAGE, feedback)
-    t = re.sub(r'LANGUAGE:.*\n?', '', t)
+    # Normalize LANGUAGE line (keep structure, replace language name)
+    t = re.sub(r'(?<=LANGUAGE: Articles must be in )\w+', '{LANG}', t)
     # Remove feedback blocks (variable length, runtime-only)
     t = re.sub(r'Recent user feedback.*?(?=\n\n|\nScore each)', '', t, flags=re.DOTALL)
 

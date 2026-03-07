@@ -825,7 +825,7 @@ Reply ONLY with: SCORE: X.X | REASON: brief explanation"""
         tracked = self._tracked_fields_block()
 
         # Core template below MUST match export_training.build_system_prompt character-for-character.
-        # feedback_text and LANGUAGE line are runtime-only additions not present in training data.
+        # feedback_text is a runtime-only addition not present in training data.
         system = f"""You are a relevance scorer for a {role} in {location}.
 User context: {context if context else 'Not specified'}
 {tracked}

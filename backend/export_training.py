@@ -163,6 +163,7 @@ def build_system_prompt(role: str, location: str, context: str,
 User context: {context if context else 'Not specified'}
 {tracked_block}
 {level_note}
+LANGUAGE: Articles must be in English. Other languages score 0.0-2.0.
 
 Score each article 0.0-10.0:
 9-10: Directly actionable (hiring match, breakthrough in tracked area)
