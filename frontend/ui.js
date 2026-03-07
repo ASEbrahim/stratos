@@ -122,6 +122,28 @@ function updateChartTheme() {
     }
 }
 
+function togglePerfMode() {
+    const on = localStorage.getItem('stratos-perf-mode') !== 'true';
+    localStorage.setItem('stratos-perf-mode', on ? 'true' : 'false');
+    updatePerfToggleUI(on);
+    renderStars();
+}
+
+function updatePerfToggleUI(on) {
+    const btn = document.getElementById('perf-toggle');
+    if (!btn) return;
+    const icon = document.getElementById('perf-toggle-icon');
+    const label = document.getElementById('perf-toggle-label');
+    const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
+    if (on) {
+        btn.style.color = accent; btn.style.borderColor = accent + '40'; btn.style.background = accent + '10';
+        if (icon) icon.textContent = '⚡'; if (label) label.textContent = 'Perf';
+    } else {
+        btn.style.color = 'var(--text-muted)'; btn.style.borderColor = 'var(--border-strong)'; btn.style.background = 'transparent';
+        if (icon) icon.textContent = '⚡'; if (label) label.textContent = 'Perf';
+    }
+}
+
 function toggleStars() {
     _lastLocalUiChange = Date.now();
     const starsOn = localStorage.getItem('stratos-stars') !== 'true';
@@ -244,6 +266,7 @@ function renderStars() {
 
     const isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
     const isMobile = window.innerWidth <= 768;
+    const _perfMode = localStorage.getItem('stratos-perf-mode') === 'true';
 
     const theme = document.documentElement.getAttribute('data-theme');
     const isSakura = theme === 'sakura';
@@ -255,13 +278,14 @@ function renderStars() {
     const isNebula = theme === 'nebula';
     const isAurora = theme === 'aurora';
 
+    const _perfMul = _perfMode ? 0.5 : 1;
     const _cosmosDensityInit = isCosmos ? parseFloat(localStorage.getItem('stratos-cosmos-density') || '1') : 1;
     const _sakuraDensityInit = isSakura ? parseFloat(localStorage.getItem('stratos-sakura-density') || '1') : 1;
     const _starsDensityInit = parseFloat(localStorage.getItem('stratos-stars-density') || '1');
-    const COUNT = Math.round((isMobile ? 30 : 200) * _cosmosDensityInit * _sakuraDensityInit * _starsDensityInit);
+    const COUNT = Math.round((isMobile ? 30 : 200) * _cosmosDensityInit * _sakuraDensityInit * _starsDensityInit * _perfMul);
     const MOUSE_RADIUS = 150;
     const LINE_RADIUS = 120;
-    const LINE_MOUSE_RANGE = 240;
+    const LINE_MOUSE_RANGE = _perfMode ? 0 : 240;
     const DRIFT_SPEED_BASE = 0.06;
 
     // Solar system data (cosmos theme only - supports P1 classic & P2 tilted)
@@ -734,7 +758,8 @@ function renderStars() {
     const _bhTierColors = [[200,190,255],[167,139,250],[56,189,248]];
     const _bhParticles = [];
     if (isNebula) {
-        for (let i = 0; i < 400; i++) {
+        const _bhCount = _perfMode ? 150 : 400;
+        for (let i = 0; i < _bhCount; i++) {
             const band = Math.random(), dist = 50 + band * 260;
             const tier = band < 0.2 ? 0 : band < 0.55 ? 1 : 2;
             _bhParticles.push({ angle: Math.random() * Math.PI * 2, dist, speed: (0.06 + Math.random() * 0.14) * (180 / (dist + 30)), r: tier === 0 ? Math.random() * 2.2 + 0.8 : Math.random() * 1.6 + 0.4, a: tier === 0 ? Math.random() * 0.7 + 0.4 : Math.random() * 0.55 + 0.15, yOff: (Math.random() - 0.5) * 5, tier });
@@ -808,7 +833,8 @@ function renderStars() {
     const _binStarB = { r: 16, color: '56,189,248', bright: '200,235,255', glow: '125,211,252' };
     const _binParticles = [];
     if (isAurora) {
-        for (let i = 0; i < 180; i++) {
+        const _binCount = _perfMode ? 80 : 180;
+        for (let i = 0; i < _binCount; i++) {
             const band = Math.random(), dist = 55 + band * 180;
             _binParticles.push({ angle: Math.random() * Math.PI * 2, dist, speed: (0.04 + Math.random() * 0.06) * (120 / (dist + 30)), r: Math.random() * 1.2 + 0.3, a: Math.random() * 0.4 + 0.1, yOff: (Math.random() - 0.5) * 4, colorType: band < 0.4 ? 0 : band < 0.7 ? 1 : 2 });
         }
@@ -868,7 +894,7 @@ function renderStars() {
         const cy = parseFloat(localStorage.getItem(prefix + '-cy') || '0.35');
         const scale = parseFloat(localStorage.getItem(prefix + '-scale') || '1');
         const opacity = parseFloat(localStorage.getItem(prefix + '-opacity') || '1');
-        const blur = parseFloat(localStorage.getItem(prefix + '-blur') || '0');
+        const blur = _perfMode ? 0 : parseFloat(localStorage.getItem(prefix + '-blur') || '0');
         const px = canvas.width * cx, py = canvas.height * cy;
         ctx.save();
         ctx.globalAlpha = opacity;
@@ -890,7 +916,7 @@ function renderStars() {
             const _cyPct = parseFloat(localStorage.getItem('stratos-cosmos-cy') || '0.35');
             const _sScale = parseFloat(localStorage.getItem('stratos-cosmos-scale') || '1');
             const _ssOpacity = parseFloat(localStorage.getItem('stratos-cosmos-opacity') || '1');
-            const _ssBlur = parseFloat(localStorage.getItem('stratos-cosmos-blur') || '0');
+            const _ssBlur = _perfMode ? 0 : parseFloat(localStorage.getItem('stratos-cosmos-blur') || '0');
             const scx = canvas.width * _cxPct, scy = canvas.height * _cyPct;
             ctx.save();
             ctx.globalAlpha = _ssOpacity;
@@ -948,8 +974,8 @@ function renderStars() {
         if (isNebula) _drawThemeElement('nebula', _nebulaDrawBlackHole, t);
         if (isAurora) _drawThemeElement('aurora', _auroraDrawBinary, t);
 
-        // Shooting stars
-        if (now - lastShooter > SHOOT_INTERVAL + Math.random() * 3000) {
+        // Shooting stars (skip in perf mode)
+        if (!_perfMode && now - lastShooter > SHOOT_INTERVAL + Math.random() * 3000) {
             spawnShooter();
             lastShooter = now;
         }
@@ -1137,9 +1163,10 @@ const savedMode = localStorage.getItem('stratos-theme-mode') ||
     (localStorage.getItem('stratos-dark') === 'true' ? 'dark' : 'normal');
 applyThemeMode(savedMode);
 setTheme(savedTheme);
-// Restore stars toggle
+// Restore stars toggle + perf mode
 const savedStars = localStorage.getItem('stratos-stars') === 'true';
 updateStarsToggleUI(savedStars);
+updatePerfToggleUI(localStorage.getItem('stratos-perf-mode') === 'true');
 updateCosmosPresetUI();
 
 // === UI STATE SYNC (cross-device theme/stars persistence) ===
