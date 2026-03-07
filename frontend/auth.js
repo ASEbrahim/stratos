@@ -499,9 +499,9 @@ function _initStarParallax() {
             ctx.lineTo(Math.cos(a + step * 0.5) * innerR, Math.sin(a + step * 0.5) * innerR);
         }
         ctx.closePath();
-        ctx.strokeStyle = `rgba(167,139,250,${alpha})`; ctx.lineWidth = 0.8; ctx.stroke();
+        ctx.strokeStyle = `rgba(167,139,250,${alpha})`; ctx.lineWidth = 1; ctx.stroke();
         ctx.beginPath(); ctx.arc(0, 0, innerR * 0.3, 0, Math.PI * 2);
-        ctx.strokeStyle = `rgba(196,181,253,${alpha * 0.6})`; ctx.lineWidth = 0.6; ctx.stroke();
+        ctx.strokeStyle = `rgba(196,181,253,${alpha * 0.7})`; ctx.lineWidth = 0.8; ctx.stroke();
         ctx.restore();
     }
     function _noirDrawPendulum(cx, cy, t) {
@@ -514,19 +514,39 @@ function _initStarParallax() {
         const bobX = pivotX + Math.sin(angle) * pendulumLen;
         const bobY = pivotY + Math.cos(angle) * pendulumLen;
 
+        // Mouse proximity boost — clock glows brighter when mouse is near
+        const mdx = mouseX - pivotX, mdy = mouseY - pivotY;
+        const mDist = Math.sqrt(mdx * mdx + mdy * mdy);
+        const mBoost = mDist < 200 ? (1 - mDist / 200) * 0.4 : 0;
+
         // Clock face tick marks
         const clockR = 60;
         for (let i = 0; i < 12; i++) {
             const a = (i / 12) * Math.PI * 2 - Math.PI / 2;
-            const iR = clockR - 6, oR = clockR;
-            const ta = 0.08 + 0.05 * Math.sin(time * 2 + i * 0.5);
+            const iR = clockR - 7, oR = clockR;
+            const ta = 0.18 + 0.1 * Math.sin(time * 2 + i * 0.5) + mBoost;
             ctx.beginPath();
             ctx.moveTo(pivotX + Math.cos(a) * iR, pivotY + Math.sin(a) * iR);
             ctx.lineTo(pivotX + Math.cos(a) * oR, pivotY + Math.sin(a) * oR);
-            ctx.strokeStyle = `rgba(196,181,253,${ta})`; ctx.lineWidth = i % 3 === 0 ? 1.5 : 0.8; ctx.stroke();
-            ctx.beginPath(); ctx.arc(pivotX + Math.cos(a) * oR, pivotY + Math.sin(a) * oR, 1, 0, Math.PI * 2);
-            ctx.fillStyle = `rgba(167,139,250,${ta})`; ctx.fill();
+            ctx.strokeStyle = `rgba(196,181,253,${ta})`; ctx.lineWidth = i % 3 === 0 ? 2 : 1; ctx.stroke();
+            ctx.beginPath(); ctx.arc(pivotX + Math.cos(a) * oR, pivotY + Math.sin(a) * oR, 1.5, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(167,139,250,${ta + 0.05})`; ctx.fill();
         }
+
+        // Sub-tick marks (60 positions) for clarity
+        for (let i = 0; i < 60; i++) {
+            if (i % 5 === 0) continue;
+            const a = (i / 60) * Math.PI * 2 - Math.PI / 2;
+            const sta = 0.06 + 0.04 * Math.sin(time * 1.5 + i * 0.3) + mBoost * 0.5;
+            ctx.beginPath();
+            ctx.moveTo(pivotX + Math.cos(a) * (clockR - 3), pivotY + Math.sin(a) * (clockR - 3));
+            ctx.lineTo(pivotX + Math.cos(a) * clockR, pivotY + Math.sin(a) * clockR);
+            ctx.strokeStyle = `rgba(139,92,246,${sta})`; ctx.lineWidth = 0.5; ctx.stroke();
+        }
+
+        // Clock face circle outline
+        ctx.beginPath(); ctx.arc(pivotX, pivotY, clockR + 2, 0, Math.PI * 2);
+        ctx.strokeStyle = `rgba(167,139,250,${0.08 + mBoost * 0.5})`; ctx.lineWidth = 0.6; ctx.stroke();
 
         // Floating roman numerals
         for (const n of _noirNumerals) {
@@ -537,15 +557,16 @@ function _initStarParallax() {
             ctx.rotate(n.rotation);
             ctx.font = `${n.size}px "Times New Roman", serif`;
             ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-            ctx.fillStyle = `rgba(167,139,250,${n.alpha})`; ctx.fillText(n.text, 0, 0);
+            ctx.fillStyle = `rgba(167,139,250,${n.alpha + mBoost * 0.3})`; ctx.fillText(n.text, 0, 0);
             ctx.restore();
         }
 
-        // Gears
+        // Gears — more visible
         const gs = time * 0.8;
-        _noirDrawGear(pivotX - 16, pivotY - 8, 11, 15, 8, gs, 0.15);
-        _noirDrawGear(pivotX + 14, pivotY - 6, 8, 11, 6, -gs * 1.33, 0.12);
-        _noirDrawGear(pivotX + 4, pivotY - 20, 6, 9, 7, gs * 1.14, 0.1);
+        _noirDrawGear(pivotX - 16, pivotY - 8, 11, 15, 8, gs, 0.3 + mBoost);
+        _noirDrawGear(pivotX + 14, pivotY - 6, 8, 11, 6, -gs * 1.33, 0.25 + mBoost);
+        _noirDrawGear(pivotX + 4, pivotY - 20, 6, 9, 7, gs * 1.14, 0.2 + mBoost);
+        _noirDrawGear(pivotX - 8, pivotY + 12, 5, 8, 5, -gs * 1.6, 0.18 + mBoost);
 
         // Ripples at swing extremes
         if (Math.abs(angVel) < 0.08 && _noirRipples.length < 6) {
@@ -573,30 +594,33 @@ function _initStarParallax() {
 
         // Rod
         ctx.beginPath(); ctx.moveTo(pivotX, pivotY); ctx.lineTo(bobX, bobY);
-        ctx.strokeStyle = 'rgba(196,181,253,0.25)'; ctx.lineWidth = 1.2; ctx.stroke();
+        ctx.strokeStyle = `rgba(196,181,253,${0.4 + mBoost})`; ctx.lineWidth = 1.5; ctx.stroke();
         ctx.beginPath(); ctx.moveTo(pivotX, pivotY); ctx.lineTo(bobX, bobY);
-        ctx.strokeStyle = 'rgba(167,139,250,0.06)'; ctx.lineWidth = 4; ctx.stroke();
+        ctx.strokeStyle = `rgba(167,139,250,${0.1 + mBoost * 0.3})`; ctx.lineWidth = 5; ctx.stroke();
 
         // Pivot dot
-        ctx.beginPath(); ctx.arc(pivotX, pivotY, 2.5, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(196,181,253,0.4)'; ctx.fill();
+        ctx.beginPath(); ctx.arc(pivotX, pivotY, 3, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(196,181,253,${0.6 + mBoost})`; ctx.fill();
 
-        // Bob glow
+        // Bob glow — brighter, reactive
         const bp = 0.7 + 0.3 * Math.sin(time * 3);
-        const bg2 = ctx.createRadialGradient(bobX, bobY, 0, bobX, bobY, 28);
-        bg2.addColorStop(0, 'rgba(167,139,250,0.12)');
-        bg2.addColorStop(0.5, 'rgba(139,92,246,0.04)');
+        const bobDx = mouseX - bobX, bobDy = mouseY - bobY;
+        const bobDist = Math.sqrt(bobDx * bobDx + bobDy * bobDy);
+        const bobMB = bobDist < 100 ? (1 - bobDist / 100) * 0.3 : 0;
+        const bg2 = ctx.createRadialGradient(bobX, bobY, 0, bobX, bobY, 35);
+        bg2.addColorStop(0, `rgba(167,139,250,${0.2 + bobMB})`);
+        bg2.addColorStop(0.5, `rgba(139,92,246,${0.08 + bobMB * 0.5})`);
         bg2.addColorStop(1, 'transparent');
-        ctx.beginPath(); ctx.arc(bobX, bobY, 28, 0, Math.PI * 2); ctx.fillStyle = bg2; ctx.fill();
-        const bg1 = ctx.createRadialGradient(bobX, bobY, 0, bobX, bobY, 11);
-        bg1.addColorStop(0, `rgba(232,224,255,${0.4 * bp})`);
-        bg1.addColorStop(0.4, `rgba(167,139,250,${0.25 * bp})`);
+        ctx.beginPath(); ctx.arc(bobX, bobY, 35, 0, Math.PI * 2); ctx.fillStyle = bg2; ctx.fill();
+        const bg1 = ctx.createRadialGradient(bobX, bobY, 0, bobX, bobY, 14);
+        bg1.addColorStop(0, `rgba(232,224,255,${(0.55 + bobMB) * bp})`);
+        bg1.addColorStop(0.4, `rgba(167,139,250,${(0.35 + bobMB) * bp})`);
         bg1.addColorStop(1, 'rgba(139,92,246,0)');
-        ctx.beginPath(); ctx.arc(bobX, bobY, 11, 0, Math.PI * 2); ctx.fillStyle = bg1; ctx.fill();
-        ctx.beginPath(); ctx.arc(bobX, bobY, 4, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(232,224,255,${0.5 * bp})`; ctx.fill();
-        ctx.beginPath(); ctx.arc(bobX, bobY, 2, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(255,255,255,${0.4 * bp})`; ctx.fill();
+        ctx.beginPath(); ctx.arc(bobX, bobY, 14, 0, Math.PI * 2); ctx.fillStyle = bg1; ctx.fill();
+        ctx.beginPath(); ctx.arc(bobX, bobY, 5, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(232,224,255,${(0.65 + bobMB) * bp})`; ctx.fill();
+        ctx.beginPath(); ctx.arc(bobX, bobY, 2.5, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255,255,255,${(0.5 + bobMB) * bp})`; ctx.fill();
     }
 
     // ── Rose: Geometric rose bloom ──
@@ -662,7 +686,6 @@ function _initStarParallax() {
         ctx.fillStyle = coreG; ctx.beginPath(); ctx.arc(cx, cy, 12 * breathe, 0, Math.PI * 2); ctx.fill();
     }
 
-    // ── Coffee: Ember with rising sparks ──
     // ── Coffee: Cup with rising steam ──
     const _coffeeSteam = [];
     const _coffeeBeans = [];
@@ -678,7 +701,7 @@ function _initStarParallax() {
                     amplitude: Math.random() * 25 + 12,
                     frequency: Math.random() * 0.012 + 0.006,
                     phaseOff: Math.random() * Math.PI * 2,
-                    size: Math.random() * 3 + 1.5,
+                    size: Math.random() * 1.8 + 0.8,
                     baseX: 0, x: 0, y: 0,
                     bright: Math.random()
                 });
@@ -721,10 +744,10 @@ function _initStarParallax() {
             ctx.stroke(); ctx.restore();
         }
 
-        // Cup position — below center
-        const cupCx = cx, cupTop = cy + 30;
-        const cupBot = cupTop + 50;
-        const cupW = 32, cupWB = 26;
+        // Cup position — above center, over logo
+        const cupCx = cx, cupTop = cy - 30;
+        const cupBot = cupTop + 40;
+        const cupW = 26, cupWB = 21;
 
         // Saucer
         ctx.beginPath(); ctx.ellipse(cupCx, cupBot + 3, cupW * 1.3, 5, 0, 0, Math.PI * 2);
@@ -746,8 +769,8 @@ function _initStarParallax() {
 
         // Handle
         ctx.beginPath();
-        ctx.ellipse(cupCx + cupW + 10, cupTop + 18, 10, 16, 0, -Math.PI * 0.4, Math.PI * 0.5);
-        ctx.strokeStyle = 'rgba(184,122,46,0.2)'; ctx.lineWidth = 2; ctx.stroke();
+        ctx.ellipse(cupCx + cupW + 8, cupTop + 14, 8, 13, 0, -Math.PI * 0.4, Math.PI * 0.5);
+        ctx.strokeStyle = 'rgba(184,122,46,0.2)'; ctx.lineWidth = 1.5; ctx.stroke();
 
         // Steam particles — rise from cup
         const steamOriginY = cupTop - 3;
@@ -768,7 +791,7 @@ function _initStarParallax() {
             if (prog < 0.1) alpha = prog / 0.1;
             else if (prog > 0.5) alpha = 1 - (prog - 0.5) / 0.5;
             alpha *= 0.35;
-            const sz = p.size * (1 + prog * 1.8);
+            const sz = p.size * (1 + prog * 1.2);
             const col = p.bright > 0.7 ? '255,240,212' : p.bright > 0.4 ? '232,170,84' : '212,148,60';
             const sg = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, sz);
             sg.addColorStop(0, `rgba(${col},${alpha * 0.7})`);
@@ -894,15 +917,15 @@ function _initStarParallax() {
         function _genSakuraTree(w, h) {
             _tSeed = 12345;
             const br = [], bl = [], tips = [];
-            const cx = w * 0.5, baseY = h * 0.58;
-            const trunkTop = h * 0.38;
+            const cx = w * 0.5, baseY = h * 0.55;
+            const trunkTop = h * 0.40;
 
-            // Slim trunk with slight lean
-            const lean = w * 0.005;
-            br.push({ x0:cx-w*0.005, y0:baseY, x1:cx+lean, y1:trunkTop,
-                cpx:cx-w*0.002, cpy:h*0.48, w0:w*0.010, d:0 });
-            br.push({ x0:cx+w*0.005, y0:baseY, x1:cx+lean, y1:trunkTop,
-                cpx:cx+w*0.004, cpy:h*0.48, w0:w*0.010, d:0 });
+            // Thin trunk with slight lean
+            const lean = w * 0.004;
+            br.push({ x0:cx-w*0.003, y0:baseY, x1:cx+lean, y1:trunkTop,
+                cpx:cx-w*0.001, cpy:h*0.47, w0:w*0.006, d:0 });
+            br.push({ x0:cx+w*0.003, y0:baseY, x1:cx+lean, y1:trunkTop,
+                cpx:cx+w*0.002, cpy:h*0.47, w0:w*0.006, d:0 });
 
             // Recursive branch generator — delicate and airy
             function addBranch(sx, sy, angle, length, width, depth) {
@@ -915,9 +938,9 @@ function _initStarParallax() {
                 const cpy = sy + Math.sin(angle + curve) * length * mid;
                 br.push({ x0:sx, y0:sy, cpx, cpy, x1:ex, y1:ey, w0:width, d:depth });
 
-                if (depth >= 2) {
+                if (depth >= 1) {
                     tips.push({ x: ex, y: ey });
-                    bl.push({ x:ex, y:ey, r:_tRandR(4, 9 - depth), phase:_tRand()*Math.PI*2 });
+                    bl.push({ x:ex, y:ey, r:_tRandR(6, 14 - depth*2), phase:_tRand()*Math.PI*2 });
                 }
 
                 // Fork into sub-branches
@@ -940,22 +963,22 @@ function _initStarParallax() {
                 -Math.PI*0.12 + _tRandR(-0.1,0.1),
             ];
             for (let i = 0; i < mainAngles.length; i++) {
-                const len = _tRandR(h*0.07, h*0.13);
-                const wid = w * _tRandR(0.003, 0.005);
+                const len = _tRandR(h*0.06, h*0.11);
+                const wid = w * _tRandR(0.0015, 0.003);
                 addBranch(cx + lean, trunkTop, mainAngles[i], len, wid, 1);
             }
 
             // One small lower branch
-            addBranch(cx, h * 0.48, -Math.PI*0.6 + _tRandR(-0.1,0.1), h*0.05, w*0.002, 2);
+            addBranch(cx, h * 0.47, -Math.PI*0.6 + _tRandR(-0.1,0.1), h*0.04, w*0.001, 2);
 
             // Generate blossom dots within clusters
             for (const c of bl) {
                 c.dots = [];
-                const count = Math.floor(_tRandR(3, 6));
+                const count = Math.floor(_tRandR(5, 12));
                 for (let i = 0; i < count; i++) {
                     const ba = _tRand() * Math.PI * 2, bd = _tRand() * c.r;
                     c.dots.push({ ox: Math.cos(ba)*bd, oy: Math.sin(ba)*bd,
-                        r: _tRandR(0.8, 2.2), bright: _tRand(), ph: _tRand()*Math.PI*2 });
+                        r: _tRandR(1.0, 3.0), bright: _tRand(), ph: _tRand()*Math.PI*2 });
                 }
             }
             return { branches: br, blossoms: bl, tips };
@@ -1003,8 +1026,8 @@ function _initStarParallax() {
             } else {
                 ctx.lineTo(b.x1 + sway, b.y1);
             }
-            // Muted, semi-transparent bark
-            const alpha = b.d === 0 ? 0.45 : b.d === 1 ? 0.32 : b.d === 2 ? 0.22 : 0.14;
+            // Wispy, thin bark
+            const alpha = b.d === 0 ? 0.35 : b.d === 1 ? 0.25 : b.d === 2 ? 0.18 : 0.1;
             ctx.strokeStyle = `rgba(60,30,45,${alpha})`;
             ctx.lineWidth = b.w0;
             ctx.lineCap = 'round';
@@ -1012,25 +1035,31 @@ function _initStarParallax() {
             ctx.stroke();
         }
 
-        // Draw blossom clusters — very soft, ghostly
+        // Draw blossom clusters — glowing, full canopy
         for (const cl of _sakuraTree.blossoms) {
             const clSway = windBase * 1.5;
             const clX = cl.x + clSway, clY = cl.y;
 
-            // Faint cluster glow
-            const cg = ctx.createRadialGradient(clX, clY, 0, clX, clY, cl.r * 2);
-            cg.addColorStop(0, `rgba(255,200,220,${0.06 * pulse})`);
+            // Cluster glow — visible and warm
+            const cg = ctx.createRadialGradient(clX, clY, 0, clX, clY, cl.r * 2.5);
+            cg.addColorStop(0, `rgba(255,190,215,${0.12 * pulse})`);
+            cg.addColorStop(0.5, `rgba(245,170,200,${0.05 * pulse})`);
             cg.addColorStop(1, 'transparent');
             ctx.fillStyle = cg;
-            ctx.fillRect(clX - cl.r*2, clY - cl.r*2, cl.r*4, cl.r*4);
+            ctx.fillRect(clX - cl.r*2.5, clY - cl.r*2.5, cl.r*5, cl.r*5);
 
             for (const dot of cl.dots) {
                 const dp = 0.7 + 0.3 * Math.sin(t * 1.5 + dot.ph);
                 const x = clX + dot.ox, y = clY + dot.oy;
                 const r = dot.r * (0.85 + 0.15 * dp);
-                const c = dot.bright > 0.5 ? [255,215,230] : [245,185,205];
+                const c = dot.bright > 0.6 ? [255,225,240] : dot.bright > 0.3 ? [255,200,220] : [245,175,200];
+                // Small halo per dot
+                const dg = ctx.createRadialGradient(x, y, 0, x, y, r * 2);
+                dg.addColorStop(0, `rgba(${c[0]},${c[1]},${c[2]},${0.15 * dp})`);
+                dg.addColorStop(1, 'transparent');
+                ctx.fillStyle = dg; ctx.fillRect(x - r*2, y - r*2, r*4, r*4);
                 ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2);
-                ctx.fillStyle = `rgba(${c[0]},${c[1]},${c[2]},${0.2 + 0.2*dp})`;
+                ctx.fillStyle = `rgba(${c[0]},${c[1]},${c[2]},${0.3 + 0.3*dp})`;
                 ctx.fill();
             }
         }
