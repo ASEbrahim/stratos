@@ -1,22 +1,22 @@
 {
   "train_examples": 11785,
   "eval_examples": 1296,
-  "contrastive_pairs": 21862,
+  "contrastive_pairs": 21796,
   "rejected": 2,
-  "train_file_kb": 19266.6796875,
-  "eval_file_kb": 2091.451171875,
+  "train_file_kb": 19268.9755859375,
+  "eval_file_kb": 2086.8212890625,
   "band_distribution": {
     "train": {
       "noise": 8121,
-      "high": 363,
       "critical": 201,
+      "high": 363,
       "tangential": 2353,
       "moderate": 747
     },
     "eval": {
       "noise": 879,
-      "high": 50,
       "critical": 38,
+      "high": 50,
       "tangential": 247,
       "moderate": 82
     }

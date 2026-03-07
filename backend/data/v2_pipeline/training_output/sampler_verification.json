@@ -2,27 +2,27 @@
   "batches_seen": 1001,
   "examples_seen": 2002,
   "expected_distribution": {
-    "noise": 0.79,
-    "tangential": 0.103,
-    "moderate": 0.0472,
-    "high": 0.032,
-    "critical": 0.0277
+    "noise": 0.4581,
+    "tangential": 0.2655,
+    "moderate": 0.1264,
+    "high": 0.0819,
+    "critical": 0.068
   },
   "actual_distribution": {
-    "noise": 0.7947,
-    "tangential": 0.1034,
-    "moderate": 0.0495,
-    "high": 0.0235,
-    "critical": 0.029
+    "noise": 0.456,
+    "tangential": 0.2532,
+    "moderate": 0.1319,
+    "high": 0.0869,
+    "critical": 0.0719
   },
   "raw_distribution": {
-    "noise": 0.9082,
-    "tangential": 0.0592,
-    "moderate": 0.0181,
-    "high": 0.0092,
-    "critical": 0.0053
+    "noise": 0.6891,
+    "tangential": 0.1997,
+    "moderate": 0.0634,
+    "high": 0.0308,
+    "critical": 0.0171
   },
-  "distance_to_expected": 0.0171,
-  "distance_to_raw": 0.2269,
+  "distance_to_expected": 0.0287,
+  "distance_to_raw": 0.4661,
   "passed": true
 }

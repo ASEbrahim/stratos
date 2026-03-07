@@ -1,0 +1,260 @@
+{
+  "total_samples": 1811,
+  "parse_failures": 237,
+  "mae": 0.761,
+  "rmse": 1.202,
+  "direction_accuracy": 0.9619,
+  "spearman_rho": 0.5306,
+  "agreement_pct_1pt": 82.9,
+  "agreement_pct_2pt": 94.1,
+  "band_breakdown": {
+    "noise": {
+      "count": 1616,
+      "mae": 0.632
+    },
+    "tangential": {
+      "count": 118,
+      "mae": 1.414
+    },
+    "moderate": {
+      "count": 11,
+      "mae": 2.564
+    },
+    "high": {
+      "count": 45,
+      "mae": 2.6
+    },
+    "critical": {
+      "count": 21,
+      "mae": 2.2
+    }
+  },
+  "profile_breakdown": {
+    "Agricultural commodities trader": {
+      "count": 67,
+      "mae": 0.612,
+      "direction_acc": 0.9701
+    },
+    "Architect working on smart city infrastructure projects": {
+      "count": 63,
+      "mae": 0.743,
+      "direction_acc": 0.9683
+    },
+    "Biotech researcher at KAUST studying gene therapy": {
+      "count": 57,
+      "mae": 0.565,
+      "direction_acc": 1.0
+    },
+    "CTO of a mobile payments startup": {
+      "count": 65,
+      "mae": 0.897,
+      "direction_acc": 0.9538
+    },
+    "Computer Engineering student at American University of Kuwait": {
+      "count": 52,
+      "mae": 1.183,
+      "direction_acc": 0.9038
+    },
+    "Corporate lawyer at a major law firm": {
+      "count": 60,
+      "mae": 0.762,
+      "direction_acc": 0.95
+    },
+    "Cybersecurity analyst at a Kuwaiti bank": {
+      "count": 67,
+      "mae": 0.587,
+      "direction_acc": 1.0
+    },
+    "Data Scientist at a Dubai fintech startup": {
+      "count": 64,
+      "mae": 0.555,
+      "direction_acc": 0.9844
+    },
+    "Digital marketing manager at a K-pop entertainment agency": {
+      "count": 67,
+      "mae": 0.897,
+      "direction_acc": 0.9851
+    },
+    "Emergency department nurse practitioner": {
+      "count": 48,
+      "mae": 0.656,
+      "direction_acc": 0.9792
+    },
+    "Executive chef and restaurant owner": {
+      "count": 65,
+      "mae": 0.751,
+      "direction_acc": 0.9231
+    },
+    "Finance & Accounting student at GUST Kuwait": {
+      "count": 63,
+      "mae": 0.69,
+      "direction_acc": 0.9524
+    },
+    "HVAC technician and small business owner": {
+      "count": 55,
+      "mae": 0.535,
+      "direction_acc": 1.0
+    },
+    "Hospital pharmacist specializing": {
+      "count": 60,
+      "mae": 0.812,
+      "direction_acc": 0.9167
+    },
+    "Independent documentary filmmaker": {
+      "count": 59,
+      "mae": 0.969,
+      "direction_acc": 0.9661
+    },
+    "Indie game developer and studio founder": {
+      "count": 61,
+      "mae": 0.811,
+      "direction_acc": 0.9672
+    },
+    "Marine electrician on offshore wind vessels": {
+      "count": 59,
+      "mae": 0.647,
+      "direction_acc": 0.9831
+    },
+    "Mechanical Engineering fresh graduate seeking NEOM/Aramco roles": {
+      "count": 67,
+      "mae": 0.893,
+      "direction_acc": 0.9403
+    },
+    "Mining engineer at a copper mine": {
+      "count": 61,
+      "mae": 0.692,
+      "direction_acc": 0.9672
+    },
+    "Pediatric oncologist at King Faisal Specialist Hospital": {
+      "count": 50,
+      "mae": 0.684,
+      "direction_acc": 0.98
+    },
+    "Petroleum Engineering student at Kuwait University": {
+      "count": 64,
+      "mae": 0.809,
+      "direction_acc": 0.9531
+    },
+    "Pipeline welder and CWB-certified inspector": {
+      "count": 51,
+      "mae": 0.563,
+      "direction_acc": 0.9804
+    },
+    "Professional bonsai artist and competition judge": {
+      "count": 54,
+      "mae": 0.561,
+      "direction_acc": 1.0
+    },
+    "Retired IT consultant": {
+      "count": 65,
+      "mae": 0.934,
+      "direction_acc": 0.9538
+    },
+    "Retired UN diplomat and policy consultant": {
+      "count": 46,
+      "mae": 0.859,
+      "direction_acc": 0.9783
+    },
+    "Senior geophysicist at KOC": {
+      "count": 68,
+      "mae": 0.725,
+      "direction_acc": 0.9559
+    },
+    "Sports physiotherapist at a professional rugby club": {
+      "count": 67,
+      "mae": 0.53,
+      "direction_acc": 0.9701
+    },
+    "Supply chain analyst at a logistics company": {
+      "count": 67,
+      "mae": 0.727,
+      "direction_acc": 0.9552
+    },
+    "UX Designer at a consumer electronics company": {
+      "count": 68,
+      "mae": 0.957,
+      "direction_acc": 0.9706
+    },
+    "Undeclared sophomore at University of Chicago": {
+      "count": 51,
+      "mae": 1.294,
+      "direction_acc": 0.8431
+    }
+  },
+  "worst_disagreements": [
+    {
+      "profile": "UX Designer at a consumer electronics company",
+      "predicted": 8.5,
+      "ground_truth": 1.0,
+      "delta": 7.5,
+      "title": "Aqualia and FiturNext Conclude FITUR 2026 With Powerful Message: Water Resilience is the New Tourism Infrastructure"
+    },
+    {
+      "profile": "Indie game developer and studio founder",
+      "predicted": 8.5,
+      "ground_truth": 1.0,
+      "delta": 7.5,
+      "title": "Viridien announces strategic initiative to advance HPC for seismic imaging workflows with NVIDIA"
+    },
+    {
+      "profile": "Digital marketing manager at a K-pop entertainment agency",
+      "predicted": 8.5,
+      "ground_truth": 1.0,
+      "delta": 7.5,
+      "title": "Aqualia and FiturNext Conclude FITUR 2026 With Powerful Message: Water Resilience is the New Tourism Infrastructure"
+    },
+    {
+      "profile": "Sports physiotherapist at a professional rugby club",
+      "predicted": 8.5,
+      "ground_truth": 2.0,
+      "delta": 6.5,
+      "title": "Manufacturing, Access Key to Scaling Next-Gen Biologics, Say Experts"
+    },
+    {
+      "profile": "Independent documentary filmmaker",
+      "predicted": 8.5,
+      "ground_truth": 2.0,
+      "delta": 6.5,
+      "title": "The Urgent Call for an \"IAEA for AI\""
+    },
+    {
+      "profile": "Mechanical Engineering fresh graduate seeking NEOM/Aramco roles",
+      "predicted": 8.5,
+      "ground_truth": 2.0,
+      "delta": 6.5,
+      "title": "Column: The critical role of AI in protecting water utilities from cyber threats"
+    },
+    {
+      "profile": "Senior geophysicist at KOC",
+      "predicted": 2.5,
+      "ground_truth": 8.5,
+      "delta": -6.0,
+      "title": "Is U.S.-Iran war imminent? Oil prices spike to $65.01 as 150+ U.S. cargo planes signal \"war within days\" \u2014 are you prepared for another major Middle East conflict?"
+    },
+    {
+      "profile": "Computer Engineering student at American University of Kuwait",
+      "predicted": 2.5,
+      "ground_truth": 8.5,
+      "delta": -6.0,
+      "title": "SLB erh\u00e4lt mehrere Offshore-Bohrvertr\u00e4ge von Mubadala Energy f\u00fcr die Tangkulo-Tiefwassererschlie\u00dfung in Indonesien"
+    },
+    {
+      "profile": "Architect working on smart city infrastructure projects",
+      "predicted": 2.5,
+      "ground_truth": 8.5,
+      "delta": -6.0,
+      "title": "The fear of crowds and its impact on urban planning and public spaces"
+    },
+    {
+      "profile": "UX Designer at a consumer electronics company",
+      "predicted": 6.5,
+      "ground_truth": 1.0,
+      "delta": 5.5,
+      "title": "Viridien announces strategic initiative to advance HPC for seismic imaging workflows with NVIDIA"
+    }
+  ],
+  "model": "stratos-scorer-v2",
+  "eval_file": "/home/ahmad/Downloads/StratOS/StratOS1/backend/data/v2_pipeline/eval_v2.jsonl",
+  "elapsed_seconds": 2163.4,
+  "timestamp": "2026-03-05T19:07:45"
+}

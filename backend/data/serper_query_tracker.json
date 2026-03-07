@@ -1,9 +1,12 @@
 {
-  "total_count": 2309,
+  "total_count": 2457,
   "daily_counts": {
     "2026-02-24": 123,
     "2026-02-25": 1669,
-    "2026-02-26": 768
+    "2026-02-26": 768,
+    "2026-03-04": 60,
+    "2026-03-05": 56,
+    "2026-03-07": 32
   },
   "last_queries": [
     {
@@ -213,6 +216,598 @@
     {
       "query": "\"STC Kuwait\" Kuwait hiring OR careers OR recruitment 2026",
       "time": "2026-02-26T16:00:22.228403"
+    },
+    {
+      "query": "\"University of Toronto\" research institutions hiring OR jobs 2026",
+      "time": "2026-03-04T23:02:07.851975"
+    },
+    {
+      "query": "\"University of Alberta\" research institutions hiring OR jobs 2026",
+      "time": "2026-03-04T23:02:07.873412"
+    },
+    {
+      "query": "\"McGill University\" research institutions hiring OR jobs 2026",
+      "time": "2026-03-04T23:02:08.013902"
+    },
+    {
+      "query": "\"NSERC grants\" research institutions hiring OR jobs 2026",
+      "time": "2026-03-04T23:02:09.047638"
+    },
+    {
+      "query": "\"CIHR funding\" research institutions hiring OR jobs 2026",
+      "time": "2026-03-04T23:02:09.165786"
+    },
+    {
+      "query": "\"Industry R&D labs\" research institutions hiring OR jobs 2026",
+      "time": "2026-03-04T23:02:09.560090"
+    },
+    {
+      "query": "\"Government research agencies\"  hiring OR jobs 2026",
+      "time": "2026-03-04T23:02:10.107809"
+    },
+    {
+      "query": "\"Canadian Science Policy\" research institutions hiring OR jobs 2026",
+      "time": "2026-03-04T23:02:10.463425"
+    },
+    {
+      "query": "\"University of British Columbia\" research institutions hiring OR jobs 2026",
+      "time": "2026-03-04T23:02:11.593160"
+    },
+    {
+      "query": "\"University of Waterloo\" research institutions hiring OR jobs 2026",
+      "time": "2026-03-04T23:02:11.636571"
+    },
+    {
+      "query": "\"Perimeter Institute for Theoretical Physics\" research institutions hiring OR jobs 2026",
+      "time": "2026-03-04T23:02:12.758647"
+    },
+    {
+      "query": "\"Canadian Light Source\" research institutions hiring OR jobs 2026",
+      "time": "2026-03-04T23:02:12.904075"
+    },
+    {
+      "query": "\"Research Ethics Certification\" professional certifications hiring OR jobs 2026",
+      "time": "2026-03-04T23:02:13.960841"
+    },
+    {
+      "query": "\"Lab Safety Training\" professional certifications hiring OR jobs 2026",
+      "time": "2026-03-04T23:02:14.139867"
+    },
+    {
+      "query": "\"Data Analysis Certifications\"  hiring OR jobs 2026",
+      "time": "2026-03-04T23:02:14.672524"
+    },
+    {
+      "query": "\"Scientific Writing Courses\" professional certifications hiring OR jobs 2026",
+      "time": "2026-03-04T23:02:15.334265"
+    },
+    {
+      "query": "\"Grant Proposal Writing\" professional certifications hiring OR jobs 2026",
+      "time": "2026-03-04T23:02:15.606687"
+    },
+    {
+      "query": "\"Online Research Methodology\" professional certifications hiring OR jobs 2026",
+      "time": "2026-03-04T23:02:16.037905"
+    },
+    {
+      "query": "\"Professional Development Credits\"  hiring OR jobs 2026",
+      "time": "2026-03-04T23:02:17.732027"
+    },
+    {
+      "query": "\"Canadian Researcher Network\" professional certifications hiring OR jobs 2026",
+      "time": "2026-03-04T23:02:19.007591"
+    },
+    {
+      "query": "\"Certified Clinical Research Professional\"  hiring OR jobs 2026",
+      "time": "2026-03-04T23:02:19.036222"
+    },
+    {
+      "query": "\"Project Management Professional\"  hiring OR jobs 2026",
+      "time": "2026-03-04T23:02:19.828315"
+    },
+    {
+      "query": "\"Society for Research Administration (SRA) Certification\" professional certifications hiring OR jobs",
+      "time": "2026-03-04T23:02:20.626089"
+    },
+    {
+      "query": "\"Canadian Association of Physicists Certification\" professional certifications hiring OR jobs 2026",
+      "time": "2026-03-04T23:02:21.211300"
+    },
+    {
+      "query": "\"AI in scientific research\" r&d industry trends 2026",
+      "time": "2026-03-04T23:02:24.090771"
+    },
+    {
+      "query": "\"Open science initiatives\" r&d industry trends 2026",
+      "time": "2026-03-04T23:02:24.449134"
+    },
+    {
+      "query": "\"Quantum computing research\" r&d industry trends 2026",
+      "time": "2026-03-04T23:02:24.821358"
+    },
+    {
+      "query": "\"Biotechnology breakthroughs\" r&d industry trends 2026",
+      "time": "2026-03-04T23:02:25.217099"
+    },
+    {
+      "query": "\"Materials science innovations\" r&d industry trends 2026",
+      "time": "2026-03-04T23:02:25.628837"
+    },
+    {
+      "query": "\"Government R&D funding\" r&d industry trends 2026",
+      "time": "2026-03-04T23:02:26.116369"
+    },
+    {
+      "query": "\"Industry-academia partnerships\" r&d industry trends 2026",
+      "time": "2026-03-04T23:02:26.265309"
+    },
+    {
+      "query": "\"Research commercialization\" r&d industry trends 2026",
+      "time": "2026-03-04T23:02:26.616997"
+    },
+    {
+      "query": "\"TensorFlow/PyTorch in AI research\" r&d industry trends 2026",
+      "time": "2026-03-04T23:02:27.557322"
+    },
+    {
+      "query": "\"Quantum computing hardware\" r&d industry trends 2026",
+      "time": "2026-03-04T23:02:27.647367"
+    },
+    {
+      "query": "\"CRISPR-Cas9 gene editing platforms\" r&d industry trends 2026",
+      "time": "2026-03-04T23:02:27.701050"
+    },
+    {
+      "query": "\"Open science platforms\" r&d industry trends 2026",
+      "time": "2026-03-04T23:02:28.686974"
+    },
+    {
+      "query": "\"Postdoctoral positions\" academic opportunities hiring OR jobs 2026",
+      "time": "2026-03-04T23:02:30.287423"
+    },
+    {
+      "query": "\"Research faculty roles\" academic opportunities hiring OR jobs 2026",
+      "time": "2026-03-04T23:02:30.537941"
+    },
+    {
+      "query": "\"University lab openings\" academic opportunities hiring OR jobs 2026",
+      "time": "2026-03-04T23:02:30.912201"
+    },
+    {
+      "query": "\"Government research fellowships\" academic opportunities hiring OR jobs 2026",
+      "time": "2026-03-04T23:02:31.539852"
+    },
+    {
+      "query": "\"Industry research scientist roles\" academic opportunities hiring OR jobs 2026",
+      "time": "2026-03-04T23:02:31.676254"
+    },
+    {
+      "query": "\"Academic grants\"  hiring OR jobs 2026",
+      "time": "2026-03-04T23:02:32.557576"
+    },
+    {
+      "query": "\"Research collaboration opportunities\"  hiring OR jobs 2026",
+      "time": "2026-03-04T23:02:33.831081"
+    },
+    {
+      "query": "\"Canadian research conferences\" academic opportunities hiring OR jobs 2026",
+      "time": "2026-03-04T23:02:34.011752"
+    },
+    {
+      "query": "\"Canada Research Chairs Program\" academic opportunities hiring OR jobs 2026",
+      "time": "2026-03-04T23:02:34.453716"
+    },
+    {
+      "query": "\"Vanier Canada Graduate Scholarships\" academic opportunities hiring OR jobs 2026",
+      "time": "2026-03-04T23:02:35.102909"
+    },
+    {
+      "query": "\"Banting Postdoctoral Fellowships\" academic opportunities hiring OR jobs 2026",
+      "time": "2026-03-04T23:02:35.526757"
+    },
+    {
+      "query": "\"NSERC Postgraduate Scholarships\" academic opportunities hiring OR jobs 2026",
+      "time": "2026-03-04T23:02:36.058619"
+    },
+    {
+      "query": "edX science programs research learning resources 2026",
+      "time": "2026-03-04T23:02:37.165535"
+    },
+    {
+      "query": "\"Coursera research courses\" research learning resources 2026",
+      "time": "2026-03-04T23:02:37.230781"
+    },
+    {
+      "query": "\"LinkedIn Learning research skills\"  2026",
+      "time": "2026-03-04T23:02:37.646000"
+    },
+    {
+      "query": "\"ResearchGate networking\" research learning resources 2026",
+      "time": "2026-03-04T23:02:39.704536"
+    },
+    {
+      "query": "\"Scientific American\" research learning resources 2026",
+      "time": "2026-03-04T23:02:39.978165"
+    },
+    {
+      "query": "\"Nature Research\" research learning resources 2026",
+      "time": "2026-03-04T23:02:40.770162"
+    },
+    {
+      "query": "\"PLOS ONE\" research learning resources 2026",
+      "time": "2026-03-04T23:02:41.178524"
+    },
+    {
+      "query": "\"Canadian research journals\" research learning resources 2026",
+      "time": "2026-03-04T23:02:41.298250"
+    },
+    {
+      "query": "\"Canadian Institute for Health Information (CIHI)\" research learning resources 2026",
+      "time": "2026-03-04T23:02:41.805684"
+    },
+    {
+      "query": "\"Public Health Agency of Canada training\" research learning resources 2026",
+      "time": "2026-03-04T23:02:42.481724"
+    },
+    {
+      "query": "\"Canadian Journal of Chemistry\" research learning resources 2026",
+      "time": "2026-03-04T23:02:42.794025"
+    },
+    {
+      "query": "\"University of Toronto Online Courses\" research learning resources 2026",
+      "time": "2026-03-04T23:02:44.595827"
+    },
+    {
+      "query": "\"Gulf International Bank\" offer OR promotion OR deal 2026",
+      "time": "2026-03-05T02:22:55.293668"
+    },
+    {
+      "query": "\"Al Bank Al Kabeer\" offer OR promotion OR deal 2026",
+      "time": "2026-03-05T02:22:55.418158"
+    },
+    {
+      "query": "\"Al Bank Al Kabeer\" student OR allowance OR transfer",
+      "time": "2026-03-05T02:22:55.429435"
+    },
+    {
+      "query": "\"Gulf International Bank\" student OR allowance OR transfer",
+      "time": "2026-03-05T02:22:56.496458"
+    },
+    {
+      "query": "\"Bahrain Islamic Bank\" offer OR promotion OR deal 2026",
+      "time": "2026-03-05T02:22:57.152682"
+    },
+    {
+      "query": "\"Bahrain Islamic Bank\" student OR allowance OR transfer",
+      "time": "2026-03-05T02:22:57.482431"
+    },
+    {
+      "query": "\"National Bank of Bahrain\" offer OR promotion OR deal 2026",
+      "time": "2026-03-05T02:22:58.062167"
+    },
+    {
+      "query": "\"HSBC Bahrain\" offer OR promotion OR deal 2026",
+      "time": "2026-03-05T02:22:58.487416"
+    },
+    {
+      "query": "\"National Bank of Bahrain\" student OR allowance OR transfer",
+      "time": "2026-03-05T02:22:58.604569"
+    },
+    {
+      "query": "\"HSBC Bahrain\" student OR allowance OR transfer",
+      "time": "2026-03-05T02:22:58.954732"
+    },
+    {
+      "query": "\"Standard Chartered Bahrain\" offer OR promotion OR deal 2026",
+      "time": "2026-03-05T02:22:59.398079"
+    },
+    {
+      "query": "\"Standard Chartered Bahrain\" student OR allowance OR transfer",
+      "time": "2026-03-05T02:22:59.690426"
+    },
+    {
+      "query": "blockchain in finance global banking trends 2026",
+      "time": "2026-03-05T02:23:01.208696"
+    },
+    {
+      "query": "\"digital banking\" global banking trends 2026",
+      "time": "2026-03-05T02:23:01.460903"
+    },
+    {
+      "query": "\"fintech innovations\" global banking trends 2026",
+      "time": "2026-03-05T02:23:01.596423"
+    },
+    {
+      "query": "\"AI in banking\" global banking trends 2026",
+      "time": "2026-03-05T02:23:02.510237"
+    },
+    {
+      "query": "open banking regulations global banking trends 2026",
+      "time": "2026-03-05T02:23:02.660698"
+    },
+    {
+      "query": "\"robo-advisors\" global banking trends 2026",
+      "time": "2026-03-05T02:23:03.258489"
+    },
+    {
+      "query": "decentralized finance global banking trends 2026",
+      "time": "2026-03-05T02:23:03.467272"
+    },
+    {
+      "query": "\"regulatory tech\" global banking trends 2026",
+      "time": "2026-03-05T02:23:04.321922"
+    },
+    {
+      "query": "\"Quantum Computing in Financial Modeling\" global banking trends 2026",
+      "time": "2026-03-05T02:23:05.280279"
+    },
+    {
+      "query": "\"ESG Compliance Analytics Platforms\" global banking trends 2026",
+      "time": "2026-03-05T02:23:05.930244"
+    },
+    {
+      "query": "\"API-Driven Banking Ecosystems\" global banking trends 2026",
+      "time": "2026-03-05T02:23:06.466754"
+    },
+    {
+      "query": "\"USD/GBP exchange rates\" forex currency markets 2026",
+      "time": "2026-03-05T02:23:08.893580"
+    },
+    {
+      "query": "\"EUR/JPY fluctuations\" forex currency markets 2026",
+      "time": "2026-03-05T02:23:09.084055"
+    },
+    {
+      "query": "central bank interest rates forex currency markets 2026",
+      "time": "2026-03-05T02:23:09.359101"
+    },
+    {
+      "query": "foreign exchange reserves forex currency markets 2026",
+      "time": "2026-03-05T02:23:09.910109"
+    },
+    {
+      "query": "currency hedging strategies forex currency markets 2026",
+      "time": "2026-03-05T02:23:11.204532"
+    },
+    {
+      "query": "emerging market currencies forex currency markets 2026",
+      "time": "2026-03-05T02:23:11.919117"
+    },
+    {
+      "query": "forex market analysis forex currency markets 2026",
+      "time": "2026-03-05T02:23:11.935232"
+    },
+    {
+      "query": "forex trading platforms forex currency markets 2026",
+      "time": "2026-03-05T02:23:13.067074"
+    },
+    {
+      "query": "\"Bloomberg Terminal for FX Analysis\" forex currency markets 2026",
+      "time": "2026-03-05T02:23:13.923954"
+    },
+    {
+      "query": "\"Reuters Eikon Currency Data Feeds\" forex currency markets 2026",
+      "time": "2026-03-05T02:23:14.427780"
+    },
+    {
+      "query": "\"Algorithmic Forex Trading Platforms\" forex currency markets 2026",
+      "time": "2026-03-05T02:23:16.541938"
+    },
+    {
+      "query": "global equity funds investment asset management 2026",
+      "time": "2026-03-05T02:23:19.059706"
+    },
+    {
+      "query": "bond market trends investment asset management 2026",
+      "time": "2026-03-05T02:23:19.620802"
+    },
+    {
+      "query": "\"ETF performance\" investment asset management 2026",
+      "time": "2026-03-05T02:23:19.947251"
+    },
+    {
+      "query": "private equity investments investment asset management 2026",
+      "time": "2026-03-05T02:23:20.951685"
+    },
+    {
+      "query": "hedge fund strategies investment asset management 2026",
+      "time": "2026-03-05T02:23:21.332620"
+    },
+    {
+      "query": "alternative investments investment asset management 2026",
+      "time": "2026-03-05T02:23:23.232800"
+    },
+    {
+      "query": "portfolio diversification investment asset management 2026",
+      "time": "2026-03-05T02:23:23.317263"
+    },
+    {
+      "query": "market volatility analysis investment asset management 2026",
+      "time": "2026-03-05T02:23:23.370864"
+    },
+    {
+      "query": "\"Investcorp Bahrain\" investment asset management 2026",
+      "time": "2026-03-05T02:23:26.644990"
+    },
+    {
+      "query": "\"Bahrain Investment Authority\" investment asset management 2026",
+      "time": "2026-03-05T02:23:26.867291"
+    },
+    {
+      "query": "\"MSCI Bahrain Index Funds\" investment asset management 2026",
+      "time": "2026-03-05T02:23:28.211041"
+    },
+    {
+      "query": "global market research reports financial research analysis 2026",
+      "time": "2026-03-05T02:23:31.536322"
+    },
+    {
+      "query": "\"Bahrain financial sector reviews\" financial research analysis 2026",
+      "time": "2026-03-05T02:23:31.627604"
+    },
+    {
+      "query": "\"Gulf economic reports\" financial research analysis 2026",
+      "time": "2026-03-05T02:23:31.788512"
+    },
+    {
+      "query": "\"industry analysis\" financial research analysis 2026",
+      "time": "2026-03-05T02:23:34.292239"
+    },
+    {
+      "query": "financial forecasting financial research analysis 2026",
+      "time": "2026-03-05T02:23:34.570529"
+    },
+    {
+      "query": "\"economic indicators\" financial research analysis 2026",
+      "time": "2026-03-05T02:23:34.673125"
+    },
+    {
+      "query": "banking sector studies financial research analysis 2026",
+      "time": "2026-03-05T02:23:35.653714"
+    },
+    {
+      "query": "\"investment outlooks\" financial research analysis 2026",
+      "time": "2026-03-05T02:23:35.825078"
+    },
+    {
+      "query": "\"Moody's Bahrain Economic Reports\" financial research analysis 2026",
+      "time": "2026-03-05T02:23:36.945724"
+    },
+    {
+      "query": "\"Central Bank of Bahrain (CBB) Regulatory\" financial research analysis 2026",
+      "time": "2026-03-05T02:23:37.002335"
+    },
+    {
+      "query": "\"Bahrain Economic Development Board (BEDB) Market\" financial research analysis 2026",
+      "time": "2026-03-05T02:23:37.193443"
+    },
+    {
+      "query": "\"Zain\" Kuwait hiring OR careers OR recruitment 2026",
+      "time": "2026-03-07T23:11:36.558964"
+    },
+    {
+      "query": "\"Zain\" telecom construction employers Kuwait careers 2026",
+      "time": "2026-03-07T23:11:36.658398"
+    },
+    {
+      "query": "\"Ooredoo\" Kuwait hiring OR careers OR recruitment 2026",
+      "time": "2026-03-07T23:11:36.976924"
+    },
+    {
+      "query": "\"Ooredoo\" telecom construction employers Kuwait careers 2026",
+      "time": "2026-03-07T23:11:37.528838"
+    },
+    {
+      "query": "\"STC Kuwait\" Kuwait hiring OR careers OR recruitment 2026",
+      "time": "2026-03-07T23:11:38.085276"
+    },
+    {
+      "query": "\"KNET\" Kuwait hiring OR careers OR recruitment 2026",
+      "time": "2026-03-07T23:11:38.754561"
+    },
+    {
+      "query": "\"STC Kuwait\" telecom construction employers Kuwait careers 2026",
+      "time": "2026-03-07T23:11:38.847319"
+    },
+    {
+      "query": "\"KNET\" telecom construction employers Kuwait careers 2026",
+      "time": "2026-03-07T23:11:39.353592"
+    },
+    {
+      "query": "\"Alghanim\" Kuwait hiring OR careers OR recruitment 2026",
+      "time": "2026-03-07T23:11:39.924453"
+    },
+    {
+      "query": "\"Alghanim\" telecom construction employers Kuwait careers 2026",
+      "time": "2026-03-07T23:11:40.318339"
+    },
+    {
+      "query": "\"Huawei\" Kuwait hiring OR careers OR recruitment 2026",
+      "time": "2026-03-07T23:11:40.943908"
+    },
+    {
+      "query": "\"Huawei\" telecom construction employers Kuwait careers 2026",
+      "time": "2026-03-07T23:11:41.256798"
+    },
+    {
+      "query": "\"PMP certification\" Kuwait hiring OR careers OR recruitment 2026",
+      "time": "2026-03-07T23:11:42.459207"
+    },
+    {
+      "query": "\"PE license\" Kuwait hiring OR careers OR recruitment 2026",
+      "time": "2026-03-07T23:11:42.852467"
+    },
+    {
+      "query": "\"PMP certification\" career certifications Kuwait careers 2026",
+      "time": "2026-03-07T23:11:43.366103"
+    },
+    {
+      "query": "\"PE license\" career certifications Kuwait careers 2026",
+      "time": "2026-03-07T23:11:43.615732"
+    },
+    {
+      "query": "\"Six Sigma\" Kuwait hiring OR careers OR recruitment 2026",
+      "time": "2026-03-07T23:11:43.942685"
+    },
+    {
+      "query": "\"Six Sigma\" career certifications Kuwait careers 2026",
+      "time": "2026-03-07T23:11:44.508129"
+    },
+    {
+      "query": "\"NEBOSH\" Kuwait hiring OR careers OR recruitment 2026",
+      "time": "2026-03-07T23:11:44.761208"
+    },
+    {
+      "query": "\"NEBOSH\" career certifications Kuwait careers 2026",
+      "time": "2026-03-07T23:11:45.119484"
+    },
+    {
+      "query": "\"Coursera\" Kuwait hiring OR careers OR recruitment 2026",
+      "time": "2026-03-07T23:11:45.615959"
+    },
+    {
+      "query": "\"Coursera\" career certifications Kuwait careers 2026",
+      "time": "2026-03-07T23:11:46.132304"
+    },
+    {
+      "query": "\"Udemy\" career certifications Kuwait careers 2026",
+      "time": "2026-03-07T23:11:46.643117"
+    },
+    {
+      "query": "\"5G deployment\" telecom construction trends 2026",
+      "time": "2026-03-07T23:11:57.645816"
+    },
+    {
+      "query": "renewable energy integration telecom construction trends 2026",
+      "time": "2026-03-07T23:11:58.325580"
+    },
+    {
+      "query": "smart grid technology telecom construction trends 2026",
+      "time": "2026-03-07T23:11:58.746946"
+    },
+    {
+      "query": "construction automation telecom construction trends 2026",
+      "time": "2026-03-07T23:11:58.952206"
+    },
+    {
+      "query": "\"BIM software\" telecom construction trends 2026",
+      "time": "2026-03-07T23:11:59.302094"
+    },
+    {
+      "query": "\"IoT in construction\" telecom construction trends 2026",
+      "time": "2026-03-07T23:11:59.728664"
+    },
+    {
+      "query": "digital twin modeling telecom construction trends 2026",
+      "time": "2026-03-07T23:12:00.318920"
+    },
+    {
+      "query": "\"AI in Construction Management\" telecom construction trends 2026",
+      "time": "2026-03-07T23:12:00.786103"
+    },
+    {
+      "query": "\"Blockchain for Supply Chain\" telecom construction trends 2026",
+      "time": "2026-03-07T23:12:01.340018"
     }
   ]
 }

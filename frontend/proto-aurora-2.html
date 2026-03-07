@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Aurora — P2: Northern Glade</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:#030907; overflow:hidden; }
+  canvas { display:block; width:100vw; height:100vh; }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<script>
+const canvas = document.getElementById('c');
+const ctx = canvas.getContext('2d');
+function resize() { canvas.width = innerWidth; canvas.height = innerHeight; }
+resize();
+window.addEventListener('resize', resize);
+
+// Northern Glade — aurora curtains rippling overhead, dark pine silhouettes,
+// fireflies drifting between trunks, ground mist, scattered stars
+
+// Aurora curtain — sine-wave ribbon across the sky
+const AURORA_POINTS = 80;
+const auroraSeeds = [];
+for (let i = 0; i < AURORA_POINTS; i++) {
+    auroraSeeds.push({
+        baseY: 0.12 + Math.random() * 0.06,
+        amp: 0.02 + Math.random() * 0.04,
+        freq: 0.8 + Math.random() * 1.2,
+        phase: Math.random() * Math.PI * 2,
+        width: 0.04 + Math.random() * 0.06,
+        brightness: 0.4 + Math.random() * 0.6,
+    });
+}
+
+// Pine tree silhouettes — layered
+const trees = [];
+function makePine(x, layer) {
+    const scale = [0.55, 0.75, 1.0][layer];
+    const h = (0.18 + Math.random() * 0.22) * scale;
+    const w = (18 + Math.random() * 22) * scale;
+    const tiers = 2 + Math.floor(Math.random() * 2);
+    return { x, layer, h, w, tiers, scale };
+}
+for (let i = 0; i < 6; i++) trees.push(makePine(0.05 + Math.random() * 0.9, 0));
+for (let i = 0; i < 7; i++) trees.push(makePine(0.03 + Math.random() * 0.94, 1));
+for (let i = 0; i < 5; i++) trees.push(makePine(0.02 + Math.random() * 0.96, 2));
+trees.sort((a, b) => a.layer - b.layer);
+
+// Fireflies
+const fireflies = [];
+for (let i = 0; i < 55; i++) {
+    fireflies.push({
+        x: Math.random(), y: 0.3 + Math.random() * 0.5,
+        baseX: 0, baseY: 0,
+        r: 0.8 + Math.random() * 1.5,
+        phase: Math.random() * Math.PI * 2,
+        glowSpeed: 0.3 + Math.random() * 0.7,
+        wanderRx: 0.008 + Math.random() * 0.02,
+        wanderRy: 0.004 + Math.random() * 0.012,
+        wanderSpeed: 0.06 + Math.random() * 0.1,
+        wanderPhase: Math.random() * Math.PI * 2,
+    });
+    fireflies[i].baseX = fireflies[i].x;
+    fireflies[i].baseY = fireflies[i].y;
+}
+
+// Stars
+const stars = [];
+for (let i = 0; i < 100; i++) {
+    stars.push({
+        x: Math.random(), y: Math.random() * 0.3,
+        r: Math.random() * 0.7 + 0.2, a: Math.random() * 0.15 + 0.03,
+        phase: Math.random() * Math.PI * 2,
+    });
+}
+
+// Ground mist
+const mists = [];
+for (let i = 0; i < 10; i++) {
+    mists.push({
+        x: Math.random(), y: 0.7 + Math.random() * 0.1,
+        w: 0.12 + Math.random() * 0.2,
+        speed: 0.005 + Math.random() * 0.01,
+        a: 0.015 + Math.random() * 0.02,
+        phase: Math.random() * Math.PI * 2,
+    });
+}
+
+function drawAurora(t, w, h) {
+    // Draw multiple aurora curtain layers
+    for (let layer = 0; layer < 3; layer++) {
+        const layerAlpha = [0.06, 0.04, 0.025][layer];
+        const layerOffset = layer * 0.03;
+        const hue = [153, 180, 130][layer]; // green variations
+
+        ctx.beginPath();
+        const startX = 0;
+        ctx.moveTo(startX, h * 0.35);
+
+        // Build curtain path
+        for (let i = 0; i <= AURORA_POINTS; i++) {
+            const frac = i / AURORA_POINTS;
+            const seed = auroraSeeds[Math.min(i, AURORA_POINTS - 1)];
+            const x = frac * w;
+            const wave = Math.sin(t * 0.2 * seed.freq + seed.phase + frac * 6) * seed.amp * h;
+            const wave2 = Math.sin(t * 0.35 + frac * 3 + layer) * 0.01 * h;
+            const y = (seed.baseY + layerOffset) * h + wave + wave2;
+            if (i === 0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
+        }
+
+        // Close down to form a filled curtain
+        for (let i = AURORA_POINTS; i >= 0; i--) {
+            const frac = i / AURORA_POINTS;
+            const seed = auroraSeeds[Math.min(i, AURORA_POINTS - 1)];
+            const x = frac * w;
+            const wave = Math.sin(t * 0.2 * seed.freq + seed.phase + frac * 6) * seed.amp * h;
+            const wave2 = Math.sin(t * 0.35 + frac * 3 + layer) * 0.01 * h;
+            const baseY = (seed.baseY + layerOffset) * h + wave + wave2;
+            const curtainDrop = seed.width * h * (0.8 + 0.4 * Math.sin(t * 0.15 + frac * 4 + layer));
+            ctx.lineTo(x, baseY + curtainDrop);
+        }
+        ctx.closePath();
+
+        const grad = ctx.createLinearGradient(0, h * 0.08, 0, h * 0.35);
+        grad.addColorStop(0, `rgba(52,211,${hue},${layerAlpha * 1.5})`);
+        grad.addColorStop(0.4, `rgba(52,211,${hue},${layerAlpha})`);
+        grad.addColorStop(0.8, `rgba(40,180,140,${layerAlpha * 0.3})`);
+        grad.addColorStop(1, 'transparent');
+        ctx.fillStyle = grad;
+        ctx.fill();
+    }
+
+    // Bright core line along the top edge of the curtain
+    ctx.beginPath();
+    for (let i = 0; i <= AURORA_POINTS; i++) {
+        const frac = i / AURORA_POINTS;
+        const seed = auroraSeeds[Math.min(i, AURORA_POINTS - 1)];
+        const x = frac * w;
+        const wave = Math.sin(t * 0.2 * seed.freq + seed.phase + frac * 6) * seed.amp * h;
+        const wave2 = Math.sin(t * 0.35 + frac * 3) * 0.01 * h;
+        const y = seed.baseY * h + wave + wave2;
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+    }
+    ctx.strokeStyle = 'rgba(110,231,183,0.08)';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // Glow beneath aurora
+    const auroraGlow = ctx.createLinearGradient(0, h * 0.05, 0, h * 0.45);
+    auroraGlow.addColorStop(0, 'rgba(52,211,153,0.015)');
+    auroraGlow.addColorStop(0.5, 'rgba(52,211,153,0.008)');
+    auroraGlow.addColorStop(1, 'transparent');
+    ctx.fillStyle = auroraGlow;
+    ctx.fillRect(0, 0, w, h * 0.45);
+}
+
+function drawTree(tree, h_, w_) {
+    const x = tree.x * w_;
+    const baseY = h_ * (0.82 - tree.layer * 0.02);
+    const treeH = tree.h * h_;
+    const topY = baseY - treeH;
+    const darkness = 0.88 + tree.layer * 0.04;
+
+    ctx.fillStyle = `rgba(2,10,5,${darkness})`;
+
+    // Pine silhouette — stacked triangles
+    for (let tier = 0; tier < tree.tiers; tier++) {
+        const tierFrac = tier / tree.tiers;
+        const tierY = topY + treeH * tierFrac * 0.3;
+        const tierW = tree.w * (0.6 + tierFrac * 0.5);
+        const tierH = treeH * (0.5 / tree.tiers + 0.15);
+
+        ctx.beginPath();
+        ctx.moveTo(x, tierY);
+        ctx.lineTo(x - tierW, tierY + tierH);
+        ctx.lineTo(x + tierW, tierY + tierH);
+        ctx.closePath();
+        ctx.fill();
+    }
+
+    // Trunk
+    ctx.fillRect(x - tree.scale * 2.5, baseY - treeH * 0.15, tree.scale * 5, treeH * 0.15);
+}
+
+function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const t = performance.now() * 0.001;
+    const w = canvas.width, h = canvas.height;
+
+    // Sky
+    const sky = ctx.createLinearGradient(0, 0, 0, h);
+    sky.addColorStop(0, '#050d09');
+    sky.addColorStop(0.3, '#040b07');
+    sky.addColorStop(1, '#030907');
+    ctx.fillStyle = sky; ctx.fillRect(0, 0, w, h);
+
+    // Stars
+    for (const s of stars) {
+        ctx.globalAlpha = s.a * (0.5 + 0.5 * Math.sin(t * 0.08 + s.phase));
+        ctx.fillStyle = '#90c8a8';
+        ctx.beginPath(); ctx.arc(s.x * w, s.y * h, s.r, 0, Math.PI * 2); ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+
+    // Aurora curtains
+    drawAurora(t, w, h);
+
+    // Trees
+    for (const tree of trees) drawTree(tree, h, w);
+
+    // Ground
+    const gnd = ctx.createLinearGradient(0, h * 0.76, 0, h);
+    gnd.addColorStop(0, 'transparent');
+    gnd.addColorStop(0.2, 'rgba(3,10,5,0.6)');
+    gnd.addColorStop(0.5, 'rgba(2,8,4,0.9)');
+    gnd.addColorStop(1, 'rgba(2,6,3,0.97)');
+    ctx.fillStyle = gnd; ctx.fillRect(0, h * 0.76, w, h * 0.24);
+
+    // Ground mist
+    for (const m of mists) {
+        m.x += m.speed * 0.01;
+        if (m.x > 1.3) m.x = -0.3;
+        const breathe = 0.5 + 0.5 * Math.sin(t * 0.12 + m.phase);
+        const mx = m.x * w, my = m.y * h, mw = m.w * w;
+        const mg = ctx.createRadialGradient(mx, my, 0, mx, my, mw);
+        mg.addColorStop(0, `rgba(52,211,153,${m.a * breathe})`);
+        mg.addColorStop(0.5, `rgba(40,180,140,${m.a * breathe * 0.3})`);
+        mg.addColorStop(1, 'transparent');
+        ctx.fillStyle = mg;
+        ctx.fillRect(mx - mw, my - mw * 0.3, mw * 2, mw * 0.6);
+    }
+
+    // Fireflies
+    for (const f of fireflies) {
+        const wp = t * f.wanderSpeed + f.wanderPhase;
+        f.x = f.baseX + Math.sin(wp) * f.wanderRx;
+        f.y = f.baseY + Math.sin(wp * 2) * f.wanderRy;
+
+        const rawGlow = Math.sin(t * f.glowSpeed + f.phase);
+        const glow = Math.pow(Math.max(0, rawGlow), 1.8);
+        if (glow < 0.03) continue;
+
+        const fx = f.x * w, fy = f.y * h;
+
+        ctx.globalAlpha = glow;
+        const halo = ctx.createRadialGradient(fx, fy, 0, fx, fy, f.r * 14);
+        halo.addColorStop(0, 'rgba(110,231,183,0.10)');
+        halo.addColorStop(0.3, 'rgba(52,211,153,0.03)');
+        halo.addColorStop(1, 'transparent');
+        ctx.fillStyle = halo;
+        ctx.beginPath(); ctx.arc(fx, fy, f.r * 14, 0, Math.PI * 2); ctx.fill();
+
+        const core = ctx.createRadialGradient(fx, fy, 0, fx, fy, f.r * 2);
+        core.addColorStop(0, `rgba(230,255,240,${glow * 0.85})`);
+        core.addColorStop(0.4, `rgba(110,231,183,${glow * 0.5})`);
+        core.addColorStop(1, 'transparent');
+        ctx.fillStyle = core;
+        ctx.beginPath(); ctx.arc(fx, fy, f.r * 2, 0, Math.PI * 2); ctx.fill();
+    }
+
+    ctx.globalAlpha = 1;
+    requestAnimationFrame(draw);
+}
+requestAnimationFrame(draw);
+</script>
+</body>
+</html>

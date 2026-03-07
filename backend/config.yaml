@@ -36,10 +36,10 @@ scoring:
   fallback_score: 3.0
 search:
   google_api_key: ${GOOGLE_API_KEY}
-  google_cx: ${GOOGLE_CSE_ID}
+  google_cx: 52d68e3fc17d74e9a
   provider: serper
   serper_api_key: ${SERPER_API_KEY}
-  serper_credits: 0
+  serper_credits: 43
 system:
   database_file: strat_os.db
   frontend_port: 8080
@@ -49,26 +49,37 @@ system:
 email:
   smtp_host: smtp.gmail.com
   smtp_port: 587
-  smtp_user: ${SMTP_USER}
+  smtp_user: StratintOS@gmail.com
   smtp_password: ${SMTP_PASSWORD}
 profile:
-  role: Game Developer
+  role: Electrical Engineering
   location: Kuwait
-  context: Game Developer in Kuwait focused on learning and development in game development,
-    tracking industry trends, tools, and employment opportunities.
+  context: Mid-career electrical engineer in Kuwait focused on K-sector employment,
+    government job opportunities, and professional development in telecom and construction
+    industries.
   interests: []
 market:
   tickers:
-  - symbol: CL=F
-    name: Crude Oil
+  - symbol: NVDA
+    name: NVIDIA
+  - symbol: AAPL
+    name: Apple
+  - symbol: MSFT
+    name: Microsoft
+  - symbol: AMZN
+    name: Amazon
+  - symbol: GOOGL
+    name: Google
+  - symbol: BTC-USD
+    name: Bitcoin
+  - symbol: ETH-USD
+    name: Ethereum
   - symbol: GC=F
     name: Gold
-  - symbol: XOM
-    name: ExxonMobil
-  - symbol: CVX
-    name: Chevron
-  - symbol: SLB
-    name: SLB
+  - symbol: CL=F
+    name: Crude Oil
+  - symbol: SPY
+    name: S&P 500 ETF
 news:
   timelimit: w
   career:
@@ -88,89 +99,119 @@ news:
     keywords: []
     queries: []
 dynamic_categories:
-- id: gamedev
-  label: Game Development Employers
-  icon: briefcase
+- id: telecom
+  label: Telecom & Construction Employers
+  icon: building-2
   items:
-  - Ubisoft Kuwait
-  - EA Sports
-  - Activision Blizzard
-  - Nexon
-  - Zynga
-  - Kuwait Game Studio
-  - Gameloft
-  - Nintendo Kuwait
+  - Zain
+  - Ooredoo
+  - STC Kuwait
+  - KNET
+  - Alghanim
+  - Huawei
+  - SAP
+  - Arab Contractors
+  - Ericsson
+  - Nokia
+  - Samsung C&T
   enabled: true
   scorer_type: career
   root: kuwait
-- id: gametech
-  label: Game Tech & Tools
-  icon: cpu
-  items:
-  - Unity Engine
-  - Unreal Engine
-  - Godot
-  - VR development
-  - AI in games
-  - GameFi
-  - Cloud gaming
-  - Blockchain gaming
-  enabled: true
-  scorer_type: tech
-  root: global
-- id: learn
-  label: Learning & Certifications
+- id: cert
+  label: Career & Certifications
   icon: book-open
   items:
-  - Unity Certified
-  - Unreal Engine certification
-  - GameDev courses
-  - Coursera game dev
-  - Udemy game dev
-  - GDC workshops
-  - Game jams Kuwait
-  - Game design bootcamps
-  enabled: false
+  - PMP certification
+  - PE license
+  - Six Sigma
+  - NEBOSH
+  - Coursera
+  - Udemy
+  - LinkedIn Learning
+  - IEEE certifications
+  - CompTIA Security+
+  - Cisco CCNA
+  - Kuwait Engineering Council (KEC) Certifications
+  enabled: true
   scorer_type: career
   root: kuwait
-- id: gamenews
-  label: Regional & Global Industry News
+- id: trend
+  label: Telecom & Construction Trends
+  icon: bar-chart-3
+  items:
+  - 5G deployment
+  - smart grid technology
+  - renewable energy integration
+  - construction automation
+  - BIM software
+  - IoT in construction
+  - digital twin modeling
+  - smart city infrastructure
+  - AI in Construction Management
+  - Blockchain for Supply Chain
+  - Edge Computing in Telecom
+  enabled: true
+  scorer_type: auto
+  root: regional
+- id: gov
+  label: Government & Public Sector Opportunities
+  icon: gavel
+  items:
+  - Kuwait government job portals
+  - public sector tenders
+  - Ministry of Electricity
+  - KISR
+  - KIPIC
+  - KNPC
+  - KOC
+  - Kuwait Institute for Scientific Research
+  - Kuwait Telecommunications Regulatory Authority
+  - Kuwait Standards and Metrology Center
+  - Ministry of Transport
+  enabled: true
+  scorer_type: career
+  root: kuwait
+- id: net
+  label: Professional Development & Networking
   icon: globe
   items:
-  - GDC Kuwait
-  - gamescom
-  - Kuwait gaming events
-  - Middle East game dev
-  - Global game trends
-  - Steam updates
-  - Indie game funding
-  - ESports Kuwait
-  enabled: false
-  scorer_type: regional
-  root: regional
-- id: trends
-  label: Game Development Trends
-  icon: target
-  items:
-  - Metaverse gaming
-  - AI NPCs
-  - 5G gaming
-  - VR/AR integration
-  - Cross-platform dev
-  - Game analytics
-  - Sustainability in games
-  enabled: false
-  scorer_type: tech
+  - IEEE conferences
+  - industry networking groups
+  - LinkedIn professional groups
+  - construction tech workshops
+  - telecom innovation forums
+  - online engineering courses
+  - professional associations
+  - Kuwait Engineering Council
+  - Kuwait International Petroleum Exhibition and Conference
+  - Kuwait Society of Engineers
+  - Kuwait Institute for Scientific Research (KISR)
+  enabled: true
+  scorer_type: auto
   root: global
+- id: ksector
+  label: K-Sector Employers
+  icon: briefcase
+  items:
+  - Equate
+  - SLB
+  - Halliburton
+  - Baker Hughes
+  - Honeywell
+  - Kuwait Energy Efficiency Company
+  - Kuwait National Petroleum Company
+  enabled: true
+  scorer_type: career
+  root: kuwait
 extra_feeds_finance:
   cnbc_top: false
   cnbc_finance: false
   marketwatch: false
   mw_pulse: false
-  yahoo_fin: false
-  investing: false
+  yahoo_fin: true
+  investing: true
   ft: false
-  bloomberg: false
+  bloomberg: true
   wsj_world: false
   economist: false
   seekingalpha: false
@@ -179,19 +220,19 @@ extra_feeds_finance:
   cointelegraph: false
   gn_kuwait_biz: false
   gn_gcc_finance: false
-  zawya: false
+  zawya: true
   arab_times_biz: false
   boursa_kuwait: true
   oilprice: true
   rigzone: false
 extra_feeds_politics:
-  bbc_world: false
-  bbc_mideast: false
+  bbc_world: true
+  bbc_mideast: true
   aljazeera: true
-  npr_world: false
-  nyt_world: false
-  nyt_mideast: false
-  wapo_world: false
+  npr_world: true
+  nyt_world: true
+  nyt_mideast: true
+  wapo_world: true
   wapo_politics: false
   cnn_world: false
   fox_world: false
@@ -199,13 +240,16 @@ extra_feeds_politics:
   dw: false
   france24: false
   gn_kuwait: true
-  arab_times: false
+  arab_times: true
   times_kuwait: false
-  gn_mideast: false
+  gn_mideast: true
   alarabiya: false
   middleeasteye: false
   newarab: false
   scmp: false
   nikkei_asia: false
-custom_feeds: []
+custom_feeds:
+- url: https://e-hentai.org/rss/ehg.xml
+  name: nh
+  'on': true
 custom_tab_name: Custom
