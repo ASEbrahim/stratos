@@ -611,9 +611,117 @@
         _wireSlider('#te-stars-brightness', '#te-stars-brightness-val', 'stratos-stars-brightness', v => v.toFixed(2) + 'x');
     }
 
+    // Generic element controls: position grid + scale/blur/opacity sliders
+    const _themeElementDefs = {
+        noir:     { label: 'Pendulum' },
+        rose:     { label: 'Rose Bloom' },
+        coffee:   { label: 'Coffee Cup' },
+        midnight: { label: 'Moon' },
+        nebula:   { label: 'Black Hole' },
+        aurora:   { label: 'Binary Stars' },
+    };
+
+    function _buildGenericElementControls(body) {
+        const old = document.getElementById('te-element-section');
+        if (old) old.remove();
+
+        const theme = document.documentElement.getAttribute('data-theme');
+        const def = _themeElementDefs[theme];
+        if (!def) return;
+
+        const prefix = 'stratos-' + theme;
+        const section = document.createElement('div');
+        section.id = 'te-element-section';
+        section.className = 'te-group';
+
+        const cx = parseFloat(localStorage.getItem(prefix + '-cx') || '0.5');
+        const cy = parseFloat(localStorage.getItem(prefix + '-cy') || '0.35');
+        const scale = parseFloat(localStorage.getItem(prefix + '-scale') || '1');
+        const blur = parseFloat(localStorage.getItem(prefix + '-blur') || '0');
+        const opacity = parseFloat(localStorage.getItem(prefix + '-opacity') || '1');
+
+        section.innerHTML = `
+            <div class="te-group-label">${def.label}</div>
+            <div style="display:flex;gap:12px;align-items:flex-start;">
+                <div style="flex:0 0 auto;">
+                    <label class="te-color-label" style="margin-bottom:4px;display:block;">Position</label>
+                    <div id="te-el-grid" style="
+                        width:110px;height:80px;border-radius:6px;position:relative;cursor:crosshair;
+                        background:var(--bg-primary);border:1px solid var(--border-strong);overflow:hidden;
+                    ">
+                        <div style="position:absolute;inset:0;opacity:0.06;
+                            background:repeating-linear-gradient(0deg,transparent,transparent 19px,var(--text-muted) 19px,var(--text-muted) 20px),
+                            repeating-linear-gradient(90deg,transparent,transparent 21px,var(--text-muted) 21px,var(--text-muted) 22px);
+                        "></div>
+                        <div id="te-el-dot" style="
+                            width:10px;height:10px;border-radius:50%;position:absolute;
+                            background:var(--accent);box-shadow:0 0 6px var(--accent);
+                            transform:translate(-50%,-50%);pointer-events:none;
+                            left:${cx * 100}%;top:${cy * 100}%;
+                        "></div>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;margin-top:3px;">
+                        <span class="te-color-label" style="font-size:9px;opacity:0.5;" id="te-el-pos-label">${Math.round(cx*100)}%, ${Math.round(cy*100)}%</span>
+                        <button onclick="window._themeEditor._resetElementPos()" style="font-size:9px;color:var(--accent);background:none;border:none;cursor:pointer;padding:0;">reset</button>
+                    </div>
+                </div>
+                <div style="flex:1;min-width:0;">
+                    <label class="te-color-label" style="margin-bottom:4px;display:block;">Scale</label>
+                    <div style="display:flex;align-items:center;gap:8px;">
+                        <input type="range" class="te-range-slider" id="te-el-scale" min="0.3" max="2.5" step="0.05" value="${scale}" style="flex:1;" />
+                        <span class="te-range-val" id="te-el-scale-val">${scale.toFixed(2)}x</span>
+                    </div>
+                    <label class="te-color-label" style="margin-bottom:2px;margin-top:6px;display:block;">Blur</label>
+                    <div style="display:flex;align-items:center;gap:8px;">
+                        <input type="range" class="te-range-slider" id="te-el-blur" min="0" max="8" step="0.5" value="${blur}" style="flex:1;" />
+                        <span class="te-range-val" id="te-el-blur-val">${blur.toFixed(1)}px</span>
+                    </div>
+                    <label class="te-color-label" style="margin-bottom:2px;margin-top:6px;display:block;">Opacity</label>
+                    <div style="display:flex;align-items:center;gap:8px;">
+                        <input type="range" class="te-range-slider" id="te-el-opacity" min="0.05" max="1" step="0.05" value="${opacity}" style="flex:1;" />
+                        <span class="te-range-val" id="te-el-opacity-val">${Math.round(opacity*100)}%</span>
+                    </div>
+                </div>
+            </div>
+        `;
+        body.appendChild(section);
+
+        // Wire position grid drag
+        const grid = section.querySelector('#te-el-grid');
+        const dot = section.querySelector('#te-el-dot');
+        const posLabel = section.querySelector('#te-el-pos-label');
+        let dragging = false;
+        function updatePos(e) {
+            const rect = grid.getBoundingClientRect();
+            const x = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+            const y = Math.max(0, Math.min(1, (e.clientY - rect.top) / rect.height));
+            dot.style.left = (x * 100) + '%'; dot.style.top = (y * 100) + '%';
+            localStorage.setItem(prefix + '-cx', x.toFixed(3));
+            localStorage.setItem(prefix + '-cy', y.toFixed(3));
+            posLabel.textContent = Math.round(x * 100) + '%, ' + Math.round(y * 100) + '%';
+        }
+        grid.addEventListener('mousedown', (e) => { dragging = true; updatePos(e); e.preventDefault(); });
+        document.addEventListener('mousemove', (e) => { if (dragging) updatePos(e); });
+        document.addEventListener('mouseup', () => { dragging = false; });
+        grid.addEventListener('touchstart', (e) => { dragging = true; updatePos(e.touches[0]); e.preventDefault(); }, { passive: false });
+        document.addEventListener('touchmove', (e) => { if (dragging) updatePos(e.touches[0]); }, { passive: false });
+        document.addEventListener('touchend', () => { dragging = false; });
+
+        function _wireSlider(id, valId, key, fmt) {
+            const sl = section.querySelector(id);
+            const vl = section.querySelector(valId);
+            if (!sl) return;
+            sl.addEventListener('input', (e) => { const v = parseFloat(e.target.value); vl.textContent = fmt(v); localStorage.setItem(key, v.toString()); });
+        }
+        _wireSlider('#te-el-scale', '#te-el-scale-val', prefix + '-scale', v => v.toFixed(2) + 'x');
+        _wireSlider('#te-el-blur', '#te-el-blur-val', prefix + '-blur', v => v.toFixed(1) + 'px');
+        _wireSlider('#te-el-opacity', '#te-el-opacity-val', prefix + '-opacity', v => Math.round(v * 100) + '%');
+    }
+
     function _buildThemeElementControls(body) {
         _buildCosmosControls(body);
         _buildSakuraControls(body);
+        _buildGenericElementControls(body);
         _buildStarFieldControls(body);
     }
 
@@ -688,12 +796,11 @@
             clearOverrides();
             clearAllOverrides();
             // Clear all theme element localStorage values
-            const _keys = [
-                'stratos-cosmos-cx','stratos-cosmos-cy','stratos-cosmos-scale','stratos-cosmos-blur','stratos-cosmos-opacity','stratos-cosmos-density',
-                'stratos-sakura-size','stratos-sakura-density','stratos-sakura-fall','stratos-sakura-wind','stratos-sakura-opacity',
-                'stratos-stars-density','stratos-stars-drift','stratos-stars-brightness',
-            ];
-            _keys.forEach(k => localStorage.removeItem(k));
+            const _themes = ['cosmos','sakura','noir','rose','coffee','midnight','nebula','aurora'];
+            const _suffixes = ['-cx','-cy','-scale','-blur','-opacity','-density'];
+            for (const th of _themes) for (const sf of _suffixes) localStorage.removeItem('stratos-' + th + sf);
+            ['stratos-sakura-size','stratos-sakura-fall','stratos-sakura-wind',
+             'stratos-stars-density','stratos-stars-drift','stratos-stars-brightness'].forEach(k => localStorage.removeItem(k));
             // Re-trigger base theme to restore CSS values
             const base = document.documentElement.getAttribute('data-theme') || 'midnight';
             setTheme(base);
@@ -767,6 +874,17 @@
             localStorage.removeItem('stratos-cosmos-cy');
             const dot = document.getElementById('te-cosmos-dot');
             const lbl = document.getElementById('te-cosmos-pos-label');
+            if (dot) { dot.style.left = '50%'; dot.style.top = '35%'; }
+            if (lbl) lbl.textContent = '50%, 35%';
+        },
+
+        _resetElementPos() {
+            const theme = document.documentElement.getAttribute('data-theme');
+            const prefix = 'stratos-' + theme;
+            localStorage.removeItem(prefix + '-cx');
+            localStorage.removeItem(prefix + '-cy');
+            const dot = document.getElementById('te-el-dot');
+            const lbl = document.getElementById('te-el-pos-label');
             if (dot) { dot.style.left = '50%'; dot.style.top = '35%'; }
             if (lbl) lbl.textContent = '50%, 35%';
         }

@@ -248,6 +248,12 @@ function renderStars() {
     const theme = document.documentElement.getAttribute('data-theme');
     const isSakura = theme === 'sakura';
     const isCosmos = theme === 'cosmos';
+    const isNoir = theme === 'noir';
+    const isRose = theme === 'rose';
+    const isCoffee = theme === 'coffee';
+    const isMidnight = theme === 'midnight';
+    const isNebula = theme === 'nebula';
+    const isAurora = theme === 'aurora';
 
     const _cosmosDensityInit = isCosmos ? parseFloat(localStorage.getItem('stratos-cosmos-density') || '1') : 1;
     const _sakuraDensityInit = isSakura ? parseFloat(localStorage.getItem('stratos-sakura-density') || '1') : 1;
@@ -256,7 +262,7 @@ function renderStars() {
     const MOUSE_RADIUS = 150;
     const LINE_RADIUS = 120;
     const LINE_MOUSE_RANGE = 240;
-    const DRIFT_SPEED = 0.06 * parseFloat(localStorage.getItem('stratos-stars-drift') || '1');
+    const DRIFT_SPEED_BASE = 0.06;
 
     // Solar system data (cosmos theme only - supports P1 classic & P2 tilted)
     const _ssPreset = isCosmos ? (localStorage.getItem('stratos-cosmos-preset') || 'P1') : '';
@@ -472,6 +478,406 @@ function renderStars() {
         }
     }
 
+    // ── Noir: Pendulum ──
+    const _noirTrail = [];
+    const _noirRipples = [];
+    function _noirDrawGear(gcx, gcy, innerR, outerR, teeth, rotation, alpha) {
+        ctx.save(); ctx.translate(gcx, gcy); ctx.rotate(rotation);
+        ctx.beginPath();
+        const step = Math.PI * 2 / teeth;
+        for (let i = 0; i < teeth; i++) {
+            const a = i * step;
+            ctx.lineTo(Math.cos(a) * innerR, Math.sin(a) * innerR);
+            ctx.lineTo(Math.cos(a + step * 0.1) * outerR, Math.sin(a + step * 0.1) * outerR);
+            ctx.lineTo(Math.cos(a + step * 0.4) * outerR, Math.sin(a + step * 0.4) * outerR);
+            ctx.lineTo(Math.cos(a + step * 0.5) * innerR, Math.sin(a + step * 0.5) * innerR);
+        }
+        ctx.closePath();
+        ctx.strokeStyle = `rgba(167,139,250,${alpha})`; ctx.lineWidth = 1; ctx.stroke();
+        ctx.beginPath(); ctx.arc(0, 0, innerR * 0.3, 0, Math.PI * 2);
+        ctx.strokeStyle = `rgba(196,181,253,${alpha * 0.7})`; ctx.lineWidth = 0.8; ctx.stroke();
+        ctx.restore();
+    }
+    function _noirDrawPendulum(cx, cy, t) {
+        const pendulumLen = 90, maxAngle = 0.4;
+        const angle = maxAngle * Math.sin(t * 1.2);
+        const angVel = maxAngle * 1.2 * Math.cos(t * 1.2);
+        const pivotX = cx, pivotY = cy - 45;
+        const bobX = pivotX + Math.sin(angle) * pendulumLen;
+        const bobY = pivotY + Math.cos(angle) * pendulumLen;
+        const mdx = mouseX - pivotX, mdy = mouseY - pivotY;
+        const mDist = Math.sqrt(mdx * mdx + mdy * mdy);
+        const mBoost = mDist < 200 ? (1 - mDist / 200) * 0.4 : 0;
+        const clockR = 60;
+        for (let i = 0; i < 12; i++) {
+            const a = (i / 12) * Math.PI * 2 - Math.PI / 2;
+            const iR = clockR - 7, oR = clockR;
+            const ta = 0.18 + 0.1 * Math.sin(t * 2 + i * 0.5) + mBoost;
+            ctx.beginPath(); ctx.moveTo(pivotX + Math.cos(a) * iR, pivotY + Math.sin(a) * iR);
+            ctx.lineTo(pivotX + Math.cos(a) * oR, pivotY + Math.sin(a) * oR);
+            ctx.strokeStyle = `rgba(196,181,253,${ta})`; ctx.lineWidth = i % 3 === 0 ? 2 : 1; ctx.stroke();
+            ctx.beginPath(); ctx.arc(pivotX + Math.cos(a) * oR, pivotY + Math.sin(a) * oR, 1.5, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(167,139,250,${ta + 0.05})`; ctx.fill();
+        }
+        for (let i = 0; i < 60; i++) {
+            if (i % 5 === 0) continue;
+            const a = (i / 60) * Math.PI * 2 - Math.PI / 2;
+            const sta = 0.06 + 0.04 * Math.sin(t * 1.5 + i * 0.3) + mBoost * 0.5;
+            ctx.beginPath(); ctx.moveTo(pivotX + Math.cos(a) * (clockR - 3), pivotY + Math.sin(a) * (clockR - 3));
+            ctx.lineTo(pivotX + Math.cos(a) * clockR, pivotY + Math.sin(a) * clockR);
+            ctx.strokeStyle = `rgba(139,92,246,${sta})`; ctx.lineWidth = 0.5; ctx.stroke();
+        }
+        ctx.beginPath(); ctx.arc(pivotX, pivotY, clockR + 2, 0, Math.PI * 2);
+        ctx.strokeStyle = `rgba(167,139,250,${0.08 + mBoost * 0.5})`; ctx.lineWidth = 0.6; ctx.stroke();
+        const gs = t * 0.8;
+        _noirDrawGear(pivotX - 16, pivotY - 8, 11, 15, 8, gs, 0.3 + mBoost);
+        _noirDrawGear(pivotX + 14, pivotY - 6, 8, 11, 6, -gs * 1.33, 0.25 + mBoost);
+        _noirDrawGear(pivotX + 4, pivotY - 20, 6, 9, 7, gs * 1.14, 0.2 + mBoost);
+        _noirDrawGear(pivotX - 8, pivotY + 12, 5, 8, 5, -gs * 1.6, 0.18 + mBoost);
+        if (Math.abs(angVel) < 0.08 && _noirRipples.length < 6) {
+            if (!_noirRipples.length || _noirRipples[_noirRipples.length - 1].radius > 12)
+                _noirRipples.push({ x: bobX, y: bobY, radius: 4, alpha: 0.2 });
+        }
+        for (let i = _noirRipples.length - 1; i >= 0; i--) {
+            const r = _noirRipples[i]; r.radius += 0.6; r.alpha -= 0.002;
+            if (r.alpha <= 0) { _noirRipples.splice(i, 1); continue; }
+            ctx.beginPath(); ctx.arc(r.x, r.y, r.radius, 0, Math.PI * 2);
+            ctx.strokeStyle = `rgba(167,139,250,${r.alpha})`; ctx.lineWidth = 0.8; ctx.stroke();
+        }
+        _noirTrail.push({ x: bobX, y: bobY });
+        if (_noirTrail.length > 16) _noirTrail.shift();
+        for (let i = 0; i < _noirTrail.length - 1; i++) {
+            const p = _noirTrail[i];
+            const a = (i / _noirTrail.length) * 0.2;
+            const sz = 4 + (i / _noirTrail.length) * 5;
+            const gl = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, sz);
+            gl.addColorStop(0, `rgba(139,92,246,${a})`); gl.addColorStop(1, 'rgba(139,92,246,0)');
+            ctx.beginPath(); ctx.arc(p.x, p.y, sz, 0, Math.PI * 2); ctx.fillStyle = gl; ctx.fill();
+        }
+        ctx.beginPath(); ctx.moveTo(pivotX, pivotY); ctx.lineTo(bobX, bobY);
+        ctx.strokeStyle = `rgba(196,181,253,${0.4 + mBoost})`; ctx.lineWidth = 1.5; ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(pivotX, pivotY); ctx.lineTo(bobX, bobY);
+        ctx.strokeStyle = `rgba(167,139,250,${0.1 + mBoost * 0.3})`; ctx.lineWidth = 5; ctx.stroke();
+        ctx.beginPath(); ctx.arc(pivotX, pivotY, 3, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(196,181,253,${0.6 + mBoost})`; ctx.fill();
+        const bp = 0.7 + 0.3 * Math.sin(t * 3);
+        const bg2 = ctx.createRadialGradient(bobX, bobY, 0, bobX, bobY, 35);
+        bg2.addColorStop(0, `rgba(167,139,250,${0.2})`); bg2.addColorStop(0.5, `rgba(139,92,246,0.08)`); bg2.addColorStop(1, 'transparent');
+        ctx.beginPath(); ctx.arc(bobX, bobY, 35, 0, Math.PI * 2); ctx.fillStyle = bg2; ctx.fill();
+        const bg1 = ctx.createRadialGradient(bobX, bobY, 0, bobX, bobY, 14);
+        bg1.addColorStop(0, `rgba(232,224,255,${0.55 * bp})`); bg1.addColorStop(0.4, `rgba(167,139,250,${0.35 * bp})`); bg1.addColorStop(1, 'rgba(139,92,246,0)');
+        ctx.beginPath(); ctx.arc(bobX, bobY, 14, 0, Math.PI * 2); ctx.fillStyle = bg1; ctx.fill();
+    }
+
+    // ── Rose: Bloom ──
+    function _roseDrawBloom(cx, cy, t) {
+        const breathe = 1 + 0.06 * Math.sin(t * 0.8);
+        const rotation = t * 0.05;
+        const amb = ctx.createRadialGradient(cx, cy, 0, cx, cy, 180);
+        amb.addColorStop(0, 'rgba(244,63,94,0.08)'); amb.addColorStop(0.3, 'rgba(251,113,133,0.04)');
+        amb.addColorStop(0.6, 'rgba(225,29,72,0.015)'); amb.addColorStop(1, 'transparent');
+        ctx.fillStyle = amb; ctx.beginPath(); ctx.arc(cx, cy, 180, 0, Math.PI * 2); ctx.fill();
+        for (let i = 0; i < 20; i++) {
+            const age = (t * 0.3 + i * 0.5) % 5;
+            const px2 = cx + Math.sin(t * 0.2 + i * 1.7) * (10 + age * 8);
+            const py2 = cy - age * 25;
+            const pa = Math.max(0, 0.3 * (1 - age / 5));
+            if (pa < 0.01) continue;
+            ctx.globalAlpha = pa; ctx.fillStyle = 'rgba(253,164,175,0.8)';
+            ctx.beginPath(); ctx.arc(px2, py2, 1 + (1 - age / 5), 0, Math.PI * 2); ctx.fill();
+        }
+        ctx.globalAlpha = 1;
+        for (let layer = 4; layer >= 0; layer--) {
+            const layerScale = (0.5 + layer * 0.12) * breathe;
+            const petalCount = 5 + layer;
+            const layerRot = rotation + layer * 0.15;
+            const openFactor = 0.7 + layer * 0.08;
+            for (let i = 0; i < petalCount; i++) {
+                const ang = layerRot + (i / petalCount) * Math.PI * 2;
+                const pr = 30 * layerScale * openFactor;
+                const tipX = cx + Math.cos(ang) * pr, tipY = cy + Math.sin(ang) * pr;
+                const cp1A = ang - 0.3, cp2A = ang + 0.3, cpD = pr * 0.7;
+                ctx.beginPath(); ctx.moveTo(cx, cy);
+                ctx.quadraticCurveTo(cx + Math.cos(cp1A) * cpD, cy + Math.sin(cp1A) * cpD, tipX, tipY);
+                ctx.quadraticCurveTo(cx + Math.cos(cp2A) * cpD, cy + Math.sin(cp2A) * cpD, cx, cy);
+                const bright = 0.5 + 0.5 * Math.sin(t * 0.5 + i + layer);
+                const r = layer < 2 ? 244 : 251, g = layer < 2 ? 63 + bright * 30 : 113, b = layer < 2 ? 94 : 133;
+                const alpha = (0.12 + layer * 0.04) * bright;
+                ctx.fillStyle = `rgba(${r},${g|0},${b},${alpha})`; ctx.fill();
+                ctx.strokeStyle = `rgba(253,164,175,${alpha * 0.5})`; ctx.lineWidth = 0.5; ctx.stroke();
+            }
+        }
+        const coreG = ctx.createRadialGradient(cx, cy, 0, cx, cy, 12 * breathe);
+        coreG.addColorStop(0, 'rgba(255,240,243,0.5)'); coreG.addColorStop(0.5, 'rgba(244,63,94,0.3)'); coreG.addColorStop(1, 'rgba(225,29,72,0)');
+        ctx.fillStyle = coreG; ctx.beginPath(); ctx.arc(cx, cy, 12 * breathe, 0, Math.PI * 2); ctx.fill();
+    }
+
+    // ── Coffee: Cup with steam ──
+    const _coffeeSteam = [];
+    const _coffeeBeans = [];
+    if (isCoffee) {
+        for (let s = 0; s < 4; s++) {
+            for (let i = 0; i < 25; i++) {
+                _coffeeSteam.push({ stream: s, streams: 4, life: Math.floor(Math.random() * 180), maxLife: Math.random() * 180 + 120, speed: Math.random() * 0.25 + 0.12, amplitude: Math.random() * 20 + 10, frequency: Math.random() * 0.008 + 0.004, phaseOff: Math.random() * Math.PI * 2, size: Math.random() * 1.8 + 0.8, baseX: 0, x: 0, y: 0, bright: Math.random() });
+            }
+        }
+        for (let i = 0; i < 12; i++) {
+            _coffeeBeans.push({ x: Math.random(), y: Math.random(), size: Math.random() * 4 + 2, rotation: Math.random() * Math.PI * 2, rotSpeed: (Math.random() - 0.5) * 0.003, vx: (Math.random() - 0.5) * 0.0001, vy: (Math.random() - 0.5) * 0.0001, alpha: Math.random() * 0.12 + 0.03 });
+        }
+    }
+    function _coffeeDrawCup(cx, cy, t, cw, ch) {
+        const warmG = ctx.createRadialGradient(cx, cy - 20, 0, cx, cy - 20, 120);
+        warmG.addColorStop(0, 'rgba(212,148,60,0.04)'); warmG.addColorStop(0.5, 'rgba(184,122,46,0.02)'); warmG.addColorStop(1, 'transparent');
+        ctx.fillStyle = warmG; ctx.beginPath(); ctx.arc(cx, cy - 20, 120, 0, Math.PI * 2); ctx.fill();
+        for (const b of _coffeeBeans) {
+            b.x += b.vx; b.y += b.vy; b.rotation += b.rotSpeed;
+            if (b.x < -0.05 || b.x > 1.05) b.vx *= -1;
+            if (b.y < -0.05 || b.y > 1.05) b.vy *= -1;
+            ctx.save(); ctx.translate(b.x * cw, b.y * ch); ctx.rotate(b.rotation);
+            ctx.fillStyle = `rgba(184,122,46,${b.alpha})`;
+            ctx.beginPath(); ctx.ellipse(-b.size * 0.15, 0, b.size * 0.4, b.size * 0.7, 0, 0, Math.PI * 2); ctx.fill();
+            ctx.beginPath(); ctx.ellipse(b.size * 0.15, 0, b.size * 0.4, b.size * 0.7, 0, 0, Math.PI * 2); ctx.fill();
+            ctx.strokeStyle = `rgba(12,8,6,${b.alpha * 1.2})`; ctx.lineWidth = 0.5;
+            ctx.beginPath(); ctx.moveTo(0, -b.size * 0.5); ctx.bezierCurveTo(-b.size * 0.1, -b.size * 0.15, b.size * 0.1, b.size * 0.15, 0, b.size * 0.5); ctx.stroke();
+            ctx.restore();
+        }
+        const cupCx = cx, cupTop = cy - 30, cupBot = cupTop + 40, cupW = 26, cupWB = 21;
+        ctx.beginPath(); ctx.ellipse(cupCx, cupBot + 3, cupW * 1.3, 5, 0, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(18,14,10,0.7)'; ctx.fill(); ctx.strokeStyle = 'rgba(184,122,46,0.15)'; ctx.lineWidth = 0.8; ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(cupCx - cupW, cupTop); ctx.lineTo(cupCx - cupWB, cupBot);
+        ctx.quadraticCurveTo(cupCx, cupBot + 7, cupCx + cupWB, cupBot); ctx.lineTo(cupCx + cupW, cupTop); ctx.closePath();
+        ctx.fillStyle = 'rgba(18,14,10,0.8)'; ctx.fill(); ctx.strokeStyle = 'rgba(184,122,46,0.25)'; ctx.lineWidth = 1; ctx.stroke();
+        ctx.beginPath(); ctx.ellipse(cupCx, cupTop, cupW, 4, 0, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(22,18,12,0.8)'; ctx.fill(); ctx.strokeStyle = 'rgba(212,148,60,0.3)'; ctx.lineWidth = 0.8; ctx.stroke();
+        ctx.beginPath(); ctx.ellipse(cupCx + cupW + 8, cupTop + 14, 8, 13, 0, -Math.PI * 0.4, Math.PI * 0.5);
+        ctx.strokeStyle = 'rgba(184,122,46,0.2)'; ctx.lineWidth = 1.5; ctx.stroke();
+        const steamOriginY = cupTop - 3, steamSpread = cupW * 0.6;
+        for (const p of _coffeeSteam) {
+            p.life++;
+            if (p.life > p.maxLife) { p.life = 0; p.baseX = cupCx + ((p.stream / p.streams) - 0.5) * steamSpread * 2 + (Math.random() - 0.5) * 8; p.x = p.baseX; p.y = steamOriginY; }
+            p.y -= p.speed;
+            const prog = p.life / p.maxLife;
+            p.x = p.baseX + Math.sin(p.life * p.frequency + p.phaseOff) * p.amplitude * (1 + prog);
+            p.baseX += (Math.random() - 0.5) * 0.2;
+            let alpha = 1;
+            if (prog < 0.1) alpha = prog / 0.1; else if (prog > 0.5) alpha = 1 - (prog - 0.5) / 0.5;
+            alpha *= 0.35;
+            const sz = p.size * (1 + prog * 1.2);
+            const col = p.bright > 0.7 ? '255,240,212' : p.bright > 0.4 ? '232,170,84' : '212,148,60';
+            const sg = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, sz);
+            sg.addColorStop(0, `rgba(${col},${alpha * 0.7})`); sg.addColorStop(0.5, `rgba(${col},${alpha * 0.25})`); sg.addColorStop(1, `rgba(${col},0)`);
+            ctx.beginPath(); ctx.arc(p.x, p.y, sz, 0, Math.PI * 2); ctx.fillStyle = sg; ctx.fill();
+        }
+        const pulse = 0.7 + 0.3 * Math.sin(t * 1.5);
+        const tg = ctx.createRadialGradient(cupCx, cupTop, 0, cupCx, cupTop, 35);
+        tg.addColorStop(0, `rgba(255,240,212,${0.03 * pulse})`); tg.addColorStop(1, 'transparent');
+        ctx.fillStyle = tg; ctx.beginPath(); ctx.arc(cupCx, cupTop, 35, 0, Math.PI * 2); ctx.fill();
+    }
+
+    // ── Midnight: Moon + fireflies ──
+    const _midnightFireflies = [];
+    const _midnightClouds = [];
+    if (isMidnight) {
+        for (let i = 0; i < 30; i++) {
+            _midnightFireflies.push({ x: 0.3 + Math.random() * 0.4, y: 0.2 + Math.random() * 0.3, phase: Math.random() * Math.PI * 2, glowSpeed: 0.3 + Math.random() * 0.7, wanderRx: 0.01 + Math.random() * 0.02, wanderRy: 0.005 + Math.random() * 0.015, wanderSpeed: 0.06 + Math.random() * 0.1, wanderPhase: Math.random() * Math.PI * 2, r: 0.8 + Math.random() * 1.2 });
+        }
+        for (let i = 0; i < 5; i++) {
+            _midnightClouds.push({ x: Math.random(), y: 0.25 + Math.random() * 0.15, w: 0.06 + Math.random() * 0.1, h: 0.015 + Math.random() * 0.02, speed: 0.001 + Math.random() * 0.002, alpha: 0.02 + Math.random() * 0.02, phase: Math.random() * Math.PI * 2 });
+        }
+    }
+    function _midnightDrawMoon(cx, cy, t, cw, ch) {
+        const moonR = 35;
+        const halo = ctx.createRadialGradient(cx, cy, moonR * 0.8, cx, cy, moonR * 6);
+        halo.addColorStop(0, 'rgba(16,185,129,0.06)'); halo.addColorStop(0.3, 'rgba(52,211,153,0.03)');
+        halo.addColorStop(0.6, 'rgba(5,150,105,0.01)'); halo.addColorStop(1, 'transparent');
+        ctx.fillStyle = halo; ctx.beginPath(); ctx.arc(cx, cy, moonR * 6, 0, Math.PI * 2); ctx.fill();
+        const moonBg = ctx.createRadialGradient(cx - moonR * 0.2, cy - moonR * 0.2, 0, cx, cy, moonR);
+        moonBg.addColorStop(0, 'rgba(200,210,230,0.12)'); moonBg.addColorStop(0.5, 'rgba(150,160,180,0.08)'); moonBg.addColorStop(1, 'rgba(100,110,130,0.04)');
+        ctx.fillStyle = moonBg; ctx.beginPath(); ctx.arc(cx, cy, moonR, 0, Math.PI * 2); ctx.fill();
+        ctx.save(); ctx.beginPath(); ctx.arc(cx, cy, moonR + 1, 0, Math.PI * 2); ctx.clip();
+        ctx.fillStyle = 'rgba(5,8,16,0.95)'; ctx.beginPath(); ctx.arc(cx + moonR * 0.6, cy, moonR * 0.95, 0, Math.PI * 2); ctx.fill(); ctx.restore();
+        const crescentG = ctx.createRadialGradient(cx - moonR * 0.3, cy, moonR * 0.5, cx, cy, moonR * 1.2);
+        crescentG.addColorStop(0, 'rgba(209,250,229,0.25)'); crescentG.addColorStop(0.4, 'rgba(52,211,153,0.08)'); crescentG.addColorStop(1, 'transparent');
+        ctx.fillStyle = crescentG; ctx.beginPath(); ctx.arc(cx, cy, moonR * 1.2, 0, Math.PI * 2); ctx.fill();
+        const craters = [[0.25,-0.3,0.12],[0.15,0.2,0.08],[-0.1,-0.15,0.06]];
+        for (const [ox, oy, cr] of craters) {
+            ctx.globalAlpha = 0.04; ctx.fillStyle = 'rgba(100,130,160,1)';
+            ctx.beginPath(); ctx.arc(cx + moonR * ox - moonR * 0.15, cy + moonR * oy, moonR * cr, 0, Math.PI * 2); ctx.fill();
+        }
+        ctx.globalAlpha = 1;
+        for (const cl of _midnightClouds) {
+            cl.x += cl.speed * 0.008; if (cl.x > 1.4) cl.x = -0.4;
+            const breathe = 0.5 + 0.5 * Math.sin(t * 0.15 + cl.phase);
+            const clx = cl.x * cw, cly = cl.y * ch, clw = cl.w * cw;
+            const cg = ctx.createRadialGradient(clx, cly, 0, clx, cly, clw);
+            cg.addColorStop(0, `rgba(16,185,129,${cl.alpha * breathe})`); cg.addColorStop(0.5, `rgba(52,211,153,${cl.alpha * breathe * 0.3})`); cg.addColorStop(1, 'transparent');
+            ctx.fillStyle = cg; ctx.fillRect(clx - clw, cly - clw * cl.h / cl.w, clw * 2, clw * cl.h / cl.w * 2);
+        }
+        for (const f of _midnightFireflies) {
+            const wp = t * f.wanderSpeed + f.wanderPhase;
+            const fx = (f.x + Math.sin(wp) * f.wanderRx) * cw, fy = (f.y + Math.sin(wp * 2) * f.wanderRy) * ch;
+            const glow = Math.pow(Math.max(0, Math.sin(t * f.glowSpeed + f.phase)), 1.5);
+            if (glow < 0.03) continue;
+            ctx.globalAlpha = glow;
+            const fHalo = ctx.createRadialGradient(fx, fy, 0, fx, fy, f.r * 12);
+            fHalo.addColorStop(0, 'rgba(52,211,153,0.10)'); fHalo.addColorStop(0.3, 'rgba(16,185,129,0.03)'); fHalo.addColorStop(1, 'transparent');
+            ctx.fillStyle = fHalo; ctx.beginPath(); ctx.arc(fx, fy, f.r * 12, 0, Math.PI * 2); ctx.fill();
+            const fCore = ctx.createRadialGradient(fx, fy, 0, fx, fy, f.r * 2);
+            fCore.addColorStop(0, `rgba(209,250,229,${glow * 0.8})`); fCore.addColorStop(0.4, `rgba(52,211,153,${glow * 0.5})`); fCore.addColorStop(1, 'transparent');
+            ctx.fillStyle = fCore; ctx.beginPath(); ctx.arc(fx, fy, f.r * 2, 0, Math.PI * 2); ctx.fill();
+        }
+        ctx.globalAlpha = 1;
+    }
+
+    // ── Nebula: Black hole ──
+    const _BH_TILT = 0.30, _BH_ROT = -0.12;
+    const _bhTierColors = [[200,190,255],[167,139,250],[56,189,248]];
+    const _bhParticles = [];
+    if (isNebula) {
+        for (let i = 0; i < 400; i++) {
+            const band = Math.random(), dist = 50 + band * 260;
+            const tier = band < 0.2 ? 0 : band < 0.55 ? 1 : 2;
+            _bhParticles.push({ angle: Math.random() * Math.PI * 2, dist, speed: (0.06 + Math.random() * 0.14) * (180 / (dist + 30)), r: tier === 0 ? Math.random() * 2.2 + 0.8 : Math.random() * 1.6 + 0.4, a: tier === 0 ? Math.random() * 0.7 + 0.4 : Math.random() * 0.55 + 0.15, yOff: (Math.random() - 0.5) * 5, tier });
+        }
+    }
+    function _bhProject(cx, cy, dist, angle) {
+        const x3 = Math.cos(angle) * dist, y3 = Math.sin(angle) * dist;
+        const cr = Math.cos(_BH_ROT), sr = Math.sin(_BH_ROT);
+        return { x: cx + x3 * cr - y3 * sr, y: cy + (x3 * sr + y3 * cr) * _BH_TILT, depth: Math.sin(angle) };
+    }
+    function _bhDrawDisk(cx, cy) {
+        ctx.save(); ctx.translate(cx, cy); ctx.rotate(_BH_ROT); ctx.scale(1, _BH_TILT);
+        for (let ring = 0; ring < 5; ring++) {
+            const rd = 70 + ring * 50, alpha = [0.12, 0.09, 0.07, 0.05, 0.035][ring];
+            ctx.beginPath(); ctx.arc(0, 0, rd, 0, Math.PI * 2);
+            ctx.strokeStyle = `rgba(167,139,250,${alpha})`; ctx.lineWidth = 22 + ring * 10; ctx.stroke();
+        }
+        const haze = ctx.createRadialGradient(0, 0, 80, 0, 0, 320);
+        haze.addColorStop(0, 'rgba(100,80,200,0.0)'); haze.addColorStop(0.4, 'rgba(80,60,180,0.04)');
+        haze.addColorStop(0.7, 'rgba(56,130,220,0.025)'); haze.addColorStop(1, 'rgba(56,189,248,0)');
+        ctx.fillStyle = haze; ctx.beginPath(); ctx.arc(0, 0, 320, 0, Math.PI * 2); ctx.fill();
+        ctx.restore();
+    }
+    function _bhDrawVoid(cx, cy, t) {
+        const pulse = 1 + Math.sin(t * 0.4) * 0.03, eventR = 30 * pulse;
+        const lens = ctx.createRadialGradient(cx, cy, eventR, cx, cy, eventR * 5);
+        lens.addColorStop(0, 'rgba(167,139,250,0.22)'); lens.addColorStop(0.25, 'rgba(120,100,220,0.10)');
+        lens.addColorStop(0.5, 'rgba(56,189,248,0.04)'); lens.addColorStop(1, 'rgba(56,189,248,0)');
+        ctx.fillStyle = lens; ctx.beginPath(); ctx.arc(cx, cy, eventR * 5, 0, Math.PI * 2); ctx.fill();
+        const photon = ctx.createRadialGradient(cx, cy, eventR - 3, cx, cy, eventR + 14);
+        photon.addColorStop(0, 'rgba(167,139,250,0)'); photon.addColorStop(0.25, 'rgba(167,139,250,0.55)');
+        photon.addColorStop(0.45, 'rgba(220,210,255,0.7)'); photon.addColorStop(0.65, 'rgba(125,211,252,0.45)'); photon.addColorStop(1, 'rgba(56,189,248,0)');
+        ctx.fillStyle = photon; ctx.beginPath(); ctx.arc(cx, cy, eventR + 14, 0, Math.PI * 2); ctx.fill();
+        const voidG = ctx.createRadialGradient(cx, cy, 0, cx, cy, eventR);
+        voidG.addColorStop(0, 'rgba(0,0,0,1)'); voidG.addColorStop(0.8, 'rgba(0,0,0,1)'); voidG.addColorStop(1, 'rgba(0,0,0,0.6)');
+        ctx.fillStyle = voidG; ctx.beginPath(); ctx.arc(cx, cy, eventR, 0, Math.PI * 2); ctx.fill();
+    }
+    function _nebulaDrawBlackHole(cx, cy, t) {
+        _bhDrawDisk(cx, cy);
+        const _bp = [];
+        for (const p of _bhParticles) {
+            const ang = p.angle + t * p.speed;
+            const pr = _bhProject(cx, cy, p.dist, ang);
+            _bp.push({ x: pr.x, y: pr.y + p.yOff, d: pr.depth, r: p.r, a: p.a, tier: p.tier });
+        }
+        _bp.sort((a, b) => a.d - b.d);
+        for (const p of _bp) {
+            if (p.d > 0.1) continue;
+            const c = _bhTierColors[p.tier];
+            ctx.globalAlpha = p.a * (0.65 + p.d * 0.35);
+            ctx.fillStyle = `rgb(${c[0]},${c[1]},${c[2]})`; ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctx.fill();
+        }
+        _bhDrawVoid(cx, cy, t);
+        for (const p of _bp) {
+            if (p.d <= 0.1) continue;
+            const c = _bhTierColors[p.tier];
+            ctx.globalAlpha = p.a * (0.6 + p.d * 0.4);
+            if (p.tier === 0) {
+                const glow = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r * 6);
+                glow.addColorStop(0, `rgba(${c[0]},${c[1]},${c[2]},${p.a * 0.35})`); glow.addColorStop(1, `rgba(${c[0]},${c[1]},${c[2]},0)`);
+                ctx.fillStyle = glow; ctx.beginPath(); ctx.arc(p.x, p.y, p.r * 6, 0, Math.PI * 2); ctx.fill();
+            }
+            ctx.fillStyle = `rgb(${c[0]},${c[1]},${c[2]})`; ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctx.fill();
+        }
+        ctx.globalAlpha = 1;
+    }
+
+    // ── Aurora: Binary star system ──
+    const _BIN_ORBIT_R = 45, _BIN_SPEED = 0.12, _BIN_TILT = 0.38;
+    const _binStarA = { r: 22, color: '52,211,153', bright: '200,255,225', glow: '110,231,183' };
+    const _binStarB = { r: 16, color: '56,189,248', bright: '200,235,255', glow: '125,211,252' };
+    const _binParticles = [];
+    if (isAurora) {
+        for (let i = 0; i < 180; i++) {
+            const band = Math.random(), dist = 55 + band * 180;
+            _binParticles.push({ angle: Math.random() * Math.PI * 2, dist, speed: (0.04 + Math.random() * 0.06) * (120 / (dist + 30)), r: Math.random() * 1.2 + 0.3, a: Math.random() * 0.4 + 0.1, yOff: (Math.random() - 0.5) * 4, colorType: band < 0.4 ? 0 : band < 0.7 ? 1 : 2 });
+        }
+    }
+    const _binColors = [[110,231,183],[56,189,248],[200,220,240]];
+    function _binProject(cx, cy, dist, angle) {
+        return { x: cx + Math.cos(angle) * dist, y: cy + Math.sin(angle) * dist * _BIN_TILT, depth: Math.sin(angle) };
+    }
+    function _auroraDrawBinary(cx, cy, t) {
+        const ang = t * _BIN_SPEED;
+        const s1x = cx + Math.cos(ang) * _BIN_ORBIT_R, s1y = cy + Math.sin(ang) * _BIN_ORBIT_R * _BIN_TILT, s1d = Math.sin(ang);
+        const s2x = cx + Math.cos(ang + Math.PI) * _BIN_ORBIT_R, s2y = cy + Math.sin(ang + Math.PI) * _BIN_ORBIT_R * _BIN_TILT, s2d = Math.sin(ang + Math.PI);
+        const amb = ctx.createRadialGradient(cx, cy, 0, cx, cy, 300);
+        amb.addColorStop(0, 'rgba(52,211,153,0.06)'); amb.addColorStop(0.15, 'rgba(56,189,248,0.03)');
+        amb.addColorStop(0.35, 'rgba(110,231,183,0.012)'); amb.addColorStop(0.6, 'rgba(16,185,129,0.004)'); amb.addColorStop(1, 'transparent');
+        ctx.fillStyle = amb; ctx.beginPath(); ctx.arc(cx, cy, 300, 0, Math.PI * 2); ctx.fill();
+        ctx.save(); ctx.translate(cx, cy); ctx.scale(1, _BIN_TILT);
+        const ringDefs = [[60,'110,231,183',0.04],[100,'56,189,248',0.025],[140,'52,211,153',0.015]];
+        for (const [rd, rc, ra] of ringDefs) { ctx.beginPath(); ctx.arc(0, 0, rd, 0, Math.PI * 2); ctx.strokeStyle = `rgba(${rc},${ra})`; ctx.lineWidth = 12; ctx.stroke(); }
+        ctx.beginPath(); ctx.arc(0, 0, _BIN_ORBIT_R, 0, Math.PI * 2); ctx.strokeStyle = 'rgba(110,231,183,0.035)'; ctx.lineWidth = 2; ctx.stroke();
+        ctx.restore();
+        const proj = [];
+        for (const p of _binParticles) { const pr = _binProject(cx, cy, p.dist, p.angle + t * p.speed); proj.push({ x: pr.x, y: pr.y + p.yOff, d: pr.depth, r: p.r, a: p.a, ct: p.colorType }); }
+        proj.sort((a, b) => a.d - b.d);
+        for (const p of proj) { if (p.d > 0.1) continue; const c = _binColors[p.ct]; ctx.globalAlpha = p.a * (0.5 + p.d * 0.5); ctx.fillStyle = `rgb(${c[0]},${c[1]},${c[2]})`; ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctx.fill(); }
+        const bridgePulse = 0.7 + 0.3 * Math.sin(t * 0.8);
+        const bridgeDefs = [['200,255,230',0.06,4],['110,231,183',0.035,8],['56,189,248',0.02,14]];
+        for (const [bc, ba, bw] of bridgeDefs) { const sOff = Math.sin(t * 0.5 + bw) * 4; ctx.beginPath(); ctx.moveTo(s1x, s1y); ctx.quadraticCurveTo((s1x+s2x)/2 + sOff, (s1y+s2y)/2 - 5, s2x, s2y); ctx.strokeStyle = `rgba(${bc},${ba * bridgePulse})`; ctx.lineWidth = bw; ctx.lineCap = 'round'; ctx.stroke(); }
+        const pair = [{ x: s1x, y: s1y, d: s1d, ..._binStarA, id: 'A' },{ x: s2x, y: s2y, d: s2d, ..._binStarB, id: 'B' }];
+        pair.sort((a, b) => a.d - b.d);
+        for (const star of pair) {
+            const db = 0.75 + 0.25 * star.d, pulse = 1 + Math.sin(t * 0.4 + (star.id === 'A' ? 0 : Math.PI)) * 0.08, sr = star.r * pulse;
+            const oh = ctx.createRadialGradient(star.x, star.y, 0, star.x, star.y, sr * 8);
+            oh.addColorStop(0, `rgba(${star.glow},${0.08 * db})`); oh.addColorStop(0.2, `rgba(${star.color},${0.04 * db})`); oh.addColorStop(0.5, `rgba(${star.color},${0.012 * db})`); oh.addColorStop(1, 'transparent');
+            ctx.fillStyle = oh; ctx.beginPath(); ctx.arc(star.x, star.y, sr * 8, 0, Math.PI * 2); ctx.fill();
+            const ig = ctx.createRadialGradient(star.x, star.y, 0, star.x, star.y, sr * 3);
+            ig.addColorStop(0, `rgba(${star.bright},${0.25 * db})`); ig.addColorStop(0.3, `rgba(${star.glow},${0.15 * db})`); ig.addColorStop(0.7, `rgba(${star.color},${0.04 * db})`); ig.addColorStop(1, 'transparent');
+            ctx.fillStyle = ig; ctx.beginPath(); ctx.arc(star.x, star.y, sr * 3, 0, Math.PI * 2); ctx.fill();
+            const bd = ctx.createRadialGradient(star.x - sr * 0.1, star.y - sr * 0.1, 0, star.x, star.y, sr);
+            bd.addColorStop(0, `rgba(${star.bright},${0.5 * db})`); bd.addColorStop(0.3, `rgba(${star.bright},${0.35 * db})`); bd.addColorStop(0.7, `rgba(${star.color},${0.2 * db})`); bd.addColorStop(1, `rgba(${star.color},${0.05 * db})`);
+            ctx.fillStyle = bd; ctx.beginPath(); ctx.arc(star.x, star.y, sr, 0, Math.PI * 2); ctx.fill();
+            ctx.globalAlpha = 0.08 * db * pulse; ctx.strokeStyle = `rgba(${star.bright},0.4)`; ctx.lineWidth = 1;
+            ctx.beginPath(); ctx.moveTo(star.x - sr * 5, star.y); ctx.lineTo(star.x + sr * 5, star.y); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(star.x, star.y - sr * 3.5); ctx.lineTo(star.x, star.y + sr * 3.5); ctx.stroke();
+            ctx.globalAlpha = 1;
+        }
+        for (const p of proj) { if (p.d <= 0.1) continue; const c = _binColors[p.ct]; const da = p.a * (0.6 + p.d * 0.4); ctx.globalAlpha = da;
+            if (p.ct === 0 && p.r > 0.8) { const pg = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r * 5); pg.addColorStop(0, `rgba(${c[0]},${c[1]},${c[2]},${da * 0.25})`); pg.addColorStop(1, 'transparent'); ctx.fillStyle = pg; ctx.beginPath(); ctx.arc(p.x, p.y, p.r * 5, 0, Math.PI * 2); ctx.fill(); }
+            ctx.fillStyle = `rgb(${c[0]},${c[1]},${c[2]})`; ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctx.fill(); }
+        ctx.globalAlpha = 1;
+    }
+
+    // ── Generic theme element draw helper ──
+    function _drawThemeElement(themeName, drawFn, t) {
+        const prefix = 'stratos-' + themeName;
+        const cx = parseFloat(localStorage.getItem(prefix + '-cx') || '0.5');
+        const cy = parseFloat(localStorage.getItem(prefix + '-cy') || '0.35');
+        const scale = parseFloat(localStorage.getItem(prefix + '-scale') || '1');
+        const opacity = parseFloat(localStorage.getItem(prefix + '-opacity') || '1');
+        const blur = parseFloat(localStorage.getItem(prefix + '-blur') || '0');
+        const px = canvas.width * cx, py = canvas.height * cy;
+        ctx.save();
+        ctx.globalAlpha = opacity;
+        if (blur > 0) ctx.filter = `blur(${blur}px)`;
+        ctx.translate(px, py); ctx.scale(scale, scale); ctx.translate(-px, -py);
+        drawFn(px, py, t, canvas.width, canvas.height);
+        ctx.restore();
+    }
+
     function draw() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         const t = Date.now() * 0.001;
@@ -534,6 +940,14 @@ function renderStars() {
             ctx.restore();
         }
 
+        // Theme unique elements (drawn behind stars, like cosmos)
+        if (isNoir) _drawThemeElement('noir', _noirDrawPendulum, t);
+        if (isRose) _drawThemeElement('rose', _roseDrawBloom, t);
+        if (isCoffee) _drawThemeElement('coffee', _coffeeDrawCup, t);
+        if (isMidnight) _drawThemeElement('midnight', _midnightDrawMoon, t);
+        if (isNebula) _drawThemeElement('nebula', _nebulaDrawBlackHole, t);
+        if (isAurora) _drawThemeElement('aurora', _auroraDrawBinary, t);
+
         // Shooting stars
         if (now - lastShooter > SHOOT_INTERVAL + Math.random() * 3000) {
             spawnShooter();
@@ -558,7 +972,7 @@ function renderStars() {
                     s.y = s.baseY; s.x = s.baseX;
                 }
             } else {
-                s.baseY -= DRIFT_SPEED;
+                s.baseY -= DRIFT_SPEED_BASE * parseFloat(localStorage.getItem('stratos-stars-drift') || '1');
                 if (s.baseY < -10) {
                     s.baseY = canvas.height + 10;
                     s.baseX = Math.random() * canvas.width;
