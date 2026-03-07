@@ -376,8 +376,8 @@
             });
         });
 
-        // ── Cosmos Solar System Controls ──
-        _buildCosmosControls(body);
+        // ── Theme-specific element controls ──
+        _buildThemeElementControls(body);
     }
 
     function _buildCosmosControls(body) {
@@ -494,6 +494,78 @@
         _wireSlider('#te-cosmos-density', '#te-cosmos-density-val', 'stratos-cosmos-density', v => v.toFixed(1) + 'x');
     }
 
+    function _buildSakuraControls(body) {
+        const old = document.getElementById('te-sakura-section');
+        if (old) old.remove();
+
+        const theme = document.documentElement.getAttribute('data-theme');
+        if (theme !== 'sakura') return;
+
+        const section = document.createElement('div');
+        section.id = 'te-sakura-section';
+        section.className = 'te-group';
+
+        const size = parseFloat(localStorage.getItem('stratos-sakura-size') || '1');
+        const density = parseFloat(localStorage.getItem('stratos-sakura-density') || '1');
+        const fall = parseFloat(localStorage.getItem('stratos-sakura-fall') || '1');
+        const wind = parseFloat(localStorage.getItem('stratos-sakura-wind') || '1');
+        const opacity = parseFloat(localStorage.getItem('stratos-sakura-opacity') || '1');
+
+        section.innerHTML = `
+            <div class="te-group-label">Petals</div>
+            <div style="flex:1;min-width:0;">
+                <label class="te-color-label" style="margin-bottom:4px;display:block;">Size</label>
+                <div style="display:flex;align-items:center;gap:8px;">
+                    <input type="range" class="te-range-slider" id="te-sakura-size" min="0.3" max="2.5" step="0.05" value="${size}" style="flex:1;" />
+                    <span class="te-range-val" id="te-sakura-size-val">${size.toFixed(2)}x</span>
+                </div>
+                <label class="te-color-label" style="margin-bottom:2px;margin-top:6px;display:block;">Density</label>
+                <div style="display:flex;align-items:center;gap:8px;">
+                    <input type="range" class="te-range-slider" id="te-sakura-density" min="0.2" max="3" step="0.1" value="${density}" style="flex:1;" />
+                    <span class="te-range-val" id="te-sakura-density-val">${density.toFixed(1)}x</span>
+                </div>
+                <label class="te-color-label" style="margin-bottom:2px;margin-top:6px;display:block;">Fall Speed</label>
+                <div style="display:flex;align-items:center;gap:8px;">
+                    <input type="range" class="te-range-slider" id="te-sakura-fall" min="0.1" max="3" step="0.1" value="${fall}" style="flex:1;" />
+                    <span class="te-range-val" id="te-sakura-fall-val">${fall.toFixed(1)}x</span>
+                </div>
+                <label class="te-color-label" style="margin-bottom:2px;margin-top:6px;display:block;">Wind</label>
+                <div style="display:flex;align-items:center;gap:8px;">
+                    <input type="range" class="te-range-slider" id="te-sakura-wind" min="0" max="3" step="0.1" value="${wind}" style="flex:1;" />
+                    <span class="te-range-val" id="te-sakura-wind-val">${wind.toFixed(1)}x</span>
+                </div>
+                <label class="te-color-label" style="margin-bottom:2px;margin-top:6px;display:block;">Opacity</label>
+                <div style="display:flex;align-items:center;gap:8px;">
+                    <input type="range" class="te-range-slider" id="te-sakura-opacity" min="0.05" max="1" step="0.05" value="${opacity}" style="flex:1;" />
+                    <span class="te-range-val" id="te-sakura-opacity-val">${Math.round(opacity*100)}%</span>
+                </div>
+            </div>
+        `;
+        body.appendChild(section);
+
+        function _wireSlider(id, valId, key, fmt) {
+            const sl = section.querySelector(id);
+            const vl = section.querySelector(valId);
+            if (!sl) return;
+            sl.addEventListener('input', (e) => {
+                const v = parseFloat(e.target.value);
+                vl.textContent = fmt(v);
+                localStorage.setItem(key, v.toString());
+                if (key === 'stratos-sakura-density' && typeof renderStars === 'function') renderStars();
+            });
+        }
+        _wireSlider('#te-sakura-size', '#te-sakura-size-val', 'stratos-sakura-size', v => v.toFixed(2) + 'x');
+        _wireSlider('#te-sakura-density', '#te-sakura-density-val', 'stratos-sakura-density', v => v.toFixed(1) + 'x');
+        _wireSlider('#te-sakura-fall', '#te-sakura-fall-val', 'stratos-sakura-fall', v => v.toFixed(1) + 'x');
+        _wireSlider('#te-sakura-wind', '#te-sakura-wind-val', 'stratos-sakura-wind', v => v.toFixed(1) + 'x');
+        _wireSlider('#te-sakura-opacity', '#te-sakura-opacity-val', 'stratos-sakura-opacity', v => Math.round(v * 100) + '%');
+    }
+
+    function _buildThemeElementControls(body) {
+        _buildCosmosControls(body);
+        _buildSakuraControls(body);
+    }
+
     function applyAndSave(varName, hex) {
         const overrides = loadOverrides();
         overrides[varName] = hex;
@@ -543,7 +615,7 @@
             }
             syncPickersToCurrentTheme();
             _refreshPresetList();
-            _buildCosmosControls(document.getElementById('te-body'));
+            _buildThemeElementControls(document.getElementById('te-body'));
             document.getElementById('theme-editor-panel').classList.add('te-open');
         },
 
@@ -625,7 +697,7 @@
                 if (document.getElementById('theme-editor-panel')?.classList.contains('te-open')) {
                     syncPickersToCurrentTheme();
                     _refreshPresetList();
-                    _buildCosmosControls(document.getElementById('te-body'));
+                    _buildThemeElementControls(document.getElementById('te-body'));
                 }
             }, 50);
         },

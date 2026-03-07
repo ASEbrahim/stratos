@@ -250,7 +250,8 @@ function renderStars() {
     const isCosmos = theme === 'cosmos';
 
     const _cosmosDensityInit = isCosmos ? parseFloat(localStorage.getItem('stratos-cosmos-density') || '1') : 1;
-    const COUNT = Math.round((isMobile ? 30 : 200) * _cosmosDensityInit);
+    const _sakuraDensityInit = isSakura ? parseFloat(localStorage.getItem('stratos-sakura-density') || '1') : 1;
+    const COUNT = Math.round((isMobile ? 30 : 200) * _cosmosDensityInit * _sakuraDensityInit);
     const MOUSE_RADIUS = 150;
     const LINE_RADIUS = 120;
     const LINE_MOUSE_RANGE = 240;
@@ -545,8 +546,10 @@ function renderStars() {
 
             // Gentle drift — petals fall down, stars drift up
             if (isSakura && s.petal) {
-                s.baseY += s.petalFall;
-                s.baseX += Math.sin(t * s.petalSway + s.phase) * 0.25;
+                const _skFall = parseFloat(localStorage.getItem('stratos-sakura-fall') || '1');
+                const _skWind = parseFloat(localStorage.getItem('stratos-sakura-wind') || '1');
+                s.baseY += s.petalFall * _skFall;
+                s.baseX += Math.sin(t * s.petalSway + s.phase) * 0.25 * _skWind;
                 s.petalAngle += s.petalSpin;
                 if (s.baseY > canvas.height + 20) {
                     s.baseY = -20;
@@ -587,11 +590,13 @@ function renderStars() {
 
             // Sakura petals: bezier petal shape with notch
             if (isSakura && s.petal) {
-                const sz = s.petalSize * ((!isTouch && dist < MOUSE_RADIUS) ? 1 + (1 - dist / MOUSE_RADIUS) * 0.3 : 1);
+                const _skSize = parseFloat(localStorage.getItem('stratos-sakura-size') || '1');
+                const _skOpacity = parseFloat(localStorage.getItem('stratos-sakura-opacity') || '1');
+                const sz = s.petalSize * _skSize * ((!isTouch && dist < MOUSE_RADIUS) ? 1 + (1 - dist / MOUSE_RADIUS) * 0.3 : 1);
                 ctx.save();
                 ctx.translate(s.x, s.y);
                 ctx.rotate(s.petalAngle);
-                ctx.fillStyle = `rgba(${s.cr},${s.cg},${s.cb},${alpha})`;
+                ctx.fillStyle = `rgba(${s.cr},${s.cg},${s.cb},${alpha * _skOpacity})`;
                 ctx.beginPath();
                 // Petal: stem tip at bottom, two lobes at top with center notch
                 ctx.moveTo(0, sz * 1.6);                           // stem tip
