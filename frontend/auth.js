@@ -793,102 +793,173 @@ function _initStarParallax() {
     }
 
     // ── Sakura: Tree with blossoms ──
-    const _sakuraTree = { branches: [], blossoms: [] };
+    const _sakuraTree = { branches: [], blossoms: [], tips: [] };
     if (_isSakura) {
-        // Seeded random for deterministic tree
         let _tSeed = 12345;
         function _tRand() { _tSeed = (_tSeed * 16807 + 0) % 2147483647; return _tSeed / 2147483647; }
         function _tRandR(a, b) { return a + _tRand() * (b - a); }
 
         function _genSakuraTree(w, h) {
             _tSeed = 12345;
-            const br = [], bl = [];
-            const baseX = w * 0.5, baseY = h * 0.62;
-            const topX = baseX + _tRandR(-w*0.01, w*0.01), topY = h * 0.38;
-            // Trunk
-            br.push({ x0:baseX, y0:baseY, cpx:baseX + _tRandR(-w*0.02, w*0.02), cpy:h*0.50, x1:topX, y1:topY, w0:w*0.018, w1:w*0.009, d:0 });
-            // Major branches
-            const mc = 3 + Math.floor(_tRand() * 3);
-            for (let i = 0; i < mc; i++) {
-                const ang = -Math.PI/2 + _tRandR(-1.1, 1.1);
-                const len = _tRandR(h*0.10, h*0.18);
-                const ex = topX + Math.cos(ang)*len, ey = topY + Math.sin(ang)*len;
-                const cp = _tRandR(0.3,0.7);
-                br.push({ x0:topX, y0:topY, cpx:topX + Math.cos(ang)*len*cp + _tRandR(-w*0.02,w*0.02), cpy:topY + Math.sin(ang)*len*cp, x1:ex, y1:ey, w0:w*0.007, w1:w*0.003, d:1 });
-                bl.push({ x:ex, y:ey, r:_tRandR(10,18), count:Math.floor(_tRandR(6,12)), phase:_tRand()*Math.PI*2 });
-                // Sub-branches
-                const sc = 2 + Math.floor(_tRand()*3);
-                for (let j = 0; j < sc; j++) {
-                    const st = _tRandR(0.35,0.9);
-                    const bx2 = (1-st)*(1-st)*topX + 2*(1-st)*st*br[br.length-1].cpx + st*st*ex;
-                    const by2 = (1-st)*(1-st)*topY + 2*(1-st)*st*br[br.length-1].cpy + st*st*ey;
-                    const sa = ang + _tRandR(-0.8,0.8);
-                    const sl = _tRandR(h*0.04, h*0.10);
-                    const sex = bx2 + Math.cos(sa)*sl, sey = by2 + Math.sin(sa)*sl;
-                    br.push({ x0:bx2, y0:by2, cpx:(bx2+sex)/2 + _tRandR(-w*0.01,w*0.01), cpy:(by2+sey)/2, x1:sex, y1:sey, w0:w*0.003, w1:w*0.001, d:2 });
-                    bl.push({ x:sex, y:sey, r:_tRandR(6,12), count:Math.floor(_tRandR(4,8)), phase:_tRand()*Math.PI*2 });
+            const br = [], bl = [], tips = [];
+            const cx = w * 0.5, baseY = h * 0.68;
+            const trunkTop = h * 0.36;
+
+            // Elegant curved trunk with slight lean
+            const lean = w * 0.008;
+            br.push({ x0:cx-w*0.012, y0:baseY, x1:cx+lean, y1:trunkTop,
+                cpx:cx-w*0.005, cpy:h*0.52, w0:w*0.022, d:0 });
+            br.push({ x0:cx+w*0.012, y0:baseY, x1:cx+lean, y1:trunkTop,
+                cpx:cx+w*0.008, cpy:h*0.52, w0:w*0.022, d:0 });
+
+            // Recursive branch generator
+            function addBranch(sx, sy, angle, length, width, depth) {
+                if (depth > 4 || length < h * 0.02) return;
+                const curve = _tRandR(-0.3, 0.3);
+                const ex = sx + Math.cos(angle) * length;
+                const ey = sy + Math.sin(angle) * length;
+                const mid = 0.5 + _tRandR(-0.15, 0.15);
+                const cpx = sx + Math.cos(angle + curve) * length * mid;
+                const cpy = sy + Math.sin(angle + curve) * length * mid;
+                br.push({ x0:sx, y0:sy, cpx, cpy, x1:ex, y1:ey, w0:width, d:depth });
+
+                if (depth >= 2) {
+                    tips.push({ x: ex, y: ey });
+                    bl.push({ x:ex, y:ey, r:_tRandR(8, 16 - depth*2), phase:_tRand()*Math.PI*2 });
+                }
+
+                // Fork into sub-branches
+                const forks = depth < 2 ? Math.floor(_tRandR(2, 4)) : Math.floor(_tRandR(1, 3));
+                for (let i = 0; i < forks; i++) {
+                    const spread = depth < 2 ? _tRandR(0.3, 0.9) : _tRandR(0.2, 0.7);
+                    const side = (i % 2 === 0 ? 1 : -1);
+                    const childAngle = angle + side * spread + _tRandR(-0.15, 0.15);
+                    const childLen = length * _tRandR(0.55, 0.78);
+                    const childW = width * _tRandR(0.45, 0.65);
+                    addBranch(ex, ey, childAngle, childLen, childW, depth + 1);
                 }
             }
-            // Generate blossom positions within clusters
+
+            // Main branches from trunk top — asymmetric, more to the right
+            const mainAngles = [
+                -Math.PI*0.75 + _tRandR(-0.1,0.1),   // upper-left
+                -Math.PI*0.55 + _tRandR(-0.1,0.1),   // left
+                -Math.PI*0.42 + _tRandR(-0.05,0.05), // slight-left-up
+                -Math.PI*0.28 + _tRandR(-0.05,0.05), // slight-right-up
+                -Math.PI*0.15 + _tRandR(-0.1,0.1),   // right
+                -0.05 + _tRandR(-0.1,0.1),            // far right (drooping)
+            ];
+            for (let i = 0; i < mainAngles.length; i++) {
+                const len = _tRandR(h*0.12, h*0.22);
+                const wid = w * _tRandR(0.006, 0.010);
+                addBranch(cx + lean, trunkTop, mainAngles[i], len, wid, 1);
+            }
+
+            // A couple of lower branches off trunk mid-section
+            const midY1 = h * 0.48, midY2 = h * 0.54;
+            addBranch(cx, midY1, -Math.PI*0.65 + _tRandR(-0.1,0.1), h*0.09, w*0.005, 2);
+            addBranch(cx + lean*0.5, midY2, -Math.PI*0.2 + _tRandR(-0.1,0.1), h*0.08, w*0.004, 2);
+
+            // Generate blossom dots within clusters
             for (const c of bl) {
                 c.dots = [];
-                for (let i = 0; i < c.count; i++) {
+                const count = Math.floor(_tRandR(5, 10));
+                for (let i = 0; i < count; i++) {
                     const ba = _tRand() * Math.PI * 2, bd = _tRand() * c.r;
-                    c.dots.push({ ox: Math.cos(ba)*bd, oy: Math.sin(ba)*bd, r: _tRandR(1.5,4), bright: _tRand(), ph: _tRand()*Math.PI*2 });
+                    c.dots.push({ ox: Math.cos(ba)*bd, oy: Math.sin(ba)*bd,
+                        r: _tRandR(1.2, 3.5), bright: _tRand(), ph: _tRand()*Math.PI*2 });
                 }
             }
-            return { branches: br, blossoms: bl };
+            return { branches: br, blossoms: bl, tips };
         }
-        const _stData = _genSakuraTree(800, 600); // will be scaled in draw
+        const _stData = _genSakuraTree(800, 600);
         _sakuraTree.genFn = _genSakuraTree;
         _sakuraTree.branches = _stData.branches;
         _sakuraTree.blossoms = _stData.blossoms;
+        _sakuraTree.tips = _stData.tips;
         _sakuraTree.lastW = 800;
         _sakuraTree.lastH = 600;
     }
     function _sakuraDrawTree(cw, ch, t) {
-        // Regenerate if canvas size changed significantly
         if (Math.abs(cw - _sakuraTree.lastW) > 50 || Math.abs(ch - _sakuraTree.lastH) > 50) {
             const d = _sakuraTree.genFn(cw, ch);
             _sakuraTree.branches = d.branches;
             _sakuraTree.blossoms = d.blossoms;
+            _sakuraTree.tips = d.tips;
             _sakuraTree.lastW = cw;
             _sakuraTree.lastH = ch;
         }
-        // Ambient pink glow at canopy
-        const gcx = cw * 0.5, gcy = ch * 0.32;
-        const pulse = 0.85 + 0.15 * Math.sin(t * 0.8);
-        const amb = ctx.createRadialGradient(gcx, gcy, 0, gcx, gcy, 180);
-        amb.addColorStop(0, `rgba(240,160,184,${0.06 * pulse})`);
-        amb.addColorStop(0.5, `rgba(200,136,168,${0.025 * pulse})`);
+        ctx.save();
+
+        // Wind sway — gentle oscillation that increases with depth
+        const windBase = Math.sin(t * 0.4) * 1.5 + Math.sin(t * 0.7) * 0.8;
+
+        // Soft ambient glow around canopy
+        const gcx = cw * 0.5, gcy = ch * 0.28;
+        const pulse = 0.85 + 0.15 * Math.sin(t * 0.6);
+        const ambR = Math.min(cw, ch) * 0.32;
+        const amb = ctx.createRadialGradient(gcx, gcy, 0, gcx, gcy, ambR);
+        amb.addColorStop(0, `rgba(240,170,195,${0.08 * pulse})`);
+        amb.addColorStop(0.4, `rgba(220,150,180,${0.04 * pulse})`);
+        amb.addColorStop(0.7, `rgba(200,130,160,${0.015 * pulse})`);
         amb.addColorStop(1, 'transparent');
-        ctx.fillStyle = amb; ctx.beginPath(); ctx.arc(gcx, gcy, 180, 0, Math.PI * 2); ctx.fill();
-        // Draw branches
-        for (const b of _sakuraTree.branches) {
+        ctx.fillStyle = amb; ctx.beginPath(); ctx.arc(gcx, gcy, ambR, 0, Math.PI * 2); ctx.fill();
+
+        // Draw branches — thicker ones first, with wind sway
+        const sorted = [..._sakuraTree.branches].sort((a,b) => b.w0 - a.w0);
+        for (const b of sorted) {
+            // Wind displacement increases with depth (trunk doesn't move, tips sway most)
+            const sway = windBase * b.d * 1.2;
             ctx.beginPath();
-            ctx.moveTo(b.x0, b.y0);
-            ctx.quadraticCurveTo(b.cpx, b.cpy, b.x1, b.y1);
-            ctx.strokeStyle = 'rgba(20,8,16,0.85)';
-            ctx.lineWidth = b.w0; ctx.lineCap = 'round'; ctx.stroke();
+            ctx.moveTo(b.x0 + (b.d > 0 ? sway * 0.3 : 0), b.y0);
+            if (b.cpx !== undefined) {
+                ctx.quadraticCurveTo(b.cpx + sway * 0.6, b.cpy, b.x1 + sway, b.y1);
+            } else {
+                ctx.lineTo(b.x1 + sway, b.y1);
+            }
+            // Rich dark bark with depth-based coloring
+            const alpha = b.d === 0 ? 0.92 : b.d === 1 ? 0.78 : b.d === 2 ? 0.6 : b.d === 3 ? 0.45 : 0.3;
+            const rr = b.d <= 1 ? 28 : b.d === 2 ? 40 : 55;
+            const gg = b.d <= 1 ? 10 : b.d === 2 ? 16 : 22;
+            const bb = b.d <= 1 ? 18 : b.d === 2 ? 28 : 35;
+            ctx.strokeStyle = `rgba(${rr},${gg},${bb},${alpha})`;
+            ctx.lineWidth = b.w0;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.stroke();
         }
-        // Draw blossom clusters
+
+        // Draw blossom clusters with soft glow — swayed by wind
+        ctx.globalAlpha = 1;
         for (const cl of _sakuraTree.blossoms) {
+            const clSway = windBase * 2.5;
+            const clX = cl.x + clSway, clY = cl.y;
+
+            // Cluster glow — larger, softer
+            const cg = ctx.createRadialGradient(clX, clY, 0, clX, clY, cl.r * 3);
+            cg.addColorStop(0, `rgba(255,200,220,${0.14 * pulse})`);
+            cg.addColorStop(0.5, `rgba(255,185,210,${0.06 * pulse})`);
+            cg.addColorStop(1, 'transparent');
+            ctx.fillStyle = cg;
+            ctx.fillRect(clX - cl.r*3, clY - cl.r*3, cl.r*6, cl.r*6);
+
             for (const dot of cl.dots) {
-                const dp = 0.7 + 0.3 * Math.sin(t * 2 + dot.ph);
-                const x = cl.x + dot.ox, y = cl.y + dot.oy;
-                const r = dot.r * (0.8 + 0.2 * dp);
-                // Glow
-                const gr = ctx.createRadialGradient(x, y, 0, x, y, r * 3);
-                const c = dot.bright > 0.6 ? [255,220,232] : dot.bright > 0.3 ? [255,184,204] : [240,160,184];
+                const dp = 0.7 + 0.3 * Math.sin(t * 1.5 + dot.ph);
+                const x = clX + dot.ox, y = clY + dot.oy;
+                const r = dot.r * (0.85 + 0.15 * dp);
+                const c = dot.bright > 0.6 ? [255,228,238] : dot.bright > 0.3 ? [255,195,215] : [248,170,195];
+                // Soft halo
+                const gr = ctx.createRadialGradient(x, y, 0, x, y, r * 2.2);
                 gr.addColorStop(0, `rgba(${c[0]},${c[1]},${c[2]},${0.3 * dp})`);
                 gr.addColorStop(1, `rgba(${c[0]},${c[1]},${c[2]},0)`);
-                ctx.fillStyle = gr; ctx.fillRect(x - r * 3, y - r * 3, r * 6, r * 6);
-                // Core
+                ctx.fillStyle = gr; ctx.fillRect(x - r*2.2, y - r*2.2, r*4.4, r*4.4);
+                // Core blossom dot
                 ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2);
-                ctx.fillStyle = dot.bright > 0.6 ? `rgba(255,235,245,${0.5 + 0.5*dp})` : `rgba(${c[0]},${c[1]},${c[2]},${(0.4 + 0.4*dp)})`;
+                ctx.fillStyle = `rgba(${c[0]},${c[1]},${c[2]},${0.5 + 0.4*dp})`;
                 ctx.fill();
             }
         }
+        ctx.restore();
     }
 
     // Parse theme star colors into hex for canvas
@@ -919,10 +990,20 @@ function _initStarParallax() {
     for (let i = 0; i < COUNT; i++) {
         const pick = pickStar();
         const isBright = pick.bright;
-        const petal = _isSakura && Math.random() < 0.35;
+        const petal = _isSakura && Math.random() < 0.40;
+        // Petals start scattered from tree area downward; stars anywhere
+        let initX = Math.random() * canvas.width;
+        let initY = Math.random() * canvas.height;
+        if (petal && _sakuraTree.tips.length > 0) {
+            const tip = _sakuraTree.tips[Math.floor(Math.random() * _sakuraTree.tips.length)];
+            // Scale from 800x600 generation size to current canvas
+            const sx = canvas.width / 800, sy = canvas.height / 600;
+            initX = tip.x * sx + (Math.random() - 0.3) * 60 - Math.random() * canvas.width * 0.3;
+            initY = tip.y * sy + Math.random() * canvas.height * 0.6;
+        }
         stars.push({
-            x: Math.random() * canvas.width,
-            y: Math.random() * canvas.height,
+            x: initX,
+            y: initY,
             baseX: 0, baseY: 0,
             r: isBright ? Math.random() * 2.0 + 0.8 : Math.random() * 1.2 + 0.3,
             a: isBright ? Math.random() * 0.35 + 0.40 : Math.random() * 0.30 + 0.06,
@@ -935,7 +1016,10 @@ function _initStarParallax() {
             petalSpin: (Math.random() - 0.5) * 0.008,
             petalSize: petal ? Math.random() * 3 + 2.5 : 0,
             petalSway: petal ? Math.random() * 0.4 + 0.2 : 0,
-            petalFall: petal ? Math.random() * 0.25 + 0.1 : 0
+            petalFall: petal ? Math.random() * 0.25 + 0.1 : 0,
+            petalAge: petal ? Math.random() * 200 : 0,
+            petalSpiralR: petal ? Math.random() * 12 + 6 : 0,
+            petalSpiralSpd: petal ? Math.random() * 1.5 + 1.0 : 0
         });
         stars[i].baseX = stars[i].x;
         stars[i].baseY = stars[i].y;
@@ -1098,13 +1182,35 @@ function _initStarParallax() {
 
             // Gentle drift — petals fall down, stars drift up
             if (_isSakura && s.petal) {
-                s.baseY += s.petalFall;
-                s.baseX += Math.sin(t * s.petalSway + s.phase) * 0.25;
+                s.petalAge += 1;
                 s.petalAngle += s.petalSpin;
-                if (s.baseY > canvas.height + 15) {
-                    s.baseY = -10;
-                    s.baseX = Math.random() * canvas.width;
+                // Phase 1: spiral near tree (age < 80) — orbit around spawn point
+                // Phase 2: detach and drift left + fall (age >= 80)
+                const spiralPhase = Math.min(s.petalAge / 80, 1);
+                const spiralFade = 1 - spiralPhase; // 1 at spawn, 0 when fully detached
+                // Spiral motion (strong at start, fades out)
+                const spiralX = Math.cos(t * s.petalSpiralSpd + s.phase) * s.petalSpiralR * spiralFade;
+                const spiralY = Math.sin(t * s.petalSpiralSpd + s.phase) * s.petalSpiralR * spiralFade * 0.6;
+                // Drift motion (grows in as spiral fades)
+                const windGust = Math.sin(t * 0.3 + s.phase) * 0.15 + Math.sin(t * 0.8 + s.phase * 2) * 0.08;
+                const driftX = (-0.3 - windGust) * spiralPhase + Math.sin(t * s.petalSway + s.phase) * 0.15;
+                const driftY = s.petalFall * spiralPhase;
+                s.baseX += driftX + (spiralX - (s._prevSpiralX || 0));
+                s.baseY += driftY + (spiralY - (s._prevSpiralY || 0));
+                s._prevSpiralX = spiralX;
+                s._prevSpiralY = spiralY;
+                if (s.baseY > canvas.height + 15 || s.baseX < -20) {
+                    if (_sakuraTree.tips.length > 0) {
+                        const tip = _sakuraTree.tips[Math.floor(Math.random() * _sakuraTree.tips.length)];
+                        s.baseX = tip.x + (Math.random() - 0.3) * 20;
+                        s.baseY = tip.y + (Math.random() - 0.5) * 10;
+                    } else {
+                        s.baseY = -10;
+                        s.baseX = canvas.width * 0.3 + Math.random() * canvas.width * 0.5;
+                    }
                     s.y = s.baseY; s.x = s.baseX;
+                    s.petalAge = 0;
+                    s._prevSpiralX = 0; s._prevSpiralY = 0;
                 }
             } else {
                 s.baseY -= DRIFT_SPEED;
@@ -1140,20 +1246,27 @@ function _initStarParallax() {
 
             ctx.globalAlpha = alpha;
 
-            // Sakura petals: bezier petal shape with notch
+            // Sakura petals: bezier petal shape with spiral tumble
             if (_isSakura && s.petal) {
-                const sz = s.petalSize * ((!isTouch && dist < MOUSE_RADIUS) ? 1 + (1 - dist / MOUSE_RADIUS) * 0.3 : 1);
+                const spiralPhase = Math.min(s.petalAge / 80, 1);
+                // Tumble: petals appear to flip in 3D via scale pulsing
+                const tumble = 0.7 + 0.3 * Math.sin(t * s.petalSpiralSpd * 1.5 + s.phase);
+                const szBase = s.petalSize * ((!isTouch && dist < MOUSE_RADIUS) ? 1 + (1 - dist / MOUSE_RADIUS) * 0.3 : 1);
+                const sz = szBase * (spiralPhase < 1 ? tumble : 0.85 + 0.15 * tumble);
+                // Petals near tree are more opaque, fade slightly as they drift
+                const petalAlpha = alpha * (1 - spiralPhase * 0.15);
                 ctx.save();
                 ctx.translate(s.x, s.y);
                 ctx.rotate(s.petalAngle);
-                ctx.fillStyle = `rgba(${s.cr},${s.cg},${s.cb},${alpha})`;
+                ctx.fillStyle = `rgba(${s.cr},${s.cg},${s.cb},${petalAlpha})`;
                 ctx.beginPath();
                 ctx.moveTo(0, sz * 1.6);
                 ctx.bezierCurveTo(sz * 1.2, sz * 0.8, sz * 1.4, -sz * 0.6, sz * 0.3, -sz * 1.2);
                 ctx.quadraticCurveTo(0, -sz * 0.7, -sz * 0.3, -sz * 1.2);
                 ctx.bezierCurveTo(-sz * 1.4, -sz * 0.6, -sz * 1.2, sz * 0.8, 0, sz * 1.6);
                 ctx.fill();
-                ctx.globalAlpha = alpha * 0.15;
+                // Vein line detail
+                ctx.globalAlpha = petalAlpha * 0.12;
                 ctx.strokeStyle = `rgb(${s.cr},${s.cg},${s.cb})`;
                 ctx.lineWidth = 0.4;
                 ctx.beginPath();
