@@ -25,6 +25,11 @@ from pathlib import Path
 from datetime import datetime
 from typing import Dict, List, Any, Optional, Tuple, Set
 
+try:
+    from prompt_version import check_prompt_alignment
+except ImportError:
+    def check_prompt_alignment(*args, **kwargs): return ""
+
 logger = logging.getLogger(__name__)
 
 # ═══════════════════════════════════════════════════════════════════
@@ -842,6 +847,7 @@ Keywords: {cat_items}
 Title: {title}
 Content: {content}"""
 
+        check_prompt_alignment(system, user, context="scorer_adaptive_inference")
         return system, user
 
     def _prompt_rescore(self, item: Dict[str, Any], first_score: float, route: str, cancel_check=None, timeout_seconds=None) -> Tuple[float, str]:

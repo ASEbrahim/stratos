@@ -33,6 +33,8 @@ import logging
 import re
 import sqlite3
 import sys
+
+from prompt_version import check_prompt_alignment
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Any
@@ -357,6 +359,9 @@ def format_chatml(item: Dict) -> Dict:
         category_label=item.get('category', 'general'),
         category_items="",  # Not stored in corrections — model learns without at training, gets them at inference
     )
+
+    # Check for prompt template drift vs inference
+    check_prompt_alignment(system, user, context="export_training")
 
     score = round(item['target_score'], 1)
     reason = item['reason'][:400]
