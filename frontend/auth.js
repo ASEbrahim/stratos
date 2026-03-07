@@ -1249,29 +1249,39 @@ function _initStarParallax() {
             _binDrawSystem(canvas.width * 0.5, canvas.height * 0.28, t);
         }
 
-        // Pulsar (noir auth theme)
+        // Theme center elements — on mobile, position at middle-bottom and scale to fit
+        const _elCx = canvas.width * 0.5;
+        const _elCy = isMobile ? canvas.height * 0.62 : canvas.height * 0.30;
+        const _elScale = isMobile ? Math.min(canvas.width / 400, 0.7) : 1;
+
         if (_isNoir) {
-            _noirDrawPendulum(canvas.width * 0.5, canvas.height * 0.30, t);
+            ctx.save(); ctx.translate(_elCx, _elCy); ctx.scale(_elScale, _elScale); ctx.translate(-_elCx, -_elCy);
+            _noirDrawPendulum(_elCx, _elCy, t);
+            ctx.restore();
         }
-
-        // Rose bloom (rose auth theme)
         if (_isRose) {
-            _roseDrawBloom(canvas.width * 0.5, canvas.height * 0.30, t);
+            ctx.save(); ctx.translate(_elCx, _elCy); ctx.scale(_elScale, _elScale); ctx.translate(-_elCx, -_elCy);
+            _roseDrawBloom(_elCx, _elCy, t);
+            ctx.restore();
         }
-
-        // Ember (coffee auth theme)
         if (_isCoffee) {
-            _coffeeDrawCup(canvas.width * 0.5, canvas.height * 0.30, t);
+            ctx.save(); ctx.translate(_elCx, _elCy); ctx.scale(_elScale, _elScale); ctx.translate(-_elCx, -_elCy);
+            _coffeeDrawCup(_elCx, _elCy, t);
+            ctx.restore();
         }
-
-        // Crescent moon (midnight auth theme)
         if (_isMidnight) {
-            _midnightDrawMoon(canvas.width * 0.5, canvas.height * 0.28, t, canvas.width);
+            ctx.save(); ctx.translate(_elCx, _elCy); ctx.scale(_elScale, _elScale); ctx.translate(-_elCx, -_elCy);
+            _midnightDrawMoon(_elCx, isMobile ? _elCy : canvas.height * 0.28, t, canvas.width);
+            ctx.restore();
         }
-
-        // Sakura tree (sakura auth theme)
         if (_isSakura) {
-            _sakuraDrawTree(canvas.width, canvas.height, t);
+            if (isMobile) {
+                ctx.save(); ctx.translate(_elCx, canvas.height * 0.55); ctx.scale(_elScale, _elScale); ctx.translate(-_elCx, -canvas.height * 0.55);
+                _sakuraDrawTree(canvas.width, canvas.height, t);
+                ctx.restore();
+            } else {
+                _sakuraDrawTree(canvas.width, canvas.height, t);
+            }
         }
 
         // Spawn shooting stars
