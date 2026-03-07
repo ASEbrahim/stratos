@@ -125,14 +125,13 @@ Title: {title}
 Content: {content}"""
 
     score = scored['score']
-    # Use think_text (full Opus reasoning) when available, fall back to short reason
-    think_text = scored.get('think_text', '').strip()
+    # ALWAYS use short reason — V2.1 proved think_text causes catastrophic score inflation
+    # (MAE 3.244 vs V2's 1.544). Do NOT use think_text regardless of availability.
     reason = scored.get('reason', 'No reason provided')
+    if not reason or len(reason) < 5:
+        reason = 'No reason provided'
 
-    if think_text and len(think_text) > 50:
-        assistant_message = f"SCORE: {score:.1f} | REASON: {think_text}"
-    else:
-        assistant_message = f"SCORE: {score:.1f} | REASON: {reason}"
+    assistant_message = f"SCORE: {score:.1f} | REASON: {reason}"
 
     return {
         "messages": [
