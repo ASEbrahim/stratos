@@ -1,0 +1,2102 @@
+[
+  {
+    "custom_id": "b98f6cc69741__retired_diplomat_vienna",
+    "opus_score": 8.5,
+    "deepseek_score": 7.5,
+    "parse_failure": false,
+    "abs_error": 1.0
+  },
+  {
+    "custom_id": "9ff2cd268372__lawyer_ai_disruption",
+    "opus_score": 8.5,
+    "deepseek_score": 7.5,
+    "parse_failure": false,
+    "abs_error": 1.0
+  },
+  {
+    "custom_id": "ed5bbdf99053__agribiz_sao_paulo",
+    "opus_score": 4.0,
+    "deepseek_score": 3.5,
+    "parse_failure": false,
+    "abs_error": 0.5
+  },
+  {
+    "custom_id": "ea0dee269c6b__kpop_marketer_seoul",
+    "opus_score": 7.5,
+    "deepseek_score": 7.5,
+    "parse_failure": false,
+    "abs_error": 0.0
+  },
+  {
+    "custom_id": "c3a5aec8ce18__architect_qatar",
+    "opus_score": 4.0,
+    "deepseek_score": 3.5,
+    "parse_failure": false,
+    "abs_error": 0.5
+  },
+  {
+    "custom_id": "465bbb0a135d__supply_chain_bahrain",
+    "opus_score": 4.0,
+    "deepseek_score": 1.5,
+    "parse_failure": false,
+    "abs_error": 2.5
+  },
+  {
+    "custom_id": "3e8c20de4204__petrol_eng_kw",
+    "opus_score": 4.0,
+    "deepseek_score": 3.5,
+    "parse_failure": false,
+    "abs_error": 0.5
+  },
+  {
+    "custom_id": "5bb176fdaf86__undeclared_student_chicago",
+    "opus_score": 6.2,
+    "deepseek_score": 3.5,
+    "parse_failure": false,
+    "abs_error": 2.7
+  },
+  {
+    "custom_id": "0b1f28303e21__cto_fintech_lagos",
+    "opus_score": 2.0,
+    "deepseek_score": 0.5,
+    "parse_failure": false,
+    "abs_error": 1.5
+  },
+  {
+    "custom_id": "e34c77d9ca1d__meche_grad_sa",
+    "opus_score": 8.5,
+    "deepseek_score": 2.5,
+    "parse_failure": false,
+    "abs_error": 6.0
+  },
+  {
+    "custom_id": "7929fb2a49aa__hobbyist_crypto_f1",
+    "opus_score": 8.5,
+    "deepseek_score": 9.0,
+    "parse_failure": false,
+    "abs_error": 0.5
+  },
+  {
+    "custom_id": "2508db6eac22__meche_grad_sa",
+    "opus_score": 2.0,
+    "deepseek_score": 0.5,
+    "parse_failure": false,
+    "abs_error": 1.5
+  },
+  {
+    "custom_id": "89ce1d7d45d0__cybersecurity_kw",
+    "opus_score": 8.0,
+    "deepseek_score": 6.2,
+    "parse_failure": false,
+    "abs_error": 1.7999999999999998
+  },
+  {
+    "custom_id": "a80851f170f3__cpeg_student_kw",
+    "opus_score": 2.0,
+    "deepseek_score": 1.0,
+    "parse_failure": false,
+    "abs_error": 1.0
+  },
+  {
+    "custom_id": "72ee809ddc93__pediatric_oncologist_riyadh",
+    "opus_score": 4.0,
+    "deepseek_score": 6.2,
+    "parse_failure": false,
+    "abs_error": 2.2
+  },
+  {
+    "custom_id": "d8eb401211aa__ux_designer_tokyo",
+    "opus_score": 2.0,
+    "deepseek_score": 2.5,
+    "parse_failure": false,
+    "abs_error": 0.5
+  },
+  {
+    "custom_id": "f796fd8824ad__agribiz_sao_paulo",
+    "opus_score": 7.5,
+    "deepseek_score": 3.5,
+    "parse_failure": false,
+    "abs_error": 4.0
+  },
+  {
+    "custom_id": "fb8587089edb__cybersecurity_kw",
+    "opus_score": 2.0,
+    "deepseek_score": 1.0,
+    "parse_failure": false,
+    "abs_error": 1.0
+  },
+  {
+    "custom_id": "004978e5f574__cpeg_student_kw",
+    "opus_score": 8.5,
+    "deepseek_score": 7.2,
+    "parse_failure": false,
+    "abs_error": 1.2999999999999998
+  },
+  {
+    "custom_id": "e78660daa293__cpeg_student_kw",
+    "opus_score": 6.2,
+    "deepseek_score": 2.5,
+    "parse_failure": false,
+    "abs_error": 3.7
+  },
+  {
+    "custom_id": "e3aeffa5a6f2__hvac_tech_texas",
+    "opus_score": 1.0,
+    "deepseek_score": 0.0,
+    "parse_failure": false,
+    "abs_error": 1.0
+  },
+  {
+    "custom_id": "a330ee0eea78__architect_qatar",
+    "opus_score": 6.2,
+    "deepseek_score": 1.5,
+    "parse_failure": false,
+    "abs_error": 4.7
+  },
+  {
+    "custom_id": "0085d0f4c796__cpeg_student_kw",
+    "opus_score": 4.0,
+    "deepseek_score": 1.5,
+    "parse_failure": false,
+    "abs_error": 2.5
+  },
+  {
+    "custom_id": "b0897218b67c__cpeg_student_kw",
+    "opus_score": 9.0,
+    "deepseek_score": 2.5,
+    "parse_failure": false,
+    "abs_error": 6.5
+  },
+  {
+    "custom_id": "12654e5aeeb8__finance_student_kw",
+    "opus_score": 6.2,
+    "deepseek_score": 3.5,
+    "parse_failure": false,
+    "abs_error": 2.7
+  },
+  {
+    "custom_id": "a8ccd5d254a6__nurse_practitioner_toronto",
+    "opus_score": 7.5,
+    "deepseek_score": 3.5,
+    "parse_failure": false,
+    "abs_error": 4.0
+  },
+  {
+    "custom_id": "d486d60c8f06__mining_engineer_santiago",
+    "opus_score": 9.2,
+    "deepseek_score": 8.5,
+    "parse_failure": false,
+    "abs_error": 0.6999999999999993
+  },
+  {
+    "custom_id": "70536ae5a660__biotech_researcher_sa",
+    "opus_score": 7.5,
+    "deepseek_score": 6.2,
+    "parse_failure": false,
+    "abs_error": 1.2999999999999998
+  },
+  {
+    "custom_id": "0d1891eb449a__hobbyist_crypto_f1",
+    "opus_score": 8.5,
+    "deepseek_score": 8.5,
+    "parse_failure": false,
+    "abs_error": 0.0
+  },
+  {
+    "custom_id": "9055b48fe0e7__ux_designer_tokyo",
+    "opus_score": 8.5,
+    "deepseek_score": 3.5,
+    "parse_failure": false,
+    "abs_error": 5.0
+  },
+  {
+    "custom_id": "710b88bbd613__biotech_researcher_sa",
+    "opus_score": 7.5,
+    "deepseek_score": 6.2,
+    "parse_failure": false,
+    "abs_error": 1.2999999999999998
+  },
+  {
+    "custom_id": "f03e6f282ccf__marine_electrician_norway",
+    "opus_score": 1.0,
+    "deepseek_score": 0.5,
+    "parse_failure": false,
+    "abs_error": 0.5
+  },
+  {
+    "custom_id": "3e8c20de4204__meche_grad_sa",
+    "opus_score": 4.0,
+    "deepseek_score": 2.5,
+    "parse_failure": false,
+    "abs_error": 1.5
+  },
+  {
+    "custom_id": "7dc51331f9c3__cpeg_student_kw",
+    "opus_score": 4.0,
+    "deepseek_score": 2.5,
+    "parse_failure": false,
+    "abs_error": 1.5
+  },
+  {
+    "custom_id": "09b0bbbb88b3__lawyer_ai_disruption",
+    "opus_score": 8.5,
+    "deepseek_score": 6.2,
+    "parse_failure": false,
+    "abs_error": 2.3
+  },
+  {
+    "custom_id": "ef7d6d81f5a0__hobbyist_crypto_f1",
+    "opus_score": 4.0,
+    "deepseek_score": 2.5,
+    "parse_failure": false,
+    "abs_error": 1.5
+  },
+  {
+    "custom_id": "8825e780d6fe__meche_grad_sa",
+    "opus_score": 6.5,
+    "deepseek_score": 1.5,
+    "parse_failure": false,
+    "abs_error": 5.0
+  },
+  {
+    "custom_id": "82dbb0d4ff12__meche_grad_sa",
+    "opus_score": 6.2,
+    "deepseek_score": 2.5,
+    "parse_failure": false,
+    "abs_error": 3.7
+  },
+  {
+    "custom_id": "5fd5d19cfac2__pediatric_oncologist_riyadh",
+    "opus_score": 1.0,
+    "deepseek_score": 0.0,
+    "parse_failure": false,
+    "abs_error": 1.0
+  },
+  {
+    "custom_id": "f183efa67ebe__cto_fintech_lagos",
+    "opus_score": 6.2,
+    "deepseek_score": 6.2,
+    "parse_failure": false,
+    "abs_error": 0.0
+  },
+  {
+    "custom_id": "e9cfe7de85e7__filmmaker_mumbai",
+    "opus_score": 1.0,
+    "deepseek_score": 0.0,
+    "parse_failure": false,
+    "abs_error": 1.0
+  },
+  {
+    "custom_id": "a62a8437c295__retired_diplomat_vienna",
+    "opus_score": 9.2,
+    "deepseek_score": 8.5,
+    "parse_failure": false,
+    "abs_error": 0.6999999999999993
+  },
+  {
+    "custom_id": "36cf9994d4af__architect_qatar",
+    "opus_score": 6.2,
+    "deepseek_score": 1.5,
+    "parse_failure": false,
+    "abs_error": 4.7
+  },
+  {
+    "custom_id": "2a647a695708__nurse_practitioner_toronto",
+    "opus_score": 2.0,
+    "deepseek_score": 1.5,
+    "parse_failure": false,
+    "abs_error": 0.5
+  },
+  {
+    "custom_id": "19e5121d701f__cpeg_student_kw",
+    "opus_score": 4.0,
+    "deepseek_score": 3.5,
+    "parse_failure": false,
+    "abs_error": 0.5
+  },
+  {
+    "custom_id": "ad982e1c2725__cybersecurity_kw",
+    "opus_score": 0.0,
+    "deepseek_score": 0.0,
+    "parse_failure": false,
+    "abs_error": 0.0
+  },
+  {
+    "custom_id": "f31494e40381__retired_diplomat_vienna",
+    "opus_score": 2.0,
+    "deepseek_score": 1.5,
+    "parse_failure": false,
+    "abs_error": 0.5
+  },
+  {
+    "custom_id": "17659157b1eb__finance_student_kw",
+    "opus_score": 3.5,
+    "deepseek_score": 2.5,
+    "parse_failure": false,
+    "abs_error": 1.0
+  },
+  {
+    "custom_id": "b66aa2aaee0e__retired_diplomat_vienna",
+    "opus_score": 2.0,
+    "deepseek_score": 2.0,
+    "parse_failure": false,
+    "abs_error": 0.0
+  },
+  {
+    "custom_id": "9d95c3ab4179__undeclared_student_chicago",
+    "opus_score": 4.2,
+    "deepseek_score": 2.5,
+    "parse_failure": false,
+    "abs_error": 1.7000000000000002
+  },
+  {
+    "custom_id": "5e0bd62dd20f__cto_fintech_lagos",
+    "opus_score": 0.0,
+    "deepseek_score": 0.0,
+    "parse_failure": false,
+    "abs_error": 0.0
+  },
+  {
+    "custom_id": "0b1f28303e21__indie_gamedev_berlin",
+    "opus_score": 2.0,
+    "deepseek_score": 1.5,
+    "parse_failure": false,
+    "abs_error": 0.5
+  },
+  {
+    "custom_id": "dd58845772d4__ux_designer_tokyo",
+    "opus_score": 4.0,
+    "deepseek_score": 2.5,
+    "parse_failure": false,
+    "abs_error": 1.5
+  },
+  {
+    "custom_id": "46d9d6c8afe7__meche_grad_sa",
+    "opus_score": 4.0,
+    "deepseek_score": 3.5,
+    "parse_failure": false,
+    "abs_error": 0.5
+  },
+  {
+    "custom_id": "db9001357d38__petrol_eng_kw",
+    "opus_score": 0.0,
+    "deepseek_score": 0.0,
+    "parse_failure": false,
+    "abs_error": 0.0
+  },
+  {
+    "custom_id": "480081b71f9f__cpeg_student_kw",
+    "opus_score": 4.0,
+    "deepseek_score": 6.8,
+    "parse_failure": false,
+    "abs_error": 2.8
+  },
+  {
+    "custom_id": "ac300a019772__supply_chain_bahrain",
+    "opus_score": 1.5,
+    "deepseek_score": 0.5,
+    "parse_failure": false,
+    "abs_error": 1.0
+  },
+  {
+    "custom_id": "9484c9419aef__agribiz_sao_paulo",
+    "opus_score": 1.0,
+    "deepseek_score": 0.0,
+    "parse_failure": false,
+    "abs_error": 1.0
+  },
+  {
+    "custom_id": "1a8485aeef45__nurse_practitioner_toronto",
+    "opus_score": 2.0,
+    "deepseek_score": 1.5,
+    "parse_failure": false,
+    "abs_error": 0.5
+  },
+  {
+    "custom_id": "833d67ab3bdc__undeclared_student_chicago",
+    "opus_score": 4.5,
+    "deepseek_score": 3.5,
+    "parse_failure": false,
+    "abs_error": 1.0
+  },
+  {
+    "custom_id": "e8ff243e8470__indie_gamedev_berlin",
+    "opus_score": 1.0,
+    "deepseek_score": 0.5,
+    "parse_failure": false,
+    "abs_error": 0.5
+  },
+  {
+    "custom_id": "203c32f661cb__filmmaker_mumbai",
+    "opus_score": 8.5,
+    "deepseek_score": 8.5,
+    "parse_failure": false,
+    "abs_error": 0.0
+  },
+  {
+    "custom_id": "7f9ce16711fb__meche_grad_sa",
+    "opus_score": 7.5,
+    "deepseek_score": 7.5,
+    "parse_failure": false,
+    "abs_error": 0.0
+  },
+  {
+    "custom_id": "46d70fc3df2c__architect_qatar",
+    "opus_score": 0.0,
+    "deepseek_score": 0.0,
+    "parse_failure": false,
+    "abs_error": 0.0
+  },
+  {
+    "custom_id": "2fc8262c2e03__filmmaker_mumbai",
+    "opus_score": 2.0,
+    "deepseek_score": 1.5,
+    "parse_failure": false,
+    "abs_error": 0.5
+  },
+  {
+    "custom_id": "6a78f264f709__geophysicist_koc_kw",
+    "opus_score": 4.0,
+    "deepseek_score": 2.5,
+    "parse_failure": false,
+    "abs_error": 1.5
+  },
+  {
+    "custom_id": "3bed876b1c9a__biotech_researcher_sa",
+    "opus_score": 4.0,
+    "deepseek_score": 6.2,
+    "parse_failure": false,
+    "abs_error": 2.2
+  },
+  {
+    "custom_id": "1000eb606ae1__nurse_practitioner_toronto",
+    "opus_score": 1.0,
+    "deepseek_score": 0.0,
+    "parse_failure": false,
+    "abs_error": 1.0
+  },
+  {
+    "custom_id": "96815b0b1464__finance_student_kw",
+    "opus_score": 4.0,
+    "deepseek_score": 1.5,
+    "parse_failure": false,
+    "abs_error": 2.5
+  },
+  {
+    "custom_id": "748f9f3e9119__hvac_tech_texas",
+    "opus_score": 2.5,
+    "deepseek_score": 1.5,
+    "parse_failure": false,
+    "abs_error": 1.0
+  },
+  {
+    "custom_id": "749021dfe15f__hobbyist_crypto_f1",
+    "opus_score": 8.5,
+    "deepseek_score": 7.2,
+    "parse_failure": false,
+    "abs_error": 1.2999999999999998
+  },
+  {
+    "custom_id": "e4c96aeb0707__meche_grad_sa",
+    "opus_score": 4.0,
+    "deepseek_score": 2.5,
+    "parse_failure": false,
+    "abs_error": 1.5
+  },
+  {
+    "custom_id": "621206a2328f__undeclared_student_chicago",
+    "opus_score": 6.5,
+    "deepseek_score": 3.5,
+    "parse_failure": false,
+    "abs_error": 3.0
+  },
+  {
+    "custom_id": "7aa182ec0fc8__marine_electrician_norway",
+    "opus_score": 8.5,
+    "deepseek_score": 7.5,
+    "parse_failure": false,
+    "abs_error": 1.0
+  },
+  {
+    "custom_id": "9fb89575a74d__nurse_practitioner_toronto",
+    "opus_score": 1.0,
+    "deepseek_score": 1.5,
+    "parse_failure": false,
+    "abs_error": 0.5
+  },
+  {
+    "custom_id": "ffc5292f1ffe__hobbyist_crypto_f1",
+    "opus_score": 8.5,
+    "deepseek_score": 9.0,
+    "parse_failure": false,
+    "abs_error": 0.5
+  },
+  {
+    "custom_id": "d6d210642f40__petrol_eng_kw",
+    "opus_score": 7.5,
+    "deepseek_score": 3.5,
+    "parse_failure": false,
+    "abs_error": 4.0
+  },
+  {
+    "custom_id": "b4227d794546__finance_student_kw",
+    "opus_score": 0.0,
+    "deepseek_score": 0.0,
+    "parse_failure": false,
+    "abs_error": 0.0
+  },
+  {
+    "custom_id": "fc2056aa2819__pediatric_oncologist_riyadh",
+    "opus_score": 6.2,
+    "deepseek_score": 2.5,
+    "parse_failure": false,
+    "abs_error": 3.7
+  },
+  {
+    "custom_id": "adbd23549f34__undeclared_student_chicago",
+    "opus_score": 4.0,
+    "deepseek_score": 1.5,
+    "parse_failure": false,
+    "abs_error": 2.5
+  },
+  {
+    "custom_id": "891875f7e0e5__agribiz_sao_paulo",
+    "opus_score": 4.0,
+    "deepseek_score": 2.5,
+    "parse_failure": false,
+    "abs_error": 1.5
+  },
+  {
+    "custom_id": "0341b0f1fa45__hvac_tech_texas",
+    "opus_score": 8.5,
+    "deepseek_score": 8.5,
+    "parse_failure": false,
+    "abs_error": 0.0
+  },
+  {
+    "custom_id": "92550c58e749__lawyer_ai_disruption",
+    "opus_score": 8.5,
+    "deepseek_score": 7.5,
+    "parse_failure": false,
+    "abs_error": 1.0
+  },
+  {
+    "custom_id": "8ed8427651be__petrol_eng_kw",
+    "opus_score": 6.2,
+    "deepseek_score": 6.2,
+    "parse_failure": false,
+    "abs_error": 0.0
+  },
+  {
+    "custom_id": "e2fc05bce6cf__physical_therapist_sydney",
+    "opus_score": 6.5,
+    "deepseek_score": 7.5,
+    "parse_failure": false,
+    "abs_error": 1.0
+  },
+  {
+    "custom_id": "fb620f01b3df__finance_student_kw",
+    "opus_score": 6.5,
+    "deepseek_score": 7.5,
+    "parse_failure": false,
+    "abs_error": 1.0
+  },
+  {
+    "custom_id": "526f0dadf495__indie_gamedev_berlin",
+    "opus_score": 1.0,
+    "deepseek_score": 0.5,
+    "parse_failure": false,
+    "abs_error": 0.5
+  },
+  {
+    "custom_id": "8ed8427651be__data_scientist_dubai",
+    "opus_score": 4.0,
+    "deepseek_score": 2.5,
+    "parse_failure": false,
+    "abs_error": 1.5
+  },
+  {
+    "custom_id": "da11a2837258__data_scientist_dubai",
+    "opus_score": 2.0,
+    "deepseek_score": 1.5,
+    "parse_failure": false,
+    "abs_error": 0.5
+  },
+  {
+    "custom_id": "c3a8f70d0129__undeclared_student_chicago",
+    "opus_score": 2.5,
+    "deepseek_score": 2.5,
+    "parse_failure": false,
+    "abs_error": 0.0
+  },
+  {
+    "custom_id": "be2090e88f4d__supply_chain_bahrain",
+    "opus_score": 0.5,
+    "deepseek_score": 0.0,
+    "parse_failure": false,
+    "abs_error": 0.5
+  },
+  {
+    "custom_id": "4184744e2f53__meche_grad_sa",
+    "opus_score": 2.0,
+    "deepseek_score": 0.5,
+    "parse_failure": false,
+    "abs_error": 1.5
+  },
+  {
+    "custom_id": "fffffb55a5b0__geophysicist_koc_kw",
+    "opus_score": 1.0,
+    "deepseek_score": 0.0,
+    "parse_failure": false,
+    "abs_error": 1.0
+  },
+  {
+    "custom_id": "870018df72b6__supply_chain_bahrain",
+    "opus_score": 4.0,
+    "deepseek_score": 2.5,
+    "parse_failure": false,
+    "abs_error": 1.5
+  },
+  {
+    "custom_id": "c4c12a0768ff__cto_fintech_lagos",
+    "opus_score": 1.0,
+    "deepseek_score": 0.5,
+    "parse_failure": false,
+    "abs_error": 0.5
+  },
+  {
+    "custom_id": "10c5d75ea54d__cpeg_student_kw",
+    "opus_score": 8.5,
+    "deepseek_score": 2.5,
+    "parse_failure": false,
+    "abs_error": 6.0
+  },
+  {
+    "custom_id": "12c0e6ccd920__finance_student_kw",
+    "opus_score": 6.5,
+    "deepseek_score": 4.5,
+    "parse_failure": false,
+    "abs_error": 2.0
+  },
+  {
+    "custom_id": "ade1640af783__hobbyist_crypto_f1",
+    "opus_score": 2.0,
+    "deepseek_score": 2.5,
+    "parse_failure": false,
+    "abs_error": 0.5
+  },
+  {
+    "custom_id": "465bbb0a135d__agribiz_sao_paulo",
+    "opus_score": 6.2,
+    "deepseek_score": 1.5,
+    "parse_failure": false,
+    "abs_error": 4.7
+  },
+  {
+    "custom_id": "db50349ebe0e__cpeg_student_kw",
+    "opus_score": 2.0,
+    "deepseek_score": 2.5,
+    "parse_failure": false,
+    "abs_error": 0.5
+  },
+  {
+    "custom_id": "c70b450b58da__architect_qatar",
+    "opus_score": 6.5,
+    "deepseek_score": 4.5,
+    "parse_failure": false,
+    "abs_error": 2.0
+  },
+  {
+    "custom_id": "f6a519589ecd__petrol_eng_kw",
+    "opus_score": 8.5,
+    "deepseek_score": 6.5,
+    "parse_failure": false,
+    "abs_error": 2.0
+  },
+  {
+    "custom_id": "5c544720b7a1__petrol_eng_kw",
+    "opus_score": 4.0,
+    "deepseek_score": 6.2,
+    "parse_failure": false,
+    "abs_error": 2.2
+  },
+  {
+    "custom_id": "377441fc3120__lawyer_ai_disruption",
+    "opus_score": 6.2,
+    "deepseek_score": 2.5,
+    "parse_failure": false,
+    "abs_error": 3.7
+  },
+  {
+    "custom_id": "19e5121d701f__retired_diplomat_vienna",
+    "opus_score": 2.5,
+    "deepseek_score": 1.5,
+    "parse_failure": false,
+    "abs_error": 1.0
+  },
+  {
+    "custom_id": "850d949dcebe__mining_engineer_santiago",
+    "opus_score": 7.0,
+    "deepseek_score": 4.0,
+    "parse_failure": false,
+    "abs_error": 3.0
+  },
+  {
+    "custom_id": "f44ef5362b9d__physical_therapist_sydney",
+    "opus_score": 0.0,
+    "deepseek_score": 0.0,
+    "parse_failure": false,
+    "abs_error": 0.0
+  },
+  {
+    "custom_id": "5d7a35e74058__cpeg_student_kw",
+    "opus_score": 6.5,
+    "deepseek_score": 3.5,
+    "parse_failure": false,
+    "abs_error": 3.0
+  },
+  {
+    "custom_id": "13d86d883908__architect_qatar",
+    "opus_score": 0.0,
+    "deepseek_score": 0.0,
+    "parse_failure": false,
+    "abs_error": 0.0
+  },
+  {
+    "custom_id": "af428caaa53b__supply_chain_bahrain",
+    "opus_score": 2.0,
+    "deepseek_score": 1.5,
+    "parse_failure": false,
+    "abs_error": 0.5
+  },
+  {
+    "custom_id": "27192387eb1c__cpeg_student_kw",
+    "opus_score": 6.5,
+    "deepseek_score": 2.5,
+    "parse_failure": false,
+    "abs_error": 4.0
+  },
+  {
+    "custom_id": "db50349ebe0e__chef_mexico_city",
+    "opus_score": 1.5,
+    "deepseek_score": 1.5,
+    "parse_failure": false,
+    "abs_error": 0.0
+  },
+  {
+    "custom_id": "70dc481e1775__finance_student_kw",
+    "opus_score": 2.0,
+    "deepseek_score": 0.5,
+    "parse_failure": false,
+    "abs_error": 1.5
+  },
+  {
+    "custom_id": "d613066b21bc__pediatric_oncologist_riyadh",
+    "opus_score": 9.2,
+    "deepseek_score": 8.5,
+    "parse_failure": false,
+    "abs_error": 0.6999999999999993
+  },
+  {
+    "custom_id": "6c5dfcaedec5__finance_student_kw",
+    "opus_score": 3.5,
+    "deepseek_score": 2.5,
+    "parse_failure": false,
+    "abs_error": 1.0
+  },
+  {
+    "custom_id": "c6eee3a60118__cpeg_student_kw",
+    "opus_score": 4.0,
+    "deepseek_score": 2.5,
+    "parse_failure": false,
+    "abs_error": 1.5
+  },
+  {
+    "custom_id": "750b69c9fa9c__cpeg_student_kw",
+    "opus_score": 2.0,
+    "deepseek_score": 1.5,
+    "parse_failure": false,
+    "abs_error": 0.5
+  },
+  {
+    "custom_id": "1161a741278e__undeclared_student_chicago",
+    "opus_score": 4.0,
+    "deepseek_score": 3.5,
+    "parse_failure": false,
+    "abs_error": 0.5
+  },
+  {
+    "custom_id": "7ebe38fdf6cf__kpop_marketer_seoul",
+    "opus_score": 0.5,
+    "deepseek_score": 0.0,
+    "parse_failure": false,
+    "abs_error": 0.5
+  },
+  {
+    "custom_id": "999228e76934__marine_electrician_norway",
+    "opus_score": 1.0,
+    "deepseek_score": 0.0,
+    "parse_failure": false,
+    "abs_error": 1.0
+  },
+  {
+    "custom_id": "00e8b7326c42__architect_qatar",
+    "opus_score": 7.5,
+    "deepseek_score": 4.5,
+    "parse_failure": false,
+    "abs_error": 3.0
+  },
+  {
+    "custom_id": "f378139caa36__meche_grad_sa",
+    "opus_score": 6.5,
+    "deepseek_score": 6.2,
+    "parse_failure": false,
+    "abs_error": 0.2999999999999998
+  },
+  {
+    "custom_id": "cc98d7b72e2a__finance_student_kw",
+    "opus_score": 8.5,
+    "deepseek_score": 4.0,
+    "parse_failure": false,
+    "abs_error": 4.5
+  },
+  {
+    "custom_id": "8457dedf35ef__undeclared_student_chicago",
+    "opus_score": 6.5,
+    "deepseek_score": 1.5,
+    "parse_failure": false,
+    "abs_error": 5.0
+  },
+  {
+    "custom_id": "3f2ab9ced7aa__petrol_eng_kw",
+    "opus_score": 4.0,
+    "deepseek_score": 3.5,
+    "parse_failure": false,
+    "abs_error": 0.5
+  },
+  {
+    "custom_id": "892cd32142ec__cpeg_student_kw",
+    "opus_score": 2.0,
+    "deepseek_score": 3.5,
+    "parse_failure": false,
+    "abs_error": 1.5
+  },
+  {
+    "custom_id": "a6594b50a51b__retired_diplomat_vienna",
+    "opus_score": 1.0,
+    "deepseek_score": 1.0,
+    "parse_failure": false,
+    "abs_error": 0.0
+  },
+  {
+    "custom_id": "a2987b251f77__hobbyist_crypto_f1",
+    "opus_score": 2.0,
+    "deepseek_score": 1.5,
+    "parse_failure": false,
+    "abs_error": 0.5
+  },
+  {
+    "custom_id": "d39524f14cd0__hobbyist_crypto_f1",
+    "opus_score": 8.5,
+    "deepseek_score": 8.5,
+    "parse_failure": false,
+    "abs_error": 0.0
+  },
+  {
+    "custom_id": "d5c2bd468024__bonsai_competitor_kyoto",
+    "opus_score": 1.0,
+    "deepseek_score": 1.0,
+    "parse_failure": false,
+    "abs_error": 0.0
+  },
+  {
+    "custom_id": "964eccde20cd__cybersecurity_kw",
+    "opus_score": 4.0,
+    "deepseek_score": 3.5,
+    "parse_failure": false,
+    "abs_error": 0.5
+  },
+  {
+    "custom_id": "0a330a0ec3ac__filmmaker_mumbai",
+    "opus_score": 4.0,
+    "deepseek_score": 1.5,
+    "parse_failure": false,
+    "abs_error": 2.5
+  },
+  {
+    "custom_id": "a2987b251f77__undeclared_student_chicago",
+    "opus_score": 4.0,
+    "deepseek_score": 2.5,
+    "parse_failure": false,
+    "abs_error": 1.5
+  },
+  {
+    "custom_id": "3a6d24feb167__welder_pipeline_alberta",
+    "opus_score": 4.0,
+    "deepseek_score": 2.5,
+    "parse_failure": false,
+    "abs_error": 1.5
+  },
+  {
+    "custom_id": "71b236a00058__undeclared_student_chicago",
+    "opus_score": 4.0,
+    "deepseek_score": 3.5,
+    "parse_failure": false,
+    "abs_error": 0.5
+  },
+  {
+    "custom_id": "7ea915d2b890__hobbyist_crypto_f1",
+    "opus_score": 8.5,
+    "deepseek_score": 8.5,
+    "parse_failure": false,
+    "abs_error": 0.0
+  },
+  {
+    "custom_id": "bc185de38d12__undeclared_student_chicago",
+    "opus_score": 2.0,
+    "deepseek_score": 1.5,
+    "parse_failure": false,
+    "abs_error": 0.5
+  },
+  {
+    "custom_id": "ef7d6d81f5a0__supply_chain_bahrain",
+    "opus_score": 2.0,
+    "deepseek_score": 1.5,
+    "parse_failure": false,
+    "abs_error": 0.5
+  },
+  {
+    "custom_id": "92550c58e749__geophysicist_koc_kw",
+    "opus_score": 2.0,
+    "deepseek_score": 2.5,
+    "parse_failure": false,
+    "abs_error": 0.5
+  },
+  {
+    "custom_id": "1aa675749207__marine_electrician_norway",
+    "opus_score": 1.5,
+    "deepseek_score": 0.5,
+    "parse_failure": false,
+    "abs_error": 1.0
+  },
+  {
+    "custom_id": "2870fd7bede0__welder_pipeline_alberta",
+    "opus_score": 4.0,
+    "deepseek_score": 2.5,
+    "parse_failure": false,
+    "abs_error": 1.5
+  },
+  {
+    "custom_id": "0d1891eb449a__meche_grad_sa",
+    "opus_score": 1.0,
+    "deepseek_score": 0.5,
+    "parse_failure": false,
+    "abs_error": 0.5
+  },
+  {
+    "custom_id": "c18fb5324ba3__data_scientist_dubai",
+    "opus_score": 1.0,
+    "deepseek_score": 1.0,
+    "parse_failure": false,
+    "abs_error": 0.0
+  },
+  {
+    "custom_id": "48ebbb70919f__undeclared_student_chicago",
+    "opus_score": 4.0,
+    "deepseek_score": 1.5,
+    "parse_failure": false,
+    "abs_error": 2.5
+  },
+  {
+    "custom_id": "d02a553e2890__finance_student_kw",
+    "opus_score": 8.5,
+    "deepseek_score": 6.2,
+    "parse_failure": false,
+    "abs_error": 2.3
+  },
+  {
+    "custom_id": "2a547d6d26ed__architect_qatar",
+    "opus_score": 2.0,
+    "deepseek_score": 1.5,
+    "parse_failure": false,
+    "abs_error": 0.5
+  },
+  {
+    "custom_id": "1764c806c00e__cybersecurity_kw",
+    "opus_score": 8.5,
+    "deepseek_score": 8.5,
+    "parse_failure": false,
+    "abs_error": 0.0
+  },
+  {
+    "custom_id": "8dc6582fc335__physical_therapist_sydney",
+    "opus_score": 1.0,
+    "deepseek_score": 0.0,
+    "parse_failure": false,
+    "abs_error": 1.0
+  },
+  {
+    "custom_id": "3d83b6930cc1__petrol_eng_kw",
+    "opus_score": 8.5,
+    "deepseek_score": 7.5,
+    "parse_failure": false,
+    "abs_error": 1.0
+  },
+  {
+    "custom_id": "12654e5aeeb8__hobbyist_crypto_f1",
+    "opus_score": 6.5,
+    "deepseek_score": 8.5,
+    "parse_failure": false,
+    "abs_error": 2.0
+  },
+  {
+    "custom_id": "ecf965eb1766__biotech_researcher_sa",
+    "opus_score": 8.5,
+    "deepseek_score": 8.5,
+    "parse_failure": false,
+    "abs_error": 0.0
+  },
+  {
+    "custom_id": "effd42efc4e2__finance_student_kw",
+    "opus_score": 7.2,
+    "deepseek_score": 2.5,
+    "parse_failure": false,
+    "abs_error": 4.7
+  },
+  {
+    "custom_id": "d8eb401211aa__data_scientist_dubai",
+    "opus_score": 8.5,
+    "deepseek_score": 7.5,
+    "parse_failure": false,
+    "abs_error": 1.0
+  },
+  {
+    "custom_id": "33b42ca871fe__agribiz_sao_paulo",
+    "opus_score": 2.0,
+    "deepseek_score": 1.5,
+    "parse_failure": false,
+    "abs_error": 0.5
+  },
+  {
+    "custom_id": "96c3eb15119c__undeclared_student_chicago",
+    "opus_score": 6.5,
+    "deepseek_score": 2.5,
+    "parse_failure": false,
+    "abs_error": 4.0
+  },
+  {
+    "custom_id": "da11a2837258__agribiz_sao_paulo",
+    "opus_score": 4.0,
+    "deepseek_score": 2.5,
+    "parse_failure": false,
+    "abs_error": 1.5
+  },
+  {
+    "custom_id": "f3eb0037aac7__finance_student_kw",
+    "opus_score": 7.5,
+    "deepseek_score": 8.5,
+    "parse_failure": false,
+    "abs_error": 1.0
+  },
+  {
+    "custom_id": "7831b8cf1261__agribiz_sao_paulo",
+    "opus_score": 8.5,
+    "deepseek_score": 4.5,
+    "parse_failure": false,
+    "abs_error": 4.0
+  },
+  {
+    "custom_id": "c18b3d69c4f3__nurse_practitioner_toronto",
+    "opus_score": 1.5,
+    "deepseek_score": 0.5,
+    "parse_failure": false,
+    "abs_error": 1.0
+  },
+  {
+    "custom_id": "7b24e43df91e__ux_designer_tokyo",
+    "opus_score": 2.0,
+    "deepseek_score": 0.5,
+    "parse_failure": false,
+    "abs_error": 1.5
+  },
+  {
+    "custom_id": "b05a241ede60__bonsai_competitor_kyoto",
+    "opus_score": 1.0,
+    "deepseek_score": 0.0,
+    "parse_failure": false,
+    "abs_error": 1.0
+  },
+  {
+    "custom_id": "9242b5701bf1__filmmaker_mumbai",
+    "opus_score": 6.5,
+    "deepseek_score": 3.5,
+    "parse_failure": false,
+    "abs_error": 3.0
+  },
+  {
+    "custom_id": "0e3779ed8a82__pharmacist_paris",
+    "opus_score": 2.0,
+    "deepseek_score": 1.5,
+    "parse_failure": false,
+    "abs_error": 0.5
+  },
+  {
+    "custom_id": "6a78f264f709__undeclared_student_chicago",
+    "opus_score": 6.2,
+    "deepseek_score": 2.5,
+    "parse_failure": false,
+    "abs_error": 3.7
+  },
+  {
+    "custom_id": "5692b5b7196f__undeclared_student_chicago",
+    "opus_score": 4.0,
+    "deepseek_score": 2.5,
+    "parse_failure": false,
+    "abs_error": 1.5
+  },
+  {
+    "custom_id": "8c7786824cfd__retired_diplomat_vienna",
+    "opus_score": 8.0,
+    "deepseek_score": 6.8,
+    "parse_failure": false,
+    "abs_error": 1.2000000000000002
+  },
+  {
+    "custom_id": "4a590d690682__petrol_eng_kw",
+    "opus_score": 6.5,
+    "deepseek_score": 4.0,
+    "parse_failure": false,
+    "abs_error": 2.5
+  },
+  {
+    "custom_id": "709a2b5a31f4__finance_student_kw",
+    "opus_score": 2.0,
+    "deepseek_score": 2.5,
+    "parse_failure": false,
+    "abs_error": 0.5
+  },
+  {
+    "custom_id": "4cbb72ecdca4__hvac_tech_texas",
+    "opus_score": 6.2,
+    "deepseek_score": 3.5,
+    "parse_failure": false,
+    "abs_error": 2.7
+  },
+  {
+    "custom_id": "8825e780d6fe__hobbyist_crypto_f1",
+    "opus_score": 2.0,
+    "deepseek_score": 0.5,
+    "parse_failure": false,
+    "abs_error": 1.5
+  },
+  {
+    "custom_id": "7a19fa538a96__finance_student_kw",
+    "opus_score": 6.5,
+    "deepseek_score": 2.5,
+    "parse_failure": false,
+    "abs_error": 4.0
+  },
+  {
+    "custom_id": "a8ccd5d254a6__pharmacist_paris",
+    "opus_score": 2.5,
+    "deepseek_score": 1.5,
+    "parse_failure": false,
+    "abs_error": 1.0
+  },
+  {
+    "custom_id": "750b69c9fa9c__pharmacist_paris",
+    "opus_score": 8.5,
+    "deepseek_score": 8.5,
+    "parse_failure": false,
+    "abs_error": 0.0
+  },
+  {
+    "custom_id": "ebe74a632cbb__petrol_eng_kw",
+    "opus_score": 3.5,
+    "deepseek_score": 2.5,
+    "parse_failure": false,
+    "abs_error": 1.0
+  },
+  {
+    "custom_id": "ef2caa4ef7ba__mining_engineer_santiago",
+    "opus_score": 2.0,
+    "deepseek_score": 1.5,
+    "parse_failure": false,
+    "abs_error": 0.5
+  },
+  {
+    "custom_id": "b76411c99089__mining_engineer_santiago",
+    "opus_score": 1.0,
+    "deepseek_score": 0.0,
+    "parse_failure": false,
+    "abs_error": 1.0
+  },
+  {
+    "custom_id": "b60023717d65__pediatric_oncologist_riyadh",
+    "opus_score": 1.0,
+    "deepseek_score": 0.5,
+    "parse_failure": false,
+    "abs_error": 0.5
+  },
+  {
+    "custom_id": "ebfdd002534b__finance_student_kw",
+    "opus_score": 2.0,
+    "deepseek_score": 1.5,
+    "parse_failure": false,
+    "abs_error": 0.5
+  },
+  {
+    "custom_id": "4fe6f412746a__retired_diplomat_vienna",
+    "opus_score": 8.5,
+    "deepseek_score": 7.5,
+    "parse_failure": false,
+    "abs_error": 1.0
+  },
+  {
+    "custom_id": "652a350f6a8a__chef_mexico_city",
+    "opus_score": 7.2,
+    "deepseek_score": 1.5,
+    "parse_failure": false,
+    "abs_error": 5.7
+  },
+  {
+    "custom_id": "cb9b48e3594b__nurse_practitioner_toronto",
+    "opus_score": 4.0,
+    "deepseek_score": 2.5,
+    "parse_failure": false,
+    "abs_error": 1.5
+  },
+  {
+    "custom_id": "12c0e6ccd920__hobbyist_crypto_f1",
+    "opus_score": 8.5,
+    "deepseek_score": 8.5,
+    "parse_failure": false,
+    "abs_error": 0.0
+  },
+  {
+    "custom_id": "722e0e319730__nurse_practitioner_toronto",
+    "opus_score": 1.0,
+    "deepseek_score": 0.0,
+    "parse_failure": false,
+    "abs_error": 1.0
+  },
+  {
+    "custom_id": "c5fea57ecc6e__hobbyist_crypto_f1",
+    "opus_score": 8.5,
+    "deepseek_score": 6.2,
+    "parse_failure": false,
+    "abs_error": 2.3
+  },
+  {
+    "custom_id": "6fd25b516633__physical_therapist_sydney",
+    "opus_score": 1.0,
+    "deepseek_score": 0.5,
+    "parse_failure": false,
+    "abs_error": 0.5
+  },
+  {
+    "custom_id": "06acd666b09a__indie_gamedev_berlin",
+    "opus_score": 4.0,
+    "deepseek_score": 2.5,
+    "parse_failure": false,
+    "abs_error": 1.5
+  },
+  {
+    "custom_id": "0df0ea8a4223__finance_student_kw",
+    "opus_score": 1.0,
+    "deepseek_score": 1.0,
+    "parse_failure": false,
+    "abs_error": 0.0
+  },
+  {
+    "custom_id": "2870fd7bede0__chef_mexico_city",
+    "opus_score": 1.0,
+    "deepseek_score": 0.0,
+    "parse_failure": false,
+    "abs_error": 1.0
+  },
+  {
+    "custom_id": "d15100c5e3be__cpeg_student_kw",
+    "opus_score": 7.5,
+    "deepseek_score": 6.2,
+    "parse_failure": false,
+    "abs_error": 1.2999999999999998
+  },
+  {
+    "custom_id": "855d5f70ed83__finance_student_kw",
+    "opus_score": 4.0,
+    "deepseek_score": 3.5,
+    "parse_failure": false,
+    "abs_error": 0.5
+  },
+  {
+    "custom_id": "321d51c9fc7a__finance_student_kw",
+    "opus_score": 8.5,
+    "deepseek_score": 7.2,
+    "parse_failure": false,
+    "abs_error": 1.2999999999999998
+  },
+  {
+    "custom_id": "9b116978403a__undeclared_student_chicago",
+    "opus_score": 8.5,
+    "deepseek_score": 6.2,
+    "parse_failure": false,
+    "abs_error": 2.3
+  },
+  {
+    "custom_id": "12654e5aeeb8__undeclared_student_chicago",
+    "opus_score": 6.2,
+    "deepseek_score": 3.5,
+    "parse_failure": false,
+    "abs_error": 2.7
+  },
+  {
+    "custom_id": "3507bbe521d3__biotech_researcher_sa",
+    "opus_score": 3.0,
+    "deepseek_score": 2.5,
+    "parse_failure": false,
+    "abs_error": 0.5
+  },
+  {
+    "custom_id": "cb25e0a6e07d__undeclared_student_chicago",
+    "opus_score": 7.2,
+    "deepseek_score": 6.2,
+    "parse_failure": false,
+    "abs_error": 1.0
+  },
+  {
+    "custom_id": "7a19fa538a96__supply_chain_bahrain",
+    "opus_score": 8.5,
+    "deepseek_score": 8.5,
+    "parse_failure": false,
+    "abs_error": 0.0
+  },
+  {
+    "custom_id": "33b2176774d4__mining_engineer_santiago",
+    "opus_score": 6.2,
+    "deepseek_score": 3.5,
+    "parse_failure": false,
+    "abs_error": 2.7
+  },
+  {
+    "custom_id": "765de76c7997__cpeg_student_kw",
+    "opus_score": 4.0,
+    "deepseek_score": 2.5,
+    "parse_failure": false,
+    "abs_error": 1.5
+  },
+  {
+    "custom_id": "72ee809ddc93__nurse_practitioner_toronto",
+    "opus_score": 8.5,
+    "deepseek_score": 6.2,
+    "parse_failure": false,
+    "abs_error": 2.3
+  },
+  {
+    "custom_id": "cc98d7b72e2a__hobbyist_crypto_f1",
+    "opus_score": 6.5,
+    "deepseek_score": 2.5,
+    "parse_failure": false,
+    "abs_error": 4.0
+  },
+  {
+    "custom_id": "621206a2328f__meche_grad_sa",
+    "opus_score": 3.0,
+    "deepseek_score": 1.5,
+    "parse_failure": false,
+    "abs_error": 1.5
+  },
+  {
+    "custom_id": "4a99e45e03c5__mining_engineer_santiago",
+    "opus_score": 1.0,
+    "deepseek_score": 0.0,
+    "parse_failure": false,
+    "abs_error": 1.0
+  },
+  {
+    "custom_id": "bfde82dfd2b9__filmmaker_mumbai",
+    "opus_score": 1.0,
+    "deepseek_score": 0.5,
+    "parse_failure": false,
+    "abs_error": 0.5
+  },
+  {
+    "custom_id": "087975ff0bb0__pharmacist_paris",
+    "opus_score": 2.0,
+    "deepseek_score": 0.5,
+    "parse_failure": false,
+    "abs_error": 1.5
+  },
+  {
+    "custom_id": "6ed3f21dab5f__supply_chain_bahrain",
+    "opus_score": 2.0,
+    "deepseek_score": 1.5,
+    "parse_failure": false,
+    "abs_error": 0.5
+  },
+  {
+    "custom_id": "55ccc75684bc__ux_designer_tokyo",
+    "opus_score": 6.5,
+    "deepseek_score": 7.2,
+    "parse_failure": false,
+    "abs_error": 0.7000000000000002
+  },
+  {
+    "custom_id": "fffffb55a5b0__mining_engineer_santiago",
+    "opus_score": 1.0,
+    "deepseek_score": 0.0,
+    "parse_failure": false,
+    "abs_error": 1.0
+  },
+  {
+    "custom_id": "1aa675749207__agribiz_sao_paulo",
+    "opus_score": 1.0,
+    "deepseek_score": 0.5,
+    "parse_failure": false,
+    "abs_error": 0.5
+  },
+  {
+    "custom_id": "86b07c08ec13__pediatric_oncologist_riyadh",
+    "opus_score": 2.0,
+    "deepseek_score": 0.5,
+    "parse_failure": false,
+    "abs_error": 1.5
+  },
+  {
+    "custom_id": "6e000ab4f25b__undeclared_student_chicago",
+    "opus_score": 4.0,
+    "deepseek_score": 2.5,
+    "parse_failure": false,
+    "abs_error": 1.5
+  },
+  {
+    "custom_id": "79b3a09d44cb__data_scientist_dubai",
+    "opus_score": 4.0,
+    "deepseek_score": 3.5,
+    "parse_failure": false,
+    "abs_error": 0.5
+  },
+  {
+    "custom_id": "621206a2328f__filmmaker_mumbai",
+    "opus_score": 7.5,
+    "deepseek_score": 2.5,
+    "parse_failure": false,
+    "abs_error": 5.0
+  },
+  {
+    "custom_id": "e14ecf0274cb__cpeg_student_kw",
+    "opus_score": 4.0,
+    "deepseek_score": 3.5,
+    "parse_failure": false,
+    "abs_error": 0.5
+  },
+  {
+    "custom_id": "227265a0fb09__finance_student_kw",
+    "opus_score": 4.0,
+    "deepseek_score": 1.5,
+    "parse_failure": false,
+    "abs_error": 2.5
+  },
+  {
+    "custom_id": "b413b9872217__data_scientist_dubai",
+    "opus_score": 1.0,
+    "deepseek_score": 1.5,
+    "parse_failure": false,
+    "abs_error": 0.5
+  },
+  {
+    "custom_id": "2fc8262c2e03__biotech_researcher_sa",
+    "opus_score": 2.0,
+    "deepseek_score": 1.5,
+    "parse_failure": false,
+    "abs_error": 0.5
+  },
+  {
+    "custom_id": "2c584a78b58e__data_scientist_dubai",
+    "opus_score": 7.5,
+    "deepseek_score": 6.8,
+    "parse_failure": false,
+    "abs_error": 0.7000000000000002
+  },
+  {
+    "custom_id": "39f60411bf2a__geophysicist_koc_kw",
+    "opus_score": 1.0,
+    "deepseek_score": 0.0,
+    "parse_failure": false,
+    "abs_error": 1.0
+  },
+  {
+    "custom_id": "4323a376f958__lawyer_ai_disruption",
+    "opus_score": 4.0,
+    "deepseek_score": 2.5,
+    "parse_failure": false,
+    "abs_error": 1.5
+  },
+  {
+    "custom_id": "9ae44377cf3f__cpeg_student_kw",
+    "opus_score": 8.5,
+    "deepseek_score": 3.5,
+    "parse_failure": false,
+    "abs_error": 5.0
+  },
+  {
+    "custom_id": "04e2683a9a12__pharmacist_paris",
+    "opus_score": 2.0,
+    "deepseek_score": 1.0,
+    "parse_failure": false,
+    "abs_error": 1.0
+  },
+  {
+    "custom_id": "4a97c45c1840__cpeg_student_kw",
+    "opus_score": 0.5,
+    "deepseek_score": 0.0,
+    "parse_failure": false,
+    "abs_error": 0.5
+  },
+  {
+    "custom_id": "6c5c5c612dc5__undeclared_student_chicago",
+    "opus_score": 7.5,
+    "deepseek_score": 4.0,
+    "parse_failure": false,
+    "abs_error": 3.5
+  },
+  {
+    "custom_id": "9ec815aeb9b6__ux_designer_tokyo",
+    "opus_score": 7.5,
+    "deepseek_score": 3.5,
+    "parse_failure": false,
+    "abs_error": 4.0
+  },
+  {
+    "custom_id": "4cbb72ecdca4__petrol_eng_kw",
+    "opus_score": 1.5,
+    "deepseek_score": 1.5,
+    "parse_failure": false,
+    "abs_error": 0.0
+  },
+  {
+    "custom_id": "6c17f362d533__kpop_marketer_seoul",
+    "opus_score": 9.2,
+    "deepseek_score": 9.0,
+    "parse_failure": false,
+    "abs_error": 0.1999999999999993
+  },
+  {
+    "custom_id": "6b6568bc4b79__mining_engineer_santiago",
+    "opus_score": 9.2,
+    "deepseek_score": 8.5,
+    "parse_failure": false,
+    "abs_error": 0.6999999999999993
+  },
+  {
+    "custom_id": "51902725231c__biotech_researcher_sa",
+    "opus_score": 8.5,
+    "deepseek_score": 7.5,
+    "parse_failure": false,
+    "abs_error": 1.0
+  },
+  {
+    "custom_id": "39f60411bf2a__hobbyist_crypto_f1",
+    "opus_score": 7.0,
+    "deepseek_score": 3.5,
+    "parse_failure": false,
+    "abs_error": 3.5
+  },
+  {
+    "custom_id": "7831b8cf1261__cybersecurity_kw",
+    "opus_score": 1.0,
+    "deepseek_score": 0.0,
+    "parse_failure": false,
+    "abs_error": 1.0
+  },
+  {
+    "custom_id": "47daa0f84c16__kpop_marketer_seoul",
+    "opus_score": 4.0,
+    "deepseek_score": 3.5,
+    "parse_failure": false,
+    "abs_error": 0.5
+  },
+  {
+    "custom_id": "2c584a78b58e__ux_designer_tokyo",
+    "opus_score": 2.0,
+    "deepseek_score": 1.5,
+    "parse_failure": false,
+    "abs_error": 0.5
+  },
+  {
+    "custom_id": "493f30631b26__undeclared_student_chicago",
+    "opus_score": 4.0,
+    "deepseek_score": 2.5,
+    "parse_failure": false,
+    "abs_error": 1.5
+  },
+  {
+    "custom_id": "91b010961634__filmmaker_mumbai",
+    "opus_score": 6.5,
+    "deepseek_score": 1.5,
+    "parse_failure": false,
+    "abs_error": 5.0
+  },
+  {
+    "custom_id": "7dc51331f9c3__filmmaker_mumbai",
+    "opus_score": 4.0,
+    "deepseek_score": 1.5,
+    "parse_failure": false,
+    "abs_error": 2.5
+  },
+  {
+    "custom_id": "31b9a87fc460__nurse_practitioner_toronto",
+    "opus_score": 1.0,
+    "deepseek_score": 0.0,
+    "parse_failure": false,
+    "abs_error": 1.0
+  },
+  {
+    "custom_id": "7d0bc6297ad6__finance_student_kw",
+    "opus_score": 8.5,
+    "deepseek_score": 6.2,
+    "parse_failure": false,
+    "abs_error": 2.3
+  },
+  {
+    "custom_id": "a930889bdcf4__retired_diplomat_vienna",
+    "opus_score": 4.0,
+    "deepseek_score": 1.5,
+    "parse_failure": false,
+    "abs_error": 2.5
+  },
+  {
+    "custom_id": "a32b99c1d219__cpeg_student_kw",
+    "opus_score": 8.5,
+    "deepseek_score": 2.5,
+    "parse_failure": false,
+    "abs_error": 6.0
+  },
+  {
+    "custom_id": "cc98d7b72e2a__supply_chain_bahrain",
+    "opus_score": 4.0,
+    "deepseek_score": 2.5,
+    "parse_failure": false,
+    "abs_error": 1.5
+  },
+  {
+    "custom_id": "7aa182ec0fc8__architect_qatar",
+    "opus_score": 2.5,
+    "deepseek_score": 1.5,
+    "parse_failure": false,
+    "abs_error": 1.0
+  },
+  {
+    "custom_id": "8ed8427651be__supply_chain_bahrain",
+    "opus_score": 7.5,
+    "deepseek_score": 3.5,
+    "parse_failure": false,
+    "abs_error": 4.0
+  },
+  {
+    "custom_id": "46fa8bd031d7__biotech_researcher_sa",
+    "opus_score": 4.0,
+    "deepseek_score": 2.5,
+    "parse_failure": false,
+    "abs_error": 1.5
+  },
+  {
+    "custom_id": "9def50c43eba__filmmaker_mumbai",
+    "opus_score": 6.2,
+    "deepseek_score": 1.5,
+    "parse_failure": false,
+    "abs_error": 4.7
+  },
+  {
+    "custom_id": "597ab27c256d__chef_mexico_city",
+    "opus_score": 2.0,
+    "deepseek_score": 1.5,
+    "parse_failure": false,
+    "abs_error": 0.5
+  },
+  {
+    "custom_id": "5d16df61bf15__filmmaker_mumbai",
+    "opus_score": 1.5,
+    "deepseek_score": 0.0,
+    "parse_failure": false,
+    "abs_error": 1.5
+  },
+  {
+    "custom_id": "710b88bbd613__pediatric_oncologist_riyadh",
+    "opus_score": 3.0,
+    "deepseek_score": 1.5,
+    "parse_failure": false,
+    "abs_error": 1.5
+  },
+  {
+    "custom_id": "71fec404dd65__filmmaker_mumbai",
+    "opus_score": 2.0,
+    "deepseek_score": 1.5,
+    "parse_failure": false,
+    "abs_error": 0.5
+  },
+  {
+    "custom_id": "98aae292275e__pediatric_oncologist_riyadh",
+    "opus_score": 2.0,
+    "deepseek_score": 0.0,
+    "parse_failure": false,
+    "abs_error": 2.0
+  },
+  {
+    "custom_id": "f03e6f282ccf__undeclared_student_chicago",
+    "opus_score": 8.5,
+    "deepseek_score": 3.5,
+    "parse_failure": false,
+    "abs_error": 5.0
+  },
+  {
+    "custom_id": "e87edddc2df3__ux_designer_tokyo",
+    "opus_score": 1.0,
+    "deepseek_score": 0.5,
+    "parse_failure": false,
+    "abs_error": 0.5
+  },
+  {
+    "custom_id": "ef7d6d81f5a0__finance_student_kw",
+    "opus_score": 6.5,
+    "deepseek_score": 2.5,
+    "parse_failure": false,
+    "abs_error": 4.0
+  },
+  {
+    "custom_id": "5bb176fdaf86__cybersecurity_kw",
+    "opus_score": 3.5,
+    "deepseek_score": 1.5,
+    "parse_failure": false,
+    "abs_error": 2.0
+  },
+  {
+    "custom_id": "8a4c3450d20b__marine_electrician_norway",
+    "opus_score": 6.5,
+    "deepseek_score": 3.5,
+    "parse_failure": false,
+    "abs_error": 3.0
+  },
+  {
+    "custom_id": "b6161019c9e2__pediatric_oncologist_riyadh",
+    "opus_score": 1.0,
+    "deepseek_score": 1.5,
+    "parse_failure": false,
+    "abs_error": 0.5
+  },
+  {
+    "custom_id": "27d229289e43__lawyer_ai_disruption",
+    "opus_score": 8.2,
+    "deepseek_score": 6.8,
+    "parse_failure": false,
+    "abs_error": 1.3999999999999995
+  },
+  {
+    "custom_id": "e5124af886eb__undeclared_student_chicago",
+    "opus_score": 3.5,
+    "deepseek_score": 6.2,
+    "parse_failure": false,
+    "abs_error": 2.7
+  },
+  {
+    "custom_id": "36cf9994d4af__cybersecurity_kw",
+    "opus_score": 8.5,
+    "deepseek_score": 7.5,
+    "parse_failure": false,
+    "abs_error": 1.0
+  },
+  {
+    "custom_id": "da199fc495cc__retired_diplomat_vienna",
+    "opus_score": 1.0,
+    "deepseek_score": 0.0,
+    "parse_failure": false,
+    "abs_error": 1.0
+  },
+  {
+    "custom_id": "f31494e40381__pediatric_oncologist_riyadh",
+    "opus_score": 8.5,
+    "deepseek_score": 7.5,
+    "parse_failure": false,
+    "abs_error": 1.0
+  },
+  {
+    "custom_id": "8c7786824cfd__filmmaker_mumbai",
+    "opus_score": 1.5,
+    "deepseek_score": 1.0,
+    "parse_failure": false,
+    "abs_error": 0.5
+  },
+  {
+    "custom_id": "f7b7fcf4e134__mining_engineer_santiago",
+    "opus_score": 1.0,
+    "deepseek_score": 0.0,
+    "parse_failure": false,
+    "abs_error": 1.0
+  },
+  {
+    "custom_id": "0b6417c2db18__petrol_eng_kw",
+    "opus_score": 8.5,
+    "deepseek_score": 6.2,
+    "parse_failure": false,
+    "abs_error": 2.3
+  },
+  {
+    "custom_id": "4dd26c3e0ed6__pharmacist_paris",
+    "opus_score": 7.5,
+    "deepseek_score": 6.2,
+    "parse_failure": false,
+    "abs_error": 1.2999999999999998
+  },
+  {
+    "custom_id": "d50eef5705d4__undeclared_student_chicago",
+    "opus_score": 4.0,
+    "deepseek_score": 2.5,
+    "parse_failure": false,
+    "abs_error": 1.5
+  },
+  {
+    "custom_id": "652a350f6a8a__finance_student_kw",
+    "opus_score": 2.0,
+    "deepseek_score": 1.5,
+    "parse_failure": false,
+    "abs_error": 0.5
+  },
+  {
+    "custom_id": "6487e640f76a__finance_student_kw",
+    "opus_score": 6.5,
+    "deepseek_score": 6.8,
+    "parse_failure": false,
+    "abs_error": 0.2999999999999998
+  },
+  {
+    "custom_id": "e4a2c0a98993__chef_mexico_city",
+    "opus_score": 4.0,
+    "deepseek_score": 1.5,
+    "parse_failure": false,
+    "abs_error": 2.5
+  },
+  {
+    "custom_id": "a930889bdcf4__undeclared_student_chicago",
+    "opus_score": 4.0,
+    "deepseek_score": 1.5,
+    "parse_failure": false,
+    "abs_error": 2.5
+  },
+  {
+    "custom_id": "46d9d6c8afe7__hvac_tech_texas",
+    "opus_score": 8.5,
+    "deepseek_score": 3.5,
+    "parse_failure": false,
+    "abs_error": 5.0
+  },
+  {
+    "custom_id": "a7b26371353c__kpop_marketer_seoul",
+    "opus_score": 2.0,
+    "deepseek_score": 1.5,
+    "parse_failure": false,
+    "abs_error": 0.5
+  },
+  {
+    "custom_id": "3533b02b91d6__cpeg_student_kw",
+    "opus_score": 4.0,
+    "deepseek_score": 1.5,
+    "parse_failure": false,
+    "abs_error": 2.5
+  },
+  {
+    "custom_id": "616a0efb3ec8__undeclared_student_chicago",
+    "opus_score": 4.0,
+    "deepseek_score": 2.5,
+    "parse_failure": false,
+    "abs_error": 1.5
+  },
+  {
+    "custom_id": "ac300a019772__biotech_researcher_sa",
+    "opus_score": 9.2,
+    "deepseek_score": 7.5,
+    "parse_failure": false,
+    "abs_error": 1.6999999999999993
+  },
+  {
+    "custom_id": "f71c89cb73a9__finance_student_kw",
+    "opus_score": 6.5,
+    "deepseek_score": 2.5,
+    "parse_failure": false,
+    "abs_error": 4.0
+  },
+  {
+    "custom_id": "cc98d7b72e2a__cto_fintech_lagos",
+    "opus_score": 8.2,
+    "deepseek_score": 7.2,
+    "parse_failure": false,
+    "abs_error": 0.9999999999999991
+  },
+  {
+    "custom_id": "b413b9872217__kpop_marketer_seoul",
+    "opus_score": 1.0,
+    "deepseek_score": 0.5,
+    "parse_failure": false,
+    "abs_error": 0.5
+  },
+  {
+    "custom_id": "12c0e6ccd920__cpeg_student_kw",
+    "opus_score": 4.0,
+    "deepseek_score": 3.5,
+    "parse_failure": false,
+    "abs_error": 0.5
+  },
+  {
+    "custom_id": "6487e640f76a__meche_grad_sa",
+    "opus_score": 3.0,
+    "deepseek_score": 3.5,
+    "parse_failure": false,
+    "abs_error": 0.5
+  },
+  {
+    "custom_id": "7d0bc6297ad6__cpeg_student_kw",
+    "opus_score": 7.5,
+    "deepseek_score": 1.5,
+    "parse_failure": false,
+    "abs_error": 6.0
+  },
+  {
+    "custom_id": "e9cfe7de85e7__meche_grad_sa",
+    "opus_score": 4.0,
+    "deepseek_score": 6.2,
+    "parse_failure": false,
+    "abs_error": 2.2
+  },
+  {
+    "custom_id": "2f4db432c459__indie_gamedev_berlin",
+    "opus_score": 1.0,
+    "deepseek_score": 0.0,
+    "parse_failure": false,
+    "abs_error": 1.0
+  },
+  {
+    "custom_id": "9242b5701bf1__geophysicist_koc_kw",
+    "opus_score": 1.0,
+    "deepseek_score": 0.0,
+    "parse_failure": false,
+    "abs_error": 1.0
+  },
+  {
+    "custom_id": "cbc8d212fece__hobbyist_crypto_f1",
+    "opus_score": 2.0,
+    "deepseek_score": 1.0,
+    "parse_failure": false,
+    "abs_error": 1.0
+  },
+  {
+    "custom_id": "a8b1ae2340b8__pediatric_oncologist_riyadh",
+    "opus_score": 1.0,
+    "deepseek_score": 0.0,
+    "parse_failure": false,
+    "abs_error": 1.0
+  },
+  {
+    "custom_id": "6d100690046c__filmmaker_mumbai",
+    "opus_score": 8.2,
+    "deepseek_score": 6.2,
+    "parse_failure": false,
+    "abs_error": 1.9999999999999991
+  },
+  {
+    "custom_id": "b66aa2aaee0e__hobbyist_crypto_f1",
+    "opus_score": 8.5,
+    "deepseek_score": 7.5,
+    "parse_failure": false,
+    "abs_error": 1.0
+  },
+  {
+    "custom_id": "1d15db004bd1__filmmaker_mumbai",
+    "opus_score": 2.0,
+    "deepseek_score": 1.5,
+    "parse_failure": false,
+    "abs_error": 0.5
+  },
+  {
+    "custom_id": "b6161019c9e2__lawyer_ai_disruption",
+    "opus_score": 9.2,
+    "deepseek_score": 8.5,
+    "parse_failure": false,
+    "abs_error": 0.6999999999999993
+  },
+  {
+    "custom_id": "a3cf370fb603__finance_student_kw",
+    "opus_score": 8.5,
+    "deepseek_score": 8.5,
+    "parse_failure": false,
+    "abs_error": 0.0
+  },
+  {
+    "custom_id": "3d83b6930cc1__geophysicist_koc_kw",
+    "opus_score": 8.5,
+    "deepseek_score": 9.0,
+    "parse_failure": false,
+    "abs_error": 0.5
+  },
+  {
+    "custom_id": "b413b9872217__cybersecurity_kw",
+    "opus_score": 1.0,
+    "deepseek_score": 1.5,
+    "parse_failure": false,
+    "abs_error": 0.5
+  },
+  {
+    "custom_id": "82dbb0d4ff12__petrol_eng_kw",
+    "opus_score": 8.5,
+    "deepseek_score": 8.5,
+    "parse_failure": false,
+    "abs_error": 0.0
+  },
+  {
+    "custom_id": "7ff04aa9a440__data_scientist_dubai",
+    "opus_score": 4.0,
+    "deepseek_score": 2.5,
+    "parse_failure": false,
+    "abs_error": 1.5
+  },
+  {
+    "custom_id": "da199fc495cc__physical_therapist_sydney",
+    "opus_score": 1.0,
+    "deepseek_score": 0.0,
+    "parse_failure": false,
+    "abs_error": 1.0
+  },
+  {
+    "custom_id": "98aae292275e__cybersecurity_kw",
+    "opus_score": 8.5,
+    "deepseek_score": 8.5,
+    "parse_failure": false,
+    "abs_error": 0.0
+  },
+  {
+    "custom_id": "c18b3d69c4f3__architect_qatar",
+    "opus_score": 1.0,
+    "deepseek_score": 0.5,
+    "parse_failure": false,
+    "abs_error": 0.5
+  },
+  {
+    "custom_id": "c9fbe9501acd__retired_diplomat_vienna",
+    "opus_score": 2.0,
+    "deepseek_score": 1.5,
+    "parse_failure": false,
+    "abs_error": 0.5
+  },
+  {
+    "custom_id": "9fb89575a74d__hvac_tech_texas",
+    "opus_score": 4.0,
+    "deepseek_score": 2.5,
+    "parse_failure": false,
+    "abs_error": 1.5
+  },
+  {
+    "custom_id": "44ffb3877663__finance_student_kw",
+    "opus_score": 2.0,
+    "deepseek_score": 2.5,
+    "parse_failure": false,
+    "abs_error": 0.5
+  }
+]
