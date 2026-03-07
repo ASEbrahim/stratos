@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Coffee Theme - Hourglass</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: #0c0806; overflow: hidden; }
+canvas { display: block; width: 100vw; height: 100vh; }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<script>
+const canvas = document.getElementById('c');
+const ctx = canvas.getContext('2d');
+let W, H, time = 0;
+
+function resize() {
+    W = canvas.width = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+}
+window.addEventListener('resize', resize);
+resize();
+
+// Mouse tracking
+let mouseX = -1000, mouseY = -1000;
+let smoothMX = -1000, smoothMY = -1000;
+document.addEventListener('mousemove', e => { mouseX = e.clientX; mouseY = e.clientY; });
+document.addEventListener('mouseleave', () => { mouseX = -1000; mouseY = -1000; });
+
+const PRIMARY = [212, 148, 60];
+const SECONDARY = [232, 170, 84];
+const TERTIARY = [184, 122, 46];
+const BRIGHT = [255, 240, 212];
+const CREAM = [240, 228, 212];
+
+function rgba(c, a) { return `rgba(${c[0]},${c[1]},${c[2]},${a})`; }
+function lerp(a, b, t) { return a + (b - a) * t; }
+
+// Stars
+class Star {
+    constructor() { this.reset(); }
+    reset() {
+        this.x = Math.random() * W;
+        this.y = Math.random() * H;
+        this.size = Math.random() * 1.8 + 0.3;
+        this.twinkleSpeed = Math.random() * 2 + 1;
+        this.twinkleOffset = Math.random() * Math.PI * 2;
+        this.color = [PRIMARY, SECONDARY, TERTIARY, BRIGHT][Math.floor(Math.random() * 4)];
+        this.baseAlpha = Math.random() * 0.4 + 0.1;
+    }
+    draw(t) {
+        let sx = this.x, sy = this.y;
+        const dxm = sx - smoothMX, dym = sy - smoothMY;
+        const distM = Math.sqrt(dxm * dxm + dym * dym);
+        let alphaBoost = 0;
+        if (distM < 150) {
+            const push = (150 - distM) * 0.15;
+            const angle = Math.atan2(dym, dxm);
+            sx += Math.cos(angle) * push;
+            sy += Math.sin(angle) * push;
+            alphaBoost = 0.15;
+        }
+        const alpha = Math.min(1, this.baseAlpha * (0.5 + 0.5 * Math.sin(t * this.twinkleSpeed + this.twinkleOffset)) + alphaBoost);
+        ctx.beginPath();
+        ctx.arc(sx, sy, this.size, 0, Math.PI * 2);
+        ctx.fillStyle = rgba(this.color, alpha);
+        ctx.fill();
+        this._drawX = sx; this._drawY = sy;
+    }
+}
+
+// Sand particle flowing through waist
+class SandParticle {
+    constructor() { this.reset(true); }
+    reset(init) {
+        const cx = W * 0.5;
+        const cy = H * 0.31;
+        // Start at waist
+        this.x = cx + (Math.random() - 0.5) * 3;
+        this.y = cy + (init ? Math.random() * 80 : 0);
+        this.vy = Math.random() * 1.5 + 0.5;
+        this.vx = (Math.random() - 0.5) * 0.8;
+        this.size = Math.random() * 2 + 0.8;
+        this.life = 0;
+        this.maxLife = Math.random() * 80 + 40;
+        this.color = Math.random() < 0.3 ? BRIGHT : (Math.random() < 0.5 ? PRIMARY : SECONDARY);
+        this.alpha = Math.random() * 0.6 + 0.4;
+    }
+    update() {
+        this.life++;
+        if (this.life > this.maxLife) { this.reset(false); return; }
+        this.y += this.vy;
+        this.x += this.vx;
+        // Spread out as it falls into bottom bulb
+        const progress = this.life / this.maxLife;
+        this.vx += (Math.random() - 0.5) * 0.15 * progress;
+    }
+    draw() {
+        const progress = this.life / this.maxLife;
+        let alpha = this.alpha;
+        if (progress > 0.8) alpha *= 1 - (progress - 0.8) / 0.2;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fillStyle = rgba(this.color, alpha);
+        ctx.fill();
+    }
+}
+
+// Orbiting particle
+class OrbitParticle {
+    constructor() { this.reset(); }
+    reset() {
+        this.angle = Math.random() * Math.PI * 2;
+        this.speed = (Math.random() * 0.004 + 0.002) * (Math.random() < 0.5 ? 1 : -1);
+        this.radiusX = Math.random() * 80 + 60;
+        this.radiusY = Math.random() * 100 + 70;
+        this.size = Math.random() * 2 + 0.5;
+        this.color = [PRIMARY, SECONDARY, BRIGHT, CREAM][Math.floor(Math.random() * 4)];
+        this.alpha = Math.random() * 0.3 + 0.1;
+        this.type = Math.random() < 0.3 ? 'clock' : 'dot';
+    }
+    draw(t) {
+        const cx = W * 0.5;
+        const cy = H * 0.31;
+        const a = this.angle + t * this.speed * 60;
+        const x = cx + Math.cos(a) * this.radiusX;
+        const y = cy + Math.sin(a) * this.radiusY;
+        const twinkle = 0.5 + 0.5 * Math.sin(t * 3 + this.angle);
+
+        ctx.save();
+        ctx.translate(x, y);
+
+        if (this.type === 'clock') {
+            // Tiny clock hands
+            ctx.strokeStyle = rgba(this.color, this.alpha * twinkle);
+            ctx.lineWidth = 1;
+            const handAngle = t * 2 + this.angle;
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.lineTo(Math.cos(handAngle) * 4, Math.sin(handAngle) * 4);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.lineTo(Math.cos(handAngle * 0.3) * 3, Math.sin(handAngle * 0.3) * 3);
+            ctx.stroke();
+            // Dot center
+            ctx.beginPath();
+            ctx.arc(0, 0, 0.8, 0, Math.PI * 2);
+            ctx.fillStyle = rgba(this.color, this.alpha * twinkle);
+            ctx.fill();
+        } else {
+            ctx.beginPath();
+            ctx.arc(0, 0, this.size, 0, Math.PI * 2);
+            ctx.fillStyle = rgba(this.color, this.alpha * twinkle);
+            ctx.fill();
+        }
+        ctx.restore();
+    }
+}
+
+// Top sand level (depletes)
+class TopSand {
+    constructor() { this.level = 0.7; }
+    update() {
+        this.level -= 0.00003;
+        if (this.level < 0.05) this.level = 0.7; // reset cycle
+    }
+}
+
+// Bottom sand level (fills)
+class BottomSand {
+    constructor(topSand) { this.topSand = topSand; }
+    get level() { return 0.7 - this.topSand.level; }
+}
+
+const stars = Array.from({length: 120}, () => new Star());
+const sandParticles = Array.from({length: 60}, () => new SandParticle());
+const orbitParticles = Array.from({length: 25}, () => new OrbitParticle());
+const topSand = new TopSand();
+const bottomSand = new BottomSand(topSand);
+
+function drawBackground() {
+    const grad = ctx.createLinearGradient(0, 0, 0, H);
+    grad.addColorStop(0, '#0c0806');
+    grad.addColorStop(1, '#14100a');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, W, H);
+}
+
+function drawHourglass() {
+    const cx = W * 0.5;
+    const cy = H * 0.31;
+    const halfH = 75;
+    const topW = 38;
+    const waistW = 4;
+
+    ctx.save();
+
+    // Ambient glow
+    const glowPulse = 0.7 + 0.3 * Math.sin(time * 1.2);
+    const glow = ctx.createRadialGradient(cx, cy, 0, cx, cy, halfH * 2);
+    glow.addColorStop(0, rgba(PRIMARY, 0.08 * glowPulse));
+    glow.addColorStop(0.5, rgba(TERTIARY, 0.04 * glowPulse));
+    glow.addColorStop(1, 'transparent');
+    ctx.fillStyle = glow;
+    ctx.fillRect(cx - halfH * 2, cy - halfH * 2, halfH * 4, halfH * 4);
+
+    // Glass frame - top bulb
+    ctx.beginPath();
+    ctx.moveTo(cx - topW, cy - halfH);
+    ctx.bezierCurveTo(cx - topW, cy - halfH * 0.3, cx - waistW, cy - 5, cx - waistW, cy);
+    ctx.lineTo(cx + waistW, cy);
+    ctx.bezierCurveTo(cx + waistW, cy - 5, cx + topW, cy - halfH * 0.3, cx + topW, cy - halfH);
+    ctx.closePath();
+    ctx.strokeStyle = rgba(PRIMARY, 0.4);
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+    ctx.fillStyle = rgba(TERTIARY, 0.04);
+    ctx.fill();
+
+    // Glass frame - bottom bulb
+    ctx.beginPath();
+    ctx.moveTo(cx - waistW, cy);
+    ctx.bezierCurveTo(cx - waistW, cy + 5, cx - topW, cy + halfH * 0.3, cx - topW, cy + halfH);
+    ctx.lineTo(cx + topW, cy + halfH);
+    ctx.bezierCurveTo(cx + topW, cy + halfH * 0.3, cx + waistW, cy + 5, cx + waistW, cy);
+    ctx.closePath();
+    ctx.strokeStyle = rgba(PRIMARY, 0.4);
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+    ctx.fillStyle = rgba(TERTIARY, 0.04);
+    ctx.fill();
+
+    // Top cap
+    ctx.beginPath();
+    ctx.moveTo(cx - topW - 5, cy - halfH);
+    ctx.lineTo(cx + topW + 5, cy - halfH);
+    ctx.strokeStyle = rgba(SECONDARY, 0.6);
+    ctx.lineWidth = 2.5;
+    ctx.stroke();
+
+    // Bottom cap
+    ctx.beginPath();
+    ctx.moveTo(cx - topW - 5, cy + halfH);
+    ctx.lineTo(cx + topW + 5, cy + halfH);
+    ctx.strokeStyle = rgba(SECONDARY, 0.6);
+    ctx.lineWidth = 2.5;
+    ctx.stroke();
+
+    // Sand in top bulb (depleting)
+    topSand.update();
+    const topLevel = topSand.level;
+    if (topLevel > 0.05) {
+        const sandTop = cy - halfH + (1 - topLevel) * halfH * 0.85;
+        ctx.save();
+        // Clip to top bulb
+        ctx.beginPath();
+        ctx.moveTo(cx - topW + 2, cy - halfH + 2);
+        ctx.bezierCurveTo(cx - topW + 2, cy - halfH * 0.3, cx - waistW, cy - 5, cx - waistW, cy);
+        ctx.lineTo(cx + waistW, cy);
+        ctx.bezierCurveTo(cx + waistW, cy - 5, cx + topW - 2, cy - halfH * 0.3, cx + topW - 2, cy - halfH + 2);
+        ctx.closePath();
+        ctx.clip();
+
+        const sandGrad = ctx.createLinearGradient(0, sandTop, 0, cy);
+        sandGrad.addColorStop(0, rgba(SECONDARY, 0.6));
+        sandGrad.addColorStop(0.5, rgba(PRIMARY, 0.7));
+        sandGrad.addColorStop(1, rgba(TERTIARY, 0.5));
+        ctx.fillStyle = sandGrad;
+        ctx.fillRect(cx - topW, sandTop, topW * 2, cy - sandTop);
+        ctx.restore();
+    }
+
+    // Sand in bottom bulb (filling)
+    const botLevel = bottomSand.level;
+    if (botLevel > 0.02) {
+        const sandBot = cy + halfH - botLevel * halfH * 0.85;
+        ctx.save();
+        // Clip to bottom bulb
+        ctx.beginPath();
+        ctx.moveTo(cx - waistW, cy);
+        ctx.bezierCurveTo(cx - waistW, cy + 5, cx - topW + 2, cy + halfH * 0.3, cx - topW + 2, cy + halfH - 2);
+        ctx.lineTo(cx + topW - 2, cy + halfH - 2);
+        ctx.bezierCurveTo(cx + topW - 2, cy + halfH * 0.3, cx + waistW, cy + 5, cx + waistW, cy);
+        ctx.closePath();
+        ctx.clip();
+
+        const sandGrad2 = ctx.createLinearGradient(0, sandBot, 0, cy + halfH);
+        sandGrad2.addColorStop(0, rgba(PRIMARY, 0.5));
+        sandGrad2.addColorStop(0.5, rgba(SECONDARY, 0.7));
+        sandGrad2.addColorStop(1, rgba(TERTIARY, 0.6));
+        ctx.fillStyle = sandGrad2;
+
+        // Small pile shape at top of sand
+        ctx.beginPath();
+        ctx.moveTo(cx - topW, sandBot + 8);
+        ctx.quadraticCurveTo(cx, sandBot - 3, cx + topW, sandBot + 8);
+        ctx.lineTo(cx + topW, cy + halfH);
+        ctx.lineTo(cx - topW, cy + halfH);
+        ctx.closePath();
+        ctx.fillStyle = sandGrad2;
+        ctx.fill();
+        ctx.restore();
+    }
+
+    // Flowing sand stream through waist
+    ctx.beginPath();
+    ctx.moveTo(cx - 1, cy - 4);
+    ctx.lineTo(cx + 1, cy - 4);
+    ctx.lineTo(cx + 0.5, cy + 8);
+    ctx.lineTo(cx - 0.5, cy + 8);
+    ctx.closePath();
+    ctx.fillStyle = rgba(SECONDARY, 0.7);
+    ctx.fill();
+
+    // Glass reflection highlights
+    ctx.beginPath();
+    ctx.moveTo(cx - topW + 8, cy - halfH + 10);
+    ctx.quadraticCurveTo(cx - topW + 6, cy - halfH * 0.5, cx - waistW - 2, cy - 8);
+    ctx.strokeStyle = rgba(BRIGHT, 0.08);
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+
+    ctx.restore();
+}
+
+function drawConstellations() {
+    if (smoothMX < -500) return;
+    ctx.strokeStyle = rgba(PRIMARY, 0.12);
+    ctx.lineWidth = 0.5;
+    for (let i = 0; i < stars.length; i++) {
+        const si = stars[i];
+        if (!si._drawX) continue;
+        const dxi = si._drawX - smoothMX, dyi = si._drawY - smoothMY;
+        if (dxi * dxi + dyi * dyi > 120 * 120) continue;
+        for (let j = i + 1; j < stars.length; j++) {
+            const sj = stars[j];
+            if (!sj._drawX) continue;
+            const dxj = sj._drawX - smoothMX, dyj = sj._drawY - smoothMY;
+            if (dxj * dxj + dyj * dyj > 120 * 120) continue;
+            const ddx = si._drawX - sj._drawX, ddy = si._drawY - sj._drawY;
+            if (ddx * ddx + ddy * ddy < 100 * 100) {
+                ctx.beginPath();
+                ctx.moveTo(si._drawX, si._drawY);
+                ctx.lineTo(sj._drawX, sj._drawY);
+                ctx.stroke();
+            }
+        }
+    }
+}
+
+function drawMouseGlow() {
+    if (smoothMX > -500) {
+        const glow = ctx.createRadialGradient(smoothMX, smoothMY, 0, smoothMX, smoothMY, 30);
+        glow.addColorStop(0, rgba(PRIMARY, 0.05));
+        glow.addColorStop(1, rgba(PRIMARY, 0));
+        ctx.beginPath();
+        ctx.arc(smoothMX, smoothMY, 30, 0, Math.PI * 2);
+        ctx.fillStyle = glow;
+        ctx.fill();
+    }
+}
+
+function animate() {
+    time += 0.016;
+    smoothMX += (mouseX - smoothMX) * 0.05;
+    smoothMY += (mouseY - smoothMY) * 0.05;
+    drawBackground();
+
+    for (const s of stars) s.draw(time);
+    drawConstellations();
+    for (const o of orbitParticles) o.draw(time);
+
+    // Draw hourglass last (on top) - with parallax
+    const ppx = smoothMX > -500 ? (smoothMX / W - 0.5) * 15 : 0;
+    const ppy = smoothMX > -500 ? (smoothMY / H - 0.5) * 10 : 0;
+    ctx.save();
+    ctx.translate(ppx, ppy);
+    drawHourglass();
+    ctx.restore();
+    for (const p of sandParticles) { p.update(); p.draw(); }
+
+    drawMouseGlow();
+
+    requestAnimationFrame(animate);
+}
+animate();
+</script>
+</body>
+</html>

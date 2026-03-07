@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Phoenix - Login Theme Prototype</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: #080507; overflow: hidden; }
+canvas { display: block; width: 100vw; height: 100vh; }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<script>
+const canvas = document.getElementById('c');
+const ctx = canvas.getContext('2d');
+
+let W, H, cx, cy;
+function resize() {
+    W = canvas.width = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+    cx = W * 0.5;
+    cy = H * 0.31;
+}
+resize();
+window.addEventListener('resize', () => {
+    resize();
+    for (const s of stars) { s.x = Math.random() * W; s.y = Math.random() * H; }
+});
+
+// Mouse tracking
+let mouseX = -1000, mouseY = -1000;
+let smoothMX = -1000, smoothMY = -1000;
+document.addEventListener('mousemove', e => { mouseX = e.clientX; mouseY = e.clientY; });
+document.addEventListener('mouseleave', () => { mouseX = -1000; mouseY = -1000; });
+
+// Stars
+class Star {
+    constructor() {
+        this.x = Math.random() * W;
+        this.y = Math.random() * H;
+        this.size = Math.random() * 1.8 + 0.3;
+        this.twinkleSpeed = Math.random() * 0.02 + 0.005;
+        this.twinkleOffset = Math.random() * Math.PI * 2;
+        const colors = ['#f43f5e', '#fb7185', '#fda4af', '#fff0f3', '#e11d48', '#ff6b8a'];
+        this.color = colors[Math.floor(Math.random() * colors.length)];
+    }
+}
+const stars = [];
+for (let i = 0; i < 200; i++) stars.push(new Star());
+
+// Phoenix particle
+class PhoenixParticle {
+    constructor() {
+        this.reset();
+        this.life = Math.random(); // start at random life for initial spread
+    }
+    reset() {
+        this.role = ''; // set by emitter
+        this.x = 0; this.y = 0;
+        this.vx = 0; this.vy = 0;
+        this.life = 1;
+        this.maxLife = 1;
+        this.size = 2;
+        this.color = '#f43f5e';
+    }
+    update() {
+        this.x += this.vx;
+        this.y += this.vy;
+        this.life -= 1 / (this.maxLife * 60);
+    }
+}
+
+// Ember particles (rise from wing tips)
+class Ember {
+    constructor() { this.reset(true); }
+    reset(initial) {
+        const side = Math.random() > 0.5 ? 1 : -1;
+        const wingSpan = Math.min(W, H) * 0.18;
+        this.x = cx + side * wingSpan * (0.7 + Math.random() * 0.3);
+        this.y = initial ? cy - Math.random() * 150 : cy - Math.random() * 20;
+        this.vx = (Math.random() - 0.5) * 0.8;
+        this.vy = -Math.random() * 1.5 - 0.5;
+        this.size = Math.random() * 3 + 1;
+        this.life = 1;
+        this.decay = Math.random() * 0.006 + 0.003;
+        this.color = Math.random() > 0.6 ? '#fb7185' : (Math.random() > 0.5 ? '#f43f5e' : '#fda4af');
+    }
+    update() {
+        this.x += this.vx + Math.sin(Date.now() * 0.002 + this.x * 0.01) * 0.3;
+        this.y += this.vy;
+        this.life -= this.decay;
+        if (this.life <= 0) this.reset(false);
+    }
+    draw() {
+        ctx.globalAlpha = this.life * 0.8;
+        ctx.fillStyle = this.color;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size * this.life, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.globalAlpha = 1;
+    }
+}
+
+// Trailing feather particles (fall and fade)
+class Feather {
+    constructor() { this.reset(true); }
+    reset(initial) {
+        const spread = Math.min(W, H) * 0.15;
+        this.x = cx + (Math.random() - 0.5) * spread * 2;
+        this.y = initial ? cy + Math.random() * 100 : cy + Math.random() * 30;
+        this.vx = (Math.random() - 0.5) * 0.4;
+        this.vy = Math.random() * 0.8 + 0.3;
+        this.size = Math.random() * 2.5 + 1;
+        this.life = 1;
+        this.decay = Math.random() * 0.005 + 0.003;
+        this.angle = Math.random() * Math.PI * 2;
+        this.rotSpeed = (Math.random() - 0.5) * 0.03;
+    }
+    update() {
+        this.x += this.vx + Math.sin(Date.now() * 0.001 + this.y * 0.02) * 0.2;
+        this.y += this.vy;
+        this.angle += this.rotSpeed;
+        this.life -= this.decay;
+        if (this.life <= 0) this.reset(false);
+    }
+    draw() {
+        ctx.save();
+        ctx.translate(this.x, this.y);
+        ctx.rotate(this.angle);
+        ctx.globalAlpha = this.life * 0.5;
+        ctx.fillStyle = '#e11d48';
+        ctx.beginPath();
+        ctx.ellipse(0, 0, this.size * 0.4, this.size * 1.5, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.globalAlpha = 1;
+        ctx.restore();
+    }
+}
+
+const embers = [];
+for (let i = 0; i < 50; i++) embers.push(new Ember());
+const feathers = [];
+for (let i = 0; i < 30; i++) feathers.push(new Feather());
+
+function drawBackground() {
+    const grad = ctx.createRadialGradient(cx, cy, 0, cx, H * 0.5, Math.max(W, H));
+    grad.addColorStop(0, '#1a0810');
+    grad.addColorStop(0.5, '#120a0e');
+    grad.addColorStop(1, '#080507');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, W, H);
+}
+
+function drawStars(t) {
+    const starPositions = [];
+    for (const s of stars) {
+        let sx = s.x, sy = s.y;
+        const dxm = sx - smoothMX, dym = sy - smoothMY;
+        const distM = Math.sqrt(dxm * dxm + dym * dym);
+        let alphaBoost = 0;
+        if (distM < 150) {
+            const push = (150 - distM) * 0.15;
+            const angle = Math.atan2(dym, dxm);
+            sx += Math.cos(angle) * push;
+            sy += Math.sin(angle) * push;
+            alphaBoost = (150 - distM) / 150 * 0.3;
+        }
+        const alpha = Math.min(1, 0.3 + 0.7 * (0.5 + 0.5 * Math.sin(t * s.twinkleSpeed + s.twinkleOffset)) + alphaBoost);
+        ctx.globalAlpha = alpha;
+        ctx.fillStyle = s.color;
+        ctx.beginPath();
+        ctx.arc(sx, sy, s.size, 0, Math.PI * 2);
+        ctx.fill();
+        starPositions.push({ x: sx, y: sy });
+    }
+    ctx.globalAlpha = 1;
+    if (smoothMX > -500) {
+        ctx.strokeStyle = 'rgba(244, 63, 94, 0.1)';
+        ctx.lineWidth = 0.5;
+        for (let i = 0; i < starPositions.length; i++) {
+            const si = starPositions[i];
+            const dxi = si.x - smoothMX, dyi = si.y - smoothMY;
+            if (dxi * dxi + dyi * dyi > 120 * 120) continue;
+            for (let j = i + 1; j < starPositions.length; j++) {
+                const sj = starPositions[j];
+                const dxj = sj.x - smoothMX, dyj = sj.y - smoothMY;
+                if (dxj * dxj + dyj * dyj > 120 * 120) continue;
+                const ddx = si.x - sj.x, ddy = si.y - sj.y;
+                if (ddx * ddx + ddy * ddy < 100 * 100) {
+                    ctx.beginPath();
+                    ctx.moveTo(si.x, si.y);
+                    ctx.lineTo(sj.x, sj.y);
+                    ctx.stroke();
+                }
+            }
+        }
+    }
+}
+
+function drawMouseGlow() {
+    if (smoothMX > -500) {
+        const glow = ctx.createRadialGradient(smoothMX, smoothMY, 0, smoothMX, smoothMY, 30);
+        glow.addColorStop(0, 'rgba(244, 63, 94, 0.05)');
+        glow.addColorStop(1, 'rgba(244, 63, 94, 0)');
+        ctx.beginPath();
+        ctx.arc(smoothMX, smoothMY, 30, 0, Math.PI * 2);
+        ctx.fillStyle = glow;
+        ctx.fill();
+    }
+}
+
+// Draw the phoenix silhouette with flowing particles
+function drawPhoenix(t) {
+    const breathe = 0.9 + 0.1 * Math.sin(t * 0.0015);
+    const pulse = 0.5 + 0.5 * Math.sin(t * 0.002);
+    const scale = Math.min(W, H) * 0.0014 * breathe;
+    const wingFlap = Math.sin(t * 0.0012) * 0.15;
+    const ppx = smoothMX > -500 ? (smoothMX / W - 0.5) * 15 : 0;
+    const ppy = smoothMX > -500 ? (smoothMY / H - 0.5) * 10 : 0;
+
+    ctx.save();
+    ctx.translate(cx + ppx, cy + ppy);
+
+    // Ambient glow behind phoenix
+    const glowR = Math.min(W, H) * 0.25 * breathe;
+    const ag = ctx.createRadialGradient(0, 0, 0, 0, 0, glowR);
+    ag.addColorStop(0, `rgba(244,63,94,${0.15 + pulse * 0.08})`);
+    ag.addColorStop(0.4, `rgba(225,29,72,${0.06 + pulse * 0.03})`);
+    ag.addColorStop(1, 'rgba(225,29,72,0)');
+    ctx.fillStyle = ag;
+    ctx.beginPath();
+    ctx.arc(0, 0, glowR, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Phoenix body path — defined as a series of flowing curves
+    // We'll draw it as particle streams along bezier paths
+
+    // Helper: get point on cubic bezier
+    function bezierPt(p0, p1, p2, p3, t) {
+        const mt = 1 - t;
+        return {
+            x: mt*mt*mt*p0.x + 3*mt*mt*t*p1.x + 3*mt*t*t*p2.x + t*t*t*p3.x,
+            y: mt*mt*mt*p0.y + 3*mt*mt*t*p1.y + 3*mt*t*t*p2.y + t*t*t*p3.y
+        };
+    }
+
+    // Define phoenix curves (in local coords, scale applied)
+    const s = scale * 100;
+    const wf = wingFlap;
+
+    // Body (head to tail)
+    const body = [
+        {x:0, y:-s*0.8}, {x:s*0.05, y:-s*0.3}, {x:s*0.02, y:s*0.2}, {x:0, y:s*0.9}
+    ];
+
+    // Left wing
+    const lwing = [
+        {x:-s*0.05, y:-s*0.1},
+        {x:-s*0.5, y:-s*(0.6+wf)},
+        {x:-s*1.1, y:-s*(0.35+wf*0.7)},
+        {x:-s*1.3, y:s*(0.1-wf*0.3)}
+    ];
+
+    // Right wing (mirror)
+    const rwing = [
+        {x:s*0.05, y:-s*0.1},
+        {x:s*0.5, y:-s*(0.6+wf)},
+        {x:s*1.1, y:-s*(0.35+wf*0.7)},
+        {x:s*1.3, y:s*(0.1-wf*0.3)}
+    ];
+
+    // Left wing lower edge
+    const lwingLow = [
+        {x:-s*0.08, y:s*0.1},
+        {x:-s*0.45, y:-s*0.15},
+        {x:-s*0.9, y:-s*0.05},
+        {x:-s*1.2, y:s*0.25}
+    ];
+
+    // Right wing lower edge
+    const rwingLow = [
+        {x:s*0.08, y:s*0.1},
+        {x:s*0.45, y:-s*0.15},
+        {x:s*0.9, y:-s*0.05},
+        {x:s*1.2, y:s*0.25}
+    ];
+
+    // Tail feathers
+    const tail1 = [
+        {x:0, y:s*0.5}, {x:-s*0.2, y:s*0.8}, {x:-s*0.15, y:s*1.1}, {x:-s*0.1, y:s*1.3}
+    ];
+    const tail2 = [
+        {x:0, y:s*0.5}, {x:s*0.05, y:s*0.9}, {x:0, y:s*1.15}, {x:0.05*s, y:s*1.35}
+    ];
+    const tail3 = [
+        {x:0, y:s*0.5}, {x:s*0.2, y:s*0.8}, {x:s*0.15, y:s*1.1}, {x:s*0.1, y:s*1.3}
+    ];
+
+    // Draw flowing particle streams along paths
+    function drawParticleStream(curve, density, baseSize, colorStart, colorEnd, timeOffset, alphaBase) {
+        for (let i = 0; i < density; i++) {
+            const frac = i / density;
+            const timeFrac = ((frac + t * 0.0002 + timeOffset) % 1);
+            const pt = bezierPt(curve[0], curve[1], curve[2], curve[3], frac);
+
+            // Animated displacement
+            const noise = Math.sin(t * 0.003 + frac * 10 + timeOffset * 5) * s * 0.02;
+            const noiseY = Math.cos(t * 0.002 + frac * 8 + timeOffset * 3) * s * 0.015;
+
+            const px = pt.x + noise;
+            const py = pt.y + noiseY;
+            const sz = baseSize * (0.5 + 0.5 * Math.sin(frac * Math.PI)) * breathe;
+
+            // Color interpolation
+            const r = Math.round(colorStart[0] + (colorEnd[0] - colorStart[0]) * frac);
+            const g = Math.round(colorStart[1] + (colorEnd[1] - colorStart[1]) * frac);
+            const b = Math.round(colorStart[2] + (colorEnd[2] - colorStart[2]) * frac);
+
+            const alpha = alphaBase * (0.3 + 0.7 * Math.sin(frac * Math.PI)) * (0.7 + 0.3 * Math.sin(t * 0.002 + frac * 5));
+
+            ctx.globalAlpha = alpha;
+            ctx.fillStyle = `rgb(${r},${g},${b})`;
+            ctx.beginPath();
+            ctx.arc(px, py, sz, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Inner glow for some particles
+            if (frac < 0.5 && Math.random() > 0.7) {
+                ctx.globalAlpha = alpha * 0.3;
+                ctx.beginPath();
+                ctx.arc(px, py, sz * 2, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+    }
+
+    const crimson = [244, 63, 94];
+    const darkRed = [225, 29, 72];
+    const pink = [251, 113, 133];
+    const bright = [255, 240, 243];
+    const orange = [255, 140, 80];
+
+    // Wings — dense particle streams (crimson to orange gradient)
+    drawParticleStream(lwing, 80, s * 0.025, crimson, orange, 0, 0.55);
+    drawParticleStream(rwing, 80, s * 0.025, crimson, orange, 0.5, 0.55);
+    drawParticleStream(lwingLow, 50, s * 0.02, darkRed, crimson, 0.2, 0.4);
+    drawParticleStream(rwingLow, 50, s * 0.02, darkRed, crimson, 0.7, 0.4);
+
+    // Tail feathers
+    drawParticleStream(tail1, 35, s * 0.018, crimson, darkRed, 0.1, 0.4);
+    drawParticleStream(tail2, 35, s * 0.018, crimson, darkRed, 0.3, 0.4);
+    drawParticleStream(tail3, 35, s * 0.018, crimson, darkRed, 0.6, 0.4);
+
+    // Body — bright core
+    drawParticleStream(body, 60, s * 0.03, bright, crimson, 0, 0.6);
+
+    // Head detail — brighter cluster
+    for (let i = 0; i < 15; i++) {
+        const angle = (i / 15) * Math.PI * 2;
+        const r = s * 0.08 * Math.random();
+        const hx = Math.cos(angle) * r;
+        const hy = -s * 0.75 + Math.sin(angle) * r;
+        ctx.globalAlpha = 0.5 + pulse * 0.3;
+        ctx.fillStyle = '#fff0f3';
+        ctx.beginPath();
+        ctx.arc(hx, hy, s * 0.015, 0, Math.PI * 2);
+        ctx.fill();
+    }
+
+    // Core bright glow (body center)
+    const coreR = s * 0.2 * (1 + pulse * 0.15);
+    const coreGrad = ctx.createRadialGradient(0, -s * 0.1, 0, 0, -s * 0.1, coreR);
+    coreGrad.addColorStop(0, `rgba(255,240,243,${0.35 + pulse * 0.15})`);
+    coreGrad.addColorStop(0.4, `rgba(244,63,94,${0.15 + pulse * 0.05})`);
+    coreGrad.addColorStop(1, 'rgba(244,63,94,0)');
+    ctx.globalAlpha = 1;
+    ctx.fillStyle = coreGrad;
+    ctx.beginPath();
+    ctx.arc(0, -s * 0.1, coreR, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Eye — small bright dot
+    ctx.globalAlpha = 0.7 + pulse * 0.3;
+    ctx.fillStyle = '#fff0f3';
+    ctx.beginPath();
+    ctx.arc(0, -s * 0.78, s * 0.012, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.globalAlpha = 1;
+    ctx.restore();
+}
+
+function animate(t) {
+    smoothMX += (mouseX - smoothMX) * 0.05;
+    smoothMY += (mouseY - smoothMY) * 0.05;
+    drawBackground();
+    drawStars(t);
+
+    // Update and draw feathers (behind phoenix)
+    for (const f of feathers) { f.update(); f.draw(); }
+
+    // Update and draw embers (behind phoenix body but some float above)
+    for (const e of embers) { e.update(); e.draw(); }
+
+    // Phoenix drawn LAST (on top)
+    drawPhoenix(t);
+    drawMouseGlow();
+
+    requestAnimationFrame(animate);
+}
+
+requestAnimationFrame(animate);
+</script>
+</body>
+</html>

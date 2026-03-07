@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ruby Heart - Login Theme Prototype</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: #080507; overflow: hidden; }
+canvas { display: block; width: 100vw; height: 100vh; }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<script>
+const canvas = document.getElementById('c');
+const ctx = canvas.getContext('2d');
+
+let W, H, cx, cy;
+function resize() {
+    W = canvas.width = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+    cx = W * 0.5;
+    cy = H * 0.31;
+}
+resize();
+window.addEventListener('resize', () => {
+    resize();
+    for (const s of stars) { s.x = Math.random() * W; s.y = Math.random() * H; }
+});
+
+// Mouse tracking
+let mouseX = -1000, mouseY = -1000;
+let smoothMX = -1000, smoothMY = -1000;
+document.addEventListener('mousemove', e => { mouseX = e.clientX; mouseY = e.clientY; });
+document.addEventListener('mouseleave', () => { mouseX = -1000; mouseY = -1000; });
+
+// Stars
+class Star {
+    constructor() {
+        this.x = Math.random() * W;
+        this.y = Math.random() * H;
+        this.size = Math.random() * 1.8 + 0.3;
+        this.twinkleSpeed = Math.random() * 0.02 + 0.005;
+        this.twinkleOffset = Math.random() * Math.PI * 2;
+        const colors = ['#f43f5e', '#fb7185', '#fda4af', '#fff0f3', '#e11d48', '#ff6b8a'];
+        this.color = colors[Math.floor(Math.random() * colors.length)];
+    }
+}
+const stars = [];
+for (let i = 0; i < 200; i++) stars.push(new Star());
+
+// Crystal shards orbiting
+class Shard {
+    constructor(i, total) {
+        this.angle = (i / total) * Math.PI * 2;
+        this.orbitR = Math.min(W, H) * (0.14 + Math.random() * 0.06);
+        this.speed = 0.0003 + Math.random() * 0.0003;
+        this.size = Math.random() * 6 + 3;
+        this.rotSpeed = Math.random() * 0.002;
+        this.rot = Math.random() * Math.PI * 2;
+        this.wobble = Math.random() * 0.5 + 0.5;
+    }
+}
+const shards = [];
+for (let i = 0; i < 12; i++) shards.push(new Shard(i, 12));
+
+// Sparkle rays
+class Sparkle {
+    constructor() { this.reset(); }
+    reset() {
+        this.angle = Math.random() * Math.PI * 2;
+        this.length = Math.random() * 80 + 30;
+        this.life = 1;
+        this.decay = Math.random() * 0.015 + 0.008;
+        this.width = Math.random() * 2 + 0.5;
+        this.startR = Math.min(W, H) * 0.06;
+    }
+    update() {
+        this.life -= this.decay;
+        if (this.life <= 0) this.reset();
+    }
+}
+const sparkles = [];
+for (let i = 0; i < 20; i++) {
+    const s = new Sparkle();
+    s.life = Math.random();
+    sparkles.push(s);
+}
+
+function drawBackground() {
+    const grad = ctx.createRadialGradient(cx, cy, 0, cx, H * 0.5, Math.max(W, H));
+    grad.addColorStop(0, '#1a0810');
+    grad.addColorStop(0.5, '#120a0e');
+    grad.addColorStop(1, '#080507');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, W, H);
+}
+
+function drawStars(t) {
+    const starPositions = [];
+    for (const s of stars) {
+        let sx = s.x, sy = s.y;
+        const dxm = sx - smoothMX, dym = sy - smoothMY;
+        const distM = Math.sqrt(dxm * dxm + dym * dym);
+        let alphaBoost = 0;
+        if (distM < 150) {
+            const push = (150 - distM) * 0.15;
+            const angle = Math.atan2(dym, dxm);
+            sx += Math.cos(angle) * push;
+            sy += Math.sin(angle) * push;
+            alphaBoost = (150 - distM) / 150 * 0.3;
+        }
+        const alpha = Math.min(1, 0.3 + 0.7 * (0.5 + 0.5 * Math.sin(t * s.twinkleSpeed + s.twinkleOffset)) + alphaBoost);
+        ctx.globalAlpha = alpha;
+        ctx.fillStyle = s.color;
+        ctx.beginPath();
+        ctx.arc(sx, sy, s.size, 0, Math.PI * 2);
+        ctx.fill();
+        starPositions.push({ x: sx, y: sy });
+    }
+    ctx.globalAlpha = 1;
+    if (smoothMX > -500) {
+        ctx.strokeStyle = 'rgba(244, 63, 94, 0.1)';
+        ctx.lineWidth = 0.5;
+        for (let i = 0; i < starPositions.length; i++) {
+            const si = starPositions[i];
+            const dxi = si.x - smoothMX, dyi = si.y - smoothMY;
+            if (dxi * dxi + dyi * dyi > 120 * 120) continue;
+            for (let j = i + 1; j < starPositions.length; j++) {
+                const sj = starPositions[j];
+                const dxj = sj.x - smoothMX, dyj = sj.y - smoothMY;
+                if (dxj * dxj + dyj * dyj > 120 * 120) continue;
+                const ddx = si.x - sj.x, ddy = si.y - sj.y;
+                if (ddx * ddx + ddy * ddy < 100 * 100) {
+                    ctx.beginPath();
+                    ctx.moveTo(si.x, si.y);
+                    ctx.lineTo(sj.x, sj.y);
+                    ctx.stroke();
+                }
+            }
+        }
+    }
+}
+
+// Ruby gem shape — faceted octagonal with pointed top/bottom
+function getGemPoints(size, rotation) {
+    // A faceted gem: top point, upper facets, middle widest, lower facets, bottom point
+    const pts = [];
+    const topY = -size * 1.2;
+    const botY = size * 1.4;
+    const midY = -size * 0.05;
+    const upperY = -size * 0.6;
+    const lowerY = size * 0.55;
+    const midW = size * 0.85;
+    const upperW = size * 0.55;
+    const lowerW = size * 0.6;
+
+    // Points: top, upper-left, upper-right, mid-left, mid-right, lower-left, lower-right, bottom
+    pts.push({ x: 0, y: topY });           // 0 top
+    pts.push({ x: -upperW, y: upperY });   // 1 upper-left
+    pts.push({ x: upperW, y: upperY });    // 2 upper-right
+    pts.push({ x: -midW, y: midY });       // 3 mid-left
+    pts.push({ x: midW, y: midY });        // 4 mid-right
+    pts.push({ x: -lowerW, y: lowerY });   // 5 lower-left
+    pts.push({ x: lowerW, y: lowerY });    // 6 lower-right
+    pts.push({ x: 0, y: botY });           // 7 bottom
+
+    // Apply rotation
+    const cos = Math.cos(rotation);
+    const sin = Math.sin(rotation);
+    return pts.map(p => ({
+        x: p.x * cos - p.y * sin * 0.05,  // subtle 3D-like rotation (squeeze x with y)
+        y: p.y
+    }));
+}
+
+function drawMouseGlow() {
+    if (smoothMX > -500) {
+        const glow = ctx.createRadialGradient(smoothMX, smoothMY, 0, smoothMX, smoothMY, 30);
+        glow.addColorStop(0, 'rgba(244, 63, 94, 0.05)');
+        glow.addColorStop(1, 'rgba(244, 63, 94, 0)');
+        ctx.beginPath();
+        ctx.arc(smoothMX, smoothMY, 30, 0, Math.PI * 2);
+        ctx.fillStyle = glow;
+        ctx.fill();
+    }
+}
+
+function drawGem(t) {
+    const heartbeat = Math.sin(t * 0.003) * 0.5 + 0.5;
+    const pulse = 1 + heartbeat * 0.04;
+    const rotation = t * 0.0004;
+    const size = Math.min(W, H) * 0.08 * pulse;
+    const ppx = smoothMX > -500 ? (smoothMX / W - 0.5) * 15 : 0;
+    const ppy = smoothMX > -500 ? (smoothMY / H - 0.5) * 10 : 0;
+
+    ctx.save();
+    ctx.translate(cx + ppx, cy + ppy);
+
+    // Outer glow
+    const glowR = size * 2.5 * (1 + heartbeat * 0.15);
+    const glow = ctx.createRadialGradient(0, 0, size * 0.3, 0, 0, glowR);
+    glow.addColorStop(0, `rgba(244,63,94,${0.2 + heartbeat * 0.1})`);
+    glow.addColorStop(0.5, `rgba(225,29,72,${0.06 + heartbeat * 0.04})`);
+    glow.addColorStop(1, 'rgba(225,29,72,0)');
+    ctx.fillStyle = glow;
+    ctx.fillRect(-glowR, -glowR, glowR * 2, glowR * 2);
+
+    const pts = getGemPoints(size, rotation);
+
+    // Facets as triangles from outline
+    // Outer shape path: 0-1-3-5-7-6-4-2-0
+    const outline = [pts[0], pts[1], pts[3], pts[5], pts[7], pts[6], pts[4], pts[2]];
+
+    // Draw outer shape
+    ctx.beginPath();
+    ctx.moveTo(outline[0].x, outline[0].y);
+    for (let i = 1; i < outline.length; i++) ctx.lineTo(outline[i].x, outline[i].y);
+    ctx.closePath();
+
+    // Main fill gradient
+    const mainGrad = ctx.createLinearGradient(0, pts[0].y, 0, pts[7].y);
+    mainGrad.addColorStop(0, 'rgba(251,113,133,0.5)');
+    mainGrad.addColorStop(0.3, 'rgba(244,63,94,0.55)');
+    mainGrad.addColorStop(0.6, 'rgba(225,29,72,0.5)');
+    mainGrad.addColorStop(1, 'rgba(159,18,57,0.45)');
+    ctx.fillStyle = mainGrad;
+    ctx.fill();
+
+    // Internal facet lines
+    ctx.strokeStyle = 'rgba(253,164,175,0.25)';
+    ctx.lineWidth = 0.7;
+    // Top to mid facets
+    ctx.beginPath();
+    ctx.moveTo(pts[0].x, pts[0].y); ctx.lineTo(pts[3].x, pts[3].y);
+    ctx.moveTo(pts[0].x, pts[0].y); ctx.lineTo(pts[4].x, pts[4].y);
+    // Mid cross
+    ctx.moveTo(pts[1].x, pts[1].y); ctx.lineTo(pts[4].x, pts[4].y);
+    ctx.moveTo(pts[2].x, pts[2].y); ctx.lineTo(pts[3].x, pts[3].y);
+    // Bottom facets
+    ctx.moveTo(pts[7].x, pts[7].y); ctx.lineTo(pts[3].x, pts[3].y);
+    ctx.moveTo(pts[7].x, pts[7].y); ctx.lineTo(pts[4].x, pts[4].y);
+    ctx.moveTo(pts[5].x, pts[5].y); ctx.lineTo(pts[4].x, pts[4].y);
+    ctx.moveTo(pts[6].x, pts[6].y); ctx.lineTo(pts[3].x, pts[3].y);
+    // Center line
+    ctx.moveTo(pts[1].x, pts[1].y); ctx.lineTo(pts[6].x, pts[6].y);
+    ctx.moveTo(pts[2].x, pts[2].y); ctx.lineTo(pts[5].x, pts[5].y);
+    ctx.stroke();
+
+    // Internal fire reflections — moving bright spots
+    for (let i = 0; i < 5; i++) {
+        const ft = t * 0.001 + i * 1.3;
+        const fx = Math.sin(ft * 1.1 + i) * size * 0.4;
+        const fy = Math.cos(ft * 0.8 + i * 2) * size * 0.5;
+        const fr = size * (0.15 + 0.1 * Math.sin(ft * 2));
+        const fireGrad = ctx.createRadialGradient(fx, fy, 0, fx, fy, fr);
+        fireGrad.addColorStop(0, `rgba(255,240,243,${0.25 + heartbeat * 0.15})`);
+        fireGrad.addColorStop(0.5, `rgba(251,113,133,${0.12 + heartbeat * 0.08})`);
+        fireGrad.addColorStop(1, 'rgba(244,63,94,0)');
+
+        // Clip to gem shape
+        ctx.save();
+        ctx.beginPath();
+        ctx.moveTo(outline[0].x, outline[0].y);
+        for (let j = 1; j < outline.length; j++) ctx.lineTo(outline[j].x, outline[j].y);
+        ctx.closePath();
+        ctx.clip();
+        ctx.fillStyle = fireGrad;
+        ctx.fillRect(-size, pts[0].y, size * 2, pts[7].y - pts[0].y);
+        ctx.restore();
+    }
+
+    // Light catch on facets — shifting highlight
+    const highlightAngle = t * 0.0006;
+    const hx = Math.sin(highlightAngle) * size * 0.3;
+    const hy = -size * 0.4 + Math.cos(highlightAngle) * size * 0.15;
+    const hlGrad = ctx.createRadialGradient(hx, hy, 0, hx, hy, size * 0.5);
+    hlGrad.addColorStop(0, 'rgba(255,255,255,0.2)');
+    hlGrad.addColorStop(0.3, 'rgba(255,240,243,0.08)');
+    hlGrad.addColorStop(1, 'rgba(255,240,243,0)');
+    ctx.save();
+    ctx.beginPath();
+    ctx.moveTo(outline[0].x, outline[0].y);
+    for (let j = 1; j < outline.length; j++) ctx.lineTo(outline[j].x, outline[j].y);
+    ctx.closePath();
+    ctx.clip();
+    ctx.fillStyle = hlGrad;
+    ctx.fillRect(-size, pts[0].y, size * 2, pts[7].y - pts[0].y);
+    ctx.restore();
+
+    // Outline
+    ctx.beginPath();
+    ctx.moveTo(outline[0].x, outline[0].y);
+    for (let i = 1; i < outline.length; i++) ctx.lineTo(outline[i].x, outline[i].y);
+    ctx.closePath();
+    ctx.strokeStyle = `rgba(253,164,175,${0.3 + heartbeat * 0.15})`;
+    ctx.lineWidth = 1.2;
+    ctx.stroke();
+
+    ctx.restore();
+}
+
+function drawShards(t) {
+    ctx.save();
+    ctx.translate(cx, cy);
+    for (const s of shards) {
+        s.angle += s.speed;
+        s.rot += s.rotSpeed;
+        const wobble = Math.sin(t * 0.001 + s.wobble * 5) * 8;
+        const sx = Math.cos(s.angle) * (s.orbitR + wobble);
+        const sy = Math.sin(s.angle) * (s.orbitR + wobble) * 0.4; // elliptical orbit
+
+        ctx.save();
+        ctx.translate(sx, sy);
+        ctx.rotate(s.rot);
+
+        // Small crystal shard shape
+        const sz = s.size;
+        ctx.beginPath();
+        ctx.moveTo(0, -sz);
+        ctx.lineTo(sz * 0.5, 0);
+        ctx.lineTo(0, sz * 0.7);
+        ctx.lineTo(-sz * 0.5, 0);
+        ctx.closePath();
+
+        const alpha = 0.25 + 0.15 * Math.sin(t * 0.002 + s.angle);
+        ctx.fillStyle = `rgba(244,63,94,${alpha})`;
+        ctx.fill();
+        ctx.strokeStyle = `rgba(253,164,175,${alpha * 0.8})`;
+        ctx.lineWidth = 0.5;
+        ctx.stroke();
+
+        ctx.restore();
+    }
+    ctx.restore();
+}
+
+function drawSparkles(t) {
+    for (const s of sparkles) {
+        s.update();
+        if (s.life <= 0) continue;
+        const sx = cx + Math.cos(s.angle) * s.startR;
+        const sy = cy + Math.sin(s.angle) * s.startR;
+        const ex = cx + Math.cos(s.angle) * (s.startR + s.length * s.life);
+        const ey = cy + Math.sin(s.angle) * (s.startR + s.length * s.life);
+
+        const grad = ctx.createLinearGradient(sx, sy, ex, ey);
+        grad.addColorStop(0, `rgba(255,240,243,${s.life * 0.5})`);
+        grad.addColorStop(1, `rgba(244,63,94,0)`);
+        ctx.strokeStyle = grad;
+        ctx.lineWidth = s.width * s.life;
+        ctx.beginPath();
+        ctx.moveTo(sx, sy);
+        ctx.lineTo(ex, ey);
+        ctx.stroke();
+    }
+}
+
+function animate(t) {
+    smoothMX += (mouseX - smoothMX) * 0.05;
+    smoothMY += (mouseY - smoothMY) * 0.05;
+    drawBackground();
+    drawStars(t);
+
+    // Ambient glow
+    const heartbeat = Math.sin(t * 0.003) * 0.5 + 0.5;
+    const glowR = Math.min(W, H) * 0.3;
+    const ag = ctx.createRadialGradient(cx, cy, 0, cx, cy, glowR);
+    ag.addColorStop(0, `rgba(244,63,94,${0.1 + heartbeat * 0.05})`);
+    ag.addColorStop(1, 'rgba(225,29,72,0)');
+    ctx.fillStyle = ag;
+    ctx.fillRect(0, 0, W, H);
+
+    drawShards(t);
+    drawSparkles(t);
+
+    // Gem drawn LAST (on top)
+    drawGem(t);
+    drawMouseGlow();
+
+    requestAnimationFrame(animate);
+}
+
+requestAnimationFrame(animate);
+</script>
+</body>
+</html>

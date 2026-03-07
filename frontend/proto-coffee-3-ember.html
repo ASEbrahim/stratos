@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Coffee Theme - Ember</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: #0c0806; overflow: hidden; }
+canvas { display: block; width: 100vw; height: 100vh; }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<script>
+const canvas = document.getElementById('c');
+const ctx = canvas.getContext('2d');
+let W, H, time = 0;
+
+function resize() {
+    W = canvas.width = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+}
+window.addEventListener('resize', resize);
+resize();
+
+// Mouse tracking
+let mouseX = -1000, mouseY = -1000;
+let smoothMX = -1000, smoothMY = -1000;
+document.addEventListener('mousemove', e => { mouseX = e.clientX; mouseY = e.clientY; });
+document.addEventListener('mouseleave', () => { mouseX = -1000; mouseY = -1000; });
+
+const PRIMARY = [212, 148, 60];
+const SECONDARY = [232, 170, 84];
+const TERTIARY = [184, 122, 46];
+const BRIGHT = [255, 240, 212];
+const CREAM = [240, 228, 212];
+const EMBER_CORE = [255, 160, 40];
+const EMBER_HOT = [255, 200, 100];
+const EMBER_RED = [180, 80, 30];
+
+function rgba(c, a) { return `rgba(${c[0]},${c[1]},${c[2]},${a})`; }
+function lerp(a, b, t) { return a + (b - a) * t; }
+function lerpColor(c1, c2, t) { return [lerp(c1[0],c2[0],t), lerp(c1[1],c2[1],t), lerp(c1[2],c2[2],t)]; }
+
+// Stars
+class Star {
+    constructor() { this.reset(); }
+    reset() {
+        this.x = Math.random() * W;
+        this.y = Math.random() * H;
+        this.size = Math.random() * 1.8 + 0.3;
+        this.twinkleSpeed = Math.random() * 2 + 1;
+        this.twinkleOffset = Math.random() * Math.PI * 2;
+        this.color = [PRIMARY, SECONDARY, TERTIARY, BRIGHT][Math.floor(Math.random() * 4)];
+        this.baseAlpha = Math.random() * 0.4 + 0.1;
+    }
+    draw(t) {
+        let sx = this.x, sy = this.y;
+        const dxm = sx - smoothMX, dym = sy - smoothMY;
+        const distM = Math.sqrt(dxm * dxm + dym * dym);
+        let alphaBoost = 0;
+        if (distM < 150) {
+            const push = (150 - distM) * 0.15;
+            const angle = Math.atan2(dym, dxm);
+            sx += Math.cos(angle) * push;
+            sy += Math.sin(angle) * push;
+            alphaBoost = 0.15;
+        }
+        const alpha = Math.min(1, this.baseAlpha * (0.5 + 0.5 * Math.sin(t * this.twinkleSpeed + this.twinkleOffset)) + alphaBoost);
+        ctx.beginPath();
+        ctx.arc(sx, sy, this.size, 0, Math.PI * 2);
+        ctx.fillStyle = rgba(this.color, alpha);
+        ctx.fill();
+        this._drawX = sx; this._drawY = sy;
+    }
+}
+
+// Spark particle
+class Spark {
+    constructor() { this.reset(true); }
+    reset(init) {
+        const cx = W * 0.5;
+        const cy = H * 0.31;
+        const angle = Math.random() * Math.PI * 2;
+        const dist = Math.random() * 15;
+        this.x = cx + Math.cos(angle) * dist;
+        this.y = cy + Math.sin(angle) * dist;
+        this.vx = (Math.random() - 0.5) * 1.2;
+        this.vy = -(Math.random() * 1.8 + 0.5);
+        // Spiral component
+        this.spiralSpeed = (Math.random() - 0.5) * 0.05;
+        this.spiralRadius = Math.random() * 0.5;
+        this.life = init ? Math.random() * 120 : 0;
+        this.maxLife = Math.random() * 120 + 60;
+        this.size = Math.random() * 2.5 + 0.8;
+        this.brightness = Math.random();
+    }
+    update() {
+        this.life++;
+        if (this.life > this.maxLife) { this.reset(false); return; }
+        const progress = this.life / this.maxLife;
+        this.vy -= 0.005; // upward acceleration (lighter = rises)
+        this.vx += Math.sin(this.life * this.spiralSpeed) * this.spiralRadius;
+        this.x += this.vx;
+        this.y += this.vy;
+        // Dampen
+        this.vx *= 0.995;
+    }
+    draw() {
+        const progress = this.life / this.maxLife;
+        let alpha = 1;
+        if (progress < 0.1) alpha = progress / 0.1;
+        else if (progress > 0.5) alpha = 1 - (progress - 0.5) / 0.5;
+        alpha *= 0.8;
+
+        // Color transitions: bright -> amber -> red-brown
+        let color;
+        if (progress < 0.3) {
+            color = lerpColor(EMBER_HOT, EMBER_CORE, progress / 0.3);
+        } else {
+            color = lerpColor(EMBER_CORE, EMBER_RED, (progress - 0.3) / 0.7);
+        }
+
+        const size = this.size * (1 - progress * 0.5);
+        const grad = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, size * 2);
+        grad.addColorStop(0, rgba(color, alpha));
+        grad.addColorStop(0.4, rgba(color, alpha * 0.5));
+        grad.addColorStop(1, rgba(color, 0));
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, size * 2, 0, Math.PI * 2);
+        ctx.fillStyle = grad;
+        ctx.fill();
+    }
+}
+
+// Ash particle (drifts down from above)
+class Ash {
+    constructor() { this.reset(true); }
+    reset(init) {
+        this.x = Math.random() * W;
+        this.y = init ? Math.random() * H : -10;
+        this.size = Math.random() * 1.5 + 0.5;
+        this.vy = Math.random() * 0.3 + 0.1;
+        this.vx = (Math.random() - 0.5) * 0.3;
+        this.wobbleSpeed = Math.random() * 0.02 + 0.01;
+        this.wobbleAmp = Math.random() * 1 + 0.5;
+        this.alpha = Math.random() * 0.15 + 0.05;
+        this.color = Math.random() < 0.5 ? [100, 80, 60] : [80, 60, 45];
+        this.t = Math.random() * 100;
+    }
+    update() {
+        this.t++;
+        this.y += this.vy;
+        this.x += this.vx + Math.sin(this.t * this.wobbleSpeed) * this.wobbleAmp * 0.1;
+        if (this.y > H + 10) this.reset(false);
+    }
+    draw() {
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fillStyle = rgba(this.color, this.alpha);
+        ctx.fill();
+    }
+}
+
+// Light ring
+class LightRing {
+    constructor(delay) {
+        this.delay = delay;
+        this.reset();
+    }
+    reset() {
+        this.radius = 5;
+        this.maxRadius = 100 + Math.random() * 40;
+        this.life = -this.delay;
+        this.speed = Math.random() * 0.4 + 0.3;
+    }
+    update() {
+        this.life++;
+        if (this.life < 0) return;
+        this.radius += this.speed;
+        if (this.radius > this.maxRadius) this.reset();
+    }
+    draw() {
+        if (this.life < 0) return;
+        const cx = W * 0.5;
+        const cy = H * 0.31;
+        const progress = (this.radius - 5) / (this.maxRadius - 5);
+        const alpha = (1 - progress) * 0.12;
+        ctx.beginPath();
+        ctx.arc(cx, cy, this.radius, 0, Math.PI * 2);
+        ctx.strokeStyle = rgba(PRIMARY, alpha);
+        ctx.lineWidth = 1.5 * (1 - progress) + 0.5;
+        ctx.stroke();
+    }
+}
+
+const stars = Array.from({length: 120}, () => new Star());
+const sparks = Array.from({length: 80}, () => new Spark());
+const ashes = Array.from({length: 30}, () => new Ash());
+const lightRings = [new LightRing(0), new LightRing(50), new LightRing(100), new LightRing(150)];
+
+function drawBackground() {
+    const grad = ctx.createLinearGradient(0, 0, 0, H);
+    grad.addColorStop(0, '#0c0806');
+    grad.addColorStop(1, '#14100a');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, W, H);
+}
+
+function drawHeatHaze(t) {
+    // Subtle distortion effect above ember core
+    const cx = W * 0.5;
+    const cy = H * 0.31;
+    for (let i = 0; i < 6; i++) {
+        const y = cy - 20 - i * 12;
+        const xOff = Math.sin(t * 2 + i * 1.5) * 4;
+        const alpha = 0.015 * (1 - i / 6);
+        ctx.beginPath();
+        ctx.ellipse(cx + xOff, y, 25 + i * 5, 4, 0, 0, Math.PI * 2);
+        ctx.fillStyle = rgba(PRIMARY, alpha);
+        ctx.fill();
+    }
+}
+
+function drawEmberCore(t) {
+    const cx = W * 0.5;
+    const cy = H * 0.31;
+    const pulse1 = 0.7 + 0.3 * Math.sin(t * 1.8);
+    const pulse2 = 0.8 + 0.2 * Math.sin(t * 2.5 + 1);
+    const baseR = 28;
+
+    // Outer warm glow
+    const glow3 = ctx.createRadialGradient(cx, cy, 0, cx, cy, baseR * 4);
+    glow3.addColorStop(0, rgba(PRIMARY, 0.06 * pulse1));
+    glow3.addColorStop(0.4, rgba(TERTIARY, 0.03 * pulse1));
+    glow3.addColorStop(1, 'transparent');
+    ctx.fillStyle = glow3;
+    ctx.beginPath();
+    ctx.arc(cx, cy, baseR * 4, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Mid glow
+    const glow2 = ctx.createRadialGradient(cx, cy, 0, cx, cy, baseR * 2);
+    glow2.addColorStop(0, rgba(EMBER_CORE, 0.15 * pulse2));
+    glow2.addColorStop(0.5, rgba(PRIMARY, 0.08 * pulse2));
+    glow2.addColorStop(1, 'transparent');
+    ctx.fillStyle = glow2;
+    ctx.beginPath();
+    ctx.arc(cx, cy, baseR * 2, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Core orb
+    const coreR = baseR * pulse1;
+    const coreGrad = ctx.createRadialGradient(cx, cy - 3, coreR * 0.1, cx, cy, coreR);
+    coreGrad.addColorStop(0, rgba(EMBER_HOT, 0.6));
+    coreGrad.addColorStop(0.3, rgba(EMBER_CORE, 0.45));
+    coreGrad.addColorStop(0.6, rgba(PRIMARY, 0.3));
+    coreGrad.addColorStop(0.85, rgba(TERTIARY, 0.15));
+    coreGrad.addColorStop(1, 'transparent');
+    ctx.beginPath();
+    ctx.arc(cx, cy, coreR, 0, Math.PI * 2);
+    ctx.fillStyle = coreGrad;
+    ctx.fill();
+
+    // Inner bright spot
+    const innerGrad = ctx.createRadialGradient(cx, cy - 2, 0, cx, cy, coreR * 0.4);
+    innerGrad.addColorStop(0, rgba(BRIGHT, 0.4 * pulse2));
+    innerGrad.addColorStop(0.5, rgba(EMBER_HOT, 0.2 * pulse2));
+    innerGrad.addColorStop(1, 'transparent');
+    ctx.beginPath();
+    ctx.arc(cx, cy, coreR * 0.4, 0, Math.PI * 2);
+    ctx.fillStyle = innerGrad;
+    ctx.fill();
+
+    // Flickering surface details
+    for (let i = 0; i < 5; i++) {
+        const angle = t * 0.5 + i * Math.PI * 0.4;
+        const dist = coreR * 0.4 * (0.5 + 0.5 * Math.sin(t * 3 + i * 2));
+        const fx = cx + Math.cos(angle) * dist;
+        const fy = cy + Math.sin(angle) * dist;
+        const flicker = 0.3 + 0.7 * Math.sin(t * 5 + i * 3);
+        const fGrad = ctx.createRadialGradient(fx, fy, 0, fx, fy, 5);
+        fGrad.addColorStop(0, rgba(BRIGHT, 0.2 * flicker));
+        fGrad.addColorStop(1, 'transparent');
+        ctx.beginPath();
+        ctx.arc(fx, fy, 5, 0, Math.PI * 2);
+        ctx.fillStyle = fGrad;
+        ctx.fill();
+    }
+}
+
+function drawConstellations() {
+    if (smoothMX < -500) return;
+    ctx.strokeStyle = rgba(PRIMARY, 0.12);
+    ctx.lineWidth = 0.5;
+    for (let i = 0; i < stars.length; i++) {
+        const si = stars[i];
+        if (!si._drawX) continue;
+        const dxi = si._drawX - smoothMX, dyi = si._drawY - smoothMY;
+        if (dxi * dxi + dyi * dyi > 120 * 120) continue;
+        for (let j = i + 1; j < stars.length; j++) {
+            const sj = stars[j];
+            if (!sj._drawX) continue;
+            const dxj = sj._drawX - smoothMX, dyj = sj._drawY - smoothMY;
+            if (dxj * dxj + dyj * dyj > 120 * 120) continue;
+            const ddx = si._drawX - sj._drawX, ddy = si._drawY - sj._drawY;
+            if (ddx * ddx + ddy * ddy < 100 * 100) {
+                ctx.beginPath();
+                ctx.moveTo(si._drawX, si._drawY);
+                ctx.lineTo(sj._drawX, sj._drawY);
+                ctx.stroke();
+            }
+        }
+    }
+}
+
+function drawMouseGlow() {
+    if (smoothMX > -500) {
+        const glow = ctx.createRadialGradient(smoothMX, smoothMY, 0, smoothMX, smoothMY, 30);
+        glow.addColorStop(0, rgba(PRIMARY, 0.05));
+        glow.addColorStop(1, rgba(PRIMARY, 0));
+        ctx.beginPath();
+        ctx.arc(smoothMX, smoothMY, 30, 0, Math.PI * 2);
+        ctx.fillStyle = glow;
+        ctx.fill();
+    }
+}
+
+function animate() {
+    time += 0.016;
+    smoothMX += (mouseX - smoothMX) * 0.05;
+    smoothMY += (mouseY - smoothMY) * 0.05;
+    drawBackground();
+
+    // Stars
+    for (const s of stars) s.draw(time);
+    drawConstellations();
+
+    // Ash (background)
+    for (const a of ashes) { a.update(); a.draw(); }
+
+    // Heat haze (behind core)
+    drawHeatHaze(time);
+
+    // Light rings
+    for (const r of lightRings) { r.update(); r.draw(); }
+
+    // Sparks
+    for (const sp of sparks) { sp.update(); sp.draw(); }
+
+    // Ember core drawn LAST (on top) - with parallax
+    const ppx = smoothMX > -500 ? (smoothMX / W - 0.5) * 15 : 0;
+    const ppy = smoothMX > -500 ? (smoothMY / H - 0.5) * 10 : 0;
+    ctx.save();
+    ctx.translate(ppx, ppy);
+    drawEmberCore(time);
+    ctx.restore();
+
+    drawMouseGlow();
+
+    requestAnimationFrame(animate);
+}
+animate();
+</script>
+</body>
+</html>

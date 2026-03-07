@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Noir Theme - Pulsar</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #050506; overflow: hidden; }
+  canvas { display: block; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<script>
+const canvas = document.getElementById('c');
+const ctx = canvas.getContext('2d');
+
+function resize() {
+  canvas.width = window.innerWidth * devicePixelRatio;
+  canvas.height = window.innerHeight * devicePixelRatio;
+  ctx.scale(devicePixelRatio, devicePixelRatio);
+}
+resize();
+window.addEventListener('resize', resize);
+
+const W = () => window.innerWidth;
+const H = () => window.innerHeight;
+
+// Mouse tracking
+let mouseX = -1000, mouseY = -1000;
+let smoothMX = -1000, smoothMY = -1000;
+document.addEventListener('mousemove', e => { mouseX = e.clientX; mouseY = e.clientY; });
+document.addEventListener('mouseleave', () => { mouseX = -1000; mouseY = -1000; });
+
+// Stars
+const stars = [];
+for (let i = 0; i < 200; i++) {
+  stars.push({
+    x: Math.random(),
+    y: Math.random(),
+    r: Math.random() * 1.5 + 0.3,
+    twinkleSpeed: Math.random() * 0.02 + 0.005,
+    twinkleOffset: Math.random() * Math.PI * 2,
+    color: ['#a78bfa', '#8b5cf6', '#c4b5fd', '#e8e0ff'][Math.floor(Math.random() * 4)]
+  });
+}
+
+// Magnetosphere particles
+const magnetoParticles = [];
+for (let i = 0; i < 60; i++) {
+  magnetoParticles.push({
+    angle: Math.random() * Math.PI * 2,
+    dist: Math.random() * 80 + 40,
+    speed: (Math.random() * 0.01 + 0.005) * (Math.random() > 0.5 ? 1 : -1),
+    size: Math.random() * 2 + 0.5,
+    tilt: Math.random() * 0.6 - 0.3,
+    yOff: Math.random() * 0.4 - 0.2
+  });
+}
+
+// Concentric rings
+const rings = [];
+for (let i = 0; i < 5; i++) {
+  rings.push({
+    radius: 0,
+    maxRadius: 180,
+    alpha: 1,
+    delay: i * 80
+  });
+}
+let ringTimer = 0;
+
+function drawBackground(t) {
+  const w = W(), h = H();
+  const grad = ctx.createLinearGradient(0, 0, 0, h);
+  grad.addColorStop(0, '#0f0a24');
+  grad.addColorStop(1, '#050506');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, w, h);
+}
+
+function drawStars(t) {
+  const w = W(), h = H();
+  const starPositions = [];
+  for (const s of stars) {
+    let sx = s.x * w, sy = s.y * h;
+    const dxm = sx - smoothMX, dym = sy - smoothMY;
+    const distM = Math.sqrt(dxm * dxm + dym * dym);
+    let alphaBoost = 0;
+    if (distM < 150) {
+      const push = (150 - distM) * 0.15;
+      const angle = Math.atan2(dym, dxm);
+      sx += Math.cos(angle) * push;
+      sy += Math.sin(angle) * push;
+      alphaBoost = (150 - distM) / 150 * 0.3;
+    }
+    const alpha = Math.min(1, 0.3 + 0.7 * (0.5 + 0.5 * Math.sin(t * s.twinkleSpeed + s.twinkleOffset)) + alphaBoost);
+    ctx.beginPath();
+    ctx.arc(sx, sy, s.r, 0, Math.PI * 2);
+    ctx.fillStyle = s.color;
+    ctx.globalAlpha = alpha;
+    ctx.fill();
+    starPositions.push({ x: sx, y: sy });
+  }
+  ctx.globalAlpha = 1;
+  // Constellation lines near cursor
+  if (smoothMX > -500) {
+    ctx.strokeStyle = 'rgba(167, 139, 250, 0.1)';
+    ctx.lineWidth = 0.5;
+    for (let i = 0; i < starPositions.length; i++) {
+      const si = starPositions[i];
+      const dxi = si.x - smoothMX, dyi = si.y - smoothMY;
+      if (dxi * dxi + dyi * dyi > 120 * 120) continue;
+      for (let j = i + 1; j < starPositions.length; j++) {
+        const sj = starPositions[j];
+        const dxj = sj.x - smoothMX, dyj = sj.y - smoothMY;
+        if (dxj * dxj + dyj * dyj > 120 * 120) continue;
+        const ddx = si.x - sj.x, ddy = si.y - sj.y;
+        if (ddx * ddx + ddy * ddy < 100 * 100) {
+          ctx.beginPath();
+          ctx.moveTo(si.x, si.y);
+          ctx.lineTo(sj.x, sj.y);
+          ctx.stroke();
+        }
+      }
+    }
+  }
+}
+
+function drawMouseGlow() {
+  if (smoothMX > -500) {
+    const glow = ctx.createRadialGradient(smoothMX, smoothMY, 0, smoothMX, smoothMY, 30);
+    glow.addColorStop(0, 'rgba(167, 139, 250, 0.05)');
+    glow.addColorStop(1, 'rgba(167, 139, 250, 0)');
+    ctx.beginPath();
+    ctx.arc(smoothMX, smoothMY, 30, 0, Math.PI * 2);
+    ctx.fillStyle = glow;
+    ctx.fill();
+  }
+}
+
+function drawPulsar(t) {
+  const w = W(), h = H();
+  const px = (smoothMX / w - 0.5) * 15;
+  const py = (smoothMY / h - 0.5) * 10;
+  const cx = w * 0.5 + (smoothMX > -500 ? px : 0);
+  const cy = h * 0.32 + (smoothMX > -500 ? py : 0);
+  const time = t * 0.001;
+
+  // Beam rotation
+  const beamAngle = time * 1.2;
+
+  // Pulsing concentric rings
+  ringTimer++;
+  if (ringTimer % 90 === 0) {
+    for (const ring of rings) {
+      if (ring.radius >= ring.maxRadius || ring.alpha <= 0) {
+        ring.radius = 8;
+        ring.alpha = 0.6;
+        break;
+      }
+    }
+  }
+
+  for (const ring of rings) {
+    if (ring.alpha > 0) {
+      ring.radius += 0.6;
+      ring.alpha -= 0.003;
+      if (ring.alpha > 0) {
+        ctx.beginPath();
+        ctx.arc(cx, cy, ring.radius, 0, Math.PI * 2);
+        ctx.strokeStyle = `rgba(167, 139, 250, ${ring.alpha * 0.5})`;
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+      }
+    }
+  }
+
+  // Twin conical beams
+  for (let b = 0; b < 2; b++) {
+    const angle = beamAngle + b * Math.PI;
+    const beamLen = Math.max(w, h) * 0.8;
+    const spread = 0.15;
+
+    const grad = ctx.createRadialGradient(cx, cy, 5, cx, cy, beamLen);
+    grad.addColorStop(0, 'rgba(232, 224, 255, 0.25)');
+    grad.addColorStop(0.3, 'rgba(167, 139, 250, 0.1)');
+    grad.addColorStop(1, 'rgba(139, 92, 246, 0)');
+
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.rotate(angle);
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.lineTo(beamLen * Math.cos(-spread), beamLen * Math.sin(-spread));
+    ctx.lineTo(beamLen * Math.cos(spread), beamLen * Math.sin(spread));
+    ctx.closePath();
+    ctx.fillStyle = grad;
+    ctx.globalAlpha = 0.4 + 0.1 * Math.sin(time * 3);
+    ctx.fill();
+    ctx.restore();
+  }
+
+  // Secondary faint beams offset
+  for (let b = 0; b < 2; b++) {
+    const angle = beamAngle + b * Math.PI + 0.08;
+    const beamLen = Math.max(w, h) * 0.5;
+    const spread = 0.06;
+
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.rotate(angle);
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.lineTo(beamLen * Math.cos(-spread), beamLen * Math.sin(-spread));
+    ctx.lineTo(beamLen * Math.cos(spread), beamLen * Math.sin(spread));
+    ctx.closePath();
+    ctx.fillStyle = 'rgba(196, 181, 253, 0.08)';
+    ctx.globalAlpha = 0.3;
+    ctx.fill();
+    ctx.restore();
+  }
+
+  ctx.globalAlpha = 1;
+
+  // Magnetosphere particles (tilted orbital plane)
+  for (const p of magnetoParticles) {
+    p.angle += p.speed;
+    const px = cx + Math.cos(p.angle) * p.dist;
+    const py = cy + Math.sin(p.angle) * p.dist * 0.35 + p.yOff * p.dist * 0.2;
+
+    ctx.beginPath();
+    ctx.arc(px, py, p.size, 0, Math.PI * 2);
+    const alpha = 0.3 + 0.4 * Math.abs(Math.sin(p.angle));
+    ctx.fillStyle = `rgba(196, 181, 253, ${alpha})`;
+    ctx.fill();
+  }
+
+  // Core glow - outer
+  const coreGlow3 = ctx.createRadialGradient(cx, cy, 0, cx, cy, 50);
+  coreGlow3.addColorStop(0, 'rgba(167, 139, 250, 0.15)');
+  coreGlow3.addColorStop(1, 'rgba(139, 92, 246, 0)');
+  ctx.beginPath();
+  ctx.arc(cx, cy, 50, 0, Math.PI * 2);
+  ctx.fillStyle = coreGlow3;
+  ctx.fill();
+
+  // Core glow - middle
+  const pulse = 0.7 + 0.3 * Math.sin(time * 4);
+  const coreGlow2 = ctx.createRadialGradient(cx, cy, 0, cx, cy, 25);
+  coreGlow2.addColorStop(0, `rgba(232, 224, 255, ${0.4 * pulse})`);
+  coreGlow2.addColorStop(0.5, `rgba(167, 139, 250, ${0.2 * pulse})`);
+  coreGlow2.addColorStop(1, 'rgba(139, 92, 246, 0)');
+  ctx.beginPath();
+  ctx.arc(cx, cy, 25, 0, Math.PI * 2);
+  ctx.fillStyle = coreGlow2;
+  ctx.fill();
+
+  // Core - bright center
+  const coreSize = 5 + 2 * Math.sin(time * 4);
+  const coreGlow = ctx.createRadialGradient(cx, cy, 0, cx, cy, coreSize * 2);
+  coreGlow.addColorStop(0, `rgba(255, 255, 255, ${0.7 * pulse})`);
+  coreGlow.addColorStop(0.3, `rgba(232, 224, 255, ${0.5 * pulse})`);
+  coreGlow.addColorStop(1, 'rgba(167, 139, 250, 0)');
+  ctx.beginPath();
+  ctx.arc(cx, cy, coreSize * 2, 0, Math.PI * 2);
+  ctx.fillStyle = coreGlow;
+  ctx.fill();
+
+  ctx.beginPath();
+  ctx.arc(cx, cy, coreSize * 0.5, 0, Math.PI * 2);
+  ctx.fillStyle = `rgba(255, 255, 255, ${0.8 * pulse})`;
+  ctx.fill();
+}
+
+function animate(t) {
+  smoothMX += (mouseX - smoothMX) * 0.05;
+  smoothMY += (mouseY - smoothMY) * 0.05;
+  const w = W(), h = H();
+  ctx.clearRect(0, 0, w, h);
+  drawBackground(t);
+  drawStars(t);
+  drawPulsar(t);
+  drawMouseGlow();
+  requestAnimationFrame(animate);
+}
+
+requestAnimationFrame(animate);
+</script>
+</body>
+</html>
