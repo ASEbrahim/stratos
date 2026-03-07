@@ -1112,7 +1112,7 @@ function _initStarParallax() {
             if (_sakuraTree.tips.length > 0 && Math.random() < 0.8) {
                 const tip = _sakuraTree.tips[Math.floor(Math.random() * _sakuraTree.tips.length)];
                 const sx = _cw / 800, sy = _ch / 600;
-                const initOffY = isMobile ? _ch * 0.33 : -_ch * 0.12;
+                const initOffY = isMobile ? _ch * 0.28 : -_ch * 0.12;
                 initX = tip.x * sx + (Math.random() - 0.5) * 20;
                 initY = tip.y * sy + initOffY + (Math.random() - 0.3) * _ch * 0.15;
             }
@@ -1293,7 +1293,7 @@ function _initStarParallax() {
         }
         if (_isSakura) {
             if (isMobile) {
-                const _skOffY = _ch * 0.33;
+                const _skOffY = _ch * 0.28;
                 _sakuraTree.offsetY = _skOffY;
                 _sakuraTree.offsetX = 0;
                 const _skPivY = _ch * 0.90;
