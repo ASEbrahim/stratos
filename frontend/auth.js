@@ -553,7 +553,7 @@ function _initStarParallax() {
             n.x += n.vx * 0.001; n.y += n.vy * 0.001; n.rotation += n.rotSpeed;
             if (Math.abs(n.x) > 0.25) n.vx *= -1;
             if (Math.abs(n.y) > 0.2) n.vy *= -1;
-            ctx.save(); ctx.translate(cx + n.x * canvas.width, cy + n.y * canvas.height);
+            ctx.save(); ctx.translate(cx + n.x * _cw, cy + n.y * _ch);
             ctx.rotate(n.rotation);
             ctx.font = `${n.size}px "Times New Roman", serif`;
             ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
@@ -720,7 +720,7 @@ function _initStarParallax() {
         }
     }
     function _coffeeDrawCup(cx, cy, t) {
-        const cw = canvas.width, ch = canvas.height;
+        const cw = _cw, ch = _ch;
         // Warm ambient glow behind steam
         const warmG = ctx.createRadialGradient(cx, cy - 20, 0, cx, cy - 20, 120);
         warmG.addColorStop(0, 'rgba(212,148,60,0.04)');
@@ -877,7 +877,7 @@ function _initStarParallax() {
             cl.x += cl.speed * 0.008;
             if (cl.x > 1.4) cl.x = -0.4;
             const breathe = 0.5 + 0.5 * Math.sin(t * 0.15 + cl.phase);
-            const clx = cl.x * cw, cly = cl.y * canvas.height;
+            const clx = cl.x * cw, cly = cl.y * _ch;
             const clw = cl.w * cw;
             const cg = ctx.createRadialGradient(clx, cly, 0, clx, cly, clw);
             cg.addColorStop(0, `rgba(16,185,129,${cl.alpha * breathe})`);
@@ -890,7 +890,7 @@ function _initStarParallax() {
         for (const f of _midnightFireflies) {
             const wp = t * f.wanderSpeed + f.wanderPhase;
             const fx = (f.x + Math.sin(wp) * f.wanderRx) * cw;
-            const fy = (f.y + Math.sin(wp * 2) * f.wanderRy) * canvas.height;
+            const fy = (f.y + Math.sin(wp * 2) * f.wanderRy) * _ch;
             const rawGlow = Math.sin(t * f.glowSpeed + f.phase);
             const glow = Math.pow(Math.max(0, rawGlow), 1.5);
             if (glow < 0.03) continue;
@@ -1075,9 +1075,16 @@ function _initStarParallax() {
     }
     const c1 = parseColor(_t.star1), c2 = parseColor(_t.star2), c3 = parseColor(_t.star3);
 
+    const _dpr = window.devicePixelRatio || 1;
+    let _cw = 0, _ch = 0; // logical CSS dimensions
     function resize() {
-        canvas.width = canvas.parentElement.offsetWidth;
-        canvas.height = canvas.parentElement.offsetHeight;
+        _cw = canvas.parentElement.offsetWidth;
+        _ch = canvas.parentElement.offsetHeight;
+        canvas.width = _cw * _dpr;
+        canvas.height = _ch * _dpr;
+        canvas.style.width = _cw + 'px';
+        canvas.style.height = _ch + 'px';
+        ctx.setTransform(_dpr, 0, 0, _dpr, 0, 0);
     }
     resize();
 
@@ -1096,14 +1103,14 @@ function _initStarParallax() {
         const isBright = pick.bright;
         const petal = _isSakura && Math.random() < 0.40;
         // Petals start scattered from tree area downward; stars anywhere
-        let initX = Math.random() * canvas.width;
-        let initY = Math.random() * canvas.height;
+        let initX = Math.random() * _cw;
+        let initY = Math.random() * _ch;
         if (petal) {
             if (_sakuraTree.tips.length > 0 && Math.random() < 0.5) {
                 const tip = _sakuraTree.tips[Math.floor(Math.random() * _sakuraTree.tips.length)];
-                const sx = canvas.width / 800, sy = canvas.height / 600;
-                initX = tip.x * sx + (Math.random() - 0.3) * 60 - Math.random() * canvas.width * 0.3;
-                initY = tip.y * sy + Math.random() * canvas.height * 0.6;
+                const sx = _cw / 800, sy = _ch / 600;
+                initX = tip.x * sx + (Math.random() - 0.3) * 60 - Math.random() * _cw * 0.3;
+                initY = tip.y * sy + Math.random() * _ch * 0.6;
             }
             // else keep random position — petals scattered everywhere
         }
@@ -1140,8 +1147,8 @@ function _initStarParallax() {
         const angle = Math.random() * 0.5 + 0.25;
         const speed = Math.random() * 7 + 5;
         shooters.push({
-            x: Math.random() * canvas.width * 0.7,
-            y: Math.random() * canvas.height * 0.35,
+            x: Math.random() * _cw * 0.7,
+            y: Math.random() * _ch * 0.35,
             vx: Math.cos(angle) * speed,
             vy: Math.sin(angle) * speed,
             life: 1.0,
@@ -1168,13 +1175,15 @@ function _initStarParallax() {
 
     // Main draw loop
     function draw() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.clearRect(0, 0, _cw, _ch);
         const t = Date.now() * 0.001;
         const now = Date.now();
+        const _elScale = isMobile ? Math.min(_cw / 400, 0.7) : 1;
 
         // Solar system (cosmos auth theme - tilted perspective, drawn first)
         if (_isCosmos) {
-            const scx = canvas.width * 0.5, scy = canvas.height * 0.28;
+            const scx = _cw * 0.5, scy = isMobile ? _ch * 0.62 : _ch * 0.28;
+            if (isMobile) { ctx.save(); ctx.translate(scx, scy); ctx.scale(_elScale, _elScale); ctx.translate(-scx, -scy); }
             // Tilted orbit lines
             for (const p of _ssPlanets) _ssTiltedOrbit(scx, scy, p.dist, 0.07);
             _ssTiltedOrbit(scx, scy, 232, 0.03); _ssTiltedOrbit(scx, scy, 270, 0.03);
@@ -1202,11 +1211,13 @@ function _initStarParallax() {
                 else if (o.t === 'm') { ctx.beginPath(); ctx.arc(o.x, o.y, o.r, 0, Math.PI * 2); ctx.fillStyle = 'rgba(200,200,210,0.7)'; ctx.fill(); }
                 else if (o.t === 'p') _ssDrawPlanet(o.x, o.y, o.p, o.d);
             }
+            if (isMobile) { ctx.restore(); }
         }
 
         // Black hole (nebula auth theme — P1 classic accretion disk)
         if (_isNebula) {
-            const bhx = canvas.width * 0.5, bhy = canvas.height * 0.30;
+            const bhx = _cw * 0.5, bhy = isMobile ? _ch * 0.62 : _ch * 0.30;
+            if (isMobile) { ctx.save(); ctx.translate(bhx, bhy); ctx.scale(_elScale, _elScale); ctx.translate(-bhx, -bhy); }
             // Accretion disk glow rings
             _bhDrawDisk(bhx, bhy);
             // Depth-sorted particles
@@ -1242,17 +1253,20 @@ function _initStarParallax() {
                 ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctx.fill();
             }
             ctx.globalAlpha = 1;
+            if (isMobile) { ctx.restore(); }
         }
 
         // Binary star system (aurora auth theme)
         if (_isAurora) {
-            _binDrawSystem(canvas.width * 0.5, canvas.height * 0.28, t);
+            const _aurCx = _cw * 0.5, _aurCy = isMobile ? _ch * 0.62 : _ch * 0.28;
+            if (isMobile) { ctx.save(); ctx.translate(_aurCx, _aurCy); ctx.scale(_elScale, _elScale); ctx.translate(-_aurCx, -_aurCy); }
+            _binDrawSystem(_aurCx, _aurCy, t);
+            if (isMobile) { ctx.restore(); }
         }
 
         // Theme center elements — on mobile, position at middle-bottom and scale to fit
-        const _elCx = canvas.width * 0.5;
-        const _elCy = isMobile ? canvas.height * 0.62 : canvas.height * 0.30;
-        const _elScale = isMobile ? Math.min(canvas.width / 400, 0.7) : 1;
+        const _elCx = _cw * 0.5;
+        const _elCy = isMobile ? _ch * 0.62 : _ch * 0.30;
 
         if (_isNoir) {
             ctx.save(); ctx.translate(_elCx, _elCy); ctx.scale(_elScale, _elScale); ctx.translate(-_elCx, -_elCy);
@@ -1271,16 +1285,16 @@ function _initStarParallax() {
         }
         if (_isMidnight) {
             ctx.save(); ctx.translate(_elCx, _elCy); ctx.scale(_elScale, _elScale); ctx.translate(-_elCx, -_elCy);
-            _midnightDrawMoon(_elCx, isMobile ? _elCy : canvas.height * 0.28, t, canvas.width);
+            _midnightDrawMoon(_elCx, isMobile ? _elCy : _ch * 0.28, t, _cw);
             ctx.restore();
         }
         if (_isSakura) {
             if (isMobile) {
-                ctx.save(); ctx.translate(_elCx, canvas.height * 0.55); ctx.scale(_elScale, _elScale); ctx.translate(-_elCx, -canvas.height * 0.55);
-                _sakuraDrawTree(canvas.width, canvas.height, t);
+                ctx.save(); ctx.translate(_elCx, _ch * 0.55); ctx.scale(_elScale, _elScale); ctx.translate(-_elCx, -_ch * 0.55);
+                _sakuraDrawTree(_cw, _ch, t);
                 ctx.restore();
             } else {
-                _sakuraDrawTree(canvas.width, canvas.height, t);
+                _sakuraDrawTree(_cw, _ch, t);
             }
         }
 
@@ -1315,7 +1329,7 @@ function _initStarParallax() {
                 s.baseY += driftY + (spiralY - (s._prevSpiralY || 0));
                 s._prevSpiralX = spiralX;
                 s._prevSpiralY = spiralY;
-                if (s.baseY > canvas.height + 15 || s.baseX < -20) {
+                if (s.baseY > _ch + 15 || s.baseX < -20) {
                     if (_sakuraTree.tips.length > 0 && Math.random() < 0.55) {
                         // From tree branch tips
                         const tip = _sakuraTree.tips[Math.floor(Math.random() * _sakuraTree.tips.length)];
@@ -1324,7 +1338,7 @@ function _initStarParallax() {
                     } else {
                         // From random sky positions — petals drifting in from above
                         s.baseY = -10 - Math.random() * 30;
-                        s.baseX = Math.random() * canvas.width;
+                        s.baseX = Math.random() * _cw;
                     }
                     s.y = s.baseY; s.x = s.baseX;
                     s.petalAge = Math.random() < 0.45 ? 0 : 80 + Math.random() * 40;
@@ -1333,8 +1347,8 @@ function _initStarParallax() {
             } else {
                 s.baseY -= DRIFT_SPEED;
                 if (s.baseY < -10) {
-                    s.baseY = canvas.height + 10;
-                    s.baseX = Math.random() * canvas.width;
+                    s.baseY = _ch + 10;
+                    s.baseX = Math.random() * _cw;
                     s.y = s.baseY; s.x = s.baseX;
                 }
             }
@@ -1354,7 +1368,7 @@ function _initStarParallax() {
             s.x += (drawX - s.x) * 0.07;
             s.y += (drawY - s.y) * 0.07;
 
-            if (s.y < -15 || s.y > canvas.height + 15) continue;
+            if (s.y < -15 || s.y > _ch + 15) continue;
 
             // Twinkle
             const flicker = 0.65 + 0.35 * Math.sin(t * s.speed * 4 + s.phase);
@@ -1447,7 +1461,7 @@ function _initStarParallax() {
             sh.x += sh.vx;
             sh.y += sh.vy;
             sh.life -= 0.014;
-            if (sh.life <= 0 || sh.x > canvas.width + 60 || sh.y > canvas.height + 60) {
+            if (sh.life <= 0 || sh.x > _cw + 60 || sh.y > _ch + 60) {
                 shooters.splice(si, 1);
                 continue;
             }
@@ -1482,8 +1496,8 @@ function _initStarParallax() {
     window.addEventListener('resize', () => {
         resize();
         for (let i = 0; i < stars.length; i++) {
-            stars[i].baseX = Math.random() * canvas.width;
-            stars[i].baseY = Math.random() * canvas.height;
+            stars[i].baseX = Math.random() * _cw;
+            stars[i].baseY = Math.random() * _ch;
             stars[i].x = stars[i].baseX;
             stars[i].y = stars[i].baseY;
         }
