@@ -561,9 +561,60 @@
         _wireSlider('#te-sakura-opacity', '#te-sakura-opacity-val', 'stratos-sakura-opacity', v => Math.round(v * 100) + '%');
     }
 
+    function _buildStarFieldControls(body) {
+        const old = document.getElementById('te-stars-section');
+        if (old) old.remove();
+
+        const section = document.createElement('div');
+        section.id = 'te-stars-section';
+        section.className = 'te-group';
+
+        const density = parseFloat(localStorage.getItem('stratos-stars-density') || '1');
+        const drift = parseFloat(localStorage.getItem('stratos-stars-drift') || '1');
+        const brightness = parseFloat(localStorage.getItem('stratos-stars-brightness') || '1');
+
+        section.innerHTML = `
+            <div class="te-group-label">Star Field</div>
+            <div style="flex:1;min-width:0;">
+                <label class="te-color-label" style="margin-bottom:4px;display:block;">Density</label>
+                <div style="display:flex;align-items:center;gap:8px;">
+                    <input type="range" class="te-range-slider" id="te-stars-density" min="0.2" max="3" step="0.1" value="${density}" style="flex:1;" />
+                    <span class="te-range-val" id="te-stars-density-val">${density.toFixed(1)}x</span>
+                </div>
+                <label class="te-color-label" style="margin-bottom:2px;margin-top:6px;display:block;">Drift Speed</label>
+                <div style="display:flex;align-items:center;gap:8px;">
+                    <input type="range" class="te-range-slider" id="te-stars-drift" min="0" max="3" step="0.1" value="${drift}" style="flex:1;" />
+                    <span class="te-range-val" id="te-stars-drift-val">${drift.toFixed(1)}x</span>
+                </div>
+                <label class="te-color-label" style="margin-bottom:2px;margin-top:6px;display:block;">Brightness</label>
+                <div style="display:flex;align-items:center;gap:8px;">
+                    <input type="range" class="te-range-slider" id="te-stars-brightness" min="0.1" max="2" step="0.05" value="${brightness}" style="flex:1;" />
+                    <span class="te-range-val" id="te-stars-brightness-val">${brightness.toFixed(2)}x</span>
+                </div>
+            </div>
+        `;
+        body.appendChild(section);
+
+        function _wireSlider(id, valId, key, fmt) {
+            const sl = section.querySelector(id);
+            const vl = section.querySelector(valId);
+            if (!sl) return;
+            sl.addEventListener('input', (e) => {
+                const v = parseFloat(e.target.value);
+                vl.textContent = fmt(v);
+                localStorage.setItem(key, v.toString());
+                if (key === 'stratos-stars-density' && typeof renderStars === 'function') renderStars();
+            });
+        }
+        _wireSlider('#te-stars-density', '#te-stars-density-val', 'stratos-stars-density', v => v.toFixed(1) + 'x');
+        _wireSlider('#te-stars-drift', '#te-stars-drift-val', 'stratos-stars-drift', v => v.toFixed(1) + 'x');
+        _wireSlider('#te-stars-brightness', '#te-stars-brightness-val', 'stratos-stars-brightness', v => v.toFixed(2) + 'x');
+    }
+
     function _buildThemeElementControls(body) {
         _buildCosmosControls(body);
         _buildSakuraControls(body);
+        _buildStarFieldControls(body);
     }
 
     function applyAndSave(varName, hex) {
@@ -636,10 +687,19 @@
         reset() {
             clearOverrides();
             clearAllOverrides();
+            // Clear all theme element localStorage values
+            const _keys = [
+                'stratos-cosmos-cx','stratos-cosmos-cy','stratos-cosmos-scale','stratos-cosmos-blur','stratos-cosmos-opacity','stratos-cosmos-density',
+                'stratos-sakura-size','stratos-sakura-density','stratos-sakura-fall','stratos-sakura-wind','stratos-sakura-opacity',
+                'stratos-stars-density','stratos-stars-drift','stratos-stars-brightness',
+            ];
+            _keys.forEach(k => localStorage.removeItem(k));
             // Re-trigger base theme to restore CSS values
             const base = document.documentElement.getAttribute('data-theme') || 'midnight';
             setTheme(base);
             syncPickersToCurrentTheme();
+            _buildThemeElementControls(document.getElementById('te-body'));
+            if (typeof renderStars === 'function') renderStars();
         },
 
         savePreset() {

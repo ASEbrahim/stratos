@@ -251,11 +251,12 @@ function renderStars() {
 
     const _cosmosDensityInit = isCosmos ? parseFloat(localStorage.getItem('stratos-cosmos-density') || '1') : 1;
     const _sakuraDensityInit = isSakura ? parseFloat(localStorage.getItem('stratos-sakura-density') || '1') : 1;
-    const COUNT = Math.round((isMobile ? 30 : 200) * _cosmosDensityInit * _sakuraDensityInit);
+    const _starsDensityInit = parseFloat(localStorage.getItem('stratos-stars-density') || '1');
+    const COUNT = Math.round((isMobile ? 30 : 200) * _cosmosDensityInit * _sakuraDensityInit * _starsDensityInit);
     const MOUSE_RADIUS = 150;
     const LINE_RADIUS = 120;
     const LINE_MOUSE_RANGE = 240;
-    const DRIFT_SPEED = 0.06;
+    const DRIFT_SPEED = 0.06 * parseFloat(localStorage.getItem('stratos-stars-drift') || '1');
 
     // Solar system data (cosmos theme only - supports P1 classic & P2 tilted)
     const _ssPreset = isCosmos ? (localStorage.getItem('stratos-cosmos-preset') || 'P1') : '';
@@ -581,9 +582,10 @@ function renderStars() {
 
             if (s.y < -15 || s.y > canvas.height + 15) continue;
 
+            const _starsBright = parseFloat(localStorage.getItem('stratos-stars-brightness') || '1');
             const flicker = 0.65 + 0.35 * Math.sin(t * s.speed * 4 + s.phase);
             const proxBoost = (!isTouch && dist < MOUSE_RADIUS) ? 1 + (1 - dist / MOUSE_RADIUS) * 0.5 : 1;
-            const alpha = Math.min(1, s.a * flicker * proxBoost);
+            const alpha = Math.min(1, s.a * flicker * proxBoost * _starsBright);
             const radius = s.r * ((!isTouch && dist < MOUSE_RADIUS) ? 1 + (1 - dist / MOUSE_RADIUS) * 0.35 : 1);
 
             ctx.globalAlpha = alpha;
