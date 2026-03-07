@@ -710,10 +710,10 @@ def phase5_prepare():
     try:
         conn = sqlite3.connect(str(DB_PATH))
         rows = conn.execute("""
-            SELECT ni.id as article_id, uf.score, uf.feedback_text, ni.title, ni.summary, ni.category
+            SELECT ni.id as article_id, uf.user_score, uf.note, ni.title, ni.summary, ni.category
             FROM user_feedback uf
             JOIN news_items ni ON uf.url = ni.url
-            WHERE uf.score IS NOT NULL AND ni.summary IS NOT NULL AND ni.summary != ''
+            WHERE uf.user_score IS NOT NULL AND ni.summary IS NOT NULL AND ni.summary != ''
         """).fetchall()
         conn.close()
 
