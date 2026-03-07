@@ -665,10 +665,16 @@ class AdaptiveScorer(ScorerBase):
     def _tracked_fields_block(self) -> str:
         """Build the tracked-fields block for system prompts.
         Must match export_training.py's build_system_prompt exactly."""
-        companies = ', '.join(self._profile.get('tracked_companies', []))
-        institutions = ', '.join(self._profile.get('tracked_institutions', []))
-        interests = ', '.join(self._profile.get('interests', []))
-        industries = ', '.join(self._profile.get('tracked_industries', []))
+        def _join(val):
+            """Handle both list and string fields."""
+            if isinstance(val, list):
+                return ', '.join(val)
+            return val or ''
+
+        companies = _join(self._profile.get('tracked_companies', []))
+        institutions = _join(self._profile.get('tracked_institutions', []))
+        interests = _join(self._profile.get('interests', []))
+        industries = _join(self._profile.get('tracked_industries', []))
         return (
             f"Tracked companies: {companies if companies else 'None specified'}\n"
             f"Tracked institutions: {institutions if institutions else 'None specified'}\n"
