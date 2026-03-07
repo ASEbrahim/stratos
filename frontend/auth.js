@@ -917,19 +917,20 @@ function _initStarParallax() {
         function _genSakuraTree(w, h) {
             _tSeed = 12345;
             const br = [], bl = [], tips = [];
+            const sc = 0.75; // tree scale factor
             const cx = w * 0.5, baseY = h * 0.55;
-            const trunkTop = h * 0.40;
+            const trunkTop = baseY - (h * 0.15) * sc;
 
             // Thin trunk with slight lean
-            const lean = w * 0.004;
-            br.push({ x0:cx-w*0.003, y0:baseY, x1:cx+lean, y1:trunkTop,
-                cpx:cx-w*0.001, cpy:h*0.47, w0:w*0.006, d:0 });
-            br.push({ x0:cx+w*0.003, y0:baseY, x1:cx+lean, y1:trunkTop,
-                cpx:cx+w*0.002, cpy:h*0.47, w0:w*0.006, d:0 });
+            const lean = w * 0.004 * sc;
+            br.push({ x0:cx-w*0.003*sc, y0:baseY, x1:cx+lean, y1:trunkTop,
+                cpx:cx-w*0.001*sc, cpy:baseY-(baseY-trunkTop)*0.53, w0:w*0.005*sc, d:0 });
+            br.push({ x0:cx+w*0.003*sc, y0:baseY, x1:cx+lean, y1:trunkTop,
+                cpx:cx+w*0.002*sc, cpy:baseY-(baseY-trunkTop)*0.53, w0:w*0.005*sc, d:0 });
 
             // Recursive branch generator — delicate and airy
             function addBranch(sx, sy, angle, length, width, depth) {
-                if (depth > 3 || length < h * 0.015) return;
+                if (depth > 3 || length < h * 0.012) return;
                 const curve = _tRandR(-0.3, 0.3);
                 const ex = sx + Math.cos(angle) * length;
                 const ey = sy + Math.sin(angle) * length;
@@ -963,18 +964,18 @@ function _initStarParallax() {
                 -Math.PI*0.12 + _tRandR(-0.1,0.1),
             ];
             for (let i = 0; i < mainAngles.length; i++) {
-                const len = _tRandR(h*0.06, h*0.11);
-                const wid = w * _tRandR(0.0015, 0.003);
+                const len = _tRandR(h*0.06, h*0.11) * sc;
+                const wid = w * _tRandR(0.0015, 0.003) * sc;
                 addBranch(cx + lean, trunkTop, mainAngles[i], len, wid, 1);
             }
 
             // One small lower branch
-            addBranch(cx, h * 0.47, -Math.PI*0.6 + _tRandR(-0.1,0.1), h*0.04, w*0.001, 2);
+            addBranch(cx, baseY - (baseY - trunkTop) * 0.53, -Math.PI*0.6 + _tRandR(-0.1,0.1), h*0.04*sc, w*0.001*sc, 2);
 
             // Generate blossom dots within clusters
             for (const c of bl) {
                 c.dots = [];
-                const count = Math.floor(_tRandR(8, 18));
+                const count = Math.floor(_tRandR(14, 28));
                 for (let i = 0; i < count; i++) {
                     const ba = _tRand() * Math.PI * 2, bd = _tRand() * c.r * 1.2;
                     c.dots.push({ ox: Math.cos(ba)*bd, oy: Math.sin(ba)*bd,
@@ -1026,8 +1027,8 @@ function _initStarParallax() {
             } else {
                 ctx.lineTo(b.x1 + sway, b.y1);
             }
-            // Wispy, thin bark
-            const alpha = b.d === 0 ? 0.35 : b.d === 1 ? 0.25 : b.d === 2 ? 0.18 : 0.1;
+            // Wispy, thin bark — subtle opacity
+            const alpha = b.d === 0 ? 0.22 : b.d === 1 ? 0.16 : b.d === 2 ? 0.11 : 0.06;
             ctx.strokeStyle = `rgba(60,30,45,${alpha})`;
             ctx.lineWidth = b.w0;
             ctx.lineCap = 'round';
@@ -1101,16 +1102,16 @@ function _initStarParallax() {
     for (let i = 0; i < COUNT; i++) {
         const pick = pickStar();
         const isBright = pick.bright;
-        const petal = _isSakura && Math.random() < 0.40;
+        const petal = _isSakura && Math.random() < 0.55;
         // Petals start scattered from tree area downward; stars anywhere
         let initX = Math.random() * _cw;
         let initY = Math.random() * _ch;
         if (petal) {
-            if (_sakuraTree.tips.length > 0 && Math.random() < 0.5) {
+            if (_sakuraTree.tips.length > 0 && Math.random() < 0.7) {
                 const tip = _sakuraTree.tips[Math.floor(Math.random() * _sakuraTree.tips.length)];
                 const sx = _cw / 800, sy = _ch / 600;
-                initX = tip.x * sx + (Math.random() - 0.3) * 60 - Math.random() * _cw * 0.3;
-                initY = tip.y * sy + Math.random() * _ch * 0.6;
+                initX = tip.x * sx + (Math.random() - 0.3) * 40;
+                initY = tip.y * sy + Math.random() * _ch * 0.4;
             }
             // else keep random position — petals scattered everywhere
         }
@@ -1290,12 +1291,15 @@ function _initStarParallax() {
         }
         if (_isSakura) {
             if (isMobile) {
-                const _skPivY = _ch * 0.75;
+                const _skPivY = _ch * 0.85;
                 ctx.save(); ctx.translate(_elCx, _skPivY); ctx.scale(_elScale, _elScale); ctx.translate(-_elCx, -_skPivY);
                 _sakuraDrawTree(_cw, _ch, t);
                 ctx.restore();
             } else {
-                ctx.save(); ctx.translate(0, -_ch * 0.18);
+                // Anchor tree to fixed distance from top so it stays above logo on any monitor
+                const treeNaturalCenter = _ch * 0.47;
+                const targetY = Math.min(160, _ch * 0.18);
+                ctx.save(); ctx.translate(0, targetY - treeNaturalCenter);
                 _sakuraDrawTree(_cw, _ch, t);
                 ctx.restore();
             }
@@ -1333,11 +1337,11 @@ function _initStarParallax() {
                 s._prevSpiralX = spiralX;
                 s._prevSpiralY = spiralY;
                 if (s.baseY > _ch + 15 || s.baseX < -20) {
-                    if (_sakuraTree.tips.length > 0 && Math.random() < 0.55) {
+                    if (_sakuraTree.tips.length > 0 && Math.random() < 0.75) {
                         // From tree branch tips
                         const tip = _sakuraTree.tips[Math.floor(Math.random() * _sakuraTree.tips.length)];
-                        s.baseX = tip.x + (Math.random() - 0.3) * 20;
-                        s.baseY = tip.y + (Math.random() - 0.5) * 10;
+                        s.baseX = tip.x + (Math.random() - 0.3) * 15;
+                        s.baseY = tip.y + (Math.random() - 0.5) * 8;
                     } else {
                         // From random sky positions — petals drifting in from above
                         s.baseY = -10 - Math.random() * 30;
