@@ -1,0 +1,467 @@
+{
+  "model": "qwen3.5:0.8b",
+  "temperature": 0.1,
+  "total_pairs": 50,
+  "valid_scores": 50,
+  "parse_failures": 0,
+  "mae": 3.63,
+  "median_ae": 4.5,
+  "mean_bias": 3.49,
+  "direction_accuracy": 0.3,
+  "within_1": 0.26,
+  "within_2": 0.32,
+  "avg_time_per_call": 15.65,
+  "total_time_seconds": 782,
+  "results": [
+    {
+      "article_id": "c4b08e5e5c93",
+      "profile_id": "retired_diplomat_vienna",
+      "opus_score": 0.5,
+      "model_score": 5.0,
+      "reason": "The article contains high-level keywords and thematic relevance (nuclear non-proliferation, arms control) but lacks specific actionable details or concrete data points to justify a score above 7. It r",
+      "elapsed": 16.99,
+      "tokens": 71
+    },
+    {
+      "article_id": "18ca83614646",
+      "profile_id": "supply_chain_bahrain",
+      "opus_score": 0.5,
+      "model_score": 5.0,
+      "reason": "The article contains specific keywords (supply chain analytics, port logistics, trade compliance) but lacks actionable context regarding the UAE healthcare sector or specific job roles. It is a generi",
+      "elapsed": 17.13,
+      "tokens": 85
+    },
+    {
+      "article_id": "b5dd892f0d61",
+      "profile_id": "data_scientist_dubai",
+      "opus_score": 3.0,
+      "model_score": 5.0,
+      "reason": "The article discusses general emerging tech trends for education, specifically mentioning ML as a key component of AI but lacks specific details regarding fraud detection, credit scoring, or the GCC f",
+      "elapsed": 16.71,
+      "tokens": 78
+    },
+    {
+      "article_id": "922bd1907e2b",
+      "profile_id": "pediatric_oncologist_riyadh",
+      "opus_score": 0.0,
+      "model_score": 5.0,
+      "reason": "The article is highly relevant to the user's interests (pediatric cancer, clinical trials) but lacks actionable guidance for a specific role or industry within those fields. It focuses on general cert",
+      "elapsed": 16.37,
+      "tokens": 67
+    },
+    {
+      "article_id": "a75b1952bf9f",
+      "profile_id": "pharmacist_paris",
+      "opus_score": 0.0,
+      "model_score": 1.0,
+      "reason": "Completely irrelevant content; the article is about geology and job opportunities in the Middle East, completely unrelated to oncology, clinical pharmacology, drug interactions, EU regulation, or immu",
+      "elapsed": 16.49,
+      "tokens": 51
+    },
+    {
+      "article_id": "f2e8b8337e48",
+      "profile_id": "lawyer_ai_disruption",
+      "opus_score": 3.0,
+      "model_score": 7.5,
+      "reason": "The article touches on a high-potential intersection (AI in M&A) but lacks specific actionable data or concrete examples relevant to the user's tracked companies (Harvey AI, Clio, etc.). While it ment",
+      "elapsed": 16.83,
+      "tokens": 106
+    },
+    {
+      "article_id": "ddf69f71cfc1",
+      "profile_id": "undeclared_student_chicago",
+      "opus_score": 3.0,
+      "model_score": 7.5,
+      "reason": "Highly relevant to user's field/interests (IoT connects directly to startup culture and behavioral science); provides actionable insight on infrastructure requirements for a tracked industry; slightly",
+      "elapsed": 15.22,
+      "tokens": 69
+    },
+    {
+      "article_id": "17358e40141a",
+      "profile_id": "geophysicist_koc_kw",
+      "opus_score": 0.0,
+      "model_score": 1.0,
+      "reason": "Completely irrelevant content; this article discusses a software interface change (Windows) and has no connection to geophysical services, seismic processing, velocity modeling, subsurface imaging, or",
+      "elapsed": 15.79,
+      "tokens": 52
+    },
+    {
+      "article_id": "ddf69f71cfc1",
+      "profile_id": "hobbyist_crypto_f1",
+      "opus_score": 1.0,
+      "model_score": 7.5,
+      "reason": "Highly relevant to user's interests (crypto, F1, whisky, watches) but lacks actionable value for a Retired IT Consultant; the content is niche technical jargon without specific career guidance or mark",
+      "elapsed": 16.11,
+      "tokens": 57
+    },
+    {
+      "article_id": "5b5e0e3b788a",
+      "profile_id": "bonsai_competitor_kyoto",
+      "opus_score": 0.0,
+      "model_score": 1.0,
+      "reason": "Completely irrelevant content; the article discusses a TikTok video titled \"Titi Brown Na Nyambo Dance Compilation\" and features a specific person named Titi Brown, which has no connection to bonsai c",
+      "elapsed": 16.4,
+      "tokens": 70
+    },
+    {
+      "article_id": "fd5f0e60a7b1",
+      "profile_id": "cybersecurity_kw",
+      "opus_score": 3.0,
+      "model_score": 7.5,
+      "reason": "The article discusses a major strategic acquisition (D-Wave acquiring Quantum Circuits) that aligns with the user's interest in \"quantum security\" and \"zero trust,\" but lacks specific actionable detai",
+      "elapsed": 15.48,
+      "tokens": 83
+    },
+    {
+      "article_id": "29b05e3fae4d",
+      "profile_id": "nurse_practitioner_toronto",
+      "opus_score": 0.5,
+      "model_score": 6.5,
+      "reason": "The article discusses scientifically impossible phenomena (dark oxygen, singing dunes) but lacks specific actionable details regarding emergency medicine, nursing staffing, or trauma care policy. It i",
+      "elapsed": 14.7,
+      "tokens": 61
+    },
+    {
+      "article_id": "0990d2b238a3",
+      "profile_id": "filmmaker_mumbai",
+      "opus_score": 0.0,
+      "model_score": 3.5,
+      "reason": "The article is a generic corporate recruitment post with no specific connection to the user's tracked interests (documentary filmmaking, festivals, streaming platforms) or industry sectors (film, medi",
+      "elapsed": 14.63,
+      "tokens": 75
+    },
+    {
+      "article_id": "ddbd379ac378",
+      "profile_id": "hvac_tech_texas",
+      "opus_score": 1.0,
+      "model_score": 5.0,
+      "reason": "The article discusses AMD's general semiconductor business and data center growth, which are unrelated to the user's specific interests of HVAC systems, EPA refrigerant regulations, heat pump technolo",
+      "elapsed": 15.49,
+      "tokens": 73
+    },
+    {
+      "article_id": "ddbd379ac378",
+      "profile_id": "ux_designer_tokyo",
+      "opus_score": 2.5,
+      "model_score": 7.5,
+      "reason": "The article discusses a specific company's performance within the tracked industry (consumer electronics), which aligns with the user's interest in tech product launches and market trends. However, it",
+      "elapsed": 15.76,
+      "tokens": 76
+    },
+    {
+      "article_id": "0974c0d9e8bb",
+      "profile_id": "architect_qatar",
+      "opus_score": 1.0,
+      "model_score": 5.0,
+      "reason": "The article contains high-level keywords (smart cities, sustainable architecture, BIM) but lacks specific context regarding Qatar's post-World Cup infrastructure expansion or the tracked companies/ins",
+      "elapsed": 15.18,
+      "tokens": 79
+    },
+    {
+      "article_id": "1d99e49cdd52",
+      "profile_id": "ux_designer_tokyo",
+      "opus_score": 0.0,
+      "model_score": 7.5,
+      "reason": "The article identifies a specific niche market (Travel Nurse) and highlights key players in the Japanese context (AMN Healthcare, Aya Healthcare), which aligns well with the user's interest in \"Japane",
+      "elapsed": 15.29,
+      "tokens": 107
+    },
+    {
+      "article_id": "d61d04dc8103",
+      "profile_id": "hobbyist_crypto_f1",
+      "opus_score": 0.5,
+      "model_score": 5.0,
+      "reason": "The article contains a factual error regarding the publication date (\"February 26, 2026\"), which makes it impossible to verify its relevance or accuracy in the context of current events. Additionally,",
+      "elapsed": 15.11,
+      "tokens": 96
+    },
+    {
+      "article_id": "0990d2b238a3",
+      "profile_id": "hvac_tech_texas",
+      "opus_score": 0.5,
+      "model_score": 5.0,
+      "reason": "The article is highly relevant to the user's interests (EPA regulations, building codes) but lacks specific actionable keywords or a clear call to action for hiring. It describes a general compliance ",
+      "elapsed": 14.76,
+      "tokens": 70
+    },
+    {
+      "article_id": "17358e40141a",
+      "profile_id": "pharmacist_paris",
+      "opus_score": 0.0,
+      "model_score": 1.0,
+      "reason": "Completely irrelevant content (noise) / Wrong level of relevance (not a healthcare article). The user is looking for information on chemotherapy protocols, drug approvals, clinical trials, or oncology",
+      "elapsed": 15.59,
+      "tokens": 59
+    },
+    {
+      "article_id": "5d91b2c4375a",
+      "profile_id": "undeclared_student_chicago",
+      "opus_score": 7.5,
+      "model_score": 5.0,
+      "reason": "The article is highly relevant to the user's interests (climate change, startup culture) but lacks specific actionable data or a clear \"hiring match\" for an entry-level role. It reads like a snippet f",
+      "elapsed": 14.77,
+      "tokens": 74
+    },
+    {
+      "article_id": "c4b08e5e5c93",
+      "profile_id": "ux_designer_tokyo",
+      "opus_score": 0.0,
+      "model_score": 7.5,
+      "reason": "The article is highly relevant to the user's field (mobile UX) and interests (Japanese consumer tech), but it lacks actionable value. It describes a broad market trend (\"advanced resin\") rather than s",
+      "elapsed": 15.17,
+      "tokens": 73
+    },
+    {
+      "article_id": "a9d8d2941c33",
+      "profile_id": "cybersecurity_kw",
+      "opus_score": 0.0,
+      "model_score": 1.0,
+      "reason": "Completely irrelevant / noise / wrong level. The article is a generic travel guide for Switzerland (\"Bern Welcome\") with no connection to cybersecurity, threat intelligence, SIEM, zero trust, cloud se",
+      "elapsed": 15.51,
+      "tokens": 92
+    },
+    {
+      "article_id": "a75b1952bf9f",
+      "profile_id": "chef_mexico_city",
+      "opus_score": 0.5,
+      "model_score": 5.0,
+      "reason": "The article is highly relevant to the user's interests (culinary awards, sustainable sourcing) but completely irrelevant to their specific career field (restaurant management). It discusses geology an",
+      "elapsed": 15.47,
+      "tokens": 72
+    },
+    {
+      "article_id": "d22648d82260",
+      "profile_id": "kpop_marketer_seoul",
+      "opus_score": 3.0,
+      "model_score": 5.0,
+      "reason": "The article is highly relevant to the user's field (social media marketing, fan engagement) but lacks specific actionable data or a clear call to action regarding hiring or strategy implementation. It",
+      "elapsed": 31.0,
+      "tokens": 79
+    },
+    {
+      "article_id": "ddbd379ac378",
+      "profile_id": "welder_pipeline_alberta",
+      "opus_score": 0.5,
+      "model_score": 5.0,
+      "reason": "The article discusses AMD's general semiconductor business and data center growth, which aligns with the user's interest in \"semiconductors\" but is completely unrelated to their specific tracked inter",
+      "elapsed": 15.94,
+      "tokens": 69
+    },
+    {
+      "article_id": "0990d2b238a3",
+      "profile_id": "chef_mexico_city",
+      "opus_score": 0.5,
+      "model_score": 5.0,
+      "reason": "The article contains specific keywords (KOC, KNPC) that align with the user's tracked interests in culinary awards and sustainable sourcing, but it is a generic \"looking for talent\" statement without ",
+      "elapsed": 15.24,
+      "tokens": 76
+    },
+    {
+      "article_id": "eea19c14bae7",
+      "profile_id": "ux_designer_tokyo",
+      "opus_score": 0.5,
+      "model_score": 7.5,
+      "reason": "The article is highly relevant to the user's field (mobile UX, accessibility) but lacks specific actionable insights or concrete examples tailored for Japanese market context. While it touches on desi",
+      "elapsed": 15.06,
+      "tokens": 111
+    },
+    {
+      "article_id": "17358e40141a",
+      "profile_id": "cybersecurity_kw",
+      "opus_score": 0.0,
+      "model_score": 5.0,
+      "reason": "The article is highly relevant to the user's interests (threat intelligence, SIEM, zero trust) but lacks actionable value for a cybersecurity analyst. It describes a standard Windows system setting an",
+      "elapsed": 15.37,
+      "tokens": 79
+    },
+    {
+      "article_id": "a9d8d2941c33",
+      "profile_id": "meche_grad_sa",
+      "opus_score": 0.0,
+      "model_score": 1.0,
+      "reason": "Completely irrelevant / noise. The article is a generic welcome message for the city of Bern, Switzerland, with no connection to NEOM, Saudi Aramco, HVAC design, project management, or renewable energ",
+      "elapsed": 14.96,
+      "tokens": 76
+    },
+    {
+      "article_id": "a75b1952bf9f",
+      "profile_id": "data_scientist_dubai",
+      "opus_score": 0.5,
+      "model_score": 1.0,
+      "reason": "Completely irrelevant content; the article is about geology, not machine learning, fraud detection, NLP, MLOps, or Python. The user's context focuses on fintech ML roles in Dubai, making this a noise ",
+      "elapsed": 15.21,
+      "tokens": 60
+    },
+    {
+      "article_id": "18c7756a6756",
+      "profile_id": "biotech_researcher_sa",
+      "opus_score": 5.5,
+      "model_score": 5.0,
+      "reason": "The article is a generic editorial summary lacking specific technical details, actionable insights, or direct relevance to the user's tracked interests (CRISPR, gene therapy). It does not provide enou",
+      "elapsed": 14.94,
+      "tokens": 65
+    },
+    {
+      "article_id": "ddac40adbefb",
+      "profile_id": "architect_qatar",
+      "opus_score": 4.0,
+      "model_score": 7.5,
+      "reason": "The role description is highly relevant to the user's tracked interests (BIM, parametric design) but lacks specific technical depth required for a senior position in Qatar's smart city sector. While i",
+      "elapsed": 15.22,
+      "tokens": 116
+    },
+    {
+      "article_id": "0974c0d9e8bb",
+      "profile_id": "cto_fintech_lagos",
+      "opus_score": 3.0,
+      "model_score": 5.0,
+      "reason": "The article discusses Qualcomm's 2nm chip development but focuses on India as a hub for chip design rather than mobile payments infrastructure or African fintech markets, making it irrelevant to the u",
+      "elapsed": 14.74,
+      "tokens": 59
+    },
+    {
+      "article_id": "1e0965efd09c",
+      "profile_id": "agribiz_sao_paulo",
+      "opus_score": 0.0,
+      "model_score": 1.0,
+      "reason": "The article is a nonsensical, low-quality snippet from a TikTok video featuring a \"desmos\" (a math graphing tool) and unrelated keywords like \"OscarsAtHome.\" It contains no information relevant to soy",
+      "elapsed": 15.19,
+      "tokens": 74
+    },
+    {
+      "article_id": "fd5f0e60a7b1",
+      "profile_id": "hobbyist_crypto_f1",
+      "opus_score": 3.0,
+      "model_score": 7.5,
+      "reason": "The article discusses a specific company (D-Wave) and its acquisition in the context of the user's interests (quantum tech), but lacks actionable value for their career or personal goals. It is too ni",
+      "elapsed": 14.96,
+      "tokens": 81
+    },
+    {
+      "article_id": "f17f024560ac",
+      "profile_id": "hobbyist_crypto_f1",
+      "opus_score": 1.5,
+      "model_score": 6.5,
+      "reason": "The article discusses a specific technical implementation (Arm ISA) for AI on devices but lacks clear actionable value for a Retired IT Consultant in Lisbon. While it touches on relevant interests lik",
+      "elapsed": 15.01,
+      "tokens": 77
+    },
+    {
+      "article_id": "17358e40141a",
+      "profile_id": "biotech_researcher_sa",
+      "opus_score": 0.0,
+      "model_score": 1.0,
+      "reason": "Completely irrelevant content (typo \"nucpol\" instead of \"nucleic acid\", unrelated topic)",
+      "elapsed": 14.42,
+      "tokens": 35
+    },
+    {
+      "article_id": "665b05742af2",
+      "profile_id": "hobbyist_crypto_f1",
+      "opus_score": 3.0,
+      "model_score": 5.5,
+      "reason": "The article contains high-level regulatory buzzwords (PCI DSS, SOC 2) but lacks specific actionable insights or a direct link to the user's interests in crypto, F1, whisky, or vintage watches. It read",
+      "elapsed": 14.71,
+      "tokens": 75
+    },
+    {
+      "article_id": "5bb59f0afab2",
+      "profile_id": "agribiz_sao_paulo",
+      "opus_score": 4.5,
+      "model_score": 7.5,
+      "reason": "The article is highly relevant to the user's field as it involves a specific commodity (soybean futures) and a key Brazilian agricultural institution (Embrapa). However, it lacks actionable value for ",
+      "elapsed": 14.55,
+      "tokens": 93
+    },
+    {
+      "article_id": "6f6ab3fb11be",
+      "profile_id": "meche_grad_sa",
+      "opus_score": 0.5,
+      "model_score": 6.5,
+      "reason": "The article discusses a specific financial technology (FinTech) deal involving NEOM and Saudi Aramco, which aligns with the user's interest in \"Saudi Aramco\" and \"NEOM.\" However, it lacks direct actio",
+      "elapsed": 14.55,
+      "tokens": 86
+    },
+    {
+      "article_id": "5d029909e649",
+      "profile_id": "marine_electrician_norway",
+      "opus_score": 0.0,
+      "model_score": 1.0,
+      "reason": "The article contains no content related to offshore wind, marine electrical systems, high-voltage safety, vessel maintenance, or North Sea operations. It is a generic recruitment post for a fintech pr",
+      "elapsed": 14.88,
+      "tokens": 66
+    },
+    {
+      "article_id": "6f6ab3fb11be",
+      "profile_id": "chef_mexico_city",
+      "opus_score": 0.5,
+      "model_score": 7.5,
+      "reason": "The article discusses a specific financial product (Qore) within the context of fintech trends, which is highly relevant to the user's interest in food supply chain and sustainable sourcing. However, ",
+      "elapsed": 14.93,
+      "tokens": 90
+    },
+    {
+      "article_id": "29b05e3fae4d",
+      "profile_id": "architect_qatar",
+      "opus_score": 1.0,
+      "model_score": 7.5,
+      "reason": "The article presents a compelling narrative about \"impossible\" phenomena in the desert environment, which aligns well with the user's interest in sustainable architecture and parametric design. Howeve",
+      "elapsed": 14.98,
+      "tokens": 87
+    },
+    {
+      "article_id": "d61d04dc8103",
+      "profile_id": "lawyer_ai_disruption",
+      "opus_score": 0.5,
+      "model_score": 1.0,
+      "reason": "The article contains no content; it is a placeholder with zero value for legal analysis or scoring.",
+      "elapsed": 14.1,
+      "tokens": 32
+    },
+    {
+      "article_id": "253ce3ae750b",
+      "profile_id": "lawyer_ai_disruption",
+      "opus_score": 1.5,
+      "model_score": 7.0,
+      "reason": "Highly relevant to user's field/interests (AI in law, legal tech). The article directly addresses the core concern of a lawyer tracking how AI is replacing work by providing actionable advice on integ",
+      "elapsed": 14.81,
+      "tokens": 97
+    },
+    {
+      "article_id": "eea19c14bae7",
+      "profile_id": "data_scientist_dubai",
+      "opus_score": 2.0,
+      "model_score": 5.5,
+      "reason": "The article is highly relevant to the user's field (fraud detection, NLP) but lacks specific technical depth or actionable insights for a fintech role. It mentions \"machine learning\" and \"NLP\" as keyw",
+      "elapsed": 14.57,
+      "tokens": 82
+    },
+    {
+      "article_id": "922bd1907e2b",
+      "profile_id": "supply_chain_bahrain",
+      "opus_score": 3.5,
+      "model_score": 7.0,
+      "reason": "The article directly addresses the user's specific interests (supply chain analytics, port logistics) and targets a high-paying role in the GCC sector, making it highly relevant to their career develo",
+      "elapsed": 15.04,
+      "tokens": 51
+    },
+    {
+      "article_id": "6f6ab3fb11be",
+      "profile_id": "finance_student_kw",
+      "opus_score": 8.0,
+      "model_score": 7.5,
+      "reason": "The article discusses a specific fintech deal (Uptiq) that aligns with the user's interest in blockchain and equity research, but lacks direct actionable value for their role as a student or senior pr",
+      "elapsed": 15.47,
+      "tokens": 89
+    },
+    {
+      "article_id": "29b05e3fae4d",
+      "profile_id": "indie_gamedev_berlin",
+      "opus_score": 2.0,
+      "model_score": 7.5,
+      "reason": "The article provides a compelling hook for the user's niche (geotech/indie games) by introducing specific game titles (\"Dark Oxygen\", \"Singing Dunes\") and thematic concepts (\"impossible things\"), whic",
+      "elapsed": 15.57,
+      "tokens": 111
+    }
+  ]
+}
