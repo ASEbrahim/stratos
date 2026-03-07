@@ -467,107 +467,136 @@ function _initStarParallax() {
     }
 
     // ── Noir: Pulsar with twin sweeping beams ──
-    const _noirPulsarParticles = [];
+    // ── Noir: Pendulum clock ──
+    const _noirNumerals = [];
+    const _noirTrail = [];
+    const _noirRipples = [];
     if (_isNoir) {
-        for (let i = 0; i < 200; i++) {
-            const band = Math.random();
-            const dist = 30 + band * 200;
-            _noirPulsarParticles.push({
-                angle: Math.random() * Math.PI * 2,
-                dist,
-                speed: (0.03 + Math.random() * 0.05) * (100 / (dist + 20)),
-                r: Math.random() * 1.0 + 0.3,
-                a: Math.random() * 0.35 + 0.08,
-                yOff: (Math.random() - 0.5) * 3,
-                colorType: band < 0.35 ? 0 : band < 0.65 ? 1 : 2,
+        const nums = ['I','II','III','IV','V','VI','VII','VIII','IX','X','XI','XII'];
+        for (let i = 0; i < 12; i++) {
+            _noirNumerals.push({
+                text: nums[i % nums.length],
+                x: (Math.random() - 0.5) * 0.3,
+                y: (Math.random() - 0.5) * 0.2,
+                vx: (Math.random() - 0.5) * 0.08,
+                vy: (Math.random() - 0.5) * 0.05,
+                alpha: Math.random() * 0.1 + 0.02,
+                size: Math.random() * 12 + 7,
+                rotation: Math.random() * Math.PI * 2,
+                rotSpeed: (Math.random() - 0.5) * 0.004
             });
         }
     }
-    const _noirMagColors = [[167,139,250],[192,132,252],[139,92,246]];
-    function _noirDrawPulsar(cx, cy, t) {
-        const beamAngle = t * 0.4;
-        const beamLen = 350;
-        // Twin beams
-        for (let b = 0; b < 2; b++) {
-            const bAng = beamAngle + b * Math.PI;
-            const bx = Math.cos(bAng), by = Math.sin(bAng);
-            for (let layer = 0; layer < 4; layer++) {
-                const spread = [0.03,0.06,0.1,0.16][layer];
-                const alpha = [0.12,0.06,0.03,0.015][layer];
-                ctx.beginPath(); ctx.moveTo(cx, cy);
-                const perpX = -by, perpY = bx;
-                const endX = cx + bx * beamLen, endY = cy + by * beamLen;
-                const sd = beamLen * spread;
-                ctx.lineTo(endX + perpX * sd, endY + perpY * sd);
-                ctx.lineTo(endX - perpX * sd, endY - perpY * sd);
-                ctx.closePath();
-                const bg = ctx.createLinearGradient(cx, cy, endX, endY);
-                bg.addColorStop(0, `rgba(192,132,252,${alpha * 1.5})`);
-                bg.addColorStop(0.1, `rgba(167,139,250,${alpha})`);
-                bg.addColorStop(0.5, `rgba(139,92,246,${alpha * 0.5})`);
-                bg.addColorStop(1, 'transparent');
-                ctx.fillStyle = bg; ctx.fill();
-            }
+    function _noirDrawGear(gcx, gcy, innerR, outerR, teeth, rotation, alpha) {
+        ctx.save(); ctx.translate(gcx, gcy); ctx.rotate(rotation);
+        ctx.beginPath();
+        const step = Math.PI * 2 / teeth;
+        for (let i = 0; i < teeth; i++) {
+            const a = i * step;
+            ctx.lineTo(Math.cos(a) * innerR, Math.sin(a) * innerR);
+            ctx.lineTo(Math.cos(a + step * 0.1) * outerR, Math.sin(a + step * 0.1) * outerR);
+            ctx.lineTo(Math.cos(a + step * 0.4) * outerR, Math.sin(a + step * 0.4) * outerR);
+            ctx.lineTo(Math.cos(a + step * 0.5) * innerR, Math.sin(a + step * 0.5) * innerR);
         }
-        // Magnetic field rings
-        ctx.save(); ctx.translate(cx, cy); ctx.scale(1, 0.35);
-        for (let ring = 0; ring < 4; ring++) {
-            const rd = 40 + ring * 35;
-            ctx.beginPath(); ctx.arc(0, 0, rd, 0, Math.PI * 2);
-            ctx.strokeStyle = `rgba(167,139,250,${0.035 - ring * 0.006})`; ctx.lineWidth = 1.5; ctx.stroke();
-        }
+        ctx.closePath();
+        ctx.strokeStyle = `rgba(167,139,250,${alpha})`; ctx.lineWidth = 0.8; ctx.stroke();
+        ctx.beginPath(); ctx.arc(0, 0, innerR * 0.3, 0, Math.PI * 2);
+        ctx.strokeStyle = `rgba(196,181,253,${alpha * 0.6})`; ctx.lineWidth = 0.6; ctx.stroke();
         ctx.restore();
-        // Back magnetosphere particles
-        const proj = [];
-        for (const p of _noirPulsarParticles) {
-            const a = p.angle + t * p.speed;
-            const px2 = cx + Math.cos(a) * p.dist;
-            const py2 = cy + Math.sin(a) * p.dist * 0.35 + p.yOff;
-            proj.push({ x: px2, y: py2, d: Math.sin(a), r: p.r, a: p.a, ct: p.colorType });
+    }
+    function _noirDrawPendulum(cx, cy, t) {
+        const time = t;
+        const pendulumLen = 90;
+        const maxAngle = 0.4;
+        const angle = maxAngle * Math.sin(time * 1.2);
+        const angVel = maxAngle * 1.2 * Math.cos(time * 1.2);
+        const pivotX = cx, pivotY = cy - 45;
+        const bobX = pivotX + Math.sin(angle) * pendulumLen;
+        const bobY = pivotY + Math.cos(angle) * pendulumLen;
+
+        // Clock face tick marks
+        const clockR = 60;
+        for (let i = 0; i < 12; i++) {
+            const a = (i / 12) * Math.PI * 2 - Math.PI / 2;
+            const iR = clockR - 6, oR = clockR;
+            const ta = 0.08 + 0.05 * Math.sin(time * 2 + i * 0.5);
+            ctx.beginPath();
+            ctx.moveTo(pivotX + Math.cos(a) * iR, pivotY + Math.sin(a) * iR);
+            ctx.lineTo(pivotX + Math.cos(a) * oR, pivotY + Math.sin(a) * oR);
+            ctx.strokeStyle = `rgba(196,181,253,${ta})`; ctx.lineWidth = i % 3 === 0 ? 1.5 : 0.8; ctx.stroke();
+            ctx.beginPath(); ctx.arc(pivotX + Math.cos(a) * oR, pivotY + Math.sin(a) * oR, 1, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(167,139,250,${ta})`; ctx.fill();
         }
-        proj.sort((a2, b2) => a2.d - b2.d);
-        for (const p of proj) {
-            if (p.d > 0.1) continue;
-            const c = _noirMagColors[p.ct];
-            ctx.globalAlpha = p.a * (0.5 + p.d * 0.5);
-            ctx.fillStyle = `rgb(${c[0]},${c[1]},${c[2]})`;
-            ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctx.fill();
+
+        // Floating roman numerals
+        for (const n of _noirNumerals) {
+            n.x += n.vx * 0.001; n.y += n.vy * 0.001; n.rotation += n.rotSpeed;
+            if (Math.abs(n.x) > 0.25) n.vx *= -1;
+            if (Math.abs(n.y) > 0.2) n.vy *= -1;
+            ctx.save(); ctx.translate(cx + n.x * canvas.width, cy + n.y * canvas.height);
+            ctx.rotate(n.rotation);
+            ctx.font = `${n.size}px "Times New Roman", serif`;
+            ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+            ctx.fillStyle = `rgba(167,139,250,${n.alpha})`; ctx.fillText(n.text, 0, 0);
+            ctx.restore();
         }
-        // Pulsar core
-        const pulse = 1 + Math.sin(t * 2) * 0.15;
-        const pr = 14 * pulse;
-        const outerG = ctx.createRadialGradient(cx, cy, 0, cx, cy, pr * 10);
-        outerG.addColorStop(0, 'rgba(167,139,250,0.08)'); outerG.addColorStop(0.2, 'rgba(139,92,246,0.04)');
-        outerG.addColorStop(0.5, 'rgba(99,102,241,0.015)'); outerG.addColorStop(1, 'transparent');
-        ctx.globalAlpha = 1;
-        ctx.fillStyle = outerG; ctx.beginPath(); ctx.arc(cx, cy, pr * 10, 0, Math.PI * 2); ctx.fill();
-        // Pulsing rings
-        for (let i = 0; i < 3; i++) {
-            const ringT = (t * 0.8 + i * 0.7) % 3.0;
-            const ringR = pr + ringT * 40;
-            const ringA = Math.max(0, 0.15 * (1 - ringT / 3.0));
-            if (ringA < 0.005) continue;
-            ctx.beginPath(); ctx.arc(cx, cy, ringR, 0, Math.PI * 2);
-            ctx.strokeStyle = `rgba(192,132,252,${ringA})`; ctx.lineWidth = 2; ctx.stroke();
+
+        // Gears
+        const gs = time * 0.8;
+        _noirDrawGear(pivotX - 16, pivotY - 8, 11, 15, 8, gs, 0.15);
+        _noirDrawGear(pivotX + 14, pivotY - 6, 8, 11, 6, -gs * 1.33, 0.12);
+        _noirDrawGear(pivotX + 4, pivotY - 20, 6, 9, 7, gs * 1.14, 0.1);
+
+        // Ripples at swing extremes
+        if (Math.abs(angVel) < 0.08 && _noirRipples.length < 6) {
+            if (!_noirRipples.length || _noirRipples[_noirRipples.length - 1].radius > 12)
+                _noirRipples.push({ x: bobX, y: bobY, radius: 4, alpha: 0.2 });
         }
-        // Core
-        const innerG = ctx.createRadialGradient(cx, cy, 0, cx, cy, pr * 3);
-        innerG.addColorStop(0, `rgba(230,220,255,${0.3 * pulse})`); innerG.addColorStop(0.3, `rgba(192,132,252,${0.15 * pulse})`);
-        innerG.addColorStop(0.7, `rgba(139,92,246,${0.04 * pulse})`); innerG.addColorStop(1, 'transparent');
-        ctx.fillStyle = innerG; ctx.beginPath(); ctx.arc(cx, cy, pr * 3, 0, Math.PI * 2); ctx.fill();
-        const coreG = ctx.createRadialGradient(cx, cy, 0, cx, cy, pr);
-        coreG.addColorStop(0, 'rgba(240,235,255,0.6)'); coreG.addColorStop(0.4, 'rgba(192,132,252,0.4)');
-        coreG.addColorStop(0.8, 'rgba(139,92,246,0.2)'); coreG.addColorStop(1, 'rgba(99,102,241,0.05)');
-        ctx.fillStyle = coreG; ctx.beginPath(); ctx.arc(cx, cy, pr, 0, Math.PI * 2); ctx.fill();
-        // Front particles
-        for (const p of proj) {
-            if (p.d <= 0.1) continue;
-            const c = _noirMagColors[p.ct];
-            ctx.globalAlpha = p.a * (0.6 + p.d * 0.4);
-            ctx.fillStyle = `rgb(${c[0]},${c[1]},${c[2]})`;
-            ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctx.fill();
+        for (let i = _noirRipples.length - 1; i >= 0; i--) {
+            const r = _noirRipples[i]; r.radius += 0.6; r.alpha -= 0.002;
+            if (r.alpha <= 0) { _noirRipples.splice(i, 1); continue; }
+            ctx.beginPath(); ctx.arc(r.x, r.y, r.radius, 0, Math.PI * 2);
+            ctx.strokeStyle = `rgba(167,139,250,${r.alpha})`; ctx.lineWidth = 0.8; ctx.stroke();
         }
-        ctx.globalAlpha = 1;
+
+        // Afterimage trail
+        _noirTrail.push({ x: bobX, y: bobY });
+        if (_noirTrail.length > 16) _noirTrail.shift();
+        for (let i = 0; i < _noirTrail.length - 1; i++) {
+            const p = _noirTrail[i];
+            const a = (i / _noirTrail.length) * 0.2;
+            const sz = 4 + (i / _noirTrail.length) * 5;
+            const gl = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, sz);
+            gl.addColorStop(0, `rgba(139,92,246,${a})`); gl.addColorStop(1, 'rgba(139,92,246,0)');
+            ctx.beginPath(); ctx.arc(p.x, p.y, sz, 0, Math.PI * 2); ctx.fillStyle = gl; ctx.fill();
+        }
+
+        // Rod
+        ctx.beginPath(); ctx.moveTo(pivotX, pivotY); ctx.lineTo(bobX, bobY);
+        ctx.strokeStyle = 'rgba(196,181,253,0.25)'; ctx.lineWidth = 1.2; ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(pivotX, pivotY); ctx.lineTo(bobX, bobY);
+        ctx.strokeStyle = 'rgba(167,139,250,0.06)'; ctx.lineWidth = 4; ctx.stroke();
+
+        // Pivot dot
+        ctx.beginPath(); ctx.arc(pivotX, pivotY, 2.5, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(196,181,253,0.4)'; ctx.fill();
+
+        // Bob glow
+        const bp = 0.7 + 0.3 * Math.sin(time * 3);
+        const bg2 = ctx.createRadialGradient(bobX, bobY, 0, bobX, bobY, 28);
+        bg2.addColorStop(0, 'rgba(167,139,250,0.12)');
+        bg2.addColorStop(0.5, 'rgba(139,92,246,0.04)');
+        bg2.addColorStop(1, 'transparent');
+        ctx.beginPath(); ctx.arc(bobX, bobY, 28, 0, Math.PI * 2); ctx.fillStyle = bg2; ctx.fill();
+        const bg1 = ctx.createRadialGradient(bobX, bobY, 0, bobX, bobY, 11);
+        bg1.addColorStop(0, `rgba(232,224,255,${0.4 * bp})`);
+        bg1.addColorStop(0.4, `rgba(167,139,250,${0.25 * bp})`);
+        bg1.addColorStop(1, 'rgba(139,92,246,0)');
+        ctx.beginPath(); ctx.arc(bobX, bobY, 11, 0, Math.PI * 2); ctx.fillStyle = bg1; ctx.fill();
+        ctx.beginPath(); ctx.arc(bobX, bobY, 4, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(232,224,255,${0.5 * bp})`; ctx.fill();
+        ctx.beginPath(); ctx.arc(bobX, bobY, 2, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255,255,255,${0.4 * bp})`; ctx.fill();
     }
 
     // ── Rose: Geometric rose bloom ──
@@ -634,64 +663,127 @@ function _initStarParallax() {
     }
 
     // ── Coffee: Ember with rising sparks ──
-    const _coffeeEmbers = [];
+    // ── Coffee: Cup with rising steam ──
+    const _coffeeSteam = [];
+    const _coffeeBeans = [];
     if (_isCoffee) {
-        for (let i = 0; i < 50; i++) {
-            _coffeeEmbers.push({
-                angle: Math.random() * Math.PI * 2,
-                speed: 0.3 + Math.random() * 0.7,
-                drift: (Math.random() - 0.5) * 0.4,
-                size: 0.8 + Math.random() * 2,
-                phase: Math.random() * 5,
-                bright: Math.random()
+        const numStreams = 4;
+        for (let s = 0; s < numStreams; s++) {
+            for (let i = 0; i < 25; i++) {
+                _coffeeSteam.push({
+                    stream: s, streams: numStreams,
+                    life: Math.floor(Math.random() * 180),
+                    maxLife: Math.random() * 180 + 120,
+                    speed: Math.random() * 0.6 + 0.3,
+                    amplitude: Math.random() * 25 + 12,
+                    frequency: Math.random() * 0.012 + 0.006,
+                    phaseOff: Math.random() * Math.PI * 2,
+                    size: Math.random() * 3 + 1.5,
+                    baseX: 0, x: 0, y: 0,
+                    bright: Math.random()
+                });
+            }
+        }
+        for (let i = 0; i < 12; i++) {
+            _coffeeBeans.push({
+                x: Math.random(), y: Math.random(),
+                size: Math.random() * 4 + 2,
+                rotation: Math.random() * Math.PI * 2,
+                rotSpeed: (Math.random() - 0.5) * 0.003,
+                vx: (Math.random() - 0.5) * 0.0001,
+                vy: (Math.random() - 0.5) * 0.0001,
+                alpha: Math.random() * 0.12 + 0.03
             });
         }
     }
-    function _coffeeDrawEmber(cx, cy, t) {
-        const pulse = 1 + 0.08 * Math.sin(t * 1.2);
-        // Wide ambient warmth
-        const amb = ctx.createRadialGradient(cx, cy, 0, cx, cy, 200);
-        amb.addColorStop(0, 'rgba(212,148,60,0.08)'); amb.addColorStop(0.3, 'rgba(184,122,46,0.04)');
-        amb.addColorStop(0.6, 'rgba(232,170,84,0.015)'); amb.addColorStop(1, 'transparent');
-        ctx.fillStyle = amb; ctx.beginPath(); ctx.arc(cx, cy, 200, 0, Math.PI * 2); ctx.fill();
-        // Pulsing warm rings
-        for (let i = 0; i < 3; i++) {
-            const ringT = (t * 0.6 + i * 1.0) % 4.0;
-            const ringR = 20 + ringT * 35;
-            const ringA = Math.max(0, 0.08 * (1 - ringT / 4.0));
-            if (ringA < 0.003) continue;
-            ctx.beginPath(); ctx.arc(cx, cy, ringR, 0, Math.PI * 2);
-            ctx.strokeStyle = `rgba(232,170,84,${ringA})`; ctx.lineWidth = 2; ctx.stroke();
+    function _coffeeDrawCup(cx, cy, t) {
+        const cw = canvas.width, ch = canvas.height;
+        // Warm ambient glow behind steam
+        const warmG = ctx.createRadialGradient(cx, cy - 20, 0, cx, cy - 20, 120);
+        warmG.addColorStop(0, 'rgba(212,148,60,0.04)');
+        warmG.addColorStop(0.5, 'rgba(184,122,46,0.02)');
+        warmG.addColorStop(1, 'transparent');
+        ctx.fillStyle = warmG; ctx.beginPath(); ctx.arc(cx, cy - 20, 120, 0, Math.PI * 2); ctx.fill();
+
+        // Coffee beans drifting
+        for (const b of _coffeeBeans) {
+            b.x += b.vx; b.y += b.vy; b.rotation += b.rotSpeed;
+            if (b.x < -0.05 || b.x > 1.05) b.vx *= -1;
+            if (b.y < -0.05 || b.y > 1.05) b.vy *= -1;
+            ctx.save(); ctx.translate(b.x * cw, b.y * ch); ctx.rotate(b.rotation);
+            ctx.fillStyle = `rgba(184,122,46,${b.alpha})`;
+            ctx.beginPath(); ctx.ellipse(-b.size * 0.15, 0, b.size * 0.4, b.size * 0.7, 0, 0, Math.PI * 2); ctx.fill();
+            ctx.beginPath(); ctx.ellipse(b.size * 0.15, 0, b.size * 0.4, b.size * 0.7, 0, 0, Math.PI * 2); ctx.fill();
+            ctx.strokeStyle = `rgba(12,8,6,${b.alpha * 1.2})`; ctx.lineWidth = 0.5;
+            ctx.beginPath();
+            ctx.moveTo(0, -b.size * 0.5);
+            ctx.bezierCurveTo(-b.size * 0.1, -b.size * 0.15, b.size * 0.1, b.size * 0.15, 0, b.size * 0.5);
+            ctx.stroke(); ctx.restore();
         }
-        // Core ember
-        const coreR = 22 * pulse;
-        const g1 = ctx.createRadialGradient(cx, cy, 0, cx, cy, coreR * 4);
-        g1.addColorStop(0, 'rgba(255,240,212,0.15)'); g1.addColorStop(0.2, 'rgba(232,170,84,0.1)');
-        g1.addColorStop(0.5, 'rgba(212,148,60,0.04)'); g1.addColorStop(1, 'transparent');
-        ctx.fillStyle = g1; ctx.beginPath(); ctx.arc(cx, cy, coreR * 4, 0, Math.PI * 2); ctx.fill();
-        const g2 = ctx.createRadialGradient(cx, cy, 0, cx, cy, coreR);
-        g2.addColorStop(0, 'rgba(255,245,220,0.5)'); g2.addColorStop(0.3, 'rgba(232,170,84,0.35)');
-        g2.addColorStop(0.7, 'rgba(212,148,60,0.15)'); g2.addColorStop(1, 'rgba(184,122,46,0.02)');
-        ctx.fillStyle = g2; ctx.beginPath(); ctx.arc(cx, cy, coreR, 0, Math.PI * 2); ctx.fill();
-        // Rising sparks
-        for (const e of _coffeeEmbers) {
-            const age = (t * e.speed + e.phase) % 5;
-            const progress = age / 5;
-            const sx = cx + Math.sin(t * 0.3 + e.angle) * (8 + age * 12) + e.drift * age * 20;
-            const sy = cy - age * 30 - Math.sin(age * 2) * 5;
-            const sa = (1 - progress) * 0.6 * (0.5 + e.bright * 0.5);
-            if (sa < 0.02) continue;
-            const sr = e.size * (1 - progress * 0.5);
-            ctx.globalAlpha = sa;
-            const sparkColor = e.bright > 0.6 ? '255,240,212' : e.bright > 0.3 ? '232,170,84' : '184,122,46';
-            const sg = ctx.createRadialGradient(sx, sy, 0, sx, sy, sr * 4);
-            sg.addColorStop(0, `rgba(${sparkColor},${sa * 0.4})`);
-            sg.addColorStop(1, 'transparent');
-            ctx.fillStyle = sg; ctx.beginPath(); ctx.arc(sx, sy, sr * 4, 0, Math.PI * 2); ctx.fill();
-            ctx.fillStyle = `rgba(${sparkColor},${sa})`;
-            ctx.beginPath(); ctx.arc(sx, sy, sr, 0, Math.PI * 2); ctx.fill();
+
+        // Cup position — below center
+        const cupCx = cx, cupTop = cy + 30;
+        const cupBot = cupTop + 50;
+        const cupW = 32, cupWB = 26;
+
+        // Saucer
+        ctx.beginPath(); ctx.ellipse(cupCx, cupBot + 3, cupW * 1.3, 5, 0, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(18,14,10,0.7)'; ctx.fill();
+        ctx.strokeStyle = 'rgba(184,122,46,0.15)'; ctx.lineWidth = 0.8; ctx.stroke();
+
+        // Cup body
+        ctx.beginPath();
+        ctx.moveTo(cupCx - cupW, cupTop); ctx.lineTo(cupCx - cupWB, cupBot);
+        ctx.quadraticCurveTo(cupCx, cupBot + 7, cupCx + cupWB, cupBot);
+        ctx.lineTo(cupCx + cupW, cupTop); ctx.closePath();
+        ctx.fillStyle = 'rgba(18,14,10,0.8)'; ctx.fill();
+        ctx.strokeStyle = 'rgba(184,122,46,0.25)'; ctx.lineWidth = 1; ctx.stroke();
+
+        // Cup rim
+        ctx.beginPath(); ctx.ellipse(cupCx, cupTop, cupW, 4, 0, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(22,18,12,0.8)'; ctx.fill();
+        ctx.strokeStyle = 'rgba(212,148,60,0.3)'; ctx.lineWidth = 0.8; ctx.stroke();
+
+        // Handle
+        ctx.beginPath();
+        ctx.ellipse(cupCx + cupW + 10, cupTop + 18, 10, 16, 0, -Math.PI * 0.4, Math.PI * 0.5);
+        ctx.strokeStyle = 'rgba(184,122,46,0.2)'; ctx.lineWidth = 2; ctx.stroke();
+
+        // Steam particles — rise from cup
+        const steamOriginY = cupTop - 3;
+        const steamSpread = cupW * 0.6;
+        for (const p of _coffeeSteam) {
+            p.life++;
+            if (p.life > p.maxLife) {
+                p.life = 0;
+                p.baseX = cupCx + ((p.stream / p.streams) - 0.5) * steamSpread * 2 + (Math.random() - 0.5) * 8;
+                p.x = p.baseX; p.y = steamOriginY;
+            }
+            p.y -= p.speed;
+            const prog = p.life / p.maxLife;
+            p.x = p.baseX + Math.sin(p.life * p.frequency + p.phaseOff) * p.amplitude * (1 + prog);
+            p.baseX += (Math.random() - 0.5) * 0.2;
+
+            let alpha = 1;
+            if (prog < 0.1) alpha = prog / 0.1;
+            else if (prog > 0.5) alpha = 1 - (prog - 0.5) / 0.5;
+            alpha *= 0.35;
+            const sz = p.size * (1 + prog * 1.8);
+            const col = p.bright > 0.7 ? '255,240,212' : p.bright > 0.4 ? '232,170,84' : '212,148,60';
+            const sg = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, sz);
+            sg.addColorStop(0, `rgba(${col},${alpha * 0.7})`);
+            sg.addColorStop(0.5, `rgba(${col},${alpha * 0.25})`);
+            sg.addColorStop(1, `rgba(${col},0)`);
+            ctx.beginPath(); ctx.arc(p.x, p.y, sz, 0, Math.PI * 2);
+            ctx.fillStyle = sg; ctx.fill();
         }
-        ctx.globalAlpha = 1;
+
+        // Tiny warm glow at cup center
+        const pulse = 0.7 + 0.3 * Math.sin(t * 1.5);
+        const tg = ctx.createRadialGradient(cupCx, cupTop, 0, cupCx, cupTop, 35);
+        tg.addColorStop(0, `rgba(255,240,212,${0.03 * pulse})`);
+        tg.addColorStop(1, 'transparent');
+        ctx.fillStyle = tg; ctx.beginPath(); ctx.arc(cupCx, cupTop, 35, 0, Math.PI * 2); ctx.fill();
     }
 
     // ── Midnight: Crescent moon with emerald glow ──
@@ -1128,7 +1220,7 @@ function _initStarParallax() {
 
         // Pulsar (noir auth theme)
         if (_isNoir) {
-            _noirDrawPulsar(canvas.width * 0.5, canvas.height * 0.30, t);
+            _noirDrawPendulum(canvas.width * 0.5, canvas.height * 0.30, t);
         }
 
         // Rose bloom (rose auth theme)
@@ -1138,7 +1230,7 @@ function _initStarParallax() {
 
         // Ember (coffee auth theme)
         if (_isCoffee) {
-            _coffeeDrawEmber(canvas.width * 0.5, canvas.height * 0.30, t);
+            _coffeeDrawCup(canvas.width * 0.5, canvas.height * 0.30, t);
         }
 
         // Crescent moon (midnight auth theme)
