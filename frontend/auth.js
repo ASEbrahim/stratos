@@ -991,6 +991,8 @@ function _initStarParallax() {
         _sakuraTree.tips = _stData.tips;
         _sakuraTree.lastW = 800;
         _sakuraTree.lastH = 600;
+        _sakuraTree.offsetX = 0;
+        _sakuraTree.offsetY = 0;
     }
     function _sakuraDrawTree(cw, ch, t) {
         if (Math.abs(cw - _sakuraTree.lastW) > 50 || Math.abs(ch - _sakuraTree.lastH) > 50) {
@@ -1107,13 +1109,13 @@ function _initStarParallax() {
         let initX = Math.random() * _cw;
         let initY = Math.random() * _ch;
         if (petal) {
-            if (_sakuraTree.tips.length > 0 && Math.random() < 0.7) {
+            if (_sakuraTree.tips.length > 0 && Math.random() < 0.8) {
                 const tip = _sakuraTree.tips[Math.floor(Math.random() * _sakuraTree.tips.length)];
                 const sx = _cw / 800, sy = _ch / 600;
-                initX = tip.x * sx + (Math.random() - 0.3) * 40;
-                initY = tip.y * sy + Math.random() * _ch * 0.4;
+                const offY = _sakuraTree.offsetY || 0;
+                initX = tip.x * sx + (Math.random() - 0.5) * 20;
+                initY = tip.y * sy + offY + Math.random() * _ch * 0.3;
             }
-            // else keep random position — petals scattered everywhere
         }
         stars.push({
             x: initX,
@@ -1291,15 +1293,20 @@ function _initStarParallax() {
         }
         if (_isSakura) {
             if (isMobile) {
-                const _skPivY = _ch * 0.85;
+                const _skOffY = _ch * 0.35;
+                _sakuraTree.offsetY = _skOffY;
+                _sakuraTree.offsetX = 0;
+                const _skPivY = _ch * 0.90;
                 ctx.save(); ctx.translate(_elCx, _skPivY); ctx.scale(_elScale, _elScale); ctx.translate(-_elCx, -_skPivY);
+                ctx.translate(0, _skOffY);
                 _sakuraDrawTree(_cw, _ch, t);
                 ctx.restore();
             } else {
-                // Anchor tree to fixed distance from top so it stays above logo on any monitor
-                const treeNaturalCenter = _ch * 0.47;
-                const targetY = Math.min(160, _ch * 0.18);
-                ctx.save(); ctx.translate(0, targetY - treeNaturalCenter);
+                // Shift tree slightly above the logo center
+                const _skOffY = -_ch * 0.12;
+                _sakuraTree.offsetY = _skOffY;
+                _sakuraTree.offsetX = 0;
+                ctx.save(); ctx.translate(0, _skOffY);
                 _sakuraDrawTree(_cw, _ch, t);
                 ctx.restore();
             }
@@ -1329,19 +1336,20 @@ function _initStarParallax() {
                 const spiralX = Math.cos(t * s.petalSpiralSpd + s.phase) * s.petalSpiralR * spiralFade;
                 const spiralY = Math.sin(t * s.petalSpiralSpd + s.phase) * s.petalSpiralR * spiralFade * 0.6;
                 // Drift motion (grows in as spiral fades)
-                const windGust = Math.sin(t * 0.3 + s.phase) * 0.15 + Math.sin(t * 0.8 + s.phase * 2) * 0.08;
-                const driftX = (-0.3 - windGust) * spiralPhase + Math.sin(t * s.petalSway + s.phase) * 0.15;
-                const driftY = s.petalFall * spiralPhase;
+                const windGust = Math.sin(t * 0.3 + s.phase) * 0.2 + Math.sin(t * 0.8 + s.phase * 2) * 0.12;
+                const driftX = (-0.55 - windGust) * spiralPhase + Math.sin(t * s.petalSway + s.phase) * 0.1;
+                const driftY = s.petalFall * 1.2 * spiralPhase;
                 s.baseX += driftX + (spiralX - (s._prevSpiralX || 0));
                 s.baseY += driftY + (spiralY - (s._prevSpiralY || 0));
                 s._prevSpiralX = spiralX;
                 s._prevSpiralY = spiralY;
                 if (s.baseY > _ch + 15 || s.baseX < -20) {
-                    if (_sakuraTree.tips.length > 0 && Math.random() < 0.75) {
-                        // From tree branch tips
+                    if (_sakuraTree.tips.length > 0 && Math.random() < 0.80) {
+                        // From tree branch tips (apply visual offset)
                         const tip = _sakuraTree.tips[Math.floor(Math.random() * _sakuraTree.tips.length)];
-                        s.baseX = tip.x + (Math.random() - 0.3) * 15;
-                        s.baseY = tip.y + (Math.random() - 0.5) * 8;
+                        const offY = _sakuraTree.offsetY || 0;
+                        s.baseX = tip.x + (Math.random() - 0.5) * 10;
+                        s.baseY = tip.y + offY + (Math.random() - 0.5) * 6;
                     } else {
                         // From random sky positions — petals drifting in from above
                         s.baseY = -10 - Math.random() * 30;
