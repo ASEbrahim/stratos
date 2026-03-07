@@ -1290,11 +1290,14 @@ function _initStarParallax() {
         }
         if (_isSakura) {
             if (isMobile) {
-                ctx.save(); ctx.translate(_elCx, _ch * 0.55); ctx.scale(_elScale, _elScale); ctx.translate(-_elCx, -_ch * 0.55);
+                const _skPivY = _ch * 0.75;
+                ctx.save(); ctx.translate(_elCx, _skPivY); ctx.scale(_elScale, _elScale); ctx.translate(-_elCx, -_skPivY);
                 _sakuraDrawTree(_cw, _ch, t);
                 ctx.restore();
             } else {
+                ctx.save(); ctx.translate(0, -_ch * 0.18);
                 _sakuraDrawTree(_cw, _ch, t);
+                ctx.restore();
             }
         }
 
