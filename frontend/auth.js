@@ -979,7 +979,7 @@ function _initStarParallax() {
                 for (let i = 0; i < count; i++) {
                     const ba = _tRand() * Math.PI * 2, bd = _tRand() * c.r * 1.2;
                     c.dots.push({ ox: Math.cos(ba)*bd, oy: Math.sin(ba)*bd,
-                        r: _tRandR(1.0, 3.5), bright: _tRand(), ph: _tRand()*Math.PI*2 });
+                        r: _tRandR(0.6, 2.2), bright: _tRand(), ph: _tRand()*Math.PI*2 });
                 }
             }
             return { branches: br, blossoms: bl, tips };
@@ -1293,7 +1293,7 @@ function _initStarParallax() {
         }
         if (_isSakura) {
             if (isMobile) {
-                const _skOffY = _ch * 0.35;
+                const _skOffY = _ch * 0.33;
                 _sakuraTree.offsetY = _skOffY;
                 _sakuraTree.offsetX = 0;
                 const _skPivY = _ch * 0.90;
@@ -1344,7 +1344,7 @@ function _initStarParallax() {
                 s._prevSpiralX = spiralX;
                 s._prevSpiralY = spiralY;
                 if (s.baseY > _ch + 15 || s.baseX < -20) {
-                    if (_sakuraTree.tips.length > 0 && Math.random() < 0.80) {
+                    if (_sakuraTree.tips.length > 0 && Math.random() < 0.55) {
                         // From tree branch tips (apply visual offset)
                         const tip = _sakuraTree.tips[Math.floor(Math.random() * _sakuraTree.tips.length)];
                         const offY = _sakuraTree.offsetY || 0;
