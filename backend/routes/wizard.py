@@ -133,11 +133,8 @@ Pick the 2-4 categories and sub-categories most relevant for a "{role}" in "{loc
         logger.info(f"Wizard preselect raw response: {raw[:300] if raw else 'None'}")
 
         if not raw:
-            # Fallback: return default selections
-            json_response(handler, {
-                "selected_categories": ["career", "learning", "deals"],
-                "selected_subs": {"career": ["jobhunt", "intern"], "learning": ["certs"], "deals": ["bankdeals", "studisc"]}
-            })
+            # Fallback: empty selections — let frontend handle defaults
+            json_response(handler, {"selected_categories": [], "selected_subs": {}})
             return
 
         # Parse JSON from response (strip reasoning wrapping if present)
@@ -146,7 +143,7 @@ Pick the 2-4 categories and sub-categories most relevant for a "{role}" in "{loc
             cats = result.get("selected_categories", [])
             subs = result.get("selected_subs", {})
             if not isinstance(cats, list):
-                cats = ["career", "learning", "deals"]
+                cats = []
             if not isinstance(subs, dict):
                 subs = {}
             json_response(handler, {"selected_categories": cats, "selected_subs": subs})
@@ -156,10 +153,7 @@ Pick the 2-4 categories and sub-categories most relevant for a "{role}" in "{loc
 
         # Fallback on parse failure
         logger.warning(f"Wizard preselect: Could not parse LLM response: {raw[:200]}")
-        json_response(handler, {
-            "selected_categories": ["career", "learning", "deals"],
-            "selected_subs": {"career": ["jobhunt", "intern"], "learning": ["certs"], "deals": ["bankdeals", "studisc"]}
-        })
+        json_response(handler, {"selected_categories": [], "selected_subs": {}})
 
     except Exception as e:
         logger.error(f"Wizard preselect error: {e}")

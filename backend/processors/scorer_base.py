@@ -116,70 +116,24 @@ GENERIC_PAGE_PATTERNS = [
 ]
 
 # ═══════════════════════════════════════════════════════════════════
-# GEOGRAPHIC VALIDATION — kill non-Kuwait items in Kuwait tab
+# UNIVERSALLY GARBAGE DOMAINS — profile-agnostic
 # ═══════════════════════════════════════════════════════════════════
 
-# Domains that are NEVER relevant to Kuwait career/finance intel
 GARBAGE_DOMAINS = [
-    'rightmove.co.uk', '6figr.com', 'ku.ac.ke', 'centralbank.go.ke',
-    'trabajo.org', 'ph.trabajo.org', 'kfh.co.uk',  # KFH UK real estate
-    'etihad.com/en-au', 'etihad.com/en-be',  # Non-Kuwait Etihad pages
-    'fundsforngos.org', 'digitaldefynd.com',
-    'naukri.com', 'shine.com', 'timesjobs.com',  # Indian job sites
-    'reed.co.uk', 'totaljobs.com', 'cv-library.co.uk',  # UK job sites
-    'jooble.org', 'careerjet.com', 'adzuna.com',  # Generic aggregators
-    'salary.com', 'payscale.com', 'glassdoor.com/Salaries',  # Salary comparison
-    'wattpad.com', 'steamdb.info', 'boards.4chan.org',  # Fiction/gaming/chan
-    'tiktok.com', 'zoopla.co.uk',  # Social/UK property
-    'muscogeenation.com', 'kdhnews.com',  # US local news
-    'events.umich.edu', 'newsroom.lmu.edu',  # US university sites
-    'ffnews.com', 'bebee.com',  # Irrelevant news/job aggregators
-    'investorshub.advfn.com',  # Stock message boards
-    # Indian classifieds / communities (not real job sources)
-    'indiansinkuwait.com', 'expatriates.com', 'dubizzle.com',
-    'q8india.com', 'kuwaitlocal.com', 'expat.com',
-    # Reddit (not a news source)
+    # Fiction / gaming / forums (never news)
+    'wattpad.com', 'steamdb.info', 'boards.4chan.org', 'tiktok.com',
+    # Reddit (social, not a news source)
     'reddit.com', 'old.reddit.com',
-    # Flight tracking (false positive on bank abbreviations like PR-NBK)
+    # Flight tracking (false positives on company abbreviations)
     'flightaware.com', 'flightradar24.com', 'flightview.com',
-    # Airline loyalty / points programs (list bank names as partners)
-    'etihadguest.com', 'qmiles.com', 'miles-and-more.com',
-    # Stock/share monitoring (not bank deals)
-    'sharepricemonitor.com', 'tradingview.com', 'stockanalysis.com',
-    # Wealth management / investment platforms (not Kuwait bank deals)
-    'wealthsimple.com', 'etoro.com', 'robinhood.com',
-    # Technical data pages (BGP routing tables mention company names as ISPs)
+    # Technical routing data (BGP tables mention companies as ISPs)
     'bgp.potaroo.net', 'bgp.he.net', 'peeringdb.com',
-]
-
-# Geographic signals that indicate non-Kuwait content
-NON_KUWAIT_LOCATIONS = [
-    # India
-    'in india', 'mumbai', 'delhi', 'bangalore', 'bengaluru', 'chennai',
-    'hyderabad', 'pune', 'kolkata', 'lakhs', 'lakh', '₹', 'inr ',
-    'naukri', 'pradhan',
-    # Philippines
-    'mandaluyong', 'manila', 'cebu', 'philippines', 'makati',
-    # UK (except Kuwait-related UK news)
-    'london bridge', 'london w1', 'london e1', 'london n1', 'london se',
-    'lettings agent', 'estate agent', 'flat for rent',
-    'leasehold', 'freehold', 'council tax',
-    # Kenya
-    'kenyatta', 'nairobi', 'kenya shilling',
-    # Egypt (unless GCC context)
-    'egyptian pound', 'cairo university',
-    # Pakistan
-    'karachi', 'lahore', 'islamabad', 'rawalpindi', 'pkr ',
-    # Generic non-Gulf
-    'work permit canada', 'green card', 'h1b visa',
-]
-
-# Instagram-specific: these signals must be present for Instagram items to score high
-INSTAGRAM_STRONG_SIGNALS = [
-    'hiring', 'vacancy', 'apply now', 'job opening', 'career',
-    'fresh graduate', 'graduate program', 'internship',
-    'kd ', 'cash gift', 'cashback', 'student offer', 'allowance transfer',
-    'promotion', 'offer', 'deal', 'discount',
+    # Stock message boards / price pages (not news)
+    'investorshub.advfn.com', 'sharepricemonitor.com',
+    # Generic job aggregators with no original content
+    'jooble.org', 'careerjet.com', 'bebee.com',
+    # Salary comparison (not news)
+    'salary.com', 'payscale.com', 'glassdoor.com/Salaries',
 ]
 
 

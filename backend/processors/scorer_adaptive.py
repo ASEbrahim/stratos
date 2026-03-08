@@ -615,21 +615,24 @@ def score_tech_adaptive(title: str, text: str,
     has_breakthrough = any(s in text_lower for s in BREAKTHROUGH_SIGNALS)
     has_news_action = any(s in text_lower for s in NEWS_ACTION_SIGNALS)
 
-    # Critical: keyword + breakthrough
+    has_location = keyword_index.match_location(text_lower)
+
+    # Critical: keyword + breakthrough (always notable regardless of location)
+    if cat_matches >= 3 and has_breakthrough:
+        return 9.0, f"Breakthrough in tracked area: {', '.join(cat_matched[:3])}", True
+
     if cat_matches >= 2 and has_breakthrough:
-        return 9.5, f"Breakthrough in tracked area: {', '.join(cat_matched[:3])}", True
+        return 7.5, f"Possible breakthrough: {', '.join(cat_matched[:3])}", False
 
-    # High: keyword + notable news
+    # High: keyword + notable news — defer to LLM for relevance judgment
     if cat_matches >= 2 and has_news_action:
-        return 8.0, f"Notable development: {', '.join(cat_matched[:3])}", True
+        return 7.0, f"Notable development: {', '.join(cat_matched[:3])}", False
 
-    # High: strong title match with any context
+    # Title match
     title_matches = sum(1 for kw in keyword_index.category_keywords.get(category_id, set())
                        if kw in title_lower)
     if title_matches >= 2:
-        if has_breakthrough or has_news_action:
-            return 8.5, f"Strong title: {', '.join(cat_matched[:3])}", True
-        return 7.0, f"Relevant topic: {', '.join(cat_matched[:3])}", True
+        return 7.0, f"Relevant topic: {', '.join(cat_matched[:3])}", False
 
     # Medium: decent keyword match
     if cat_matches >= 3:
@@ -730,24 +733,19 @@ class AdaptiveScorer(ScorerBase):
                     f"lang={self._lang_label}, ddg_region={self._ddg_region})")
 
     def _tracked_fields_block(self) -> str:
-        """Build the tracked-fields block for system prompts.
-        Must match export_training.py's build_system_prompt exactly."""
-        def _join(val):
-            """Handle both list and string fields."""
-            if isinstance(val, list):
-                return ', '.join(val)
-            return val or ''
-
-        companies = _join(self._profile.get('tracked_companies', []))
-        institutions = _join(self._profile.get('tracked_institutions', []))
-        interests = _join(self._profile.get('interests', []))
-        industries = _join(self._profile.get('tracked_industries', []))
-        return (
-            f"Tracked companies: {companies if companies else 'None specified'}\n"
-            f"Tracked institutions: {institutions if institutions else 'None specified'}\n"
-            f"Tracked interests: {interests if interests else 'None specified'}\n"
-            f"Tracked industries: {industries if industries else 'None specified'}"
-        )
+        """Build tracked-fields block from the user's actual categories."""
+        cats = self._full_config.get('dynamic_categories', [])
+        if not cats:
+            return "Tracked topics: None configured"
+        lines = []
+        for cat in cats:
+            if cat.get('enabled') is False:
+                continue
+            label = cat.get('label', '')
+            items = cat.get('items', [])[:8]
+            if label and items:
+                lines.append(f"- {label}: {', '.join(items)}")
+        return "Tracked topics:\n" + "\n".join(lines) if lines else "Tracked topics: None configured"
 
     # ─── Routing ──────────────────────────────────────────────────
 
@@ -816,47 +814,6 @@ class AdaptiveScorer(ScorerBase):
 
     # ─── LLM scoring ────────────────────────────────────────────
 
-    def _build_llm_prompt(self, item: Dict[str, Any], route: str) -> str:
-        """Build an LLM scoring prompt from the user's profile."""
-        role = self._profile.get('role', 'professional')
-        location = self._profile.get('location', 'unspecified')
-        context = self._profile.get('context', '')
-        category = item.get('category', 'general')
-        cat_meta = self._keyword_index.category_meta.get(category, {})
-        cat_label = cat_meta.get('label', category)
-        cat_items = ', '.join(cat_meta.get('items', [])[:8])
-
-        title = item.get('title', '')
-        content = (item.get('content', '') or item.get('summary', ''))[:500]
-
-        level_note = ""
-        if self._is_student:
-            level_note = "\nIMPORTANT: User is a student. Senior/Lead/Director roles requiring years of experience score 0-3. Entry-level, internship, and graduate positions score highest."
-        else:
-            level_note = "\nIMPORTANT: User is an experienced professional. Entry-level/intern positions score low. Senior and specialist roles score highest."
-
-        tracked = self._tracked_fields_block()
-
-        return f"""Score this article's relevance for a {role} in {location}.
-
-User context: {context if context else 'Not specified'}
-{tracked}
-Category: {cat_label}
-Tracked keywords: {cat_items}{level_note}
-{self.memory.format_feedback_for_prompt(max_each=3)}
-Article title: {title}
-Article content: {content}
-
-LANGUAGE: Articles must be in {self._lang_label}. If the article is primarily in another language, score 0.0-2.0 regardless of topic relevance.
-
-Score 0.0-10.0 where:
-9-10: Directly actionable (e.g., hiring match at right level, breakthrough in tracked area)
-7-8.9: Highly relevant to user's field/interests
-5-6.9: Somewhat relevant
-0-4.9: Not relevant / noise / wrong experience level
-
-Reply ONLY with: SCORE: X.X | REASON: brief explanation"""
-
     def _build_llm_prompt_v2(self, item: Dict[str, Any], route: str) -> Tuple[str, str]:
         """Build system + user prompt pair — matches training data format.
         
@@ -886,20 +843,24 @@ Reply ONLY with: SCORE: X.X | REASON: brief explanation"""
         feedback_text = self.memory.format_feedback_for_prompt(max_each=3)
         tracked = self._tracked_fields_block()
 
-        # Core template below MUST match export_training.build_system_prompt character-for-character.
         # feedback_text is a runtime-only addition not present in training data.
+        location_guide = ""
+        if location and location != 'unspecified':
+            location_guide = f"\nLOCATION: User is in {location}. Local/regional content scores higher than distant global content. Job postings, deals, and events NOT in or near {location} score lower unless they are remote/online."
+
         system = f"""You are a relevance scorer for a {role} in {location}.
 User context: {context if context else 'Not specified'}
 {tracked}
 {level_note}
-{feedback_text}
+{feedback_text}{location_guide}
 LANGUAGE: Articles must be in {self._lang_label}. Other languages score 0.0-2.0.
 
 Score each article 0.0-10.0:
-9-10: Directly actionable (hiring match, breakthrough in tracked area)
-7-8.9: Highly relevant to user's field/interests
-5-6.9: Somewhat relevant
-0-4.9: Not relevant / noise / wrong level
+9-10: Directly actionable — hiring in user's location, breakthrough in tracked area, deal at tracked institution
+7-8.9: Highly relevant to user's field and location
+5-6.9: Somewhat relevant — right field but wrong location, or right location but tangential topic
+3-4.9: Low relevance — generic content, wrong country, wrong experience level
+0-2.9: Noise — spam, broken pages, completely unrelated
 
 Reply ONLY with: SCORE: X.X | REASON: brief explanation"""
 
@@ -945,20 +906,24 @@ Content: {content}"""
 
         tracked = self._tracked_fields_block()
 
+        location_guide = ""
+        if location and location != 'unspecified':
+            location_guide = f"\nLOCATION RULE: User is in {location}. Job postings, deals, and events NOT in/near {location} should score 3-5 max unless remote/online."
+
         system = f"""You are an expert relevance scorer. Carefully evaluate this article for:
 User: {role} in {location}
 Context: {context if context else 'Not specified'}
 {tracked}
-{level_note}
+{level_note}{location_guide}
 
-EVALUATION RUBRIC — work through each dimension:
-1. PROFILE MATCH: Does this article's topic relate to the user's profession or stated interests?
-2. LOCATION MATCH: Is this geographically relevant? (local > regional > global)
-3. ACTIONABILITY: Can the user DO something with this? (apply for job, invest, learn skill, save money)
-4. LEVEL MATCH: Does the experience/seniority level fit the user?
-5. NOISE CHECK: Is this real content or a generic page, clickbait, login wall, or aggregator?
+EVALUATION RUBRIC:
+1. PROFILE MATCH: Does this relate to the user's profession?
+2. LOCATION MATCH: Is this in or near the user's location? (local > regional > global)
+3. ACTIONABILITY: Can the user act on this? (apply, invest, learn, save)
+4. LEVEL MATCH: Right experience/seniority level?
+5. NOISE CHECK: Real content or generic page/clickbait/aggregator?
 
-Score 0.0-10.0. Be decisive — if you're unsure, lean toward the user's benefit.
+Score 0.0-10.0. Be decisive.
 Reply ONLY with: SCORE: X.X | REASON: brief explanation"""
 
         user = f"""Carefully evaluate this article:
@@ -1092,16 +1057,22 @@ Previous automated score was {first_score:.1f} (uncertain). Please re-evaluate c
         feedback_text = self.memory.format_feedback_for_prompt(max_each=3)
         tracked = self._tracked_fields_block()
 
+        location_guide = ""
+        if location and location != 'unspecified':
+            location_guide = f"\nLOCATION: User is in {location}. Local content scores higher. Job postings/deals NOT in {location} score lower unless remote."
+
         system = f"""You are a relevance scorer for a {role} in {location}.
 User context: {context if context else 'Not specified'}
 {tracked}
 {level_note}
-{feedback_text}
+{feedback_text}{location_guide}
+
 Score each article 0.0-10.0:
-9-10: Directly actionable (hiring match, breakthrough in tracked area)
-7-8.9: Highly relevant to user's field/interests
-5-6.9: Somewhat relevant
-0-4.9: Not relevant / noise / wrong level
+9-10: Directly actionable — hiring in user's location, breakthrough in tracked area
+7-8.9: Highly relevant to user's field and location
+5-6.9: Somewhat relevant — right field but wrong location, or tangential topic
+3-4.9: Low — generic, wrong country, wrong level
+0-2.9: Noise — spam, unrelated, broken page
 
 Reply with EXACTLY one line per article, numbered:
 [1] SCORE: X.X | REASON: brief explanation
