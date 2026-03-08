@@ -220,10 +220,10 @@ Respond with ONLY valid JSON — no markdown, no backticks:
                     {"role": "user", "content": prompt},
                 ],
                 "stream": False,
-                # num_predict covers thinking tokens + JSON output.
-                "options": {"temperature": 0.3, "num_predict": 4000, "num_ctx": 8192}
+                "think": False,  # JSON-only output — no reasoning needed
+                "options": {"temperature": 0.3, "num_predict": 1000, "num_ctx": 4096}
             },
-            timeout=120
+            timeout=60
         )
 
         if response.status_code == 200:

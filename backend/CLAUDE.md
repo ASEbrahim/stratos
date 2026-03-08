@@ -19,10 +19,9 @@ bash stratos.sh
 python3 main.py --scan
 ```
 
-**Prerequisites**: Ollama must be running (`ollama serve`). The system uses three Ollama models:
+**Prerequisites**: Ollama must be running (`ollama serve`). The system uses two Ollama models:
 - `scoring.model` from config.yaml (e.g. `stratos-scorer-v2`) — fine-tuned scoring model
-- `scoring.inference_model` (e.g. `qwen3:30b-a3b`) — reserved for strat agent chat and market analysis only
-- `scoring.wizard_model` (e.g. `qwen3:14b`) — lighter model for wizard, briefings, and profile generation. Falls back to inference_model if not set.
+- `scoring.inference_model` / `scoring.wizard_model` (both `qwen3.5:9b`) — used for agent chat, market analysis, wizard, briefings, and profile generation
 
 ## Training Pipeline
 
@@ -111,7 +110,7 @@ Per-user profiles stored as YAML in `profiles/`. Each has: role, location, conte
 
 ## Key Design Decisions
 
-- **Qwen3 think blocks**: Do NOT set `"think": False` in Ollama API calls — Qwen3 ignores it and leaks reasoning as plain text into the `content` field, consuming the entire `num_predict` token budget before producing any useful output. Instead, omit the `think` parameter entirely. In default mode, Ollama separates reasoning into a `thinking` field while `content` holds the clean answer. Always strip `<think>...</think>` blocks from content as a safety net. Set `num_predict` large enough to cover both thinking tokens (~1000-2000) and output tokens.
+- **Think mode strategy**: For JSON-only endpoints (wizard, generate-profile, enrichment), set `"think": False` to skip reasoning — all `num_predict` tokens go to output, making responses 3-5x faster. For endpoints needing reasoning (agent chat, market analysis, briefings), leave thinking enabled (omit the `think` parameter). Always strip `<think>...</think>` blocks from content as a safety net regardless.
 - **Training/inference alignment**: `export_training.py` must produce system/user/assistant messages that exactly match what `scorer_adaptive.py` sends at inference time. Misalignment causes the trained model to fail at parsing.
 - **PEFT meta device fix**: After `get_peft_model()`, delete `hf_device_map` and force `.to("cuda:0")` to prevent gradient crashes during training.
 - **Incremental vs full retrain**: Default is incremental (builds on `data/models/current_base/`). Full retrain triggers when agreement rate drops below 35% or profile diversity is too low (prevents catastrophic forgetting).
@@ -121,7 +120,7 @@ Per-user profiles stored as YAML in `profiles/`. Each has: role, location, conte
 - **Profile-scoped retention**: Retained articles are tagged with a SHA-256 hash of `role|context|location` (stored in `retained_by_profile`). Switching roles within the same profile produces a new hash, so retained articles don't bleed across contexts. Trivial edits (capitalization, spacing) are normalized before hashing to prevent accidental orphaning.
 - **Deferred briefing**: Briefing generation runs in a background thread after scan completion. The output JSON is written immediately with scored articles (briefing = `{}`), then patched when the briefing finishes. SSE `briefing_ready` event notifies the frontend. The briefing thread checks `_scan_cancelled` to abandon work if a new scan starts.
 - **Incremental scanning**: `_reuse_snapshot_scores()` builds a URL→score lookup from the previous output snapshot. Articles already scored in the last scan skip LLM scoring entirely. Articles not re-fetched by the news fetcher are carried forward from the snapshot. Score reuse is skipped entirely if the context hash changed (different role/profile = rescore everything). Zero database changes — purely in-memory.
-- **Model routing for VRAM efficiency**: Briefings use `wizard_model` (14b, ~9GB) instead of `inference_model` (30b, ~18GB). Scorer (8.7GB) + 14b may coexist in 24GB VRAM without model swapping. The 30B is reserved for strat agent chat and market analysis where full reasoning is needed.
+- **Model routing for VRAM efficiency**: All inference uses `qwen3.5:9b` (~6.6GB). Scorer (9.5GB) + qwen3.5:9b coexist in 24GB VRAM without model swapping. Set `OLLAMA_MAX_LOADED_MODELS=2` to keep both loaded.
 
 ## Secrets and API Keys
 
@@ -139,10 +138,10 @@ GOOGLE_CSE_ID=...               # Google Custom Search Engine ID
 
 ## Ollama Environment Variables
 
-The inference model (`qwen3:30b-a3b`, ~18-19GB) and scorer model (`stratos-scorer-v2`, 8.7GB) cannot coexist in 24GB VRAM. However, scorer (8.7GB) + wizard_model/14b (~9GB) = ~18GB, which may fit. If they coexist, briefings become near-instant (no model swap). Try `OLLAMA_MAX_LOADED_MODELS=2` after routing briefings to 14b. Ollama handles model swapping automatically. These env vars should be set for the Ollama systemd service or shell:
+Scorer (~9.5GB) + qwen3.5:9b (~6.6GB) = ~16.1GB — both fit in 24GB VRAM simultaneously. Set `OLLAMA_MAX_LOADED_MODELS=2` to keep both loaded (no model swapping). These env vars should be set for the Ollama systemd service or shell:
 
 ```bash
-OLLAMA_MAX_LOADED_MODELS=1    # Only one model in VRAM at a time
+OLLAMA_MAX_LOADED_MODELS=2    # Scorer + qwen3.5:9b both in VRAM
 OLLAMA_KEEP_ALIVE=10m         # Auto-unload after 10 min idle
 OLLAMA_NUM_PARALLEL=1         # Single-user, minimize VRAM duplication
 OLLAMA_FLASH_ATTENTION=0      # ROCm 6.2 — flash attention unreliable

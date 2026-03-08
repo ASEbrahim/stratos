@@ -203,15 +203,14 @@ Generate the optimal STRAT_OS configuration for this person. Remember:
                     "model": wiz_model,
                     "messages": messages,
                     "stream": False,
-                    # Default mode separates thinking into a dedicated field;
-                    # content holds the clean JSON output.
+                    "think": False,  # JSON-only output — no reasoning needed
                     "options": {
                         "temperature": 0.3 if attempt == 0 else 0.2,
-                        "num_predict": 4000 if attempt == 0 else 6000,
-                        "num_ctx": 8192 if attempt == 0 else 12288,
+                        "num_predict": 2000 if attempt == 0 else 3000,
+                        "num_ctx": 6144 if attempt == 0 else 8192,
                     }
                 },
-                timeout=120 if attempt == 0 else 180
+                timeout=60 if attempt == 0 else 90
             )
 
             if response.status_code != 200:
@@ -221,20 +220,9 @@ Generate the optimal STRAT_OS configuration for this person. Remember:
 
             resp_data = response.json()
             raw = resp_data.get("message", {}).get("content", "")
-            thinking = resp_data.get("message", {}).get("thinking", "") or ""
-            raw = strip_think_blocks(raw)
+            raw = strip_think_blocks(raw)  # safety net
 
-            # If the model spent all tokens on thinking with no content,
-            # bump the budget on retry.
-            if not raw.strip() and len(thinking) > 500:
-                logger.warning(f"Generate: empty content with {len(thinking)} chars of thinking (attempt {attempt})")
-                if attempt == 0:
-                    continue  # retry loop will run with attempt=1
-
-            # Don't apply strip_reasoning_preamble — this endpoint expects JSON,
-            # and reasoning stripping can destroy JSON in single-paragraph responses.
-            # extract_json handles reasoning-wrapped JSON safely.
-            logger.info(f"Generate: raw response ({len(raw)} chars, think={len(thinking)} chars): {raw[:200]}...")
+            logger.info(f"Generate: raw response ({len(raw)} chars): {raw[:200]}...")
 
             # Extract and parse JSON (handles reasoning text wrapping JSON)
             json_str = extract_json(raw)
