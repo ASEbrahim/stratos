@@ -629,7 +629,7 @@ function renderFeed() {
                     <i data-lucide="thumbs-down" class="w-3 h-3"></i>
                 </button>
                 <span class="text-slate-700">|</span>
-                <button onclick="toggleSaveSignal(${idx})" class="text-[10px] ${isSignalSaved(item) ? 'text-emerald-400' : 'text-slate-500 hover:text-emerald-400'} flex items-center gap-1 transition-colors">
+                <button onclick="this.classList.add('save-btn-pulse');toggleSaveSignal(${idx})" class="text-[10px] ${isSignalSaved(item) ? 'text-emerald-400' : 'text-slate-500 hover:text-emerald-400'} flex items-center gap-1 transition-colors">
                     <i data-lucide="${isSignalSaved(item) ? 'bookmark-check' : 'bookmark'}" class="w-3 h-3"></i> ${isSignalSaved(item) ? 'Saved' : 'Save'}
                 </button>
                 ${contentDiffers ? `
