@@ -2236,6 +2236,7 @@ function renderCustomCatalog() {
                 <button onclick="_showRssSuggestions('finance')" id="rss-sug-finance" class="text-[10px] px-2 py-1 rounded transition-colors bg-slate-800 text-slate-400 hover:text-purple-400">Finance</button>
                 <button onclick="_showRssSuggestions('politics')" id="rss-sug-politics" class="text-[10px] px-2 py-1 rounded transition-colors bg-slate-800 text-slate-400 hover:text-purple-400">Politics</button>
                 <button onclick="_showRssSuggestions('general')" id="rss-sug-general" class="text-[10px] px-2 py-1 rounded transition-colors bg-slate-800 text-slate-400 hover:text-purple-400">General</button>
+                <button onclick="_showRssSuggestions('jobs')" id="rss-sug-jobs" class="text-[10px] px-2 py-1 rounded transition-colors bg-slate-800 text-slate-400 hover:text-purple-400">Jobs</button>
             </div>
         </div>
         <div id="rss-suggestions-list" class="flex flex-wrap gap-2"></div>
@@ -2263,11 +2264,22 @@ var _GENERAL_RSS_SUGGESTIONS = [
     { url: 'https://www.sciencedaily.com/rss/all.xml', name: 'ScienceDaily' },
 ];
 
+var _JOBS_RSS_SUGGESTIONS = [
+    { url: 'https://news.google.com/rss/search?q=Kuwait+jobs+hiring&hl=en&gl=KW&ceid=KW:en', name: 'Kuwait Jobs (Google)' },
+    { url: 'https://news.google.com/rss/search?q=GCC+jobs+hiring+careers&hl=en&gl=AE&ceid=AE:en', name: 'GCC Jobs (Google)' },
+    { url: 'https://www.linkedin.com/jobs/search/feed?keywords=&location=Kuwait&sortBy=DD', name: 'LinkedIn Kuwait' },
+    { url: 'https://news.google.com/rss/search?q=indeed+jobs+Kuwait&hl=en', name: 'Indeed Kuwait (Google)' },
+    { url: 'https://www.gulftalent.com/resources/rss.xml', name: 'GulfTalent' },
+    { url: 'https://news.google.com/rss/search?q=remote+jobs+hiring+2026&hl=en', name: 'Remote Jobs (Google)' },
+    { url: 'https://weworkremotely.com/categories/remote-programming-jobs.rss', name: 'WeWorkRemotely Dev' },
+    { url: 'https://remoteok.com/remote-jobs.rss', name: 'RemoteOK' },
+];
+
 function _showRssSuggestions(type) {
     const list = document.getElementById('rss-suggestions-list');
     if (!list) return;
     // Highlight active tab
-    ['finance', 'politics', 'general'].forEach(t => {
+    ['finance', 'politics', 'general', 'jobs'].forEach(t => {
         const btn = document.getElementById('rss-sug-' + t);
         if (btn) {
             if (t === type) { btn.className = 'text-[10px] px-2 py-1 rounded transition-colors bg-purple-900/40 text-purple-400'; }
@@ -2277,6 +2289,10 @@ function _showRssSuggestions(type) {
 
     if (type === 'general') {
         _renderRssSuggestionItems(list, _GENERAL_RSS_SUGGESTIONS);
+        return;
+    }
+    if (type === 'jobs') {
+        _renderRssSuggestionItems(list, _JOBS_RSS_SUGGESTIONS);
         return;
     }
 
