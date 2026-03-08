@@ -44,16 +44,16 @@ class BriefingGenerator:
         """Build the system prompt dynamically from config settings."""
         # Extract profile
         profile = config.get("profile", {})
-        role = profile.get("role", "Computer Engineering (CPEG) Student")
-        location = profile.get("location", "Kuwait")
-        nationality = profile.get("nationality", "Kuwaiti")
-        graduation = profile.get("graduation", "May 2027")
-        experience = profile.get("experience_level", "Zero")
+        role = profile.get("role", "professional")
+        location = profile.get("location", "")
+        nationality = profile.get("nationality", "")
+        graduation = profile.get("graduation", "")
+        experience = profile.get("experience_level", "")
 
         # Extract goals
         goals = profile.get("goals", {})
-        primary_goal = goals.get("primary", "Secure a technical position at a top-tier employer")
-        financial_goal = goals.get("financial", "Maximize student benefits")
+        primary_goal = goals.get("primary", "Stay informed on relevant developments")
+        financial_goal = goals.get("financial", "")
 
         # Extract target companies from dynamic categories (preferred), profile tiers, or career keywords (fallback)
         dynamic_cats = config.get("dynamic_categories", [])

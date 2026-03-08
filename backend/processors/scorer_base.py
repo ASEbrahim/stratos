@@ -400,10 +400,10 @@ def _shared_noise_check(title: str, text: str, source: str = '', url: str = '', 
     if title_lower.endswith("'s post") or "'s post" in title_lower:
         return 3.5, "Social media personal post"
 
-    # Non-engineering / manual labor job postings (not relevant to CPEG student)
-    non_eng_roles = r'(?:clerk|driver|technician|operator|helper|laborer|welder|plumber|carpenter|electrician|dispatch|warehouse|delivery|packing|cleaning|security guard|cook|cashier|receptionist|secretary|nurse|accountant)'
-    if re.search(non_eng_roles, title_lower) and re.search(r'(?:hiring|job|vacancy|position|apply|opening)', title_lower):
-        return 2.5, "Non-engineering job posting"
+    # Manual labor / trade job postings (generic noise regardless of profile)
+    manual_labor = r'(?:clerk|driver|helper|laborer|welder|plumber|carpenter|dispatch|warehouse|delivery|packing|cleaning|security guard|cook|cashier)'
+    if re.search(manual_labor, title_lower) and re.search(r'(?:hiring|job|vacancy|position|apply|opening)', title_lower):
+        return 2.5, "Manual labor job posting"
 
     # Yahoo Finance / stock quote pages — data pages, not news
     if 'finance.yahoo.com/quote/' in url_lower:
@@ -413,11 +413,12 @@ def _shared_noise_check(title: str, text: str, source: str = '', url: str = '', 
     if re.match(r'^\d{4}-\d{2}-\d{2}$', title.strip()):
         return 2.0, "Date-only title, no content"
 
-    # "URGENT HIRING" style posts — usually non-CPEG trades
+    # "URGENT HIRING" style posts — usually trades/labor spam
     if re.search(r'urgent(?:ly)?\s+hiring', title_lower):
-        cpeg_roles = ['computer', 'software', 'it ', 'data', 'network', 'cloud', 'devops', 'engineer']
-        if not any(r in text.lower() for r in cpeg_roles):
-            return 3.0, "Urgent hiring for non-CPEG roles"
+        professional_signals = ['engineer', 'developer', 'analyst', 'manager', 'specialist',
+                                'consultant', 'architect', 'scientist', 'designer', 'director']
+        if not any(r in text.lower() for r in professional_signals):
+            return 3.0, "Urgent hiring for non-professional roles"
 
     # Facebook posts — rarely actionable intel
     if 'facebook.com/posts/' in url_lower or 'facebook.com/' in url_lower:
@@ -431,14 +432,8 @@ def _shared_noise_check(title: str, text: str, source: str = '', url: str = '', 
             if re.search(pattern, text, re.IGNORECASE):
                 return 2.5, "Instagram social spam"
         has_strong_signal = any(s in text.lower() for s in INSTAGRAM_STRONG_SIGNALS)
-        text_l = text.lower()
-        has_relevance = any(s in text_l for s in [
-            'kuwait', 'computer engineer', 'software', 'cpeg', 'fresh graduate',
-            'student offer', 'allowance transfer', 'cash gift', 'student deal',
-            'kd ', 'nbk', 'boubyan', 'kfh', 'warba', 'kib',
-        ])
-        if not (has_strong_signal and has_relevance):
-            return 3.5, "Instagram post without Kuwait/CPEG relevance"
+        if not has_strong_signal:
+            return 3.5, "Instagram post without actionable content"
         return 6.0, "Instagram (capped): relevant but unverified social source"
 
     # Facebook group posts

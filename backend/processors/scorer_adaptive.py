@@ -2,10 +2,10 @@
 STRAT_OS - Adaptive Profile Scorer
 ====================================
 A profile-adaptive scorer that builds relevance rules dynamically from the
-user's categories, keywords, role, and context — rather than using hardcoded
-Kuwait/CPEG-specific patterns.
+user's categories, keywords, role, and context — fully dynamic,
+no hardcoded role or location assumptions.
 
-Activated when the user's profile doesn't match the default CPEG-in-Kuwait
+Builds relevance rules dynamically from any user profile
 setup. The original scorer.py is preserved for that highly-tuned use case.
 
 Scoring bands are identical to the original:
@@ -145,7 +145,12 @@ class KeywordIndex:
         self._build()
 
     def _build(self):
-        """Build keyword sets from categories and profile."""
+        """Build keyword sets from categories and profile.
+
+        Multi-word items (e.g. "quantum computing") are kept as phrases
+        and NOT split into individual generic words. Only single-word items
+        and label words are added individually.
+        """
         STOP_WORDS = {
             'and', 'or', 'the', 'a', 'an', 'in', 'of', 'for', 'to', 'is',
             'at', 'by', 'on', 'with', 'as', 'it', 'be', 'this', 'that',
@@ -160,6 +165,21 @@ class KeywordIndex:
             'job', 'career', 'work', 'hiring', 'positions',
         }
 
+        # Words that are too generic to use as standalone keywords.
+        # These only match when part of their original multi-word phrase.
+        GENERIC_SINGLES = {
+            'computing', 'data', 'science', 'machine', 'cloud', 'edge',
+            'security', 'learning', 'network', 'smart', 'systems', 'digital',
+            'engineering', 'technology', 'innovation', 'infrastructure',
+            'analysis', 'design', 'architecture', 'platform', 'applications',
+            'virtual', 'automation', 'intelligence', 'certified', 'center',
+            'global', 'institute', 'academy', 'learn', 'growing', 'trust',
+            'reality', 'augmented', 'autonomous', 'deployment', 'optimization',
+            'driven', 'powered', 'based', 'management', 'solutions',
+            'technologies', 'architectures', 'initiatives', 'city',
+            'slicing', 'green', 'scientific', 'grow',
+        }
+
         for cat in self.categories:
             if cat.get('enabled') is False:
                 continue
@@ -169,17 +189,29 @@ class KeywordIndex:
 
             keywords = set()
 
-            # Category items are the PRIMARY keywords (highest signal)
+            # Category items are the PRIMARY keywords
             for item in items:
+                # Always add the full phrase (e.g. "quantum computing")
                 keywords.add(item)
-                # Also add individual words from multi-word items
-                for word in item.split():
-                    if word not in STOP_WORDS and len(word) > 2:
-                        keywords.add(word)
+                # Only split single-word items or add non-generic words
+                words = item.split()
+                if len(words) == 1:
+                    # Single-word item — add as-is (already added above)
+                    pass
+                else:
+                    # Multi-word: only add individual words that are specific enough
+                    for word in words:
+                        clean = word.strip('()[]{}')
+                        if (clean not in STOP_WORDS and
+                            clean not in GENERIC_SINGLES and
+                            len(clean) > 3):
+                            keywords.add(clean)
 
-            # Label words as secondary keywords
+            # Label words as secondary keywords (skip generic ones)
             for word in label.split():
-                if word not in STOP_WORDS and len(word) > 2:
+                if (word not in STOP_WORDS and
+                    word not in GENERIC_SINGLES and
+                    len(word) > 2):
                     keywords.add(word)
 
             self.category_keywords[cat_id] = keywords
@@ -191,12 +223,19 @@ class KeywordIndex:
                 'items': items,
             }
 
-        # Add role and context words as universal keywords
-        for text in [self.role, self.context]:
-            for word in text.split():
-                word_clean = word.strip('.,;:!?()[]{}"\'-')
-                if word_clean not in STOP_WORDS and len(word_clean) > 2:
-                    self.all_keywords.add(word_clean)
+        # Add role words as universal keywords (skip context — too noisy)
+        CONTEXT_STOP = {
+            'focused', 'hunting', 'mid-career', 'tracks', 'tracking',
+            'looking', 'seeking', 'interested', 'opportunities', 'roles',
+            'professional', 'experienced', 'currently', 'based',
+        }
+        for word in self.role.split():
+            word_clean = word.strip('.,;:!?()[]{}"\'-')
+            if (word_clean not in STOP_WORDS and
+                word_clean not in GENERIC_SINGLES and
+                word_clean not in CONTEXT_STOP and
+                len(word_clean) > 2):
+                self.all_keywords.add(word_clean)
 
         # Extract location parts for geographic matching
         self.location_parts = set()
@@ -256,8 +295,8 @@ def _universal_noise_check(title: str, text: str, source: str = '',
     Domain-agnostic noise detection. Only fires on content that is UNIVERSALLY
     garbage regardless of the user's field — spam, broken pages, data tables, etc.
 
-    DOES NOT include: non-engineering role filter, Kuwait geographic checks,
-    CPEG-specific patterns, or any domain-specific content gates.
+    DOES NOT include: role-specific filters, geographic checks,
+    or any domain-specific content gates.
     """
     title_lower = title.lower()
     source_lower = source.lower() if source else ''
@@ -415,7 +454,7 @@ def score_career_adaptive(title: str, text: str, url: str,
                           is_student: bool) -> Tuple[float, str, bool]:
     """
     Profile-adaptive career scoring.
-    Uses the user's category keywords instead of hardcoded CPEG patterns.
+    Uses the user's category keywords for relevance matching.
     """
     text_lower = text.lower()
     title_lower = title.lower()
