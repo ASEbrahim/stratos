@@ -422,7 +422,7 @@ function _initStarParallax() {
     function _ssTiltedOrbit(cx, cy, dist, alpha) {
         ctx.save(); ctx.translate(cx, cy); ctx.rotate(_SS_ROT); ctx.scale(1, _SS_TILT);
         ctx.beginPath(); ctx.arc(0, 0, dist, 0, Math.PI * 2);
-        ctx.strokeStyle = `rgba(120,150,210,${alpha})`; ctx.lineWidth = 0.5; ctx.stroke(); ctx.restore();
+        ctx.strokeStyle = `rgba(120,150,210,${alpha})`; ctx.lineWidth = 0.8; ctx.stroke(); ctx.restore();
     }
     function _ssDrawSun(cx, cy, t) {
         const pulse = 1 + Math.sin(t * 0.5) * 0.05, r = 30 * pulse;
@@ -1188,8 +1188,8 @@ function _initStarParallax() {
             const scx = _cw * 0.5, scy = isMobile ? _ch * 0.62 : _ch * 0.28;
             if (isMobile) { ctx.save(); ctx.translate(scx, scy); ctx.scale(_elScale, _elScale); ctx.translate(-scx, -scy); }
             // Tilted orbit lines
-            for (const p of _ssPlanets) _ssTiltedOrbit(scx, scy, p.dist, 0.07);
-            _ssTiltedOrbit(scx, scy, 232, 0.03); _ssTiltedOrbit(scx, scy, 270, 0.03);
+            for (const p of _ssPlanets) _ssTiltedOrbit(scx, scy, p.dist, 0.15);
+            _ssTiltedOrbit(scx, scy, 232, 0.07); _ssTiltedOrbit(scx, scy, 270, 0.07);
             // Collect renderables for depth sort
             const _rr = [];
             for (const a of _ssAsteroids) {
