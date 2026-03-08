@@ -1343,12 +1343,32 @@ function submitAI(idx) {
         if (data.error) {
             answerEl.innerHTML = `<span class="text-red-400">Error: ${esc(data.error)}</span>`;
         } else {
-            answerEl.innerHTML = `<div class="text-slate-300 whitespace-pre-wrap">${esc(data.answer)}</div>`;
+            answerEl.innerHTML = `<div class="text-slate-300 whitespace-pre-wrap">${esc(data.answer)}</div>
+                <button onclick="continueInAgent(${idx}, this)" class="mt-2 text-[10px] px-2 py-1 bg-purple-900/30 text-purple-400 rounded hover:bg-purple-800/40 transition-colors flex items-center gap-1">
+                    <i data-lucide="message-circle" class="w-3 h-3"></i> Continue in Agent
+                </button>`;
+            if (typeof lucide !== 'undefined') lucide.createIcons({nodes: [answerEl]});
         }
     })
     .catch(err => {
         answerEl.innerHTML = `<span class="text-red-400">Failed: ${esc(err.message)}</span>`;
     });
+}
+
+function continueInAgent(idx) {
+    const items = window.currentItems || [];
+    const item = items[idx];
+    if (!item) return;
+    // Build context message for the agent
+    const ctx = `Regarding "${item.title}" (score: ${item.score}):\n${item.summary || ''}`;
+    // Open agent panel and pre-fill
+    if (typeof _openAgentPanel === 'function') _openAgentPanel();
+    const input = document.getElementById('agent-input');
+    if (input) {
+        input.value = ctx;
+        input.focus();
+        input.setSelectionRange(input.value.length, input.value.length);
+    }
 }
 
 // init() is called from index.html after all scripts are loaded
