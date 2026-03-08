@@ -535,11 +535,12 @@ function renderFeed() {
                         try { isNew = (Date.now() - new Date(item.timestamp).getTime()) < 3600000; } catch(e) {}
                     }
                     
+                    const thumb = item.thumbnail || '';
                     html += `
-                    <a href="${esc(item.url)}" target="_blank" rel="noopener" 
+                    <a href="${esc(item.url)}" target="_blank" rel="noopener"
                        class="group flex items-start gap-3 px-3 py-2.5 rounded-lg transition-all hover:bg-slate-800/50"
-                       style="border-left:2px solid transparent" 
-                       onmouseenter="this.style.borderLeftColor='${accentHex}'" 
+                       style="border-left:2px solid transparent"
+                       onmouseenter="this.style.borderLeftColor='${accentHex}'"
                        onmouseleave="this.style.borderLeftColor='transparent'">
                         <div class="w-1.5 h-1.5 rounded-full mt-1.5 flex-shrink-0 transition-all group-hover:scale-150" style="background:${accentHex}40"></div>
                         <div class="flex-1 min-w-0">
@@ -549,6 +550,7 @@ function renderFeed() {
                             </div>
                             ${item.summary ? `<p class="text-[11px] text-slate-500 mt-0.5 line-clamp-1 group-hover:text-slate-400 transition-colors">${esc(item.summary)}</p>` : ''}
                         </div>
+                        ${thumb ? `<img src="${esc(thumb)}" alt="" class="w-14 h-10 rounded object-cover flex-shrink-0 mt-0.5 opacity-70 group-hover:opacity-100 transition-opacity" onerror="this.style.display='none'" loading="lazy">` : ''}
                         ${age ? `<span class="text-[10px] text-slate-600 flex-shrink-0 mt-0.5 tabular-nums">${age}</span>` : ''}
                     </a>`;
                 });

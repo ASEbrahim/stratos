@@ -573,18 +573,51 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                     enabled_feeds = [f for f in custom_feeds if f.get("on", True)]
                     if enabled_feeds:
                         import feedparser
+                        import re as _re
                         for feed_cfg in enabled_feeds:
                             try:
                                 feed = feedparser.parse(feed_cfg["url"])
                                 for entry in feed.entries[:15]:
                                     pub = entry.get("published", entry.get("updated", ""))
-                                    items.append({
+                                    # Extract thumbnail/image
+                                    thumb = ""
+                                    # 1. media:thumbnail or media:content
+                                    media_thumb = entry.get("media_thumbnail", [])
+                                    if media_thumb and isinstance(media_thumb, list):
+                                        thumb = media_thumb[0].get("url", "")
+                                    if not thumb:
+                                        media_content = entry.get("media_content", [])
+                                        if media_content and isinstance(media_content, list):
+                                            for mc in media_content:
+                                                if mc.get("medium") == "image" or "image" in mc.get("type", ""):
+                                                    thumb = mc.get("url", "")
+                                                    break
+                                    # 2. enclosure with image type
+                                    if not thumb:
+                                        enclosures = entry.get("enclosures", [])
+                                        if enclosures:
+                                            for enc in enclosures:
+                                                if "image" in enc.get("type", ""):
+                                                    thumb = enc.get("href", enc.get("url", ""))
+                                                    break
+                                    # 3. First <img> in summary/content
+                                    if not thumb:
+                                        content_html = entry.get("summary", "") or ""
+                                        if entry.get("content"):
+                                            content_html = entry["content"][0].get("value", content_html)
+                                        img_match = _re.search(r'<img[^>]+src=["\']([^"\']+)["\']', content_html)
+                                        if img_match:
+                                            thumb = img_match.group(1)
+                                    item = {
                                         "title": entry.get("title", "No title"),
                                         "url": entry.get("link", ""),
-                                        "summary": entry.get("summary", "")[:300],
+                                        "summary": _re.sub(r'<[^>]+>', '', entry.get("summary", ""))[:300],
                                         "source": feed_cfg.get("name", "Custom"),
                                         "timestamp": pub,
-                                    })
+                                    }
+                                    if thumb:
+                                        item["thumbnail"] = thumb
+                                    items.append(item)
                             except Exception as e:
                                 logger.warning(f"Custom feed error ({feed_cfg.get('name','')}): {e}")
                         # Sort by timestamp descending
@@ -1141,6 +1174,72 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                 except Exception:
                     pass
                 _send_json(self, {"ok": True})
+                return
+
+            # RSS feed auto-discovery from a regular URL
+            if self.path == "/api/discover-rss":
+                content_length = int(self.headers.get('Content-Length', 0))
+                post_data = self.rfile.read(content_length) if content_length else b'{}'
+                try:
+                    body = json.loads(post_data.decode('utf-8')) if post_data.strip() else {}
+                except (json.JSONDecodeError, UnicodeDecodeError):
+                    body = {}
+                url = body.get("url", "").strip()
+                if not url:
+                    _send_json(self, {"error": "URL required"}, 400)
+                    return
+                try:
+                    import re
+                    resp = requests.get(url, timeout=8, headers={
+                        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+                    }, allow_redirects=True)
+                    feeds = []
+                    # Look for <link rel="alternate" type="application/rss+xml"> or atom+xml
+                    link_pattern = re.compile(
+                        r'<link[^>]+rel=["\']alternate["\'][^>]*>',
+                        re.IGNORECASE
+                    )
+                    for match in link_pattern.finditer(resp.text[:50000]):
+                        tag = match.group(0)
+                        type_match = re.search(r'type=["\']([^"\']+)["\']', tag)
+                        href_match = re.search(r'href=["\']([^"\']+)["\']', tag)
+                        title_match = re.search(r'title=["\']([^"\']+)["\']', tag)
+                        if type_match and href_match:
+                            ftype = type_match.group(1).lower()
+                            if 'rss' in ftype or 'atom' in ftype or 'xml' in ftype:
+                                href = href_match.group(1)
+                                # Resolve relative URLs
+                                if href.startswith('/'):
+                                    from urllib.parse import urljoin
+                                    href = urljoin(url, href)
+                                elif not href.startswith('http'):
+                                    from urllib.parse import urljoin
+                                    href = urljoin(url, href)
+                                feeds.append({
+                                    "url": href,
+                                    "title": title_match.group(1) if title_match else "",
+                                    "type": ftype
+                                })
+                    # Also try common RSS paths if no feeds found
+                    if not feeds:
+                        from urllib.parse import urljoin
+                        common_paths = ['/feed', '/rss', '/feed.xml', '/rss.xml', '/atom.xml', '/feeds/posts/default']
+                        for path in common_paths:
+                            try:
+                                test_url = urljoin(url, path)
+                                r = requests.head(test_url, timeout=4, headers={
+                                    "User-Agent": "Mozilla/5.0"
+                                }, allow_redirects=True)
+                                ct = r.headers.get('content-type', '').lower()
+                                if r.status_code == 200 and ('xml' in ct or 'rss' in ct or 'atom' in ct):
+                                    feeds.append({"url": test_url, "title": "", "type": ct.split(';')[0]})
+                                    break
+                            except Exception:
+                                continue
+                    _send_json(self, {"feeds": feeds, "source_url": url})
+                except Exception as e:
+                    logger.warning(f"RSS discovery error for {url}: {e}")
+                    _send_json(self, {"feeds": [], "error": str(e)})
                 return
 
             # Sync Serper credits

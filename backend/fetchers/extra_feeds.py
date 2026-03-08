@@ -176,9 +176,29 @@ def _fetch_single_feed(feed_config: Dict[str, str], max_items: int = 5) -> List[
         link = getattr(entry, "link", "")
         title = getattr(entry, "title", "No Title")
         
+        # Thumbnail extraction
+        thumb = ""
+        media_thumb = getattr(entry, "media_thumbnail", [])
+        if media_thumb and isinstance(media_thumb, list):
+            thumb = media_thumb[0].get("url", "")
+        if not thumb:
+            media_content = getattr(entry, "media_content", [])
+            if media_content and isinstance(media_content, list):
+                for mc in media_content:
+                    if mc.get("medium") == "image" or "image" in mc.get("type", ""):
+                        thumb = mc.get("url", "")
+                        break
+        if not thumb:
+            enclosures = getattr(entry, "enclosures", [])
+            if enclosures:
+                for enc in enclosures:
+                    if "image" in enc.get("type", ""):
+                        thumb = enc.get("href", enc.get("url", ""))
+                        break
+
         news_id = hashlib.md5(f"{link}{title}".encode()).hexdigest()[:12]
-        
-        items.append({
+
+        item_data = {
             "id": news_id,
             "title": title,
             "url": link,
@@ -191,7 +211,10 @@ def _fetch_single_feed(feed_config: Dict[str, str], max_items: int = 5) -> List[
             "score": 6.0,
             "score_reason": f"RSS: {name}",
             "scored_by": "rss_direct",
-        })
+        }
+        if thumb:
+            item_data["thumbnail"] = thumb
+        items.append(item_data)
     
     return items
 

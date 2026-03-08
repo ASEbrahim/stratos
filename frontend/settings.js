@@ -2181,7 +2181,7 @@ function renderCustomCatalog() {
     
     // Add feed form at top
     html += `<div class="flex gap-2 flex-wrap">
-        <input type="text" id="custom-feed-url" class="flex-1 min-w-[200px] bg-slate-900 border border-slate-700 rounded-lg px-3 py-2.5 text-xs text-slate-200 focus:border-purple-500 focus:outline-none" placeholder="RSS feed URL (e.g., https://example.com/feed.xml)" onkeydown="if(event.key==='Enter') addCustomFeed()">
+        <input type="text" id="custom-feed-url" class="flex-1 min-w-[200px] bg-slate-900 border border-slate-700 rounded-lg px-3 py-2.5 text-xs text-slate-200 focus:border-purple-500 focus:outline-none" placeholder="Any URL or RSS feed (auto-detects RSS)" onkeydown="if(event.key==='Enter') addCustomFeed()">
         <input type="text" id="custom-feed-name" class="w-36 bg-slate-900 border border-slate-700 rounded-lg px-3 py-2.5 text-xs text-slate-200 focus:border-purple-500 focus:outline-none" placeholder="Label" onkeydown="if(event.key==='Enter') addCustomFeed()">
         <button onclick="addCustomFeed()" class="px-4 py-2.5 bg-purple-600 hover:bg-purple-500 text-white text-xs font-medium rounded-lg transition-colors flex items-center gap-1.5">
             <i data-lucide="plus" class="w-3.5 h-3.5"></i> Add Feed
@@ -2226,18 +2226,109 @@ function renderCustomCatalog() {
         </div>`;
     }
     
+    // RSS Suggestions section
+    html += `<div class="mt-4 pt-4" style="border-top:1px solid rgba(51,65,85,0.3)">
+        <div class="flex items-center justify-between mb-3">
+            <span class="text-xs font-medium text-slate-400 flex items-center gap-1.5">
+                <i data-lucide="lightbulb" class="w-3.5 h-3.5 text-amber-500"></i> Suggested Feeds
+            </span>
+            <div class="flex gap-1">
+                <button onclick="_showRssSuggestions('finance')" id="rss-sug-finance" class="text-[10px] px-2 py-1 rounded transition-colors bg-slate-800 text-slate-400 hover:text-purple-400">Finance</button>
+                <button onclick="_showRssSuggestions('politics')" id="rss-sug-politics" class="text-[10px] px-2 py-1 rounded transition-colors bg-slate-800 text-slate-400 hover:text-purple-400">Politics</button>
+                <button onclick="_showRssSuggestions('general')" id="rss-sug-general" class="text-[10px] px-2 py-1 rounded transition-colors bg-slate-800 text-slate-400 hover:text-purple-400">General</button>
+            </div>
+        </div>
+        <div id="rss-suggestions-list" class="flex flex-wrap gap-2"></div>
+    </div>`;
+
     html += '</div>';
     container.innerHTML = html;
     lucide.createIcons();
+
+    // Auto-show finance suggestions
+    _showRssSuggestions('finance');
+}
+
+// General RSS suggestions (tech, science, world news)
+var _GENERAL_RSS_SUGGESTIONS = [
+    { url: 'https://feeds.arstechnica.com/arstechnica/index', name: 'Ars Technica' },
+    { url: 'https://www.theverge.com/rss/index.xml', name: 'The Verge' },
+    { url: 'https://feeds.bbci.co.uk/news/world/rss.xml', name: 'BBC World' },
+    { url: 'https://rss.nytimes.com/services/xml/rss/nyt/World.xml', name: 'NYT World' },
+    { url: 'https://www.aljazeera.com/xml/rss/all.xml', name: 'Al Jazeera' },
+    { url: 'https://feeds.reuters.com/reuters/topNews', name: 'Reuters' },
+    { url: 'https://techcrunch.com/feed/', name: 'TechCrunch' },
+    { url: 'https://www.wired.com/feed/rss', name: 'Wired' },
+    { url: 'https://www.nature.com/nature.rss', name: 'Nature' },
+    { url: 'https://www.sciencedaily.com/rss/all.xml', name: 'ScienceDaily' },
+];
+
+function _showRssSuggestions(type) {
+    const list = document.getElementById('rss-suggestions-list');
+    if (!list) return;
+    // Highlight active tab
+    ['finance', 'politics', 'general'].forEach(t => {
+        const btn = document.getElementById('rss-sug-' + t);
+        if (btn) {
+            if (t === type) { btn.className = 'text-[10px] px-2 py-1 rounded transition-colors bg-purple-900/40 text-purple-400'; }
+            else { btn.className = 'text-[10px] px-2 py-1 rounded transition-colors bg-slate-800 text-slate-400 hover:text-purple-400'; }
+        }
+    });
+
+    if (type === 'general') {
+        _renderRssSuggestionItems(list, _GENERAL_RSS_SUGGESTIONS);
+        return;
+    }
+
+    // Fetch from catalog API
+    fetch('/api/feed-catalog/' + type, {
+        headers: { 'X-Auth-Token': localStorage.getItem('auth_token') || '' }
+    })
+    .then(r => r.json())
+    .then(data => {
+        const items = (data.catalog || []).map(f => ({ url: f.url, name: f.name }));
+        _renderRssSuggestionItems(list, items);
+    })
+    .catch(() => { list.innerHTML = '<span class="text-xs text-slate-600">Failed to load suggestions</span>'; });
+}
+
+function _renderRssSuggestionItems(container, items) {
+    const existingUrls = new Set(customFeeds.map(f => f.url));
+    const available = items.filter(f => !existingUrls.has(f.url));
+    if (!available.length) {
+        container.innerHTML = '<span class="text-xs text-slate-600">All feeds from this category are already added</span>';
+        return;
+    }
+    container.innerHTML = available.slice(0, 12).map(f =>
+        `<button onclick="_addSuggestedFeed('${esc(f.url)}', '${esc(f.name)}')"
+            class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-medium bg-slate-800/60 text-slate-400 border border-slate-700/50 hover:border-purple-500/50 hover:text-purple-400 hover:bg-purple-900/20 transition-all cursor-pointer"
+            title="${esc(f.url)}">
+            <i data-lucide="plus" class="w-3 h-3"></i> ${esc(f.name)}
+        </button>`
+    ).join('');
+    lucide.createIcons();
+}
+
+function _addSuggestedFeed(url, name) {
+    if (customFeeds.some(f => f.url === url)) {
+        if (typeof showToast === 'function') showToast('Already added', 'warning');
+        return;
+    }
+    customFeeds.push({ url, name, on: true });
+    window._settingsDirty = true;
+    renderCustomCatalog();
+    if (configData) configData.custom_feeds = JSON.parse(JSON.stringify(customFeeds));
+    if (typeof rebuildNavFromConfig === 'function') rebuildNavFromConfig();
+    if (typeof showToast === 'function') showToast(`Added "${name}"`, 'success');
 }
 
 function addCustomFeed() {
     const urlEl = document.getElementById('custom-feed-url');
     const nameEl = document.getElementById('custom-feed-name');
-    
+
     const url = urlEl.value.trim();
     const name = nameEl.value.trim() || (() => { try { return new URL(url).hostname.replace('www.', ''); } catch(e) { return url; } })();
-    
+
     if (!url) {
         if (typeof showToast === 'function') showToast('Enter a feed URL', 'warning');
         urlEl.focus();
@@ -2249,19 +2340,61 @@ function addCustomFeed() {
         if (typeof showToast === 'function') showToast('URL must start with http:// or https://', 'error');
         return;
     }
-    
+
     if (customFeeds.some(f => f.url === url)) {
         if (typeof showToast === 'function') showToast('This feed is already added', 'warning');
         return;
     }
-    
+
+    // Check if URL looks like an RSS feed already
+    const looksLikeRss = /\.(xml|rss|atom)$/i.test(url) || /\/feed\/?$/i.test(url) || /\/rss\/?$/i.test(url);
+
+    if (looksLikeRss) {
+        _commitCustomFeed(url, name, urlEl, nameEl);
+    } else {
+        // Try auto-discovery: fetch the page and look for RSS links
+        if (typeof showToast === 'function') showToast('Detecting RSS feed...', 'info');
+        const btn = urlEl.parentElement?.querySelector('button');
+        if (btn) { btn.disabled = true; btn.style.opacity = '0.5'; }
+
+        fetch('/api/discover-rss', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-Auth-Token': localStorage.getItem('auth_token') || '' },
+            body: JSON.stringify({ url })
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (btn) { btn.disabled = false; btn.style.opacity = ''; }
+            if (data.feeds && data.feeds.length > 0) {
+                const feed = data.feeds[0];
+                const feedUrl = feed.url;
+                const feedName = name || feed.title || (() => { try { return new URL(feedUrl).hostname.replace('www.', ''); } catch(e) { return feedUrl; } })();
+                if (customFeeds.some(f => f.url === feedUrl)) {
+                    if (typeof showToast === 'function') showToast('This feed is already added', 'warning');
+                    return;
+                }
+                urlEl.value = feedUrl;
+                if (typeof showToast === 'function') showToast(`Found RSS: ${feedName}`, 'success');
+                _commitCustomFeed(feedUrl, feedName, urlEl, nameEl);
+            } else {
+                // No RSS found — add as-is (feedparser may still handle it)
+                _commitCustomFeed(url, name, urlEl, nameEl);
+            }
+        })
+        .catch(() => {
+            if (btn) { btn.disabled = false; btn.style.opacity = ''; }
+            _commitCustomFeed(url, name, urlEl, nameEl);
+        });
+    }
+}
+
+function _commitCustomFeed(url, name, urlEl, nameEl) {
     customFeeds.push({ url, name, on: true });
     window._settingsDirty = true;
 
-    urlEl.value = '';
-    nameEl.value = '';
+    if (urlEl) urlEl.value = '';
+    if (nameEl) nameEl.value = '';
     renderCustomCatalog();
-    // Update configData so nav rebuild sees the new feed
     if (configData) configData.custom_feeds = JSON.parse(JSON.stringify(customFeeds));
     if (typeof rebuildNavFromConfig === 'function') rebuildNavFromConfig();
     if (typeof showToast === 'function') showToast(`Added "${name}"`, 'success');
