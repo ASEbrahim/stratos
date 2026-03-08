@@ -220,11 +220,10 @@ Respond with ONLY valid JSON — no markdown, no backticks:
                     {"role": "user", "content": prompt},
                 ],
                 "stream": False,
-                # Don't set think:false — Qwen3 leaks reasoning into content.
-                # num_predict must cover thinking tokens + JSON output.
-                "options": {"temperature": 0.3, "num_predict": 8000, "num_ctx": 12288}
+                # num_predict covers thinking tokens + JSON output.
+                "options": {"temperature": 0.3, "num_predict": 4000, "num_ctx": 8192}
             },
-            timeout=180
+            timeout=120
         )
 
         if response.status_code == 200:

@@ -203,18 +203,15 @@ Generate the optimal STRAT_OS configuration for this person. Remember:
                     "model": wiz_model,
                     "messages": messages,
                     "stream": False,
-                    # Don't set think:false — Qwen3 leaks reasoning into content.
-                    # Default mode puts thinking in a separate field, content is clean JSON.
-                    # num_predict must cover BOTH thinking tokens (~5000-8000) AND JSON
-                    # output (~2000-3000).  With only 4096, Qwen3 exhausts the budget
-                    # on thinking and returns empty content.
+                    # Default mode separates thinking into a dedicated field;
+                    # content holds the clean JSON output.
                     "options": {
                         "temperature": 0.3 if attempt == 0 else 0.2,
-                        "num_predict": 12000 if attempt == 0 else 16000,
-                        "num_ctx": 16384 if attempt == 0 else 20480,
+                        "num_predict": 4000 if attempt == 0 else 6000,
+                        "num_ctx": 8192 if attempt == 0 else 12288,
                     }
                 },
-                timeout=240 if attempt == 0 else 300
+                timeout=120 if attempt == 0 else 180
             )
 
             if response.status_code != 200:
@@ -227,8 +224,8 @@ Generate the optimal STRAT_OS configuration for this person. Remember:
             thinking = resp_data.get("message", {}).get("thinking", "") or ""
             raw = strip_think_blocks(raw)
 
-            # Qwen3 sometimes exhausts all num_predict on thinking, leaving
-            # empty content.  Detect this and bump the budget on retry.
+            # If the model spent all tokens on thinking with no content,
+            # bump the budget on retry.
             if not raw.strip() and len(thinking) > 500:
                 logger.warning(f"Generate: empty content with {len(thinking)} chars of thinking (attempt {attempt})")
                 if attempt == 0:

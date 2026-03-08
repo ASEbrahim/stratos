@@ -59,9 +59,9 @@ _TRANSITION_RE = re.compile(
 
 
 def strip_think_blocks(text: str) -> str:
-    """Strip <think>...</think> blocks and bare </think> closers from Qwen3 output.
+    """Strip <think>...</think> blocks and bare </think> closers from LLM output.
 
-    Qwen3 sometimes omits the opening <think> tag but includes </think>,
+    Some models omit the opening <think> tag but include </think>,
     so the regex <think>.*?</think> doesn't match.  This handles both cases.
     """
     if not text:
@@ -106,9 +106,9 @@ def _strip_mid_response_reasoning(text: str) -> str:
 
 
 def strip_reasoning_preamble(text: str) -> str:
-    """Strip untagged reasoning from Qwen3 MoE responses.
+    """Strip untagged reasoning from LLM responses.
 
-    Qwen3 sometimes narrates its thought process as plain text (without <think>
+    Some models narrate their thought process as plain text (without <think>
     tags).  This aggressively detects reasoning blocks and strips them.
 
     Strategy:
