@@ -304,12 +304,6 @@ def _shared_noise_check(title: str, text: str, source: str = '', url: str = '', 
     if _is_non_target_language(title, text, allowed_scripts=allowed_scripts):
         return 2.0, "Non-target language content"
 
-    # ── Geographic validation for Kuwait items ──
-    if root == 'kuwait':
-        for location in NON_KUWAIT_LOCATIONS:
-            if location in title_lower or location in text[:500].lower():
-                return 2.5, f"Non-Kuwait content: '{location}'"
-
     for noise in NOISE_EXACT:
         if noise in text:
             return 1.0, f"Noise: '{noise}'"
@@ -328,9 +322,7 @@ def _shared_noise_check(title: str, text: str, source: str = '', url: str = '', 
 
     # Junk summary detection — "no photo description" + keyword salad from social media scrapes
     if 'no photo description available' in text or 'no description available' in text:
-        has_strong = any(s in text for s in INSTAGRAM_STRONG_SIGNALS)
-        if not has_strong:
-            return 3.0, "Junk content: scraped social media with no real description"
+        return 3.0, "Junk content: scraped social media with no real description"
 
     # LinkedIn personal posts (not job listings or company announcements)
     if 'linkedin.com/posts/' in url_lower or 'linkedin.com/pulse/' in url_lower:
@@ -381,19 +373,18 @@ def _shared_noise_check(title: str, text: str, source: str = '', url: str = '', 
             return 3.0, "Facebook post without actionable content"
 
     # Instagram social noise
+    _SOCIAL_STRONG = ['hiring', 'job opening', 'fresh graduate', 'we are looking', 'join our team', 'apply now', 'scholarship', 'discount', 'offer']
     if source_lower == 'instagram' or 'instagram' in source_lower or 'instagram.com' in url_lower:
         for pattern in SOCIAL_NOISE_PATTERNS:
             if re.search(pattern, text, re.IGNORECASE):
                 return 2.5, "Instagram social spam"
-        has_strong_signal = any(s in text.lower() for s in INSTAGRAM_STRONG_SIGNALS)
-        if not has_strong_signal:
+        if not any(s in text.lower() for s in _SOCIAL_STRONG):
             return 3.5, "Instagram post without actionable content"
         return 6.0, "Instagram (capped): relevant but unverified social source"
 
     # Facebook group posts
     if 'facebook.com/groups/' in url_lower:
-        has_strong_signal = any(s in text.lower() for s in INSTAGRAM_STRONG_SIGNALS)
-        if not has_strong_signal:
+        if not any(s in text.lower() for s in _SOCIAL_STRONG):
             return 3.0, "Facebook group post without actionable content"
 
     # Social spam regardless of source
