@@ -1247,6 +1247,9 @@ document.addEventListener('keydown', function(e) {
 
     const TFS = ['1m','5m','1d_1mo','1d_1y','1wk'];
 
+    // Let browser handle Ctrl/Cmd combos (copy, paste, undo, etc.)
+    if (e.ctrlKey || e.metaKey) return;
+
     switch(e.key) {
         // 1-5: switch timeframes
         case '1': e.preventDefault(); setTimeframe(TFS[0]); break;
@@ -1274,7 +1277,7 @@ document.addEventListener('keydown', function(e) {
         // x: toggle crosshair
         case 'x': e.preventDefault(); toggleCrosshair(); break;
         // s: screenshot
-        case 's': if (!e.ctrlKey && !e.metaKey) { e.preventDefault(); exportChartPNG(); } break;
+        case 's': e.preventDefault(); exportChartPNG(); break;
         // Escape: cancel drawing / clear draw mode
         case 'Escape':
             if (_drawMode) { toggleDrawMode(); }

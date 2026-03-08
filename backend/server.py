@@ -303,7 +303,8 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                 # Resolve profile_id from token (status is AUTH_EXEMPT so _profile_id may be 0)
                 token = self.headers.get('X-Auth-Token', '')
                 _status_pid = self._profile_id or (_get_profile_id(token) if token else 0) or 0
-                status = {**strat.scan_status, "recent_scans": strat.db.get_scan_log(5, profile_id=_status_pid)}
+                status = {**strat.scan_status, "my_profile_id": _status_pid,
+                          "recent_scans": strat.db.get_scan_log(5, profile_id=_status_pid)}
                 if token:
                     user = auth.get_session_profile(token)
                     if user:

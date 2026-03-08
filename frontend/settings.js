@@ -2257,10 +2257,13 @@ function addCustomFeed() {
     
     customFeeds.push({ url, name, on: true });
     window._settingsDirty = true;
-    
+
     urlEl.value = '';
     nameEl.value = '';
     renderCustomCatalog();
+    // Update configData so nav rebuild sees the new feed
+    if (configData) configData.custom_feeds = JSON.parse(JSON.stringify(customFeeds));
+    if (typeof rebuildNavFromConfig === 'function') rebuildNavFromConfig();
     if (typeof showToast === 'function') showToast(`Added "${name}"`, 'success');
 }
 

@@ -1831,6 +1831,8 @@ document.addEventListener('keydown', function(e) {
     if (tag === 'input' || tag === 'textarea' || e.target.isContentEditable) return;
     // Only active on markets view
     if (typeof activeRoot === 'undefined' || activeRoot !== 'markets_view') return;
+    // Let browser handle Ctrl/Cmd combos (copy, paste, undo, etc.)
+    if (e.ctrlKey || e.metaKey) return;
 
     var fc = _mpGetFocusedChart();
     if (!fc) return;

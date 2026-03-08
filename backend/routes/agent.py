@@ -547,8 +547,8 @@ HISTORICAL DATA:
         # Tools to send
         tools = AGENT_TOOLS if serper_available else [t for t in AGENT_TOOLS if t["function"]["name"] != "web_search"]
 
-        # ── Tool-call loop (max 5 rounds) ──
-        for round_num in range(5):
+        # ── Tool-call loop (max 8 rounds) ──
+        for round_num in range(8):
             try:
                 r = req.post(
                     f"{ollama_host}/api/chat",
@@ -594,7 +594,7 @@ HISTORICAL DATA:
                 # Final response — clean up LLM output
                 text = strip_think_blocks(content)
                 text = strip_reasoning_preamble(text)
-                if not text and round_num < 4:
+                if not text and round_num < 7:
                     # Empty or reasoning-only response. Retry with a direct nudge.
                     messages.append({"role": "assistant", "content": ""})
                     messages.append({"role": "user", "content": "(Respond directly to the user. No internal reasoning or thought process. Just the answer.)"})
@@ -622,7 +622,26 @@ HISTORICAL DATA:
                 result = _execute_tool(name, args, strat, profile_id=profile_id)
                 messages.append({"role": "tool", "content": result})
 
-        sse_event(handler, {"error": "Max tool rounds exceeded"})
+        # If we exhausted all rounds, send whatever we have as a final response
+        logger.warning("Agent: max tool rounds reached, forcing final response")
+        messages.append({"role": "user", "content": "(Summarize what you found so far and respond to the user now.)"})
+        try:
+            r = req.post(
+                f"{ollama_host}/api/chat",
+                json={"model": model, "messages": messages, "stream": False,
+                      "options": {"temperature": 0.4, "num_predict": 2000}},
+                timeout=120)
+            if r.status_code == 200:
+                text = strip_think_blocks(r.json().get("message", {}).get("content", ""))
+                text = strip_reasoning_preamble(text)
+                if text:
+                    for char in text:
+                        sse_event(handler, {"token": char})
+                    sse_event(handler, {"done": True})
+                    return
+        except Exception:
+            pass
+        sse_event(handler, {"error": "Max tool rounds exceeded — try a simpler question"})
 
     except Exception as e:
         logger.error(f"Agent chat error: {e}")
@@ -651,6 +670,19 @@ def handle_ask(handler, strat, output_dir):
         prompt = f"News signal:\n\n{article_ctx}\n\nQuestion: {question}"
 
         scorer = strat.scorer
+        # Build system prompt with user context
+        profile = strat.config.get("profile", {})
+        role = profile.get("role", "").strip()
+        location = profile.get("location", "").strip()
+        user_ctx = ""
+        if role or location:
+            parts = []
+            if role:
+                parts.append(f"role: {role}")
+            if location:
+                parts.append(f"location: {location}")
+            user_ctx = f" The user is a professional ({', '.join(parts)}). Tailor your analysis to their perspective."
+
         # Check Ollama + inference model directly
         try:
             _r = req.get(f"{scorer.host}/api/tags", timeout=5)
@@ -663,7 +695,7 @@ def handle_ask(handler, strat, output_dir):
             f"{scorer.host}/api/chat",
             json={"model": scorer.inference_model,
                   "messages": [
-                      {"role": "system", "content": "Concise analyst. Answer in 2-4 sentences max. Lead with the actionable insight. Be honest if info is insufficient. Respond directly."},
+                      {"role": "system", "content": f"Concise analyst. Answer in 2-4 sentences max. Lead with the actionable insight. Be honest if info is insufficient. Respond directly.{user_ctx}"},
                       {"role": "user", "content": prompt},
                   ],
                   "stream": False, "think": False,

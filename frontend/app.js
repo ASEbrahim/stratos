@@ -1182,6 +1182,9 @@ function _resetBarForPhase(phase) {
 }
 
 function _handleSSEScan(d) {
+    // Ignore scan events for other profiles
+    if (d.scan_profile_id && window._myProfileId && d.scan_profile_id !== window._myProfileId) return;
+
     // Scan in progress — update banners
     const notifContainer = document.getElementById('status-notification');
     const scanningBanner = document.getElementById('scanning-banner');
@@ -1499,7 +1502,13 @@ async function checkStatus() {
         
         const isOnSettings = activeRoot === 'settings';
         
-        if (status.is_scanning) {
+        // Track our profile_id for SSE and polling scoping
+        if (status.my_profile_id) window._myProfileId = status.my_profile_id;
+
+        // Only show scan banner if it's our profile's scan (or scan_profile_id unknown)
+        const isOurScan = !status.scan_profile_id || !window._myProfileId || status.scan_profile_id === window._myProfileId;
+
+        if (status.is_scanning && isOurScan) {
             // Show scanning indicator (but not main banner if on settings)
             if (!isOnSettings) {
                 notifContainer.classList.remove('hidden');
