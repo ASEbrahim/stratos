@@ -1,6 +1,6 @@
 """
-STRAT_OS - Extra RSS Feeds (Finance & Politics)
-Lightweight RSS-only fetchers for Finance News and Politics tabs.
+STRAT_OS - Extra RSS Feeds (Finance, Politics & Jobs)
+Lightweight RSS-only fetchers for Finance News, Politics, and Jobs tabs.
 No search API calls — purely RSS aggregation with minimal scoring.
 
 Feeds are selected from a master catalog based on user config toggles.
@@ -88,10 +88,41 @@ POLITICS_CATALOG = [
     {"id": "nikkei_asia",    "url": "https://asia.nikkei.com/rss/feed/nar",                     "name": "Nikkei Asia",        "region": "Japan",   "category": "asia",       "on": False},
 ]
 
+JOBS_CATALOG = [
+    # --- Google News: Job Market ---
+    {"id": "gn_kuwait_jobs",   "url": "https://news.google.com/rss/search?q=Kuwait+jobs+hiring+careers&hl=en&gl=KW&ceid=KW:en",       "name": "Kuwait Jobs (Google)",   "region": "Kuwait",  "category": "local_jobs",   "on": True},
+    {"id": "gn_gcc_careers",   "url": "https://news.google.com/rss/search?q=GCC+careers+hiring+Saudi+UAE+Qatar&hl=en&gl=AE&ceid=AE:en", "name": "GCC Careers (Google)", "region": "GCC",     "category": "regional_jobs", "on": True},
+    {"id": "gn_tech_jobs",     "url": "https://news.google.com/rss/search?q=tech+jobs+software+engineer+hiring&hl=en&gl=US&ceid=US:en", "name": "Tech Jobs (Google)",   "region": "Global",  "category": "tech_jobs",    "on": True},
+    {"id": "gn_remote_work",   "url": "https://news.google.com/rss/search?q=remote+work+jobs+hiring+2026&hl=en&gl=US&ceid=US:en",      "name": "Remote Work (Google)",  "region": "Global",  "category": "remote",       "on": False},
+    {"id": "gn_job_market",    "url": "https://news.google.com/rss/search?q=job+market+employment+layoffs&hl=en&gl=US&ceid=US:en",     "name": "Job Market (Google)",   "region": "US",      "category": "labor_market", "on": False},
+    # --- Remote Job Boards ---
+    {"id": "wwr_programming",  "url": "https://weworkremotely.com/categories/remote-programming-jobs.rss",    "name": "WWR Programming",    "region": "Global",  "category": "remote",       "on": True},
+    {"id": "wwr_design",       "url": "https://weworkremotely.com/categories/remote-design-jobs.rss",         "name": "WWR Design",         "region": "Global",  "category": "remote",       "on": False},
+    {"id": "wwr_devops",       "url": "https://weworkremotely.com/categories/remote-devops-sysadmin-jobs.rss","name": "WWR DevOps",         "region": "Global",  "category": "remote",       "on": False},
+    {"id": "wwr_management",   "url": "https://weworkremotely.com/categories/remote-product-jobs.rss",        "name": "WWR Product/Mgmt",   "region": "Global",  "category": "remote",       "on": False},
+    {"id": "wwr_sales",        "url": "https://weworkremotely.com/categories/remote-sales-marketing-jobs.rss","name": "WWR Sales/Marketing","region": "Global",  "category": "remote",       "on": False},
+    {"id": "wwr_all",          "url": "https://weworkremotely.com/remote-jobs.rss",                           "name": "WWR All Jobs",       "region": "Global",  "category": "remote",       "on": False},
+    {"id": "remoteok",         "url": "https://remoteok.com/remote-jobs.rss",                                 "name": "RemoteOK",           "region": "Global",  "category": "remote",       "on": True},
+    # --- Hacker News ---
+    {"id": "hn_hiring",        "url": "https://hnrss.org/ask?q=who+is+hiring",                               "name": "HN Who Is Hiring",   "region": "Global",  "category": "tech_jobs",    "on": True},
+    {"id": "hn_freelance",     "url": "https://hnrss.org/ask?q=freelancer+seeking",                           "name": "HN Freelancer",      "region": "Global",  "category": "freelance",    "on": False},
+    # --- LinkedIn / Indeed / General ---
+    {"id": "gn_linkedin_news", "url": "https://news.google.com/rss/search?q=LinkedIn+hiring+trends+jobs&hl=en&gl=US&ceid=US:en",       "name": "LinkedIn Trends (Google)", "region": "Global", "category": "labor_market", "on": False},
+    {"id": "gn_indeed_trends", "url": "https://news.google.com/rss/search?q=Indeed+hiring+trends+employment&hl=en&gl=US&ceid=US:en",   "name": "Indeed Trends (Google)",   "region": "Global", "category": "labor_market", "on": False},
+    # --- Industry-Specific ---
+    {"id": "gn_finance_jobs",  "url": "https://news.google.com/rss/search?q=finance+banking+jobs+hiring&hl=en&gl=US&ceid=US:en",       "name": "Finance Jobs (Google)",    "region": "Global", "category": "sector_jobs",  "on": False},
+    {"id": "gn_oil_gas_jobs",  "url": "https://news.google.com/rss/search?q=oil+gas+energy+jobs+hiring+Gulf&hl=en&gl=AE&ceid=AE:en",   "name": "Oil & Gas Jobs (Google)",  "region": "GCC",    "category": "sector_jobs",  "on": False},
+    {"id": "gn_ai_ml_jobs",    "url": "https://news.google.com/rss/search?q=AI+machine+learning+jobs+hiring&hl=en&gl=US&ceid=US:en",   "name": "AI/ML Jobs (Google)",      "region": "Global", "category": "tech_jobs",    "on": False},
+    # --- Startup / VC ---
+    {"id": "angellist",        "url": "https://angel.co/blog/feed",                                           "name": "AngelList Blog",      "region": "Global", "category": "startup_jobs", "on": False},
+    {"id": "gn_startup_jobs",  "url": "https://news.google.com/rss/search?q=startup+jobs+hiring+YC&hl=en&gl=US&ceid=US:en",            "name": "Startup Jobs (Google)",    "region": "Global", "category": "startup_jobs", "on": False},
+]
+
 
 def get_catalog(feed_type: str = "finance") -> List[Dict[str, Any]]:
     """Return the full catalog for a feed type (for the Settings UI)."""
-    catalog = FINANCE_CATALOG if feed_type == "finance" else POLITICS_CATALOG
+    catalogs = {"finance": FINANCE_CATALOG, "politics": POLITICS_CATALOG, "jobs": JOBS_CATALOG}
+    catalog = catalogs.get(feed_type, FINANCE_CATALOG)
     # Return clean copies without URLs (frontend only needs id, name, region, category, on)
     return [
         {
@@ -107,7 +138,8 @@ def get_catalog(feed_type: str = "finance") -> List[Dict[str, Any]]:
 
 def _get_enabled_feeds(feed_type: str, config: Optional[Dict] = None) -> List[Dict]:
     """Resolve which feeds to use from config toggles + catalog defaults."""
-    catalog = FINANCE_CATALOG if feed_type == "finance" else POLITICS_CATALOG
+    catalogs = {"finance": FINANCE_CATALOG, "politics": POLITICS_CATALOG, "jobs": JOBS_CATALOG}
+    catalog = catalogs.get(feed_type, FINANCE_CATALOG)
     
     # Check config for user overrides
     feed_key = f"extra_feeds_{feed_type}"
@@ -222,11 +254,11 @@ def _fetch_single_feed(feed_config: Dict[str, str], max_items: int = 5) -> List[
 def fetch_extra_feeds(feed_type: str = "finance", config: Optional[Dict] = None) -> List[Dict[str, Any]]:
     """
     Fetch enabled feeds for a given type.
-    
+
     Args:
-        feed_type: "finance" or "politics"
+        feed_type: "finance", "politics", or "jobs"
         config: Full app config dict (reads extra_feeds toggles + custom feeds)
-    
+
     Returns:
         List of news item dicts
     """
@@ -249,7 +281,7 @@ def fetch_extra_feeds(feed_type: str = "finance", config: Optional[Dict] = None)
     
     # Set root field based on type
     for f in feeds:
-        f["root"] = feed_type if feed_type == "finance" else "politics"
+        f["root"] = {"finance": "finance", "politics": "politics", "jobs": "jobs"}.get(feed_type, feed_type)
     
     all_items = []
     feed_names = [f["name"] for f in feeds]
