@@ -123,14 +123,14 @@ def get_catalog(feed_type: str = "finance") -> List[Dict[str, Any]]:
     """Return the full catalog for a feed type (for the Settings UI)."""
     catalogs = {"finance": FINANCE_CATALOG, "politics": POLITICS_CATALOG, "jobs": JOBS_CATALOG}
     catalog = catalogs.get(feed_type, FINANCE_CATALOG)
-    # Return clean copies without URLs (frontend only needs id, name, region, category, on)
     return [
         {
             "id": f["id"],
+            "url": f["url"],
             "name": f["name"],
             "region": f["region"],
             "category": f["category"],
-            "on": f["on"],  # Default state
+            "on": f["on"],
         }
         for f in catalog
     ]
