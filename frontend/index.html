@@ -267,6 +267,9 @@
                                     </div>
                                 </div>
                                 <div class="flex items-center gap-0.5">
+                                    <button onclick="event.stopPropagation(); toggleAgentFullscreen()" id="agent-fs-btn" class="p-1.5 rounded-md transition-all" style="color:var(--text-muted);" title="Toggle fullscreen" onmouseenter="this.style.background='rgba(255,255,255,0.05)';this.style.color='var(--text-heading)'" onmouseleave="this.style.background='transparent';this.style.color='var(--text-muted)'">
+                                        <i data-lucide="maximize-2" class="w-3 h-3"></i>
+                                    </button>
                                     <button onclick="event.stopPropagation(); importAgentChat()" class="p-1.5 rounded-md transition-all" style="color:var(--text-muted);" title="Import chat or context file" onmouseenter="this.style.background='rgba(255,255,255,0.05)';this.style.color='var(--text-heading)'" onmouseleave="this.style.background='transparent';this.style.color='var(--text-muted)'">
                                         <i data-lucide="upload" class="w-3 h-3"></i>
                                     </button>

@@ -586,6 +586,40 @@ function _openAgentPanel() {
     agentOpen = true;
 }
 
+var _agentFullscreen = false;
+function toggleAgentFullscreen() {
+    const panel = document.getElementById('agent-panel');
+    const msgs = document.getElementById('agent-messages');
+    const btn = document.getElementById('agent-fs-btn');
+    if (!panel) return;
+
+    _agentFullscreen = !_agentFullscreen;
+
+    if (_agentFullscreen) {
+        // Open the chat body if collapsed
+        _openAgentPanel();
+        panel.classList.add('agent-fullscreen');
+        if (msgs) { msgs.style.height = 'calc(100vh - 180px)'; msgs.style.maxHeight = 'none'; }
+        if (btn) btn.title = 'Exit fullscreen';
+        // Swap icon
+        const icon = btn?.querySelector('[data-lucide]');
+        if (icon) { icon.setAttribute('data-lucide', 'minimize-2'); lucide.createIcons(); }
+    } else {
+        panel.classList.remove('agent-fullscreen');
+        if (msgs) { msgs.style.height = '280px'; msgs.style.maxHeight = '600px'; }
+        if (btn) btn.title = 'Toggle fullscreen';
+        const icon = btn?.querySelector('[data-lucide]');
+        if (icon) { icon.setAttribute('data-lucide', 'maximize-2'); lucide.createIcons(); }
+    }
+}
+
+// Escape key exits agent fullscreen
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && _agentFullscreen) {
+        toggleAgentFullscreen();
+    }
+});
+
 // ═══════════════════════════════════════════════════════════
 // WATCHLIST WIDGET — Rich card display for ticker list
 // ═══════════════════════════════════════════════════════════

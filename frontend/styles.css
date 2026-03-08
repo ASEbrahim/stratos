@@ -432,6 +432,34 @@ select:hover { border-color: var(--text-muted) !important; }
 }
 .customize-pulse { animation: customizePulse 2.5s ease-in-out 3; }
 
+/* F3: Agent fullscreen mode */
+.agent-fullscreen {
+    position: fixed !important;
+    top: 0; left: 0; right: 0; bottom: 0;
+    z-index: 300;
+    margin: 0 !important;
+    padding: 16px;
+    background: var(--bg-app, #0f172a);
+    display: flex;
+    flex-direction: column;
+}
+.agent-fullscreen > .rounded-xl {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    max-width: 900px;
+    margin: 0 auto;
+    width: 100%;
+}
+.agent-fullscreen #agent-body {
+    flex: 1;
+    display: flex !important;
+    flex-direction: column;
+}
+.agent-fullscreen #agent-messages {
+    flex: 1;
+}
+
 /* Sidebar nav items — hover for inactive */
 #nav-menu button:not(.active-nav):hover {
     background: var(--bg-hover);
