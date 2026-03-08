@@ -23,7 +23,7 @@ scoring:
   inference_model: qwen3:30b-a3b
   wizard_model: qwen3:14b
   medium_min: 5.0
-  model: stratos-scorer-v2
+  model: stratos-scorer-v2.2
   ollama_host: http://localhost:11434
   timeout:
     rolling_window: 20

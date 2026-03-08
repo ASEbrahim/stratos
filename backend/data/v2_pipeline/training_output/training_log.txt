@@ -49,3 +49,151 @@
 22:11:55 [INFO] SAMPLER WORKING — actual matches weighted expectation
 22:11:55 [INFO]   Distance to expected: 0.0287, distance to raw: 0.4661
 22:11:55 [INFO] Verification saved to /home/ahmad/Downloads/StratOS/StratOS1/backend/data/v2_pipeline/training_output/sampler_verification.json
+03:20:29 [INFO] Training complete! Loss: 7.2418, Time: 6.2h
+03:20:29 [INFO] Final V2 adapter saved to: /home/ahmad/Downloads/StratOS/StratOS1/backend/data/v2_pipeline/training_output/final_checkpoint
+03:20:29 [INFO] GPU memory cleared after Phase 2
+03:20:29 [INFO] ======================================================================
+03:20:29 [INFO] PHASE 3 — POST-TRAINING EVALUATION
+03:20:29 [INFO] ======================================================================
+03:20:29 [INFO] Loading V1 merged base from /home/ahmad/Downloads/StratOS/StratOS1/backend/data/v2_pipeline/qwen35_9b_base...
+03:20:50 [INFO] Loading V2 adapters from /home/ahmad/Downloads/StratOS/StratOS1/backend/data/v2_pipeline/training_output/final_checkpoint...
+03:20:50 [INFO] V2 model loaded for evaluation
+03:20:51 [INFO] Loaded 1296 eval examples
+03:20:51 [INFO] ======================================================================
+03:20:51 [INFO] PROFILE-AWARENESS SANITY CHECK (before merge)
+03:20:51 [INFO] ======================================================================
+03:41:51 [INFO] 
+03:41:51 [INFO] Article: "Antofagasta's 2025 core profit climbs 52% on record copper prices"
+03:41:51 [INFO]   GT spread: 8.7, V1 spread: 8.0, V2 spread: 8.7
+03:41:51 [INFO]     Mining engineer at a copper mine in Santiago, Chil GT=9.2 V1=8.0 V2=9.2
+03:41:51 [INFO]     Professional bonsai artist and competition judge i GT=1.0 V1=0.0 V2=0.5
+03:41:51 [INFO]     Senior construction project manager in Doha, Qatar GT=0.5 V1=1.5 V2=2.5
+03:41:51 [INFO] 
+03:41:51 [INFO] Article: "Nigerian fintechs are burning millions to acquire customers; And, the math doesn"
+03:41:51 [INFO]   GT spread: 8.7, V1 spread: 8.5, V2 spread: 7.5
+03:41:51 [INFO]     CTO of a mobile payments startup in Lagos, Nigeria GT=9.2 V1=8.5 V2=8.5
+03:41:51 [INFO]     Executive chef and restaurant owner in Mexico City GT=2.0 V1=N/A V2=1.0
+03:41:51 [INFO]     Public health researcher and epidemiologist in Gen GT=0.5 V1=0.0 V2=1.0
+03:41:51 [INFO] 
+03:41:51 [INFO] Article: "AI in Healthcare 2026: Top Trends, Breakthroughs, and Challenges ..."
+03:41:51 [INFO]   GT spread: 8.5, V1 spread: 5.5, V2 spread: 6.0
+03:41:51 [INFO]     Emergency department nurse practitioner in Toronto GT=8.5 V1=2.5 V2=6.5
+03:41:51 [INFO]     High school math teacher in Austin, Texas, USA     GT=7.0 V1=0.0 V2=2.5
+03:41:51 [INFO]     Biotech researcher at KAUST studying gene therapy  GT=3.5 V1=2.0 V2=6.5
+03:41:51 [INFO]     Public health researcher and epidemiologist in Gen GT=3.0 V1=N/A V2=6.5
+03:41:51 [INFO]     Corporate lawyer at a major law firm in London, UK GT=3.0 V1=0.0 V2=2.5
+03:41:51 [INFO]     Dentist and private practice owner in Riyadh, Saud GT=2.5 V1=5.5 V2=6.5
+03:41:51 [INFO]     Marine electrician on offshore wind vessels in Sta GT=1.0 V1=0.0 V2=0.5
+03:41:51 [INFO]     Environmental consultant specializing in carbon ma GT=0.0 V1=0.0 V2=0.5
+03:41:51 [INFO] 
+03:41:51 [INFO] Article: "Analysis-US and Iran Slide Towards Conflict as Military Buildup Eclipses Talks"
+03:41:51 [INFO]   GT spread: 8.5, V1 spread: 8.5, V2 spread: 8.2
+03:41:51 [INFO]     Retired UN diplomat and policy consultant in Vienn GT=9.5 V1=8.5 V2=9.2
+03:41:51 [INFO]     Petroleum Engineering student at Kuwait University GT=7.5 V1=0.0 V2=3.5
+03:41:51 [INFO]     Computer Engineering student at American Universit GT=7.5 V1=N/A V2=2.5
+03:41:51 [INFO]     Finance & Accounting student at GUST Kuwait in Kuw GT=6.5 V1=0.0 V2=3.5
+03:41:51 [INFO]     HVAC technician and small business owner in Housto GT=1.0 V1=0.0 V2=1.0
+03:41:51 [INFO]     Electrical contractor and business owner in Manche GT=1.0 V1=0.0 V2=1.0
+03:41:51 [INFO] 
+03:41:51 [INFO] Article: "AI Revolutionizes Finance Analysis: Amplifying Human Insight"
+03:41:51 [INFO]   GT spread: 8.5, V1 spread: 6.5, V2 spread: 8.0
+03:41:51 [INFO]     Data Scientist at a Dubai fintech startup in Dubai GT=9.0 V1=N/A V2=8.5
+03:41:51 [INFO]     Computer Engineering student at American Universit GT=8.5 V1=6.5 V2=7.5
+03:41:51 [INFO]     Senior geophysicist at KOC in Kuwait               GT=2.0 V1=N/A V2=1.0
+03:41:51 [INFO]     Professional bonsai artist and competition judge i GT=1.0 V1=0.0 V2=0.5
+03:41:51 [INFO]     IT systems administrator at a manufacturing compan GT=0.5 V1=N/A V2=0.5
+03:41:51 [INFO] 
+03:41:51 [INFO] Avg V1 spread: 7.40, Avg V2 spread: 7.68
+03:41:51 [INFO] V2 shows profile-awareness (avg spread >= 2.0)
+03:41:51 [INFO] Merging V2 adapters into base for fast inference...
+03:41:51 [INFO] Adapters merged — running bulk eval on merged model
+03:41:51 [INFO] Running V2 inference on eval set...
+03:41:53 [INFO]   V2 eval: 1/1296 (0%)
+03:44:25 [INFO]   V2 eval: 101/1296 (8%)
+03:46:51 [INFO]   V2 eval: 201/1296 (16%)
+03:49:06 [INFO]   V2 eval: 301/1296 (23%)
+03:51:34 [INFO]   V2 eval: 401/1296 (31%)
+03:54:15 [INFO]   V2 eval: 501/1296 (39%)
+03:56:36 [INFO]   V2 eval: 601/1296 (46%)
+03:58:53 [INFO]   V2 eval: 701/1296 (54%)
+04:01:26 [INFO]   V2 eval: 801/1296 (62%)
+04:04:03 [INFO]   V2 eval: 901/1296 (70%)
+04:07:17 [INFO]   V2 eval: 1001/1296 (77%)
+04:10:40 [INFO]   V2 eval: 1101/1296 (85%)
+04:13:49 [INFO]   V2 eval: 1201/1296 (93%)
+04:16:44 [INFO]   V2 eval: 1296/1296 complete
+04:16:44 [INFO] Inference complete in 2092s (1.6s/example)
+04:16:44 [INFO] ======================================================================
+04:16:44 [INFO] EVALUATION RESULTS
+04:16:44 [INFO] ======================================================================
+04:16:44 [INFO] Metric                             V1 Baseline       V2 Result
+04:16:44 [INFO] --------------------------------------------------------------
+04:16:44 [INFO] Direction accuracy                       90.7%           92.7%
+04:16:44 [INFO] PSR                                      39.7%           52.3%
+04:16:44 [INFO] MAE                                      1.553           0.848
+04:16:44 [INFO] Spearman rho                                --           0.708
+04:16:44 [INFO] Think block empty rate                    ~85%            0.0%
+04:16:44 [INFO] Parse failures                              --               0
+04:16:44 [INFO] ======================================================================
+04:16:44 [INFO] PER-PROFILE SPEARMAN rho
+04:16:44 [INFO] ======================================================================
+04:16:44 [INFO] Profile                                                               N      rho       Flag
+04:16:44 [INFO] ------------------------------------------------------------------------------------------
+04:16:44 [INFO] Agricultural commodities trader in São Paulo, Brazil                 21    0.754           
+04:16:44 [INFO] Architect working on smart city infrastructure projects in Doha,     31    0.804           
+04:16:44 [INFO] Backend software engineer at a cloud infrastructure company in S      2      N/A insufficient_data
+04:16:44 [INFO] Biotech researcher at KAUST studying gene therapy in Jeddah, Sau     28    0.663           
+04:16:44 [INFO] CTO of a mobile payments startup in Lagos, Nigeria                   29    0.841           
+04:16:44 [INFO] Commercial airline pilot (Boeing 777 captain) in Dubai, UAE          20    0.429           
+04:16:44 [INFO] Computer Engineering student at American University of Kuwait in     49    0.837           
+04:16:44 [INFO] Corporate lawyer at a major law firm in London, UK                   33    0.825           
+04:16:44 [INFO] Cybersecurity analyst at a Kuwaiti bank in Kuwait                    34    0.793           
+04:16:44 [INFO] Data Scientist at a Dubai fintech startup in Dubai, UAE              34    0.868           
+04:16:44 [INFO] Dentist and private practice owner in Riyadh, Saudi Arabia           20    0.325           
+04:16:44 [INFO] Digital marketing manager at a K-pop entertainment agency in Seo     21    0.844           
+04:16:44 [INFO] E-commerce founder and CEO in Istanbul, Turkey                       23    0.693           
+04:16:44 [INFO] EV powertrain engineer at an automotive manufacturer in Stuttgar     21    0.542           
+04:16:44 [INFO] Electrical contractor and business owner in Manchester, UK           17    0.396      low_n
+04:16:44 [INFO] Emergency department nurse practitioner in Toronto, Canada           27    0.901           
+04:16:44 [INFO] Environmental consultant specializing in carbon markets in Amste     25    0.437           
+04:16:44 [INFO] Equity research analyst at an investment bank in Hong Kong           26    0.412           
+04:16:44 [INFO] Executive chef and restaurant owner in Mexico City, Mexico           23    0.873           
+04:16:44 [INFO] Finance & Accounting student at GUST Kuwait in Kuwait                39    0.894           
+04:16:44 [INFO] HR director at a tech company in Sydney, Australia                   26    0.043       WEAK
+04:16:44 [INFO] HVAC technician and small business owner in Houston, Texas, USA      28    0.682           
+04:16:44 [INFO] High school math teacher in Austin, Texas, USA                       22    0.822           
+04:16:44 [INFO] Hospital pharmacist specializing in oncology in Paris, France        27    0.863           
+04:16:44 [INFO] IT systems administrator at a manufacturing company in Osaka, Ja     21    0.873           
+04:16:44 [INFO] Independent documentary filmmaker in Mumbai, India                   26    0.834           
+04:16:44 [INFO] Indie game developer and studio founder in Berlin, Germany           27    0.710           
+04:16:44 [INFO] Investigative journalist covering technology and policy in Washi     30    0.718           
+04:16:44 [INFO] Marine electrician on offshore wind vessels in Stavanger, Norway     25    0.721           
+04:16:44 [INFO] Marketing director at a consumer goods company in London, UK         20    0.505           
+04:16:44 [INFO] Mechanical Engineering fresh graduate seeking NEOM/Aramco roles      30    0.837           
+04:16:44 [INFO] Mining engineer at a copper mine in Santiago, Chile                  27    0.717           
+04:16:44 [INFO] Pediatric oncologist at King Faisal Specialist Hospital in Riyad     26    0.697           
+04:16:44 [INFO] Petroleum Engineering student at Kuwait University in Kuwait         35    0.852           
+04:16:44 [INFO] Pipeline welder and CWB-certified inspector in Edmonton, Alberta     27    0.778           
+04:16:44 [INFO] Professional bonsai artist and competition judge in Kyoto, Japan     20    0.538           
+04:16:44 [INFO] Public health researcher and epidemiologist in Geneva, Switzerla     24    0.687           
+04:16:44 [INFO] Real estate developer and investment manager in Dubai, UAE            4    0.775      low_n
+04:16:44 [INFO] Retired IT consultant in Lisbon, Portugal                            28    0.745           
+04:16:44 [INFO] Retired UN diplomat and policy consultant in Vienna, Austria         25    0.799           
+04:16:44 [INFO] Senior auditor at a Big Four accounting firm in Toronto, Canada      23    0.478           
+04:16:44 [INFO] Senior construction project manager in Doha, Qatar                   23    0.162       WEAK
+04:16:44 [INFO] Senior geophysicist at KOC in Kuwait                                 28    0.673           
+04:16:44 [INFO] Social media strategist and content creator in Los Angeles, Cali     21    0.620           
+04:16:44 [INFO] Sports physiotherapist at a professional rugby club in Sydney, A     26    0.638           
+04:16:44 [INFO] Supply chain analyst at a logistics company in Manama, Bahrain       33    0.817           
+04:16:44 [INFO] Trucking and logistics company owner in Atlanta, Georgia, USA        20    0.324           
+04:16:44 [INFO] UX Designer at a consumer electronics company in Tokyo, Japan        25    0.788           
+04:16:44 [INFO] Undeclared sophomore at University of Chicago in Chicago, Illino     55    0.718           
+04:16:44 [INFO] Veterinarian and animal clinic owner in Stockholm, Sweden            21    0.205       WEAK
+04:16:44 [WARNING] 4 profiles flagged:
+04:16:44 [WARNING]   Backend software engineer at a cloud infrastructure company : rho=N/A, flag=insufficient_data
+04:16:44 [WARNING]   HR director at a tech company in Sydney, Australia: rho=0.043, flag=WEAK
+04:16:44 [WARNING]   Senior construction project manager in Doha, Qatar: rho=0.162, flag=WEAK
+04:16:44 [WARNING]   Veterinarian and animal clinic owner in Stockholm, Sweden: rho=0.205, flag=WEAK
+04:16:44 [INFO] ======================================================================
+04:16:44 [INFO] GGUF EXPORT
+04:16:44 [INFO] ======================================================================
