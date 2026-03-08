@@ -550,30 +550,52 @@ function _computeAutoTrend() {
     if (!_tvChart || !_autoTrendOn || !marketData[currentSymbol]) return;
 
     const ad = _resolveData(currentSymbol, currentTimeframe);
-    if (!ad || !ad.timestamps || ad.timestamps.length < 15) return;
+    if (!ad || !ad.timestamps || ad.timestamps.length < 10) return;
 
-    const ts=ad.timestamps, hi=ad.highs||ad.history, lo=ad.lows||ad.history, cl=ad.history;
-    const W = Math.max(3, Math.min(7, Math.floor(ts.length/15)));
-    const swHi=[], swLo=[];
-    for (let i=W;i<cl.length-W;i++) {
-        let isH=true, isL=true;
-        for (let j=i-W;j<=i+W;j++) { if(j===i)continue; if((hi[j]||cl[j])>=(hi[i]||cl[i]))isH=false; if((lo[j]||cl[j])<=(lo[i]||cl[i]))isL=false; }
-        if (isH) swHi.push({i, price:hi[i]||cl[i], time:_toUnix(ts[i])});
-        if (isL) swLo.push({i, price:lo[i]||cl[i], time:_toUnix(ts[i])});
+    const ts = ad.timestamps, hi = ad.highs || ad.history, lo = ad.lows || ad.history;
+    const cl = ad.history;
+
+    // Find swing high and swing low in the visible data
+    let maxPrice = -Infinity, minPrice = Infinity, maxIdx = 0, minIdx = 0;
+    for (let i = 0; i < cl.length; i++) {
+        const h = hi[i] || cl[i], l = lo[i] || cl[i];
+        if (h > maxPrice) { maxPrice = h; maxIdx = i; }
+        if (l < minPrice) { minPrice = l; minIdx = i; }
     }
 
-    if (swHi.length>=2) {
-        const pts=swHi.slice(-2);
-        const s=_tvChart.addLineSeries({color:'#ef4444',lineWidth:1,lineStyle:LightweightCharts.LineStyle.LargeDashed,crosshairMarkerVisible:false,lastValueVisible:false,priceLineVisible:false});
-        s.setData([{time:pts[0].time,value:pts[0].price},{time:pts[1].time,value:pts[1].price}]);
+    if (maxPrice <= minPrice) return;
+
+    // Determine if uptrend or downtrend (low before high = uptrend)
+    const isUptrend = minIdx < maxIdx;
+    const highVal = maxPrice, lowVal = minPrice;
+
+    // Fibonacci levels
+    const fibLevels = [0, 0.236, 0.382, 0.5, 0.618, 0.786, 1];
+    const fibColors = ['#787B86', '#F6C343', '#4CAF50', '#2196F3', '#9C27B0', '#E91E63', '#787B86'];
+    const fibLabels = ['0%', '23.6%', '38.2%', '50%', '61.8%', '78.6%', '100%'];
+    const range = highVal - lowVal;
+
+    // Use full time range for horizontal lines
+    const t0 = _toUnix(ts[0]);
+    const t1 = _toUnix(ts[ts.length - 1]);
+
+    fibLevels.forEach(function(lvl, idx) {
+        // In uptrend: 0% = low, 100% = high. Retracement goes down from high.
+        // In downtrend: reversed.
+        var price = isUptrend ? highVal - (range * lvl) : lowVal + (range * lvl);
+
+        var s = _tvChart.addLineSeries({
+            color: fibColors[idx] || '#787B86',
+            lineWidth: 1,
+            lineStyle: LightweightCharts.LineStyle.Dotted,
+            crosshairMarkerVisible: false,
+            lastValueVisible: false,
+            priceLineVisible: false,
+            title: fibLabels[idx],
+        });
+        s.setData([{time: t0, value: price}, {time: t1, value: price}]);
         _tvTrendLines.push(s);
-    }
-    if (swLo.length>=2) {
-        const pts=swLo.slice(-2);
-        const s=_tvChart.addLineSeries({color:'#22c55e',lineWidth:1,lineStyle:LightweightCharts.LineStyle.LargeDashed,crosshairMarkerVisible:false,lastValueVisible:false,priceLineVisible:false});
-        s.setData([{time:pts[0].time,value:pts[0].price},{time:pts[1].time,value:pts[1].price}]);
-        _tvTrendLines.push(s);
-    }
+    });
 }
 
 // Convert timestamp to Unix seconds for Lightweight Charts display.
