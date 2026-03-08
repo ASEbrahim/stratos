@@ -1139,7 +1139,7 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                 try:
                     scoring_cfg = strat.config.get("scoring", {})
                     ollama_host = scoring_cfg.get("ollama_host", "http://localhost:11434")
-                    model = scoring_cfg.get("inference_model", "qwen3:30b-a3b")
+                    model = scoring_cfg.get("inference_model", "qwen3.5:9b")
                     requests.post(f"{ollama_host}/api/generate",
                                   json={"model": model, "prompt": "hi", "stream": False,
                                         "options": {"num_predict": 1}},

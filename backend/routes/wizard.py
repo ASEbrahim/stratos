@@ -55,16 +55,13 @@ def _call_ollama(host, model, system, prompt, max_tokens=500, temperature=0.2,
                   timeout=120):
     """Make an Ollama chat call. Returns raw response text or None.
 
-    Qwen3 ignores ``think: false`` and leaks reasoning into content as plain
-    text, consuming the entire token budget before producing JSON.  By
-    omitting the ``think`` parameter Ollama lets the model think naturally —
-    reasoning goes to a separate ``thinking`` field while ``content`` holds
-    the clean answer.  ``num_predict`` must be large enough for *both*
-    thinking tokens (~2000-8000) and the JSON output.
+    Qwen3.5 separates reasoning into a ``thinking`` field while ``content``
+    holds the clean answer.  ``num_predict`` covers both thinking + output
+    tokens.  Qwen3.5 is more efficient with thinking than Qwen3, so budgets
+    can be smaller.
     """
     try:
-        # num_ctx must accommodate input + output; scale with max_tokens
-        num_ctx = max(4096, max_tokens + 4096)
+        num_ctx = max(4096, max_tokens + 3072)
         resp = req.post(
             f"{host}/api/chat",
             json={
@@ -92,12 +89,10 @@ def _call_ollama(host, model, system, prompt, max_tokens=500, temperature=0.2,
         raw = strip_think_blocks(raw)
         logger.info(f"Wizard: model={model}, tokens={max_tokens}, think_len={len(thinking)}, raw_len={len(raw)}")
 
-        # Qwen3 sometimes exhausts all num_predict tokens on thinking,
-        # leaving empty content.  Detect this and retry with a bigger budget.
-        if not raw.strip() and len(thinking) > 500:
-            bigger = max_tokens + 6000
+        # Safety net: if thinking consumed all tokens, retry with larger budget
+        if not raw.strip() and len(thinking) > 300:
+            bigger = max_tokens + 3000
             logger.warning(f"Wizard: empty content with {len(thinking)} chars of thinking — retrying with num_predict={bigger}")
-            num_ctx2 = max(4096, bigger + 4096)
             resp2 = req.post(
                 f"{host}/api/chat",
                 json={
@@ -108,20 +103,18 @@ def _call_ollama(host, model, system, prompt, max_tokens=500, temperature=0.2,
                     ],
                     "stream": False,
                     "options": {
-                        "temperature": max(0.1, temperature - 0.1),
+                        "temperature": temperature,
                         "num_predict": bigger,
-                        "num_ctx": num_ctx2,
+                        "num_ctx": max(4096, bigger + 3072),
                     }
                 },
-                timeout=timeout + 120
+                timeout=timeout + 60
             )
             if resp2.status_code == 200:
                 data2 = resp2.json()
                 msg2 = data2.get("message", {})
-                raw2 = msg2.get("content", "")
-                thinking2 = msg2.get("thinking", "") or ""
-                raw2 = strip_think_blocks(raw2)
-                logger.info(f"Wizard retry: think_len={len(thinking2)}, raw_len={len(raw2)}")
+                raw2 = strip_think_blocks(msg2.get("content", ""))
+                logger.info(f"Wizard retry: think_len={len(msg2.get('thinking', ''))}, raw_len={len(raw2)}")
                 if raw2.strip():
                     return raw2
 
@@ -168,7 +161,7 @@ Available categories:
 Pick the 2-4 categories and sub-categories most relevant for a "{role}" in "{location or 'anywhere'}"."""
 
         logger.info(f"Wizard preselect: role='{role}', location='{location}', model='{model}'")
-        raw = _call_ollama(host, model, PRESELECT_SYSTEM, prompt, max_tokens=6000, temperature=0.2, timeout=240)
+        raw = _call_ollama(host, model, PRESELECT_SYSTEM, prompt, max_tokens=2000, temperature=0.2, timeout=120)
         logger.info(f"Wizard preselect raw response: {raw[:300] if raw else 'None'}")
 
         if not raw:
@@ -265,7 +258,7 @@ Already tracking: {existing_str}
 
 Suggest 5-8 specific entities or keywords for the "{category_label}" category. Every suggestion MUST match the stage and goals above. Do not repeat items already being tracked."""
 
-        raw = _call_ollama(host, model, TAB_SUGGEST_SYSTEM, prompt, max_tokens=6000, temperature=0.3, timeout=240)
+        raw = _call_ollama(host, model, TAB_SUGGEST_SYSTEM, prompt, max_tokens=2000, temperature=0.3, timeout=120)
 
         if not raw:
             # Fallback: empty suggestions
@@ -356,7 +349,7 @@ Generate role-appropriate entities for each of these dashboard sections:
 Remember: every entity MUST be relevant to a "{role}" in "{location or 'anywhere'}". Do NOT use generic tech defaults."""
 
         logger.info(f"Wizard rv-items: role='{role}', location='{location}', sections={len(sections)}")
-        raw = _call_ollama(host, model, RV_ITEMS_SYSTEM, prompt, max_tokens=10000, temperature=0.3, timeout=240)
+        raw = _call_ollama(host, model, RV_ITEMS_SYSTEM, prompt, max_tokens=4000, temperature=0.3, timeout=120)
         logger.info(f"Wizard rv-items raw response: {raw[:300] if raw else 'None'}")
 
         if not raw:

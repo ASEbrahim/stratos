@@ -33,7 +33,7 @@ class BriefingGenerator:
         # Extract scoring config (support both full config and scoring-only)
         scoring_config = config.get("scoring", config) if "scoring" in config else config
 
-        self.model = scoring_config.get("wizard_model") or scoring_config.get("inference_model", "qwen3:14b")
+        self.model = scoring_config.get("wizard_model") or scoring_config.get("inference_model", "qwen3.5:9b")
         self.host = scoring_config.get("ollama_host", "http://localhost:11434")
         self._available = None
 
@@ -171,10 +171,9 @@ Do NOT include items just because they scored high — they must be relevant to 
                         {"role": "user", "content": prompt},
                     ],
                     "stream": False,
-                    # Don't set think:false — Qwen3 leaks reasoning into content.
                     "options": {
                         "temperature": 0.7,
-                        "num_predict": max_tokens + 1500  # Extra budget for thinking tokens
+                        "num_predict": max_tokens + 1000  # Budget for thinking + output
                     }
                 },
                 timeout=150

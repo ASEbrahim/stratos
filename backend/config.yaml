@@ -20,8 +20,8 @@ scoring:
   filter_below: 5.0
   forbidden_score: 5.0
   high_min: 7.0
-  inference_model: qwen3:30b-a3b
-  wizard_model: qwen3:14b
+  inference_model: qwen3.5:9b
+  wizard_model: qwen3.5:9b
   medium_min: 5.0
   model: stratos-scorer-v2.2
   ollama_host: http://localhost:11434
@@ -35,11 +35,11 @@ scoring:
     avg_cap: 60
   fallback_score: 3.0
 search:
-  google_api_key: ${GOOGLE_API_KEY}
+  google_api_key: AIzaSyAYmzOV-kl1m60gidsKAhXKiDM92F4qGmY
   google_cx: 52d68e3fc17d74e9a
   provider: serper
-  serper_api_key: ${SERPER_API_KEY}
-  serper_credits: 43
+  serper_api_key: bc26c29537b924cf7e8022eaaf83c50cfdeb51be
+  serper_credits: 0
 system:
   database_file: strat_os.db
   frontend_port: 8080
@@ -50,26 +50,16 @@ email:
   smtp_host: smtp.gmail.com
   smtp_port: 587
   smtp_user: StratintOS@gmail.com
-  smtp_password: ${SMTP_PASSWORD}
+  smtp_password: ctko nnjl skkl kxxj
 profile:
-  role: Electrical Engineering
+  role: developer
   location: Kuwait
-  context: Mid-career electrical engineer in Kuwait focused on K-sector employment,
-    government job opportunities, and professional development in telecom and construction
-    industries.
+  context: Mid-career developer in Kuwait focused on job hunting, research opportunities
+    in university labs/industry R&D, and professional certifications in tech/software.
+    Tracks telecom innovations and global tech trends.
   interests: []
 market:
   tickers:
-  - symbol: NVDA
-    name: NVIDIA
-  - symbol: AAPL
-    name: Apple
-  - symbol: MSFT
-    name: Microsoft
-  - symbol: AMZN
-    name: Amazon
-  - symbol: GOOGL
-    name: Google
   - symbol: BTC-USD
     name: Bitcoin
   - symbol: ETH-USD
@@ -78,8 +68,10 @@ market:
     name: Gold
   - symbol: CL=F
     name: Crude Oil
-  - symbol: SPY
-    name: S&P 500 ETF
+  - symbol: EURUSD=X
+    name: EURUSD=X
+  - symbol: ^GSPC
+    name: S&P 500
 news:
   timelimit: w
   career:
@@ -99,9 +91,9 @@ news:
     keywords: []
     queries: []
 dynamic_categories:
-- id: telecom
-  label: Telecom & Construction Employers
-  icon: building-2
+- id: kemployers
+  label: Kuwait Tech Employers
+  icon: briefcase
   items:
   - Zain
   - Ooredoo
@@ -110,96 +102,93 @@ dynamic_categories:
   - Alghanim
   - Huawei
   - SAP
-  - Arab Contractors
-  - Ericsson
-  - Nokia
-  - Samsung C&T
+  - KOC Tech
+  - KNPC Digital
+  - KIPIC IT
+  - Ericsson Kuwait
+  - Nokia Kuwait
+  - Vodafone Kuwait
+  - Cisco Systems Kuwait
+  - Samsung Electronics Kuwait
   enabled: true
   scorer_type: career
   root: kuwait
-- id: cert
-  label: Career & Certifications
-  icon: book-open
+- id: techtrends
+  label: Emerging Tech & Software Trends
+  icon: cpu
   items:
-  - PMP certification
-  - PE license
-  - Six Sigma
-  - NEBOSH
-  - Coursera
-  - Udemy
-  - LinkedIn Learning
-  - IEEE certifications
+  - AI development
+  - blockchain
+  - quantum computing
+  - IoT
+  - cloud computing
+  - edge computing
+  - 6G
+  - digital twins
+  - TensorFlow
+  - Hyperledger
+  - AWS IoT
+  - Docker
+  - Kubernetes
+  - NIST Cybersecurity Framework
+  enabled: true
+  scorer_type: tech
+  root: global
+- id: certifications
+  label: Professional Development
+  icon: award
+  items:
+  - AWS certified
+  - Google Cloud Professional
+  - CISSP
+  - Python certification
+  - Microsoft Azure
   - CompTIA Security+
-  - Cisco CCNA
-  - Kuwait Engineering Council (KEC) Certifications
+  - Kuwait Tech Conferences
+  - Global DevSummit
+  - PMP Certification
+  - AWS Machine Learning Specialty
+  - Google Cloud Professional Data Engineer
+  - Gulf Information and Communication Technology Exhibition
+  - Kuwait International IT Exhibition
   enabled: true
   scorer_type: career
   root: kuwait
-- id: trend
-  label: Telecom & Construction Trends
-  icon: bar-chart-3
-  items:
-  - 5G deployment
-  - smart grid technology
-  - renewable energy integration
-  - construction automation
-  - BIM software
-  - IoT in construction
-  - digital twin modeling
-  - smart city infrastructure
-  - AI in Construction Management
-  - Blockchain for Supply Chain
-  - Edge Computing in Telecom
-  enabled: true
-  scorer_type: auto
-  root: regional
-- id: gov
-  label: Government & Public Sector Opportunities
-  icon: gavel
-  items:
-  - Kuwait government job portals
-  - public sector tenders
-  - Ministry of Electricity
-  - KISR
-  - KIPIC
-  - KNPC
-  - KOC
-  - Kuwait Institute for Scientific Research
-  - Kuwait Telecommunications Regulatory Authority
-  - Kuwait Standards and Metrology Center
-  - Ministry of Transport
-  enabled: true
-  scorer_type: career
-  root: kuwait
-- id: net
-  label: Professional Development & Networking
+- id: telecom
+  label: Telecom & Industry Innovations
   icon: globe
   items:
-  - IEEE conferences
-  - industry networking groups
-  - LinkedIn professional groups
-  - construction tech workshops
-  - telecom innovation forums
-  - online engineering courses
-  - professional associations
-  - Kuwait Engineering Council
-  - Kuwait International Petroleum Exhibition and Conference
-  - Kuwait Society of Engineers
-  - Kuwait Institute for Scientific Research (KISR)
+  - 5G deployment
+  - network security
+  - Zain 5G
+  - Ooredoo IoT
+  - STC Kuwait AI
+  - telecom R&D
+  - Kuwait ICT policy
+  - Kuwait Smart City Initiative
+  - Communications and Information Technology Commission
+  - Kuwait National Broadband Plan
+  - Nokia 5G Solutions for Kuwait
+  - Kuwait 5G Strategy
   enabled: true
-  scorer_type: auto
-  root: global
-- id: ksector
-  label: K-Sector Employers
-  icon: briefcase
+  scorer_type: tech
+  root: regional
+- id: research
+  label: Research & Academic Opportunities
+  icon: book-open
   items:
-  - Equate
-  - SLB
-  - Halliburton
-  - Baker Hughes
-  - Honeywell
-  - Kuwait Energy Efficiency Company
-  - Kuwait National Petroleum Company
+  - Kuwait University
+  - KFUPM
+  - KISR
+  - Ministry of Education R&D
+  - Kuwait Institute for Scientific Research
+  - NRC
+  - Industry R&D partnerships
+  - Government tech grants
+  - Kuwait Institute for Scientific and Technological
+  - Petroleum Institute
+  - Kuwait Foundation for the Advancement of
+  - Kuwait Center for Artificial Intelligence
   enabled: true
   scorer_type: career
   root: kuwait
@@ -208,10 +197,10 @@ extra_feeds_finance:
   cnbc_finance: false
   marketwatch: false
   mw_pulse: false
-  yahoo_fin: true
-  investing: true
+  yahoo_fin: false
+  investing: false
   ft: false
-  bloomberg: true
+  bloomberg: false
   wsj_world: false
   economist: false
   seekingalpha: false
@@ -220,19 +209,19 @@ extra_feeds_finance:
   cointelegraph: false
   gn_kuwait_biz: false
   gn_gcc_finance: false
-  zawya: true
+  zawya: false
   arab_times_biz: false
   boursa_kuwait: true
   oilprice: true
   rigzone: false
 extra_feeds_politics:
-  bbc_world: true
-  bbc_mideast: true
+  bbc_world: false
+  bbc_mideast: false
   aljazeera: true
-  npr_world: true
-  nyt_world: true
-  nyt_mideast: true
-  wapo_world: true
+  npr_world: false
+  nyt_world: false
+  nyt_mideast: false
+  wapo_world: false
   wapo_politics: false
   cnn_world: false
   fox_world: false
@@ -240,16 +229,13 @@ extra_feeds_politics:
   dw: false
   france24: false
   gn_kuwait: true
-  arab_times: true
+  arab_times: false
   times_kuwait: false
-  gn_mideast: true
+  gn_mideast: false
   alarabiya: false
   middleeasteye: false
   newarab: false
   scmp: false
   nikkei_asia: false
-custom_feeds:
-- url: https://e-hentai.org/rss/ehg.xml
-  name: nh
-  'on': true
+custom_feeds: []
 custom_tab_name: Custom

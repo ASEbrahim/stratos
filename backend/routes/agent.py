@@ -438,7 +438,7 @@ def _write_config(strat):
 def handle_agent_status(handler, strat):
     scoring_cfg = strat.config.get("scoring", {})
     ollama_host = scoring_cfg.get("ollama_host", "http://localhost:11434")
-    model = scoring_cfg.get("inference_model", "qwen3:30b-a3b")
+    model = scoring_cfg.get("inference_model", "qwen3.5:9b")
     available = False
     try:
         r = req.get(f"{ollama_host}/api/tags", timeout=3)
@@ -464,7 +464,7 @@ def handle_agent_chat(handler, strat, output_dir, profile_id=0):
 
         scoring_cfg = strat.config.get("scoring", {})
         ollama_host = scoring_cfg.get("ollama_host", "http://localhost:11434")
-        model = scoring_cfg.get("inference_model", "qwen3:30b-a3b")  # Use inference model, not scorer
+        model = scoring_cfg.get("inference_model", "qwen3.5:9b")  # Use inference model, not scorer
         profile = strat.config.get("profile", {})
         role = profile.get("role", "user")
         location = profile.get("location", "")
@@ -564,8 +564,7 @@ HISTORICAL DATA:
                             "temperature": 0.4,
                             "num_predict": 3000,
                         },
-                        # Let Qwen3 think naturally — thinking goes to separate field.
-                        # think:false causes reasoning to leak into content as plain text.
+                        # Qwen3.5 separates reasoning into thinking field automatically.
                     },
                     timeout=180
                 )
@@ -583,7 +582,7 @@ HISTORICAL DATA:
             content = assistant_msg.get("content", "")
 
             # ── Fallback: parse text-based tool calls ──
-            # Qwen3 MoE sometimes outputs tool calls as text instead of
+            # Some models output tool calls as text instead of
             # structured tool_calls. Detect and extract them.
             if not tool_calls and content:
                 parsed = _parse_text_tool_calls(content)

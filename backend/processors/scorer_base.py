@@ -736,7 +736,7 @@ class ScorerBase:
 
         self.model = scoring_config.get("model", "stratos-scorer-v1")
         self.host = scoring_config.get("ollama_host", "http://localhost:11434")
-        self.inference_model = scoring_config.get("inference_model", "qwen3:30b-a3b")
+        self.inference_model = scoring_config.get("inference_model", "qwen3.5:9b")
         self.forbidden_score = scoring_config.get("forbidden_score", 5.0)
 
         self.critical_min = scoring_config.get("critical_min", 9.0)
