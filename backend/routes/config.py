@@ -159,9 +159,20 @@ def handle_config_save(handler, strat, auth_helpers):
             if key in new_config:
                 config[key] = new_config[key]
 
-        # Save to disk
+        # Save to disk — only write SYSTEM-level settings to config.yaml.
+        # Profile-specific fields (role, categories, tickers, feeds) go to
+        # the DB overlay + profile YAML only, to prevent cross-profile pollution.
+        _PROFILE_KEYS = {"profile", "dynamic_categories", "market", "news",
+                         "extra_feeds_finance", "extra_feeds_politics",
+                         "custom_feeds_finance", "custom_feeds_politics",
+                         "custom_feeds", "custom_tab_name"}
+        base_config = strat._load_config()
+        # Merge only system-level changes from new_config into the base
+        for key in new_config:
+            if key not in _PROFILE_KEYS:
+                base_config[key] = config.get(key, new_config[key])
         with open(strat.config_path, "w") as f:
-            yaml.dump(config, f, default_flow_style=False, sort_keys=False)
+            yaml.dump(base_config, f, default_flow_style=False, sort_keys=False)
 
         # Log
         saved_keys = list(new_config.keys())

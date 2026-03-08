@@ -192,7 +192,16 @@ class StratOS:
                 return  # Another thread already switched
             self.config = copy.deepcopy(self._profile_configs[profile_name])
             self.active_profile = profile_name
-            logger.info(f"Profile switched to: {profile_name}")
+            # Update active_profile_id from DB
+            try:
+                row = self.db.conn.execute(
+                    "SELECT id FROM profiles WHERE name = ?", (profile_name,)
+                ).fetchone()
+                if row:
+                    self.active_profile_id = row[0]
+            except Exception:
+                pass
+            logger.info(f"Profile switched to: {profile_name} (id={self.active_profile_id})")
 
     def _load_profile_from_db(self, profile_name: str):
         """Load a profile's config_overlay from DB into the in-memory cache."""
@@ -201,15 +210,19 @@ class StratOS:
                 "SELECT config_overlay FROM profiles WHERE name = ?",
                 (profile_name,)
             ).fetchone()
-            if not row or not row[0]:
-                return
-            import json as _json
-            overlay = _json.loads(row[0])
-            # Start from base config, apply overlay
+            if not row:
+                return  # Profile doesn't exist in DB
+            # Start from base config, apply overlay (if any)
             base = self._load_config()
-            self._apply_overlay(base, overlay)
+            if row[0]:
+                import json as _json
+                overlay = _json.loads(row[0])
+                if overlay:  # Non-empty overlay
+                    self._apply_overlay(base, overlay)
             self._profile_configs[profile_name] = base
-            logger.info(f"Profile '{profile_name}' loaded from DB into cache")
+            logger.info(f"Profile '{profile_name}' loaded from DB into cache "
+                       f"(role={base.get('profile',{}).get('role','?')}, "
+                       f"cats={len(base.get('dynamic_categories',[]))})")
         except Exception as e:
             logger.warning(f"Failed to load profile '{profile_name}' from DB: {e}")
 
@@ -876,8 +889,12 @@ class StratOS:
             # Reload config (profile-aware — A2.1)
             if self.active_profile and self.active_profile in self._profile_configs:
                 self.config = copy.deepcopy(self._profile_configs[self.active_profile])
+                logger.info(f"Config loaded from cache for '{self.active_profile}' "
+                           f"(role={self.config.get('profile',{}).get('role')}, "
+                           f"cats={len(self.config.get('dynamic_categories',[]))})")
             else:
                 self.config = self._load_config()
+                logger.info(f"Config loaded from config.yaml (role={self.config.get('profile',{}).get('role')})")
             # Always re-apply .env secrets (config.yaml has ${VAR} placeholders)
             self._load_env_secrets()
             self.news_fetcher = NewsFetcher(self.config)

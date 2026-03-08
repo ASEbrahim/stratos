@@ -155,10 +155,7 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                     _pid_row = cursor.fetchone()
                     if _pid_row and _pid_row[0]:
                         self._profile_id = _pid_row[0]
-                        # For DB-backed profiles, ensure active_profile is set
-                        # even if ensure_profile() didn't have the config cached
-                        if _session_profile and strat.active_profile != _session_profile:
-                            strat.active_profile = _session_profile
+                        strat.active_profile_id = _pid_row[0]
                 except Exception:
                     pass
                 self._session_profile = _session_profile
@@ -272,7 +269,6 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                 self.send_header("Access-Control-Allow-Origin", "*")
                 self.end_headers()
                 self.wfile.write(b'{"status": "news_refresh_triggered"}')
-                # Resolve profile_id (refresh-news is AUTH_EXEMPT)
                 _refresh_pid = self._profile_id or (_get_profile_id(self.headers.get('X-Auth-Token', '')) or 0)
                 threading.Thread(target=strat.run_news_refresh, args=(_refresh_pid,), daemon=True).start()
                 return
@@ -1099,10 +1095,7 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                     _pid_row = cursor.fetchone()
                     if _pid_row and _pid_row[0]:
                         self._profile_id = _pid_row[0]
-                        # For DB-backed profiles, ensure active_profile is set
-                        # even if ensure_profile() didn't have the config cached
-                        if _session_profile and strat.active_profile != _session_profile:
-                            strat.active_profile = _session_profile
+                        strat.active_profile_id = _pid_row[0]
                 except Exception:
                     pass
                 self._session_profile = _session_profile
