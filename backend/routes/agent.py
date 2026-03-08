@@ -484,22 +484,19 @@ CATEGORIES: {cat_summary or '(none)'}
 
 TOOLS:
 1. {search_note}
-2. search_feed — search your scored news feed history. "what scored highest this week" = top_signals, "articles about NVIDIA" = search, "daily summary" = daily_summary. Shows scores, reasons, and dates.
-3. manage_watchlist — add/remove/list tickers. "track Tesla" = add TSLA, "stop following gold" = remove GC=F, "what's on my watchlist" = list.
-4. manage_categories — add/remove keywords, list/toggle categories. "add Ethereum to crypto" = add_keyword, "what topics am I tracking" = list, "show me what's in hardware" = show_keywords.
+2. search_feed — search scored news feed history.
+3. manage_watchlist — add/remove/list tickers.
+4. manage_categories — add/remove keywords, list/toggle categories.
+
+IMPORTANT: Your CURRENT FEED DATA section below contains LIVE market prices and top news signals from the latest scan. USE THIS DATA FIRST before calling any tools. If the user asks about prices, performance, or market data — check the MARKET DATA section below. Only use web_search if the data below is insufficient or stale.
 
 RULES:
-- Be concise. Lead with the most actionable insight. Use bullet points for multiple items. Keep total response under 200 words unless the user explicitly asks for detail.
-- Default: 3-5 bullet points or 2-3 short paragraphs max. No padding, no filler.
-- For questions about current events, jobs, bank offers, or anything NOT in the feed — use web_search tool. DO NOT fabricate information.
-- When the user wants to modify tickers or categories (even in casual language), use the appropriate tool.
-- Use **bold** for key terms. Numbered lists only for 3+ items.
-- When using web_search, synthesize results — connect them to the user's interests and feed data.
-- If data is not available and search returns nothing, say so honestly.
-- Match the user's tone. Be direct and natural.
-- NEVER output raw JSON, XML tags, or function call syntax in your response. Always respond in natural language.
-- When you have nothing useful to add, say so briefly rather than giving an empty response.
-- CRITICAL: Respond DIRECTLY to the user. Do NOT narrate your thought process ("Okay, the user asked...", "Let me check...", "I need to..."). Just answer.
+- Be concise. 3-5 bullet points or 2-3 short paragraphs max. Under 200 words unless asked for detail.
+- When you have market data in the context below, USE IT directly. Don't say "I can't access prices" when prices are right there.
+- For questions about current events NOT in the feed — use web_search.
+- Use **bold** for key terms. Be direct. Match the user's tone.
+- NEVER output raw JSON, XML tags, or function call syntax.
+- CRITICAL: Respond DIRECTLY. No narrating your thought process.
 
 CURRENT FEED DATA:
 {news_context[:5000]}
@@ -550,8 +547,8 @@ HISTORICAL DATA:
         # Tools to send
         tools = AGENT_TOOLS if serper_available else [t for t in AGENT_TOOLS if t["function"]["name"] != "web_search"]
 
-        # ── Tool-call loop (max 3 rounds) ──
-        for round_num in range(3):
+        # ── Tool-call loop (max 5 rounds) ──
+        for round_num in range(5):
             try:
                 r = req.post(
                     f"{ollama_host}/api/chat",
@@ -597,7 +594,7 @@ HISTORICAL DATA:
                 # Final response — clean up LLM output
                 text = strip_think_blocks(content)
                 text = strip_reasoning_preamble(text)
-                if not text and round_num < 2:
+                if not text and round_num < 4:
                     # Empty or reasoning-only response. Retry with a direct nudge.
                     messages.append({"role": "assistant", "content": ""})
                     messages.append({"role": "user", "content": "(Respond directly to the user. No internal reasoning or thought process. Just the answer.)"})
@@ -666,11 +663,12 @@ def handle_ask(handler, strat, output_dir):
             f"{scorer.host}/api/chat",
             json={"model": scorer.inference_model,
                   "messages": [
-                      {"role": "system", "content": "Concise analyst. Answer in 2-4 sentences max. Lead with the actionable insight. Be honest if info is insufficient. No reasoning, no think tags. Respond directly."},
+                      {"role": "system", "content": "Concise analyst. Answer in 2-4 sentences max. Lead with the actionable insight. Be honest if info is insufficient. Respond directly."},
                       {"role": "user", "content": prompt},
                   ],
-                  "stream": False, "options": {"temperature": 0.5, "num_predict": 2000, "num_ctx": 4096}},
-            timeout=90)
+                  "stream": False, "think": False,
+                  "options": {"temperature": 0.5, "num_predict": 500, "num_ctx": 4096}},
+            timeout=60)
         answer = ""
         if response.status_code == 200:
             answer = response.json().get("message", {}).get("content", "").strip()
@@ -753,8 +751,9 @@ TICKERS: 3-8 Yahoo Finance symbols relevant to this role.
                       {"role": "system", "content": system_msg},
                       {"role": "user", "content": prompt},
                   ],
-                  "stream": False, "options": {"temperature": 0.5, "num_predict": 2500, "num_ctx": 2048}},
-            timeout=120)  # 120s — model swap can take 30-40s on first call
+                  "stream": False, "think": False,
+                  "options": {"temperature": 0.5, "num_predict": 500, "num_ctx": 2048}},
+            timeout=60)
 
         suggestion, tickers = "", []
         if response.status_code == 200:
