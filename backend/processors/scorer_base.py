@@ -648,6 +648,14 @@ class ScoringTimer:
             logger.warning(f"ScoringTimer avg {avg:.1f}s exceeds cap {self._avg_cap}s — model may be too slow")
         return min(avg, self._avg_cap)
 
+    def fast_timeout(self, buffer: float = 30.0, minimum: float = 45.0) -> float:
+        """Pass 1 timeout: rolling_avg + buffer, at least minimum."""
+        return max(self.rolling_avg + buffer, minimum)
+
+    def slow_timeout(self, multiplier: float = 3.0, buffer: float = 60.0) -> float:
+        """Pass 2 timeout: rolling_avg × multiplier + buffer."""
+        return self.rolling_avg * multiplier + buffer
+
     @property
     def sample_count(self) -> int:
         return len(self._times)
