@@ -1322,21 +1322,17 @@ function _mainChartFit() {
     _tvChart.priceScale('right').applyOptions({ autoScale: true });
 }
 
-function _mainChartVZoom(dir) {
+var _vZoomLevel = 0; // 0=auto, 1-3=zoom levels
+function _mainChartVZoom() {
     if (!_tvChart || !_tvSeries) return;
     var ps = _tvChart.priceScale('right');
-    ps.applyOptions({ autoScale: false });
-    var el = _tvChart.chartElement();
-    if (!el) return;
-    var h = el.clientHeight;
-    var topPrice = _tvSeries.coordinateToPrice(0);
-    var botPrice = _tvSeries.coordinateToPrice(h);
-    if (topPrice == null || botPrice == null) { ps.applyOptions({autoScale:true}); return; }
-    var half = Math.abs(topPrice - botPrice) / 2;
-    var factor = dir > 0 ? 0.75 : 1.33;
-    var newHalf = half * factor;
-    // Adjust scaleMargins to simulate vertical zoom
-    var topMargin = 0.5 - (newHalf / (2 * half)) * 0.5;
-    topMargin = Math.max(0.01, Math.min(0.45, topMargin));
-    ps.applyOptions({ scaleMargins: { top: topMargin, bottom: topMargin } });
+    _vZoomLevel = (_vZoomLevel + 1) % 4;
+    if (_vZoomLevel === 0) {
+        // Reset to auto
+        ps.applyOptions({ autoScale: true, scaleMargins: { top: 0.1, bottom: 0.1 } });
+    } else {
+        // Progressive zoom: tighter margins = more price detail
+        var margins = [0, 0.15, 0.25, 0.35][_vZoomLevel];
+        ps.applyOptions({ autoScale: false, scaleMargins: { top: margins, bottom: margins } });
+    }
 }
