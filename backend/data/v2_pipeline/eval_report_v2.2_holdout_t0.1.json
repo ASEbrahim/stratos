@@ -1,0 +1,261 @@
+{
+  "total_samples": 1500,
+  "parse_failures": 0,
+  "mae": 0.914,
+  "rmse": 1.264,
+  "direction_accuracy": 0.9447,
+  "spearman_rho": 0.6906,
+  "agreement_pct_1pt": 75.5,
+  "agreement_pct_2pt": 90.7,
+  "band_breakdown": {
+    "noise": {
+      "count": 1222,
+      "mae": 0.787
+    },
+    "tangential": {
+      "count": 176,
+      "mae": 1.418
+    },
+    "moderate": {
+      "count": 51,
+      "mae": 1.716
+    },
+    "high": {
+      "count": 42,
+      "mae": 1.462
+    },
+    "critical": {
+      "count": 9,
+      "mae": 1.256
+    }
+  },
+  "profile_breakdown": {
+    "Agricultural commodities trader": {
+      "count": 50,
+      "mae": 0.84,
+      "direction_acc": 0.98
+    },
+    "Architect working on smart city infrastructure projects": {
+      "count": 50,
+      "mae": 0.96,
+      "direction_acc": 0.96
+    },
+    "Biotech researcher at KAUST studying gene therapy": {
+      "count": 50,
+      "mae": 0.55,
+      "direction_acc": 0.98
+    },
+    "CTO of a mobile payments startup": {
+      "count": 50,
+      "mae": 0.772,
+      "direction_acc": 0.98
+    },
+    "Computer Engineering student at American University of Kuwait": {
+      "count": 50,
+      "mae": 1.774,
+      "direction_acc": 0.8
+    },
+    "Corporate lawyer at a major law firm": {
+      "count": 50,
+      "mae": 1.444,
+      "direction_acc": 0.84
+    },
+    "Cybersecurity analyst at a Kuwaiti bank": {
+      "count": 50,
+      "mae": 1.008,
+      "direction_acc": 0.9
+    },
+    "Data Scientist at a Dubai fintech startup": {
+      "count": 50,
+      "mae": 0.886,
+      "direction_acc": 0.94
+    },
+    "Digital marketing manager at a K-pop entertainment agency": {
+      "count": 50,
+      "mae": 0.97,
+      "direction_acc": 0.98
+    },
+    "Emergency department nurse practitioner": {
+      "count": 50,
+      "mae": 0.9,
+      "direction_acc": 0.96
+    },
+    "Executive chef and restaurant owner": {
+      "count": 50,
+      "mae": 0.54,
+      "direction_acc": 1.0
+    },
+    "Finance & Accounting student at GUST Kuwait": {
+      "count": 50,
+      "mae": 1.076,
+      "direction_acc": 0.92
+    },
+    "HVAC technician and small business owner": {
+      "count": 50,
+      "mae": 0.64,
+      "direction_acc": 0.98
+    },
+    "Hospital pharmacist specializing": {
+      "count": 50,
+      "mae": 0.7,
+      "direction_acc": 0.98
+    },
+    "Independent documentary filmmaker": {
+      "count": 50,
+      "mae": 0.82,
+      "direction_acc": 0.94
+    },
+    "Indie game developer and studio founder": {
+      "count": 50,
+      "mae": 0.85,
+      "direction_acc": 0.98
+    },
+    "Marine electrician on offshore wind vessels": {
+      "count": 50,
+      "mae": 0.71,
+      "direction_acc": 0.98
+    },
+    "Mechanical Engineering fresh graduate seeking NEOM/Aramco roles": {
+      "count": 50,
+      "mae": 1.14,
+      "direction_acc": 0.84
+    },
+    "Mining engineer at a copper mine": {
+      "count": 50,
+      "mae": 0.8,
+      "direction_acc": 0.94
+    },
+    "Pediatric oncologist at King Faisal Specialist Hospital": {
+      "count": 50,
+      "mae": 0.89,
+      "direction_acc": 0.98
+    },
+    "Petroleum Engineering student at Kuwait University": {
+      "count": 50,
+      "mae": 1.32,
+      "direction_acc": 0.96
+    },
+    "Pipeline welder and CWB-certified inspector": {
+      "count": 50,
+      "mae": 0.83,
+      "direction_acc": 0.98
+    },
+    "Professional bonsai artist and competition judge": {
+      "count": 50,
+      "mae": 0.66,
+      "direction_acc": 1.0
+    },
+    "Retired IT consultant": {
+      "count": 50,
+      "mae": 1.08,
+      "direction_acc": 0.92
+    },
+    "Retired UN diplomat and policy consultant": {
+      "count": 50,
+      "mae": 0.9,
+      "direction_acc": 0.96
+    },
+    "Senior geophysicist at KOC": {
+      "count": 50,
+      "mae": 0.9,
+      "direction_acc": 0.96
+    },
+    "Sports physiotherapist at a professional rugby club": {
+      "count": 50,
+      "mae": 0.59,
+      "direction_acc": 1.0
+    },
+    "Supply chain analyst at a logistics company": {
+      "count": 50,
+      "mae": 0.82,
+      "direction_acc": 0.92
+    },
+    "UX Designer at a consumer electronics company": {
+      "count": 50,
+      "mae": 0.92,
+      "direction_acc": 0.96
+    },
+    "Undeclared sophomore at University of Chicago": {
+      "count": 50,
+      "mae": 1.144,
+      "direction_acc": 0.82
+    }
+  },
+  "worst_disagreements": [
+    {
+      "profile": "Retired UN diplomat and policy consultant",
+      "predicted": 1.0,
+      "ground_truth": 8.0,
+      "delta": -7.0,
+      "title": "[PDF] ec_rtd_com-2026-97-science-diplomacy-recommendation.pdf"
+    },
+    {
+      "profile": "Corporate lawyer at a major law firm",
+      "predicted": 2.5,
+      "ground_truth": 8.0,
+      "delta": -5.5,
+      "title": "Pentagon Used Anthropic\u2019s Claude in Maduro Venezuela Raid"
+    },
+    {
+      "profile": "Retired UN diplomat and policy consultant",
+      "predicted": 2.0,
+      "ground_truth": 7.5,
+      "delta": -5.5,
+      "title": "Pentagon Used Anthropic\u2019s Claude in Maduro Venezuela Raid"
+    },
+    {
+      "profile": "Cybersecurity analyst at a Kuwaiti bank",
+      "predicted": 6.2,
+      "ground_truth": 1.0,
+      "delta": 5.2,
+      "title": "Don't miss the 19 FinTech deals of the week - Nearly $500m raised ..."
+    },
+    {
+      "profile": "Computer Engineering student at American University of Kuwait",
+      "predicted": 5.5,
+      "ground_truth": 1.0,
+      "delta": 4.5,
+      "title": "Behind every safe home is power that's tested, measured and ..."
+    },
+    {
+      "profile": "Computer Engineering student at American University of Kuwait",
+      "predicted": 7.5,
+      "ground_truth": 3.0,
+      "delta": 4.5,
+      "title": "Moroccan Fintech Startups Gain Traction with Yakeey Chari and Ora ..."
+    },
+    {
+      "profile": "Corporate lawyer at a major law firm",
+      "predicted": 7.5,
+      "ground_truth": 3.0,
+      "delta": 4.5,
+      "title": "Shell has agreed to sell a 20% stake in its Orca project ..."
+    },
+    {
+      "profile": "Computer Engineering student at American University of Kuwait",
+      "predicted": 7.2,
+      "ground_truth": 3.0,
+      "delta": 4.2,
+      "title": "Don't miss the 19 FinTech deals of the week - Nearly $500m raised ..."
+    },
+    {
+      "profile": "Computer Engineering student at American University of Kuwait",
+      "predicted": 6.5,
+      "ground_truth": 2.5,
+      "delta": 4.0,
+      "title": "Call for Abstracts - My Goldschmidt"
+    },
+    {
+      "profile": "Computer Engineering student at American University of Kuwait",
+      "predicted": 7.5,
+      "ground_truth": 3.5,
+      "delta": 4.0,
+      "title": "WEF Global Cybersecurity Outlook 2026: Key Insights for Leaders"
+    }
+  ],
+  "model": "stratos-scorer-v2.2",
+  "eval_file": "data/v2_pipeline/eval_holdout_v2.jsonl",
+  "temperature": 0.1,
+  "elapsed_seconds": 1241.0,
+  "timestamp": "2026-03-08T05:07:00"
+}

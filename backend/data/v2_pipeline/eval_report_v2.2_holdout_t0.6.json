@@ -1,0 +1,261 @@
+{
+  "total_samples": 1500,
+  "parse_failures": 0,
+  "mae": 1.059,
+  "rmse": 1.483,
+  "direction_accuracy": 0.932,
+  "spearman_rho": 0.6299,
+  "agreement_pct_1pt": 71.1,
+  "agreement_pct_2pt": 86.8,
+  "band_breakdown": {
+    "noise": {
+      "count": 1222,
+      "mae": 0.952
+    },
+    "tangential": {
+      "count": 176,
+      "mae": 1.44
+    },
+    "moderate": {
+      "count": 51,
+      "mae": 1.741
+    },
+    "high": {
+      "count": 42,
+      "mae": 1.714
+    },
+    "critical": {
+      "count": 9,
+      "mae": 1.256
+    }
+  },
+  "profile_breakdown": {
+    "Agricultural commodities trader": {
+      "count": 50,
+      "mae": 0.904,
+      "direction_acc": 0.98
+    },
+    "Architect working on smart city infrastructure projects": {
+      "count": 50,
+      "mae": 1.14,
+      "direction_acc": 0.94
+    },
+    "Biotech researcher at KAUST studying gene therapy": {
+      "count": 50,
+      "mae": 0.76,
+      "direction_acc": 0.98
+    },
+    "CTO of a mobile payments startup": {
+      "count": 50,
+      "mae": 0.936,
+      "direction_acc": 0.92
+    },
+    "Computer Engineering student at American University of Kuwait": {
+      "count": 50,
+      "mae": 2.066,
+      "direction_acc": 0.76
+    },
+    "Corporate lawyer at a major law firm": {
+      "count": 50,
+      "mae": 1.6,
+      "direction_acc": 0.8
+    },
+    "Cybersecurity analyst at a Kuwaiti bank": {
+      "count": 50,
+      "mae": 1.14,
+      "direction_acc": 0.88
+    },
+    "Data Scientist at a Dubai fintech startup": {
+      "count": 50,
+      "mae": 1.072,
+      "direction_acc": 0.92
+    },
+    "Digital marketing manager at a K-pop entertainment agency": {
+      "count": 50,
+      "mae": 1.096,
+      "direction_acc": 0.98
+    },
+    "Emergency department nurse practitioner": {
+      "count": 50,
+      "mae": 0.872,
+      "direction_acc": 0.98
+    },
+    "Executive chef and restaurant owner": {
+      "count": 50,
+      "mae": 0.75,
+      "direction_acc": 0.96
+    },
+    "Finance & Accounting student at GUST Kuwait": {
+      "count": 50,
+      "mae": 1.076,
+      "direction_acc": 0.96
+    },
+    "HVAC technician and small business owner": {
+      "count": 50,
+      "mae": 0.87,
+      "direction_acc": 0.9
+    },
+    "Hospital pharmacist specializing": {
+      "count": 50,
+      "mae": 0.72,
+      "direction_acc": 1.0
+    },
+    "Independent documentary filmmaker": {
+      "count": 50,
+      "mae": 1.08,
+      "direction_acc": 0.94
+    },
+    "Indie game developer and studio founder": {
+      "count": 50,
+      "mae": 0.792,
+      "direction_acc": 0.96
+    },
+    "Marine electrician on offshore wind vessels": {
+      "count": 50,
+      "mae": 0.94,
+      "direction_acc": 0.92
+    },
+    "Mechanical Engineering fresh graduate seeking NEOM/Aramco roles": {
+      "count": 50,
+      "mae": 1.324,
+      "direction_acc": 0.86
+    },
+    "Mining engineer at a copper mine": {
+      "count": 50,
+      "mae": 1.01,
+      "direction_acc": 0.94
+    },
+    "Pediatric oncologist at King Faisal Specialist Hospital": {
+      "count": 50,
+      "mae": 0.86,
+      "direction_acc": 1.0
+    },
+    "Petroleum Engineering student at Kuwait University": {
+      "count": 50,
+      "mae": 1.404,
+      "direction_acc": 0.96
+    },
+    "Pipeline welder and CWB-certified inspector": {
+      "count": 50,
+      "mae": 1.0,
+      "direction_acc": 1.0
+    },
+    "Professional bonsai artist and competition judge": {
+      "count": 50,
+      "mae": 1.01,
+      "direction_acc": 0.98
+    },
+    "Retired IT consultant": {
+      "count": 50,
+      "mae": 1.334,
+      "direction_acc": 0.9
+    },
+    "Retired UN diplomat and policy consultant": {
+      "count": 50,
+      "mae": 0.948,
+      "direction_acc": 0.96
+    },
+    "Senior geophysicist at KOC": {
+      "count": 50,
+      "mae": 1.104,
+      "direction_acc": 0.92
+    },
+    "Sports physiotherapist at a professional rugby club": {
+      "count": 50,
+      "mae": 0.58,
+      "direction_acc": 0.98
+    },
+    "Supply chain analyst at a logistics company": {
+      "count": 50,
+      "mae": 1.124,
+      "direction_acc": 0.88
+    },
+    "UX Designer at a consumer electronics company": {
+      "count": 50,
+      "mae": 1.07,
+      "direction_acc": 0.98
+    },
+    "Undeclared sophomore at University of Chicago": {
+      "count": 50,
+      "mae": 1.194,
+      "direction_acc": 0.82
+    }
+  },
+  "worst_disagreements": [
+    {
+      "profile": "Computer Engineering student at American University of Kuwait",
+      "predicted": 8.5,
+      "ground_truth": 1.5,
+      "delta": 7.0,
+      "title": "Entry Level Geologist Jobs in the Middle East (Feb 2026) - Bayt.com"
+    },
+    {
+      "profile": "Architect working on smart city infrastructure projects",
+      "predicted": 6.5,
+      "ground_truth": 0.5,
+      "delta": 6.0,
+      "title": "Emerging Trends in Blockchain Investment | Intellectia.AI"
+    },
+    {
+      "profile": "Computer Engineering student at American University of Kuwait",
+      "predicted": 8.5,
+      "ground_truth": 3.0,
+      "delta": 5.5,
+      "title": "Don't miss the 19 FinTech deals of the week - Nearly $500m raised ..."
+    },
+    {
+      "profile": "HVAC technician and small business owner",
+      "predicted": 7.5,
+      "ground_truth": 2.0,
+      "delta": 5.5,
+      "title": "10 Breakthrough Technologies 2026"
+    },
+    {
+      "profile": "Retired IT consultant",
+      "predicted": 5.5,
+      "ground_truth": 0.0,
+      "delta": 5.5,
+      "title": "Client References | Zamil Process Equipment"
+    },
+    {
+      "profile": "CTO of a mobile payments startup",
+      "predicted": 2.5,
+      "ground_truth": 8.0,
+      "delta": -5.5,
+      "title": "Moroccan Fintech Startups Gain Traction with Yakeey Chari and Ora ..."
+    },
+    {
+      "profile": "Digital marketing manager at a K-pop entertainment agency",
+      "predicted": 5.2,
+      "ground_truth": 0.0,
+      "delta": 5.2,
+      "title": "Best foreign job search platform - Sajhajobs"
+    },
+    {
+      "profile": "Computer Engineering student at American University of Kuwait",
+      "predicted": 7.5,
+      "ground_truth": 2.5,
+      "delta": 5.0,
+      "title": "Call for Abstracts - My Goldschmidt"
+    },
+    {
+      "profile": "Cybersecurity analyst at a Kuwaiti bank",
+      "predicted": 7.0,
+      "ground_truth": 2.0,
+      "delta": 5.0,
+      "title": "Emerging Trends in Blockchain Investment | Intellectia.AI"
+    },
+    {
+      "profile": "Senior geophysicist at KOC",
+      "predicted": 5.5,
+      "ground_truth": 1.0,
+      "delta": 4.5,
+      "title": "Sixteen Claude AI agents working together created a new C compiler"
+    }
+  ],
+  "model": "stratos-scorer-v2.2",
+  "eval_file": "data/v2_pipeline/eval_holdout_v2.jsonl",
+  "temperature": 0.6,
+  "elapsed_seconds": 1267.2,
+  "timestamp": "2026-03-08T05:28:30"
+}
