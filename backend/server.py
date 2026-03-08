@@ -1620,8 +1620,8 @@ def create_handler(strat, auth, frontend_dir, output_dir):
 
             # ── AI Agent Chat (streaming) ──────────────────────────
             if self.path == "/api/agent-chat":
-                _agent_output_dir = strat._get_output_path(self._session_profile).parent if self._session_profile else output_dir
-                handle_agent_chat(self, strat, _agent_output_dir, profile_id=self._profile_id)
+                _agent_output_file = strat._get_output_path(self._session_profile) if self._session_profile else strat.output_file
+                handle_agent_chat(self, strat, _agent_output_file, profile_id=self._profile_id)
                 return
 
             self.send_response(404)

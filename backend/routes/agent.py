@@ -450,7 +450,7 @@ def handle_agent_status(handler, strat):
     json_response(handler, {"available": available, "model": model, "host": ollama_host})
 
 
-def handle_agent_chat(handler, strat, output_dir, profile_id=0):
+def handle_agent_chat(handler, strat, output_file, profile_id=0):
     """POST /api/agent-chat — Streaming agent conversation with tool use."""
     try:
         body = read_json_body(handler)
@@ -459,7 +459,7 @@ def handle_agent_chat(handler, strat, output_dir, profile_id=0):
         if not user_msg:
             raise ValueError("Empty message")
 
-        news_context = _build_agent_context(strat, output_dir)
+        news_context = _build_agent_context(strat, output_file)
         historical_context = _build_historical_context(strat, profile_id)
 
         scoring_cfg = strat.config.get("scoring", {})
@@ -837,9 +837,10 @@ def _build_historical_context(strat, profile_id=0):
     return "\n\n".join(parts)
 
 
-def _build_agent_context(strat, output_dir):
+def _build_agent_context(strat, output_file):
+    """Build agent context from the profile-specific output file."""
     news_context = ""
-    output_path = Path(output_dir) / "news_data.json"
+    output_path = Path(output_file)
     if not output_path.exists():
         return news_context
     try:
@@ -861,24 +862,31 @@ def _build_agent_context(strat, output_dir):
             try:
                 if not isinstance(md, dict): continue
                 name = md.get("name", sym)
-                db = md.get("data", {}) if isinstance(md.get("data"), dict) else {}
-                tf = None
-                for k in ["1m","5m","1d_1mo","1d_1y","1wk"]:
-                    d = db.get(k) or md.get(k)
+                data_dict = md.get("data", {}) if isinstance(md.get("data"), dict) else {}
+                # Collect multiple timeframes for richer context
+                parts = []
+                for k in ["1m", "5m", "1d_1mo", "1d_1y", "1wk"]:
+                    d = data_dict.get(k)
                     if isinstance(d, dict) and "price" in d:
-                        tf = d; break
-                if tf:
-                    p, c = float(tf.get("price",0)), float(tf.get("change",0))
-                    line = f"{name} ({sym}): ${p:.2f} ({c:+.2f}%)"
-                    hist = tf.get("history", [])
-                    if isinstance(hist, list) and len(hist) >= 5:
-                        r5 = hist[-5:]
-                        if all(isinstance(x,(int,float)) for x in r5):
-                            line += f" | {'rising' if r5[-1]>r5[0] else 'falling' if r5[-1]<r5[0] else 'flat'}"
-                    mlines.append(line)
+                        p = float(d.get("price", 0))
+                        c = float(d.get("change", 0))
+                        high = d.get("high")
+                        low = d.get("low")
+                        hl = f", H/L: ${float(high):.2f}/${float(low):.2f}" if high and low else ""
+                        hist = d.get("history", [])
+                        trend = ""
+                        if isinstance(hist, list) and len(hist) >= 5:
+                            r5 = hist[-5:]
+                            if all(isinstance(x, (int, float)) for x in r5):
+                                trend = f", trend: {'rising' if r5[-1]>r5[0] else 'falling' if r5[-1]<r5[0] else 'flat'}"
+                        parts.append(f"  {k}: ${p:.2f} ({c:+.2f}%){hl}{trend}")
+                if parts:
+                    mlines.append(f"{name} ({sym}):\n" + "\n".join(parts[:3]))  # Top 3 timeframes
             except Exception: continue
         if mlines:
-            news_context += "\n\nMARKET DATA:\n" + "\n".join(mlines)
+            ts = scraped.get("timestamps", {}).get("market", "")
+            ts_label = f" (as of {ts[:16].replace('T',' ')})" if ts else ""
+            news_context += f"\n\nMARKET DATA{ts_label}:\n" + "\n".join(mlines)
 
         briefing = scraped.get("briefing", {})
         if isinstance(briefing, dict) and briefing:
