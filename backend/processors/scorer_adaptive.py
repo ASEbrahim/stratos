@@ -76,10 +76,11 @@ SENIOR_LEVEL_SIGNALS = [
 ]
 
 OFFER_DEAL_SIGNALS = [
-    'offer', 'promotion', 'deal', 'discount', 'cashback', 'cash back',
-    'bonus', 'free ', 'gift', 'reward', 'savings',
-    'sign-up', 'transfer bonus', 'student offer', 'student deal',
-    'scholarship', 'financial aid', 'grant', 'bursary',
+    'special offer', 'limited offer', 'exclusive offer',
+    'promotion', 'deal', 'discount', 'cashback', 'cash back',
+    'bonus', 'reward', 'savings',
+    'sign-up bonus', 'transfer bonus', 'student offer', 'student deal',
+    'scholarship', 'financial aid', 'bursary',
 ]
 
 BREAKTHROUGH_SIGNALS = [
@@ -346,6 +347,13 @@ def _universal_noise_check(title: str, text: str, source: str = '',
         if re.search(pattern, text, re.IGNORECASE):
             return 2.5, "Social media spam"
 
+    # ── Job board aggregator pages (no specific company, just keyword-stuffed listings) ──
+    _JOB_AGGREGATORS = ('ziprecruiter.com', 'indeed.com/q-', 'glassdoor.com/Job',
+                        'simplyhired.com', 'careerbuilder.com', 'monster.com/jobs')
+    if any(agg in url_lower for agg in _JOB_AGGREGATORS):
+        if '(now hiring)' in title_lower or 'jobs - ' in title_lower:
+            return 3.5, "Job aggregator search results page"
+
     # ── Stock quote pages ──
     for pattern in STOCK_PAGE_PATTERNS:
         if re.search(pattern, text, re.IGNORECASE):
@@ -526,7 +534,10 @@ def score_career_adaptive(title: str, text: str, url: str,
         if cat_matches >= 2 and has_hiring:
             if all_generic and not has_location:
                 return 5.5, f"Generic keywords only, needs LLM: {', '.join(cat_matched[:3])}", False
-            return 9.0, f"Relevant hiring: {', '.join(cat_matched[:3])}", True
+            if has_location:
+                return 9.0, f"Relevant hiring in target location: {', '.join(cat_matched[:3])}", True
+            # Hiring but NOT in user's location — defer to LLM for relevance
+            return 6.0, f"Hiring match, no location signal: {', '.join(cat_matched[:3])}", False
 
         if cat_matches >= 2 and has_location:
             return 8.0, f"Relevant opportunity in target location: {', '.join(cat_matched[:3])}", True
@@ -562,19 +573,25 @@ def score_finance_adaptive(title: str, text: str, url: str,
     has_hiring = any(s in text_lower for s in HIRING_SIGNALS)
     has_location = keyword_index.match_location(text)
 
-    # Critical: tracked institution + offer/deal
+    # Critical: tracked institution + offer/deal + location
+    if cat_matches >= 2 and has_offer and has_location:
+        return 9.5, f"Offer from tracked entity in location: {', '.join(cat_matched[:3])}", True
+
     if cat_matches >= 2 and has_offer:
-        return 9.5, f"Offer from tracked entity: {', '.join(cat_matched[:3])}", True
+        return 8.0, f"Offer from tracked entity: {', '.join(cat_matched[:3])}", True
 
     if cat_matches >= 1 and has_offer and has_location:
-        return 9.0, f"Deal in target location: {', '.join(cat_matched[:3])}", True
+        return 8.5, f"Deal in target location: {', '.join(cat_matched[:3])}", True
 
     # High: tracked institution + hiring (tech roles at banks)
+    if cat_matches >= 2 and has_hiring and has_location:
+        return 8.0, f"Hiring at tracked entity in location: {', '.join(cat_matched[:3])}", True
+
     if cat_matches >= 2 and has_hiring:
-        return 8.0, f"Hiring at tracked entity: {', '.join(cat_matched[:3])}", True
+        return 6.5, f"Hiring at tracked entity (no location): {', '.join(cat_matched[:3])}", False
 
     if cat_matches >= 1 and has_offer:
-        return 7.5, f"Relevant offer: {', '.join(cat_matched[:3])}", True
+        return 6.5, f"Relevant offer: {', '.join(cat_matched[:3])}", False
 
     # Medium: keyword match
     if cat_matches >= 2:
@@ -643,20 +660,26 @@ def score_generic_adaptive(title: str, text: str,
     title_matches = sum(1 for kw in keyword_index.category_keywords.get(category_id, set())
                        if kw in title_lower)
 
-    if title_matches >= 2 and has_action:
-        return 8.5, f"Strong match + actionable: {', '.join(cat_matched[:3])}", True
+    if title_matches >= 2 and has_action and has_location:
+        return 8.5, f"Strong match + actionable + local: {', '.join(cat_matched[:3])}", True
 
-    if cat_matches >= 3 and has_action:
-        return 8.0, f"High relevance + action: {', '.join(cat_matched[:3])}", True
+    if cat_matches >= 3 and has_action and has_location:
+        return 8.0, f"High relevance + action + local: {', '.join(cat_matched[:3])}", True
+
+    if title_matches >= 2 and has_action:
+        return 7.0, f"Title match + action (no location): {', '.join(cat_matched[:3])}", False
 
     if cat_matches >= 3 and has_location:
         return 7.5, f"Relevant + local: {', '.join(cat_matched[:3])}", True
 
     if title_matches >= 2:
-        return 7.0, f"Title relevance: {', '.join(cat_matched[:3])}", True
+        return 6.5, f"Title relevance: {', '.join(cat_matched[:3])}", False
+
+    if cat_matches >= 3 and has_action:
+        return 6.5, f"Good coverage + action: {', '.join(cat_matched[:3])}", False
 
     if cat_matches >= 3:
-        return 6.5, f"Good keyword coverage: {', '.join(cat_matched[:3])}", False
+        return 6.0, f"Good keyword coverage: {', '.join(cat_matched[:3])}", False
 
     if cat_matches >= 2:
         if has_action or has_location:
