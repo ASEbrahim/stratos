@@ -456,6 +456,7 @@ def handle_agent_chat(handler, strat, output_file, profile_id=0):
         body = read_json_body(handler)
         user_msg = body.get("message", "").strip()
         history = body.get("history", [])
+        free_mode = body.get("mode") == "free"
         if not user_msg:
             raise ValueError("Empty message")
 
@@ -534,6 +535,48 @@ HISTORICAL DATA:
                     lines = [f"  [{r.get('score',0):.1f}] {r.get('title','')[:80]} ({r.get('category','')}, {r.get('fetched_at','')[:10]})" for r in unique[:8]]
                     if lines:
                         system_prompt += f"\n\nDB SEARCH '{' '.join(keywords[:3])}':\n" + "\n".join(lines)
+
+        # ── Free chat mode: no tools, simple system prompt ──
+        if free_mode:
+            free_system = f"You are a helpful AI assistant. The user is a {role} in {location}. Be conversational, helpful, and concise."
+            messages = [{"role": "system", "content": free_system}]
+            for h in history[:-1]:
+                if isinstance(h, dict) and h.get("role") in ("user", "assistant") and h.get("content"):
+                    messages.append({"role": h["role"], "content": h["content"]})
+            messages.append({"role": "user", "content": user_msg})
+
+            start_sse(handler)
+            try:
+                r = req.post(
+                    f"{ollama_host}/api/chat",
+                    json={"model": model, "messages": messages, "stream": True,
+                          "options": {"temperature": 0.7, "num_predict": 3000}},
+                    timeout=180, stream=True
+                )
+                if r.status_code != 200:
+                    sse_event(handler, {"error": f"Ollama returned {r.status_code}"})
+                    return
+                full_text = ""
+                for line in r.iter_lines():
+                    if not line:
+                        continue
+                    try:
+                        chunk = json.loads(line)
+                        token = chunk.get("message", {}).get("content", "")
+                        if token:
+                            token = strip_think_blocks(token)
+                            if token:
+                                sse_event(handler, {"token": token})
+                                full_text += token
+                        if chunk.get("done"):
+                            break
+                    except json.JSONDecodeError:
+                        continue
+                full_text = strip_reasoning_preamble(full_text)
+                sse_event(handler, {"done": True})
+            except Exception as e:
+                sse_event(handler, {"error": str(e)})
+            return
 
         # Build messages for /api/chat
         messages = [{"role": "system", "content": system_prompt}]
