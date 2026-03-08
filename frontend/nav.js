@@ -207,7 +207,7 @@ function setActive(id) {
     
     // Hide score filters on Finance/Politics/Custom (RSS-only, no scoring)
     const scoreFilters = document.getElementById('score-filters');
-    const isExtraFeed = (id === 'finance_news' || id === 'politics' || id === 'custom_feeds');
+    const isExtraFeed = (id === 'finance_news' || id === 'politics' || id === 'jobs_feeds' || id === 'custom_feeds');
     if (scoreFilters) scoreFilters.classList.toggle('hidden', isExtraFeed);
     if (searchBox) {
         searchBox.placeholder = isExtraFeed
@@ -246,7 +246,7 @@ function setActive(id) {
         settingsPanel.classList.add('hidden');
         if (marketsPanel) marketsPanel.classList.add('hidden');
         renderFeed();
-        if (id === 'finance_news' || id === 'politics' || id === 'custom_feeds') {
+        if (id === 'finance_news' || id === 'politics' || id === 'jobs_feeds' || id === 'custom_feeds') {
             loadExtraFeedsIfNeeded();
         }
     }

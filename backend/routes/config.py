@@ -153,7 +153,7 @@ def handle_config_save(handler, strat, auth_helpers):
             config["dynamic_categories"] = normalized
 
         # Extra feed toggles
-        for key in ["extra_feeds_finance", "extra_feeds_politics",
+        for key in ["extra_feeds_finance", "extra_feeds_politics", "extra_feeds_jobs",
                      "custom_feeds_finance", "custom_feeds_politics",
                      "custom_feeds", "custom_tab_name"]:
             if key in new_config:
@@ -163,7 +163,7 @@ def handle_config_save(handler, strat, auth_helpers):
         # Profile-specific fields (role, categories, tickers, feeds) go to
         # the DB overlay + profile YAML only, to prevent cross-profile pollution.
         _PROFILE_KEYS = {"profile", "dynamic_categories", "market", "news",
-                         "extra_feeds_finance", "extra_feeds_politics",
+                         "extra_feeds_finance", "extra_feeds_politics", "extra_feeds_jobs",
                          "custom_feeds_finance", "custom_feeds_politics",
                          "custom_feeds", "custom_tab_name"}
         base_config = strat._load_config()
@@ -177,7 +177,7 @@ def handle_config_save(handler, strat, auth_helpers):
         # Log
         saved_keys = list(new_config.keys())
         logger.info(f"Config saved: keys={saved_keys}")
-        for feed_key in ["extra_feeds_finance", "extra_feeds_politics"]:
+        for feed_key in ["extra_feeds_finance", "extra_feeds_politics", "extra_feeds_jobs"]:
             if feed_key in new_config:
                 enabled = sum(1 for v in new_config[feed_key].values() if v)
                 label = feed_key.replace("extra_feeds_", "").capitalize()
@@ -230,6 +230,7 @@ def _sync_to_db_profile(config: dict, token: str, db):
             "dynamic_categories": config.get("dynamic_categories", []),
             "extra_feeds_finance": config.get("extra_feeds_finance", {}),
             "extra_feeds_politics": config.get("extra_feeds_politics", {}),
+            "extra_feeds_jobs": config.get("extra_feeds_jobs", {}),
             "custom_feeds": config.get("custom_feeds", []),
             "custom_tab_name": config.get("custom_tab_name", ""),
             "scoring": {k: config.get("scoring", {}).get(k) for k in
@@ -263,7 +264,7 @@ def _sync_to_profile_yaml(config: dict, username: str, auth_helpers: dict):
         with open(filepath) as f:
             profile_data = yaml.safe_load(f) or {}
         for key in ["profile", "market", "news", "dynamic_categories",
-                     "extra_feeds_finance", "extra_feeds_politics",
+                     "extra_feeds_finance", "extra_feeds_politics", "extra_feeds_jobs",
                      "custom_feeds", "custom_tab_name"]:
             if key in config:
                 profile_data[key] = config[key]

@@ -517,9 +517,18 @@
                         </div>
                     </div>
 
+                    <!-- RSS Feed Suggestions (shown on feed tabs) -->
+                    <div id="feed-suggestions-panel" class="glass-panel rounded-xl p-4 hidden">
+                        <div class="flex items-center gap-2 mb-3">
+                            <i data-lucide="rss" class="w-4 h-4 text-emerald-400"></i>
+                            <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest">Feed Sources</h3>
+                        </div>
+                        <div id="feed-suggestions-content" class="space-y-2"></div>
+                    </div>
+
                 </div>
             </div>
-            
+
             <!-- Markets Panel -->
             <div id="markets-panel" class="hidden" style="max-width:100%;overflow:hidden;">
                 <div id="mp-sections" class="space-y-3">
@@ -1257,6 +1266,7 @@
                             <div class="flex rounded-lg overflow-hidden border border-slate-600">
                                 <button onclick="showSourceTab('finance')" id="src-tab-finance" class="px-5 py-2 text-xs font-semibold transition-all bg-emerald-500/20 text-emerald-400 border-r border-slate-600">Finance</button>
                                 <button onclick="showSourceTab('politics')" id="src-tab-politics" class="px-5 py-2 text-xs font-semibold transition-all text-slate-500 hover:text-slate-300 border-r border-slate-600">Politics</button>
+                                <button onclick="showSourceTab('jobs')" id="src-tab-jobs" class="px-5 py-2 text-xs font-semibold transition-all text-slate-500 hover:text-slate-300 border-r border-slate-600">Jobs</button>
                                 <button onclick="showSourceTab('custom')" id="src-tab-custom" class="px-5 py-2 text-xs font-semibold transition-all text-slate-500 hover:text-slate-300 flex items-center gap-1">
                                     <span id="custom-tab-label">Custom</span>
                                     <button onclick="event.stopPropagation(); editCustomTabName()" class="p-0.5 rounded hover:bg-slate-600/50 transition-colors" title="Rename tab">
@@ -1269,6 +1279,7 @@
                         
                         <div id="source-catalog-finance" class="source-catalog" style="min-height:140px"></div>
                         <div id="source-catalog-politics" class="source-catalog hidden" style="min-height:140px"></div>
+                        <div id="source-catalog-jobs" class="source-catalog hidden" style="min-height:140px"></div>
                         <div id="source-catalog-custom" class="source-catalog hidden" style="min-height:140px">
                             <!-- Custom feeds with toggles rendered here -->
                         </div>

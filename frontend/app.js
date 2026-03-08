@@ -5,6 +5,7 @@ let newsData = [];
 let financeNewsData = [];
 let politicsNewsData = [];
 let customNewsData = [];
+let jobsNewsData = [];
 let activeRoot = 'dashboard';
 let marketChart = null;
 let currentSymbol = 'NVDA';
@@ -99,10 +100,11 @@ function buildNavSections(dynamicCats) {
         ];
     }
     
-    // Feeds section — Finance, Politics, Custom
+    // Feeds section — Finance, Politics, Jobs, Custom
     const feedItems = [
         { id: 'finance_news', label: 'Finance', icon: 'bar-chart-3', subtitle: 'Market News & Analysis' },
         { id: 'politics', label: 'Politics', icon: 'landmark', subtitle: 'Global Headlines' },
+        { id: 'jobs_feeds', label: 'Jobs', icon: 'briefcase', subtitle: 'Career & Job Listings' },
     ];
     // Add custom tab if feeds exist (guard with typeof — configData is in settings.js which may load later)
     const _cfg = typeof configData !== 'undefined' ? configData : null;
@@ -1981,6 +1983,8 @@ async function loadExtraFeeds(type) {
             financeNewsData = result.items || [];
         } else if (type === 'politics') {
             politicsNewsData = result.items || [];
+        } else if (type === 'jobs') {
+            jobsNewsData = result.items || [];
         } else if (type === 'custom') {
             customNewsData = result.items || [];
         }
@@ -1996,6 +2000,9 @@ async function loadExtraFeedsIfNeeded() {
         renderFeed();
     } else if (activeRoot === 'politics') {
         await loadExtraFeeds('politics');
+        renderFeed();
+    } else if (activeRoot === 'jobs_feeds') {
+        await loadExtraFeeds('jobs');
         renderFeed();
     } else if (activeRoot === 'custom_feeds') {
         await loadExtraFeeds('custom');

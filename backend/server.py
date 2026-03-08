@@ -544,8 +544,8 @@ def create_handler(strat, auth, frontend_dir, output_dir):
             # Strip query string for route matching
             clean_path = self.path.split('?')[0]
 
-            if clean_path in ("/api/finance-news", "/api/politics-news"):
-                feed_type = "finance" if "finance" in clean_path else "politics"
+            if clean_path in ("/api/finance-news", "/api/politics-news", "/api/jobs-news"):
+                feed_type = "finance" if "finance" in clean_path else "jobs" if "jobs" in clean_path else "politics"
                 self.send_response(200)
                 self.send_header("Content-type", "application/json")
                 self.send_header("Access-Control-Allow-Origin", "*")
@@ -629,8 +629,8 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                 return
 
             # Serve feed catalog (for Settings UI)
-            if clean_path in ("/api/feed-catalog/finance", "/api/feed-catalog/politics"):
-                feed_type = "finance" if "finance" in clean_path else "politics"
+            if clean_path in ("/api/feed-catalog/finance", "/api/feed-catalog/politics", "/api/feed-catalog/jobs"):
+                feed_type = "finance" if "finance" in clean_path else "jobs" if "jobs" in clean_path else "politics"
                 self.send_response(200)
                 self.send_header("Content-type", "application/json")
                 self.send_header("Access-Control-Allow-Origin", "*")
@@ -681,6 +681,7 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                     "dynamic_categories": cfg.get("dynamic_categories", []),
                     "extra_feeds_finance": cfg.get("extra_feeds_finance", {}),
                     "extra_feeds_politics": cfg.get("extra_feeds_politics", {}),
+                    "extra_feeds_jobs": cfg.get("extra_feeds_jobs", {}),
                     "custom_feeds_finance": cfg.get("custom_feeds_finance", []),
                     "custom_feeds_politics": cfg.get("custom_feeds_politics", []),
                     "custom_feeds": cfg.get("custom_feeds", []),
@@ -1189,45 +1190,52 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                     _send_json(self, {"error": "URL required"}, 400)
                     return
                 try:
-                    import re
-                    resp = requests.get(url, timeout=8, headers={
+                    import re as _re
+                    resp = requests.get(url, timeout=10, headers={
                         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
                     }, allow_redirects=True)
                     feeds = []
-                    # Look for <link rel="alternate" type="application/rss+xml"> or atom+xml
-                    link_pattern = re.compile(
-                        r'<link[^>]+rel=["\']alternate["\'][^>]*>',
-                        re.IGNORECASE
-                    )
-                    for match in link_pattern.finditer(resp.text[:50000]):
-                        tag = match.group(0)
-                        type_match = re.search(r'type=["\']([^"\']+)["\']', tag)
-                        href_match = re.search(r'href=["\']([^"\']+)["\']', tag)
-                        title_match = re.search(r'title=["\']([^"\']+)["\']', tag)
-                        if type_match and href_match:
-                            ftype = type_match.group(1).lower()
-                            if 'rss' in ftype or 'atom' in ftype or 'xml' in ftype:
-                                href = href_match.group(1)
-                                # Resolve relative URLs
-                                if href.startswith('/'):
-                                    from urllib.parse import urljoin
-                                    href = urljoin(url, href)
-                                elif not href.startswith('http'):
-                                    from urllib.parse import urljoin
-                                    href = urljoin(url, href)
-                                feeds.append({
-                                    "url": href,
-                                    "title": title_match.group(1) if title_match else "",
-                                    "type": ftype
-                                })
-                    # Also try common RSS paths if no feeds found
+                    html_text = resp.text[:100000]
+
+                    # Strategy 1: Find all <link> tags and check for RSS/Atom
+                    for tag_match in _re.finditer(r'<link\b[^>]*/?>', html_text, _re.IGNORECASE):
+                        tag = tag_match.group(0)
+                        # Must have type with rss/atom/xml
+                        type_m = _re.search(r'type=["\']([^"\']+)["\']', tag, _re.IGNORECASE)
+                        href_m = _re.search(r'href=["\']([^"\']+)["\']', tag, _re.IGNORECASE)
+                        if not type_m or not href_m:
+                            continue
+                        ftype = type_m.group(1).lower()
+                        if 'rss' not in ftype and 'atom' not in ftype and 'xml' not in ftype:
+                            continue
+                        href = href_m.group(1)
+                        if not href.startswith('http'):
+                            href = urljoin(url, href)
+                        title_m = _re.search(r'title=["\']([^"\']+)["\']', tag, _re.IGNORECASE)
+                        feeds.append({
+                            "url": href,
+                            "title": title_m.group(1) if title_m else "",
+                            "type": ftype
+                        })
+
+                    # Strategy 2: Try feedparser directly (some sites serve RSS at their main URL)
                     if not feeds:
-                        from urllib.parse import urljoin
-                        common_paths = ['/feed', '/rss', '/feed.xml', '/rss.xml', '/atom.xml', '/feeds/posts/default']
+                        try:
+                            import feedparser
+                            parsed = feedparser.parse(resp.content)
+                            if parsed.entries and len(parsed.entries) > 0:
+                                feeds.append({"url": url, "title": parsed.feed.get("title", ""), "type": "direct"})
+                        except Exception:
+                            pass
+
+                    # Strategy 3: Probe common RSS paths
+                    if not feeds:
+                        common_paths = ['/feed', '/rss', '/feed.xml', '/rss.xml', '/atom.xml',
+                                        '/index.xml', '/feeds/posts/default', '/rss/index.xml']
                         for path in common_paths:
                             try:
                                 test_url = urljoin(url, path)
-                                r = requests.head(test_url, timeout=4, headers={
+                                r = requests.get(test_url, timeout=5, headers={
                                     "User-Agent": "Mozilla/5.0"
                                 }, allow_redirects=True)
                                 ct = r.headers.get('content-type', '').lower()

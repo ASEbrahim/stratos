@@ -1923,7 +1923,7 @@ document.addEventListener('keydown', (e) => {
 // NEWS SOURCE MANAGEMENT (Finance & Politics feed toggles)
 // ═══════════════════════════════════════════════════════════
 
-let sourcesCatalog = { finance: [], politics: [] };
+let sourcesCatalog = { finance: [], politics: [], jobs: [] };
 let customFeeds = []; // [{url, name, on}]  — only custom tab
 let customTabName = 'Custom';
 let sourcesActiveTab = 'finance';
@@ -1982,24 +1982,26 @@ function showSourceTab(type) {
     sourcesActiveTab = type;
     document.getElementById('source-catalog-finance').classList.toggle('hidden', type !== 'finance');
     document.getElementById('source-catalog-politics').classList.toggle('hidden', type !== 'politics');
+    document.getElementById('source-catalog-jobs')?.classList.toggle('hidden', type !== 'jobs');
     document.getElementById('source-catalog-custom').classList.toggle('hidden', type !== 'custom');
-    
+
     const tabs = {
         finance:  { el: document.getElementById('src-tab-finance'),  active: 'px-5 py-2 text-xs font-semibold transition-all bg-emerald-500/20 text-emerald-400 border-r border-slate-600', inactive: 'px-5 py-2 text-xs font-semibold transition-all text-slate-500 hover:text-slate-300 border-r border-slate-600' },
         politics: { el: document.getElementById('src-tab-politics'), active: 'px-5 py-2 text-xs font-semibold transition-all bg-blue-500/20 text-blue-400 border-r border-slate-600', inactive: 'px-5 py-2 text-xs font-semibold transition-all text-slate-500 hover:text-slate-300 border-r border-slate-600' },
+        jobs:     { el: document.getElementById('src-tab-jobs'),     active: 'px-5 py-2 text-xs font-semibold transition-all bg-amber-500/20 text-amber-400 border-r border-slate-600', inactive: 'px-5 py-2 text-xs font-semibold transition-all text-slate-500 hover:text-slate-300 border-r border-slate-600' },
         custom:   { el: document.getElementById('src-tab-custom'),   active: 'px-5 py-2 text-xs font-semibold transition-all bg-purple-500/20 text-purple-400 flex items-center gap-1', inactive: 'px-5 py-2 text-xs font-semibold transition-all text-slate-500 hover:text-slate-300 flex items-center gap-1' },
     };
-    
+
     Object.entries(tabs).forEach(([key, cfg]) => {
         if (cfg.el) cfg.el.className = key === type ? cfg.active : cfg.inactive;
     });
-    
+
     if (type === 'custom') renderCustomCatalog();
 }
 
 async function loadSourceCatalog() {
     // Show loading state
-    ['finance', 'politics'].forEach(type => {
+    ['finance', 'politics', 'jobs'].forEach(type => {
         const c = document.getElementById(`source-catalog-${type}`);
         if (c) c.innerHTML = '<p class="text-xs text-slate-500 italic py-2">Loading sources...</p>';
     });
@@ -2007,17 +2009,20 @@ async function loadSourceCatalog() {
     let usedFallback = false;
     
     try {
-        const [finResp, polResp] = await Promise.all([
+        const [finResp, polResp, jobResp] = await Promise.all([
             fetch('/api/feed-catalog/finance'),
-            fetch('/api/feed-catalog/politics')
+            fetch('/api/feed-catalog/politics'),
+            fetch('/api/feed-catalog/jobs')
         ]);
-        
+
         if (!finResp.ok || !polResp.ok) throw new Error('Catalog endpoint returned error');
-        
+
         const finData = await finResp.json();
         const polData = await polResp.json();
+        const jobData = jobResp.ok ? await jobResp.json() : { catalog: [] };
         sourcesCatalog.finance = finData.catalog || [];
         sourcesCatalog.politics = polData.catalog || [];
+        sourcesCatalog.jobs = jobData.catalog || [];
     } catch(e) {
         console.warn('Feed catalog API unavailable, using fallback:', e.message);
         usedFallback = true;
@@ -2059,6 +2064,7 @@ async function loadSourceCatalog() {
     
     renderSourceCatalog('finance');
     renderSourceCatalog('politics');
+    renderSourceCatalog('jobs');
     renderCustomCatalog();
 }
 
@@ -2503,14 +2509,18 @@ async function saveSourceToggles(silent) {
     // Build toggle maps
     const financeToggles = {};
     const politicsToggles = {};
-    
+    const jobsToggles = {};
+
     sourcesCatalog.finance.forEach(item => {
         financeToggles[item.id] = item.on;
     });
     sourcesCatalog.politics.forEach(item => {
         politicsToggles[item.id] = item.on;
     });
-    
+    (sourcesCatalog.jobs || []).forEach(item => {
+        jobsToggles[item.id] = item.on;
+    });
+
     try {
         const resp = await fetch('/api/config', {
             method: 'POST',
@@ -2519,6 +2529,7 @@ async function saveSourceToggles(silent) {
             body: JSON.stringify({
                 extra_feeds_finance: financeToggles,
                 extra_feeds_politics: politicsToggles,
+                extra_feeds_jobs: jobsToggles,
                 custom_feeds: customFeeds,
                 custom_tab_name: customTabName,
             })

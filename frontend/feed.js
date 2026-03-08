@@ -321,6 +321,8 @@ function renderFeed() {
         filtered = financeNewsData.slice();
     } else if (activeRoot === 'politics') {
         filtered = politicsNewsData.slice();
+    } else if (activeRoot === 'jobs_feeds') {
+        filtered = jobsNewsData.slice();
     } else if (activeRoot === 'custom_feeds') {
         filtered = customNewsData.slice();
     } else {
@@ -340,7 +342,7 @@ function renderFeed() {
     }
 
     // Apply score filter (skip for headline tabs — they're unscored RSS)
-    if (activeRoot !== 'finance_news' && activeRoot !== 'politics' && activeRoot !== 'custom_feeds') {
+    if (activeRoot !== 'finance_news' && activeRoot !== 'politics' && activeRoot !== 'jobs_feeds' && activeRoot !== 'custom_feeds') {
         filtered = filtered.filter(d => passesScoreFilter(d.score || 0));
     }
     
@@ -356,7 +358,7 @@ function renderFeed() {
     filtered = filtered.filter(d => !d._dismissed);
 
     // Sort: extra tabs by time, scored tabs by score
-    if (activeRoot === 'finance_news' || activeRoot === 'politics' || activeRoot === 'custom_feeds') {
+    if (activeRoot === 'finance_news' || activeRoot === 'politics' || activeRoot === 'jobs_feeds' || activeRoot === 'custom_feeds') {
         filtered.sort((a, b) => (b.timestamp || '').localeCompare(a.timestamp || ''));
     } else {
         filtered.sort((a, b) => (b.score || 0) - (a.score || 0));
@@ -384,13 +386,13 @@ function renderFeed() {
     // Show/hide refresh icon in search bar + update placeholder
     const refreshBtn = document.getElementById('feed-refresh-btn');
     const searchInput = document.getElementById('feed-search');
-    if (activeRoot === 'finance_news' || activeRoot === 'politics' || activeRoot === 'custom_feeds') {
+    if (activeRoot === 'finance_news' || activeRoot === 'politics' || activeRoot === 'jobs_feeds' || activeRoot === 'custom_feeds') {
         refreshBtn?.classList.remove('hidden');
         if (searchInput) searchInput.placeholder = 'Search headlines...';
         window._refreshCurrentFeed = async () => {
             const icon = refreshBtn?.querySelector('svg');
             if (icon) icon.classList.add('animate-spin');
-            await loadExtraFeeds(activeRoot === 'finance_news' ? 'finance' : activeRoot === 'politics' ? 'politics' : 'custom');
+            await loadExtraFeeds(activeRoot === 'finance_news' ? 'finance' : activeRoot === 'politics' ? 'politics' : activeRoot === 'jobs_feeds' ? 'jobs' : 'custom');
             if (icon) icon.classList.remove('animate-spin');
             renderFeed();
             if (typeof showToast === 'function') showToast('Feed refreshed', 'success');
@@ -402,7 +404,7 @@ function renderFeed() {
     }
     
     // Update feed count + grid/list toggle for Saved view
-    const isExtraFeedTab = (activeRoot === 'finance_news' || activeRoot === 'politics' || activeRoot === 'custom_feeds');
+    const isExtraFeedTab = (activeRoot === 'finance_news' || activeRoot === 'politics' || activeRoot === 'jobs_feeds' || activeRoot === 'custom_feeds');
     const countEl = document.getElementById('feed-count');
     const countText = `${filtered.length} ${isExtraFeedTab ? 'headlines' : 'signals'}`;
     if (activeRoot === 'saved' && filtered.length > 0) {
@@ -423,9 +425,9 @@ function renderFeed() {
     if (!filtered.length) {
         const navItem = (window.navItems || []).find(n => n.id === activeRoot);
         const displayName = navItem ? navItem.label : activeRoot;
-        const isExtraFeed = activeRoot === 'finance_news' || activeRoot === 'politics' || activeRoot === 'custom_feeds';
-        const refreshAction = isExtraFeed 
-            ? (activeRoot === 'finance_news' ? "loadExtraFeeds('finance').then(renderFeed)" : activeRoot === 'politics' ? "loadExtraFeeds('politics').then(renderFeed)" : "loadExtraFeeds('custom').then(renderFeed)")
+        const isExtraFeed = activeRoot === 'finance_news' || activeRoot === 'politics' || activeRoot === 'jobs_feeds' || activeRoot === 'custom_feeds';
+        const refreshAction = isExtraFeed
+            ? (activeRoot === 'finance_news' ? "loadExtraFeeds('finance').then(renderFeed)" : activeRoot === 'politics' ? "loadExtraFeeds('politics').then(renderFeed)" : activeRoot === 'jobs_feeds' ? "loadExtraFeeds('jobs').then(renderFeed)" : "loadExtraFeeds('custom').then(renderFeed)")
             : '';
         const emptyMsg = searchQuery 
             ? 'No matches for "' + esc(searchQuery) + '"' 
@@ -443,14 +445,15 @@ function renderFeed() {
     window.currentItems = filtered;
 
     // === HEADLINE TABS (Finance / Politics / Custom) — interactive newspaper style ===
-    if (activeRoot === 'finance_news' || activeRoot === 'politics' || activeRoot === 'custom_feeds') {
+    if (activeRoot === 'finance_news' || activeRoot === 'politics' || activeRoot === 'jobs_feeds' || activeRoot === 'custom_feeds') {
         const isFinance = activeRoot === 'finance_news';
         const isCustom = activeRoot === 'custom_feeds';
-        const icon = isFinance ? 'bar-chart-3' : isCustom ? 'rss' : 'globe-2';
+        const isJobs = activeRoot === 'jobs_feeds';
+        const icon = isFinance ? 'bar-chart-3' : isJobs ? 'briefcase' : isCustom ? 'rss' : 'globe-2';
         const customLabel = (configData?.custom_tab_name || (typeof customTabName !== 'undefined' ? customTabName : 'Custom')) + ' Headlines';
-        const label = isFinance ? 'Finance Headlines' : isCustom ? customLabel : 'World Headlines';
-        const accentColor = isFinance ? 'emerald' : isCustom ? 'purple' : 'blue';
-        const accentHex = isFinance ? '#34d399' : isCustom ? '#a855f7' : '#60a5fa';
+        const label = isFinance ? 'Finance Headlines' : isJobs ? 'Job Listings' : isCustom ? customLabel : 'World Headlines';
+        const accentColor = isFinance ? 'emerald' : isJobs ? 'amber' : isCustom ? 'purple' : 'blue';
+        const accentHex = isFinance ? '#34d399' : isJobs ? '#f59e0b' : isCustom ? '#a855f7' : '#60a5fa';
         
         // Group by source
         const bySource = {};
@@ -480,15 +483,70 @@ function renderFeed() {
         if (!window._collapsedSources) window._collapsedSources = {};
         if (!window._collapsedSources[activeRoot]) window._collapsedSources[activeRoot] = {};
 
-        // --- Header with source count + refresh ---
-        let html = `<div class="mb-3 flex items-center gap-2">
+        // --- Header with source count + refresh + media toggle ---
+        const _mediaMode = isCustom && window._customMediaView;
+        let html = `<div class="mb-3 flex items-center gap-2 flex-wrap">
             <i data-lucide="${icon}" class="w-4 h-4 text-${accentColor}-400"></i>
             <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">${label}</span>
+            ${isCustom ? `<div class="flex rounded p-0.5 ml-2" style="background:rgba(30,41,59,0.5)">
+                <button onclick="window._customMediaView=false;renderFeed()" class="text-[10px] px-2 py-0.5 rounded transition-all ${!_mediaMode ? 'bg-slate-600 text-white' : 'text-slate-400 hover:text-white'}" title="Headlines view">
+                    <i data-lucide="list" class="w-3 h-3 inline"></i>
+                </button>
+                <button onclick="window._customMediaView=true;renderFeed()" class="text-[10px] px-2 py-0.5 rounded transition-all ${_mediaMode ? 'bg-purple-600 text-white' : 'text-slate-400 hover:text-white'}" title="Media grid view">
+                    <i data-lucide="image" class="w-3 h-3 inline"></i>
+                </button>
+            </div>` : ''}
             <span class="text-[10px] text-slate-600 ml-auto">${filtered.length} headlines · ${sourceKeys.length} sources</span>
-            <button onclick="(async(btn){const i=btn.querySelector('svg');if(i)i.classList.add('animate-spin');await loadExtraFeeds('${isFinance ? 'finance' : isCustom ? 'custom' : 'politics'}');if(i)i.classList.remove('animate-spin');renderFeed();if(typeof showToast==='function')showToast('Feed refreshed','success');})(this)" class="text-[10px] text-slate-500 hover:text-${accentColor}-400 flex items-center gap-1 transition-colors ml-2" id="headline-refresh-btn">
+            <button onclick="(async(btn){const i=btn.querySelector('svg');if(i)i.classList.add('animate-spin');await loadExtraFeeds('${isFinance ? 'finance' : isJobs ? 'jobs' : isCustom ? 'custom' : 'politics'}');if(i)i.classList.remove('animate-spin');renderFeed();if(typeof showToast==='function')showToast('Feed refreshed','success');})(this)" class="text-[10px] text-slate-500 hover:text-${accentColor}-400 flex items-center gap-1 transition-colors ml-2" id="headline-refresh-btn">
                 <i data-lucide="refresh-cw" class="w-3 h-3"></i> Refresh
             </button>
         </div>`;
+
+        // --- Media grid view (custom feeds only) ---
+        if (_mediaMode) {
+            html += '<div class="grid grid-cols-2 sm:grid-cols-3 gap-3">';
+            filtered.forEach(item => {
+                const thumb = item.thumbnail || '';
+                const age = timeAgo(item.timestamp);
+                if (thumb) {
+                    html += `<a href="${esc(item.url)}" target="_blank" rel="noopener" class="group rounded-xl overflow-hidden transition-all hover:ring-2 hover:ring-purple-500/40" style="background:rgba(30,41,59,0.4);border:1px solid rgba(51,65,85,0.3);">
+                        <div class="relative aspect-video overflow-hidden">
+                            <img src="${esc(thumb)}" alt="" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" onerror="this.parentElement.innerHTML='<div class=\\'flex items-center justify-center h-full text-slate-700\\'><svg width=\\'24\\' height=\\'24\\' viewBox=\\'0 0 24 24\\' fill=\\'none\\' stroke=\\'currentColor\\' stroke-width=\\'1.5\\'><rect x=\\'3\\' y=\\'3\\' width=\\'18\\' height=\\'18\\' rx=\\'2\\'/><circle cx=\\'8.5\\' cy=\\'8.5\\' r=\\'1.5\\'/><path d=\\'m21 15-5-5L5 21\\'/></svg></div>'">
+                        </div>
+                        <div class="p-2.5">
+                            <h4 class="text-[11px] font-medium text-slate-300 group-hover:text-white line-clamp-2 leading-snug">${esc(item.title)}</h4>
+                            <div class="flex items-center gap-2 mt-1.5">
+                                <span class="text-[9px] text-purple-400 font-medium">${esc(item.source)}</span>
+                                ${age ? `<span class="text-[9px] text-slate-600">${age}</span>` : ''}
+                            </div>
+                        </div>
+                    </a>`;
+                } else {
+                    html += `<a href="${esc(item.url)}" target="_blank" rel="noopener" class="group rounded-xl p-3 transition-all hover:ring-2 hover:ring-purple-500/40" style="background:rgba(30,41,59,0.4);border:1px solid rgba(51,65,85,0.3);">
+                        <h4 class="text-[11px] font-medium text-slate-300 group-hover:text-white line-clamp-3 leading-snug">${esc(item.title)}</h4>
+                        ${item.summary ? `<p class="text-[10px] text-slate-500 mt-1 line-clamp-2">${esc(item.summary)}</p>` : ''}
+                        <div class="flex items-center gap-2 mt-2">
+                            <span class="text-[9px] text-purple-400 font-medium">${esc(item.source)}</span>
+                            ${age ? `<span class="text-[9px] text-slate-600">${age}</span>` : ''}
+                        </div>
+                    </a>`;
+                }
+            });
+            html += '</div>';
+
+            if (!filtered.length) {
+                html += `<div class="p-8 text-center text-slate-500 border border-dashed border-slate-700 rounded-xl">
+                    <i data-lucide="loader" class="w-5 h-5 mx-auto mb-2 animate-spin text-slate-600"></i>
+                    Loading media...
+                </div>`;
+            }
+
+            container.innerHTML = html;
+            if (!searchQuery) renderNav();
+            lucide.createIcons();
+            if (typeof _updateFeedSuggestionsPanel === 'function') _updateFeedSuggestionsPanel();
+            return;
+        }
 
         // --- Source quick-jump pills ---
         html += `<div class="flex flex-wrap gap-1.5 mb-4 pb-3" style="border-bottom:1px solid rgba(51,65,85,0.3)">`;
@@ -676,6 +734,9 @@ function renderFeed() {
     // Update nav badges after render (but not during search - too frequent)
     if (!searchQuery) renderNav();
     lucide.createIcons();
+
+    // Update feed suggestions sidebar
+    if (typeof _updateFeedSuggestionsPanel === 'function') _updateFeedSuggestionsPanel();
 }
 
 // === SAVED VIEW: GRID / LIST TOGGLE ===
@@ -792,4 +853,117 @@ function toggleAllHeadlineSources() {
         }
     }
     renderFeed();
+}
+
+// ═══════════════════════════════════════════════════════════
+// FEED SUGGESTIONS SIDEBAR — shown on feed tabs (right column)
+// ═══════════════════════════════════════════════════════════
+
+function _updateFeedSuggestionsPanel() {
+    const panel = document.getElementById('feed-suggestions-panel');
+    if (!panel) return;
+
+    // Map active tab to catalog type
+    const tabToCatalog = {
+        'finance_news': 'finance',
+        'politics': 'politics',
+        'jobs_feeds': 'jobs',
+        'custom_feeds': null
+    };
+
+    const catalogType = tabToCatalog[activeRoot];
+    if (catalogType === undefined) {
+        panel.classList.add('hidden');
+        return;
+    }
+
+    panel.classList.remove('hidden');
+    const content = document.getElementById('feed-suggestions-content');
+    if (!content) return;
+
+    if (catalogType === null) {
+        // Custom tab: show tabs for all catalog types
+        content.innerHTML = `<div class="flex gap-1 mb-2">
+            <button onclick="_loadFeedSuggestions('finance')" class="text-[10px] px-2 py-1 rounded bg-slate-800 text-slate-400 hover:text-emerald-400 transition-colors">Finance</button>
+            <button onclick="_loadFeedSuggestions('politics')" class="text-[10px] px-2 py-1 rounded bg-slate-800 text-slate-400 hover:text-emerald-400 transition-colors">Politics</button>
+            <button onclick="_loadFeedSuggestions('jobs')" class="text-[10px] px-2 py-1 rounded bg-slate-800 text-slate-400 hover:text-emerald-400 transition-colors">Jobs</button>
+        </div><div id="feed-sug-items"></div>`;
+        _loadFeedSuggestions('finance');
+    } else {
+        content.innerHTML = '<div id="feed-sug-items"></div>';
+        _loadFeedSuggestions(catalogType);
+    }
+}
+
+function _loadFeedSuggestions(type) {
+    const container = document.getElementById('feed-sug-items');
+    if (!container) return;
+    container.innerHTML = '<div class="text-[10px] text-slate-600 py-2">Loading...</div>';
+
+    fetch('/api/feed-catalog/' + type, {
+        headers: { 'X-Auth-Token': localStorage.getItem('auth_token') || '' }
+    })
+    .then(r => r.json())
+    .then(data => {
+        const catalog = data.catalog || [];
+        if (!catalog.length) {
+            container.innerHTML = '<div class="text-[10px] text-slate-600 py-2">No feeds available</div>';
+            return;
+        }
+
+        let html = '<div class="space-y-1 max-h-[400px] overflow-y-auto">';
+        catalog.forEach(feed => {
+            const isOn = feed.on !== false;
+            html += `<label class="flex items-center gap-2 px-2 py-1.5 rounded-lg cursor-pointer transition-all hover:bg-slate-800/30 text-[11px]" title="${esc(feed.url)}">
+                <input type="checkbox" ${isOn ? 'checked' : ''} onchange="_toggleFeedSource('${type}', '${esc(feed.id)}', this.checked)"
+                    class="w-3 h-3 rounded accent-emerald-500">
+                <span class="${isOn ? 'text-slate-300' : 'text-slate-500'}">${esc(feed.name)}</span>
+                <span class="text-[9px] text-slate-700 ml-auto">${esc(feed.region || '')}</span>
+            </label>`;
+        });
+        html += '</div>';
+
+        const enabledCount = catalog.filter(f => f.on !== false).length;
+        html += `<div class="flex items-center justify-between mt-2 pt-2" style="border-top:1px solid rgba(51,65,85,0.3)">
+            <span class="text-[10px] text-slate-600">${enabledCount}/${catalog.length} enabled</span>
+            <button onclick="_saveAndRefreshFeeds('${type}')" class="text-[10px] text-emerald-400 hover:text-emerald-300 font-medium transition-colors">Apply & Refresh</button>
+        </div>`;
+
+        container.innerHTML = html;
+    })
+    .catch(() => {
+        container.innerHTML = '<div class="text-[10px] text-red-400 py-2">Failed to load</div>';
+    });
+}
+
+function _toggleFeedSource(type, feedId, enabled) {
+    if (!window._pendingFeedToggles) window._pendingFeedToggles = {};
+    if (!window._pendingFeedToggles[type]) window._pendingFeedToggles[type] = {};
+    window._pendingFeedToggles[type][feedId] = enabled;
+}
+
+function _saveAndRefreshFeeds(type) {
+    const toggles = window._pendingFeedToggles?.[type];
+    if (!toggles || !Object.keys(toggles).length) {
+        loadExtraFeeds(type).then(renderFeed);
+        return;
+    }
+
+    const key = `extra_feeds_${type}`;
+    if (!configData) return;
+    if (!configData[key]) configData[key] = {};
+    Object.assign(configData[key], toggles);
+    window._pendingFeedToggles[type] = {};
+
+    fetch('/api/config', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Auth-Token': localStorage.getItem('auth_token') || '' },
+        body: JSON.stringify(configData)
+    }).then(() => {
+        loadExtraFeeds(type).then(() => {
+            renderFeed();
+            _loadFeedSuggestions(type);
+        });
+        if (typeof showToast === 'function') showToast('Feed sources updated', 'success');
+    });
 }
