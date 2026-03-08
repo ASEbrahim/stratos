@@ -16,6 +16,19 @@ let _scanPollingInterval = null;
 var _isScanRunning = false;
 let candleData = { opens: [], highs: [], lows: [], volumes: [], timestamps: [] }; // Per-candle data for tooltip
 
+// F11: Collapsible widget sections
+function toggleWidgetSection(bodyId, headerEl) {
+    const body = document.getElementById(bodyId);
+    if (!body) return;
+    const isHidden = body.style.display === 'none';
+    body.style.display = isHidden ? '' : 'none';
+    const chevron = headerEl?.querySelector('[data-lucide="chevron-down"], [data-lucide="chevron-right"]');
+    if (chevron) {
+        chevron.setAttribute('data-lucide', isHidden ? 'chevron-down' : 'chevron-right');
+        lucide.createIcons();
+    }
+}
+
 let navSections = buildNavSections([]);
 
 function buildNavSections(dynamicCats) {
