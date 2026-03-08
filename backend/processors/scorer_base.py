@@ -56,14 +56,14 @@ SOCIAL_NOISE_PATTERNS = [
 ]
 # LinkedIn company profile pages (not news, not hiring)
 COMPANY_PROFILE_PATTERNS = [
-    r'^[\w\s]+ (?:corporation|company|group|bank)$',  # Exact: "Kuwait Petroleum Corporation"
+    r'^[\w\s]+ (?:corporation|company|group|bank)$',  # Exact: "Acme Corporation"
     r'about\s*;\s*website',  # "About ; Website: http://..."
     r'about us.*website.*external link',  # LinkedIn about section
     r'company size.*\d+.*employees',  # "Company size: 10,001+ employees"
-    r'industry.*oil and gas',  # LinkedIn "Industry: Oil and Gas" profile
+    r'industry\s*[:;]',  # LinkedIn "Industry: ..." profile page
     r'headquarters\s*;',  # LinkedIn profile section markers
-    r'is considered a pioneer in.*banking',  # Wikipedia-style bank description
-    r'is an? (?:international|kuwaiti|leading).*(?:company|bank|corporation).*(?:engaged|established|founded)',  # About page
+    r'is considered a pioneer in',  # Wikipedia-style company description
+    r'is an? (?:international|regional|leading|major).*(?:company|bank|corporation|firm).*(?:engaged|established|founded)',  # About page
 ]
 # Stock price / finance data pages (not deals, not hiring)
 STOCK_PAGE_PATTERNS = [
@@ -338,7 +338,7 @@ def _shared_noise_check(title: str, text: str, source: str = '', url: str = '', 
 
     # Reddit posts — rarely actionable career/finance intel
     if 'reddit.com/' in url_lower:
-        has_strong_signal = any(s in text.lower() for s in ['hiring', 'job opening', 'kuwait', 'salary', 'offer'])
+        has_strong_signal = any(s in text.lower() for s in ['hiring', 'job opening', 'salary', 'offer', 'apply now'])
         if not has_strong_signal:
             return 3.0, "Reddit post, not actionable intel"
 
@@ -368,7 +368,7 @@ def _shared_noise_check(title: str, text: str, source: str = '', url: str = '', 
 
     # Facebook posts — rarely actionable intel
     if 'facebook.com/posts/' in url_lower or 'facebook.com/' in url_lower:
-        has_strong = any(s in text.lower() for s in ['hiring', 'job opening', 'fresh graduate', 'kuwait'])
+        has_strong = any(s in text.lower() for s in ['hiring', 'job opening', 'fresh graduate', 'apply now'])
         if not has_strong:
             return 3.0, "Facebook post without actionable content"
 
@@ -420,17 +420,14 @@ def _shared_noise_check(title: str, text: str, source: str = '', url: str = '', 
     # Corporate M&A / oil deals (not career intel)
     if re.search(r'(?:sells?|divests?|acquir|stake|interest).*(?:offshore|brazil|deepwater|pre-salt)', text, re.IGNORECASE):
         return 3.5, "Corporate M&A deal, not career intel"
-    if re.search(r'(?:shell|chevron|total|bp)\s+(?:sells?|divests?|sheds?)\s+.*(?:stake|interest)', text, re.IGNORECASE):
-        return 3.5, "Oil company M&A, not career intel"
+    if re.search(r'(?:sells?|divests?|sheds?)\s+.*(?:stake|interest|shares?)\s+in\b', text, re.IGNORECASE):
+        return 3.5, "Corporate M&A divestiture, not career intel"
 
     # Salary survey / comparison pages (not job listings)
-    if re.search(r'(?:average\s+)?salary.*(?:in india|₹|lakhs|inr)', text, re.IGNORECASE):
-        return 3.0, "Indian salary survey, not Kuwait career"
+    if re.search(r'(?:average\s+)?salary.*(?:₹|lakhs?|inr\b)', text, re.IGNORECASE):
+        return 3.0, "Indian salary survey page"
     if re.search(r'salaries\s+\d{4}.*(?:average|range|lakh)', text, re.IGNORECASE):
         return 3.0, "Salary survey page, not job listing"
-    if re.search(r'salaries?\s*$', title_lower) or 'salary' in title_lower and 'survey' in text.lower():
-        if not any(s in text.lower() for s in ['kuwait', 'kwd', 'kd ']):
-            return 3.0, "Non-Kuwait salary page"
 
     # Tender / procurement pages (not career)
     if re.search(r'tender\s*(?:no|number|#)?\s*\d|carrying out task|supply of\b', text, re.IGNORECASE):
@@ -655,13 +652,6 @@ class ScoringTimer:
     def sample_count(self) -> int:
         return len(self._times)
 
-    def fast_timeout(self, buffer: float = 30.0, minimum: float = 45.0) -> float:
-        """Pass 1 timeout: rolling_avg + buffer, at least minimum."""
-        return max(self.rolling_avg + buffer, minimum)
-
-    def slow_timeout(self, multiplier: float = 3.0, buffer: float = 60.0) -> float:
-        """Pass 2 timeout: rolling_avg × multiplier + buffer."""
-        return self.rolling_avg * multiplier + buffer
 
 
 # ═══════════════════════════════════════════════════════════════════
@@ -694,7 +684,6 @@ class ScorerBase:
             db=db,
             profile_id=profile_id
         )
-        self.few_shot_count = scoring_config.get("few_shot_examples", 3)
         self._available = None
         self._stats = {'rule': 0, 'llm': 0, 'truncated': 0}
 
@@ -869,13 +858,6 @@ class ScorerBase:
             return max(0.0, min(10.0, lo_val + frac * (hi_val - lo_val)))
 
         return raw_score
-
-    @staticmethod
-    def apply_forbidden_50(score: float) -> float:
-        """Nudge scores away from the forbidden 5.0 boundary."""
-        if 4.8 <= score <= 5.2:
-            return 5.3 if score >= 5.0 else 4.8
-        return score
 
     def get_score_category(self, score: float) -> str:
         """Classify a score into critical/high/medium/noise."""

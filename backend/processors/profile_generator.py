@@ -26,12 +26,30 @@ BANNED_ITEMS = {
 }
 
 ALIASES = {
+    # Oil & gas
     'schlumberger': 'slb', 'slb': 'slb',
     'halliburton': 'hal', 'hal': 'hal',
     'baker hughes': 'bkr', 'bkr': 'bkr',
     'exxonmobil': 'xom', 'xom': 'xom',
     'chevron': 'cvx', 'cvx': 'cvx',
     'weatherford': 'wft', 'wft': 'wft',
+    # Tech
+    'nvidia': 'nvda', 'nvda': 'nvda',
+    'amazon web services': 'aws', 'aws': 'aws',
+    'google cloud': 'gcp', 'gcp': 'gcp',
+    'microsoft azure': 'azure', 'azure': 'azure',
+    'international business machines': 'ibm', 'ibm': 'ibm',
+    'meta platforms': 'meta', 'meta': 'meta', 'facebook': 'meta',
+    'alphabet': 'google', 'google': 'google',
+    # Finance
+    'jpmorgan chase': 'jpm', 'jpm': 'jpm', 'jp morgan': 'jpm',
+    'goldman sachs': 'gs', 'gs': 'gs',
+    'morgan stanley': 'ms', 'ms': 'ms',
+    # Consulting
+    'mckinsey & company': 'mckinsey', 'mckinsey': 'mckinsey',
+    'boston consulting group': 'bcg', 'bcg': 'bcg',
+    'deloitte': 'deloitte', 'pwc': 'pwc', 'pricewaterhousecoopers': 'pwc',
+    'ernst & young': 'ey', 'ey': 'ey', 'kpmg': 'kpmg',
 }
 
 CAREER_OPTOUT_SIGNALS = [
@@ -189,9 +207,7 @@ def enrich_categories(categories: list, role: str, location: str, context: str,
 
         location_hint = ""
         if location:
-            loc_lower = location.lower()
-            if any(k in loc_lower for k in ['kuwait', 'gcc', 'gulf', 'saudi', 'uae', 'qatar', 'bahrain', 'oman']):
-                location_hint = f"\nIMPORTANT: The user is based in {location}. For banking/finance categories, ONLY add banks and financial institutions that operate in {location} or the GCC region. Do NOT add international banks with no presence there (e.g. no European or American retail banks). For employer categories, focus on companies with offices or operations in {location}."
+            location_hint = f"\nIMPORTANT: The user is based in {location}. For banking/finance categories, ONLY add banks and financial institutions that operate in or near {location}. Do NOT add banks with no local presence. For employer categories, focus on companies with offices or operations in {location}."
 
         prompt = f"""Role: {role}
 Location: {location or 'Not specified'}

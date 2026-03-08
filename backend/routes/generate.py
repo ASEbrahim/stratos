@@ -65,30 +65,24 @@ WHAT SHOULD BE A CATEGORY vs an ITEM:
 Category = a broad domain that generates its own news feed tab (5-8 of these)
 Item = a specific entity, topic, or keyword INSIDE a category (5-8 per category)
 
-Example for "Chemical Engineering Graduate in Kuwait":
+Example for "Pastry Chef in Tokyo":
 GOOD (4 broad categories):
-  "K-Sector Employers" → items: ["Equate", "KNPC", "KPC", "KIPIC", "SABIC", "DOW Chemical", "SLB", "KOC"]
-  "Process & Plant Engineering" → items: ["refinery operations", "plant design", "process safety", "HAZOP", "distillation", "gas processing"]
-  "Materials & Sustainability" → items: ["catalysts", "polymers", "corrosion", "nanomaterials", "green chemistry", "carbon capture"]
-  "Career & Certifications" → items: ["PE license", "Six Sigma", "NEBOSH", "process simulation"]
+  "Tokyo Culinary Scene" (scorer_type: career, root: kuwait) → items: ["Tsuji Culinary Institute", "Tokyo pastry jobs", "Japan Restaurant Association", "hotel pastry positions", "bakery openings Tokyo"]
+  "Pastry Techniques & Trends" (scorer_type: tech, root: global) → items: ["French pastry methods", "chocolate tempering", "sugar work techniques", "sourdough fermentation", "molecular gastronomy", "plant-based desserts"]
+  "Culinary Business & Industry" (scorer_type: auto, root: regional) → items: ["Japan food industry", "bakery supply chain", "restaurant management", "food safety regulations", "Michelin Guide Japan"]
+  "Career & Certifications" (scorer_type: career, root: global) → items: ["Le Cordon Bleu", "pastry competitions", "World Pastry Cup", "food hygiene certification", "culinary awards"]
+BAD for chef: "Cloud Computing Trends" → chefs don't track infrastructure!
+BAD for chef: "K-Sector Employers" → completely irrelevant for culinary professionals!
 
-Example for "Computer Engineering (CPEG) Student in Kuwait":
+Example for "Civil Engineer in Riyadh":
 GOOD (5 categories):
-  "K-Sector Employers" (scorer_type: career) → items: ["Equate", "KNPC", "KOC", "KIPIC", "SLB", "Halliburton", "Zain"]
-  "Banking Deals" (scorer_type: banks) → items: ["Warba Bank", "Boubyan", "NBK", "KFH", "student allowance", "salary transfer"]
-  "Tech & Development" (scorer_type: tech) → items: ["AI development", "cloud computing", "cybersecurity", "IoT", "embedded systems"]
-  "Emerging Tech Trends" (scorer_type: tech) → items: ["superconductors", "quantum computing", "solid-state battery", "6G"]
-  "Career & Skills" (scorer_type: career) → items: ["CCNA", "AWS certified", "CompTIA", "Python certification"]
-
-Example for "Senior Geophysicist at KOC, Kuwait":
-GOOD (5 categories):
-  "KOC Geophysics & Exploration" (scorer_type: career) → items: ["seismic acquisition", "seismic processing", "3D seismic", "subsurface imaging", "reservoir characterization", "KOC tenders", "Schlumberger Middle East", "WesternGeco", "CGG Kuwait"]
-  "Oil & Energy Markets" (scorer_type: auto) → items: ["OPEC production", "Kuwait oil output", "crude oil prices", "GCC energy policy", "upstream exploration", "drilling technology"]
-  "Geoscience Technology" (scorer_type: tech) → items: ["FWI imaging", "machine learning seismic", "electromagnetic surveys", "microseismic monitoring", "digital rock physics", "cloud HPC geoscience"]
-  "Career & Certifications" (scorer_type: career) → items: ["SEG conferences", "EAGE events", "geophysics certifications", "petroleum geoscience courses", "Petrel training", "Kingdom software"]
-  "Regional Industry News" (scorer_type: regional) → items: ["Kuwait upstream projects", "GCC exploration", "Saudi Aramco geophysics", "Abu Dhabi ADNOC", "Middle East oil discoveries"]
-BAD for geophysicist: "Semiconductor & ICT Trends" → geophysicists don't track chip manufacturing!
-BAD for geophysicist: "ICT Career Certifications" → AWS/Azure certs are irrelevant for geophysicists!
+  "Saudi Construction Employers" (scorer_type: career, root: kuwait) → items: ["Saudi Aramco", "NEOM", "Diriyah Gate", "Red Sea Global", "Bechtel Saudi", "Jacobs Engineering"]
+  "Structural & Geotechnical" (scorer_type: tech, root: global) → items: ["BIM modeling", "structural analysis", "foundation design", "concrete technology", "seismic design", "green building"]
+  "Saudi Infrastructure Projects" (scorer_type: regional, root: regional) → items: ["Vision 2030 projects", "Riyadh Metro", "NEOM construction", "Saudi mega projects", "GCC infrastructure"]
+  "Career & Certifications" (scorer_type: career, root: global) → items: ["PE license Saudi", "PMP certification", "LEED accreditation", "Saudi Council of Engineers"]
+  "Construction Industry News" (scorer_type: auto, root: global) → items: ["construction automation", "prefabrication trends", "sustainability standards", "smart buildings", "construction safety"]
+BAD for civil engineer: "Semiconductor & ICT Trends" → civil engineers don't track chip manufacturing!
+BAD for civil engineer: "Banking Deals" → irrelevant unless they asked for it!
 
 Example for "Marketing Strategist in Singapore":
 GOOD (5 categories):
@@ -119,21 +113,18 @@ Users can be ANYTHING: marketers, lawyers, chefs, teachers, farmers, journalists
 Do NOT default to tech/engineering categories for non-tech roles. A chef needs restaurant industry news, not cloud computing. A lawyer needs legal updates, not telecom infrastructure. A teacher needs education policy, not cybersecurity trends.
 Generate categories that match the ACTUAL profession — not a generic tech template.
 
-=== LOCATION-SPECIFIC KNOWLEDGE ===
+=== LOCATION-SPECIFIC GUIDANCE ===
 
-For KUWAIT roles, know these key entities:
-- K-Sector (oil/gas employers): KOC, KNPC, KIPIC, KPC, KUFPEC, KOTC, Equate, PIC
-- International oil/gas employers in Kuwait: SLB (Schlumberger), Halliburton, Baker Hughes, Honeywell
-- Tech/Telecom employers: Zain, Ooredoo, STC Kuwait, KNET, Alghanim, Huawei, SAP
-- Banks: NBK, Boubyan, KFH, Warba, Burgan, Gulf Bank, KIB, CBK
-- "K-companies" or "K-sector" = Kuwait's state-owned oil and petrochemical companies
+Use your knowledge of major employers, institutions, and industry bodies in the user's location. Examples:
+- Kuwait: K-Sector (KOC, KNPC, Equate, KIPIC), banks (NBK, Boubyan, KFH), telecom (Zain, Ooredoo)
+- Saudi Arabia: Saudi Aramco, NEOM, SABIC, STC, Al Rajhi Bank
+- UAE: ADNOC, Etisalat, Emirates NBD, DIFC, DMCC
+- Singapore: DBS, Grab, Sea Group, GovTech, Temasek
+- USA: vary by city and industry — use common sense
 
-CRITICAL — K-SECTOR RELEVANCE RULE:
-K-Sector employers (KOC, KNPC, KIPIC, Equate, SLB, Halliburton) are ONLY relevant for:
-- Engineering roles (petroleum, chemical, mechanical, electrical, civil, geological, geophysical)
-- Operations/field roles
-- HSE/Safety roles
-They are NOT relevant for: pure software/CS, pure finance, medicine, law, arts, marketing, or teaching."""
+CRITICAL — EMPLOYER RELEVANCE RULE:
+Industry-specific employers (oil/gas companies, construction firms, etc.) are ONLY relevant for roles that work IN that industry.
+They are NOT relevant for: unrelated professions in the same location. A teacher in Kuwait doesn't need K-Sector oil companies. A nurse in Riyadh doesn't need Saudi Aramco."""
 
 
 def handle_generate_profile(handler, strat):
