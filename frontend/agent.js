@@ -481,7 +481,21 @@ async function sendAgentMessage() {
         
         // Final render with cleaned text + show more/less for long responses
         const finalDiv = typingEl?.querySelector('.agent-response');
-        if (finalDiv) finalDiv.innerHTML = wrapWithShowMore(fullResponse, formatAgentText(fullResponse));
+        if (finalDiv) {
+            finalDiv.innerHTML = wrapWithShowMore(fullResponse, formatAgentText(fullResponse));
+            // F2: Add suggestion chips based on response content
+            const chips = _generateResponseChips(fullResponse, msg);
+            if (chips.length) {
+                const chipHtml = chips.map(c =>
+                    `<button onclick="${escAgent(c.action)}" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-medium transition-all hover:scale-105" style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);color:var(--accent,#34d399);" title="${escAgent(c.tip || '')}">
+                        <i data-lucide="${c.icon}" class="w-3 h-3"></i> ${escAgent(c.label)}
+                    </button>`
+                ).join('');
+                finalDiv.insertAdjacentHTML('afterend',
+                    `<div class="flex flex-wrap gap-1.5 mt-2 agent-chips">${chipHtml}</div>`);
+                lucide.createIcons();
+            }
+        }
 
         agentHistory.push({ role: 'assistant', content: fullResponse });
         
@@ -500,6 +514,80 @@ async function sendAgentMessage() {
         sendBtn.innerHTML = '<i data-lucide="arrow-up" class="w-4 h-4"></i>';
         lucide.createIcons();
         input.focus();
+    }
+}
+
+// ═══════════════════════════════════════════════════════════
+// F2: RESPONSE SUGGESTION CHIPS
+// ═══════════════════════════════════════════════════════════
+
+function _generateResponseChips(response, userMsg) {
+    const chips = [];
+    const rLower = response.toLowerCase();
+    const mLower = userMsg.toLowerCase();
+
+    // Detect ticker mentions (3-5 uppercase letters)
+    const tickerMatches = response.match(/\b([A-Z]{2,5})\b/g);
+    if (tickerMatches) {
+        const currentTickers = (typeof configData !== 'undefined' && configData?.market?.tickers)
+            ? configData.market.tickers.map(t => (t.symbol || t).toUpperCase()) : [];
+        const seen = new Set();
+        for (const t of tickerMatches) {
+            if (seen.has(t) || currentTickers.includes(t)) continue;
+            // Skip common words that look like tickers
+            if (['THE','AND','FOR','ARE','BUT','NOT','YOU','ALL','CAN','HAS','HER','WAS','ONE','OUR','OUT','DAY','HAD','HIS','HOW','ITS','MAY','NEW','NOW','OLD','SEE','WAY','WHO','DID','GET','LET','SAY','SHE','TOO','USE','KEY','GDP','CEO','IPO','ETF','USD','EUR','GBP','RSS','API'].includes(t)) continue;
+            seen.add(t);
+            if (chips.length < 3) {
+                chips.push({
+                    label: `Track ${t}`,
+                    icon: 'plus-circle',
+                    action: `document.getElementById('agent-input').value='Add ${t} to watchlist';sendAgentMessage()`,
+                    tip: `Add ${t} to your watchlist`
+                });
+            }
+        }
+    }
+
+    // Suggest web search follow-up
+    if (rLower.includes('search') || rLower.includes('look up') || rLower.includes('find more')) {
+        chips.push({
+            label: 'Search more',
+            icon: 'search',
+            action: `document.getElementById('agent-input').value='Search for more details on this topic';sendAgentMessage()`,
+            tip: 'Search the web for more information'
+        });
+    }
+
+    // If response mentions news/market topics, suggest drilling deeper
+    if (rLower.includes('market') || rLower.includes('price') || rLower.includes('stock')) {
+        if (!chips.some(c => c.label.includes('Track'))) {
+            chips.push({
+                label: 'Market analysis',
+                icon: 'bar-chart-2',
+                action: `document.getElementById('agent-input').value='Give me a detailed market analysis';sendAgentMessage()`,
+                tip: 'Get deeper market analysis'
+            });
+        }
+    }
+
+    // Suggest summarize if response is long
+    if (response.length > 800) {
+        chips.push({
+            label: 'Summarize',
+            icon: 'align-left',
+            action: `document.getElementById('agent-input').value='Summarize the above in 3 bullet points';sendAgentMessage()`,
+            tip: 'Get a shorter summary'
+        });
+    }
+
+    return chips.slice(0, 4); // Max 4 chips
+}
+
+function _applyAgentChip(action) {
+    const input = document.getElementById('agent-input');
+    if (input) {
+        input.value = action;
+        sendAgentMessage();
     }
 }
 
