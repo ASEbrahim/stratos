@@ -177,19 +177,51 @@ class StratOS:
         """Ensure the given profile's config is active.
 
         If a different profile is currently loaded, switch to the
-        requested one from the in-memory cache.  This prevents
-        a second login from contaminating the first user's config.
+        requested one from the in-memory cache.  If not cached (e.g. after
+        server restart), load the config_overlay from DB and cache it.
         """
         if not profile_name or self.active_profile == profile_name:
             return
         if profile_name not in self._profile_configs:
-            return  # Not cached yet — will be loaded on next login
+            # Not cached — try loading from DB (handles server restart)
+            self._load_profile_from_db(profile_name)
+        if profile_name not in self._profile_configs:
+            return  # Still not found — give up
         with self._config_lock:
             if self.active_profile == profile_name:
                 return  # Another thread already switched
             self.config = copy.deepcopy(self._profile_configs[profile_name])
             self.active_profile = profile_name
             logger.info(f"Profile switched to: {profile_name}")
+
+    def _load_profile_from_db(self, profile_name: str):
+        """Load a profile's config_overlay from DB into the in-memory cache."""
+        try:
+            row = self.db.conn.execute(
+                "SELECT config_overlay FROM profiles WHERE name = ?",
+                (profile_name,)
+            ).fetchone()
+            if not row or not row[0]:
+                return
+            import json as _json
+            overlay = _json.loads(row[0])
+            # Start from base config, apply overlay
+            base = self._load_config()
+            self._apply_overlay(base, overlay)
+            self._profile_configs[profile_name] = base
+            logger.info(f"Profile '{profile_name}' loaded from DB into cache")
+        except Exception as e:
+            logger.warning(f"Failed to load profile '{profile_name}' from DB: {e}")
+
+    @staticmethod
+    def _apply_overlay(config: dict, overlay: dict):
+        """Apply a config_overlay dict onto a base config (in-place)."""
+        for key, val in overlay.items():
+            existing = config.get(key)
+            if isinstance(existing, dict) and isinstance(val, dict):
+                existing.update(val)
+            else:
+                config[key] = val
 
     def cache_profile_config(self, profile_name: str):
         """Snapshot current config into the profile cache."""
