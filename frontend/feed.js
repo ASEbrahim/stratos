@@ -492,8 +492,8 @@ function renderFeed() {
                 <button onclick="window._customMediaView=false;renderFeed()" class="text-[10px] px-2 py-0.5 rounded transition-all ${!_mediaMode ? 'bg-slate-600 text-white' : 'text-slate-400 hover:text-white'}" title="Headlines view">
                     <i data-lucide="list" class="w-3 h-3 inline"></i>
                 </button>
-                <button onclick="window._customMediaView=true;renderFeed()" class="text-[10px] px-2 py-0.5 rounded transition-all ${_mediaMode ? 'bg-purple-600 text-white' : 'text-slate-400 hover:text-white'}" title="Media grid view">
-                    <i data-lucide="image" class="w-3 h-3 inline"></i>
+                <button onclick="window._customMediaView=true;renderFeed()" class="text-[10px] px-2 py-0.5 rounded transition-all ${_mediaMode ? 'bg-purple-600 text-white' : 'text-slate-400 hover:text-white'}" title="Rich media view">
+                    <i data-lucide="layout-grid" class="w-3 h-3 inline"></i>
                 </button>
             </div>` : ''}
             <span class="text-[10px] text-slate-600 ml-auto">${filtered.length} headlines · ${sourceKeys.length} sources</span>
@@ -502,42 +502,248 @@ function renderFeed() {
             </button>
         </div>`;
 
-        // --- Media grid view (custom feeds only) ---
+        // --- Rich Media View (custom feeds only) ---
         if (_mediaMode) {
-            html += '<div class="grid grid-cols-2 sm:grid-cols-3 gap-3">';
-            filtered.forEach(item => {
-                const thumb = item.thumbnail || '';
-                const age = timeAgo(item.timestamp);
-                if (thumb) {
-                    html += `<a href="${esc(item.url)}" target="_blank" rel="noopener" class="group rounded-xl overflow-hidden transition-all hover:ring-2 hover:ring-purple-500/40" style="background:rgba(30,41,59,0.4);border:1px solid rgba(51,65,85,0.3);">
-                        <div class="relative aspect-video overflow-hidden">
-                            <img src="${esc(thumb)}" alt="" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" onerror="this.parentElement.innerHTML='<div class=\\'flex items-center justify-center h-full text-slate-700\\'><svg width=\\'24\\' height=\\'24\\' viewBox=\\'0 0 24 24\\' fill=\\'none\\' stroke=\\'currentColor\\' stroke-width=\\'1.5\\'><rect x=\\'3\\' y=\\'3\\' width=\\'18\\' height=\\'18\\' rx=\\'2\\'/><circle cx=\\'8.5\\' cy=\\'8.5\\' r=\\'1.5\\'/><path d=\\'m21 15-5-5L5 21\\'/></svg></div>'">
+            // Separate by media type
+            const videos = filtered.filter(i => i.media_type === 'video');
+            const streams = filtered.filter(i => i.media_type === 'stream');
+            const images = filtered.filter(i => i.media_type === 'image');
+            const manga = filtered.filter(i => i.media_type === 'manga');
+            const articles = filtered.filter(i => !i.media_type || i.media_type === 'article');
+
+            // Caps per section to avoid overwhelming the page
+            const _VID_PER_SOURCE = 2, _IMG_CAP = 30, _MANGA_CAP = 18, _ART_CAP = 16;
+
+            // === VIDEO SECTION ===
+            if (videos.length) {
+                // Cap to 2 videos per source
+                const _vidSourceCount = {};
+                const showVids = videos.filter(item => {
+                    const src = item.source || '?';
+                    _vidSourceCount[src] = (_vidSourceCount[src] || 0) + 1;
+                    return _vidSourceCount[src] <= _VID_PER_SOURCE;
+                });
+                html += `<div class="mb-6">
+                    <div class="flex items-center gap-2 mb-3">
+                        <i data-lucide="play-circle" class="w-4 h-4 text-red-400"></i>
+                        <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Videos</span>
+                        <span class="text-[9px] text-slate-600">${showVids.length} (${Object.keys(_vidSourceCount).length} channels)</span>
+                    </div>
+                    <div class="space-y-2">`;
+                showVids.forEach(item => {
+                    const age = timeAgo(item.timestamp);
+                    const embedId = item.embed_id || '';
+                    const thumb = item.thumbnail || '';
+                    if (embedId && item.embed_type === 'youtube') {
+                        // Horizontal card: fixed-height thumbnail left, info right, click expands to player
+                        html += `<div class="group rounded-lg overflow-hidden transition-all hover:ring-1 hover:ring-red-500/30" style="background:rgba(30,41,59,0.5);border:1px solid rgba(51,65,85,0.3);">
+                            <div class="flex items-stretch" style="height:90px">
+                                <div class="media-player-slot relative cursor-pointer shrink-0" style="width:160px"
+                                     onclick="const card=this.closest('.group');card.style.height='auto';this.parentElement.style.height='auto';this.parentElement.style.display='block';this.style.width='100%';this.style.aspectRatio='16/9';this.innerHTML='<iframe src=\\'https://www.youtube.com/embed/${esc(embedId)}?autoplay=1\\' class=\\'w-full h-full\\' style=\\'min-height:300px\\' frameborder=\\'0\\' allow=\\'autoplay; encrypted-media\\' allowfullscreen></iframe>';this.style.cursor='default'">
+                                    <img src="${esc(thumb)}" alt="" class="w-full h-full object-cover" loading="lazy" onerror="this.style.display='none'">
+                                    <div class="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/10 transition-colors">
+                                        <div class="w-9 h-9 rounded-full bg-red-600/90 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="white"><polygon points="9.5,7.5 16.5,12 9.5,16.5"/></svg>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="p-2.5 flex flex-col justify-center min-w-0">
+                                    <a href="${esc(item.url)}" target="_blank" rel="noopener" class="text-[11px] font-medium text-slate-200 hover:text-white line-clamp-2 leading-snug">${esc(item.title)}</a>
+                                    <div class="flex items-center gap-2 mt-1.5">
+                                        <span class="text-[9px] text-red-400 font-medium truncate">${esc(item.source)}</span>
+                                        ${age ? `<span class="text-[9px] text-slate-600">${age}</span>` : ''}
+                                        <span class="text-[8px] text-slate-700 ml-auto">click to play</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>`;
+                    } else {
+                        html += `<a href="${esc(item.url)}" target="_blank" rel="noopener" class="group flex items-stretch rounded-lg overflow-hidden transition-all hover:ring-1 hover:ring-red-500/30" style="height:90px;background:rgba(30,41,59,0.5);border:1px solid rgba(51,65,85,0.3);">
+                            <div class="relative shrink-0 overflow-hidden" style="width:160px">
+                                ${thumb ? `<img src="${esc(thumb)}" alt="" class="w-full h-full object-cover" loading="lazy">` : '<div class="w-full h-full flex items-center justify-center bg-slate-800"><i data-lucide="video" class="w-5 h-5 text-slate-600"></i></div>'}
+                                <div class="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/5 transition-colors">
+                                    <div class="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center backdrop-blur-sm">
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="white"><polygon points="9.5,7.5 16.5,12 9.5,16.5"/></svg>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="p-2.5 flex flex-col justify-center min-w-0">
+                                <h4 class="text-[11px] font-medium text-slate-200 group-hover:text-white line-clamp-2 leading-snug">${esc(item.title)}</h4>
+                                <div class="flex items-center gap-2 mt-1.5">
+                                    <span class="text-[9px] text-red-400 font-medium truncate">${esc(item.source)}</span>
+                                    ${age ? `<span class="text-[9px] text-slate-600">${age}</span>` : ''}
+                                </div>
+                            </div>
+                        </a>`;
+                    }
+                });
+                html += '</div></div>';
+            }
+
+            // === STREAMS SECTION (Twitch) ===
+            if (streams.length) {
+                const showStreams = streams.slice(0, 6);
+                html += `<div class="mb-6">
+                    <div class="flex items-center gap-2 mb-3">
+                        <i data-lucide="radio" class="w-4 h-4 text-purple-400"></i>
+                        <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Live Streams</span>
+                        <span class="text-[9px] text-slate-600">${streams.length}</span>
+                    </div>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">`;
+                showStreams.forEach(item => {
+                    const age = timeAgo(item.timestamp);
+                    const embedId = item.embed_id || '';
+                    if (embedId && item.embed_type === 'twitch') {
+                        html += `<div class="group rounded-xl overflow-hidden" style="background:rgba(30,41,59,0.5);border:1px solid rgba(88,28,135,0.3);">
+                            <div class="media-player-slot relative aspect-video cursor-pointer"
+                                 onclick="this.innerHTML='<iframe src=\\'https://player.twitch.tv/?channel=${esc(embedId)}&parent='+location.hostname+'\\' class=\\'w-full h-full\\' frameborder=\\'0\\' allowfullscreen></iframe>';this.style.cursor='default'">
+                                ${item.thumbnail ? `<img src="${esc(item.thumbnail)}" alt="" class="w-full h-full object-cover" loading="lazy">` : `<div class="w-full h-full flex items-center justify-center" style="background:linear-gradient(135deg, #1a0533 0%, #2d1b69 100%)"><i data-lucide="radio" class="w-10 h-10 text-purple-400 animate-pulse"></i></div>`}
+                                <div class="absolute top-2 left-2 flex items-center gap-1 bg-red-600 text-white text-[9px] px-2 py-0.5 rounded-full font-bold shadow-lg">
+                                    <span class="w-1.5 h-1.5 bg-white rounded-full animate-pulse"></span> LIVE
+                                </div>
+                                <div class="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/5 transition-colors">
+                                    <div class="w-12 h-12 rounded-full bg-purple-600/80 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><polygon points="9.5,7.5 16.5,12 9.5,16.5"/></svg>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="p-3">
+                                <a href="${esc(item.url)}" target="_blank" rel="noopener" class="text-xs font-medium text-slate-200 hover:text-white line-clamp-1">${esc(item.title)}</a>
+                                <span class="text-[9px] text-purple-400 font-medium">${esc(embedId)}</span>
+                            </div>
+                        </div>`;
+                    } else {
+                        html += `<a href="${esc(item.url)}" target="_blank" rel="noopener" class="group rounded-xl overflow-hidden p-3" style="background:rgba(30,41,59,0.5);border:1px solid rgba(51,65,85,0.3);">
+                            <h4 class="text-xs font-medium text-slate-200 group-hover:text-white line-clamp-2">${esc(item.title)}</h4>
+                            <span class="text-[9px] text-purple-400">${esc(item.source)}</span>
+                        </a>`;
+                    }
+                });
+                html += '</div></div>';
+            }
+
+            // === IMAGE GALLERY SECTION — grouped by source, S/M/L grid toggle ===
+            if (images.length) {
+                window._mediaImageItems = images;
+                if (!window._imgGridSize) window._imgGridSize = 'M';
+                const _gs = window._imgGridSize;
+                const _gridCfg = {
+                    S: { cols: '', style: 'display:grid;grid-template-columns:repeat(8,1fr);gap:4px', ratio: '3/4', perSrc: 24 },
+                    M: { cols: 'grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6', style: '', ratio: '3/4', gap: 'gap-1.5', perSrc: 16 },
+                    L: { cols: 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4', style: '', ratio: '3/4', gap: 'gap-2', perSrc: 12 },
+                };
+                const _gc = _gridCfg[_gs];
+                const _imgBySrc = {};
+                images.forEach(i => { const s = i.source||'?'; if(!_imgBySrc[s]) _imgBySrc[s]=[]; _imgBySrc[s].push(i); });
+                const _szBtn = (s, label) => {
+                    const active = _gs === s;
+                    return `<button onclick="window._imgGridSize='${s}';renderFeed()" style="padding:2px 8px;border-radius:3px;font-size:9px;font-weight:600;cursor:pointer;border:1px solid ${active ? 'rgba(236,72,153,0.5)' : 'rgba(255,255,255,0.1)'};background:${active ? 'rgba(236,72,153,0.2)' : 'rgba(255,255,255,0.05)'};color:${active ? '#f9a8d4' : '#64748b'}">${label}</button>`;
+                };
+                html += `<div class="mb-6">
+                    <div class="flex items-center gap-2 mb-3">
+                        <i data-lucide="image" class="w-4 h-4 text-pink-400"></i>
+                        <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Images</span>
+                        <span class="text-[9px] text-slate-600">${images.length} · ${Object.keys(_imgBySrc).length} sources</span>
+                        <div class="flex items-center gap-1 ml-auto">
+                            ${_szBtn('S','S')}${_szBtn('M','M')}${_szBtn('L','L')}
                         </div>
-                        <div class="p-2.5">
-                            <h4 class="text-[11px] font-medium text-slate-300 group-hover:text-white line-clamp-2 leading-snug">${esc(item.title)}</h4>
-                            <div class="flex items-center gap-2 mt-1.5">
-                                <span class="text-[9px] text-purple-400 font-medium">${esc(item.source)}</span>
-                                ${age ? `<span class="text-[9px] text-slate-600">${age}</span>` : ''}
+                    </div>`;
+                Object.entries(_imgBySrc).forEach(([source, srcImages]) => {
+                    const showSrc = srcImages.slice(0, _gc.perSrc);
+                    html += `<div class="mb-4">
+                        <div class="flex items-center gap-2 mb-2">
+                            <span class="text-[9px] font-bold text-pink-400/70 uppercase tracking-wider">${esc(source)}</span>
+                            <span class="text-[8px] text-slate-600">${srcImages.length}</span>
+                        </div>
+                        <div class="${_gc.style ? '' : 'grid ' + _gc.cols + ' ' + _gc.gap}" ${_gc.style ? `style="${_gc.style}"` : ''}>`;
+                    showSrc.forEach((item) => {
+                        const thumb = item.thumbnail || '';
+                        const idx = images.indexOf(item);
+                        html += `<div class="group relative rounded overflow-hidden cursor-pointer" style="aspect-ratio:${_gc.ratio};background:rgba(30,41,59,0.5);"
+                            onclick="_openMediaLightbox(${idx})">
+                            ${thumb
+                                ? `<img src="${esc(thumb)}" alt="" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200" loading="lazy" onerror="this.style.display='none'">`
+                                : '<div class="w-full h-full flex items-center justify-center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgb(71,85,105)" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg></div>'}
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent opacity-0 group-hover:opacity-100 transition-opacity">
+                                <div class="absolute bottom-0 left-0 right-0 p-1.5">
+                                    <p class="text-[8px] text-white/90 line-clamp-1">${esc(item.title)}</p>
+                                </div>
+                            </div>
+                        </div>`;
+                    });
+                    html += '</div></div>';
+                });
+                html += '</div>';
+            }
+
+            // === MANGA SECTION (portrait covers) ===
+            if (manga.length) {
+                const showManga = manga.slice(0, _MANGA_CAP);
+                html += `<div class="mb-6">
+                    <div class="flex items-center gap-2 mb-3">
+                        <i data-lucide="book-open" class="w-4 h-4 text-orange-400"></i>
+                        <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Manga</span>
+                        <span class="text-[9px] text-slate-600">${manga.length}</span>
+                    </div>
+                    <div class="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-2">`;
+                showManga.forEach(item => {
+                    const thumb = item.thumbnail || '';
+                    const age = timeAgo(item.timestamp);
+                    html += `<a href="${esc(item.url)}" target="_blank" rel="noopener" class="group rounded-lg overflow-hidden transition-all hover:ring-1 hover:ring-orange-500/30" style="background:rgba(30,41,59,0.5);border:1px solid rgba(51,65,85,0.3);">
+                        <div class="relative overflow-hidden" style="aspect-ratio:2/3">
+                            ${thumb ? `<img src="${esc(thumb)}" alt="" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy">` : '<div class="w-full h-full flex items-center justify-center bg-slate-800"><i data-lucide="book-open" class="w-6 h-6 text-slate-600"></i></div>'}
+                        </div>
+                        <div class="p-1.5">
+                            <h4 class="text-[9px] font-medium text-slate-300 group-hover:text-white line-clamp-2 leading-tight">${esc(item.title)}</h4>
+                            <div class="flex items-center gap-1 mt-0.5">
+                                <span class="text-[8px] text-orange-400 truncate">${esc(item.source)}</span>
+                                ${age ? `<span class="text-[8px] text-slate-600 shrink-0">${age}</span>` : ''}
                             </div>
                         </div>
                     </a>`;
-                } else {
-                    html += `<a href="${esc(item.url)}" target="_blank" rel="noopener" class="group rounded-xl p-3 transition-all hover:ring-2 hover:ring-purple-500/40" style="background:rgba(30,41,59,0.4);border:1px solid rgba(51,65,85,0.3);">
-                        <h4 class="text-[11px] font-medium text-slate-300 group-hover:text-white line-clamp-3 leading-snug">${esc(item.title)}</h4>
-                        ${item.summary ? `<p class="text-[10px] text-slate-500 mt-1 line-clamp-2">${esc(item.summary)}</p>` : ''}
-                        <div class="flex items-center gap-2 mt-2">
-                            <span class="text-[9px] text-purple-400 font-medium">${esc(item.source)}</span>
-                            ${age ? `<span class="text-[9px] text-slate-600">${age}</span>` : ''}
+                });
+                html += '</div></div>';
+            }
+
+            // === ARTICLES — grouped by source ===
+            if (articles.length) {
+                const _artBySrc = {};
+                articles.forEach(i => { const s = i.source||'?'; if(!_artBySrc[s]) _artBySrc[s]=[]; _artBySrc[s].push(i); });
+                html += `<div class="mb-6">
+                    <div class="flex items-center gap-2 mb-3">
+                        <i data-lucide="file-text" class="w-4 h-4 text-slate-500"></i>
+                        <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Articles</span>
+                        <span class="text-[9px] text-slate-600">${articles.length} · ${Object.keys(_artBySrc).length} sources</span>
+                    </div>`;
+                Object.entries(_artBySrc).forEach(([source, srcArticles]) => {
+                    const showSrc = srcArticles.slice(0, 6);
+                    html += `<div class="mb-4">
+                        <div class="flex items-center gap-2 mb-2">
+                            <span class="text-[9px] font-bold text-purple-400/70 uppercase tracking-wider">${esc(source)}</span>
+                            <span class="text-[8px] text-slate-600">${srcArticles.length}</span>
                         </div>
-                    </a>`;
-                }
-            });
-            html += '</div>';
+                        <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">`;
+                    showSrc.forEach(item => {
+                        const thumb = item.thumbnail || '';
+                        const age = timeAgo(item.timestamp);
+                        html += `<a href="${esc(item.url)}" target="_blank" rel="noopener" class="group rounded-lg overflow-hidden transition-all hover:ring-1 hover:ring-slate-500/30" style="background:rgba(30,41,59,0.4);border:1px solid rgba(51,65,85,0.3);">
+                            ${thumb ? `<div class="overflow-hidden" style="height:80px"><img src="${esc(thumb)}" alt="" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200" loading="lazy" onerror="this.parentElement.style.display='none'"></div>` : ''}
+                            <div class="p-2">
+                                <h4 class="text-[10px] font-medium text-slate-300 group-hover:text-white line-clamp-2 leading-tight">${esc(item.title)}</h4>
+                                ${age ? `<span class="text-[8px] text-slate-600">${age}</span>` : ''}
+                            </div>
+                        </a>`;
+                    });
+                    html += '</div></div>';
+                });
+                html += '</div>';
+            }
 
             if (!filtered.length) {
                 html += `<div class="p-8 text-center text-slate-500 border border-dashed border-slate-700 rounded-xl">
-                    <i data-lucide="loader" class="w-5 h-5 mx-auto mb-2 animate-spin text-slate-600"></i>
-                    Loading media...
+                    <i data-lucide="rss" class="w-6 h-6 mx-auto mb-2 text-slate-600"></i>
+                    <p class="text-sm">No media content yet</p>
+                    <p class="text-xs text-slate-600 mt-1">Add YouTube channels, image feeds, or Twitch streams in Settings → Custom tab</p>
                 </div>`;
             }
 
@@ -966,4 +1172,94 @@ function _saveAndRefreshFeeds(type) {
         });
         if (typeof showToast === 'function') showToast('Feed sources updated', 'success');
     });
+}
+
+// ═══════════════════════════════════════════════════════════════
+// IMAGE LIGHTBOX — for media view gallery navigation
+// ═══════════════════════════════════════════════════════════════
+
+window._mediaImageItems = [];
+
+function _openMediaLightbox(index) {
+    const items = window._mediaImageItems || [];
+    if (!items.length || index < 0 || index >= items.length) return;
+
+    const item = items[index];
+    const thumb = item.thumbnail || '';
+    if (!thumb && !item.url) return;
+
+    // Use best available: full > sample > thumbnail
+    const fullImg = item.full_image || item.sample_image || thumb;
+    const sampleImg = item.sample_image || thumb;
+    const pngFallback = fullImg ? fullImg.replace(/\.jpg$/i, '.png') : '';
+
+    _closeMediaLightbox();
+
+    const overlay = document.createElement('div');
+    overlay.id = 'media-lightbox-overlay';
+    overlay.style.cssText = 'position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.95);';
+    overlay.dataset.index = index;
+
+    overlay.innerHTML = `
+        <div style="position:absolute;top:12px;right:12px;display:flex;align-items:center;gap:10px;z-index:10">
+            <span style="font-size:11px;color:#64748b">${index + 1} / ${items.length}</span>
+            <a href="${_lbEsc(item.url)}" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:4px;color:#a78bfa;font-size:11px;text-decoration:none;padding:4px 10px;border-radius:6px;background:rgba(139,92,246,0.15);border:1px solid rgba(139,92,246,0.3)">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                Source
+            </a>
+            <button onclick="_closeMediaLightbox()" style="color:#94a3b8;background:none;border:none;cursor:pointer;padding:6px">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+        </div>
+        ${items.length > 1 ? `
+        <button onclick="_navMediaLightbox(-1)" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1);cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:10;color:white">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <button onclick="_navMediaLightbox(1)" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1);cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:10;color:white">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>` : ''}
+        <div style="width:95vw;height:90vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 0 10px">
+            <img src="${_lbEsc(fullImg)}" alt="" style="width:92vw;height:82vh;object-fit:contain" id="media-lightbox-img"
+                 onerror="var e=this;if(!e._t){e._t=1;e.src='${_lbEsc(pngFallback)}'}else if(e._t===1){e._t=2;e.src='${_lbEsc(sampleImg)}'}else if(e._t===2){e._t=3;e.src='${_lbEsc(thumb)}'}">
+            <div style="margin-top:6px;text-align:center;max-width:600px">
+                <p style="font-size:11px;color:#94a3b8;margin:0;overflow:hidden;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical">${_lbEsc(item.title)}</p>
+                <p style="font-size:9px;color:#475569;margin:2px 0 0">${_lbEsc(item.source)}</p>
+            </div>
+        </div>
+    `;
+
+    overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) _closeMediaLightbox();
+    });
+
+    document.body.appendChild(overlay);
+    document.addEventListener('keydown', _lightboxKeyHandler);
+}
+
+function _closeMediaLightbox() {
+    const overlay = document.getElementById('media-lightbox-overlay');
+    if (overlay) overlay.remove();
+    document.removeEventListener('keydown', _lightboxKeyHandler);
+}
+
+function _navMediaLightbox(dir) {
+    const overlay = document.getElementById('media-lightbox-overlay');
+    if (!overlay) return;
+    const items = window._mediaImageItems || [];
+    let idx = parseInt(overlay.dataset.index || '0') + dir;
+    if (idx < 0) idx = items.length - 1;
+    if (idx >= items.length) idx = 0;
+    _closeMediaLightbox();
+    _openMediaLightbox(idx);
+}
+
+function _lightboxKeyHandler(e) {
+    if (e.key === 'Escape') _closeMediaLightbox();
+    else if (e.key === 'ArrowLeft') _navMediaLightbox(-1);
+    else if (e.key === 'ArrowRight') _navMediaLightbox(1);
+}
+
+function _lbEsc(str) {
+    if (!str) return '';
+    return str.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }

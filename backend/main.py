@@ -88,8 +88,10 @@ class StratOS:
         self._load_env_secrets()
         self._sync_serper_credits()
 
-        # Initialize database
+        # Initialize database (resolve relative paths against backend dir)
         db_path = self.config.get("system", {}).get("database_file", "strat_os.db")
+        if not os.path.isabs(db_path):
+            db_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), db_path)
         self.db = get_database(db_path)
 
         # Initialize components
@@ -766,7 +768,7 @@ class StratOS:
         thread = threading.Thread(target=_distill_worker, daemon=True)
         thread.start()
 
-    def run_market_refresh(self) -> Dict[str, Any]:
+    def run_market_refresh(self, profile_id=None) -> Dict[str, Any]:
         """
         Refresh only market data (fast, no API calls).
         Updates the existing output file with fresh market data.
@@ -775,6 +777,8 @@ class StratOS:
         if self.scan_status.get("is_scanning") and self.scan_status.get("stage") not in ("market", "complete", "error"):
             logger.info("Skipping market refresh — news scan in progress")
             return {}
+
+        _scan_pid = profile_id if profile_id is not None else self.active_profile_id
 
         self.scan_status["is_scanning"] = True
         self.scan_status["stage"] = "market"

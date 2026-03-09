@@ -168,15 +168,28 @@ def _fetch_single_feed(feed_config: Dict[str, str], max_items: int = 5) -> List[
     category = feed_config["category"]
     
     ua = random.choice(USER_AGENTS)
+    headers = {
+        "User-Agent": ua,
+        "Accept": "application/rss+xml, application/atom+xml, application/xml, text/xml, */*",
+    }
     try:
-        response = requests.get(url, headers={"User-Agent": ua}, timeout=15, allow_redirects=True)
+        response = requests.get(url, headers=headers, timeout=15, allow_redirects=True)
         if response.status_code >= 400:
             logger.warning(f"  ✗ {name}: HTTP {response.status_code}")
             return []
         feed = feedparser.parse(response.content)
-    except requests.RequestException as e:
-        logger.warning(f"  ✗ {name}: {type(e).__name__}: {e}")
-        return []
+    except requests.RequestException:
+        # Fallback: try curl_cffi for TLS-sensitive sites
+        try:
+            from curl_cffi import requests as cf_req
+            response = cf_req.get(url, impersonate="chrome", timeout=15)
+            if response.status_code >= 400:
+                logger.warning(f"  ✗ {name}: HTTP {response.status_code}")
+                return []
+            feed = feedparser.parse(response.content)
+        except Exception as e:
+            logger.warning(f"  ✗ {name}: {type(e).__name__}: {e}")
+            return []
     
     if feed.bozo and not feed.entries:
         logger.warning(f"  ✗ {name}: Parse error: {type(feed.bozo_exception).__name__}")
@@ -227,6 +240,15 @@ def _fetch_single_feed(feed_config: Dict[str, str], max_items: int = 5) -> List[
                     if "image" in enc.get("type", ""):
                         thumb = enc.get("href", enc.get("url", ""))
                         break
+        # Extract from <img> tags in summary/content HTML
+        if not thumb:
+            import re as _re
+            content_html = getattr(entry, "summary", "") or ""
+            if hasattr(entry, "content") and entry.content:
+                content_html = entry.content[0].get("value", content_html)
+            img_match = _re.search(r'<img[^>]+src=["\']([^"\']+)["\']', content_html)
+            if img_match:
+                thumb = img_match.group(1)
 
         news_id = hashlib.md5(f"{link}{title}".encode()).hexdigest()[:12]
 

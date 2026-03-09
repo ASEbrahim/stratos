@@ -22,7 +22,7 @@ import requests
 import webbrowser
 from datetime import datetime
 from pathlib import Path
-from urllib.parse import urlparse, parse_qs
+from urllib.parse import urlparse, parse_qs, urljoin
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 from socketserver import ThreadingMixIn
 
@@ -136,7 +136,8 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                     return
 
             # --- Auth enforcement for API endpoints ---
-            if self.path.startswith('/api/') and self.path not in auth.AUTH_EXEMPT:
+            # /api/proxy exempt: <img> tags can't send X-Auth-Token headers
+            if self.path.startswith('/api/') and not self.path.startswith('/api/proxy') and self.path not in auth.AUTH_EXEMPT:
                 token = self.headers.get('X-Auth-Token', '')
                 if not auth.validate_session(token):
                     self.send_response(401)
@@ -390,7 +391,6 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                 # Resolve profile_id from token query param for profile-scoped SSE
                 sse_pid = 0
                 try:
-                    from urllib.parse import urlparse, parse_qs
                     qs = parse_qs(urlparse(self.path).query)
                     sse_token = (qs.get('token') or [''])[0]
                     if sse_token and auth.validate_session(sse_token):
@@ -560,6 +560,41 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                 self.wfile.write(json.dumps({"items": items, "fetched_at": datetime.now().isoformat()}).encode())
                 return
 
+            # Media proxy — routes through CF Worker for ISP-blocked content
+            if clean_path == "/api/proxy":
+                target_url = parse_qs(urlparse(self.path).query).get("url", [None])[0]
+                if not target_url:
+                    from routes.helpers import error_response
+                    error_response(self, "Missing url param", 400)
+                    return
+                worker_base = strat.config.get("proxy", {}).get("cloudflare_worker", "")
+                blocked = strat.config.get("proxy", {}).get("blocked_domains", [])
+                domain = urlparse(target_url).hostname or ""
+                is_blocked = any(domain == b or domain.endswith("." + b) for b in blocked)
+
+                if is_blocked and worker_base:
+                    fetch_url = f"{worker_base}/proxy?url={requests.utils.quote(target_url, safe='')}"
+                else:
+                    fetch_url = target_url
+                try:
+                    resp = requests.get(fetch_url, timeout=20, headers={
+                        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
+                        "Referer": urlparse(target_url).scheme + "://" + (urlparse(target_url).hostname or "") + "/",
+                    }, stream=True)
+                    ct = resp.headers.get("Content-Type", "application/octet-stream")
+                    self.send_response(resp.status_code)
+                    self.send_header("Content-Type", ct)
+                    self.send_header("Access-Control-Allow-Origin", "*")
+                    self.send_header("Cache-Control", "public, max-age=3600")
+                    self.end_headers()
+                    for chunk in resp.iter_content(8192):
+                        self.wfile.write(chunk)
+                except Exception as e:
+                    logger.warning(f"Proxy error: {e}")
+                    from routes.helpers import error_response
+                    error_response(self, f"Proxy error: {e}", 502)
+                return
+
             # Custom user feeds (RSS from user-defined URLs)
             if clean_path == "/api/custom-news":
                 self.send_response(200)
@@ -574,12 +609,46 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                     if enabled_feeds:
                         import feedparser
                         import re as _re
+                        _ua = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
+                        _worker_base = strat.config.get("proxy", {}).get("cloudflare_worker", "")
+                        _blocked = strat.config.get("proxy", {}).get("blocked_domains", [])
+
                         for feed_cfg in enabled_feeds:
                             try:
-                                feed = feedparser.parse(feed_cfg["url"])
+                                feed_url = feed_cfg["url"]
+                                feed_domain = urlparse(feed_url).hostname or ""
+                                _is_blocked = any(feed_domain == b or feed_domain.endswith("." + b) for b in _blocked)
+
+                                # Route blocked feeds through Cloudflare Worker
+                                if _is_blocked and _worker_base:
+                                    try:
+                                        _proxy_url = f"{_worker_base}/feed?url={requests.utils.quote(feed_url, safe='')}"
+                                        _resp = requests.get(_proxy_url, headers={"User-Agent": _ua}, timeout=20)
+                                        feed = feedparser.parse(_resp.content)
+                                    except Exception as _pe:
+                                        logger.warning(f"CF proxy failed for {feed_cfg.get('name','')}: {_pe}")
+                                        feed = feedparser.parse("")
+                                else:
+                                    # Direct fetch with headers
+                                    try:
+                                        _resp = requests.get(feed_url, headers={
+                                            "User-Agent": _ua,
+                                            "Accept": "application/rss+xml, application/atom+xml, application/xml, text/xml, */*",
+                                        }, timeout=15, allow_redirects=True)
+                                        feed = feedparser.parse(_resp.content)
+                                    except requests.RequestException:
+                                        try:
+                                            from curl_cffi import requests as cf_req
+                                            _resp = cf_req.get(feed_url, impersonate="chrome", timeout=15)
+                                            feed = feedparser.parse(_resp.content)
+                                        except Exception:
+                                            feed = feedparser.parse(feed_url)
+
                                 for entry in feed.entries[:15]:
                                     pub = entry.get("published", entry.get("updated", ""))
-                                    # Extract thumbnail/image
+                                    link = entry.get("link", "")
+
+                                    # ── Extract thumbnail ──
                                     thumb = ""
                                     # 1. media:thumbnail or media:content
                                     media_thumb = entry.get("media_thumbnail", [])
@@ -600,7 +669,8 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                                                 if "image" in enc.get("type", ""):
                                                     thumb = enc.get("href", enc.get("url", ""))
                                                     break
-                                    # 3. First <img> in summary/content
+                                    # 3. First <img> in summary/content HTML
+                                    full_image = ""
                                     if not thumb:
                                         content_html = entry.get("summary", "") or ""
                                         if entry.get("content"):
@@ -608,21 +678,109 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                                         img_match = _re.search(r'<img[^>]+src=["\']([^"\']+)["\']', content_html)
                                         if img_match:
                                             thumb = img_match.group(1)
+                                    # 4. Construct sample + full URLs from known booru patterns
+                                    sample_image = ""
+                                    if thumb:
+                                        # Yande.re: assets.yande.re/data/preview/ab/cd/hash.jpg
+                                        #   sample: files.yande.re/sample/hash/yande.re+NNN+sample+tags.jpg (unreliable)
+                                        #   jpeg:   files.yande.re/jpeg/ab/cd/hash.jpg (reliable mid-res)
+                                        #   image:  files.yande.re/image/ab/cd/hash.png (full, might be png)
+                                        if 'yande.re' in thumb and '/preview/' in thumb:
+                                            sample_image = thumb.replace('assets.yande.re/data/preview/', 'files.yande.re/jpeg/').replace('/preview/', '/jpeg/')
+                                            full_image = thumb.replace('assets.yande.re/data/preview/', 'files.yande.re/image/').replace('/preview/', '/image/')
+                                        # Konachan: same structure as yande.re
+                                        elif 'konachan.' in thumb and '/preview/' in thumb:
+                                            sample_image = thumb.replace('/preview/', '/jpeg/')
+                                            full_image = thumb.replace('/preview/', '/image/')
+                                        # Danbooru: 360px thumbnail is the max free resolution
+                                        # /sample/ and /original/ require different filename formats or paid account
+                                        elif 'donmai.us' in thumb:
+                                            pass  # Just use thumbnail as-is
+                                        # Gelbooru: img*.gelbooru.com/thumbnails/hash/thumbnail_file.jpg
+                                        elif 'gelbooru.' in thumb and '/thumbnails/' in thumb:
+                                            sample_image = thumb.replace('/thumbnails/', '/samples/').replace('thumbnail_', 'sample_')
+                                            full_image = thumb.replace('/thumbnails/', '/images/').replace('thumbnail_', '')
+                                        # Safebooru: same as gelbooru
+                                        elif 'safebooru.' in thumb and '/thumbnails/' in thumb:
+                                            sample_image = thumb.replace('/thumbnails/', '/samples/').replace('thumbnail_', 'sample_')
+                                            full_image = thumb.replace('/thumbnails/', '/images/').replace('thumbnail_', '')
+                                    # Also scan content HTML for any larger image URLs
+                                    if not full_image:
+                                        content_html = entry.get("summary", "") or ""
+                                        if entry.get("content"):
+                                            content_html = entry["content"][0].get("value", content_html)
+                                        all_imgs = _re.findall(r'(?:src|href)=["\']([^"\']+\.(?:jpg|jpeg|png|webp))["\']', content_html)
+                                        for img_url in all_imgs:
+                                            if '/sample/' in img_url or '/jpeg/' in img_url or '/image/' in img_url:
+                                                full_image = img_url
+                                                break
+
+                                    # ── Detect media type from URL ──
+                                    media_type = "article"
+                                    embed_id = ""
+                                    embed_type = ""
+
+                                    if any(d in link for d in ["youtube.com/watch", "youtu.be/", "youtube.com/shorts"]):
+                                        media_type = "video"
+                                        yt_match = _re.search(r'(?:v=|youtu\.be/|shorts/)([a-zA-Z0-9_-]{11})', link)
+                                        if yt_match:
+                                            embed_id = yt_match.group(1)
+                                            embed_type = "youtube"
+                                            if not thumb:
+                                                thumb = f"https://img.youtube.com/vi/{embed_id}/mqdefault.jpg"
+                                    elif "twitch.tv/" in link:
+                                        media_type = "stream"
+                                        tw_match = _re.search(r'twitch\.tv/(?:videos/)?([a-zA-Z0-9_]+)', link)
+                                        if tw_match:
+                                            embed_id = tw_match.group(1)
+                                            embed_type = "twitch"
+                                    elif any(d in link for d in ["danbooru.", "yande.re", "gelbooru.", "konachan.", "safebooru."]):
+                                        media_type = "image"
+                                    elif any(d in link for d in ["mangadex.", "mangaplus.", "webtoons.", "mangakakalot.", "manganato."]):
+                                        media_type = "manga"
+                                    elif any(d in link for d in ["vimeo.com", "dailymotion.com"]):
+                                        media_type = "video"
+                                    elif link.lower().endswith((".mp4", ".webm", ".mov")):
+                                        media_type = "video"
+
+                                    # ── Proxy blocked thumbnails ──
+                                    if thumb:
+                                        thumb_domain = urlparse(thumb).hostname or ""
+                                        if any(thumb_domain == b or thumb_domain.endswith("." + b) for b in _blocked):
+                                            thumb = f"/api/proxy?url={requests.utils.quote(thumb, safe='')}"
+                                    if sample_image:
+                                        si_domain = urlparse(sample_image).hostname or ""
+                                        if any(si_domain == b or si_domain.endswith("." + b) for b in _blocked):
+                                            sample_image = f"/api/proxy?url={requests.utils.quote(sample_image, safe='')}"
+                                    if full_image:
+                                        fi_domain = urlparse(full_image).hostname or ""
+                                        if any(fi_domain == b or fi_domain.endswith("." + b) for b in _blocked):
+                                            full_image = f"/api/proxy?url={requests.utils.quote(full_image, safe='')}"
+
+                                    # ── Build item ──
                                     item = {
                                         "title": entry.get("title", "No title"),
-                                        "url": entry.get("link", ""),
+                                        "url": link,
                                         "summary": _re.sub(r'<[^>]+>', '', entry.get("summary", ""))[:300],
                                         "source": feed_cfg.get("name", "Custom"),
                                         "timestamp": pub,
+                                        "media_type": media_type,
                                     }
                                     if thumb:
                                         item["thumbnail"] = thumb
+                                    if sample_image:
+                                        item["sample_image"] = sample_image
+                                    if full_image:
+                                        item["full_image"] = full_image
+                                    if embed_id:
+                                        item["embed_id"] = embed_id
+                                        item["embed_type"] = embed_type
                                     items.append(item)
                             except Exception as e:
                                 logger.warning(f"Custom feed error ({feed_cfg.get('name','')}): {e}")
                         # Sort by timestamp descending
                         items.sort(key=lambda x: x.get("timestamp", ""), reverse=True)
-                        items = items[:50]  # Cap at 50
+                        items = items[:80]  # Cap at 80 (more content for media view)
                 except Exception as e:
                     logger.error(f"Custom feeds error: {e}")
                 self.wfile.write(json.dumps({"items": items, "fetched_at": datetime.now().isoformat()}).encode())
@@ -1191,11 +1349,78 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                     return
                 try:
                     import re as _re
-                    resp = requests.get(url, timeout=10, headers={
-                        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
-                    }, allow_redirects=True)
+
+                    # YouTube shortcut: detect channel URLs and resolve to RSS
+                    _yt_match = _re.match(r'https?://(?:www\.)?youtube\.com/(?:@|channel/|c/|user/)([^/?&#]+)', url)
+                    if _yt_match:
+                        _yt_id_or_handle = _yt_match.group(1)
+                        # If it's already a channel ID (starts with UC), use directly
+                        if _yt_id_or_handle.startswith('UC') and len(_yt_id_or_handle) == 24:
+                            _channel_id = _yt_id_or_handle
+                        else:
+                            # Use YouTube's internal resolve API (bypasses consent pages)
+                            try:
+                                _yt_api = requests.post("https://www.youtube.com/youtubei/v1/navigation/resolve_url",
+                                    json={"url": url, "context": {"client": {"clientName": "WEB", "clientVersion": "2.20240101"}}},
+                                    headers={"User-Agent": "Mozilla/5.0", "Content-Type": "application/json"},
+                                    timeout=10)
+                                if _yt_api.status_code == 200:
+                                    import re as _re2
+                                    _uc_matches = _re2.findall(r'UC[a-zA-Z0-9_-]{22}', _yt_api.text)
+                                    _channel_id = _uc_matches[0] if _uc_matches else None
+                                else:
+                                    _channel_id = None
+                            except Exception:
+                                _channel_id = None
+                                _channel_id = None
+
+                        if _channel_id:
+                            _yt_feed_url = f"https://www.youtube.com/feeds/videos.xml?channel_id={_channel_id}"
+                            # Verify the feed works
+                            try:
+                                import feedparser
+                                _yt_feed_resp = requests.get(_yt_feed_url, timeout=8)
+                                _yt_parsed = feedparser.parse(_yt_feed_resp.content)
+                                _yt_title = _yt_parsed.feed.get("title", _yt_id_or_handle)
+                                _send_json(self, {"feeds": [{
+                                    "url": _yt_feed_url,
+                                    "title": _yt_title,
+                                    "type": "youtube",
+                                    "entries": len(_yt_parsed.entries)
+                                }]})
+                            except Exception:
+                                _send_json(self, {"feeds": [{
+                                    "url": _yt_feed_url,
+                                    "title": _yt_id_or_handle,
+                                    "type": "youtube",
+                                    "entries": 0
+                                }]})
+                            return
+                    _disc_headers = {
+                        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
+                        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+                    }
+                    try:
+                        resp = requests.get(url, timeout=10, headers=_disc_headers, allow_redirects=True)
+                    except requests.RequestException:
+                        try:
+                            from curl_cffi import requests as cf_req
+                            resp = cf_req.get(url, impersonate="chrome", timeout=10)
+                        except Exception:
+                            raise
                     feeds = []
+                    ct = resp.headers.get('content-type', '').lower() if hasattr(resp.headers, 'get') else ''
                     html_text = resp.text[:100000]
+
+                    # Strategy 0: URL already IS a feed (XML/RSS/Atom content-type or content starts with XML)
+                    if 'xml' in ct or 'rss' in ct or 'atom' in ct or html_text.lstrip().startswith('<?xml') or html_text.lstrip().startswith('<rss') or html_text.lstrip().startswith('<feed'):
+                        try:
+                            import feedparser
+                            parsed = feedparser.parse(resp.content)
+                            if parsed.entries and len(parsed.entries) > 0:
+                                feeds.append({"url": url, "title": parsed.feed.get("title", ""), "type": "direct_feed", "entries": len(parsed.entries)})
+                        except Exception:
+                            pass
 
                     # Strategy 1: Find all <link> tags and check for RSS/Atom
                     for tag_match in _re.finditer(r'<link\b[^>]*/?>', html_text, _re.IGNORECASE):

@@ -2243,6 +2243,7 @@ function renderCustomCatalog() {
                 <button onclick="_showRssSuggestions('politics')" id="rss-sug-politics" class="text-[10px] px-2 py-1 rounded transition-colors bg-slate-800 text-slate-400 hover:text-purple-400">Politics</button>
                 <button onclick="_showRssSuggestions('general')" id="rss-sug-general" class="text-[10px] px-2 py-1 rounded transition-colors bg-slate-800 text-slate-400 hover:text-purple-400">General</button>
                 <button onclick="_showRssSuggestions('jobs')" id="rss-sug-jobs" class="text-[10px] px-2 py-1 rounded transition-colors bg-slate-800 text-slate-400 hover:text-purple-400">Jobs</button>
+                <button onclick="_showRssSuggestions('media')" id="rss-sug-media" class="text-[10px] px-2 py-1 rounded transition-colors bg-slate-800 text-slate-400 hover:text-purple-400">Media</button>
             </div>
         </div>
         <div id="rss-suggestions-list" class="flex flex-wrap gap-2"></div>
@@ -2281,11 +2282,35 @@ var _JOBS_RSS_SUGGESTIONS = [
     { url: 'https://remoteok.com/remote-jobs.rss', name: 'RemoteOK' },
 ];
 
+var _MEDIA_RSS_SUGGESTIONS = [
+    // YouTube channels (via native Atom feeds — no API key needed)
+    { url: 'https://www.youtube.com/feeds/videos.xml?channel_id=UCBcRF18a7Qf58cCRy5xuWwQ', name: 'MKBHD' },
+    { url: 'https://www.youtube.com/feeds/videos.xml?channel_id=UC2C_jShtL725hvbm1arSV9w', name: 'CGP Grey' },
+    { url: 'https://www.youtube.com/feeds/videos.xml?channel_id=UCVHFbqXqoYvEWM1Ddxl0QDg', name: 'Android Authority' },
+    { url: 'https://www.youtube.com/feeds/videos.xml?channel_id=UCXuqSBlHAE6Xw-yeJA0Tunw', name: 'Linus Tech Tips' },
+    { url: 'https://www.youtube.com/feeds/videos.xml?channel_id=UCWX3yGbODrc0VOfIhaCjYQw', name: 'Last Week Tonight' },
+    { url: 'https://www.youtube.com/feeds/videos.xml?channel_id=UCsooa4yRKGN_zEE8iknghZA', name: 'TED-Ed' },
+    { url: 'https://www.youtube.com/feeds/videos.xml?channel_id=UC9-y-6csu5WGm29I7JiwpnA', name: 'Computerphile' },
+    { url: 'https://www.youtube.com/feeds/videos.xml?channel_id=UCZYTClx2T1of7BRZ86-8fow', name: 'Sci Show' },
+    { url: 'https://www.youtube.com/feeds/videos.xml?channel_id=UC6nSFpj9HTCZ5t-N3Rm3-HA', name: 'Vsauce' },
+    { url: 'https://www.youtube.com/feeds/videos.xml?channel_id=UCHnyfMqiRRG1u-2MsSQLbXA', name: 'Veritasium' },
+    // Image boards (require CF Worker proxy for Kuwait ISP bypass)
+    { url: 'https://yande.re/post/atom?tags=scenery', name: 'Yande.re Scenery ⚡' },
+    { url: 'https://yande.re/post/atom?tags=landscape', name: 'Yande.re Landscape ⚡' },
+    { url: 'https://danbooru.donmai.us/posts.atom?tags=scenery', name: 'Danbooru Scenery ⚡' },
+    { url: 'https://safebooru.org/index.php?page=atom&s=post&tags=landscape', name: 'Safebooru Landscape' },
+    // Manga
+    { url: 'https://mangadex.org/rss/latest', name: 'MangaDex Latest' },
+    // Twitch VODs (via RSS bridge)
+    { url: 'https://twitchrss.appspot.com/vod/shroud', name: 'Twitch: shroud' },
+    { url: 'https://twitchrss.appspot.com/vod/loltyler1', name: 'Twitch: tyler1' },
+];
+
 function _showRssSuggestions(type) {
     const list = document.getElementById('rss-suggestions-list');
     if (!list) return;
     // Highlight active tab
-    ['finance', 'politics', 'general', 'jobs'].forEach(t => {
+    ['finance', 'politics', 'general', 'jobs', 'media'].forEach(t => {
         const btn = document.getElementById('rss-sug-' + t);
         if (btn) {
             if (t === type) { btn.className = 'text-[10px] px-2 py-1 rounded transition-colors bg-purple-900/40 text-purple-400'; }
@@ -2299,6 +2324,10 @@ function _showRssSuggestions(type) {
     }
     if (type === 'jobs') {
         _renderRssSuggestionItems(list, _JOBS_RSS_SUGGESTIONS);
+        return;
+    }
+    if (type === 'media') {
+        _renderRssSuggestionItems(list, _MEDIA_RSS_SUGGESTIONS);
         return;
     }
 
