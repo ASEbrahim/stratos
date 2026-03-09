@@ -1,7 +1,52 @@
 {
   "version": "1.0",
-  "last_updated": "2026-03-05T02:43:01.681549",
+  "last_updated": "2026-03-09T03:30:07.790117",
   "examples": [
+    {
+      "title": "QuiverAI Launches Arrow: A Breakthrough in AI-Driven SVG ...",
+      "content_preview": "08.03.2026 06:49 ● Author: Viacheslav Vasipenok QuiverAI Launches Arrow: A Breakthrough in AI-Driven SVG Generation In the rapidly evolving world of AI-powered design tools, QuiverAI has made waves wi",
+      "score": 9.0,
+      "reason": "Breakthrough in tracked area: figma, vector, tools",
+      "url": "https://quasa.io/media/quiverai-launches-arrow-a-breakthrough-in-ai-driven-svg-generation",
+      "category": "tech",
+      "added_at": "2026-03-09T03:30:07.790109"
+    },
+    {
+      "title": "Artificial Intelligence Expansion: How AI Is Transforming the World ...",
+      "content_preview": "AI Image Generation Tools. AI image generators can create realistic images, illustrations, and artwork from text prompts. These tools are transforming graphic ...",
+      "score": 8.5,
+      "reason": "LLM: AI image generation tools are a critical tracked topic and directly impact the user's design wo",
+      "url": "https://dailyscope.blog/artificial-intelligence-expansion/",
+      "category": "tech",
+      "added_at": "2026-03-09T03:29:17.718898"
+    },
+    {
+      "title": "Chips under pressure: Powering the next phase of AI - McKinsey",
+      "content_preview": "Software gets top billing for AI's most visible breakthroughs, but an equally innovative semiconductor is behind every leap in capabilities.",
+      "score": 8.5,
+      "reason": "LLM: Highly relevant technical content regarding AI infrastructure that directly impacts the user's ",
+      "url": "https://www.mckinsey.com/capabilities/tech-and-ai/how-we-help-clients/mckinsey-at-ces-2026/chips-under-pressure-powering-the-next-phase-of-ai",
+      "category": "tech",
+      "added_at": "2026-03-09T03:29:11.460616"
+    },
+    {
+      "title": "Open Jobs | Hitachi Energy",
+      "content_preview": "Open Jobs · Administration, Facilities & Secretarial · Communications & Corporate Affairs · Construction · Creative & Design · Customer Service & Contact Center ...",
+      "score": 8.5,
+      "reason": "LLM: Strong match due to specific Creative & Design job category listing relevant to a mid-career de",
+      "url": "https://www.hitachienergy.com/ca/en/careers/open-jobs",
+      "category": "career",
+      "added_at": "2026-03-09T03:29:08.546906"
+    },
+    {
+      "title": "This opportunity is available for candidates currently inside Kuwait ...",
+      "content_preview": "We are hiring for the following positions: ... Senior Graphic Designer ... Social Media Specialist ... Marketing Executive Candidates with relevant experience in ...",
+      "score": 9.5,
+      "reason": "LLM: Directly actionable hiring for Senior Graphic Designer and Marketing roles within Kuwait, match",
+      "url": "https://www.instagram.com/p/DVnx18IDR4q/",
+      "category": "career",
+      "added_at": "2026-03-09T03:29:05.338458"
+    },
     {
       "title": "2026 Global Private Markets Outlook - New York Life Investments",
       "content_preview": "MACRO PULSE 2026 Outlook: Charting the Year Ahead As investors look to 2026, markets are defined by tension. Explore Report MACRO PULSE Reading the Signals: A Noisy Start to 2026 Two months into 2026,",
@@ -46,51 +91,6 @@
       "url": "https://www.ibisworld.com/canada/industry/commercial-banking/1288/",
       "category": "auto",
       "added_at": "2026-03-05T02:43:01.680905"
-    },
-    {
-      "title": "Brand Licensing Industry Analysis Report 2026-2035 - Yahoo Finance",
-      "content_preview": "This is a paid press release. Contact the press release distributor directly with any inquiries. Brand Licensing Industry Analysis Report 2026-2035: A $419.03 Billion Market by 2030 with Nike, General",
-      "score": 8.5,
-      "reason": "Strong match + actionable: sector, industry, analysis",
-      "url": "https://finance.yahoo.com/news/brand-licensing-industry-analysis-report-161600806.html",
-      "category": "auto",
-      "added_at": "2026-03-05T02:43:01.680750"
-    },
-    {
-      "title": "AI Use Case Analysis Global Research Report 2026: Focus on GenAI, Edge AI, EXplainable AI (XAI), QML",
-      "content_preview": "This is a paid press release. Contact the press release distributor directly with any inquiries. AI Use Case Analysis Global Research Report 2026: Focus on GenAI, Edge AI, EXplainable AI (XAI), QML, L",
-      "score": 8.5,
-      "reason": "Strong match + actionable: analysis, global, market",
-      "url": "https://finance.yahoo.com/news/ai-case-analysis-global-research-125900016.html",
-      "category": "auto",
-      "added_at": "2026-03-05T02:43:01.680596"
-    },
-    {
-      "title": "GLP-1 Receptor Agonist Business Analysis Report 2026: Market to Reach $137.4 Billion by 2030 - Clini",
-      "content_preview": "This is a paid press release. Contact the press release distributor directly with any inquiries. GLP-1 Receptor Agonist Business Analysis Report 2026: Market to Reach $137.4 Billion by 2030 - Clinical",
-      "score": 8.5,
-      "reason": "Strong match + actionable: analysis, global, market",
-      "url": "https://finance.yahoo.com/news/glp-1-receptor-agonist-business-104800115.html",
-      "category": "auto",
-      "added_at": "2026-03-05T02:43:01.680433"
-    },
-    {
-      "title": "GCash, Manulife Investments Philippines expand Filipinos' access to global property investments on G",
-      "content_preview": "Home Spotlight GCash, Manulife Investments Philippines expand Filipinos’ access to global property investments on... Spotlight GCash and Manulife Investments Philippines partner to advance financial i",
-      "score": 8.5,
-      "reason": "Strong match + actionable: investment, global, investments",
-      "url": "https://www.bworldonline.com/spotlight/2026/02/27/733053/gcash-manulife-investments-philippines-expand-filipinos-access-to-global-property-investments-on-gfunds/",
-      "category": "auto",
-      "added_at": "2026-03-05T02:43:01.680232"
-    },
-    {
-      "title": "3 Unique ETFs Launched in 2026 to Vary Your Investment Strategy",
-      "content_preview": "3 Unique ETFs Launched in 2026 to Vary Your Investment Strategy Nathan Reiff, MarketBeat Sun, March 1, 2026 at 5:53 PM GMT+3 5 min read MEMY +4.72% ONEH +0.26% ISSB +3.40% ETF trading floor display wi",
-      "score": 8.5,
-      "reason": "Strong match + actionable: investment, asset, etf",
-      "url": "https://finance.yahoo.com/news/3-unique-etfs-launched-2026-145300932.html",
-      "category": "auto",
-      "added_at": "2026-03-05T02:43:01.680028"
     }
   ]
 }

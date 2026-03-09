@@ -12,7 +12,7 @@ schedule:
   background_enabled: false
   background_interval_minutes: 30
 scoring:
-  retain_high_scores: true
+  retain_high_scores: false
   retention_threshold: 8.0
   retention_max_age_hours: 24
   retention_max_items: 20
@@ -39,7 +39,7 @@ search:
   google_cx: 52d68e3fc17d74e9a
   provider: serper
   serper_api_key: bc26c29537b924cf7e8022eaaf83c50cfdeb51be
-  serper_credits: 1830
+  serper_credits: 1479
 system:
   database_file: strat_os.db
   frontend_port: 8080
@@ -77,3 +77,48 @@ news:
     keywords: []
     queries: []
 dynamic_categories: []
+tickers:
+- NVDA
+- AAPL
+- MSFT
+- AMZN
+- GOOGL
+- META
+- TSLA
+- BTC-USD
+- ETH-USD
+- SOL-USD
+- CL=F
+- GC=F
+- SPY
+- QQQ
+extra_feeds_jobs: {}
+proxy:
+  cloudflare_worker: https://stratos-proxy.stratintos.workers.dev
+  blocked_domains:
+  - yande.re
+  - danbooru.donmai.us
+  - gelbooru.com
+  - konachan.com
+  - safebooru.org
+  - f95zone.to
+  - files.yande.re
+  - cdn.donmai.us
+  - raikou1.donmai.us
+  - raikou2.donmai.us
+  - img1.gelbooru.com
+  - img2.gelbooru.com
+  - img3.gelbooru.com
+  - mangadex.org
+  - uploads.mangadex.org
+  - api.mangadex.org
+  - konachan.net
+  - zerochan.net
+  - iwara.tv
+  - rule34.xxx
+  - rule34video.com
+  - nhentai.net
+  - e-hentai.org
+  - chan.sankakucomplex.com
+  - kemono.su
+  - kemono.party

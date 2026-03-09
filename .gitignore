@@ -63,3 +63,4 @@ backend/stratos.db-shm
 backend/stratos.db-wal
 backend/profiles/*.yaml
 backend/data/users/
+cloudflare-proxy/node_modules/

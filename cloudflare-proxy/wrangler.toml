@@ -1,0 +1,7 @@
+name = "stratos-proxy"
+main = "src/index.js"
+compatibility_date = "2024-12-01"
+
+[vars]
+# Comma-separated allowed origins — update with your Cloudflare Tunnel domain
+ALLOWED_ORIGINS = "http://localhost:8080,http://127.0.0.1:8080,https://syntax-hist-trustees-extending.trycloudflare.com"
