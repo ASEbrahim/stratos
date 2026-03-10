@@ -7,6 +7,48 @@ let agentOpen = false;
 let agentStreaming = false;
 let agentMode = 'structured'; // 'structured' or 'free'
 
+// Persist agent chat to localStorage
+function _saveAgentHistory() {
+    try {
+        // Keep last 40 messages to avoid localStorage bloat
+        const toSave = agentHistory.slice(-40);
+        localStorage.setItem('stratos_agent_history', JSON.stringify(toSave));
+    } catch (e) { /* quota exceeded — silently skip */ }
+}
+function _restoreAgentHistory() {
+    try {
+        const saved = localStorage.getItem('stratos_agent_history');
+        if (saved) {
+            const parsed = JSON.parse(saved);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+                agentHistory = parsed;
+                _renderRestoredHistory();
+            }
+        }
+    } catch (e) { /* corrupt data — start fresh */ }
+}
+function _renderRestoredHistory() {
+    const msgs = document.getElementById('agent-messages');
+    if (!msgs || agentHistory.length === 0) return;
+    // Hide welcome, show messages
+    const welcome = document.getElementById('agent-welcome');
+    if (welcome) welcome.style.display = 'none';
+    for (const h of agentHistory) {
+        const div = document.createElement('div');
+        div.className = h.role === 'user'
+            ? 'flex justify-end mb-2'
+            : 'flex justify-start mb-2';
+        const bubble = document.createElement('div');
+        bubble.className = h.role === 'user'
+            ? 'agent-bubble-user max-w-[85%] rounded-2xl px-3 py-2 text-sm'
+            : 'agent-bubble-ai max-w-[85%] rounded-2xl px-3 py-2 text-sm';
+        bubble.innerHTML = h.role === 'assistant' ? formatAgentText(h.content) : escAgent(h.content);
+        div.appendChild(bubble);
+        msgs.appendChild(div);
+    }
+    msgs.scrollTop = msgs.scrollHeight;
+}
+
 function toggleAgentMode() {
     agentMode = agentMode === 'structured' ? 'free' : 'structured';
     const btn = document.getElementById('agent-mode-btn');
@@ -149,6 +191,7 @@ function toggleAgentChat() {
 
 function clearAgentChat() {
     agentHistory = [];
+    _saveAgentHistory();
     const msgs = document.getElementById('agent-messages');
     if (!msgs) return;
     msgs.innerHTML = `<div id="agent-welcome" class="flex flex-col items-center py-6 px-2">
@@ -388,6 +431,7 @@ async function sendAgentMessage() {
         agentHistory.push({ role: 'assistant', content: result.plain || result });
         // Use rich HTML if available, otherwise format markdown
         appendAgentMessage('assistant', result.html || formatAgentText(result));
+        _saveAgentHistory();
         return;
     }
     
@@ -507,6 +551,7 @@ async function sendAgentMessage() {
         }
         agentHistory.push({ role: 'assistant', content: errMsg });
     } finally {
+        _saveAgentHistory();
         agentStreaming = false;
         sendBtn.disabled = false;
         input.disabled = false;
@@ -669,6 +714,7 @@ function handleAgentImport(event) {
             // Inject into agent history as a context message
             const contextMsg = `[Imported context from "${fileName}"]\n\n${text}`;
             agentHistory.push({ role: 'user', content: contextMsg });
+            _saveAgentHistory();
 
             // Show a compact context-loaded block in the chat
             const msgs = document.getElementById('agent-messages');
@@ -1035,6 +1081,8 @@ function _syncSimpleTickers(tickers) {
 // ═══════════════════════════════════════════════════════════
 (function initAgentResize() {
     document.addEventListener('DOMContentLoaded', () => {
+        // Restore chat history from localStorage
+        _restoreAgentHistory();
         // Render initial suggestion chips
         renderAgentSuggestions();
         
