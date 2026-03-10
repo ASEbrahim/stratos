@@ -359,6 +359,16 @@ def migration_013(cursor):
     )
 
 
+# -- Migration 014: Composite index for profile-scoped news queries --
+@migration
+def migration_014(cursor):
+    """Add composite index for profile-scoped news filtering (get_top_signals, get_category_stats)."""
+    cursor.execute(
+        "CREATE INDEX IF NOT EXISTS idx_news_profile_fetched_score "
+        "ON news_items(profile_id, fetched_at, score)"
+    )
+
+
 # =========================================================================
 # Migration runner
 # =========================================================================

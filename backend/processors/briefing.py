@@ -36,6 +36,7 @@ class BriefingGenerator:
         self.model = scoring_config.get("wizard_model") or scoring_config.get("inference_model", "qwen3.5:9b")
         self.host = scoring_config.get("ollama_host", "http://localhost:11434")
         self._available = None
+        self._session = requests.Session()  # Connection pooling for Ollama
 
         # Build dynamic system prompt from config
         self.system_prompt = self._build_system_prompt(config)
@@ -146,7 +147,7 @@ Do NOT include items just because they scored high — they must be relevant to 
             return self._available
         
         try:
-            response = requests.get(f"{self.host}/api/tags", timeout=5)
+            response = self._session.get(f"{self.host}/api/tags", timeout=5)
             self._available = response.status_code == 200
         except:
             self._available = False
@@ -162,7 +163,7 @@ Do NOT include items just because they scored high — they must be relevant to 
                 If False, skip reasoning stripping (for JSON responses).
         """
         try:
-            response = requests.post(
+            response = self._session.post(
                 f"{self.host}/api/chat",
                 json={
                     "model": self.model,

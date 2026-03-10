@@ -706,6 +706,7 @@ class ScorerBase:
         )
         self._available = None
         self._stats = {'rule': 0, 'llm': 0, 'truncated': 0}
+        self._session = requests.Session()  # Connection pooling for Ollama
 
         # Two-pass scoring timer
         timeout_cfg = scoring_config.get("timeout", {})
@@ -737,7 +738,7 @@ class ScorerBase:
         if self._available is True:
             return True
         try:
-            response = requests.get(f"{self.host}/api/tags", timeout=10)
+            response = self._session.get(f"{self.host}/api/tags", timeout=10)
             if response.status_code == 200:
                 models = response.json().get("models", [])
                 full_names = [m.get("name", "") for m in models]
@@ -773,7 +774,7 @@ class ScorerBase:
             if system_prompt:
                 payload["system"] = system_prompt
 
-            response = requests.post(
+            response = self._session.post(
                 f"{self.host}/api/generate",
                 json=payload,
                 timeout=(10, 30),  # (connect_timeout, read_timeout_per_chunk)
