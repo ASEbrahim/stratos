@@ -37,9 +37,10 @@ scoring:
 search:
   google_api_key: AIzaSyAYmzOV-kl1m60gidsKAhXKiDM92F4qGmY
   google_cx: 52d68e3fc17d74e9a
-  provider: serper
+  provider: searxng
+  searxng_host: http://localhost:8888
   serper_api_key: bc26c29537b924cf7e8022eaaf83c50cfdeb51be
-  serper_credits: 1479
+  serper_credits: 1295
 system:
   database_file: strat_os.db
   frontend_port: 8080
@@ -77,21 +78,7 @@ news:
     keywords: []
     queries: []
 dynamic_categories: []
-tickers:
-- NVDA
-- AAPL
-- MSFT
-- AMZN
-- GOOGL
-- META
-- TSLA
-- BTC-USD
-- ETH-USD
-- SOL-USD
-- CL=F
-- GC=F
-- SPY
-- QQQ
+tickers: []
 extra_feeds_jobs: {}
 proxy:
   cloudflare_worker: https://stratos-proxy.stratintos.workers.dev
