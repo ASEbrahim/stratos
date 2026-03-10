@@ -802,8 +802,12 @@ class AdaptiveScorer(ScorerBase):
             return score_finance_adaptive(
                 title.lower(), text, url,
                 self._keyword_index, category)
-        elif route in ('tech', 'regional'):
+        elif route == 'tech':
             return score_tech_adaptive(
+                title.lower(), text,
+                self._keyword_index, category)
+        elif route == 'regional':
+            return score_generic_adaptive(
                 title.lower(), text,
                 self._keyword_index, category)
         else:  # auto
