@@ -156,7 +156,7 @@ chmod +x setup_rocm_training.sh
 
 # Also install Ollama on Linux:
 curl -fsSL https://ollama.ai/install.sh | sh
-ollama pull qwen3:8b
+ollama pull qwen3.5:9b
 ```
 
 ### Running a Learning Cycle
@@ -181,15 +181,19 @@ python3 train_lora.py
 
 Or just run `./learn_cycle.sh` (Linux) or `learn_cycle.bat` (Windows) to do all steps automatically.
 
-### GPU Auto-Selection
+### Training Hardware
 
-The training script detects your VRAM and picks the optimal model:
+V2.2 training uses Qwen3.5-9B with DoRA adapters. Requires 20+ GB VRAM:
 
-| VRAM | Model | LoRA Rank | Training Time |
-|------|-------|-----------|---------------|
-| 20+ GB | Qwen3-8B | r=32 | ~8 min |
-| 10+ GB | Qwen3-4B | r=24 | ~4 min |
-| 4+ GB | Qwen3-1.7B | r=16 | ~1 min |
+| Component | Spec |
+|-----------|------|
+| GPU | AMD RX 7900 XTX (24GB VRAM) |
+| Base Model | Qwen3.5-9B |
+| Fine-Tuning | DoRA, rank 16, alpha 32 |
+| Precision | bf16 with gradient checkpointing |
+| VRAM Usage | 20-21GB peak |
+| Training Time | ~7 hours (11,785 examples) |
+| Compute | ROCm 6.2 (PyTorch + PEFT) |
 
 ### API Key Setup
 
