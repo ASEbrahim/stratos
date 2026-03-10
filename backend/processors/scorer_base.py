@@ -133,6 +133,19 @@ GARBAGE_DOMAINS = [
     'jooble.org', 'careerjet.com', 'bebee.com',
     # Salary comparison (not news)
     'salary.com', 'payscale.com', 'glassdoor.com/Salaries',
+    # SEO spam / content farms
+    'medium.com/@', 'substack.com', 'hubspot.com/blog',
+    'clickbait.com', 'buzzfeed.com',
+    # Coupon / deal aggregators (not intelligence)
+    'retailmenot.com', 'slickdeals.net', 'groupon.com',
+    # Wiki / reference (not news)
+    'en.wikipedia.org', 'wikimedia.org', 'fandom.com',
+    # PDF / document hosting (not articles)
+    'scribd.com', 'slideshare.net', 'academia.edu',
+    # Social media (not news sources)
+    'pinterest.com', 'instagram.com', 'threads.net',
+    # Quora / Q&A (not intelligence)
+    'quora.com',
 ]
 
 
