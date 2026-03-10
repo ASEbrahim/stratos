@@ -5,16 +5,15 @@ A profile-adaptive scorer that builds relevance rules dynamically from the
 user's categories, keywords, role, and context — fully dynamic,
 no hardcoded role or location assumptions.
 
-Builds relevance rules dynamically from any user profile
-setup. The original scorer.py is preserved for that highly-tuned use case.
+Builds relevance rules dynamically from any user profile setup.
 
-Scoring bands are identical to the original:
+Scoring bands:
   9-10:  Critical / actionable
   7-8.9: High importance
   5-6.9: Medium (visible but not urgent)
   0-4.9: Noise (filtered from main view)
 
-Interface matches AIScorer exactly: score_items(), score_item(), get_score_category()
+Interface: score_items(), score_item(), get_score_category()
 """
 
 import json

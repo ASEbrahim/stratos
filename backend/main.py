@@ -643,7 +643,7 @@ class StratOS:
                         "category": item.get('category', ''),
                     }, profile_id=_scan_pid)
 
-            # Shadow scoring — validates AdaptiveScorer vs AIScorer (daemon thread)
+            # Shadow scoring — self-consistency check (daemon thread)
             self._run_shadow_scoring(scored_items, scan_id, profile_id=_scan_pid)
 
             # Periodic DB cleanup — every 10th scan
@@ -677,8 +677,7 @@ class StratOS:
     def _run_shadow_scoring(self, scored_items, scan_id, profile_id=0):
         """Run shadow scoring in a background thread.
 
-        B3.3: With AIScorer retired, shadow scoring creates a second
-        AdaptiveScorer instance for self-consistency checks.
+        Creates a second AdaptiveScorer instance for self-consistency checks.
         """
         shadow_enabled = self.config.get('scoring', {}).get('shadow_scoring', False)
         if not shadow_enabled:
@@ -1130,7 +1129,7 @@ class StratOS:
                         "category": item.get('category', ''),
                     }, profile_id=_scan_pid)
 
-            # Shadow scoring — validates AdaptiveScorer vs AIScorer (daemon thread)
+            # Shadow scoring — self-consistency check (daemon thread)
             self._run_shadow_scoring(scored_items, scan_id, profile_id=_scan_pid)
 
             return output

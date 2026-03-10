@@ -570,7 +570,7 @@ def run_training(backend_dir, state=None):
     except Exception:
         pass
     # Also stop common base models that may be loaded
-    subprocess.run(["ollama", "stop", "qwen3:8b"], capture_output=True, timeout=10)
+    subprocess.run(["ollama", "stop", "qwen3.5:9b"], capture_output=True, timeout=10)
     time.sleep(3)  # Let VRAM free up
 
     logger.info(f"Training with {n} examples ({'incremental' if is_incremental else 'full retrain'})...")

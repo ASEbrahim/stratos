@@ -2,8 +2,7 @@
 STRAT_OS — Scorer Base Module
 ==============================
 Shared constants, pattern lists, utility functions, and ScoringMemory
-used by both scorers and fetchers. Extracted from scorer.py as part of
-the B3.3 scorer retirement (Sprint 4).
+used by both scorers and fetchers.
 
 Contains: pattern lists, utility functions, ScoringMemory, and the
 ScorerBase class with shared Ollama client, score parsing, calibration.
