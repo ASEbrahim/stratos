@@ -681,6 +681,11 @@ def handle_auth_routes(handler, method, path, data, db, strat, send_json, email_
         return True
 
     if path == "/api/profiles" and method == "POST":
+        # Preset save/load/delete requests have an 'action' field — let them
+        # fall through to the preset handler in server.py
+        if data.get("action") in ("save", "load", "delete"):
+            return False
+
         token = handler.headers.get("X-Auth-Token", "")
         user_id = _get_user_from_token(db, token)
         if not user_id:

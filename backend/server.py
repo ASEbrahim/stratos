@@ -1105,6 +1105,8 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                 try:
                     if handle_auth_routes(self, "POST", self.path, data, strat.db, strat, _send_json, email_service):
                         return
+                    # Auth handler declined — stash parsed body for downstream handlers
+                    self._stashed_post_data = data
                 except Exception as e:
                     logger.error(f"Auth route error: {e}")
                     _send_json(self, {"error": "Server busy, please try again."}, 503)
@@ -1848,10 +1850,13 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                 return
 
             if self.path == "/api/profiles":
-                content_length = int(self.headers.get('Content-Length', 0))
-                post_data = self.rfile.read(content_length)
-                try:
+                # Use stashed body from auth route guard if available (body already consumed)
+                data = getattr(self, '_stashed_post_data', None)
+                if data is None:
+                    content_length = int(self.headers.get('Content-Length', 0))
+                    post_data = self.rfile.read(content_length)
                     data = json.loads(post_data.decode('utf-8'))
+                try:
                     action = data.get("action", "")
                     name = data.get("name", "").strip()
 
