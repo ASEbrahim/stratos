@@ -233,8 +233,16 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                 self.send_header("Access-Control-Allow-Origin", "*")
                 self.end_headers()
                 self.wfile.write(b'{"status": "market_refresh_triggered"}')
-                # Trigger market refresh in background
-                threading.Thread(target=strat.run_market_refresh, daemon=True).start()
+                # Trigger market refresh in background with error handling (B7)
+                _mkt_pid = self._profile_id or (_get_profile_id(self.headers.get('X-Auth-Token', '')) or 0)
+                def _safe_market_refresh(pid=_mkt_pid):
+                    try:
+                        strat.run_market_refresh(profile_id=pid)
+                    except Exception as e:
+                        logger.error(f"Market refresh thread failed: {e}")
+                        strat.scan_status["is_scanning"] = False
+                        strat.scan_status["stage"] = "error"
+                threading.Thread(target=_safe_market_refresh, daemon=True).start()
                 return
 
             # Single-ticker live update (for fullscreen chart auto-refresh)
