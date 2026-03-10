@@ -41,6 +41,14 @@ except ImportError:
     HAS_SERPER = False
     SerperSearchClient = None
 
+# Try to import SearXNG Search client
+try:
+    from .searxng_search import SearXNGSearchClient, get_searxng_client
+    HAS_SEARXNG = True
+except ImportError:
+    HAS_SEARXNG = False
+    SearXNGSearchClient = None
+
 
 @dataclass
 class NewsItem:
@@ -450,6 +458,7 @@ class SearchFetcher:
         self.config = config or {}
         self.ddgs = DDGS() if HAS_DDGS else None
         self.serper_client = None
+        self.searxng_client = None
         self.search_provider = 'duckduckgo'
 
         # Derive DDG region from profile location
@@ -465,7 +474,13 @@ class SearchFetcher:
         search_config = self.config.get('search', {})
         provider = search_config.get('provider', 'duckduckgo')
 
-        if provider == 'serper' and HAS_SERPER:
+        if provider == 'searxng' and HAS_SEARXNG:
+            self.searxng_client = get_searxng_client(self.config)
+            if self.searxng_client:
+                self.search_provider = 'searxng'
+                logger.info("SearchFetcher using SearXNG")
+
+        if provider == 'serper' and HAS_SERPER and self.search_provider != 'searxng':
             self.serper_client = get_serper_client(self.config)
             if self.serper_client:
                 self.search_provider = 'serper'
@@ -489,7 +504,13 @@ class SearchFetcher:
         Returns:
             List of NewsItem objects
         """
-        if self.search_provider == 'serper' and self.serper_client:
+        if self.search_provider == 'searxng' and self.searxng_client:
+            results = self._search_searxng(query, root, category, max_results, timelimit)
+            if not results and HAS_DDGS and self.ddgs:
+                logger.info(f"SearXNG returned 0 results for '{query}', falling back to DuckDuckGo")
+                results = self._search_ddg(query, root, category, max_results, timelimit)
+            return results
+        elif self.search_provider == 'serper' and self.serper_client:
             results = self._search_serper(query, root, category, max_results, timelimit)
             # Fallback to DuckDuckGo if Serper returned nothing (e.g. no credits)
             if not results and HAS_DDGS and self.ddgs:
@@ -539,6 +560,43 @@ class SearchFetcher:
 
         except Exception as e:
             logger.error(f"Serper search failed for '{query}': {e}")
+
+        return items
+
+    def _search_searxng(self, query: str, root: str, category: str,
+                        max_results: int, timelimit: str) -> List[NewsItem]:
+        """Search using SearXNG."""
+        items = []
+        try:
+            use_news = category in ("tech", "regional")
+            search_type = "news" if use_news else "search"
+
+            results = self.searxng_client.search(
+                query,
+                num_results=max_results,
+                search_type=search_type,
+                time_period=timelimit,
+            )
+
+            for r in results:
+                title = r.get("title", "")
+                summary = r.get("snippet", "")[:500]
+                actual_root = categorize_content(title, summary, root)
+
+                item = NewsItem(
+                    title=title,
+                    url=r.get("url", ""),
+                    summary=summary,
+                    timestamp=datetime.now().isoformat(),
+                    source="SearXNG",
+                    root=actual_root,
+                    category=category,
+                )
+                items.append(item)
+
+            logger.debug(f"SearXNG search '{query}': {len(items)} results")
+        except Exception as e:
+            logger.error(f"SearXNG search failed for '{query}': {e}")
 
         return items
 
