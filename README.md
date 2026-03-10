@@ -1,8 +1,8 @@
 # STRAT_OS — Strategic Intelligence Operating System
 
-A self-hosted intelligence dashboard that hunts for actionable signals across markets, careers, and emerging tech — with a self-improving AI scorer that learns from both a teacher model (Claude Opus) and your own feedback.
+A self-hosted intelligence dashboard that hunts for actionable signals across markets, careers, and emerging tech — with a self-improving AI scorer that learns from teacher models (Gemini Flash + Claude Opus) and your own feedback.
 
-> Built as a solo project by a Computer Engineering student in Kuwait. 45,000+ lines across 40+ modules. Runs entirely on free, local tools — with an optional $0.40/cycle distillation pipeline that permanently improves the local model. Installable as a Progressive Web App on any device.
+> Built as a solo project by a Computer Engineering student in Kuwait. 61,000+ lines across 40+ modules. Runs entirely on free, local tools — with a $6 training pipeline (Gemini Flash) that permanently improves the local model. Three scorer generations, each cheaper and better. Installable as a Progressive Web App on any device.
 
 ---
 
@@ -12,13 +12,14 @@ STRAT_OS scores everything it finds on a 0–10 scale of **"how actionable is th
 
 **Five verticals, one dashboard:**
 
-- **Markets** — Real-time candlestick/line/area charts with 20 drawing tools, Fibonacci retracement, pattern detection, and side-by-side comparison across stocks, crypto, and commodities. Fullscreen focus mode on desktop and mobile.
-- **Career & Certifications** — Targeted job postings, certification requirements, and fresh graduate openings at specific companies (configurable per profile).
+- **Markets** — Real-time candlestick/line/area charts with 20 drawing tools, Fibonacci retracement, pattern detection, collapsible asset analysis, and side-by-side comparison across stocks, crypto, and commodities. Fullscreen focus mode on desktop and mobile.
+- **Career & Certifications** — Targeted job postings, certification requirements, and fresh graduate openings at specific companies. Dedicated Jobs tab with career-focused RSS feeds.
 - **Emerging Tech** — Tracks breakthrough technologies scored by investment and career relevance.
 - **Financial Advantage** — Bank deals, student offers, investment opportunities.
 - **Regional Industry** — GCC-specific developments, government projects.
+- **Rich Media** — Video/stream/image/manga detection with grid view, RSS auto-discovery, contextual feed suggestions, and Cloudflare Worker proxy for media sources.
 
-Everything is profile-aware. The scoring adapts to who you are.
+Everything is profile-aware. The scoring adapts to who you are. Trained on 45 profiles across 20+ countries.
 
 ---
 
@@ -26,23 +27,24 @@ Everything is profile-aware. The scoring adapts to who you are.
 
 ```
 ┌─────────────────────────────────────┐     ┌───────────────────────────────┐
-│         BACKEND (Python)            │     │   FRONTEND (JS/HTML)           │
+│         BACKEND (Python)            │     │   FRONTEND (Vanilla JS)        │
 │                                     │     │                                │
 │  Fetchers ──► Scorer ──► JSON ──SSE─┼────►  Dashboard (desktop + mobile)  │
 │  ├─ Market (yfinance)               │     │  ├─ Executive Summary          │
-│  ├─ News (DuckDuckGo + RSS)         │     │  ├─ Markets Panel + Focus Mode │
+│  ├─ News (DDG + Serper + RSS)       │     │  ├─ Markets Panel + Focus Mode │
 │  ├─ Discovery (entity detect)       │     │  ├─ Strat Agent Chat           │
-│  └─ Kuwait scrapers                 │     │  ├─ Wizard (4-step onboarding) │
-│                                     │     │  ├─ Settings / 8 Themes + Dark        │
+│  ├─ CF Worker proxy (media/RSS)     │     │  ├─ Wizard (4-step onboarding) │
+│  └─ Kuwait scrapers                 │     │  ├─ Settings / 24 Theme Vars   │
+│                                     │     │  ├─ Rich Media (video/manga)   │
 │  Ollama (local LLM scoring)  ◄──┐   │     │  └─ Mobile (gestures, PWA)     │
 │  SQLite (dedup + feedback)      │   │     │                                │
-│  Profile YAML (per-user)        │   │     │  TradingView Charts            │
-│  Stop Scan (graceful cancel)    │   │     │  Tailwind CSS (37KB)           │
+│  DB-Auth (email verify)         │   │     │  TradingView Charts            │
+│  Stop Scan (graceful cancel)    │   │     │  Vanilla CSS (24 variants)     │
 │                                 │   │     │  Service Worker (offline)       │
 │  ┌─ SELF-IMPROVING PIPELINE ────┘   │     └───────────────────────────────┘
 │  │  User feedback (save/dismiss) ───┤
-│  │  Claude Opus distillation ───────┤
-│  │  DoRA fine-tuning (ROCm/CUDA) ──►│ stratos-scorer-v2.gguf
+│  │  Gemini Flash / Opus distill ────┤
+│  │  DoRA fine-tuning (ROCm/CUDA) ──►│ stratos-scorer-v2.2.gguf
 │  └──────────────────────────────────┘
 │
 └──── Cloudflare Tunnel (public access)
@@ -52,29 +54,31 @@ Everything is profile-aware. The scoring adapts to who you are.
 
 ## Self-Improving Scorer
 
-This is the core differentiator. The scoring model gets smarter over time through two feedback channels:
+This is the core differentiator. The scoring model gets smarter over time through two feedback channels and three training generations:
 
-### V2 Scorer Performance
+### V2.2 Scorer Performance (Production)
 
-The current V2 scorer was trained on 20,550 examples across 30 profiles spanning 20 countries:
+The current V2.2 scorer (Qwen3.5-9B + DoRA) was trained on 11,785 Gemini Flash-scored examples across 45 profiles:
 
-| Metric | V1 | V2 (Production) | Opus (Teacher) |
-|--------|-----|-----------------|----------------|
-| Direction Accuracy | 90.7% | **98.1%** | 100% |
-| MAE | 1.553 | **0.393** | 0 |
-| Profile Sensitivity | 39.7% (noisy) | **24.4%** | 26.4% |
-| Spearman ρ | — | **0.750** | 1.0 |
+| Metric | V1 | V2 | V2.2 (Production) |
+|--------|-----|-----|-------------------|
+| Direction Accuracy | 90.7% | 91.7% | **94.5%** |
+| MAE (Opus holdout) | 1.553 | 1.544 | **0.914** |
+| Within 1 Point | — | 53.4% | **75.5%** |
+| Spearman ρ | — | 0.555 | **0.691** |
+| Parse Failures | — | 5.0% | **0.0%** |
+| Training Cost | ~$52 (Opus) | ~$52 (Opus) | **$6 (Gemini Flash)** |
 
 ### Tier 1: Implicit Feedback Loop (always active)
 Every interaction teaches the system: **save** = positive signal, **dismiss** = negative signal, **rate** = explicit correction, **click** = implicit interest. These accumulate in SQLite and get injected into the LLM scoring prompt as personalized few-shot examples.
 
 ### Tier 2: Model Distillation (manual or scheduled)
-A teacher model (Claude Opus 4.5 via API, ~$0.40 per cycle) re-scores items the local model already scored. Disagreements become corrections that feed back into the scorer — and can be exported as training data to permanently bake the improvements into the local model's weights.
+Dual teacher pipeline: **Gemini Flash** ($0.00012/article) for bulk training data, **Claude Opus** for high-precision holdout evaluation. Disagreements become corrections that permanently improve the local model's weights via DoRA fine-tuning.
 
 ```
                          ┌─────────────┐
-  User interactions ────►│  Feedback DB │◄──── Opus corrections
-  (save/dismiss/rate)    └──────┬──────┘      (distill.py)
+  User interactions ────►│  Feedback DB │◄──── Gemini/Opus corrections
+  (save/dismiss/rate)    └──────┬──────┘      (distill.py / v22_expansion.py)
                                 │
                     ┌───────────┴───────────┐
                     ▼                       ▼
@@ -86,7 +90,7 @@ A teacher model (Claude Opus 4.5 via API, ~$0.40 per cycle) re-scores items the 
                                     (train_lora.py / data/v2_pipeline/)
                                             │
                                             ▼
-                                    stratos-scorer-v2
+                                    stratos-scorer-v2.2
                                     (Ollama GGUF model)
 ```
 
@@ -196,20 +200,22 @@ Get a key from [platform.claude.com](https://platform.claude.com), then:
 ANTHROPIC_API_KEY=sk-ant-api03-your-key-here
 ```
 
-### V2 Pipeline (Large-Scale Training)
+### V2.2 Pipeline (Large-Scale Training)
 
-For full-scale training across many profiles, the V2 pipeline in `data/v2_pipeline/` runs four stages:
+For full-scale training across many profiles, the V2.2 pipeline in `data/v2_pipeline/` runs five phases:
 
-1. **Collect** (`stage2_collect.py`) -- Gather articles across 30 profiles in 20 countries
-2. **Score** (`stage3_score.py`) -- Batch-score all articles via Claude Opus API
-3. **Prepare** (`stage4_prepare.py`) -- Build training JSONL with contrastive pairs
-4. **Train** (`train_v2.py`) -- DoRA fine-tune with contrastive loss
+1. **Extract** (`v22_expansion.py --phase 1`) — Pull 2,000 articles from production DB
+2. **Score** (`v22_expansion.py --phase 2`) — Score with Gemini 3 Flash (~9,500/day, auto-resumes)
+3. **Calibrate** (`v22_expansion.py --phase 3`) — Apply isotonic calibration to Gemini scores
+4. **Prepare** (`v22_expansion.py --phase 5`) — Merge with existing Opus scores, build training JSONL
+5. **Train** (`train_v2.py`) — DoRA fine-tune with weighted sampling
 
-**V2 training stats:**
-- 20,550 scored examples, 25,243 contrastive pairs
-- 18,502 train / 2,048 eval split
-- Cost: ~$52 for the full Opus batch scoring pipeline
-- Train time: 10.7 hours on AMD Radeon 7900 XTX (24GB VRAM)
+**V2.2 training stats:**
+- 11,785 scored examples across 45 profiles
+- Dual teacher: Gemini Flash (bulk) + Claude Opus (holdout evaluation)
+- Cost: **$6** for the full Gemini scoring pipeline (10x cheaper than V2's $52 Opus pipeline)
+- Train time: 7 hours on AMD Radeon 7900 XTX (24GB VRAM)
+- Result: 40% MAE reduction over V2, zero parse failures
 
 ---
 
@@ -234,6 +240,9 @@ StratOS/
 │   ├── learn_cycle.sh             # Linux: automated learning cycle
 │   ├── stratos_overnight.sh       # Overnight autonomous training
 │   ├── setup_rocm_training.sh     # One-time AMD GPU training setup
+│   ├── model_manager.py             # Ollama model lifecycle
+│   ├── evaluate_scorer.py           # Dual-temp model evaluation
+│   ├── prompt_version.py            # Prompt hash drift detection
 │   ├── .env                       # API keys (not committed)
 │   ├── fetchers/
 │   │   ├── market.py              # yfinance — stocks, crypto, commodities
@@ -276,8 +285,7 @@ StratOS/
 │   ├── tour.js                     # Welcome tour + feature exploration (tooltips, modals)
 │   ├── ui.js                      # 8 themes, dark/brighter modes, stars, parallax, cross-device sync
 │   ├── sw.js                      # Service worker (offline + caching)
-│   ├── styles.css                 # 8 themes × 2 modes + stars + mobile (~1,666 lines)
-│   ├── tailwind-built.css         # Pre-compiled Tailwind (37KB)
+│   ├── styles.css                 # 8 themes × 3 modes (24 variants) + stars + mobile
 │   ├── manifest.json              # PWA manifest
 │   └── icon-192.png / icon-512.png  # PWA icons
 └── requirements.txt
@@ -310,10 +318,10 @@ An always-visible 48px hotbar with 6 quick-access drawing tools and a grip handl
 Hover effects on all buttons, navigation items, cards, and dropdowns across every page. Accent-colored focus glow on inputs and form elements. Active press feedback provides tactile response on every interactive control.
 
 ### Strat Agent
-Context-aware AI chat with ticker commands (`$NVDA`, `$BTC`), full portfolio context, conversation export/import, and streaming responses via Ollama. Tools: web search, watchlist management, category management. Dedicated full-screen agent view on mobile.
+Context-aware AI chat with ticker commands (`$NVDA`, `$BTC`), full portfolio context, conversation export/import, and streaming responses via Ollama. Tools: web search, feed search, watchlist management, category management. Fullscreen desktop mode, free/structured chat toggle, suggestion chips after responses, and "Continue in Agent" from any Ask AI answer. Dedicated full-screen agent view on mobile.
 
 ### Profile System
-AI-generated interest categories, per-profile watchlists and RSS feeds, device-isolated sessions with PIN auth (SHA-256), and theme customization with 8 built-in themes + dark mode toggle. Cross-device sync for theme, mode, stars, and avatar via DB-backed `ui_state`.
+AI-generated interest categories, per-profile watchlists and RSS feeds, email-based authentication with verification codes, and theme customization with 8 themes × 3 modes = 24 variants. Cross-device sync for theme, mode, stars, and avatar via DB-backed `ui_state`. 45 trained profiles across 20+ countries.
 
 ### Stop Scan
 Graceful cancellation of in-progress scans with streaming Ollama check. Partial results are preserved -- you keep everything scored before the cancel hit.
@@ -352,14 +360,14 @@ Account management section in Settings: change display name, account email, avat
 
 | Layer | Technology | Cost |
 |-------|-----------|------|
-| AI Scoring | Ollama (Qwen3 / stratos-scorer-v2) | Free (local) |
-| Distillation | Claude Opus 4.5 API | ~$0.40/cycle |
+| AI Scoring | Ollama (Qwen3.5-9B / stratos-scorer-v2.2) | Free (local) |
+| Distillation | Gemini Flash + Claude Opus API | ~$6/generation |
 | DoRA Training | PyTorch + PEFT + DoRA adapters (ROCm/CUDA) | Free (local) |
 | Market Data | yfinance | Free |
 | News Search | DuckDuckGo + RSS + Serper (with automatic fallback) | Free (or cheap) |
 | Charts | TradingView Lightweight Charts | Free |
 | Database | SQLite | Free |
-| Frontend | Vanilla JS + Tailwind CSS | Free |
+| Frontend | Vanilla JS + Vanilla CSS (24 theme variants) | Free |
 | Mobile | PWA + Touch gestures (vanilla JS) | Free |
 | Hosting | Cloudflare Tunnel | Free |
 
@@ -383,17 +391,18 @@ distillation:
 
 ```yaml
 scoring:
-  model: stratos-scorer-v2    # Fine-tuned model (DoRA)
-  # model: qwen3:8b           # Base model (before training)
+  model: stratos-scorer-v2.2   # V2.2 DoRA fine-tuned (Qwen3.5-9B)
+  inference_model: qwen3.5:9b  # Agent chat, market analysis
+  wizard_model: qwen3.5:9b     # Wizard, briefings, profile generation
   ollama_host: http://localhost:11434
 ```
 
 ### Ollama Environment Variables
 
 ```bash
-OLLAMA_MAX_LOADED_MODELS=1    # Only one model in VRAM at a time
+OLLAMA_MAX_LOADED_MODELS=2    # Scorer + qwen3.5:9b coexist (~16GB)
 OLLAMA_KEEP_ALIVE=10m         # Auto-unload after idle
-OLLAMA_NUM_PARALLEL=1         # Single-user
+OLLAMA_NUM_PARALLEL=1         # Single-user (parallel is 6% slower)
 OLLAMA_FLASH_ATTENTION=0      # ROCm 6.2 — unreliable
 ROCR_VISIBLE_DEVICES=0        # Prevent iGPU interference
 ```
@@ -402,9 +411,10 @@ ROCR_VISIBLE_DEVICES=0        # Prevent iGPU interference
 
 ## Known Issues
 
-- **Model swap latency** — 5-15s delay switching between scorer and inference on single GPU
-- **kuniv over-scoring** — Articles mentioning "Kuwait" score high regardless of topical relevance (scorer training issue)
-- **Shared config mutation** — `strat.config` is a global mutable swapped by `ensure_profile()`. Agent tool functions that read it are fast (low race window) but not fully isolated.
+- **Profile isolation** — SSE events and `is_url_seen()` not fully scoped to profile_id (designed, not yet built)
+- **Chat history** — Agent conversation history not persisting across sessions
+- **Expanded agent mode** — Fullscreen agent mode missing tool-use capabilities
+- **innerHTML XSS** — Several frontend innerHTML assignments need sanitization
 
 ---
 
@@ -414,16 +424,16 @@ ROCR_VISIBLE_DEVICES=0        # Prevent iGPU interference
 - [x] Claude Opus distillation pipeline
 - [x] LoRA fine-tuning with auto GPU detection (ROCm + CUDA)
 - [x] Auto-distillation scheduling in main server
-- [x] V2 scorer with 30-profile training across 20 countries
-- [x] Profile-aware scoring (7.6x improvement over V1)
+- [x] V2.2 scorer with 45-profile training (Gemini Flash, $6, 40% MAE reduction)
+- [x] Profile-aware scoring across 20+ countries
 - [x] Onboarding wizard (4-step AI-guided profile setup)
 - [x] Stop Scan with graceful cancellation
-- [x] Multi-profile authentication with PIN login
+- [x] Multi-user auth with email verification + bcrypt passwords
 - [x] Mobile UI overhaul (gestures, bottom nav, compact layout)
 - [x] Mobile agent page (dedicated full-screen chat)
 - [x] Progressive Web App (installable, offline support)
 - [x] Fullscreen chart focus mode (desktop + mobile)
-- [x] 8 color themes (Midnight, Noir, Coffee, Rose, Cosmos, Nebula, Aurora, Sakura) with dark mode + stars
+- [x] 24 theme variants (8 themes × 3 modes: Normal, Deeper, Brighter) with live theme editor
 - [x] Saved view grid/list toggle
 - [x] User profile settings page (name, avatar, PIN change)
 - [x] DuckDuckGo fallback when Serper credits exhausted
@@ -448,38 +458,50 @@ ROCR_VISIBLE_DEVICES=0        # Prevent iGPU interference
 - [x] Deferred non-blocking briefing (background thread, SSE notification)
 - [x] Incremental scanning with snapshot score reuse
 - [x] Profile-scoped article retention via context hash
+- [x] Rich media feeds (video/stream/image/manga detection + grid view)
+- [x] RSS auto-discovery + contextual feed suggestions
+- [x] Jobs feed tab with career-focused RSS feeds
+- [x] Fibonacci retracement (replaced auto trend lines)
+- [x] Agent: fullscreen mode, suggestion chips, free/structured toggle, feed search tool
+- [x] Collapsible Markets widget and Asset Analysis sections
+- [x] Button animations (save pulse, customize glow, bell blink)
+- [x] Cloudflare Worker proxy for RSS/media sources
 
 #### In Progress
+- [ ] V2.2 expansion scoring (2,000 articles × 25 profiles via Gemini Flash, ~27% complete)
 - [ ] Feed density implementation
 - [ ] Chart initial zoom optimization
 
-#### Planned -- Online-Enabled Features
-- [ ] **Cross-device full profile sync** -- Categories, keywords, ticker presets, drawings stored server-side (theme/avatar already synced)
-- [ ] **Email notifications** -- Critical alerts (9.0+) sent immediately, daily/weekly digest emails
-- [ ] **Cloud backup** -- Optional encrypted backup to Google Drive or S3
+#### Planned — Phase 0 (Stability)
+- [ ] Profile isolation (database schema redesign, per-profile SSE scoping)
+- [ ] Security audit fixes (7 P0 issues from full codebase audit)
+- [ ] Named Cloudflare tunnel (permanent URL)
+- [ ] Kill wasted Serper queries (~7-8 per scan)
 
-#### Future -- Scoring & AI
-- [ ] V3 scorer: 50-profile automated pipeline (30k examples, ~$90 Sonnet Batch)
-- [ ] QDoRA training (4-bit quantized base) for faster training
-- [ ] Agent model fine-tuning (search queries, briefings)
-- [ ] Multi-profile LoRA (separate adapters per profile type)
+#### Planned — Phase 1 (Multi-User)
+- [ ] FastAPI + uvicorn migration
+- [ ] SQLite → PostgreSQL
+- [ ] Google OAuth
+- [ ] Dual Ollama instances (scorer + inference)
 
-#### Future -- Data Sources
-- [ ] LinkedIn integration (jobs feed)
-- [ ] Government portal scraping (Kuwait CSC, PAAET)
-- [ ] Custom RSS feed builder
-- [ ] PDF document ingestion (research papers, reports)
+#### Future — Platform Vision
+- [ ] Anime/Manga mode (AniList-inspired, 60% UI already built)
+- [ ] Collection/TCG mode (TCGPlayer-inspired, 70% infra reuse)
+- [ ] Gaming mode (Steam-inspired)
 
 ### Development History
 
 | Milestone | Date | Details |
 |-----------|------|---------|
 | Mobile Gestures + UI | Feb 25, 2026 | Fullscreen charts, profile settings, DDG fallback, multi-chart mobile layout |
-| Chart Tools + Interactivity | Feb 26, 2026 | 20 chart drawing tools, tooltips with keyboard shortcuts, two-tier mobile toolbar, button fixes, site-wide interactivity, account email |
-| Theme Overhaul + Settings | Feb 26, 2026 | 8 themes with dark mode + stars, settings 4-tab layout, ticker presets, focus mode button, header alignment, sidebar narrow collapse |
-| Pipeline + Retention | Feb 26-27, 2026 | Incremental scanning, deferred briefing, profile-scoped retention, model routing, 16-profile diagnostic |
-| Auth Pipeline | Feb 28, 2026 | Email verification, SMTP, per-user data directories, profile data isolation, config overlay DB sync |
-| UI Sync + Profile Isolation | Mar 1, 2026 | Cross-device theme/avatar sync, guided tours panel, per-request profile_id isolation, avatar persist for DB-auth users |
+| Chart Tools + Interactivity | Feb 26, 2026 | 20 chart drawing tools, tooltips with keyboard shortcuts, two-tier mobile toolbar |
+| Theme Overhaul + Settings | Feb 26, 2026 | 8 themes with dark mode + stars, settings 4-tab layout, ticker presets |
+| Pipeline + Retention | Feb 26-27, 2026 | Incremental scanning, deferred briefing, profile-scoped retention, model routing |
+| Auth Pipeline | Feb 28, 2026 | Email verification, SMTP, per-user data directories, profile data isolation |
+| UI Sync + Profile Isolation | Mar 1, 2026 | Cross-device theme/avatar sync, guided tours, per-request profile_id isolation |
+| V2.2 Scorer Deployed | Mar 8, 2026 | Qwen3.5-9B DoRA, 40% MAE reduction, $6 Gemini training, zero parse failures |
+| Rich Media + Agent | Mar 8-10, 2026 | Jobs tab, RSS discovery, media grid, Fibonacci charts, agent fullscreen + chips |
+| Codebase Audit | Mar 4, 2026 | 102 issues found (7 P0, 43 P1, 52 P2), threading fixes, security analysis |
 
 ---
 
