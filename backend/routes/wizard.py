@@ -7,6 +7,7 @@ import json
 import re
 import logging
 import requests as req
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from routes.helpers import (json_response, error_response, read_json_body,
                            strip_think_blocks, extract_json)
@@ -279,6 +280,39 @@ Rules:
 - Location matters: include local companies, institutions, job portals for the user's country/city"""
 
 
+def _validate_entities_ddg(items: list, max_workers: int = 4, timeout: float = 5.0) -> list:
+    """Validate entity names via DDG search. Returns only items with >0 results."""
+    try:
+        from ddgs import DDGS
+    except ImportError:
+        try:
+            from duckduckgo_search import DDGS
+        except ImportError:
+            return items  # Can't validate without DDG — pass through
+
+    def _check(item):
+        try:
+            with DDGS() as ddgs:
+                results = list(ddgs.text(item, max_results=1))
+                return item, len(results) > 0
+        except Exception:
+            return item, True  # On error, keep the item
+
+    valid = []
+    with ThreadPoolExecutor(max_workers=max_workers) as pool:
+        futures = {pool.submit(_check, item): item for item in items}
+        for f in as_completed(futures, timeout=timeout * len(items)):
+            try:
+                item, has_results = f.result(timeout=timeout)
+                if has_results:
+                    valid.append(item)
+                else:
+                    logger.info(f"Wizard entity validation: dropped '{item}' (0 search results)")
+            except Exception:
+                valid.append(futures[f])  # Keep on timeout
+    return valid
+
+
 def handle_wizard_rv_items(handler, strat):
     """POST /api/wizard-rv-items — AI generates role-aware entities for Step 3 review."""
     try:
@@ -333,6 +367,9 @@ Remember: every entity MUST be relevant to a "{role}" in "{location or 'anywhere
                         items = [i for i in items if isinstance(i, str)][:8]
                     else:
                         items = []
+                    # Validate entities exist via DDG search
+                    if items:
+                        items = _validate_entities_ddg(items)
                     label = sdata.get("label", "Tracking")
                     tags = sdata.get("tags", {})
                     if not isinstance(tags, dict):
