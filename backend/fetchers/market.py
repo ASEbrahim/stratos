@@ -146,7 +146,13 @@ class MarketFetcher:
                 if hist.empty:
                     logger.warning(f"No data for {symbol} at {interval_key}")
                     continue
-                
+
+                # Drop rows with NaN Close prices (stock halts, IPO dates, missing data)
+                hist = hist.dropna(subset=["Close"])
+                if hist.empty:
+                    logger.warning(f"All NaN data for {symbol} at {interval_key}")
+                    continue
+
                 # Get current price and change
                 current_price = float(hist["Close"].iloc[-1])
                 
