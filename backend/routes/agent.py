@@ -557,6 +557,7 @@ HISTORICAL DATA:
                     sse_event(handler, {"error": f"Ollama returned {r.status_code}"})
                     return
                 full_text = ""
+                in_think = False
                 for line in r.iter_lines():
                     if not line:
                         continue
@@ -564,14 +565,20 @@ HISTORICAL DATA:
                         chunk = json.loads(line)
                         token = chunk.get("message", {}).get("content", "")
                         if token:
-                            token = strip_think_blocks(token)
-                            if token:
+                            full_text += token
+                            # Track <think> blocks without stripping whitespace from tokens
+                            if '<think>' in token:
+                                in_think = True
+                            if '</think>' in token:
+                                in_think = False
+                                continue
+                            if not in_think:
                                 sse_event(handler, {"token": token})
-                                full_text += token
                         if chunk.get("done"):
                             break
                     except json.JSONDecodeError:
                         continue
+                full_text = strip_think_blocks(full_text)
                 full_text = strip_reasoning_preamble(full_text)
                 sse_event(handler, {"done": True})
             except Exception as e:
