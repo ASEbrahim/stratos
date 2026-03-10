@@ -1406,16 +1406,28 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                                     "entries": 0
                                 }]})
                             return
+                    # Check if domain is blocked
+                    from urllib.parse import urlparse as _urlparse, quote_plus as _quote_plus
+                    _parsed_url = _urlparse(url)
+                    _domain = _parsed_url.netloc.lower().replace('www.', '')
+                    _blocked = strat.config.get("proxy", {}).get("blocked_domains", [])
+                    if any(_domain == bd or _domain.endswith('.' + bd) for bd in _blocked):
+                        _send_json(self, {"error": "Domain is blocked"}, 403)
+                        return
+
                     _disc_headers = {
                         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
                         "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
                     }
+                    # Route through CF Worker proxy if configured
+                    _cf_worker = strat.config.get("proxy", {}).get("cloudflare_worker", "")
+                    _fetch_url = f"{_cf_worker}?url={_quote_plus(url)}" if _cf_worker else url
                     try:
-                        resp = requests.get(url, timeout=10, headers=_disc_headers, allow_redirects=True)
+                        resp = requests.get(_fetch_url, timeout=10, headers=_disc_headers, allow_redirects=True)
                     except requests.RequestException:
                         try:
                             from curl_cffi import requests as cf_req
-                            resp = cf_req.get(url, impersonate="chrome", timeout=10)
+                            resp = cf_req.get(_fetch_url, impersonate="chrome", timeout=10)
                         except Exception:
                             raise
                     feeds = []
