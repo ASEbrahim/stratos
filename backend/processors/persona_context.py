@@ -196,7 +196,7 @@ class PersonaContextManager:
         target = (ctx_dir / subpath.lstrip('/')).resolve()
 
         # Security: ensure target is under ctx_dir
-        if not str(target).startswith(str(ctx_dir)):
+        if not str(target).startswith(str(ctx_dir.resolve())):
             return []
 
         if not target.is_dir():
@@ -206,7 +206,7 @@ class PersonaContextManager:
         for item in sorted(target.iterdir()):
             if item.name.startswith('.'):
                 continue
-            rel = str(item.relative_to(ctx_dir))
+            rel = str(item.relative_to(ctx_dir.resolve()))
             entries.append({
                 'name': item.name,
                 'path': '/' + rel,
@@ -222,7 +222,7 @@ class PersonaContextManager:
         ctx_dir = self._context_dir(profile_id, persona_name)
         target = (ctx_dir / filepath.lstrip('/')).resolve()
 
-        if not str(target).startswith(str(ctx_dir)):
+        if not str(target).startswith(str(ctx_dir.resolve())):
             return None
         if not target.is_file():
             return None
@@ -238,7 +238,7 @@ class PersonaContextManager:
         ctx_dir = self._context_dir(profile_id, persona_name)
         target = (ctx_dir / filepath.lstrip('/')).resolve()
 
-        if not str(target).startswith(str(ctx_dir)):
+        if not str(target).startswith(str(ctx_dir.resolve())):
             return False
 
         try:
@@ -255,7 +255,7 @@ class PersonaContextManager:
         ctx_dir = self._context_dir(profile_id, persona_name)
         target = (ctx_dir / filepath.lstrip('/')).resolve()
 
-        if not str(target).startswith(str(ctx_dir)):
+        if not str(target).startswith(str(ctx_dir.resolve())):
             return False
 
         try:
@@ -274,7 +274,7 @@ class PersonaContextManager:
         ctx_dir = self._context_dir(profile_id, persona_name)
         target = (ctx_dir / dirpath.lstrip('/')).resolve()
 
-        if not str(target).startswith(str(ctx_dir)):
+        if not str(target).startswith(str(ctx_dir.resolve())):
             return False
 
         try:
