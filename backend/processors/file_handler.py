@@ -45,7 +45,7 @@ class FileHandler:
         d.mkdir(parents=True, exist_ok=True)
         return d
 
-    def save_file(self, profile_id: int, filename: str, data: bytes) -> Optional[Dict[str, Any]]:
+    def save_file(self, profile_id: int, filename: str, data: bytes, persona: str = '') -> Optional[Dict[str, Any]]:
         """Save an uploaded file and extract text content.
 
         Args:
@@ -97,15 +97,17 @@ class FileHandler:
             'size_bytes': len(data),
         }
 
+        file_meta['persona'] = persona
+
         if self.db:
             try:
                 cursor = self.db.conn.cursor()
                 cursor.execute(
                     """INSERT INTO user_files
-                       (profile_id, filename, file_type, content_text, uploaded_at, file_path)
-                       VALUES (?, ?, ?, ?, ?, ?)""",
+                       (profile_id, filename, file_type, content_text, uploaded_at, file_path, persona)
+                       VALUES (?, ?, ?, ?, ?, ?, ?)""",
                     (profile_id, target.name, file_type,
-                     content_text or '', file_meta['uploaded_at'], str(target))
+                     content_text or '', file_meta['uploaded_at'], str(target), persona)
                 )
                 self.db._commit()
                 file_meta['id'] = cursor.lastrowid
@@ -169,38 +171,57 @@ class FileHandler:
         logger.warning(f"No PDF reader available for {path}")
         return None
 
-    def list_files(self, profile_id: int) -> List[Dict[str, Any]]:
-        """List all files for a user."""
+    def list_files(self, profile_id: int, persona: str = '') -> List[Dict[str, Any]]:
+        """List files for a user, optionally filtered by persona."""
         if not self.db:
             return []
         try:
             cursor = self.db.conn.cursor()
-            cursor.execute(
-                """SELECT id, filename, file_type, uploaded_at,
-                          LENGTH(content_text) as text_length
-                   FROM user_files WHERE profile_id = ?
-                   ORDER BY uploaded_at DESC""",
-                (profile_id,)
-            )
+            if persona:
+                cursor.execute(
+                    """SELECT id, filename, file_type, uploaded_at, persona,
+                              LENGTH(content_text) as text_length
+                       FROM user_files WHERE profile_id = ? AND persona = ?
+                       ORDER BY uploaded_at DESC""",
+                    (profile_id, persona)
+                )
+            else:
+                cursor.execute(
+                    """SELECT id, filename, file_type, uploaded_at, persona,
+                              LENGTH(content_text) as text_length
+                       FROM user_files WHERE profile_id = ?
+                       ORDER BY uploaded_at DESC""",
+                    (profile_id,)
+                )
             return [dict(row) for row in cursor.fetchall()]
         except Exception as e:
             logger.error(f"Failed to list files: {e}")
             return []
 
-    def search_files(self, profile_id: int, query: str, limit: int = 10) -> List[Dict[str, Any]]:
-        """Search across user's uploaded files."""
+    def search_files(self, profile_id: int, query: str, limit: int = 10, persona: str = '') -> List[Dict[str, Any]]:
+        """Search across user's uploaded files, optionally filtered by persona."""
         if not self.db:
             return []
         try:
             cursor = self.db.conn.cursor()
-            cursor.execute(
-                """SELECT id, filename, file_type, uploaded_at,
-                          SUBSTR(content_text, MAX(1, INSTR(LOWER(content_text), LOWER(?)) - 100), 300) as snippet
-                   FROM user_files
-                   WHERE profile_id = ? AND content_text LIKE ?
-                   ORDER BY uploaded_at DESC LIMIT ?""",
-                (query, profile_id, f"%{query}%", limit)
-            )
+            if persona:
+                cursor.execute(
+                    """SELECT id, filename, file_type, uploaded_at, persona,
+                              SUBSTR(content_text, MAX(1, INSTR(LOWER(content_text), LOWER(?)) - 100), 300) as snippet
+                       FROM user_files
+                       WHERE profile_id = ? AND persona = ? AND content_text LIKE ?
+                       ORDER BY uploaded_at DESC LIMIT ?""",
+                    (query, profile_id, persona, f"%{query}%", limit)
+                )
+            else:
+                cursor.execute(
+                    """SELECT id, filename, file_type, uploaded_at, persona,
+                              SUBSTR(content_text, MAX(1, INSTR(LOWER(content_text), LOWER(?)) - 100), 300) as snippet
+                       FROM user_files
+                       WHERE profile_id = ? AND content_text LIKE ?
+                       ORDER BY uploaded_at DESC LIMIT ?""",
+                    (query, profile_id, f"%{query}%", limit)
+                )
             return [dict(row) for row in cursor.fetchall()]
         except Exception as e:
             logger.error(f"File search failed: {e}")

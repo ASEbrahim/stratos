@@ -477,6 +477,20 @@ def migration_018(cursor):
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_pref_signals ON user_preference_signals(profile_id, signal_type)")
 
 
+# -- Migration 019: persona column on user_files --
+@migration
+def migration_019(cursor):
+    """Add persona column to user_files for persona-scoped file isolation."""
+    try:
+        cursor.execute("ALTER TABLE user_files ADD COLUMN persona TEXT NOT NULL DEFAULT ''")
+    except Exception:
+        pass  # Column already exists
+    cursor.execute(
+        "CREATE INDEX IF NOT EXISTS idx_user_files_persona "
+        "ON user_files(profile_id, persona)"
+    )
+
+
 # =========================================================================
 # Migration runner
 # =========================================================================

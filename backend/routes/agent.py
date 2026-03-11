@@ -254,7 +254,7 @@ AGENT_TOOLS = [
 # TOOL EXECUTION
 # ═══════════════════════════════════════════════════════════
 
-def _execute_tool(tool_name, args, strat, profile_id=0):
+def _execute_tool(tool_name, args, strat, profile_id=0, persona=''):
     """Execute a tool call and return the result string."""
     try:
         if tool_name == "web_search":
@@ -266,7 +266,7 @@ def _execute_tool(tool_name, args, strat, profile_id=0):
         elif tool_name == "manage_categories":
             return _tool_manage_categories(args, strat)
         elif tool_name == "search_files":
-            return _tool_search_files(args, strat, profile_id=profile_id)
+            return _tool_search_files(args, strat, profile_id=profile_id, persona=persona)
         elif tool_name == "read_document":
             return _tool_read_document(args, strat, profile_id=profile_id)
         elif tool_name == "search_insights":
@@ -564,15 +564,15 @@ def _write_config(strat):
         logger.error(f"Config write failed: {e}")
 
 
-def _tool_search_files(args, strat, profile_id=0):
-    """Search user's uploaded documents."""
+def _tool_search_files(args, strat, profile_id=0, persona=''):
+    """Search user's uploaded documents, scoped to active persona."""
     query = args.get("query", "").strip()
     if not query:
         return "No search query provided."
     try:
         from processors.file_handler import FileHandler
         fh = FileHandler(strat.config, db=strat.db)
-        results = fh.search_files(profile_id, query, limit=10)
+        results = fh.search_files(profile_id, query, limit=10, persona=persona)
         if not results:
             return f"No documents found matching '{query}'."
         lines = []
@@ -1026,7 +1026,7 @@ def handle_agent_chat(handler, strat, output_file, profile_id=0):
                         args = {}
                 logger.info(f"Agent tool: {name}({json.dumps(args)[:200]})")
                 sse_event(handler, {"status": f"🔍 {name}..." if name == "web_search" else f"⚙️ {name}..."})
-                result = _execute_tool(name, args, strat, profile_id=profile_id)
+                result = _execute_tool(name, args, strat, profile_id=profile_id, persona=persona_name)
                 messages.append({"role": "tool", "content": result})
 
         # If we exhausted all rounds, send whatever we have as a final response

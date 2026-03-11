@@ -2158,8 +2158,9 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                     file_data = self.rfile.read(content_length)
                     # Expect multipart or raw upload with X-Filename header
                     filename = self.headers.get('X-Filename', 'upload.txt')
+                    persona = self.headers.get('X-Persona', '')
                     fh = FileHandler(strat.config, db=strat.db)
-                    result = fh.save_file(self._profile_id, filename, file_data)
+                    result = fh.save_file(self._profile_id, filename, file_data, persona=persona)
                     if result:
                         _send_json(self, {"ok": True, "file": {
                             "id": result.get("id"),
@@ -2181,10 +2182,11 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                     body = json.loads(self.rfile.read(int(self.headers.get('Content-Length', 0))).decode()) if int(self.headers.get('Content-Length', 0)) > 0 else {}
                     fh = FileHandler(strat.config, db=strat.db)
                     query = body.get("query", "")
+                    persona = body.get("persona", "")
                     if query:
-                        files = fh.search_files(self._profile_id, query)
+                        files = fh.search_files(self._profile_id, query, persona=persona)
                     else:
-                        files = fh.list_files(self._profile_id)
+                        files = fh.list_files(self._profile_id, persona=persona)
                     _send_json(self, {"files": files})
                 except Exception as e:
                     logger.error(f"File list error: {e}")
