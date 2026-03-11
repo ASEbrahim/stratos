@@ -279,9 +279,15 @@ class KeywordIndex:
         return len(matched), matched
 
     def match_location(self, text: str) -> bool:
-        """Check if text mentions user's location."""
+        """Check if text mentions user's location (word-boundary matching)."""
         text_lower = text.lower()
-        return any(loc in text_lower for loc in self.location_parts if loc)
+        for loc in self.location_parts:
+            if not loc:
+                continue
+            # Word boundary matching to avoid false positives
+            if re.search(r'\b' + re.escape(loc) + r'\b', text_lower):
+                return True
+        return False
 
 
 # ═══════════════════════════════════════════════════════════════════
@@ -982,7 +988,8 @@ Previous automated score was {first_score:.1f} (uncertain). Please re-evaluate c
                 fallback = self._extract_score_from_think(think_block)
                 if fallback:
                     return fallback
-            return rule_score, "LLM no response, using rule score"
+            capped = min(rule_score, 4.5)
+            return capped, "LLM no response, using capped rule score"
 
         try:
             score_matches = re.findall(r'SCORE:\s*(\d+\.?\d*)', clean, re.IGNORECASE)
@@ -1126,7 +1133,7 @@ Reply with EXACTLY one line per article, numbered:
         if clean == "__TIMEOUT__":
             return [(rs, "__DEFERRED__") for _, rs, _ in batch]
         if not clean:
-            return [(rs, "LLM no response, using rule score") for _, rs, _ in batch]
+            return [(min(rs, 4.5), "LLM no response, using capped rule score") for _, rs, _ in batch]
 
         parsed = self._parse_batch_response(clean, len(batch))
         results = []
