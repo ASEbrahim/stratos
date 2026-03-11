@@ -1984,7 +1984,10 @@ function _stopScanPolling() {
 // === EXTRA FEEDS (Finance, Politics & Custom) ===
 async function loadExtraFeeds(type) {
     try {
-        const resp = await fetch(`/api/${type}-news?_=${Date.now()}`);
+        const resp = await fetch(`/api/${type}-news?_=${Date.now()}`, {
+            headers: { 'X-Auth-Token': localStorage.getItem('auth_token') || '' }
+        });
+        if (!resp.ok) { console.warn(`Extra feeds (${type}): HTTP ${resp.status}`); return; }
         const result = await resp.json();
         if (type === 'finance') {
             financeNewsData = result.items || [];

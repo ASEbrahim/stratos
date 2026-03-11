@@ -562,7 +562,22 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                 self.end_headers()
                 try:
                     from fetchers.extra_feeds import fetch_extra_feeds
-                    items = fetch_extra_feeds(feed_type, config=strat.config)
+                    # Use user-specific feed toggles from profile overlay
+                    _ef_config = dict(strat.config)
+                    if self._profile_id:
+                        try:
+                            _ef_row = strat.db.conn.execute(
+                                "SELECT config_overlay FROM profiles WHERE id = ?",
+                                (self._profile_id,)
+                            ).fetchone()
+                            if _ef_row and _ef_row[0]:
+                                _ef_overlay = json.loads(_ef_row[0])
+                                for _ek in [f"extra_feeds_{feed_type}", f"custom_feeds_{feed_type}"]:
+                                    if _ek in _ef_overlay:
+                                        _ef_config[_ek] = _ef_overlay[_ek]
+                        except Exception:
+                            pass
+                    items = fetch_extra_feeds(feed_type, config=_ef_config)
                 except Exception as e:
                     logger.error(f"Extra feeds ({feed_type}) error: {e}")
                     items = []
@@ -613,7 +628,21 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                 self.end_headers()
                 items = []
                 try:
-                    custom_feeds = strat.config.get("custom_feeds", [])
+                    # Resolve per-user custom feeds from profile overlay
+                    _cf_feeds = strat.config.get("custom_feeds", [])
+                    if self._profile_id:
+                        try:
+                            _cf_row = strat.db.conn.execute(
+                                "SELECT config_overlay FROM profiles WHERE id = ?",
+                                (self._profile_id,)
+                            ).fetchone()
+                            if _cf_row and _cf_row[0]:
+                                _cf_overlay = json.loads(_cf_row[0])
+                                if "custom_feeds" in _cf_overlay:
+                                    _cf_feeds = _cf_overlay["custom_feeds"]
+                        except Exception:
+                            pass
+                    custom_feeds = _cf_feeds
                     enabled_feeds = [f for f in custom_feeds if f.get("on", True)]
                     if enabled_feeds:
                         import feedparser
@@ -1062,7 +1091,6 @@ def create_handler(strat, auth, frontend_dir, output_dir):
             if self.path.startswith("/api/persona-context"):
                 from processors.persona_context import PersonaContextManager
                 pcm = PersonaContextManager(strat.config, db=strat.db)
-                from urllib.parse import urlparse, parse_qs
                 parsed = urlparse(self.path)
                 params = parse_qs(parsed.query)
                 persona = params.get('persona', [''])[0]
@@ -1085,7 +1113,6 @@ def create_handler(strat, auth, frontend_dir, output_dir):
             if self.path.startswith("/api/youtube/"):
                 from processors.youtube import YouTubeProcessor
                 yt = YouTubeProcessor(strat.config, db=strat.db)
-                from urllib.parse import urlparse, parse_qs
                 parsed = urlparse(self.path)
                 path_parts = parsed.path.strip('/').split('/')
 
@@ -1124,7 +1151,6 @@ def create_handler(strat, auth, frontend_dir, output_dir):
             if self.path.startswith("/api/persona-files"):
                 from processors.persona_context import PersonaContextManager
                 pcm = PersonaContextManager(strat.config, db=strat.db)
-                from urllib.parse import urlparse, parse_qs
                 parsed = urlparse(self.path)
                 params = parse_qs(parsed.query)
                 persona = params.get('persona', [''])[0]
@@ -1146,7 +1172,6 @@ def create_handler(strat, auth, frontend_dir, output_dir):
             if self.path.startswith("/api/search-all-contexts"):
                 from processors.persona_context import PersonaContextManager
                 pcm = PersonaContextManager(strat.config, db=strat.db)
-                from urllib.parse import urlparse, parse_qs
                 params = parse_qs(urlparse(self.path).query)
                 q = params.get('q', [''])[0]
                 results = pcm.search_all_contexts(self._profile_id, q)
@@ -1155,7 +1180,6 @@ def create_handler(strat, auth, frontend_dir, output_dir):
 
             # ── Conversations GET ───────────────────────────
             if self.path.startswith("/api/conversations"):
-                from urllib.parse import urlparse, parse_qs
                 parsed_url = urlparse(self.path)
                 params = parse_qs(parsed_url.query)
                 path_parts = parsed_url.path.rstrip('/').split('/')
@@ -1220,7 +1244,6 @@ def create_handler(strat, auth, frontend_dir, output_dir):
             if self.path.startswith("/api/scenarios"):
                 from processors.scenarios import ScenarioManager
                 sm = ScenarioManager(strat.config, db=strat.db)
-                from urllib.parse import urlparse, parse_qs
                 params = parse_qs(urlparse(self.path).query)
 
                 if self.path.startswith("/api/scenarios/active"):
@@ -1244,7 +1267,6 @@ def create_handler(strat, auth, frontend_dir, output_dir):
             # ── Context compression GET ─────────────────────
             if self.path.startswith("/api/persona-state"):
                 from processors.context_compression import ContextCompressor
-                from urllib.parse import urlparse, parse_qs
                 params = parse_qs(urlparse(self.path).query)
                 persona = params.get('persona', ['intelligence'])[0]
                 try:
@@ -1268,7 +1290,6 @@ def create_handler(strat, auth, frontend_dir, output_dir):
 
             # ── Preference signals GET ──────────────────────
             if self.path.startswith("/api/preference-signals"):
-                from urllib.parse import urlparse, parse_qs
                 params = parse_qs(urlparse(self.path).query)
                 persona = params.get('persona', [''])[0]
                 try:
@@ -2537,7 +2558,6 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                     else:
                         # Raw ZIP body with strategy in query params
                         zip_data = self.rfile.read(content_length)
-                        from urllib.parse import urlparse, parse_qs
                         params = parse_qs(urlparse(self.path).query)
                         strategy = params.get('strategy', ['replace'])[0]
 
@@ -2635,7 +2655,6 @@ def create_handler(strat, auth, frontend_dir, output_dir):
             if self.path.startswith("/api/persona-context"):
                 from processors.persona_context import PersonaContextManager
                 pcm = PersonaContextManager(strat.config, db=strat.db)
-                from urllib.parse import urlparse, parse_qs
                 params = parse_qs(urlparse(self.path).query)
                 persona = params.get('persona', [''])[0]
                 key = params.get('key', [''])[0]
@@ -2664,7 +2683,6 @@ def create_handler(strat, auth, frontend_dir, output_dir):
             # ── Scenario Delete ──
             if self.path.startswith("/api/scenarios"):
                 from processors.scenarios import ScenarioManager
-                from urllib.parse import urlparse, parse_qs
                 params = parse_qs(urlparse(self.path).query)
                 name = params.get('name', [''])[0]
                 if name:
@@ -2694,7 +2712,6 @@ def create_handler(strat, auth, frontend_dir, output_dir):
             if self.path.startswith("/api/persona-files"):
                 from processors.persona_context import PersonaContextManager
                 pcm = PersonaContextManager(strat.config, db=strat.db)
-                from urllib.parse import urlparse, parse_qs
                 params = parse_qs(urlparse(self.path).query)
                 persona = params.get('persona', [''])[0]
                 filepath = params.get('path', [''])[0]
