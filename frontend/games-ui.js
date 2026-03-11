@@ -47,26 +47,59 @@ async function _loadScenarios() {
 function _renderScenarioBar() {
     const bar = document.getElementById('games-scenario-content');
     if (!bar) return;
+    const theme = (typeof PERSONA_THEMES !== 'undefined') ? (PERSONA_THEMES.gaming || { color: '#f472b6', bg: 'rgba(244,114,182,0.1)' }) : { color: '#f472b6', bg: 'rgba(244,114,182,0.1)' };
 
-    const select = _gamesScenarios.map(s => {
+    if (_gamesScenarios.length === 0) {
+        bar.innerHTML = `
+            <div class="flex flex-col items-center py-3 gap-2">
+                <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background:${theme.bg};border:1px solid ${theme.color}30;">
+                    <i data-lucide="swords" class="w-5 h-5" style="color:${theme.color}"></i>
+                </div>
+                <div class="text-[11px] font-semibold" style="color:var(--text-heading)">Create Your First World</div>
+                <div class="text-[9px]" style="color:var(--text-muted)">Start an RPG, adventure, or roleplay scenario</div>
+                <div class="flex flex-wrap gap-1 justify-center mt-1">
+                    ${['Fantasy RPG', 'Sci-Fi', 'Mystery', 'Horror', 'Slice of Life'].map(genre =>
+                        `<button onclick="_gamesCreateScenarioWithGenre('${genre}')" class="text-[9px] px-2 py-1 rounded-md transition-all cursor-pointer" style="border:1px solid var(--border-strong);color:var(--text-muted);background:transparent;" onmouseenter="this.style.borderColor='${theme.color}';this.style.color='${theme.color}'" onmouseleave="this.style.borderColor='var(--border-strong)';this.style.color='var(--text-muted)'">${genre}</button>`
+                    ).join('')}
+                </div>
+                <button onclick="_gamesCreateScenario()" class="text-[10px] px-3 py-1.5 rounded-lg font-medium transition-all mt-1" style="background:${theme.bg};color:${theme.color};border:1px solid ${theme.color}40;" onmouseenter="this.style.background='${theme.color}20'" onmouseleave="this.style.background='${theme.bg}'">
+                    <i data-lucide="plus" class="w-3 h-3 inline"></i> Custom Scenario
+                </button>
+            </div>`;
+        lucide.createIcons();
+        return;
+    }
+
+    // Scenario cards — horizontal scroll
+    const cards = _gamesScenarios.map(s => {
         const active = s.name === _gamesActiveScenario;
-        return `<option value="${s.name}" ${active ? 'selected' : ''}>${s.name}${active ? ' (active)' : ''}</option>`;
+        const world = s.world_description || s.world || '';
+        const preview = world.length > 60 ? world.slice(0, 58) + '…' : (world || 'No description');
+        return `<button onclick="_gamesActivateScenario('${_escForAttr(s.name)}')" class="flex-shrink-0 px-3 py-2 rounded-lg text-left transition-all" style="min-width:140px;max-width:200px;background:${active ? theme.bg : 'rgba(255,255,255,0.02)'};border:1px solid ${active ? theme.color + '60' : 'var(--border-strong)'};" onmouseenter="if(!${active})this.style.borderColor='${theme.color}40'" onmouseleave="if(!${active})this.style.borderColor='${active ? theme.color + '60' : 'var(--border-strong)'}'" >
+            <div class="flex items-center justify-between gap-1">
+                <span class="text-[11px] font-semibold truncate" style="color:${active ? theme.color : 'var(--text-heading)'}">${_escHtmlG(s.name)}</span>
+                ${active ? `<span class="w-2 h-2 rounded-full flex-shrink-0" style="background:${theme.color};box-shadow:0 0 6px ${theme.color}60;"></span>` : ''}
+            </div>
+            <div class="text-[9px] mt-0.5 line-clamp-2" style="color:var(--text-muted);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">${_escHtmlG(preview)}</div>
+        </button>`;
     }).join('');
 
     bar.innerHTML = `
-        <div class="flex items-center gap-2">
-            <i data-lucide="swords" class="w-3 h-3" style="color:var(--accent)"></i>
-            <select onchange="_gamesActivateScenario(this.value)" class="text-[10px] font-mono px-2 py-1 rounded cursor-pointer" style="background:var(--bg-panel-solid);color:var(--text-secondary);border:1px solid var(--border-strong);outline:none;">
-                ${_gamesScenarios.length ? select : '<option value="">No scenarios</option>'}
-            </select>
-            <button onclick="_gamesCreateScenario()" class="fb-tool-btn" title="New scenario">
-                <i data-lucide="plus" class="w-3 h-3"></i>
+        <div class="flex items-center gap-2 overflow-x-auto pb-1" style="scrollbar-width:none;">
+            ${cards}
+            <button onclick="_gamesCreateScenario()" class="flex-shrink-0 w-9 h-full min-h-[52px] rounded-lg flex items-center justify-center transition-all" style="border:1px dashed var(--border-strong);color:var(--text-muted);" title="New scenario" onmouseenter="this.style.borderColor='${theme.color}';this.style.color='${theme.color}'" onmouseleave="this.style.borderColor='var(--border-strong)';this.style.color='var(--text-muted)'">
+                <i data-lucide="plus" class="w-4 h-4"></i>
             </button>
-            ${_gamesActiveScenario ? `<button onclick="_gamesDeleteScenario('${_gamesActiveScenario}')" class="fb-tool-btn" title="Delete active scenario" onmouseenter="this.style.color='#f87171'" onmouseleave="this.style.color='var(--text-muted)'"><i data-lucide="trash-2" class="w-3 h-3"></i></button>` : ''}
-            ${_gamesActiveScenario ? `<button onclick="toggleFileBrowser('gaming')" class="fb-tool-btn" title="Browse world files"><i data-lucide="folder-open" class="w-3 h-3"></i></button>` : ''}
-        </div>`;
+        </div>
+        ${_gamesActiveScenario ? `<div class="flex items-center gap-1.5 mt-1.5">
+            <button onclick="toggleFileBrowser('gaming')" class="text-[9px] px-2 py-1 rounded-md flex items-center gap-1 transition-all" style="color:var(--text-muted);border:1px solid var(--border-strong);" onmouseenter="this.style.color='${theme.color}';this.style.borderColor='${theme.color}40'" onmouseleave="this.style.color='var(--text-muted)';this.style.borderColor='var(--border-strong)'"><i data-lucide="folder-open" class="w-3 h-3"></i> World Files</button>
+            <button onclick="_gamesDeleteScenario('${_escForAttr(_gamesActiveScenario)}')" class="text-[9px] px-2 py-1 rounded-md flex items-center gap-1 transition-all" style="color:var(--text-muted);border:1px solid var(--border-strong);" onmouseenter="this.style.color='#f87171';this.style.borderColor='rgba(239,68,68,0.3)'" onmouseleave="this.style.color='var(--text-muted)';this.style.borderColor='var(--border-strong)'"><i data-lucide="trash-2" class="w-3 h-3"></i> Delete</button>
+        </div>` : ''}`;
     lucide.createIcons();
 }
+
+function _escHtmlG(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+function _escForAttr(s) { return s.replace(/'/g, "\\'").replace(/"/g, '&quot;'); }
 
 // ── Create scenario ──
 async function _gamesCreateScenario() {
@@ -91,6 +124,29 @@ async function _gamesCreateScenario() {
     }
 }
 window._gamesCreateScenario = _gamesCreateScenario;
+
+// ── Create with genre preset ──
+async function _gamesCreateScenarioWithGenre(genre) {
+    const name = prompt(`${genre} scenario name:`, genre.replace(/\s/g, '_'));
+    if (!name || !name.trim()) return;
+    try {
+        const r = await fetch('/api/scenarios/create', {
+            method: 'POST',
+            headers: _gamesHeaders(),
+            body: JSON.stringify({ name: name.trim(), world: `A ${genre.toLowerCase()} setting.` })
+        });
+        if (r.ok) {
+            if (typeof showToast === 'function') showToast(`Created "${name.trim()}"`, 'success');
+            _loadScenarios();
+        } else {
+            const d = await r.json().catch(() => ({}));
+            if (typeof showToast === 'function') showToast(d.error || 'Failed to create', 'error');
+        }
+    } catch (e) {
+        if (typeof showToast === 'function') showToast('Failed to create scenario', 'error');
+    }
+}
+window._gamesCreateScenarioWithGenre = _gamesCreateScenarioWithGenre;
 
 // ── Activate scenario ──
 async function _gamesActivateScenario(name) {
