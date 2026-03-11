@@ -456,6 +456,27 @@ def migration_017(cursor):
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_persona_context ON persona_context(profile_id, persona_name)")
 
 
+# -- Migration 018: User preference signals for personalization feedback --
+@migration
+def migration_018(cursor):
+    """Create user_preference_signals table for cross-persona feedback loop."""
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS user_preference_signals (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            profile_id INTEGER NOT NULL,
+            persona_source TEXT NOT NULL,
+            signal_type TEXT NOT NULL,
+            signal_key TEXT NOT NULL,
+            signal_weight REAL DEFAULT 1.0,
+            auto_generated BOOLEAN DEFAULT 1,
+            created_at TEXT DEFAULT (datetime('now')),
+            expires_at TEXT,
+            UNIQUE(profile_id, persona_source, signal_type, signal_key)
+        )
+    """)
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_pref_signals ON user_preference_signals(profile_id, signal_type)")
+
+
 # =========================================================================
 # Migration runner
 # =========================================================================

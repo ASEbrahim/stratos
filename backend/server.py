@@ -1152,6 +1152,28 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                 _send_json(self, {"results": results})
                 return
 
+            # ── Preference signals GET ──────────────────────
+            if self.path.startswith("/api/preference-signals"):
+                from urllib.parse import urlparse, parse_qs
+                params = parse_qs(urlparse(self.path).query)
+                persona = params.get('persona', [''])[0]
+                try:
+                    cursor = strat.db.conn.cursor()
+                    if persona:
+                        cursor.execute(
+                            "SELECT * FROM user_preference_signals WHERE profile_id = ? AND persona_source = ? ORDER BY created_at DESC",
+                            (self._profile_id, persona)
+                        )
+                    else:
+                        cursor.execute(
+                            "SELECT * FROM user_preference_signals WHERE profile_id = ? ORDER BY created_at DESC",
+                            (self._profile_id,)
+                        )
+                    _send_json(self, {"signals": [dict(r) for r in cursor.fetchall()]})
+                except Exception as e:
+                    _send_json(self, {"error": str(e)}, 500)
+                return
+
             # --- Static file serving with gzip compression ---
             accepts_gzip = 'gzip' in self.headers.get('Accept-Encoding', '')
             ext = os.path.splitext(self.path.split('?')[0])[1].lower()
@@ -2189,6 +2211,26 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                     _send_json(self, {"ok": ok})
                     return
 
+            # ── Preference signals POST ─────────────────────
+            if self.path == "/api/preference-signals":
+                body = json.loads(self.rfile.read(int(self.headers.get('Content-Length', 0))).decode()) if int(self.headers.get('Content-Length', 0)) > 0 else {}
+                try:
+                    cursor = strat.db.conn.cursor()
+                    cursor.execute(
+                        """INSERT INTO user_preference_signals
+                           (profile_id, persona_source, signal_type, signal_key, signal_weight, auto_generated)
+                           VALUES (?, ?, ?, ?, ?, ?)
+                           ON CONFLICT(profile_id, persona_source, signal_type, signal_key)
+                           DO UPDATE SET signal_weight = excluded.signal_weight""",
+                        (self._profile_id, body.get('persona', ''), body.get('type', ''),
+                         body.get('key', ''), body.get('weight', 1.0), body.get('auto', 0))
+                    )
+                    strat.db._commit()
+                    _send_json(self, {"ok": True, "id": cursor.lastrowid})
+                except Exception as e:
+                    _send_json(self, {"error": str(e)}, 500)
+                return
+
             # ── Persona Files POST endpoints ────────────────
             if self.path.startswith("/api/persona-files"):
                 from processors.persona_context import PersonaContextManager
@@ -2245,6 +2287,21 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                     _send_json(self, {"ok": True})
                 else:
                     _send_json(self, {"error": "Missing persona or key"}, 400)
+                return
+
+            # ── Preference signal Delete ──
+            if self.path.startswith("/api/preference-signals/"):
+                try:
+                    signal_id = int(self.path.split("/")[-1])
+                    cursor = strat.db.conn.cursor()
+                    cursor.execute(
+                        "DELETE FROM user_preference_signals WHERE id = ? AND profile_id = ?",
+                        (signal_id, self._profile_id)
+                    )
+                    strat.db._commit()
+                    _send_json(self, {"ok": cursor.rowcount > 0})
+                except (ValueError, IndexError):
+                    _send_json(self, {"error": "Invalid signal ID"}, 400)
                 return
 
             # ── Persona Files Delete ──
