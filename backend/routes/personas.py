@@ -223,6 +223,47 @@ def _build_scholarly_context(strat, profile_id: int = 0) -> str:
     return "\n\n".join(parts)
 
 
+def _build_games_context(strat, profile_id: int = 0) -> str:
+    """Build games/roleplay context: world bible + active scenario state."""
+    parts = []
+    db = strat.db
+    if not db:
+        return ""
+
+    try:
+        cursor = db.conn.cursor()
+
+        # User-editable system context (world bible)
+        cursor.execute(
+            "SELECT content FROM persona_context WHERE profile_id = ? AND persona_name = 'gaming' AND context_key = 'system_context'",
+            (profile_id,)
+        )
+        row = cursor.fetchone()
+        if row:
+            world_bible = dict(row).get('content', '')
+            if world_bible.strip():
+                parts.append(f"WORLD BIBLE:\n{world_bible[:3000]}")
+
+        # Active scenario state
+        cursor.execute(
+            "SELECT content FROM persona_context WHERE profile_id = ? AND persona_name = 'gaming' AND context_key = 'active_scenario'",
+            (profile_id,)
+        )
+        row = cursor.fetchone()
+        if row:
+            scenario = dict(row).get('content', '')
+            if scenario.strip():
+                parts.append(f"CURRENT SCENARIO STATE:\n{scenario[:2000]}")
+
+    except Exception as e:
+        logger.warning(f"Games context error: {e}")
+
+    if not parts:
+        parts.append("No scenario active. Help the user set up a new roleplay scenario.")
+
+    return "\n\n".join(parts)
+
+
 def _build_market_context(strat, output_file: str) -> str:
     """Build market-focused context: prices, movers, finance news."""
     output_path = Path(output_file)
@@ -368,6 +409,26 @@ RULES:
 - Say "I'm not certain" when you're not."""
 
 
+def _games_prompt(role, location, tickers, cat_summary, search_note):
+    """System prompt for the Games/Roleplay persona."""
+    return f"""You are STRAT GAMES — a creative fiction and roleplay engine in StratOS.
+
+USER: {role} in {location}
+
+You engage in immersive interactive storytelling. You play characters, describe scenes, and advance narratives based on the user's world bible and scenario context below.
+
+TOOLS:
+1. search_files / read_document — search and read uploaded lore documents.
+
+RULES:
+- Stay in character. Maintain consistency with the world bible and character sheets in your context.
+- Write vivid, engaging narrative prose. Use dialogue, action, and description.
+- Track world state: remember character positions, relationships, injuries, inventory.
+- Let the user drive major plot decisions. You advance the scene, they choose the direction.
+- If no scenario is active, help the user set one up.
+- Never break character unless the user explicitly asks an out-of-character question (marked with OOC:)."""
+
+
 def _stub_prompt(persona_name, role, location, tickers, cat_summary, search_note):
     """Placeholder prompt for future personas."""
     return f"""You are the {persona_name.title()} assistant in StratOS.
@@ -391,9 +452,9 @@ PERSONA_TOOLS = {
     'intelligence': ['web_search', 'search_feed', 'manage_watchlist', 'manage_categories', 'search_files', 'read_document'],
     'market': ['manage_watchlist', 'search_feed', 'web_search'],
     'scholarly': ['search_insights', 'list_channels', 'get_video_summary', 'search_narrations', 'search_files', 'read_document', 'web_search'],
+    'gaming': ['search_files', 'read_document'],
     'anime': [],
     'tcg': [],
-    'gaming': [],
 }
 
 PERSONA_GREETINGS = {
@@ -402,7 +463,7 @@ PERSONA_GREETINGS = {
     'scholarly': "Welcome. I'm ready to discuss history, language, philosophy, or academic topics. What's on your mind?",
     'anime': "Anime mode is coming soon! For now, I can chat about anime and manga.",
     'tcg': "TCG mode is coming soon! For now, I can chat about trading card games.",
-    'gaming': "Gaming mode is coming soon! For now, I can chat about games.",
+    'gaming': "Ready for adventure. Describe your world or load a scenario to begin.",
 }
 
 
@@ -425,6 +486,8 @@ def build_persona_prompt(persona: str, role: str, location: str,
         return _market_prompt(role, location, tickers, cat_summary, search_note)
     elif persona == 'scholarly':
         return _scholarly_prompt(role, location, tickers, cat_summary, search_note)
+    elif persona == 'gaming':
+        return _games_prompt(role, location, tickers, cat_summary, search_note)
     else:
         return _stub_prompt(persona, role, location, tickers, cat_summary, search_note)
 
@@ -441,6 +504,8 @@ def build_persona_context(persona: str, strat, output_file: str,
         return f"{market[:6000]}"
     elif persona == 'scholarly':
         return _build_scholarly_context(strat, profile_id)
+    elif persona == 'gaming':
+        return _build_games_context(strat, profile_id)
     else:
         return ""  # Stub personas have no data
 
