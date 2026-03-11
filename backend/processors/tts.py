@@ -19,12 +19,31 @@ logger = logging.getLogger(__name__)
 HAS_PIPER = shutil.which("piper") is not None
 
 
+def _find_voice_model(voice_name: str) -> Optional[str]:
+    """Find the .onnx file for a piper voice, checking common locations."""
+    from pathlib import Path
+    search_dirs = [
+        Path.home() / ".local" / "share" / "piper_voices",
+        Path.home() / ".local" / "share" / "piper-voices",
+        Path("/usr/share/piper-voices"),
+        Path("/tmp/piper_voices"),
+    ]
+    for d in search_dirs:
+        candidate = d / f"{voice_name}.onnx"
+        if candidate.exists():
+            return str(candidate)
+    return None
+
+
 class TTSProcessor:
     """Text-to-speech via Piper CLI."""
 
     def __init__(self, voice: str = "en_US-lessac-medium"):
         self.voice = voice
-        self._available = HAS_PIPER
+        self._model_path = _find_voice_model(voice)
+        self._available = HAS_PIPER and self._model_path is not None
+        if HAS_PIPER and not self._model_path:
+            logger.warning(f"TTS: Piper installed but voice model '{voice}' not found")
 
     def is_available(self) -> bool:
         """Check if Piper TTS is installed and working."""
@@ -51,7 +70,7 @@ class TTSProcessor:
         try:
             cmd = [
                 "piper",
-                "--model", self.voice,
+                "--model", self._model_path,
                 "--output-raw",
             ]
 

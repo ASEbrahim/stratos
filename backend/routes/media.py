@@ -3,13 +3,29 @@ Media routes — proxy, file upload/list/delete, persona files.
 Extracted from server.py (Sprint 5K Phase 1).
 """
 
+import io
 import json
 import logging
+import struct
 from urllib.parse import urlparse, parse_qs
 
 import requests
 
 logger = logging.getLogger("STRAT_OS")
+
+
+def _pcm_to_wav(pcm_data: bytes, sample_rate: int = 22050,
+                channels: int = 1, bits_per_sample: int = 16) -> bytes:
+    """Wrap raw PCM audio data in a WAV header."""
+    byte_rate = sample_rate * channels * bits_per_sample // 8
+    block_align = channels * bits_per_sample // 8
+    data_size = len(pcm_data)
+    # RIFF header + fmt chunk + data chunk
+    header = struct.pack('<4sI4s', b'RIFF', 36 + data_size, b'WAVE')
+    fmt = struct.pack('<4sIHHIIHH', b'fmt ', 16, 1,  # PCM format
+                      channels, sample_rate, byte_rate, block_align, bits_per_sample)
+    data_header = struct.pack('<4sI', b'data', data_size)
+    return header + fmt + data_header + pcm_data
 
 
 def _send_json(handler, data, status=200):
@@ -131,6 +147,40 @@ def handle_post(handler, strat, auth, path):
         except Exception as e:
             logger.error(f"File list error: {e}")
             _send_json(handler, {"error": "Failed to list files"}, 500)
+        return True
+
+    # ── TTS — Text-to-Speech via Piper ──────────────
+    if path == "/api/tts":
+        try:
+            body = json.loads(handler.rfile.read(int(handler.headers.get('Content-Length', 0))).decode()) if int(handler.headers.get('Content-Length', 0)) > 0 else {}
+            text = (body.get('text') or '')[:5000].strip()
+            if not text:
+                _send_json(handler, {"error": "No text provided"}, 400)
+                return True
+
+            from processors.tts import TTSProcessor
+            tts = TTSProcessor()
+            if not tts.is_available():
+                _send_json(handler, {"error": "TTS not available — Piper not installed or voice model missing"}, 503)
+                return True
+
+            raw_audio = tts.synthesize(text)
+            if not raw_audio:
+                _send_json(handler, {"error": "TTS synthesis failed"}, 500)
+                return True
+
+            # Wrap raw PCM (16-bit mono 22050 Hz) in WAV header
+            wav_bytes = _pcm_to_wav(raw_audio, sample_rate=22050, channels=1, bits_per_sample=16)
+
+            handler.send_response(200)
+            handler.send_header("Content-Type", "audio/wav")
+            handler.send_header("Content-Length", str(len(wav_bytes)))
+            handler.send_header("Access-Control-Allow-Origin", "*")
+            handler.end_headers()
+            handler.wfile.write(wav_bytes)
+        except Exception as e:
+            logger.error(f"TTS endpoint error: {e}")
+            _send_json(handler, {"error": "TTS failed"}, 500)
         return True
 
     # ── Persona Files POST endpoints ────────────────
