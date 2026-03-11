@@ -2202,7 +2202,7 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                 body = json.loads(self.rfile.read(int(self.headers.get('Content-Length', 0))).decode()) if int(self.headers.get('Content-Length', 0)) > 0 else {}
 
                 if self.path == "/api/youtube/channels":
-                    channel_input = body.get('channel', '').strip()
+                    channel_input = (body.get('channel') or body.get('channel_url') or '').strip()
                     lenses = body.get('lenses', ['summary'])
                     if not channel_input:
                         _send_json(self, {"error": "No channel URL/handle provided"}, 400)
