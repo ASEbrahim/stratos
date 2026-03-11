@@ -1152,6 +1152,31 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                 _send_json(self, {"results": results})
                 return
 
+            # ── Scenario GET ────────────────────────────────
+            if self.path.startswith("/api/scenarios"):
+                from processors.scenarios import ScenarioManager
+                sm = ScenarioManager(strat.config, db=strat.db)
+                from urllib.parse import urlparse, parse_qs
+                params = parse_qs(urlparse(self.path).query)
+
+                if self.path.startswith("/api/scenarios/active"):
+                    active = sm.get_active_scenario(self._profile_id)
+                    if active:
+                        data = sm.get_scenario(self._profile_id, active)
+                        _send_json(self, {"active": active, "data": data})
+                    else:
+                        _send_json(self, {"active": None})
+                    return
+
+                name = params.get('name', [''])[0]
+                if name:
+                    data = sm.get_scenario(self._profile_id, name)
+                    _send_json(self, data or {"error": "Scenario not found"}, 200 if data else 404)
+                else:
+                    scenarios = sm.list_scenarios(self._profile_id)
+                    _send_json(self, {"scenarios": scenarios})
+                return
+
             # ── Context compression GET ─────────────────────
             if self.path.startswith("/api/persona-state"):
                 from processors.context_compression import ContextCompressor
@@ -2236,6 +2261,42 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                     _send_json(self, {"ok": ok})
                     return
 
+            # ── Scenario POST ───────────────────────────────
+            if self.path.startswith("/api/scenarios"):
+                from processors.scenarios import ScenarioManager
+                sm = ScenarioManager(strat.config, db=strat.db)
+                body = json.loads(self.rfile.read(int(self.headers.get('Content-Length', 0))).decode()) if int(self.headers.get('Content-Length', 0)) > 0 else {}
+
+                if self.path == "/api/scenarios/create":
+                    result = sm.create_scenario(
+                        self._profile_id, body.get('name', ''),
+                        world_md=body.get('world', ''),
+                        characters=body.get('characters')
+                    )
+                    status = 200 if result.get("ok") else 400
+                    _send_json(self, result, status)
+                    return
+
+                if self.path == "/api/scenarios/activate":
+                    name = body.get('name', '')
+                    ok = sm.set_active_scenario(self._profile_id, name)
+                    _send_json(self, {"ok": ok}, 200 if ok else 404)
+                    return
+
+                if self.path == "/api/scenarios/save":
+                    name = body.get('name', '')
+                    ok = sm.save_scenario(
+                        self._profile_id, name,
+                        state=body.get('state'),
+                        world=body.get('world'),
+                        characters=body.get('characters')
+                    )
+                    _send_json(self, {"ok": ok}, 200 if ok else 404)
+                    return
+
+                _send_json(self, {"error": "Unknown scenario action"}, 400)
+                return
+
             # ── Context compression POST ────────────────────
             if self.path == "/api/conversation-log":
                 from processors.context_compression import ContextCompressor
@@ -2390,6 +2451,20 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                     _send_json(self, {"ok": True})
                 else:
                     _send_json(self, {"error": "Missing persona or key"}, 400)
+                return
+
+            # ── Scenario Delete ──
+            if self.path.startswith("/api/scenarios"):
+                from processors.scenarios import ScenarioManager
+                from urllib.parse import urlparse, parse_qs
+                params = parse_qs(urlparse(self.path).query)
+                name = params.get('name', [''])[0]
+                if name:
+                    sm = ScenarioManager(strat.config, db=strat.db)
+                    ok = sm.delete_scenario(self._profile_id, name)
+                    _send_json(self, {"ok": ok}, 200 if ok else 404)
+                else:
+                    _send_json(self, {"error": "Missing scenario name"}, 400)
                 return
 
             # ── Preference signal Delete ──
