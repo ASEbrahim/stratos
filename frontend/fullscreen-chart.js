@@ -366,6 +366,10 @@ function _openFullscreenChartInner(sourceEl, title) {
         _fsLoadDrawings();
         _fsRenderAnalysis();
 
+        /* Restart live refresh for new ticker */
+        _fsFetchAndUpdate();
+        _fsStartLive();
+
         /* Update agent placeholder */
         var agentInp = document.getElementById('cfs-agent-input');
         if (agentInp) agentInp.placeholder = 'Ask about ' + newSym.replace(/-USD/,'').replace(/=F/,'') + '...';
