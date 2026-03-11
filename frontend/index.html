@@ -261,6 +261,10 @@
                                                 <option value="market">Market</option>
                                                 <option value="scholarly">Scholarly</option>
                                             </select>
+                                            <button onclick="event.stopPropagation(); toggleContextEditor()" class="relative p-1 rounded-md transition-all" style="color:var(--text-muted);" title="Edit persona context" onmouseenter="this.style.color='var(--accent)';this.style.background='rgba(16,185,129,0.08)'" onmouseleave="this.style.color='var(--text-muted)';this.style.background='transparent'">
+                                                <i data-lucide="file-cog" class="w-3.5 h-3.5"></i>
+                                                <span id="ctx-indicator-dot" class="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-amber-400" style="display:none;box-shadow:0 0 4px rgba(251,191,36,0.5);"></span>
+                                            </button>
                                             <span id="agent-model-badge" class="text-[9px] font-mono px-1.5 py-0.5 rounded" style="background:rgba(16,185,129,0.08); color:var(--accent,#34d399); border:1px solid rgba(16,185,129,0.15);"></span>
                                         </div>
                                         <p class="text-[10px] mt-0.5" style="color:var(--text-muted);">Search the web, manage your feed, analyze signals</p>
@@ -1367,6 +1371,7 @@
     <script defer src="market.js"></script>
     <script defer src="markets-panel.js"></script>
     <script defer src="feed.js"></script>
+    <script defer src="persona-context.js"></script>
     <script defer src="agent.js"></script>
     <script defer src="ui.js"></script>
     <script defer src="scan-history.js"></script>

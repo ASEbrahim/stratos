@@ -92,6 +92,8 @@ function switchPersona(name) {
     const subtitle = document.querySelector('#agent-panel .text-\\[10px\\].mt-0\\.5');
     if (subtitle) subtitle.textContent = subtitles[name] || subtitles.intelligence;
     if (typeof showToast === 'function') showToast(`Switched to ${name} persona`, 'info');
+    // Notify context editor
+    if (typeof _onPersonaChanged === 'function') _onPersonaChanged(name);
 }
 
 async function loadPersonas() {
