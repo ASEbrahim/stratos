@@ -491,6 +491,51 @@ def migration_019(cursor):
     )
 
 
+# -- Migration 020: conversations table --
+@migration
+def migration_020(cursor):
+    """Create conversations table for DB-backed chat history."""
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS conversations (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            profile_id INTEGER NOT NULL,
+            persona TEXT NOT NULL,
+            title TEXT DEFAULT '',
+            messages TEXT NOT NULL DEFAULT '[]',
+            is_active INTEGER DEFAULT 0,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            archived INTEGER DEFAULT 0
+        )
+    """)
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_conv_profile_persona ON conversations(profile_id, persona, archived)")
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_conv_active ON conversations(profile_id, persona, is_active)")
+
+
+# -- Migration 021: scenarios table --
+@migration
+def migration_021(cursor):
+    """Create scenarios table for DB-backed game scenario storage."""
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS scenarios (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            profile_id INTEGER NOT NULL,
+            persona TEXT NOT NULL DEFAULT 'gaming',
+            name TEXT NOT NULL,
+            description TEXT DEFAULT '',
+            state_md TEXT DEFAULT '',
+            world_md TEXT DEFAULT '',
+            characters_json TEXT DEFAULT '[]',
+            genre TEXT DEFAULT '',
+            is_active INTEGER DEFAULT 0,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE(profile_id, name)
+        )
+    """)
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_scenarios_profile ON scenarios(profile_id, persona, is_active)")
+
+
 # =========================================================================
 # Migration runner
 # =========================================================================
