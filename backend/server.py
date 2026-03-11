@@ -2344,7 +2344,7 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                     _send_json(self, {"error": str(e)}, 500)
                 return
 
-            if self.path == "/api/profile/import":
+            if self.path.startswith("/api/profile/import"):
                 from processors.workspace import import_profile
                 try:
                     content_length = int(self.headers.get('Content-Length', 0))
@@ -2420,6 +2420,22 @@ def create_handler(strat, auth, frontend_dir, output_dir):
             self.end_headers()
 
         def do_DELETE(self):
+            self._profile_id = 0
+            # Auth enforcement for DELETE
+            if self.path.startswith('/api/'):
+                token = self.headers.get('X-Auth-Token', '')
+                if not auth.validate_session(token):
+                    _send_json(self, {"error": "Authentication required"}, 401)
+                    return
+                try:
+                    cursor = strat.db.conn.cursor()
+                    cursor.execute("SELECT profile_id FROM sessions WHERE token = ?", (token,))
+                    _pid_row = cursor.fetchone()
+                    if _pid_row and _pid_row[0]:
+                        self._profile_id = _pid_row[0]
+                except Exception:
+                    pass
+
             # --- Auth route DELETE (profile deletion) ---
             if self.path.startswith("/api/profiles/"):
                 if handle_auth_routes(self, "DELETE", self.path, {}, strat.db, strat, _send_json, email_service):
