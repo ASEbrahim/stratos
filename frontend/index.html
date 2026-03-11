@@ -229,9 +229,16 @@
             </div>
 
             <!-- Loading State -->
-            <div id="loading" class="flex flex-col items-center justify-center py-32">
-                <div class="w-8 h-8 border-2 border-emerald-500/30 border-t-emerald-500 rounded-full animate-spin mb-4"></div>
-                <p class="text-slate-400 text-sm">Loading intelligence data...</p>
+            <div id="loading" class="py-8">
+                <div class="flex flex-col items-center justify-center py-8 mb-6">
+                    <div class="w-8 h-8 border-2 border-emerald-500/30 border-t-emerald-500 rounded-full animate-spin mb-4"></div>
+                    <p class="text-slate-400 text-sm">Loading intelligence data...</p>
+                </div>
+                <div class="space-y-3">
+                    <div class="skel-card glass-panel rounded-xl p-4"><div class="skel-line w-1/4 mb-3"></div><div class="skel-line w-3/4 mb-2"></div><div class="skel-line w-full"></div></div>
+                    <div class="skel-card glass-panel rounded-xl p-4"><div class="skel-line w-1/3 mb-3"></div><div class="skel-line w-2/3 mb-2"></div><div class="skel-line w-5/6"></div></div>
+                    <div class="skel-card glass-panel rounded-xl p-4"><div class="skel-line w-1/4 mb-3"></div><div class="skel-line w-1/2 mb-2"></div><div class="skel-line w-3/4"></div></div>
+                </div>
             </div>
 
             <!-- Main Grid -->
@@ -710,10 +717,10 @@
                         <button onclick="quickSave()" id="quick-save-btn" class="settings-header-btn text-emerald-400 hover:text-emerald-300" style="background:var(--bg-panel-solid); border: 1px solid rgba(16,185,129,0.25)" title="Save all settings (Ctrl+S)">
                             <i data-lucide="save" class="w-3.5 h-3.5"></i> Save All
                         </button>
-                        <button onclick="clearSimpleSettings()" id="clear-simple-btn" class="settings-header-btn text-slate-500 hover:text-red-400" style="background:var(--bg-panel-solid); border: 1px solid var(--border-strong)" title="Clear all settings">
-                            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Clear All
+                        <button onclick="clearSimpleSettings()" id="clear-simple-btn" class="settings-header-btn text-slate-500 hover:text-red-400" style="background:var(--bg-panel-solid); border: 1px solid var(--border-strong)" title="Reset all settings to defaults (categories, keywords, tickers)">
+                            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Reset All
                         </button>
-                        <div class="flex rounded-lg p-0.5" style="background:var(--bg-panel-solid); border: 1px solid var(--border-strong)">
+                        <div class="flex rounded-lg p-0.5" style="background:var(--bg-panel-solid); border: 1px solid var(--border-strong)" title="Simple: guided setup with presets. Advanced: full control over all scoring parameters.">
                             <button onclick="setSettingsMode('simple')" id="settings-mode-simple" class="settings-header-btn rounded-md" style="background:var(--accent); color:white;">Simple</button>
                             <button onclick="setSettingsMode('advanced')" id="settings-mode-advanced" class="settings-header-btn rounded-md text-slate-400">Advanced</button>
                         </div>
