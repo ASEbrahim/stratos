@@ -229,7 +229,7 @@ function setActive(id) {
         // Dedicated markets panel
         mainContent.classList.add('hidden');
         settingsPanel.classList.add('hidden');
-        if (marketsPanel) { marketsPanel.classList.remove('hidden'); initMarketsPanel(); _mpLoadFinanceFeedsIfNeeded(); }
+        if (marketsPanel) { marketsPanel.classList.remove('hidden'); initMarketsPanel(); }
     } else if (id === 'settings') {
         mainContent.classList.add('hidden');
         if (marketsPanel) marketsPanel.classList.add('hidden');
