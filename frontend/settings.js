@@ -18,6 +18,8 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 async function loadConfig() {
+    const saveBtn = document.getElementById('cfg-save-btn');
+    if (saveBtn) { saveBtn.disabled = true; saveBtn.innerHTML = '<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Loading...'; }
     try {
         const response = await fetch('/api/config', {signal: AbortSignal.timeout(10000)});
         if (!response.ok) { console.error('/api/config GET failed:', response.status); return; }
@@ -84,6 +86,9 @@ async function loadConfig() {
         }
     } catch (err) {
         console.error('Failed to load config:', err);
+        if (typeof showToast === 'function') showToast('Failed to load settings', 'error');
+    } finally {
+        if (saveBtn) { saveBtn.disabled = false; saveBtn.innerHTML = '<i data-lucide="save" class="w-4 h-4"></i> Save & Apply'; lucide.createIcons(); }
     }
     // Fresh data from server = not dirty
     window._settingsDirty = false;
@@ -417,12 +422,13 @@ async function saveConfig() {
 
 // === PROFILE PRESETS ===
 async function loadPresets() {
+    const container = document.getElementById('presets-list');
+    if (container) container.innerHTML = '<div class="flex items-center gap-2 py-3"><i data-lucide="loader-2" class="w-4 h-4 animate-spin text-slate-500"></i><span class="text-xs text-slate-500">Loading presets...</span></div>';
     try {
         const response = await fetch('/api/profiles', {signal: AbortSignal.timeout(10000)});
         if (!response.ok) { console.error('/api/profiles GET failed:', response.status); return; }
         const data = await response.json();
-        const container = document.getElementById('presets-list');
-        
+
         if (!data.presets || data.presets.length === 0) {
             container.innerHTML = '<p class="text-xs text-slate-500 italic">No saved presets yet. Save your current settings above.</p>';
             return;
