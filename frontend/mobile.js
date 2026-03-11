@@ -675,6 +675,43 @@ window._mavSwitchPersona = function(name) {
    ═══════════════════════════════════════════════ */
 
 
+/* ═══════════════════════════════════════════════
+   F.  SWIPE GESTURE HINTS (first-time users)
+   ═══════════════════════════════════════════════ */
+
+function initSwipeHints() {
+    if (!isTouchDevice() || !isSmall()) return;
+    if (localStorage.getItem('swipe-hints-seen')) return;
+
+    /* Show hint after 3 seconds on first mobile visit */
+    setTimeout(() => {
+        const hint = document.createElement('div');
+        hint.id = 'swipe-hint';
+        hint.innerHTML = `
+            <div style="position:fixed;bottom:70px;left:50%;transform:translateX(-50%);z-index:300;
+                background:var(--bg-panel-solid);border:1px solid var(--border-strong);
+                border-radius:12px;padding:10px 16px;display:flex;align-items:center;gap:10px;
+                box-shadow:0 4px 20px rgba(0,0,0,0.4);animation:swipeHintIn 0.3s ease;">
+                <span style="font-size:18px;">👆</span>
+                <div>
+                    <div style="font-size:11px;font-weight:600;color:var(--text-primary);">Swipe gestures</div>
+                    <div style="font-size:10px;color:var(--text-muted);">Swipe cards right to save, left to dismiss. Swipe from left edge to open sidebar.</div>
+                </div>
+                <button onclick="this.closest('#swipe-hint').remove();localStorage.setItem('swipe-hints-seen','1')"
+                    style="background:none;border:none;color:var(--text-muted);font-size:16px;cursor:pointer;padding:4px;">✕</button>
+            </div>`;
+        document.body.appendChild(hint);
+        /* Auto-dismiss after 8 seconds */
+        setTimeout(() => {
+            const h = document.getElementById('swipe-hint');
+            if (h) { h.style.opacity = '0'; h.style.transition = 'opacity 0.3s'; setTimeout(() => h.remove(), 300); }
+            localStorage.setItem('swipe-hints-seen', '1');
+        }, 8000);
+    }, 3000);
+}
+
+document.addEventListener('DOMContentLoaded', initSwipeHints);
+
 /* ── PWA Install Prompt ─────────────────────────────────── */
 function initPWAInstall() {
     var _deferredPrompt = null;

@@ -2601,6 +2601,13 @@ body.density-comfortable .score-pill { min-height: 36px !important; padding: 6px
     /* Active states instead of hover */
     .fb-tool-btn:active { color: var(--accent); border-color: var(--accent); background: rgba(16,185,129,0.1); }
     .ctx-btn-reset:active { color: #f87171; border-color: rgba(239,68,68,0.3); }
+    /* Market chart tool buttons — active feedback */
+    .mp-chart-panel button:active { background: var(--bg-hover); }
+    /* Chart resize handles — larger grab area for touch */
+    .mp-resize-handle { min-height: 20px !important; }
+    /* Market heatmap tiles — active state */
+    #overview-content .heatmap-row > div:active,
+    #mp-overview-content .heatmap-row > div:active { transform: scale(0.95); }
 }
 
 /* ═══════════════════════════════════════════════════
@@ -2637,6 +2644,12 @@ body.density-comfortable .score-pill { min-height: 36px !important; padding: 6px
     .profile-popup { backdrop-filter: none; -webkit-backdrop-filter: none; }
     button:hover { filter: none; }
     button:active { transform: none; filter: none; }
+}
+
+/* Swipe hint animation */
+@keyframes swipeHintIn {
+    from { opacity: 0; transform: translateX(-50%) translateY(20px); }
+    to { opacity: 1; transform: translateX(-50%) translateY(0); }
 }
 
 /* Respect reduced-motion system preference */
