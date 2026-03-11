@@ -787,11 +787,23 @@ async function sendAgentMessage() {
         
     } catch(e) {
         const respDiv = typingEl?.querySelector('.agent-response');
-        const errMsg = e.message || 'Failed to reach agent';
+        const raw = e.message || 'Failed to reach agent';
+        let friendly;
+        if (raw.includes('Failed to fetch') || raw.includes('NetworkError') || raw.includes('network'))
+            friendly = 'Network error — check your connection and try again.';
+        else if (raw.includes('timeout') || raw.includes('Timeout') || raw.includes('504'))
+            friendly = 'The AI model is taking too long to respond. Try a shorter question or check if Ollama is running.';
+        else if (raw.includes('503') || raw.includes('model') || raw.includes('ollama'))
+            friendly = 'The AI model appears to be offline. Make sure Ollama is running.';
+        else if (raw.includes('429') || raw.includes('Too Many'))
+            friendly = 'Too many requests — please wait a moment and try again.';
+        else
+            friendly = raw;
         if (respDiv) {
-            respDiv.innerHTML = `<span class="text-amber-400">⚠ ${escAgent(errMsg)}</span>`;
+            respDiv.innerHTML = `<div class="flex items-start gap-2 p-2 rounded-lg" style="background:rgba(251,191,36,0.06);border:1px solid rgba(251,191,36,0.15);"><i data-lucide="alert-triangle" class="w-4 h-4 text-amber-400 flex-shrink-0 mt-0.5"></i><span class="text-amber-300 text-xs">${escAgent(friendly)}</span></div>`;
+            lucide.createIcons();
         }
-        agentHistory.push({ role: 'assistant', content: errMsg });
+        agentHistory.push({ role: 'assistant', content: friendly });
     } finally {
         _saveAgentHistory();
         agentStreaming = false;
