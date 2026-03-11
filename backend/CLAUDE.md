@@ -47,7 +47,7 @@ python3 autopilot.py --dry-run     # Preview which profiles will run
 
 ### Core Orchestrator
 - `main.py` — Contains the `StratOS` class: scan pipeline, config loading, background scheduler, and entry point. Delegates HTTP serving to `server.py`.
-- `server.py` — HTTP server and route dispatch. Contains `CORSHandler` (all API routes via `do_GET`/`do_POST`), `ThreadedHTTPServer`, and `start_server()`. Serves the frontend from `../frontend/`.
+- `server.py` — Thin HTTP dispatcher (659 lines). Contains `CORSHandler`, auth middleware, CORS, static file serving, SSE `/api/events`. Delegates to route modules sequentially via `handle_get/handle_post/handle_delete`.
 - `auth.py` — `AuthManager` class: profile-based authentication, session management, rate limiting, API key masking.
 - `sse.py` — `SSEManager` class: SSE client tracking and event broadcasting for live dashboard updates.
 
@@ -74,11 +74,28 @@ News Sources → NewsFetcher → AI Scorer → SQLite DB → JSON API → Fronte
 - `profile_generator.py` — AI-powered category generation from role/location/context.
 
 ### Routes (`routes/`)
-- `agent.py` — Chat agent with Ollama tool-use (web_search, manage_watchlist, manage_categories). Handles `/api/agent-chat`, `/api/suggest-context`, `/api/ask`.
+- `agent.py` — Chat handler (`/api/agent-chat`, `/api/suggest-context`, `/api/ask`), suggestion generation, context builders.
+- `agent_tools.py` — 11 tool definitions (`AGENT_TOOLS`), `execute_tool()` dispatcher, text tool-call parser.
+- `personas.py` — Persona registry, prompt builders, `_pack_context()` smart context packing (16K token budget).
+- `feeds.py` — Extra RSS feeds (`/api/finance-news`, `/api/politics-news`, `/api/jobs-news`, `/api/custom-news`), feed catalog, RSS discovery.
+- `data_endpoints.py` — `/api/data`, `/api/briefing`, `/api/status`, `/api/config`, `/api/profiles`, `/api/export`, `/api/health`, feedback, search.
+- `controls.py` — Refresh triggers, scan status/cancel, ticker presets, agent warmup.
+- `youtube_endpoints.py` — YouTube channel/video/insight CRUD.
+- `persona_data.py` — Conversations, scenarios, preferences, persona-context, workspace export/import.
+- `media.py` — Proxy, file upload/list/delete, persona files, TTS endpoint (`POST /api/tts`).
 - `generate.py` — `/api/generate-profile` — AI generates categories + tickers from user profile.
 - `wizard.py` — `/api/wizard-preselect`, `/api/wizard-tab-suggest`, `/api/wizard-rv-items` — onboarding wizard backend.
 - `config.py` — `/api/config` save handler.
 - `helpers.py` — JSON response, SSE, gzip utilities.
+
+### Adding a New API Endpoint
+1. Pick the route module that matches your endpoint's domain (feeds, media, controls, etc.)
+2. Add your handler inside `handle_get()`, `handle_post()`, or `handle_delete()` with a path check
+3. Return `True` if handled, `False` to pass to next module
+4. No changes needed in `server.py` — it delegates sequentially to all modules
+
+### Smart Context Packing
+`_pack_context()` in `routes/personas.py` builds per-persona context within a 16K token budget (word count × 1.3 estimation). Universal sections (profile, custom instructions, preference_signals) are always included. Persona-specific sections fill the remaining budget. To add data to context: add a helper that returns a string, then add it to the appropriate persona branch in `_pack_context()`.
 
 ### Self-Improvement Pipeline
 - `distill.py` — Teacher-student distillation using Claude Opus. Sends locally-scored items to Opus, saves disagreements (≥2.0 delta) as corrections in `user_feedback` table.
@@ -121,6 +138,7 @@ Per-user profiles stored as YAML in `profiles/`. Each has: role, location, conte
 - **Deferred briefing**: Briefing generation runs in a background thread after scan completion. The output JSON is written immediately with scored articles (briefing = `{}`), then patched when the briefing finishes. SSE `briefing_ready` event notifies the frontend. The briefing thread checks `_scan_cancelled` to abandon work if a new scan starts.
 - **Incremental scanning**: `_reuse_snapshot_scores()` builds a URL→score lookup from the previous output snapshot. Articles already scored in the last scan skip LLM scoring entirely. Articles not re-fetched by the news fetcher are carried forward from the snapshot. Score reuse is skipped entirely if the context hash changed (different role/profile = rescore everything). Zero database changes — purely in-memory.
 - **Model routing for VRAM efficiency**: All inference uses `qwen3.5:9b` (~6.6GB). Scorer (9.5GB) + qwen3.5:9b coexist in 24GB VRAM without model swapping. Set `OLLAMA_MAX_LOADED_MODELS=2` to keep both loaded.
+- **TTS via Piper**: `POST /api/tts` in `routes/media.py`. Uses Piper CLI with `en_US-lessac-medium` voice model at `~/.local/share/piper_voices/`. `TTSProcessor` in `processors/tts.py` auto-discovers `.onnx` model files. Returns WAV audio (16-bit mono 22050 Hz). Max 5,000 characters. Requires `pathvalidate` pip package.
 
 ## Secrets and API Keys
 
