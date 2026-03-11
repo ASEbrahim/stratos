@@ -2316,6 +2316,13 @@ def start_server(strat, auth, port=8080, open_browser=True):
     server = ThreadedHTTPServer(("0.0.0.0", port), HandlerClass)
     logger.info(f"Frontend server started at http://localhost:{port}")
 
+    # Start YouTube background worker
+    try:
+        from processors.youtube_worker import start_youtube_worker
+        start_youtube_worker(strat, strat.sse_manager if hasattr(strat, 'sse_manager') else None)
+    except Exception as e:
+        logger.warning(f"YouTube worker failed to start: {e}")
+
     if open_browser:
         webbrowser.open(f"http://localhost:{port}")
 
