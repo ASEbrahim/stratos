@@ -2318,55 +2318,57 @@ function _openFullscreenChartInner(sourceEl, title) {
     /* Initial canvas size */
     setTimeout(_fsResizeCanvas, 50);
 
-    /* ── Live auto-refresh for intraday charts ── */
+    /* ── Live auto-refresh for ALL timeframes in focus mode ── */
     var _fsLiveTimer = null;
+    function _fsFetchAndUpdate() {
+        if (!_fs || document.hidden) return;
+        var sym = _fs.symbol;
+        var tf = _fs.tfKey;
+        var token = typeof getAuthToken === 'function' ? getAuthToken() : localStorage.getItem('stratos_auth_token');
+        fetch('/api/market-tick?symbol=' + encodeURIComponent(sym) + '&interval=' + tf, {
+            headers: token ? {'X-Auth-Token': token} : {}
+        })
+        .then(function(r) { return r.ok ? r.json() : null; })
+        .then(function(tick) {
+            if (!tick || !_fs || _fs.symbol !== sym || _fs.tfKey !== tf) return;
+            var td = tick[sym];
+            if (!td || !td.data || !td.data[tf]) return;
+            var idata = td.data[tf];
+            /* Update marketData in-place */
+            if (typeof marketData !== 'undefined' && marketData[sym] && marketData[sym].data) {
+                marketData[sym].data[tf] = idata;
+            }
+            /* Rebuild chart data and update series */
+            var newBuilt = _fsBuildData(sym, tf);
+            if (newBuilt && newBuilt.data.length > 0) {
+                _fs.series.setData(newBuilt.data);
+                _fs.chartData = newBuilt.data;
+                _fsRefreshMAs(newBuilt.data);
+                /* Update header price */
+                var p = idata.price || 0;
+                var c = idata.change || 0;
+                var pc = c >= 0 ? '#0ECB81' : '#F6465D';
+                var pEl = header.querySelector('.cfs-price');
+                var cE = header.querySelector('.cfs-change');
+                if (pEl) { pEl.textContent = _fsFmtPrice(p); pEl.style.color = pc; }
+                if (cE) { cE.textContent = (c >= 0 ? '+' : '') + c.toFixed(2) + '%'; cE.style.color = pc; }
+            }
+        })
+        .catch(function() {});
+    }
     function _fsStartLive() {
         _fsStopLive();
         if (!_fs) return;
         var tf = _fs.tfKey;
-        /* Only auto-refresh intraday timeframes */
-        if (tf !== '1m' && tf !== '5m') return;
+        /* Refresh interval: 30s for 1m, 60s for all others */
         var intervalMs = tf === '1m' ? 30000 : 60000;
-        _fsLiveTimer = setInterval(function() {
-            if (!_fs || document.hidden) return;
-            var sym = _fs.symbol;
-            var token = typeof getAuthToken === 'function' ? getAuthToken() : localStorage.getItem('stratos_auth_token');
-            fetch('/api/market-tick?symbol=' + encodeURIComponent(sym) + '&interval=' + tf, {
-                headers: token ? {'X-Auth-Token': token} : {}
-            })
-            .then(function(r) { return r.ok ? r.json() : null; })
-            .then(function(tick) {
-                if (!tick || !_fs || _fs.symbol !== sym || _fs.tfKey !== tf) return;
-                var td = tick[sym];
-                if (!td || !td.data || !td.data[tf]) return;
-                var idata = td.data[tf];
-                /* Update marketData in-place */
-                if (typeof marketData !== 'undefined' && marketData[sym] && marketData[sym].data) {
-                    marketData[sym].data[tf] = idata;
-                }
-                /* Rebuild chart data and update series */
-                var newBuilt = _fsBuildData(sym, tf);
-                if (newBuilt && newBuilt.data.length > 0) {
-                    _fs.series.setData(newBuilt.data);
-                    _fs.chartData = newBuilt.data;
-                    _fsRefreshMAs(newBuilt.data);
-                    /* Update header price */
-                    var p = idata.price || 0;
-                    var c = idata.change || 0;
-                    var pc = c >= 0 ? '#0ECB81' : '#F6465D';
-                    var pEl = header.querySelector('.cfs-price');
-                    var cE = header.querySelector('.cfs-change');
-                    if (pEl) { pEl.textContent = _fsFmtPrice(p); pEl.style.color = pc; }
-                    if (cE) { cE.textContent = (c >= 0 ? '+' : '') + c.toFixed(2) + '%'; cE.style.color = pc; }
-                }
-            })
-            .catch(function() {});
-        }, intervalMs);
+        _fsLiveTimer = setInterval(_fsFetchAndUpdate, intervalMs);
     }
     function _fsStopLive() {
         if (_fsLiveTimer) { clearInterval(_fsLiveTimer); _fsLiveTimer = null; }
     }
-    /* Start live refresh on open */
+    /* Immediately fetch fresh data on open, then start interval */
+    _fsFetchAndUpdate();
     _fsStartLive();
     /* Restart on timeframe switch */
     var _origTfHandler = null;
