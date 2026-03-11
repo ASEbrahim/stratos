@@ -249,7 +249,10 @@ async function _ytToggleVideos(channelId) {
 }
 
 // ── Show insights for a video ──
+let _ytCurrentVideoId = null;
+
 async function _ytShowInsights(videoId) {
+    _ytCurrentVideoId = videoId;
     let modal = document.getElementById('yt-insights-modal');
     if (!modal) {
         modal = document.createElement('div');
@@ -257,18 +260,30 @@ async function _ytShowInsights(videoId) {
         modal.className = 'hidden';
         modal.innerHTML = `
             <div class="ctx-editor-backdrop" onclick="_ytCloseInsights()"></div>
-            <div class="ctx-editor-sidebar" style="width:min(520px,90vw);">
-                <div class="ctx-editor-header">
-                    <div class="flex items-center gap-2">
-                        <i data-lucide="sparkles" class="w-4 h-4" style="color:var(--accent)"></i>
-                        <span class="text-sm font-bold" style="color:var(--text-heading)">Video Insights</span>
+            <div class="ctx-editor-sidebar" style="width:min(580px,92vw);display:flex;flex-direction:column;">
+                <div class="px-4 py-3" style="border-bottom:1px solid var(--border-strong);">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-2.5 min-w-0">
+                            <div class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style="background:rgba(192,132,252,0.1);border:1px solid rgba(192,132,252,0.2);">
+                                <i data-lucide="sparkles" class="w-4 h-4 text-purple-400"></i>
+                            </div>
+                            <div class="min-w-0">
+                                <div id="yt-insights-title" class="text-[12px] font-bold truncate" style="color:var(--text-heading)">Video Insights</div>
+                                <div id="yt-insights-meta" class="text-[9px]" style="color:var(--text-muted)"></div>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-1 flex-shrink-0">
+                            <button onclick="_ytAskAgent()" class="p-1.5 rounded-md transition-all" style="color:var(--text-muted);" title="Ask Strat Agent about this video" onmouseenter="this.style.color='var(--accent)';this.style.background='rgba(16,185,129,0.08)'" onmouseleave="this.style.color='var(--text-muted)';this.style.background='transparent'">
+                                <i data-lucide="bot" class="w-4 h-4"></i>
+                            </button>
+                            <button onclick="_ytCloseInsights()" class="p-1.5 rounded-md transition-all" style="color:var(--text-muted)" title="Close" onmouseenter="this.style.color='var(--text-heading)'" onmouseleave="this.style.color='var(--text-muted)'">
+                                <i data-lucide="x" class="w-4 h-4"></i>
+                            </button>
+                        </div>
                     </div>
-                    <button onclick="_ytCloseInsights()" class="p-1 rounded-md transition-colors" style="color:var(--text-muted)" title="Close">
-                        <i data-lucide="x" class="w-4 h-4"></i>
-                    </button>
                 </div>
-                <div id="yt-insights-tabs" class="flex items-center gap-1 px-4 py-2" style="border-bottom:1px solid var(--border-strong);overflow-x:auto;"></div>
-                <div id="yt-insights-content" class="flex-1 overflow-y-auto px-4 py-3" style="min-height:0;"></div>
+                <div id="yt-insights-tabs" class="flex items-center gap-1 px-4 py-2" style="border-bottom:1px solid var(--border-strong);overflow-x:auto;scrollbar-width:none;"></div>
+                <div id="yt-insights-content" class="flex-1 overflow-y-auto px-4 py-4" style="min-height:0;"></div>
             </div>`;
         document.body.appendChild(modal);
         lucide.createIcons();
@@ -277,43 +292,68 @@ async function _ytShowInsights(videoId) {
     modal.classList.remove('hidden');
     modal.classList.add('ctx-slide-in');
 
+    const titleEl = document.getElementById('yt-insights-title');
+    const metaEl = document.getElementById('yt-insights-meta');
     const tabs = document.getElementById('yt-insights-tabs');
     const content = document.getElementById('yt-insights-content');
-    if (tabs) tabs.innerHTML = '<span class="text-[10px]" style="color:var(--text-muted)">Loading...</span>';
-    if (content) content.innerHTML = '';
+    if (tabs) tabs.innerHTML = '';
+    if (content) content.innerHTML = '<div class="flex items-center justify-center py-12"><div class="flex gap-1"><span class="w-2 h-2 rounded-full animate-bounce" style="background:#c084fc;animation-delay:0ms;"></span><span class="w-2 h-2 rounded-full animate-bounce" style="background:#c084fc;animation-delay:150ms;"></span><span class="w-2 h-2 rounded-full animate-bounce" style="background:#c084fc;animation-delay:300ms;"></span></div></div>';
 
     try {
         const r = await fetch(`/api/youtube/insights/${videoId}`, { headers: _ytHeaders() });
         if (r.ok) {
             const d = await r.json();
             const insights = d.insights || [];
+            const videoTitle = d.video_title || d.title || '';
+            if (titleEl && videoTitle) titleEl.textContent = videoTitle;
+            if (metaEl) metaEl.textContent = `${insights.length} lens${insights.length !== 1 ? 'es' : ''} extracted`;
+
             if (insights.length === 0) {
                 if (tabs) tabs.innerHTML = '';
-                if (content) content.innerHTML = '<div class="text-[10px] text-center py-8" style="color:var(--text-muted)">No insights extracted yet</div>';
+                if (content) content.innerHTML = '<div class="flex flex-col items-center py-12"><i data-lucide="search-x" class="w-8 h-8 mb-2" style="color:var(--text-muted);opacity:0.3;"></i><div class="text-[11px]" style="color:var(--text-muted)">No insights extracted yet</div><div class="text-[9px] mt-1" style="color:var(--text-muted);opacity:0.6">Video may still be processing</div></div>';
+                lucide.createIcons();
                 return;
             }
 
-            // Build tabs
+            const lensIcons = { summary: 'file-text', eloquence: 'pen-tool', narrations: 'book-open', history: 'landmark', spiritual: 'heart', politics: 'flag' };
             if (tabs) {
                 tabs.innerHTML = insights.map((ins, i) => {
-                    const lensName = (ins.lens_name || 'unknown').charAt(0).toUpperCase() + (ins.lens_name || 'unknown').slice(1);
-                    return `<button onclick="_ytShowLens(${i})" class="yt-lens-tab text-[10px] px-2.5 py-1 rounded-md font-medium transition-all ${i === 0 ? 'yt-lens-active' : ''}" style="color:${i === 0 ? 'var(--accent)' : 'var(--text-muted)'};border:1px solid ${i === 0 ? 'var(--accent)' : 'var(--border-strong)'};">${lensName}</button>`;
+                    const lens = ins.lens_name || 'unknown';
+                    const lensName = lens.charAt(0).toUpperCase() + lens.slice(1);
+                    const icon = lensIcons[lens] || 'sparkles';
+                    return `<button onclick="_ytShowLens(${i})" class="yt-lens-tab flex items-center gap-1.5 text-[10px] px-3 py-1.5 rounded-lg font-medium transition-all whitespace-nowrap ${i === 0 ? 'yt-lens-active' : ''}" style="color:${i === 0 ? '#c084fc' : 'var(--text-muted)'};background:${i === 0 ? 'rgba(192,132,252,0.1)' : 'transparent'};border:1px solid ${i === 0 ? 'rgba(192,132,252,0.3)' : 'var(--border-strong)'};" onmouseenter="if(!this.classList.contains('yt-lens-active')){this.style.background='rgba(255,255,255,0.03)';this.style.borderColor='rgba(192,132,252,0.2)'}" onmouseleave="if(!this.classList.contains('yt-lens-active')){this.style.background='transparent';this.style.borderColor='var(--border-strong)'}"><i data-lucide="${icon}" class="w-3 h-3"></i>${lensName}</button>`;
                 }).join('');
+                lucide.createIcons();
             }
 
             _ytInsights = insights;
             _ytRenderLens(0);
         }
     } catch (e) {
-        if (content) content.innerHTML = '<div class="text-[10px] text-center py-8 text-red-400">Failed to load insights</div>';
+        if (content) content.innerHTML = '<div class="text-center py-8 text-red-400 text-[11px]">Failed to load insights</div>';
     }
 }
+
+function _ytAskAgent() {
+    // Open agent with a question about the current video
+    const titleEl = document.getElementById('yt-insights-title');
+    const title = titleEl?.textContent || 'this video';
+    _ytCloseInsights();
+    if (typeof _openAgentPanel === 'function') _openAgentPanel();
+    const input = document.getElementById('agent-input');
+    if (input) {
+        input.value = `Tell me about the video "${title}" — summarize the key insights`;
+        input.focus();
+    }
+}
+window._ytAskAgent = _ytAskAgent;
 
 function _ytShowLens(index) {
     document.querySelectorAll('.yt-lens-tab').forEach((tab, i) => {
         const active = i === index;
-        tab.style.color = active ? 'var(--accent)' : 'var(--text-muted)';
-        tab.style.borderColor = active ? 'var(--accent)' : 'var(--border-strong)';
+        tab.style.color = active ? '#c084fc' : 'var(--text-muted)';
+        tab.style.background = active ? 'rgba(192,132,252,0.1)' : 'transparent';
+        tab.style.borderColor = active ? 'rgba(192,132,252,0.3)' : 'var(--border-strong)';
         tab.classList.toggle('yt-lens-active', active);
     });
     _ytRenderLens(index);
