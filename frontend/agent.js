@@ -714,6 +714,7 @@ async function sendAgentMessage() {
         const reader = response.body.getReader();
         const decoder = new TextDecoder();
         let fullResponse = '';
+        let dynamicSuggestions = [];
         
         // Replace typing indicator with empty response div
         const respDiv = typingEl.querySelector('.agent-response');
@@ -738,6 +739,9 @@ async function sendAgentMessage() {
                                 if (msgs) msgs.scrollTop = msgs.scrollHeight;
                             }
                         }
+                        if (payload.suggestions && Array.isArray(payload.suggestions)) {
+                            dynamicSuggestions = payload.suggestions;
+                        }
                         if (payload.status) {
                             // Tool usage indicator — animated status bar
                             if (respDiv) {
@@ -757,28 +761,34 @@ async function sendAgentMessage() {
                 }
             }
         }
-        
+
         // Clean non-English text (Qwen model sometimes leaks Chinese/Arabic characters)
         fullResponse = fullResponse.replace(/[\u4e00-\u9fff\u3400-\u4dbf\u{20000}-\u{2a6df}]+/gu, '').trim();
         // Remove orphaned punctuation from cleanup — but PRESERVE newlines
         fullResponse = fullResponse.replace(/[^\S\n]{2,}/g, ' ').replace(/\.\s*\./g, '.').trim();
         // Clean up blank lines (3+ newlines → 2)
         fullResponse = fullResponse.replace(/\n{3,}/g, '\n\n');
-        
+
         // Final render with cleaned text + show more/less for long responses
         const finalDiv = typingEl?.querySelector('.agent-response');
         if (finalDiv) {
             finalDiv.innerHTML = wrapWithShowMore(fullResponse, formatAgentText(fullResponse));
-            // F2: Add suggestion chips based on response content
-            const chips = _generateResponseChips(fullResponse, msg);
-            if (chips.length) {
-                const chipHtml = chips.map(c =>
-                    `<button onclick="${escAgent(c.action)}" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-medium transition-all hover:scale-105" style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);color:var(--accent,#34d399);" title="${escAgent(c.tip || '')}">
+            // Add suggestion chips — prefer LLM-generated, fallback to rule-based
+            const chipSuggestions = dynamicSuggestions.length > 0
+                ? dynamicSuggestions.map(s => ({ label: s, icon: 'sparkles', action: s, tip: s }))
+                : _generateResponseChips(fullResponse, msg);
+            if (chipSuggestions.length) {
+                const chipHtml = chipSuggestions.map(c => {
+                    const isDynamic = dynamicSuggestions.length > 0;
+                    const onclick = isDynamic
+                        ? `document.getElementById('agent-input').value='${escAgent(c.action).replace(/'/g,"\\'")}';sendAgentMessage()`
+                        : escAgent(c.action);
+                    return `<button onclick="${onclick}" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-medium transition-all hover:scale-105" style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);color:var(--accent,#34d399);" title="${escAgent(c.tip || '')}">
                         <i data-lucide="${c.icon}" class="w-3 h-3"></i> ${escAgent(c.label)}
-                    </button>`
-                ).join('');
+                    </button>`;
+                }).join('');
                 finalDiv.insertAdjacentHTML('afterend',
-                    `<div class="flex flex-wrap gap-1.5 mt-2 agent-chips">${chipHtml}</div>`);
+                    `<div class="flex flex-wrap gap-1.5 mt-2 agent-chips" style="animation:fadeIn 0.3s ease">${chipHtml}</div>`);
                 lucide.createIcons();
             }
         }

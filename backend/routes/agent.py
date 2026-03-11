@@ -754,6 +754,47 @@ def handle_agent_status(handler, strat):
     json_response(handler, {"available": available, "model": model, "host": ollama_host})
 
 
+def _generate_suggestions(handler, ollama_host, model, user_msg, agent_response, persona_name):
+    """Generate 3 contextual follow-up suggestions via a lightweight LLM call.
+    Sends a 'suggestions' SSE event. Falls back silently on failure."""
+    try:
+        prompt = (
+            f"Based on this conversation, suggest 3 short follow-up actions (3-8 words each). "
+            f"They should feel like natural continuations.\n\n"
+            f"User: {user_msg[:200]}\n"
+            f"Assistant: {agent_response[:500]}\n"
+            f"Persona: {persona_name}\n\n"
+            f"Return ONLY a JSON array of 3 strings. No explanation.\n"
+            f'Example: ["Start the Misty Peaks quest", "Describe my character stats", "Tell me more about X"]'
+        )
+        r = req.post(
+            f"{ollama_host}/api/chat",
+            json={
+                "model": model,
+                "messages": [{"role": "user", "content": prompt}],
+                "stream": False,
+                "options": {"temperature": 0.7, "num_predict": 120},
+                "think": False,
+            },
+            timeout=8,
+        )
+        if r.status_code == 200:
+            raw = r.json().get("message", {}).get("content", "").strip()
+            raw = strip_think_blocks(raw)
+            # Extract JSON array from response
+            bracket_start = raw.find("[")
+            bracket_end = raw.rfind("]")
+            if bracket_start >= 0 and bracket_end > bracket_start:
+                arr = json.loads(raw[bracket_start:bracket_end + 1])
+                if isinstance(arr, list) and len(arr) >= 1:
+                    suggestions = [s.strip() for s in arr if isinstance(s, str) and 2 < len(s.strip()) < 80][:3]
+                    if suggestions:
+                        sse_event(handler, {"suggestions": suggestions})
+                        return
+    except Exception as e:
+        logger.debug(f"Suggestion generation failed: {e}")
+
+
 def handle_agent_chat(handler, strat, output_file, profile_id=0):
     """POST /api/agent-chat — Streaming agent conversation with tool use."""
     try:
@@ -898,6 +939,7 @@ def handle_agent_chat(handler, strat, output_file, profile_id=0):
                         continue
                 full_text = strip_think_blocks(full_text)
                 full_text = strip_reasoning_preamble(full_text)
+                _generate_suggestions(handler, ollama_host, model, user_msg, full_text, persona_name)
                 sse_event(handler, {"done": True})
             except Exception as e:
                 sse_event(handler, {"error": str(e)})
@@ -931,6 +973,7 @@ def handle_agent_chat(handler, strat, output_file, profile_id=0):
                     sse_event(handler, {"error": f"Ollama returned {r.status_code}"})
                     return
                 in_think = False
+                full_text = ""
                 for line in r.iter_lines():
                     if not line:
                         continue
@@ -938,6 +981,7 @@ def handle_agent_chat(handler, strat, output_file, profile_id=0):
                         chunk = json.loads(line)
                         token = chunk.get("message", {}).get("content", "")
                         if token:
+                            full_text += token
                             if '<think>' in token:
                                 in_think = True
                             if '</think>' in token:
@@ -949,6 +993,8 @@ def handle_agent_chat(handler, strat, output_file, profile_id=0):
                             break
                     except json.JSONDecodeError:
                         continue
+                full_text = strip_think_blocks(full_text)
+                _generate_suggestions(handler, ollama_host, model, user_msg, full_text, persona_name)
                 sse_event(handler, {"done": True})
             except Exception as e:
                 sse_event(handler, {"error": str(e)})
@@ -1009,6 +1055,7 @@ def handle_agent_chat(handler, strat, output_file, profile_id=0):
                     continue
                 for char in text:
                     sse_event(handler, {"token": char})
+                _generate_suggestions(handler, ollama_host, model, user_msg, text, persona_name)
                 sse_event(handler, {"done": True})
                 return
 
@@ -1044,6 +1091,7 @@ def handle_agent_chat(handler, strat, output_file, profile_id=0):
                 if text:
                     for char in text:
                         sse_event(handler, {"token": char})
+                    _generate_suggestions(handler, ollama_host, model, user_msg, text, persona_name)
                     sse_event(handler, {"done": True})
                     return
         except Exception:
