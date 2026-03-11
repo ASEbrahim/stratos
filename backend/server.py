@@ -1152,6 +1152,16 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                 _send_json(self, {"results": results})
                 return
 
+            # ── Profile workspace GET ───────────────────────
+            if self.path == "/api/profile/workspace-stats":
+                from processors.workspace import get_workspace_stats
+                try:
+                    stats = get_workspace_stats(strat, self._profile_id)
+                    _send_json(self, stats)
+                except Exception as e:
+                    _send_json(self, {"error": str(e)}, 500)
+                return
+
             # ── Preference signals GET ──────────────────────
             if self.path.startswith("/api/preference-signals"):
                 from urllib.parse import urlparse, parse_qs
@@ -2210,6 +2220,57 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                     ok = pcm.revert_to_version(self._profile_id, persona, version)
                     _send_json(self, {"ok": ok})
                     return
+
+            # ── Profile workspace POST ──────────────────────
+            if self.path == "/api/profile/export":
+                from processors.workspace import export_profile
+                try:
+                    content_length = int(self.headers.get('Content-Length', 0))
+                    body = json.loads(self.rfile.read(content_length).decode()) if content_length > 0 else {}
+                    include_files = body.get('include_files', True)
+                    include_insights = body.get('include_insights', True)
+                    zip_buf = export_profile(strat, self._profile_id, include_files, include_insights)
+                    zip_data = zip_buf.read()
+                    self.send_response(200)
+                    self.send_header('Content-Type', 'application/zip')
+                    self.send_header('Content-Disposition', f'attachment; filename="stratos_profile_{self._profile_id}.zip"')
+                    self.send_header('Content-Length', str(len(zip_data)))
+                    self.end_headers()
+                    self.wfile.write(zip_data)
+                except Exception as e:
+                    _send_json(self, {"error": str(e)}, 500)
+                return
+
+            if self.path == "/api/profile/import":
+                from processors.workspace import import_profile
+                try:
+                    content_length = int(self.headers.get('Content-Length', 0))
+                    content_type = self.headers.get('Content-Type', '')
+                    if 'multipart/form-data' in content_type:
+                        # Parse multipart: extract ZIP file and strategy
+                        import cgi
+                        form = cgi.FieldStorage(fp=self.rfile, headers=self.headers,
+                                                environ={'REQUEST_METHOD': 'POST',
+                                                         'CONTENT_TYPE': content_type})
+                        zip_data = form['file'].file.read() if 'file' in form else b''
+                        strategy = form.getvalue('strategy', 'replace')
+                    else:
+                        # Raw ZIP body with strategy in query params
+                        zip_data = self.rfile.read(content_length)
+                        from urllib.parse import urlparse, parse_qs
+                        params = parse_qs(urlparse(self.path).query)
+                        strategy = params.get('strategy', ['replace'])[0]
+
+                    if not zip_data:
+                        _send_json(self, {"error": "No ZIP data provided"}, 400)
+                        return
+
+                    result = import_profile(strat, self._profile_id, zip_data, strategy)
+                    status = 200 if result.get("ok") else 400
+                    _send_json(self, result, status)
+                except Exception as e:
+                    _send_json(self, {"error": str(e)}, 500)
+                return
 
             # ── Preference signals POST ─────────────────────
             if self.path == "/api/preference-signals":
