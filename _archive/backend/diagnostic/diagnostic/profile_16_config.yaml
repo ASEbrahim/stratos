@@ -1,0 +1,120 @@
+custom_feeds: []
+custom_tab_name: Custom
+dynamic_categories:
+- enabled: true
+  icon: cpu
+  id: aiml
+  items:
+  - artificial intelligence business
+  - ChatGPT enterprise
+  - AI regulation
+  - machine learning trends
+  label: AI & Machine Learning
+  root: global
+  scorer_type: tech
+- enabled: true
+  icon: target
+  id: bizstrat
+  items:
+  - venture capital APAC
+  - startup funding Singapore
+  - management consulting trends
+  - M&A technology
+  label: Business Strategy & Investment
+  root: global
+  scorer_type: auto
+- enabled: true
+  icon: gavel
+  id: apacpol
+  items:
+  - Singapore economy
+  - ASEAN trade
+  - China tech policy
+  - India digital regulation
+  label: APAC Politics & Economy
+  root: global
+  scorer_type: regional
+extra_feeds_finance:
+  arab_times_biz: false
+  biz_insider: false
+  bloomberg: true
+  boursa_kuwait: false
+  cnbc_finance: false
+  cnbc_top: true
+  coindesk: false
+  cointelegraph: false
+  economist: false
+  ft: false
+  gn_gcc_finance: false
+  gn_kuwait_biz: false
+  investing: false
+  marketwatch: false
+  mw_pulse: false
+  oilprice: false
+  rigzone: false
+  seekingalpha: false
+  wsj_world: false
+  yahoo_fin: false
+  zawya: false
+extra_feeds_politics:
+  alarabiya: false
+  aljazeera: false
+  arab_times: false
+  bbc_mideast: false
+  bbc_world: false
+  cnn_world: false
+  dw: false
+  fox_world: false
+  france24: false
+  gn_kuwait: false
+  gn_mideast: false
+  guardian: false
+  middleeasteye: false
+  newarab: false
+  nikkei_asia: true
+  npr_world: false
+  nyt_mideast: false
+  nyt_world: false
+  scmp: true
+  times_kuwait: false
+  wapo_politics: false
+  wapo_world: false
+market:
+  alert_threshold_percent: 5.0
+  intervals: {}
+  tickers:
+  - name: STI Singapore
+    symbol: ^STI
+news:
+  career:
+    keywords: []
+    queries: []
+    root: global
+  finance:
+    keywords: []
+    queries: []
+    root: global
+  regional:
+    keywords: []
+    queries: []
+    root: global
+  rss_feeds: []
+  tech_trends:
+    keywords: []
+    queries: []
+    root: global
+  timelimit: w
+profile:
+  avatar: P16
+  context: Managing a 200-person firm across APAC. Interested in AI trends, business
+    strategy, talent acquisition, regional politics, and investment opportunities.
+    Needs to stay informed on everything.
+  email: diag16@test.local
+  interests: []
+  location: Singapore
+  name: Diag_P16_Generalist
+  role: CEO of a mid-size technology consultancy
+security:
+  devices:
+  - diagnostic_device
+  pin_hash: 9af15b336e6a9619928537df30b2e6a2376569fcf9d7e773eccede65606529a0

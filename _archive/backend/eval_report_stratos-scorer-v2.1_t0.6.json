@@ -1,0 +1,261 @@
+{
+  "total_samples": 1284,
+  "parse_failures": 216,
+  "mae": 3.497,
+  "rmse": 4.139,
+  "direction_accuracy": 0.5615,
+  "spearman_rho": 0.4544,
+  "agreement_pct_1pt": 18.6,
+  "agreement_pct_2pt": 32.3,
+  "band_breakdown": {
+    "noise": {
+      "count": 1056,
+      "mae": 3.668
+    },
+    "tangential": {
+      "count": 145,
+      "mae": 3.288
+    },
+    "moderate": {
+      "count": 42,
+      "mae": 1.988
+    },
+    "high": {
+      "count": 33,
+      "mae": 1.358
+    },
+    "critical": {
+      "count": 8,
+      "mae": 1.5
+    }
+  },
+  "profile_breakdown": {
+    "Agricultural commodities trader": {
+      "count": 43,
+      "mae": 2.923,
+      "direction_acc": 0.6047
+    },
+    "Architect working on smart city infrastructure projects": {
+      "count": 36,
+      "mae": 3.317,
+      "direction_acc": 0.6944
+    },
+    "Biotech researcher at KAUST studying gene therapy": {
+      "count": 49,
+      "mae": 3.782,
+      "direction_acc": 0.5714
+    },
+    "CTO of a mobile payments startup": {
+      "count": 44,
+      "mae": 3.366,
+      "direction_acc": 0.5227
+    },
+    "Computer Engineering student at American University of Kuwait": {
+      "count": 46,
+      "mae": 3.357,
+      "direction_acc": 0.5652
+    },
+    "Corporate lawyer at a major law firm": {
+      "count": 35,
+      "mae": 3.443,
+      "direction_acc": 0.5714
+    },
+    "Cybersecurity analyst at a Kuwaiti bank": {
+      "count": 50,
+      "mae": 3.746,
+      "direction_acc": 0.38
+    },
+    "Data Scientist at a Dubai fintech startup": {
+      "count": 41,
+      "mae": 2.849,
+      "direction_acc": 0.6829
+    },
+    "Digital marketing manager at a K-pop entertainment agency": {
+      "count": 48,
+      "mae": 4.24,
+      "direction_acc": 0.5208
+    },
+    "Emergency department nurse practitioner": {
+      "count": 49,
+      "mae": 2.986,
+      "direction_acc": 0.7143
+    },
+    "Executive chef and restaurant owner": {
+      "count": 46,
+      "mae": 2.12,
+      "direction_acc": 0.8261
+    },
+    "Finance & Accounting student at GUST Kuwait": {
+      "count": 49,
+      "mae": 4.473,
+      "direction_acc": 0.2449
+    },
+    "HVAC technician and small business owner": {
+      "count": 45,
+      "mae": 4.022,
+      "direction_acc": 0.6
+    },
+    "Hospital pharmacist specializing": {
+      "count": 36,
+      "mae": 2.408,
+      "direction_acc": 0.8611
+    },
+    "Independent documentary filmmaker": {
+      "count": 45,
+      "mae": 4.431,
+      "direction_acc": 0.3556
+    },
+    "Indie game developer and studio founder": {
+      "count": 37,
+      "mae": 3.314,
+      "direction_acc": 0.5676
+    },
+    "Marine electrician on offshore wind vessels": {
+      "count": 41,
+      "mae": 3.644,
+      "direction_acc": 0.5854
+    },
+    "Mechanical Engineering fresh graduate seeking NEOM/Aramco roles": {
+      "count": 29,
+      "mae": 2.948,
+      "direction_acc": 0.5862
+    },
+    "Mining engineer at a copper mine": {
+      "count": 45,
+      "mae": 3.644,
+      "direction_acc": 0.4667
+    },
+    "Pediatric oncologist at King Faisal Specialist Hospital": {
+      "count": 39,
+      "mae": 4.118,
+      "direction_acc": 0.4359
+    },
+    "Petroleum Engineering student at Kuwait University": {
+      "count": 46,
+      "mae": 3.772,
+      "direction_acc": 0.4783
+    },
+    "Pipeline welder and CWB-certified inspector": {
+      "count": 38,
+      "mae": 4.126,
+      "direction_acc": 0.5789
+    },
+    "Professional bonsai artist and competition judge": {
+      "count": 44,
+      "mae": 2.509,
+      "direction_acc": 0.8409
+    },
+    "Retired IT consultant": {
+      "count": 44,
+      "mae": 3.968,
+      "direction_acc": 0.4545
+    },
+    "Retired UN diplomat and policy consultant": {
+      "count": 42,
+      "mae": 4.069,
+      "direction_acc": 0.4524
+    },
+    "Senior geophysicist at KOC": {
+      "count": 41,
+      "mae": 2.995,
+      "direction_acc": 0.7317
+    },
+    "Sports physiotherapist at a professional rugby club": {
+      "count": 41,
+      "mae": 2.861,
+      "direction_acc": 0.7073
+    },
+    "Supply chain analyst at a logistics company": {
+      "count": 46,
+      "mae": 3.32,
+      "direction_acc": 0.4565
+    },
+    "UX Designer at a consumer electronics company": {
+      "count": 47,
+      "mae": 4.291,
+      "direction_acc": 0.5319
+    },
+    "Undeclared sophomore at University of Chicago": {
+      "count": 42,
+      "mae": 3.255,
+      "direction_acc": 0.4048
+    }
+  },
+  "worst_disagreements": [
+    {
+      "profile": "Digital marketing manager at a K-pop entertainment agency",
+      "predicted": 10.5,
+      "ground_truth": 0.0,
+      "delta": 10.5,
+      "title": "We're looking for talented professionals ..."
+    },
+    {
+      "profile": "Pipeline welder and CWB-certified inspector",
+      "predicted": 9.8,
+      "ground_truth": 0.0,
+      "delta": 9.8,
+      "title": "The 2nm AI War Begins: AMD's MI400 and the Bold Strategy to ..."
+    },
+    {
+      "profile": "Independent documentary filmmaker",
+      "predicted": 9.5,
+      "ground_truth": 0.5,
+      "delta": 9.0,
+      "title": "Software & Standards for Smart Networks & Services 2026"
+    },
+    {
+      "profile": "Retired UN diplomat and policy consultant",
+      "predicted": 9.5,
+      "ground_truth": 0.5,
+      "delta": 9.0,
+      "title": "Best foreign job search platform - Sajhajobs"
+    },
+    {
+      "profile": "Pipeline welder and CWB-certified inspector",
+      "predicted": 8.9,
+      "ground_truth": 0.0,
+      "delta": 8.9,
+      "title": "Uttakleiv Beach (2026) - All You MUST Know Before You Go (with \u2026"
+    },
+    {
+      "profile": "Petroleum Engineering student at Kuwait University",
+      "predicted": 8.5,
+      "ground_truth": 0.0,
+      "delta": 8.5,
+      "title": "Willkommen in Bern - Bern Welcome"
+    },
+    {
+      "profile": "Digital marketing manager at a K-pop entertainment agency",
+      "predicted": 8.5,
+      "ground_truth": 0.0,
+      "delta": 8.5,
+      "title": "Willkommen in Bern - Bern Welcome"
+    },
+    {
+      "profile": "Digital marketing manager at a K-pop entertainment agency",
+      "predicted": 8.5,
+      "ground_truth": 0.0,
+      "delta": 8.5,
+      "title": "Best foreign job search platform - Sajhajobs"
+    },
+    {
+      "profile": "Pediatric oncologist at King Faisal Specialist Hospital",
+      "predicted": 8.5,
+      "ground_truth": 0.0,
+      "delta": 8.5,
+      "title": "Software & Standards for Smart Networks & Services 2026"
+    },
+    {
+      "profile": "Digital marketing manager at a K-pop entertainment agency",
+      "predicted": 8.5,
+      "ground_truth": 0.0,
+      "delta": 8.5,
+      "title": "Dark Oxygen, Singing Dunes, Uphill Rivers: 9 \u201cImpossible\u201d Things ..."
+    }
+  ],
+  "model": "stratos-scorer-v2.1",
+  "eval_file": "data/v2_pipeline/eval_holdout_v2.jsonl",
+  "temperature": 0.6,
+  "elapsed_seconds": 1412.8,
+  "timestamp": "2026-03-07T05:02:45"
+}

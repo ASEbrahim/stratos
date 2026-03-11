@@ -1,0 +1,50 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+venv/
+.venv/
+
+# Database (regenerated on first run)
+backend/strat_os.db
+backend/strat_os.db-shm
+backend/strat_os.db-wal
+
+# Sessions (regenerated at runtime)
+backend/.sessions.json
+
+# Output (generated at runtime)
+backend/output/
+
+# API keys and secrets
+backend/.env
+.env
+
+# Training artifacts (large, regenerated)
+backend/data/models/
+backend/data/training_data.jsonl
+backend/data/StratOS_LoRA_Training.ipynb
+*.gguf
+
+# Keep distillation reports (useful for tracking progress)
+# backend/data/distillation_report.json
+
+# Node (only needed for Tailwind rebuilds)
+frontend/node_modules/
+frontend/package.json
+frontend/package-lock.json
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Profiles contain hashed PINs — exclude if sharing publicly
+# backend/profiles/*.yaml

@@ -1,0 +1,3155 @@
+{
+  "1": {
+    "profile_num": 1,
+    "name": "Diag_P1_Nurse",
+    "role": "Registered Nurse",
+    "location": "Lubbock, Texas, USA",
+    "context": "Looking for travel nursing contracts and continuing education. Interested in rural healthcare policy.",
+    "context_hash": "2675af140efd",
+    "categories": [
+      {
+        "id": "travnurs",
+        "label": "Travel Nursing Contracts",
+        "items": [
+          "travel nursing agencies",
+          "Aya Healthcare",
+          "Cross Country Nurses",
+          "AMN Healthcare"
+        ]
+      },
+      {
+        "id": "rurhlth",
+        "label": "Rural Healthcare Policy",
+        "items": [
+          "rural hospital funding",
+          "telehealth expansion",
+          "nurse practitioner scope",
+          "Medicare rural"
+        ]
+      },
+      {
+        "id": "nursced",
+        "label": "Nursing Continuing Education",
+        "items": [
+          "ANCC certification",
+          "nursing CEU",
+          "clinical nurse specialist",
+          "BSN to DNP programs"
+        ]
+      }
+    ],
+    "total_articles": 100,
+    "scan_time_seconds": 49.4,
+    "scores": [
+      9.5,
+      9.5,
+      9.5,
+      9.5,
+      9.5,
+      9.5,
+      9.0,
+      9.0,
+      9.0,
+      9.0,
+      9.0,
+      9.0,
+      9.0,
+      8.5,
+      8.5,
+      8.5,
+      8.5,
+      8.5,
+      8.5,
+      8.5,
+      8.5,
+      8.5,
+      8.5,
+      8.5,
+      8.5,
+      8.5,
+      8.5,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      7.5,
+      7.5,
+      7.0,
+      7.0,
+      7.0,
+      7.0,
+      7.0,
+      7.0,
+      7.0,
+      7.0,
+      7.0,
+      7.0,
+      7.0,
+      7.0,
+      4.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.0,
+      3.0,
+      3.0,
+      3.0,
+      3.0,
+      3.0,
+      2.5,
+      2.5,
+      2.5,
+      2.5,
+      2.5,
+      2.5,
+      2.5,
+      2.5,
+      2.5,
+      2.5,
+      2.5,
+      2.5,
+      2.5,
+      2.5,
+      2.5,
+      2.5,
+      2.5,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0
+    ],
+    "score_stats": {
+      "mean": 5.38,
+      "median": 5.75,
+      "stdev": 2.93,
+      "min": 2.0,
+      "max": 9.5,
+      "above_7": 50,
+      "below_5": 50,
+      "pct_above_7": 50.0,
+      "pct_below_5": 50.0
+    },
+    "category_counts": {
+      "travnurs": 55,
+      "nursced": 38,
+      "rurhlth": 4,
+      "eletrends": 3
+    },
+    "source_distribution": {
+      "Serper/Google": 78,
+      "Web Search": 3,
+      "Instagram": 4,
+      "LinkedIn": 15
+    },
+    "top_10": [
+      {
+        "title": "Travel Nurse RN - Long Term Acute Care - Health eCareers",
+        "score": 9.5,
+        "reason": "LLM: Highly relevant travel nursing contract opportunity directly matching user's profile.",
+        "category": "travnurs",
+        "url": "https://www.healthecareers.com/job/travel-nurse-rn-long-term-acute-care-2295-per-week/13262658"
+      },
+      {
+        "title": "Travel Nurse RN - ED - Emergency Department - Health eCareers",
+        "score": 9.5,
+        "reason": "LLM: Another travel nursing contract opportunity that matches user's field of interest.",
+        "category": "travnurs",
+        "url": "https://www.healthecareers.com/job/travel-nurse-rn-ed-emergency-department-2722-per-week/12954475"
+      },
+      {
+        "title": "Travel Nurse RN - Labor and Delivery - Lensa",
+        "score": 9.5,
+        "reason": "LLM: Same travel nursing contract match with additional employer information.",
+        "category": "travnurs",
+        "url": "https://lensa.com/job-v1/sawgrass-healthcare-a-datson360-company/machias-me/travel-nurse/625fc20d5459014749b9a7860439d491"
+      },
+      {
+        "title": "Travel Nurse RN - PCU - Progressive Care Unit - Lensa",
+        "score": 9.5,
+        "reason": "LLM: Same travel nursing contract match with additional employer details.",
+        "category": "travnurs",
+        "url": "https://lensa.com/job-v1/care-career/wynnewood-pa/travel-nurse/70e6ef29d515701f6dc83305d3a855e2"
+      },
+      {
+        "title": "Shortest Online PMHNP Certificate Programs",
+        "score": 9.5,
+        "reason": "LLM: Directly actionable for nurse seeking shortest PMHNP certification programs.",
+        "category": "nursced",
+        "url": "https://www.edumed.org/online-schools/nurse-practitioner-programs/psychiatric-mental-health/shortest/"
+      },
+      {
+        "title": "[PDF] Fitzgerald Health Education Associates Fhea Com",
+        "score": 9.5,
+        "reason": "LLM: Actionable guide for nurse preparing for current certification exams.",
+        "category": "nursced",
+        "url": "https://elearning.vvu.edu.gh/Download_PDFS/Resources/601/500/mL31FD/FitzgeraldHealthEducationAssociatesFheaCom.pdf"
+      },
+      {
+        "title": "Healthcare Jobs | Travel Nursing & Allied Opportunities - Cynet Health",
+        "score": 9.0,
+        "reason": "Relevant hiring: cross, nursing, healthcare",
+        "category": "travnurs",
+        "url": "https://cynethealth.com/job-seekers/"
+      },
+      {
+        "title": "Cross Country Nurses Travel Nurse RN - Home Health - ZipRecruiter",
+        "score": 9.0,
+        "reason": "Relevant hiring: cross country nurses, cross, nurses",
+        "category": "travnurs",
+        "url": "https://www.ziprecruiter.com/c/Cross-Country-Nurses/Job/Travel-Nurse-RN-Home-Health-$2,835-per-week/-in-Oakland,OR?jid=39a8fe64f8271abe"
+      },
+      {
+        "title": "Travel Nurse RN - Med Surg - Health eCareers",
+        "score": 9.0,
+        "reason": "Relevant hiring: amn, amn healthcare, nursing",
+        "category": "travnurs",
+        "url": "https://www.healthecareers.com/job/travel-nurse-rn-med-surg-2194-per-week/13329552"
+      },
+      {
+        "title": "Travel Nurse RN - Manager, Labor and Delivery - Health eCareers",
+        "score": 9.0,
+        "reason": "Relevant hiring: cross country nurses, cross, nurses",
+        "category": "travnurs",
+        "url": "https://www.healthecareers.com/job/travel-nurse-rn-manager-labor-and-delivery-3055-per-week/13264126"
+      }
+    ],
+    "bottom_10": [
+      {
+        "title": "Travel Nurse RN - ICU - Intensive Care Unit in Rockport, ME, Cross ...",
+        "score": 7.0,
+        "reason": "Strong title match: cross country nurses, cross, nurses",
+        "category": "travnurs",
+        "url": "https://www.vivian.com/job/915-1227503/"
+      },
+      {
+        "title": "Progressive Care Unit Travel Nursing Jobs in Springfield, VT for RNs",
+        "score": 7.0,
+        "reason": "Strong title match: amn, amn healthcare, nursing",
+        "category": "travnurs",
+        "url": "https://www.amnhealthcare.com/careers/nursing/apply/travel-progressive-care-unit-registered-nurse-nursing-jobs-in-springfield-vt-for-rn/"
+      },
+      {
+        "title": "AMN Healthcare Nursing Agency - Jobs & Reviews - Vivian Health",
+        "score": 7.0,
+        "reason": "Strong title match: amn, amn healthcare, nursing",
+        "category": "travnurs",
+        "url": "https://www.vivian.com/agencies/amn-healthcare-nursing/"
+      },
+      {
+        "title": "Cath Lab Travel Nursing Jobs in Atlanta, GA for RNs - AMN Healthcare",
+        "score": 7.0,
+        "reason": "Strong title match: amn, amn healthcare, nursing",
+        "category": "travnurs",
+        "url": "https://www.amnhealthcare.com/careers/nursing/apply/travel-cardiac-catheterization-lab-registered-nurse-nursing-jobs-in-atlanta-ga-for-rn/"
+      },
+      {
+        "title": "AMN Healthcare Careers and Employment | Indeed.com",
+        "score": 7.0,
+        "reason": "Strong title match: amn, aya, amn healthcare",
+        "category": "travnurs",
+        "url": "https://www.indeed.com/cmp/Amn-Healthcare"
+      },
+      {
+        "title": "GMR News, Media & Company Releases - Global Medical Response",
+        "score": 7.0,
+        "reason": "LLM: Highly relevant to user's rural healthcare policy interests",
+        "category": "rurhlth",
+        "url": "https://www.globalmedicalresponse.com/about/news"
+      },
+      {
+        "title": "Corewell Health West Michigan Continuing Education - Live Courses",
+        "score": 7.0,
+        "reason": "Title relevance: nurse, clinical nurse specialist, continuing",
+        "category": "nursced",
+        "url": "https://spectrumhealth.cloud-cme.com/default.aspx?p=1000"
+      },
+      {
+        "title": "2026 No-Exam Online Clinical Nurse Leader Master's Degrees",
+        "score": 7.0,
+        "reason": "Title relevance: nurse, clinical",
+        "category": "nursced",
+        "url": "https://research.com/advice/no-exam-online-clinical-nurse-leader-masters-degrees-schools-costs-outcomes"
+      },
+      {
+        "title": "2026 Can You Get Into a Nursing Education Degree Master's ...",
+        "score": 7.0,
+        "reason": "Title relevance: bsn, education, nursing",
+        "category": "nursced",
+        "url": "https://research.com/advice/can-you-get-into-a-nursing-education-degree-masters-program-with-a-low-gpa"
+      },
+      {
+        "title": "DNP Programs in Oregon - Registered Nursing",
+        "score": 7.0,
+        "reason": "Title relevance: nurse, bsn, nursing",
+        "category": "nursced",
+        "url": "https://www.registerednursing.org/degree/dnp/oregon/"
+      }
+    ],
+    "briefing": {},
+    "meta": {
+      "version": "3.0",
+      "generated_at": "2026-02-27T10:30:22.580750",
+      "news_count": 100,
+      "critical_count": 0,
+      "high_count": 0,
+      "context_hash": "2675af140efd"
+    }
+  },
+  "2": {
+    "profile_num": 2,
+    "name": "Diag_P2_Quant",
+    "role": "Quantitative Analyst at a hedge fund",
+    "location": "London, United Kingdom",
+    "context": "Developing algorithmic trading strategies. Tracking regulatory changes (MiFID II, Basel). Interested in alternative data sources.",
+    "context_hash": "8527a01dddb7",
+    "categories": [
+      {
+        "id": "algotr",
+        "label": "Algorithmic Trading Strategies",
+        "items": [
+          "high-frequency trading",
+          "statistical arbitrage",
+          "market microstructure",
+          "order flow analysis"
+        ]
+      },
+      {
+        "id": "finreg",
+        "label": "Financial Regulation",
+        "items": [
+          "MiFID II",
+          "Basel III",
+          "FCA regulation",
+          "ESMA guidelines"
+        ]
+      },
+      {
+        "id": "altdata",
+        "label": "Alternative Data Sources",
+        "items": [
+          "satellite imagery finance",
+          "NLP sentiment trading",
+          "web scraping alpha",
+          "quant research"
+        ]
+      }
+    ],
+    "total_articles": 100,
+    "scan_time_seconds": 65.1,
+    "scores": [
+      9.5,
+      9.5,
+      9.5,
+      9.5,
+      9.5,
+      9.5,
+      9.0,
+      9.0,
+      9.0,
+      9.0,
+      9.0,
+      9.0,
+      9.0,
+      8.5,
+      8.5,
+      8.5,
+      8.5,
+      8.5,
+      8.5,
+      8.5,
+      8.5,
+      8.5,
+      8.5,
+      8.5,
+      8.5,
+      8.5,
+      8.5,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      7.5,
+      7.5,
+      7.5,
+      7.5,
+      7.5,
+      7.5,
+      7.5,
+      7.5,
+      7.0,
+      7.0,
+      7.0,
+      7.0,
+      7.0,
+      7.0,
+      7.0,
+      7.0,
+      7.0,
+      7.0,
+      7.0,
+      7.0,
+      7.0,
+      7.0,
+      7.0,
+      7.0,
+      7.0,
+      7.0,
+      7.0,
+      7.0,
+      6.5,
+      6.5,
+      6.5,
+      6.5,
+      4.5,
+      4.0,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5
+    ],
+    "score_stats": {
+      "mean": 7.13,
+      "median": 7.75,
+      "stdev": 1.83,
+      "min": 3.5,
+      "max": 9.5,
+      "above_7": 78,
+      "below_5": 18,
+      "pct_above_7": 78.0,
+      "pct_below_5": 18.0
+    },
+    "category_counts": {
+      "travnurs": 10,
+      "nursced": 10,
+      "algotr": 20,
+      "finreg": 42,
+      "altdata": 18
+    },
+    "source_distribution": {
+      "Serper/Google": 99,
+      "Twitter/X": 1
+    },
+    "top_10": [
+      {
+        "title": "Travel Nurse RN - Long Term Acute Care - Health eCareers",
+        "score": 9.5,
+        "reason": "LLM: Highly relevant travel nursing contract opportunity directly matching user's profile.",
+        "category": "travnurs",
+        "url": "https://www.healthecareers.com/job/travel-nurse-rn-long-term-acute-care-2295-per-week/13262658"
+      },
+      {
+        "title": "Travel Nurse RN - ED - Emergency Department - Health eCareers",
+        "score": 9.5,
+        "reason": "LLM: Another travel nursing contract opportunity that matches user's field of interest.",
+        "category": "travnurs",
+        "url": "https://www.healthecareers.com/job/travel-nurse-rn-ed-emergency-department-2722-per-week/12954475"
+      },
+      {
+        "title": "Travel Nurse RN - Labor and Delivery - Lensa",
+        "score": 9.5,
+        "reason": "LLM: Same travel nursing contract match with additional employer information.",
+        "category": "travnurs",
+        "url": "https://lensa.com/job-v1/sawgrass-healthcare-a-datson360-company/machias-me/travel-nurse/625fc20d5459014749b9a7860439d491"
+      },
+      {
+        "title": "Travel Nurse RN - PCU - Progressive Care Unit - Lensa",
+        "score": 9.5,
+        "reason": "LLM: Same travel nursing contract match with additional employer details.",
+        "category": "travnurs",
+        "url": "https://lensa.com/job-v1/care-career/wynnewood-pa/travel-nurse/70e6ef29d515701f6dc83305d3a855e2"
+      },
+      {
+        "title": "Shortest Online PMHNP Certificate Programs",
+        "score": 9.5,
+        "reason": "LLM: Directly actionable for nurse seeking shortest PMHNP certification programs.",
+        "category": "nursced",
+        "url": "https://www.edumed.org/online-schools/nurse-practitioner-programs/psychiatric-mental-health/shortest/"
+      },
+      {
+        "title": "[PDF] Fitzgerald Health Education Associates Fhea Com",
+        "score": 9.5,
+        "reason": "LLM: Actionable guide for nurse preparing for current certification exams.",
+        "category": "nursced",
+        "url": "https://elearning.vvu.edu.gh/Download_PDFS/Resources/601/500/mL31FD/FitzgeraldHealthEducationAssociatesFheaCom.pdf"
+      },
+      {
+        "title": "Healthcare Jobs | Travel Nursing & Allied Opportunities - Cynet Health",
+        "score": 9.0,
+        "reason": "Relevant hiring: cross, nursing, healthcare",
+        "category": "travnurs",
+        "url": "https://cynethealth.com/job-seekers/"
+      },
+      {
+        "title": "Cross Country Nurses Travel Nurse RN - Home Health - ZipRecruiter",
+        "score": 9.0,
+        "reason": "Relevant hiring: cross country nurses, cross, nurses",
+        "category": "travnurs",
+        "url": "https://www.ziprecruiter.com/c/Cross-Country-Nurses/Job/Travel-Nurse-RN-Home-Health-$2,835-per-week/-in-Oakland,OR?jid=39a8fe64f8271abe"
+      },
+      {
+        "title": "Travel Nurse RN - Med Surg - Health eCareers",
+        "score": 9.0,
+        "reason": "Relevant hiring: amn, amn healthcare, nursing",
+        "category": "travnurs",
+        "url": "https://www.healthecareers.com/job/travel-nurse-rn-med-surg-2194-per-week/13329552"
+      },
+      {
+        "title": "Travel Nurse RN - Manager, Labor and Delivery - Health eCareers",
+        "score": 9.0,
+        "reason": "Relevant hiring: cross country nurses, cross, nurses",
+        "category": "travnurs",
+        "url": "https://www.healthecareers.com/job/travel-nurse-rn-manager-labor-and-delivery-3055-per-week/13264126"
+      }
+    ],
+    "bottom_10": [
+      {
+        "title": "[PDF] AI's Integration Into Alternative Data Fuels New Opportunities and ...",
+        "score": 7.0,
+        "reason": "Relevant topic: data, alpha, alternative",
+        "category": "altdata",
+        "url": "https://www.lowenstein.com/media/jujd45bp/alt-data-report-2025_final.pdf"
+      },
+      {
+        "title": "M&A Outlook 2026: What Drove 2025 and What Will Define 2026",
+        "score": 7.0,
+        "reason": "LLM: Highly relevant to a quant's M&A strategy development",
+        "category": "altdata",
+        "url": "https://www.tdsecurities.com/ca/en/mergers-and-acquisitions-outlook-2026"
+      },
+      {
+        "title": "What is alternative data? - Accion.org",
+        "score": 7.0,
+        "reason": "Relevant topic: data, alternative, sources",
+        "category": "altdata",
+        "url": "https://www.accion.org/what-is-alternative-data/"
+      },
+      {
+        "title": "Beyond the Balance Sheet: How Alternative Data Is Reshaping ...",
+        "score": 7.0,
+        "reason": "Relevant topic: data, alternative, sources",
+        "category": "altdata",
+        "url": "http://oreateai.com/blog/beyond-the-balance-sheet-how-alternative-data-is-reshaping-finance/213a65b62a6c70ddd78ac59bbca48d28"
+      },
+      {
+        "title": "Alternative Data's Integration Into AI Fuels New Opportunities And ...",
+        "score": 7.0,
+        "reason": "Relevant topic: finance, data, alternative",
+        "category": "altdata",
+        "url": "https://www.mondaq.com/unitedstates/fund-management-reits/1749416/alternative-datas-integration-into-ai-fuels-new-opportunities-and-challenges"
+      },
+      {
+        "title": "Alternative Data: Unconventional Insights for Investment",
+        "score": 7.0,
+        "reason": "Relevant topic: data, alternative",
+        "category": "altdata",
+        "url": "https://advanceflow.org/p/alternative-data-unconventional-insights-for-investment/"
+      },
+      {
+        "title": "Insights - Chapman and Cutler LLP",
+        "score": 6.5,
+        "reason": "LLM: Regulatory content relevant to user's field but lacks depth",
+        "category": "finreg",
+        "url": "https://www.chapman.com/insights-Chapter_9"
+      },
+      {
+        "title": "Money managers are hungrier than ever for obscure data to give ...",
+        "score": 6.5,
+        "reason": "LLM: Moderately relevant alternative data sources for a quant",
+        "category": "altdata",
+        "url": "https://www.businessinsider.com/hedge-fund-spending-on-alternative-data-jumps-2025-2026-2"
+      },
+      {
+        "title": "Financial Services",
+        "score": 6.5,
+        "reason": "LLM: Relevant alternative data source but content appears incomplete and partially in German",
+        "category": "altdata",
+        "url": "https://aws.amazon.com/blogs/big-data/category/industries/financial-services/"
+      },
+      {
+        "title": "The AI Memory Supercycle: Why Astera Labs And Marvell Are Top ...",
+        "score": 6.5,
+        "reason": "LLM: directly relevant to a quantitative analyst's core responsibilities in algorithmic trading strategy development.",
+        "category": "altdata",
+        "url": "https://seekingalpha.com/article/4872910-the-ai-memory-supercycle-why-astera-labs-and-marvell-are-top-buys"
+      }
+    ],
+    "briefing": {},
+    "meta": {
+      "version": "3.0",
+      "generated_at": "2026-02-27T10:31:29.693329",
+      "news_count": 100,
+      "critical_count": 0,
+      "high_count": 0,
+      "context_hash": "8527a01dddb7"
+    }
+  },
+  "3": {
+    "profile_num": 3,
+    "name": "Diag_P3_MarineBio",
+    "role": "PhD student in Marine Biology",
+    "location": "Tokyo, Japan",
+    "context": "Researching coral reef bleaching and ocean acidification. Looking for postdoc positions and conference CFPs.",
+    "context_hash": "854f97952006",
+    "categories": [
+      {
+        "id": "corres",
+        "label": "Coral Reef & Ocean Research",
+        "items": [
+          "coral bleaching",
+          "ocean acidification",
+          "marine biodiversity",
+          "reef restoration"
+        ]
+      },
+      {
+        "id": "maricar",
+        "label": "Marine Science Careers",
+        "items": [
+          "postdoc marine biology",
+          "JAMSTEC",
+          "NOAA research",
+          "marine science fellowship"
+        ]
+      },
+      {
+        "id": "confcfp",
+        "label": "Conferences & CFPs",
+        "items": [
+          "ICRS coral symposium",
+          "ocean sciences meeting",
+          "marine biology conference 2026"
+        ]
+      }
+    ],
+    "total_articles": 100,
+    "scan_time_seconds": 40.9,
+    "scores": [
+      9.5,
+      9.5,
+      9.5,
+      9.5,
+      9.5,
+      9.5,
+      9.0,
+      9.0,
+      9.0,
+      9.0,
+      9.0,
+      9.0,
+      8.5,
+      8.5,
+      8.5,
+      8.5,
+      8.5,
+      8.5,
+      8.5,
+      8.5,
+      8.5,
+      8.5,
+      8.5,
+      8.5,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      7.5,
+      7.5,
+      7.5,
+      7.5,
+      7.5,
+      7.5,
+      7.5,
+      7.5,
+      7.5,
+      7.5,
+      7.5,
+      7.5,
+      7.5,
+      7.0,
+      7.0,
+      7.0,
+      7.0,
+      7.0,
+      7.0,
+      7.0,
+      7.0,
+      7.0,
+      7.0,
+      7.0,
+      7.0,
+      7.0,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5
+    ],
+    "score_stats": {
+      "mean": 6.89,
+      "median": 7.5,
+      "stdev": 2.06,
+      "min": 3.5,
+      "max": 9.5,
+      "above_7": 75,
+      "below_5": 25,
+      "pct_above_7": 75.0,
+      "pct_below_5": 25.0
+    },
+    "category_counts": {
+      "corres": 51,
+      "maricar": 18,
+      "confcfp": 11,
+      "algotr": 7,
+      "finreg": 12,
+      "altdata": 1
+    },
+    "source_distribution": {
+      "Serper/Google": 80,
+      "Twitter/X": 1,
+      "LinkedIn": 3,
+      "Instagram": 16
+    },
+    "top_10": [
+      {
+        "title": "Why corals bleach: Neutrons show algae photosynthesis breaking ...",
+        "score": 9.5,
+        "reason": "LLM: Directly actionable for a PhD student researching coral bleaching and ocean acidification.",
+        "category": "corres",
+        "url": "https://phys.org/news/2026-02-corals-neutrons-algae-photosynthesis.html"
+      },
+      {
+        "title": "World's largest coral colony discovered off Australian coast by ... - CNN",
+        "score": 9.5,
+        "reason": "Breakthrough in tracked area: reef, coral, marine",
+        "category": "corres",
+        "url": "https://www.cnn.com/2026/02/24/science/largest-coral-reef-australia-scli-intl"
+      },
+      {
+        "title": "Coral colony discovered by mother and daughter citizen scientists ...",
+        "score": 9.5,
+        "reason": "Breakthrough in tracked area: bleaching, reef, coral",
+        "category": "corres",
+        "url": "https://www.abc.net.au/news/2026-02-26/citizen-scientists-discover-great-barrier-reef-coral-colony/106386786"
+      },
+      {
+        "title": "Coral microbiomes as reservoirs of unknown genomic and ... - Nature",
+        "score": 9.5,
+        "reason": "LLM: Directly actionable for user's research interests in coral microbiomes and ocean acidification",
+        "category": "corres",
+        "url": "https://www.nature.com/articles/s41586-026-10159-6"
+      },
+      {
+        "title": "Why the High Seas Treaty is a high priority for protecting ocean life",
+        "score": 9.5,
+        "reason": "LLM: Directly relevant to a marine biologist's research interests, covering critical topics like coral bleaching and ocean acidification",
+        "category": "corres",
+        "url": "https://wwf.ca/stories/why-the-high-seas-treaty-is-a-high-priority-for-protecting-ocean-life/"
+      },
+      {
+        "title": "Karen Telleen-Lawton: Victory on the High Seas - Noozhawk",
+        "score": 9.5,
+        "reason": "Breakthrough in tracked area: biodiversity, marine, ocean",
+        "category": "corres",
+        "url": "https://www.noozhawk.com/karen-telleen-lawton-victory-on-the-high-seas/"
+      },
+      {
+        "title": "Coral microbiomes as reservoirs of unknown genomic ... - PubMed",
+        "score": 9.0,
+        "reason": "LLM: Directly actionable for user's research interests in coral microbiomes and bioactive metabolites",
+        "category": "corres",
+        "url": "https://pubmed.ncbi.nlm.nih.gov/41741644/"
+      },
+      {
+        "title": "How coastal community is restoring degraded coral and reviving ...",
+        "score": 9.0,
+        "reason": "LLM: Directly actionable for user's postdoc and research goals, provides real-world example they can apply",
+        "category": "corres",
+        "url": "https://www.the-star.co.ke/news/big-read/2026-02-24-how-coastal-community-is-restoring-degraded-coral-and-reviving-economy"
+      },
+      {
+        "title": "Entry Level Research Vessel Crew Jobs (NOW HIRING) - ZipRecruiter",
+        "score": 9.0,
+        "reason": "Entry-level hiring match: marine, noaa, noaa research",
+        "category": "maricar",
+        "url": "https://www.ziprecruiter.com/Jobs/Entry-Level-Research-Vessel-Crew"
+      },
+      {
+        "title": "Roger E. Deane Postdoctoral Fellowship - AGU Career Center",
+        "score": 9.0,
+        "reason": "Entry-level hiring match: fellowship, postdoc, science",
+        "category": "maricar",
+        "url": "https://findajob.agu.org/job/8026166/roger-e-deane-postdoctoral-fellowship/"
+      }
+    ],
+    "bottom_10": [
+      {
+        "title": "S3 E2: Dissolving Coral: Ocean Acidification and the Future of Coral ...",
+        "score": 7.0,
+        "reason": "Relevant topic: acidification, reef, coral",
+        "category": "corres",
+        "url": "https://www.wordonthereef.com/2311255/episodes/18729473-s3-e2-dissolving-coral-ocean-acidification-and-the-future-of-coral-reefs"
+      },
+      {
+        "title": "Coral Reef Restoration in the Red Sea and Yachting - Think.green",
+        "score": 7.0,
+        "reason": "Relevant topic: restoration, reef, coral",
+        "category": "corres",
+        "url": "https://think.green/coral-reef-restoration-in-the-red-sea-and-yachting/"
+      },
+      {
+        "title": "Ocean Acidification - a news stream provided by the Ocean ...",
+        "score": 7.0,
+        "reason": "Relevant topic: acidification, ocean acidification, ocean",
+        "category": "corres",
+        "url": "https://news-oceanacidification-icc.org/"
+      },
+      {
+        "title": "How Coral Reefs Protect Our Homes, Food Supply, And Marine Life ...",
+        "score": 7.0,
+        "reason": "Relevant topic: restoration, reef, coral",
+        "category": "corres",
+        "url": "https://www.forbes.com/sites/billfrist/2026/02/23/how-coral-reefs-protect-our-homes-food-supply-and-marine-life-and-how-we-can-save-them/"
+      },
+      {
+        "title": "Coral Bleaching Crisis: Ocean Heatwaves Devastate Reefs and ...",
+        "score": 7.0,
+        "reason": "Relevant topic: bleaching, coral, coral bleaching",
+        "category": "corres",
+        "url": "https://www.sciencetimes.com/articles/61357/20260220/coral-bleaching-crisis-ocean-heatwaves-devastate-reefs-marine-biodiversity.htm"
+      },
+      {
+        "title": "Center for Marine Science - Postdoctoral Scholar",
+        "score": 7.0,
+        "reason": "Strong title match: marine, postdoc, science",
+        "category": "maricar",
+        "url": "https://jobs.chronicle.com/job/37954708/center-for-marine-science-postdoctoral-scholar/"
+      },
+      {
+        "title": "NOAA Science Report Highlights: Spotlight on Innovative GSL Projects",
+        "score": 7.0,
+        "reason": "Strong title match: noaa, noaa research, science",
+        "category": "maricar",
+        "url": "https://gsl.noaa.gov/news/noaas-2025-science-highlights-spotlight-on-gsls-innovative-projects"
+      },
+      {
+        "title": "Roger E. Deane Postdoctoral Fellowship - Toronto, ON,, Canada",
+        "score": 7.0,
+        "reason": "Strong title match: fellowship, postdoc",
+        "category": "maricar",
+        "url": "https://www.earthworks-jobs.com/jobpost/toronto26021?id=11474"
+      },
+      {
+        "title": "Marine Education Fellowship 2026-2027 | Conservation Jobs from ...",
+        "score": 7.0,
+        "reason": "Strong title match: fellowship, marine",
+        "category": "maricar",
+        "url": "https://www.conservation-careers.com/job/marine-education-fellowship-2026-2027-2/"
+      },
+      {
+        "title": "Environment Conferences in Chile 2026",
+        "score": 7.0,
+        "reason": "Title relevance: 2026, conference, conferences",
+        "category": "confcfp",
+        "url": "https://www.conferencealert.com/chile/environment/february"
+      }
+    ],
+    "briefing": {},
+    "meta": {
+      "version": "3.0",
+      "generated_at": "2026-02-27T10:32:12.667990",
+      "news_count": 100,
+      "critical_count": 0,
+      "high_count": 0,
+      "context_hash": "854f97952006"
+    }
+  },
+  "4": {
+    "profile_num": 4,
+    "name": "Diag_P4_CyberDubai",
+    "role": "Senior Cybersecurity Consultant",
+    "location": "Dubai, UAE",
+    "context": "Penetration testing and SOC operations for government clients. Tracking regional threat landscape and compliance (NESA, CSA).",
+    "context_hash": "3643d64c3d34",
+    "categories": [
+      {
+        "id": "cybthr",
+        "label": "Cybersecurity Threats & Defense",
+        "items": [
+          "zero-day exploits",
+          "ransomware defense",
+          "APT detection",
+          "SOC automation"
+        ]
+      },
+      {
+        "id": "gcccyb",
+        "label": "GCC Cybersecurity Compliance",
+        "items": [
+          "NESA UAE",
+          "CSA cybersecurity",
+          "Dubai DIFC data protection",
+          "Saudi NCA standards"
+        ]
+      },
+      {
+        "id": "cybcar",
+        "label": "Cybersecurity Careers UAE",
+        "items": [
+          "CISSP certification",
+          "CEH training",
+          "cybersecurity jobs Dubai",
+          "GIAC certification"
+        ]
+      }
+    ],
+    "total_articles": 95,
+    "scan_time_seconds": 53.4,
+    "scores": [
+      9.5,
+      9.5,
+      9.5,
+      9.5,
+      9.5,
+      9.5,
+      9.5,
+      9.5,
+      9.5,
+      9.5,
+      9.5,
+      9.5,
+      9.5,
+      9.5,
+      9.5,
+      9.0,
+      9.0,
+      9.0,
+      9.0,
+      9.0,
+      9.0,
+      9.0,
+      9.0,
+      9.0,
+      9.0,
+      9.0,
+      9.0,
+      8.5,
+      8.5,
+      8.5,
+      8.5,
+      8.5,
+      8.5,
+      8.5,
+      8.5,
+      8.5,
+      8.5,
+      8.5,
+      8.5,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      7.5,
+      7.5,
+      7.5,
+      7.0,
+      7.0,
+      7.0,
+      7.0,
+      7.0,
+      4.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.0,
+      2.5,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0
+    ],
+    "score_stats": {
+      "mean": 6.27,
+      "median": 8.0,
+      "stdev": 2.92,
+      "min": 2.0,
+      "max": 9.5,
+      "above_7": 56,
+      "below_5": 39,
+      "pct_above_7": 58.9,
+      "pct_below_5": 41.1
+    },
+    "category_counts": {
+      "cybthr": 46,
+      "corres": 15,
+      "cybcar": 23,
+      "maricar": 3,
+      "confcfp": 2,
+      "gcccyb": 6
+    },
+    "source_distribution": {
+      "Serper/Google": 83,
+      "LinkedIn": 7,
+      "Instagram": 5
+    },
+    "top_10": [
+      {
+        "title": "Insomnia Data Theft Gang Targets Healthcare: Why Perimeter Fails",
+        "score": 9.5,
+        "reason": "LLM: highly relevant healthcare cybersecurity threat article for a penetration testing specialist targeting government clients",
+        "category": "cybthr",
+        "url": "https://www.kiteworks.com/cybersecurity-risk-management/insomnia-data-theft-healthcare-threats/"
+      },
+      {
+        "title": "CVE-2026-20127 - Cisco Catalyst Zero-Day Vulnerability | eSentire",
+        "score": 9.5,
+        "reason": "LLM: extremely relevant Cisco zero-day vulnerability article for a penetration testing specialist targeting government clients",
+        "category": "cybthr",
+        "url": "https://www.esentire.com/security-advisories/cve-2026-20127-cisco-catalyst-zero-day-vulnerability"
+      },
+      {
+        "title": "CrowdStrike 2026 Global Threat Report | by SOCFortress - Medium",
+        "score": 9.5,
+        "reason": "LLM: Directly actionable threat report matching user's penetration testing and SOC operations for government clients",
+        "category": "cybthr",
+        "url": "https://medium.com/@socfortress/crowdstrike-2026-global-threat-report-7396c631c65d"
+      },
+      {
+        "title": "Hackers abused Cisco SD-WAN zero-day since 2023 to gain full ...",
+        "score": 9.5,
+        "reason": "LLM: Actionable exploitation report matching user's government client penetration testing and SOC operations",
+        "category": "cybthr",
+        "url": "https://securityaffairs.com/188540/security/hackers-abused-cisco-sd-wan-zero-day-since-2023-to-gain-full-admin-control.html?amp"
+      },
+      {
+        "title": "Global Cyber Agencies Urge Immediate Patching of Cisco SD-WAN ...",
+        "score": 9.5,
+        "reason": "LLM: Directly actionable for a penetration tester facing urgent patching requirements in the SD-WAN space",
+        "category": "cybthr",
+        "url": "https://www.infosecurity-magazine.com/news/immediate-patch-cisco-catalyst/"
+      },
+      {
+        "title": "Why SOCs are moving toward autonomous security operations in ...",
+        "score": 9.5,
+        "reason": "LLM: Directly actionable article for a senior cybersecurity consultant facing alert volume and threat detection challenges.",
+        "category": "cybthr",
+        "url": "https://www.helpnetsecurity.com/2026/02/24/socs-autonomous-security-operations-strategies/"
+      },
+      {
+        "title": "CrowdStrike 2026 Global Threat Report: Evasive Adversary Wields AI",
+        "score": 9.5,
+        "reason": "LLM: Actionable article from a trusted cybersecurity vendor providing insights into the same threat landscape and automation challenges.",
+        "category": "cybthr",
+        "url": "https://www.crowdstrike.com/en-us/blog/crowdstrike-2026-global-threat-report-findings/"
+      },
+      {
+        "title": "From alarm to verdict: in a matter of minutes - SOCWISE",
+        "score": 9.5,
+        "reason": "LLM: Directly actionable article demonstrating the exact AI-powered SOC automation solution the user needs to address their alert volume and threat detection challenges.",
+        "category": "cybthr",
+        "url": "https://socwise.eu/from-alarm-to-verdict-in-a-matter-of-minutes/"
+      },
+      {
+        "title": "Intelligence-Driven Active Defense Report 2026 - Palo Alto Networks",
+        "score": 9.5,
+        "reason": "LLM: Directly actionable for a senior cybersecurity consultant in Dubai, covering the latest threats and defense strategies they need to stay ahead of.",
+        "category": "cybthr",
+        "url": "https://www.paloaltonetworks.com/resources/whitepapers/securing-ot-environments"
+      },
+      {
+        "title": "Why corals bleach: Neutrons show algae photosynthesis breaking ...",
+        "score": 9.5,
+        "reason": "LLM: Directly actionable for a PhD student researching coral bleaching and ocean acidification.",
+        "category": "corres",
+        "url": "https://phys.org/news/2026-02-corals-neutrons-algae-photosynthesis.html"
+      }
+    ],
+    "bottom_10": [
+      {
+        "title": "Shallow seasonal stratification ameliorates coral bleaching during ...",
+        "score": 8.0,
+        "reason": "Notable development: bleaching, coral, marine",
+        "category": "corres",
+        "url": "https://link.springer.com/article/10.1007/s00338-026-02835-w"
+      },
+      {
+        "title": "U.M. scientists test AI 'early warning' system for sick coral reefs",
+        "score": 8.0,
+        "reason": "Notable development: bleaching, reef, coral",
+        "category": "corres",
+        "url": "https://kbindependent.org/2026/02/25/u-m-scientists-test-ai-early-warning-system-for-sick-coral-reefs/"
+      },
+      {
+        "title": "Cybersecurity Trends 2026 | What to Expect - Xcitium",
+        "score": 7.5,
+        "reason": "LLM: Xcitium is a provider that competes with Sophos, and the article provides a general overview of cybersecurity trends that could inform the user's decision-making.",
+        "category": "cybthr",
+        "url": "https://www.xcitium.com/blog/news/cybersecurity-trends-2026/"
+      },
+      {
+        "title": "How Public Sector Organizations Protect Their Communities Without ...",
+        "score": 7.5,
+        "reason": "LLM-rescore: This article provides high-value, professional-grade content tailored to a senior cybersecurity consultant's needs, covering real-world threats, defense strategies, and operational insights relevant to their role and stated interests.",
+        "category": "cybthr",
+        "url": "https://www.halcyon.ai/blog/how-public-sector-organizations-protect-their-communities-without-breaking-the-budget"
+      },
+      {
+        "title": "CloudATG: AI Development, Cloud Infrastructure & Software Solutions",
+        "score": 7.5,
+        "reason": "LLM: Directly relevant to a cybersecurity consultant's field, covering zero-day exploit sales and regulatory compliance",
+        "category": "cybthr",
+        "url": "https://www.cloudatg.com/"
+      },
+      {
+        "title": "Ransomware Protection for Business: The Complete Defense ...",
+        "score": 7.0,
+        "reason": "Relevant topic: cybersecurity, ransomware, defense",
+        "category": "cybthr",
+        "url": "https://www.graygroupintl.com/blog/ransomware-protection-business/"
+      },
+      {
+        "title": "Infrastructure Intelligence in Cybersecurity: Detect Threats Before ...",
+        "score": 7.0,
+        "reason": "Relevant topic: detection, cybersecurity, threats",
+        "category": "cybthr",
+        "url": "https://www.loginsoft.com/post/infrastructure-intelligence-in-cybersecurity-detect-threats-before-they-launch"
+      },
+      {
+        "title": "Veeam Air Gap- Advanced Implementation for Ransomware Defense",
+        "score": 7.0,
+        "reason": "Relevant topic: ransomware defense, ransomware, defense",
+        "category": "cybthr",
+        "url": "https://medium.com/@frankd228801/veeam-air-gap-advanced-implementation-for-ransomware-defense-6884c41cf5a1"
+      },
+      {
+        "title": "Defense Contractor Employee Jailed for Selling 8 Zero-Days to ...",
+        "score": 7.0,
+        "reason": "Relevant topic: zero-day, defense",
+        "category": "cybthr",
+        "url": "https://thehackernews.com/2026/02/defense-contractor-employee-jailed-for.html"
+      },
+      {
+        "title": "Cyber Valuations Climb as Capital Concentrates and AI Security ...",
+        "score": 7.0,
+        "reason": "LLM: Moderately relevant to a cybersecurity consultant's field, covering venture funding for cybersecurity companies and regulatory compliance",
+        "category": "cybthr",
+        "url": "https://www.news4hackers.com/cyber-valuations-climb-as-capital-concentrates-and-ai-security-expands-globally/"
+      }
+    ],
+    "briefing": {},
+    "meta": {
+      "version": "3.0",
+      "generated_at": "2026-02-27T10:33:08.042927",
+      "news_count": 95,
+      "critical_count": 0,
+      "high_count": 0,
+      "context_hash": "3643d64c3d34"
+    }
+  },
+  "5": {
+    "profile_num": 5,
+    "name": "Diag_P5_Teacher",
+    "role": "High school Mathematics Teacher",
+    "location": "Sao Paulo, Brazil",
+    "context": "Preparing students for university entrance exams. Interested in EdTech tools and curriculum development.",
+    "context_hash": "a9cfc15e5709",
+    "categories": [
+      {
+        "id": "edtech",
+        "label": "EdTech Tools & Platforms",
+        "items": [
+          "Khan Academy",
+          "Desmos math",
+          "GeoGebra",
+          "AI tutoring platforms"
+        ]
+      },
+      {
+        "id": "mathcur",
+        "label": "Mathematics Curriculum",
+        "items": [
+          "ENEM exam preparation",
+          "math olympiad Brazil",
+          "curriculum BNCC",
+          "vestibular math"
+        ]
+      },
+      {
+        "id": "teachpd",
+        "label": "Teacher Professional Development",
+        "items": [
+          "teacher training workshops",
+          "education conferences Brazil",
+          "STEM teaching methods"
+        ]
+      }
+    ],
+    "total_articles": 100,
+    "scan_time_seconds": 40.7,
+    "scores": [
+      9.5,
+      9.5,
+      9.5,
+      9.5,
+      9.5,
+      9.5,
+      9.5,
+      9.5,
+      9.5,
+      9.5,
+      9.0,
+      9.0,
+      9.0,
+      9.0,
+      9.0,
+      9.0,
+      9.0,
+      9.0,
+      8.5,
+      8.5,
+      8.5,
+      8.5,
+      8.5,
+      8.5,
+      8.5,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      7.5,
+      7.5,
+      7.0,
+      7.0,
+      7.0,
+      6.5,
+      6.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.0,
+      3.0,
+      3.0,
+      3.0,
+      3.0,
+      2.5,
+      2.5,
+      2.5,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0
+    ],
+    "score_stats": {
+      "mean": 4.79,
+      "median": 3.5,
+      "stdev": 2.93,
+      "min": 2.0,
+      "max": 9.5,
+      "above_7": 34,
+      "below_5": 64,
+      "pct_above_7": 34.0,
+      "pct_below_5": 64.0
+    },
+    "category_counts": {
+      "edtech": 54,
+      "cybthr": 18,
+      "teachpd": 17,
+      "cybcar": 2,
+      "mathcur": 9
+    },
+    "source_distribution": {
+      "Serper/Google": 84,
+      "LinkedIn": 6,
+      "Instagram": 10
+    },
+    "top_10": [
+      {
+        "title": "[PDF] A.I INTEGRATION FOR IMPROVING SELF EFFICACY OF ... - Jetir.Org",
+        "score": 9.5,
+        "reason": "LLM: Directly actionable for a high school math teacher in Brazil preparing students for university exams.",
+        "category": "edtech",
+        "url": "https://www.jetir.org/papers/JETIR2602235.pdf"
+      },
+      {
+        "title": "Insomnia Data Theft Gang Targets Healthcare: Why Perimeter Fails",
+        "score": 9.5,
+        "reason": "LLM: highly relevant healthcare cybersecurity threat article for a penetration testing specialist targeting government clients",
+        "category": "cybthr",
+        "url": "https://www.kiteworks.com/cybersecurity-risk-management/insomnia-data-theft-healthcare-threats/"
+      },
+      {
+        "title": "CVE-2026-20127 - Cisco Catalyst Zero-Day Vulnerability | eSentire",
+        "score": 9.5,
+        "reason": "LLM: extremely relevant Cisco zero-day vulnerability article for a penetration testing specialist targeting government clients",
+        "category": "cybthr",
+        "url": "https://www.esentire.com/security-advisories/cve-2026-20127-cisco-catalyst-zero-day-vulnerability"
+      },
+      {
+        "title": "CrowdStrike 2026 Global Threat Report | by SOCFortress - Medium",
+        "score": 9.5,
+        "reason": "LLM: Directly actionable threat report matching user's penetration testing and SOC operations for government clients",
+        "category": "cybthr",
+        "url": "https://medium.com/@socfortress/crowdstrike-2026-global-threat-report-7396c631c65d"
+      },
+      {
+        "title": "Hackers abused Cisco SD-WAN zero-day since 2023 to gain full ...",
+        "score": 9.5,
+        "reason": "LLM: Actionable exploitation report matching user's government client penetration testing and SOC operations",
+        "category": "cybthr",
+        "url": "https://securityaffairs.com/188540/security/hackers-abused-cisco-sd-wan-zero-day-since-2023-to-gain-full-admin-control.html?amp"
+      },
+      {
+        "title": "Global Cyber Agencies Urge Immediate Patching of Cisco SD-WAN ...",
+        "score": 9.5,
+        "reason": "LLM: Directly actionable for a penetration tester facing urgent patching requirements in the SD-WAN space",
+        "category": "cybthr",
+        "url": "https://www.infosecurity-magazine.com/news/immediate-patch-cisco-catalyst/"
+      },
+      {
+        "title": "Why SOCs are moving toward autonomous security operations in ...",
+        "score": 9.5,
+        "reason": "LLM: Directly actionable article for a senior cybersecurity consultant facing alert volume and threat detection challenges.",
+        "category": "cybthr",
+        "url": "https://www.helpnetsecurity.com/2026/02/24/socs-autonomous-security-operations-strategies/"
+      },
+      {
+        "title": "CrowdStrike 2026 Global Threat Report: Evasive Adversary Wields AI",
+        "score": 9.5,
+        "reason": "LLM: Actionable article from a trusted cybersecurity vendor providing insights into the same threat landscape and automation challenges.",
+        "category": "cybthr",
+        "url": "https://www.crowdstrike.com/en-us/blog/crowdstrike-2026-global-threat-report-findings/"
+      },
+      {
+        "title": "From alarm to verdict: in a matter of minutes - SOCWISE",
+        "score": 9.5,
+        "reason": "LLM: Directly actionable article demonstrating the exact AI-powered SOC automation solution the user needs to address their alert volume and threat detection challenges.",
+        "category": "cybthr",
+        "url": "https://socwise.eu/from-alarm-to-verdict-in-a-matter-of-minutes/"
+      },
+      {
+        "title": "Intelligence-Driven Active Defense Report 2026 - Palo Alto Networks",
+        "score": 9.5,
+        "reason": "LLM: Directly actionable for a senior cybersecurity consultant in Dubai, covering the latest threats and defense strategies they need to stay ahead of.",
+        "category": "cybthr",
+        "url": "https://www.paloaltonetworks.com/resources/whitepapers/securing-ot-environments"
+      }
+    ],
+    "bottom_10": [
+      {
+        "title": "EdTech Funding News Today: Top Startups & Latest Deals - - Techloy",
+        "score": 8.0,
+        "reason": "LLM: Directly actionable for a High school Mathematics Teacher preparing students for university entrance exams.",
+        "category": "edtech",
+        "url": "https://techloy.co.uk/edtech-funding-news-today-top-startups-latest-deals/"
+      },
+      {
+        "title": "Agentic AI Blog - Latest Insights & Research - ibl.ai",
+        "score": 8.0,
+        "reason": "LLM: Highly relevant to user's field/interests in EdTech tools and AI tutoring platforms.",
+        "category": "edtech",
+        "url": "https://ibl.ai/blog"
+      },
+      {
+        "title": "ChatGPT Now Has Ads \u2014 And It Should Change How You ... - ibl.ai",
+        "score": 8.0,
+        "reason": "LLM: Actionable for user preparing students for university entrance exams with AI tools.",
+        "category": "edtech",
+        "url": "https://ibl.ai/blog/chatgpt-ads-why-organizations-need-to-own-their-ai"
+      },
+      {
+        "title": "Education Coordinator - Oxford Learning Stouffville",
+        "score": 7.5,
+        "reason": "Hiring with relevance: education, teaching",
+        "category": "teachpd",
+        "url": "https://oxfordlearning.talentnest.com/posting/142702"
+      },
+      {
+        "title": "Vacancies for \"teachers training\" | UNjobs",
+        "score": 7.5,
+        "reason": "Hiring with relevance: education, teacher",
+        "category": "teachpd",
+        "url": "https://unjobs.org/skills/teachers-training"
+      },
+      {
+        "title": "Why schools keep losing the technology bet - The Argument",
+        "score": 7.0,
+        "reason": "LLM: Strongly relevant to a teacher's field, discussing why schools lose the technology bet.",
+        "category": "edtech",
+        "url": "https://www.theargumentmag.com/p/why-schools-keep-losing-the-technology"
+      },
+      {
+        "title": "AI Tools for Math Teachers: A Subject-Specific Guide",
+        "score": 7.0,
+        "reason": "Relevant topic: tools, math",
+        "category": "edtech",
+        "url": "https://www.educatorstechnology.com/2026/02/ai-tools-for-math-teachers.html"
+      },
+      {
+        "title": "Bolsa de PD em Curr\u00edculo e Avalia\u00e7\u00e3o Educacional - FAPESP",
+        "score": 7.0,
+        "reason": "LLM: Moderately relevant as it touches on curriculum development and educational assessment, though the content appears incomplete",
+        "category": "mathcur",
+        "url": "https://fapesp.br/oportunidades/centro-de-inclusao-e-acessibilidade-por-meio-da-tecnologia-(ciatec)-%E2%80%93-plataforma-aberta-de-jogos-adaptativos-para-educacao-inclusiva:-modelo-de-inteligencia-artificial-para-aprendizagem-personalizada-baseado-no-transtorno-do-espectro-autista/9104/"
+      },
+      {
+        "title": "10/02/2026 - Banca de DEFESA: BRENDA SILVA OLIVEIRA",
+        "score": 6.5,
+        "reason": "LLM: Relevant to a high school math teacher in Brazil preparing students for university entrance exams, but lacks specific actionability.",
+        "category": "mathcur",
+        "url": "https://sigs.ufrpe.br/sigaa/public/programa/noticias_desc.jsf?lc=en_US&id=267&noticia=42091434"
+      },
+      {
+        "title": "Inf\u00e2ncia Neoliberal: a educa\u00e7\u00e3o das crian\u00e7as de uma sociedade ...",
+        "score": 6.5,
+        "reason": "LLM: Somewhat relevant as it discusses educational policy and curriculum development, but the content appears limited and fragmented",
+        "category": "mathcur",
+        "url": "https://www.researchgate.net/publication/400914615_Infancia_Neoliberal_a_educacao_das_criancas_de_uma_sociedade_capitalistaInfancia_Neoliberal_La_Educacion_de_los_Ninos_en_una_Sociedad_CapitalistaNeoliberal_Childhood_The_Education_of_Children_in_a_Cap"
+      }
+    ],
+    "briefing": {},
+    "meta": {
+      "version": "3.0",
+      "generated_at": "2026-02-27T10:33:50.717442",
+      "news_count": 100,
+      "critical_count": 0,
+      "high_count": 0,
+      "context_hash": "a9cfc15e5709"
+    }
+  },
+  "6": {
+    "profile_num": 6,
+    "name": "Diag_P6_ElecTech",
+    "role": "Electrical Technician at the Ministry of Electricity & Water",
+    "location": "Kuwait City, Kuwait",
+    "context": "Maintains power distribution substations. Interested in trade certifications (City & Guilds, IEC standards) and government pay scale updates. Looking for overtime opportunities.",
+    "context_hash": "b908525c15b1",
+    "categories": [
+      {
+        "id": "mewjob",
+        "label": "MEW & Government Jobs",
+        "items": [
+          "Ministry of Electricity Water Kuwait",
+          "MEW Kuwait",
+          "government technician jobs Kuwait",
+          "Kuwait civil service"
+        ]
+      },
+      {
+        "id": "elecert",
+        "label": "Electrical Trade Certifications",
+        "items": [
+          "City Guilds electrical",
+          "IEC 60364 training",
+          "NEC code updates",
+          "electrical safety certification"
+        ]
+      },
+      {
+        "id": "powsys",
+        "label": "Power Distribution & Substations",
+        "items": [
+          "substation maintenance",
+          "power transformer",
+          "switchgear technology",
+          "smart grid Kuwait"
+        ]
+      }
+    ],
+    "total_articles": 68,
+    "scan_time_seconds": 42.1,
+    "scores": [
+      9.5,
+      9.5,
+      9.0,
+      9.0,
+      9.0,
+      9.0,
+      8.5,
+      8.5,
+      8.5,
+      8.5,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      7.5,
+      7.5,
+      7.5,
+      7.0,
+      7.0,
+      7.0,
+      7.0,
+      7.0,
+      7.0,
+      7.0,
+      4.5,
+      4.0,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.0,
+      2.5,
+      2.5,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      1.5
+    ],
+    "score_stats": {
+      "mean": 5.36,
+      "median": 5.75,
+      "stdev": 2.78,
+      "min": 1.5,
+      "max": 9.5,
+      "above_7": 34,
+      "below_5": 34,
+      "pct_above_7": 50.0,
+      "pct_below_5": 50.0
+    },
+    "category_counts": {
+      "powsys": 26,
+      "edtech": 7,
+      "mewjob": 16,
+      "teachpd": 1,
+      "mathcur": 1,
+      "elecert": 17
+    },
+    "source_distribution": {
+      "Serper/Google": 56,
+      "LinkedIn": 9,
+      "Instagram": 3
+    },
+    "top_10": [
+      {
+        "title": "2026 Oil Immersed Transformer Price Trends - Knowledge",
+        "score": 9.5,
+        "reason": "LLM: Highly relevant technical article about transformer pricing trends directly applicable to a power distribution technician's role.",
+        "category": "powsys",
+        "url": "https://www.yaweitransformer.com/info/2026-oil-immersed-transformer-price-trends-103406256.html"
+      },
+      {
+        "title": "[PDF] A.I INTEGRATION FOR IMPROVING SELF EFFICACY OF ... - Jetir.Org",
+        "score": 9.5,
+        "reason": "LLM: Directly actionable for a high school math teacher in Brazil preparing students for university exams.",
+        "category": "edtech",
+        "url": "https://www.jetir.org/papers/JETIR2602235.pdf"
+      },
+      {
+        "title": "Contract jobs vacancies - MEW Kuwait",
+        "score": 9.0,
+        "reason": "Relevant hiring: kuwait, mew, mew kuwait",
+        "category": "mewjob",
+        "url": "https://www.mew.gov.kw/en/job-openings/jobvacancyform1/"
+      },
+      {
+        "title": "Recruitment in Uganda - CV Library | Ugandajob.com",
+        "score": 9.0,
+        "reason": "Relevant hiring: kuwait, service, water",
+        "category": "mewjob",
+        "url": "https://www.ugandajob.com/cv-library-search/?f%5B0%5D=im_field_candidat_secteur%3A146&f%5B1%5D=im_field_candidat_secteur%3A22&f%5B2%5D=im_field_candidat_langue%3A817&f%5B3%5D=im_field_candidat_secteur%3A124&f%5B4%5D=im_field_candidat_langue%3A835"
+      },
+      {
+        "title": "Recruitment Northern Province : Production, maintenance, quality CVs",
+        "score": 9.0,
+        "reason": "Relevant hiring: kuwait, service, water",
+        "category": "mewjob",
+        "url": "https://www.rwandajob.com/cv-library-search/?f%5B0%5D=im_field_candidat_metier%3A37&f%5B1%5D=im_field_candidat_region%3A57&f%5B2%5D=im_field_candidat_exp_level%3A72&f%5B3%5D=im_field_candidat_secteur%3A143"
+      },
+      {
+        "title": "Hiring for 2026!Teach English Overseas with Full Training, Visa ...",
+        "score": 9.0,
+        "reason": "Entry-level hiring match: education, professional, teacher",
+        "category": "teachpd",
+        "url": "https://ca.linkedin.com/jobs/view/hiring-for-2026%21teach-english-overseas-with-full-training-visa-sponsorship-career-support-at-english-1-4376549538"
+      },
+      {
+        "title": "What Surprising Innovations Are Transforming Global Power Supply ...",
+        "score": 8.5,
+        "reason": "LLM: Extremely relevant market analysis for an electrical technician working in power distribution and substations, with clear implications for their technical role.",
+        "category": "powsys",
+        "url": "https://insights.made-in-china.com/What-Surprising-Innovations-Are-Transforming-Global-Power-Supply-Distribution-in-2026_atWTNwbuHnie.html"
+      },
+      {
+        "title": "AI Tools Every Teacher Should Know in 2026 - AITUDE",
+        "score": 8.5,
+        "reason": "LLM: Highly relevant AI edtech content for a teacher preparing students for university entrance exams.",
+        "category": "edtech",
+        "url": "https://www.aitude.com/ai-tools-every-teacher-should-know-in-2026/"
+      },
+      {
+        "title": "Chuy\u00ean vi\u00ean Ph\u00e1t tri\u1ec3n n\u1ed9i dung To\u00e1n ph\u1ed5 th\u00f4ng - Glints",
+        "score": 8.5,
+        "reason": "LLM: Highly relevant to a high school math teacher in Brazil who needs to integrate AI tools like GeoGebra into their curriculum.",
+        "category": "edtech",
+        "url": "https://glints.com/opportunities/jobs/chuyen-vien-phat-trien-noi-dung-toan-pho-thong/0cef7b8b-df8a-4329-858a-0af522250a46"
+      },
+      {
+        "title": "(PDF) BNCC e ensino de gen\u00e9tica: uma an\u00e1lise comparativa de ...",
+        "score": 8.5,
+        "reason": "LLM: Highly relevant to a teacher preparing students for exams, involving curriculum analysis and educational policy",
+        "category": "mathcur",
+        "url": "https://www.researchgate.net/publication/400950741_BNCC_e_ensino_de_genetica_uma_analise_comparativa_de_colecoes_de_livros_didaticos_do_ensino_medio_antes_e_apos_sua_implementacao"
+      }
+    ],
+    "bottom_10": [
+      {
+        "title": "Washington State - 1 Exam Prep",
+        "score": 7.5,
+        "reason": "LLM: Highly relevant to electrical trade certification needs",
+        "category": "elecert",
+        "url": "https://1examprep.com/pages/washington-state?srsltid=AfmBOopMuSzvusS5QWux_hyAyytcUQjYrioX_vMSaC6019smGNBcGJDc"
+      },
+      {
+        "title": "Power & Utility Industry Events - CEATI",
+        "score": 7.5,
+        "reason": "LLM: Highly relevant conference announcement for an electrical technician working in power distribution and substations.",
+        "category": "powsys",
+        "url": "https://my.ceati.com/events"
+      },
+      {
+        "title": "Discom Digitalisation: Moving to data-led planning and predictive ...",
+        "score": 7.5,
+        "reason": "LLM: Moderately relevant technical article about digitalisation in power distribution, applicable to a power distribution technician's role.",
+        "category": "powsys",
+        "url": "https://powerline.net.in/2026/02/23/discom-digitalisation-moving-to-data-led-planning-and-predictive-operations/"
+      },
+      {
+        "title": "Electrical Safety Training Courses | ElectricalSafetyAcademy",
+        "score": 7.0,
+        "reason": "Title relevance: nec code updates, code, certification",
+        "category": "elecert",
+        "url": "https://www.electricalsafetyacademy.com/courses/nfpa-70e-qualified-person-training"
+      },
+      {
+        "title": "Canadian Electrical Trade Study Guide",
+        "score": 7.0,
+        "reason": "Title relevance: trade, code, electrical",
+        "category": "elecert",
+        "url": "https://electricalindustry.ca/education-events/canadian-electrical-trade-study-guide/"
+      },
+      {
+        "title": "IEEE & IAS Electrical Safety, Technical, Maintenance, and Projects ...",
+        "score": 7.0,
+        "reason": "Title relevance: code, electrical, safety",
+        "category": "elecert",
+        "url": "https://electricalindustry.ca/education-events/ieee-ias-workshop-march-26/"
+      },
+      {
+        "title": "Substation Maintenance Transition Toward Clever Data-driven ...",
+        "score": 7.0,
+        "reason": "Relevant topic: maintenance, substation, substation maintenance",
+        "category": "powsys",
+        "url": "https://electrical-engineering-portal.com/substation-maintenance-transition-toward-clever-data-driven-asset-management"
+      },
+      {
+        "title": "Substation Automation Systems for Reliable Power Distribution",
+        "score": 7.0,
+        "reason": "Relevant topic: distribution, power, smart",
+        "category": "powsys",
+        "url": "https://www.kingsresearch.com/blog/10-leading-firms-influencing-substation-automation-market"
+      },
+      {
+        "title": "Power Transformer Installation: Common Cable Types and ...",
+        "score": 7.0,
+        "reason": "Relevant topic: transformer, power transformer, power",
+        "category": "powsys",
+        "url": "https://www.npcelectric.com/news/power-transformer-installation-common-cable-types-and-selection-guide.html"
+      },
+      {
+        "title": "power transformers | Transformer Magazine",
+        "score": 7.0,
+        "reason": "Relevant topic: transformer, power transformer, power",
+        "category": "powsys",
+        "url": "https://transformers-magazine.com/tag/power-transformers/"
+      }
+    ],
+    "briefing": {},
+    "meta": {
+      "version": "3.0",
+      "generated_at": "2026-02-27T10:34:34.796176",
+      "news_count": 68,
+      "critical_count": 0,
+      "high_count": 0,
+      "context_hash": "b908525c15b1"
+    }
+  },
+  "7": {
+    "profile_num": 7,
+    "name": "Diag_P7_PetroJourno",
+    "role": "Energy Sector Journalist at Kuwait Times",
+    "location": "Kuwait City, Kuwait",
+    "context": "Covering OPEC decisions, KPC quarterly results, and regional energy transition. Writing feature stories on oil industry workforce changes.",
+    "context_hash": "8b2ed41eec87",
+    "categories": [
+      {
+        "id": "opecnw",
+        "label": "OPEC & Energy Markets",
+        "items": [
+          "OPEC production",
+          "KPC quarterly results",
+          "Kuwait oil output",
+          "energy transition GCC"
+        ]
+      },
+      {
+        "id": "kwtmed",
+        "label": "Kuwait Media & Press",
+        "items": [
+          "Kuwait Times",
+          "Arab Times",
+          "Kuwait News Agency KUNA",
+          "GCC press awards"
+        ]
+      },
+      {
+        "id": "enstory",
+        "label": "Energy Industry Stories",
+        "items": [
+          "oil workforce automation",
+          "green hydrogen GCC",
+          "carbon capture Middle East",
+          "LNG export terminal"
+        ]
+      }
+    ],
+    "total_articles": 100,
+    "scan_time_seconds": 58.4,
+    "scores": [
+      9.5,
+      9.5,
+      9.0,
+      9.0,
+      9.0,
+      9.0,
+      9.0,
+      8.5,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      7.0,
+      7.0,
+      7.0,
+      7.0,
+      7.0,
+      7.0,
+      7.0,
+      7.0,
+      4.5,
+      4.0,
+      4.0,
+      4.0,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.0,
+      3.0,
+      3.0,
+      3.0,
+      3.0
+    ],
+    "score_stats": {
+      "mean": 6.07,
+      "median": 7.0,
+      "stdev": 2.29,
+      "min": 3.0,
+      "max": 9.5,
+      "above_7": 57,
+      "below_5": 43,
+      "pct_above_7": 57.0,
+      "pct_below_5": 43.0
+    },
+    "category_counts": {
+      "enstory": 14,
+      "powsys": 10,
+      "kwtmed": 49,
+      "mewjob": 4,
+      "opecnw": 12,
+      "elecert": 1,
+      "career": 10
+    },
+    "source_distribution": {
+      "Serper/Google": 71,
+      "Kuwait News": 14,
+      "Instagram": 13,
+      "LinkedIn": 2
+    },
+    "top_10": [
+      {
+        "title": "How AI is becoming central to oil and gas finance strategy | EY - India",
+        "score": 9.5,
+        "reason": "Breakthrough in tracked area: automation, stories, energy",
+        "category": "enstory",
+        "url": "https://www.ey.com/en_in/insights/ai/how-ai-is-becoming-central-to-oil-and-gas-finance-strategy"
+      },
+      {
+        "title": "2026 Oil Immersed Transformer Price Trends - Knowledge",
+        "score": 9.5,
+        "reason": "LLM: Highly relevant technical article about transformer pricing trends directly applicable to a power distribution technician's role.",
+        "category": "powsys",
+        "url": "https://www.yaweitransformer.com/info/2026-oil-immersed-transformer-price-trends-103406256.html"
+      },
+      {
+        "title": "Celebrating Kuwait's National & Liberation Days Al-Rashed ...",
+        "score": 9.0,
+        "reason": "Relevant hiring: times, kuwait times, kuwait",
+        "category": "kwtmed",
+        "url": "https://www.facebook.com/timeskuwait/posts/-celebrating-kuwaits-national-liberation-days-al-rashed-international-shipping-c/1519230260203950/"
+      },
+      {
+        "title": "08 December 2024 Oman Today 1065 - Oman News Agency",
+        "score": 9.0,
+        "reason": "Relevant hiring: agency, kuna, kuwait",
+        "category": "kwtmed",
+        "url": "https://omannews.gov.om/topics/en/79/page/62"
+      },
+      {
+        "title": "Contract jobs vacancies - MEW Kuwait",
+        "score": 9.0,
+        "reason": "Relevant hiring: kuwait, mew, mew kuwait",
+        "category": "mewjob",
+        "url": "https://www.mew.gov.kw/en/job-openings/jobvacancyform1/"
+      },
+      {
+        "title": "Recruitment in Uganda - CV Library | Ugandajob.com",
+        "score": 9.0,
+        "reason": "Relevant hiring: kuwait, service, water",
+        "category": "mewjob",
+        "url": "https://www.ugandajob.com/cv-library-search/?f%5B0%5D=im_field_candidat_secteur%3A146&f%5B1%5D=im_field_candidat_secteur%3A22&f%5B2%5D=im_field_candidat_langue%3A817&f%5B3%5D=im_field_candidat_secteur%3A124&f%5B4%5D=im_field_candidat_langue%3A835"
+      },
+      {
+        "title": "Recruitment Northern Province : Production, maintenance, quality CVs",
+        "score": 9.0,
+        "reason": "Relevant hiring: kuwait, service, water",
+        "category": "mewjob",
+        "url": "https://www.rwandajob.com/cv-library-search/?f%5B0%5D=im_field_candidat_metier%3A37&f%5B1%5D=im_field_candidat_region%3A57&f%5B2%5D=im_field_candidat_exp_level%3A72&f%5B3%5D=im_field_candidat_secteur%3A143"
+      },
+      {
+        "title": "What Surprising Innovations Are Transforming Global Power Supply ...",
+        "score": 8.5,
+        "reason": "LLM: Extremely relevant market analysis for an electrical technician working in power distribution and substations, with clear implications for their technical role.",
+        "category": "powsys",
+        "url": "https://insights.made-in-china.com/What-Surprising-Innovations-Are-Transforming-Global-Power-Supply-Distribution-in-2026_atWTNwbuHnie.html"
+      },
+      {
+        "title": "Strait of Hormuz Tension: Energy Security Risk Analysis",
+        "score": 8.0,
+        "reason": "LLM: Article provides direct market intelligence and risk analysis relevant to this user's energy sector coverage",
+        "category": "opecnw",
+        "url": "https://discoveryalert.com.au/global-energy-infrastructure-vulnerabilities-2026/"
+      },
+      {
+        "title": "Scottish fashion seeks new talent for homespun crafts - Kuwait Times",
+        "score": 8.0,
+        "reason": "Relevant opportunity in target location: times, kuwait times, kuwait",
+        "category": "kwtmed",
+        "url": "https://kuwaittimes.com/article/40104/lifestyle/art-fashion/scottish-fashion-seeks-new-talent-for-homespun-crafts/"
+      }
+    ],
+    "bottom_10": [
+      {
+        "title": "Medium Voltage Switchgear Market to Reach $31.7 Billion by 2031",
+        "score": 8.0,
+        "reason": "Notable development: distribution, power, switchgear",
+        "category": "powsys",
+        "url": "https://www.openpr.com/news/4404063/medium-voltage-switchgear-market-to-reach-31-7-billion-by-2031"
+      },
+      {
+        "title": "Qualitrol T&D Solutions at Middle East Energy 2026",
+        "score": 8.0,
+        "reason": "Notable development: distribution, power, grid",
+        "category": "powsys",
+        "url": "https://www.qualitrolcorp.com/news-events/events-and-tradeshows/mee-2026"
+      },
+      {
+        "title": "OPEC Monthly Oil Market Report, February 2026 - Peak Oil Barrel",
+        "score": 7.0,
+        "reason": "Relevant topic: oil, opec",
+        "category": "opecnw",
+        "url": "https://peakoilbarrel.com/opec-monthly-oil-market-report-february-2026/"
+      },
+      {
+        "title": "US Iran Nuclear Talks: Energy Markets React to Diplomacy",
+        "score": 7.0,
+        "reason": "Relevant topic: production, energy, markets",
+        "category": "opecnw",
+        "url": "https://discoveryalert.com.au/strategic-energy-security-nuclear-diplomacy-2026/"
+      },
+      {
+        "title": "Saudi OPEC+ Production Strategy Analysis | Vision 2030 Deep Dive",
+        "score": 7.0,
+        "reason": "Relevant topic: production, energy, markets",
+        "category": "opecnw",
+        "url": "https://vision2030.ai/sectors/oil-gas/opec-strategy/"
+      },
+      {
+        "title": "Acting KUNA Chief, Tunisian Ambassador Discuss Media Ties",
+        "score": 7.0,
+        "reason": "Strong title match: media, kuna",
+        "category": "kwtmed",
+        "url": "https://menafn.com/1110781328/Acting-KUNA-Chief-Tunisian-Ambassador-Discuss-Media-Ties"
+      },
+      {
+        "title": "Oil & Gas Outlook 2026: Pricing Pressure and Efficiency Trends",
+        "score": 7.0,
+        "reason": "LLM: Directly actionable industry outlook with strong relevance to user's coverage of oil price trends and market pressures.",
+        "category": "enstory",
+        "url": "https://www.enverus.com/blog/market-signals-for-2026-what-operators-can-expect-as-the-cycle-slows/"
+      },
+      {
+        "title": "Trump's plan for rising energy costs: pump oil, make data centers pay",
+        "score": 7.0,
+        "reason": "Relevant topic: energy, oil",
+        "category": "enstory",
+        "url": "https://www.latimes.com/environment/story/2026-02-24/trumps-plan-for-rising-energy-costs-pump-oil-make-data-centers-pay"
+      },
+      {
+        "title": "U.S. LNG Exports Could Double, EIA Says - Industrial Info",
+        "score": 7.0,
+        "reason": "Relevant topic: energy, lng, export",
+        "category": "enstory",
+        "url": "https://www.industrialinfo.com/iirenergy/industry-news/article/us-lng-exports-could-double-eia-says--353943"
+      },
+      {
+        "title": "Louisiana LNG terminal projects are caught in US-Korea trade ...",
+        "score": 7.0,
+        "reason": "Relevant topic: lng export terminal, energy, lng",
+        "category": "enstory",
+        "url": "https://www.1012industryreport.com/oil-gas/lng/louisiana-lng-terminal-projects-are-caught-in-us-korea-trade-crossfire/"
+      }
+    ],
+    "briefing": {},
+    "meta": {
+      "version": "3.0",
+      "generated_at": "2026-02-27T10:36:55.032385",
+      "news_count": 100,
+      "critical_count": 0,
+      "high_count": 0,
+      "context_hash": "8b2ed41eec87"
+    }
+  },
+  "8": {
+    "profile_num": 8,
+    "name": "Diag_P8_KOCIT",
+    "role": "IT Support Specialist at Kuwait Oil Company",
+    "location": "Ahmadi, Kuwait",
+    "context": "Managing helpdesk tickets, deploying endpoint security, maintaining SAP access for field teams. Studying for CompTIA Security+ certification.",
+    "context_hash": "75957197de28",
+    "categories": [
+      {
+        "id": "kocit",
+        "label": "KOC IT & Digital",
+        "items": [
+          "KOC",
+          "Kuwait Oil Company digital",
+          "KOC IT department",
+          "KOC SAP"
+        ]
+      },
+      {
+        "id": "itsup",
+        "label": "IT Support & Security",
+        "items": [
+          "endpoint security",
+          "helpdesk automation",
+          "ITIL best practices",
+          "Microsoft 365 admin"
+        ]
+      },
+      {
+        "id": "itcert",
+        "label": "IT Certifications",
+        "items": [
+          "CompTIA Security+",
+          "CompTIA A+",
+          "CCNA certification",
+          "Azure fundamentals"
+        ]
+      }
+    ],
+    "total_articles": 100,
+    "scan_time_seconds": 84.7,
+    "scores": [
+      9.5,
+      9.5,
+      9.5,
+      9.0,
+      9.0,
+      9.0,
+      9.0,
+      9.0,
+      9.0,
+      8.5,
+      8.5,
+      8.5,
+      8.5,
+      8.5,
+      8.5,
+      8.5,
+      8.5,
+      8.5,
+      8.5,
+      8.5,
+      8.5,
+      8.5,
+      8.5,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      7.5,
+      7.5,
+      7.0,
+      7.0,
+      7.0,
+      7.0,
+      7.0,
+      7.0,
+      7.0,
+      7.0,
+      7.0,
+      7.0,
+      7.0,
+      7.0,
+      7.0,
+      7.0,
+      7.0,
+      7.0,
+      7.0,
+      7.0,
+      7.0,
+      7.0,
+      7.0,
+      7.0,
+      7.0,
+      7.0,
+      7.0,
+      7.0,
+      4.5,
+      4.0,
+      4.0,
+      4.0,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5
+    ],
+    "score_stats": {
+      "mean": 7.17,
+      "median": 8.0,
+      "stdev": 1.73,
+      "min": 3.5,
+      "max": 9.5,
+      "above_7": 83,
+      "below_5": 17,
+      "pct_above_7": 83.0,
+      "pct_below_5": 17.0
+    },
+    "category_counts": {
+      "itsup": 33,
+      "enstory": 1,
+      "kocit": 13,
+      "itcert": 33,
+      "kwtmed": 18,
+      "opecnw": 1,
+      "career": 1
+    },
+    "source_distribution": {
+      "Serper/Google": 91,
+      "Kuwait News": 7,
+      "Web Search": 1,
+      "Instagram": 1
+    },
+    "top_10": [
+      {
+        "title": "Define IT Support Tiers to Stop the Ticket Chaos - Atera",
+        "score": 9.5,
+        "reason": "LLM: Directly actionable for this user's role, covering helpdesk automation and ticket management challenges they face daily.",
+        "category": "itsup",
+        "url": "https://www.atera.com/blog/it-support-tiers/"
+      },
+      {
+        "title": "Intermediate Deskside Support Technician (Contract) - Edmonton, Ab",
+        "score": 9.5,
+        "reason": "LLM: Highly actionable for a helpdesk technician, covering both endpoint security and ITIL best practices.",
+        "category": "itsup",
+        "url": "https://ca.jobrapido.com/jobpreview/4960991201042890752"
+      },
+      {
+        "title": "How AI is becoming central to oil and gas finance strategy | EY - India",
+        "score": 9.5,
+        "reason": "Breakthrough in tracked area: automation, stories, energy",
+        "category": "enstory",
+        "url": "https://www.ey.com/en_in/insights/ai/how-ai-is-becoming-central-to-oil-and-gas-finance-strategy"
+      },
+      {
+        "title": "Gulf Spic jobs in Kuwait, Mechanical, Electrical, iiQ8jobs - Facebook",
+        "score": 9.0,
+        "reason": "Relevant hiring: koc, oil, kuwait",
+        "category": "kocit",
+        "url": "https://www.facebook.com/groups/indianinq8/posts/4372703116274622/"
+      },
+      {
+        "title": "ITIL 4 Foundation Training + Certification - all dates - SERVIEW",
+        "score": 9.0,
+        "reason": "LLM: directly actionable for an ITIL-certified specialist preparing for version 5 training",
+        "category": "itsup",
+        "url": "https://en.serview.de/training/itil4-foundation"
+      },
+      {
+        "title": "Microsoft MFA Down \u2013 504 Gateway Timeout Errors Disrupting MFA ...",
+        "score": 9.0,
+        "reason": "LLM: Critical for MFA-protected users experiencing service degradation, directly impacting their ability to work securely.",
+        "category": "itsup",
+        "url": "https://www.cryptika.com/microsoft-mfa-down-504-gateway-timeout-errors-disrupting-mfa-access-for-u-s-users/"
+      },
+      {
+        "title": "Community Center - Cisco Learning Network",
+        "score": 9.0,
+        "reason": "LLM: Authentic community exam passing story with strong relevance to user's professional development",
+        "category": "itcert",
+        "url": "https://learningnetwork.cisco.com/s/community-center"
+      },
+      {
+        "title": "Celebrating Kuwait's National & Liberation Days Al-Rashed ...",
+        "score": 9.0,
+        "reason": "Relevant hiring: times, kuwait times, kuwait",
+        "category": "kwtmed",
+        "url": "https://www.facebook.com/timeskuwait/posts/-celebrating-kuwaits-national-liberation-days-al-rashed-international-shipping-c/1519230260203950/"
+      },
+      {
+        "title": "08 December 2024 Oman Today 1065 - Oman News Agency",
+        "score": 9.0,
+        "reason": "Relevant hiring: agency, kuna, kuwait",
+        "category": "kwtmed",
+        "url": "https://omannews.gov.om/topics/en/79/page/62"
+      },
+      {
+        "title": "CrowdStrike 2026 Global Threat Report: Evasive Adversary Wields AI",
+        "score": 8.5,
+        "reason": "LLM: Directly relevant to user's ITIL and endpoint security roles with actionable AI threat intelligence",
+        "category": "itsup",
+        "url": "https://www.crowdstrike.com/en-us/blog/crowdstrike-2026-global-threat-report-findings/"
+      }
+    ],
+    "bottom_10": [
+      {
+        "title": "CompTIA A+ Exam Test 2026 - App Store - Apple",
+        "score": 7.0,
+        "reason": "Title relevance: comptia, certification, comptia a+",
+        "category": "itcert",
+        "url": "https://apps.apple.com/ca/app/comptia-a-exam-test-2026/id6757940509"
+      },
+      {
+        "title": "CompTia A+ Independent Study | CareerForce - MN.gov",
+        "score": 7.0,
+        "reason": "Title relevance: comptia, certification, comptia a+",
+        "category": "itcert",
+        "url": "https://careerforce.mn.gov/training-programs/comptia-independent-study"
+      },
+      {
+        "title": "CCNA Certification Community - Cisco Learning Network",
+        "score": 7.0,
+        "reason": "Title relevance: certification, ccna certification, ccna",
+        "category": "itcert",
+        "url": "https://learningnetwork.cisco.com/s/topic/0TO3i0000008jYHGAY/ccna-certification-community"
+      },
+      {
+        "title": "Cisco CCNA Training & Certification Program in Lower Lake, CA",
+        "score": 7.0,
+        "reason": "Title relevance: certification, ccna certification, ccna",
+        "category": "itcert",
+        "url": "https://www.eventbrite.com/e/cisco-ccna-training-certification-program-in-lower-lake-ca-tickets-1983119403520"
+      },
+      {
+        "title": "10 Best Azure Certifications For 2026",
+        "score": 7.0,
+        "reason": "Title relevance: certification, azure fundamentals, certifications",
+        "category": "itcert",
+        "url": "https://www.certificationcamps.com/top-azure-certifications/"
+      },
+      {
+        "title": "Azure class training - Microsoft Q&A",
+        "score": 7.0,
+        "reason": "LLM: Training information with moderate relevance to user's certification study, though not as directly applicable as the other articles",
+        "category": "itcert",
+        "url": "https://learn.microsoft.com/en-my/answers/questions/5784819/azure-class-training"
+      },
+      {
+        "title": "20 Best Microsoft Certifications to Advance Your IT Career in 2026",
+        "score": 7.0,
+        "reason": "Title relevance: certification, certifications",
+        "category": "itcert",
+        "url": "https://www.microteklearning.com/blog/top-microsoft-certification-to-boost-your-it-career/"
+      },
+      {
+        "title": "CompTIA Certification Exam Dumps - Practice Test Questions",
+        "score": 7.0,
+        "reason": "Title relevance: comptia, certification, comptia security+",
+        "category": "itcert",
+        "url": "https://www.prepaway.com/comptia-certification-exams.html"
+      },
+      {
+        "title": "Asset Management - CompTIA A+ 220-1202 - 4.1 - Professor Messer",
+        "score": 7.0,
+        "reason": "Title relevance: comptia, comptia a+",
+        "category": "itcert",
+        "url": "https://www.professormesser.com/free-a-plus-training/220-1202/220-1202-video/asset-management-220-1202/"
+      },
+      {
+        "title": "IT Certification Blog - 1000+ Articles on Top IT ... - Dumpsgate",
+        "score": 7.0,
+        "reason": "LLM: Somewhat relevant to user's certification interests but appears to be a generic blog",
+        "category": "itcert",
+        "url": "https://dumpsgate.com/blog/"
+      }
+    ],
+    "briefing": {},
+    "meta": {
+      "version": "3.0",
+      "generated_at": "2026-02-27T10:38:21.749017",
+      "news_count": 100,
+      "critical_count": 0,
+      "high_count": 0,
+      "context_hash": "75957197de28"
+    }
+  },
+  "9": {
+    "profile_num": 9,
+    "name": "Diag_P9_MechSABIC",
+    "role": "Mechanical Engineer at SABIC",
+    "location": "Jubail, Saudi Arabia",
+    "context": "Working on heat exchanger design and plant maintenance optimization. Interested in ASME certifications and Saudi Vision 2030 industrial projects.",
+    "context_hash": "b216fab819e9",
+    "categories": [
+      {
+        "id": "sabicj",
+        "label": "SABIC & Saudi Petrochemicals",
+        "items": [
+          "SABIC",
+          "Saudi Aramco downstream",
+          "Jubail Industrial City",
+          "Saudi Vision 2030 industry"
+        ]
+      },
+      {
+        "id": "mecheng",
+        "label": "Mechanical Engineering Tech",
+        "items": [
+          "heat exchanger design",
+          "plant maintenance optimization",
+          "predictive maintenance",
+          "process piping"
+        ]
+      },
+      {
+        "id": "mechcrt",
+        "label": "Mechanical Certifications",
+        "items": [
+          "ASME certification",
+          "PE mechanical exam",
+          "API 510 inspector",
+          "Six Sigma manufacturing"
+        ]
+      }
+    ],
+    "total_articles": 100,
+    "scan_time_seconds": 44.8,
+    "scores": [
+      9.5,
+      9.5,
+      9.5,
+      9.5,
+      9.0,
+      9.0,
+      9.0,
+      9.0,
+      8.5,
+      8.5,
+      8.5,
+      8.5,
+      8.5,
+      8.5,
+      8.5,
+      8.5,
+      8.5,
+      8.5,
+      8.5,
+      8.5,
+      8.5,
+      8.5,
+      8.5,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      7.0,
+      7.0,
+      7.0,
+      7.0,
+      7.0,
+      7.0,
+      7.0,
+      7.0,
+      7.0,
+      7.0,
+      7.0,
+      7.0,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.0,
+      3.0,
+      3.0,
+      3.0,
+      3.0,
+      3.0,
+      3.0,
+      3.0,
+      3.0,
+      3.0,
+      3.0,
+      2.5,
+      2.5,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0
+    ],
+    "score_stats": {
+      "mean": 5.38,
+      "median": 3.5,
+      "stdev": 2.73,
+      "min": 2.0,
+      "max": 9.5,
+      "above_7": 48,
+      "below_5": 52,
+      "pct_above_7": 48.0,
+      "pct_below_5": 52.0
+    },
+    "category_counts": {
+      "mecheng": 29,
+      "mechcrt": 22,
+      "itsup": 9,
+      "kocit": 1,
+      "itcert": 10,
+      "sabicj": 29
+    },
+    "source_distribution": {
+      "Serper/Google": 83,
+      "Instagram": 6,
+      "LinkedIn": 11
+    },
+    "top_10": [
+      {
+        "title": "Talented Technology Training - Upcoming Courses",
+        "score": 9.5,
+        "reason": "LLM: Directly relevant to heat exchanger design and predictive maintenance interests",
+        "category": "mecheng",
+        "url": "https://www.tlnt-training.com/courses"
+      },
+      {
+        "title": "Quality Manager - Sanmina-SCI - Houston, TX | Ladders",
+        "score": 9.5,
+        "reason": "LLM: Directly actionable for a mechanical engineer working on heat exchanger design and plant maintenance optimization.",
+        "category": "mechcrt",
+        "url": "https://www.theladders.com/job/quality-manager-sanmina-sci-houston-tx_85836808"
+      },
+      {
+        "title": "Define IT Support Tiers to Stop the Ticket Chaos - Atera",
+        "score": 9.5,
+        "reason": "LLM: Directly actionable for this user's role, covering helpdesk automation and ticket management challenges they face daily.",
+        "category": "itsup",
+        "url": "https://www.atera.com/blog/it-support-tiers/"
+      },
+      {
+        "title": "Intermediate Deskside Support Technician (Contract) - Edmonton, Ab",
+        "score": 9.5,
+        "reason": "LLM: Highly actionable for a helpdesk technician, covering both endpoint security and ITIL best practices.",
+        "category": "itsup",
+        "url": "https://ca.jobrapido.com/jobpreview/4960991201042890752"
+      },
+      {
+        "title": "Gulf Spic jobs in Kuwait, Mechanical, Electrical, iiQ8jobs - Facebook",
+        "score": 9.0,
+        "reason": "Relevant hiring: koc, oil, kuwait",
+        "category": "kocit",
+        "url": "https://www.facebook.com/groups/indianinq8/posts/4372703116274622/"
+      },
+      {
+        "title": "ITIL 4 Foundation Training + Certification - all dates - SERVIEW",
+        "score": 9.0,
+        "reason": "LLM: directly actionable for an ITIL-certified specialist preparing for version 5 training",
+        "category": "itsup",
+        "url": "https://en.serview.de/training/itil4-foundation"
+      },
+      {
+        "title": "Microsoft MFA Down \u2013 504 Gateway Timeout Errors Disrupting MFA ...",
+        "score": 9.0,
+        "reason": "LLM: Critical for MFA-protected users experiencing service degradation, directly impacting their ability to work securely.",
+        "category": "itsup",
+        "url": "https://www.cryptika.com/microsoft-mfa-down-504-gateway-timeout-errors-disrupting-mfa-access-for-u-s-users/"
+      },
+      {
+        "title": "Community Center - Cisco Learning Network",
+        "score": 9.0,
+        "reason": "LLM: Authentic community exam passing story with strong relevance to user's professional development",
+        "category": "itcert",
+        "url": "https://learningnetwork.cisco.com/s/community-center"
+      },
+      {
+        "title": "Lean Manufacturing Six Sigma Requirements HOT What Is Lean Six ...",
+        "score": 8.5,
+        "reason": "Strong match + actionable: six, sigma, manufacturing",
+        "category": "mechcrt",
+        "url": "https://ltmenergy.co.za/?e=83898551031240"
+      },
+      {
+        "title": "CrowdStrike 2026 Global Threat Report: Evasive Adversary Wields AI",
+        "score": 8.5,
+        "reason": "LLM: Directly relevant to user's ITIL and endpoint security roles with actionable AI threat intelligence",
+        "category": "itsup",
+        "url": "https://www.crowdstrike.com/en-us/blog/crowdstrike-2026-global-threat-report-findings/"
+      }
+    ],
+    "bottom_10": [
+      {
+        "title": "Emerging Trends in Mechanical Engineering",
+        "score": 7.0,
+        "reason": "Relevant topic: mechanical, engineering, design",
+        "category": "mecheng",
+        "url": "https://online-engineering.case.edu/blog/emerging-trends-in-mechanical-engineering"
+      },
+      {
+        "title": "Internship \u2013 Technical Mechanical Engineering (Design) - ABB Career",
+        "score": 7.0,
+        "reason": "Relevant topic: process, mechanical, engineering",
+        "category": "mecheng",
+        "url": "https://careers.abb/global/en/job/JR00025360/Internship-Technical-Mechanical-Engineering-Design"
+      },
+      {
+        "title": "Predictive maintenance robotics: How AI is redefining industrial ...",
+        "score": 7.0,
+        "reason": "Relevant topic: predictive, process, predictive maintenance",
+        "category": "mecheng",
+        "url": "https://roboticsandautomationnews.com/2026/02/26/predictive-maintenance-robotics-how-ai-and-automation-are-redefining-industrial-asset-reliability/99097/"
+      },
+      {
+        "title": "Generative AI for Predictive Maintenance for Manufacturing: A Survey",
+        "score": 7.0,
+        "reason": "Relevant topic: predictive, predictive maintenance, maintenance",
+        "category": "mecheng",
+        "url": "https://www.sciencedirect.com/science/article/pii/S2212827125009643"
+      },
+      {
+        "title": "IO-Link Masters Market Driven by Predictive Maintenance Demand ...",
+        "score": 7.0,
+        "reason": "Relevant topic: predictive, predictive maintenance, maintenance",
+        "category": "mecheng",
+        "url": "https://www.indexbox.io/blog/io-link-masters-market-driven-by-predictive-maintenance-demand-to-expand-through-2035/"
+      },
+      {
+        "title": "Predictive Maintenance Jobs",
+        "score": 7.0,
+        "reason": "Relevant topic: predictive, predictive maintenance, maintenance",
+        "category": "mecheng",
+        "url": "https://www.rigzone.com/a-predictive-maintenance-jobs/"
+      },
+      {
+        "title": "Senior Process Piping Design Engineer, Data Center - AECOM Jobs",
+        "score": 7.0,
+        "reason": "Relevant topic: process, mechanical, piping",
+        "category": "mecheng",
+        "url": "https://aecom.jobs/denver-co/senior-process-piping-design-engineer-data-center/F8BE582727894CBF8E366C241ED4856F/job/"
+      },
+      {
+        "title": "Flexible Remote Work For Piping Designer Jobs - Indeed",
+        "score": 7.0,
+        "reason": "Relevant topic: process, piping, process piping",
+        "category": "mecheng",
+        "url": "https://www.indeed.com/q-remote-work-for-piping-designer-jobs.html"
+      },
+      {
+        "title": "Senior Process Piping Design Engineer, Data Center - Tallo",
+        "score": 7.0,
+        "reason": "Relevant topic: process, mechanical, piping",
+        "category": "mecheng",
+        "url": "https://tallo.com/jobs/technology/database-administrator/ca/los-angeles/senior-process-piping-design-engineer-data-center-c38de6bf067c/"
+      },
+      {
+        "title": "API 510 Study Guide: Essential Questions and Exercises for Exam ...",
+        "score": 7.0,
+        "reason": "Title relevance: exam, 510, api 510 inspector",
+        "category": "mechcrt",
+        "url": "https://www.studocu.com/ph/document/lorma-colleges/values-education/api-510-study-guide-essential-questions-and-exercises-for-exam-prep/154026431"
+      }
+    ],
+    "briefing": {},
+    "meta": {
+      "version": "3.0",
+      "generated_at": "2026-02-27T10:39:08.534647",
+      "news_count": 100,
+      "critical_count": 0,
+      "high_count": 0,
+      "context_hash": "b216fab819e9"
+    }
+  },
+  "10": {
+    "profile_num": 10,
+    "name": "Diag_P10_CSUK",
+    "role": "Computer Science Student (Junior year)",
+    "location": "Kuwait City, Kuwait",
+    "context": "Studying at Kuwait University (not AUK). Interested in web development and UI/UX design. Looking for summer internships at banks and tech startups in Kuwait.",
+    "context_hash": "ad6f22647344",
+    "categories": [
+      {
+        "id": "kustud",
+        "label": "Kuwait University CS Department",
+        "items": [
+          "Kuwait University",
+          "KU computer science",
+          "Kuwait University internship",
+          "KU engineering faculty"
+        ]
+      },
+      {
+        "id": "webdev",
+        "label": "Web Development & UI/UX",
+        "items": [
+          "React framework",
+          "UI/UX design trends",
+          "frontend development",
+          "Figma prototyping"
+        ]
+      },
+      {
+        "id": "kwintern",
+        "label": "Kuwait Tech Internships",
+        "items": [
+          "Kuwait fintech startups",
+          "Warba Bank technology",
+          "NBK digital",
+          "Zain Kuwait internship"
+        ]
+      }
+    ],
+    "total_articles": 80,
+    "scan_time_seconds": 53.5,
+    "scores": [
+      9.5,
+      9.5,
+      9.5,
+      9.5,
+      8.5,
+      8.5,
+      8.5,
+      8.5,
+      8.5,
+      8.5,
+      8.5,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      8.0,
+      7.5,
+      7.5,
+      7.5,
+      7.0,
+      7.0,
+      7.0,
+      7.0,
+      7.0,
+      7.0,
+      7.0,
+      7.0,
+      7.0,
+      7.0,
+      7.0,
+      7.0,
+      7.0,
+      7.0,
+      7.0,
+      4.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.5,
+      3.0,
+      3.0,
+      2.5,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      1.5,
+      1.0
+    ],
+    "score_stats": {
+      "mean": 5.46,
+      "median": 7.0,
+      "stdev": 2.76,
+      "min": 1.0,
+      "max": 9.5,
+      "above_7": 44,
+      "below_5": 36,
+      "pct_above_7": 55.0,
+      "pct_below_5": 45.0
+    },
+    "category_counts": {
+      "webdev": 52,
+      "mecheng": 5,
+      "mechcrt": 2,
+      "kustud": 11,
+      "sabicj": 9,
+      "kwintern": 1
+    },
+    "source_distribution": {
+      "Serper/Google": 65,
+      "Twitter/X": 2,
+      "LinkedIn": 7,
+      "Instagram": 6
+    },
+    "top_10": [
+      {
+        "title": "How Does React.js Improve User Experience (UX)?",
+        "score": 9.5,
+        "reason": "LLM: Highly relevant to a CS student's core interests in web development and UI/UX, with actionable content on React's UX benefits.",
+        "category": "webdev",
+        "url": "https://fullstacktechies.com/question-and-answers/react-js-improve-user-experience/"
+      },
+      {
+        "title": "21 Best Free React Admin Dashboard Templates 2026 - AdminLTE.IO",
+        "score": 9.5,
+        "reason": "LLM: Directly actionable for user's web development/UX design career goals and interests.",
+        "category": "webdev",
+        "url": "https://adminlte.io/blog/react-admin-dashboard-templates/"
+      },
+      {
+        "title": "Talented Technology Training - Upcoming Courses",
+        "score": 9.5,
+        "reason": "LLM: Directly relevant to heat exchanger design and predictive maintenance interests",
+        "category": "mecheng",
+        "url": "https://www.tlnt-training.com/courses"
+      },
+      {
+        "title": "Quality Manager - Sanmina-SCI - Houston, TX | Ladders",
+        "score": 9.5,
+        "reason": "LLM: Directly actionable for a mechanical engineer working on heat exchanger design and plant maintenance optimization.",
+        "category": "mechcrt",
+        "url": "https://www.theladders.com/job/quality-manager-sanmina-sci-houston-tx_85836808"
+      },
+      {
+        "title": "KU and MMU are hiring. The two public institutions announced ...",
+        "score": 8.5,
+        "reason": "Relevant hiring in target location: university, faculty, kuwait",
+        "category": "kustud",
+        "url": "https://www.facebook.com/tuko.co.ke/posts/ku-and-mmu-are-hiringthe-two-public-institutions-announced-deadlines-for-interes/1267129908892588/"
+      },
+      {
+        "title": "Next.js vs React: Which One Should You Choose in 2026",
+        "score": 8.5,
+        "reason": "LLM: Highly relevant technical comparison guide for a web developer looking to choose between React and Next.js",
+        "category": "webdev",
+        "url": "https://www.groovyweb.co/blog/nextjs-vs-react-comparison-2026"
+      },
+      {
+        "title": "Migrating from React to Next.js: Complete Step-by-Step Guide",
+        "score": 8.5,
+        "reason": "LLM: Highly relevant technical migration guide for a web developer looking to move from React to Next.js framework",
+        "category": "webdev",
+        "url": "https://www.aalpha.net/blog/migrating-from-react-to-next-js/"
+      },
+      {
+        "title": "Top 10 JavaScript Frameworks in 2026 - Niotechone",
+        "score": 8.5,
+        "reason": "LLM: Highly relevant to a web development student seeking modern frameworks and design trends",
+        "category": "webdev",
+        "url": "https://niotechone.com/blog/top-10-javascript-frameworks-in-2026"
+      },
+      {
+        "title": "Do Users Really Notice Good Website Design? - Bitrix Theme",
+        "score": 8.5,
+        "reason": "Strong title: design",
+        "category": "webdev",
+        "url": "https://theme.bitrixinfotech.com/blog/do-users-really-notice-good-website-design?srsltid=AfmBOopQ78uZAJ6WymQaJhsRBiLc79JxaSZ6hNOq5Jnmhrfcvi0QiwuS"
+      },
+      {
+        "title": "Exclusive Content Archives",
+        "score": 8.5,
+        "reason": "LLM-rescore: This is the most relevant article for a Kuwait-based junior CS student interested in web development and UI/UX design, as it directly addresses their stated academic interests and professional aspirations.",
+        "category": "webdev",
+        "url": "https://softwareengineeringdaily.com/category/all-episodes/exclusive-content/podcast/"
+      }
+    ],
+    "bottom_10": [
+      {
+        "title": "React Frameworks Explained: Picking the Right Fit in 2026 - Wolf-Tech",
+        "score": 7.0,
+        "reason": "Relevant topic: react, framework, react framework",
+        "category": "webdev",
+        "url": "https://wolf-tech.io/blog/react-frameworks-explained-picking-the-right-fit-in-2026"
+      },
+      {
+        "title": "The 12 Best JavaScript Frameworks for Web Developers in 2026",
+        "score": 7.0,
+        "reason": "Relevant topic: react, framework, web",
+        "category": "webdev",
+        "url": "https://webapplicationdevelopments.com/best-javascript-frameworks/"
+      },
+      {
+        "title": "Elevating My Developer Portfolio: A Deep Dive into Next.js, Three.js ...",
+        "score": 7.0,
+        "reason": "LLM parse failed, using rule score",
+        "category": "webdev",
+        "url": "https://medium.com/@ahmadfaraz00710/elevating-my-developer-portfolio-a-deep-dive-into-next-js-three-js-gsap-and-scss-bac5f711401d"
+      },
+      {
+        "title": "5 Frontend Frameworks That Will Dominate 2026 (Performance + AI)",
+        "score": 7.0,
+        "reason": "Relevant topic: frontend development, frontend, framework",
+        "category": "webdev",
+        "url": "https://medium.com/@hashbyt/5-frontend-frameworks-that-will-dominate-2026-9b7dc5e3a955"
+      },
+      {
+        "title": "Best AI Coding Agents for Frontend Development in 2026 - PinkLime",
+        "score": 7.0,
+        "reason": "Relevant topic: frontend development, react, frontend",
+        "category": "webdev",
+        "url": "https://pinklime.io/blog/best-ai-coding-agents-frontend-2026"
+      },
+      {
+        "title": "Top 6 UI/UX Design Trends of 2026 for Business Growth",
+        "score": 7.0,
+        "reason": "Relevant topic: ui/ux, design, ui/ux design trends",
+        "category": "webdev",
+        "url": "https://innoenhance.com/the-top-6-ui-ux-design-trends-of-2026/"
+      },
+      {
+        "title": "2026 Website Design Trends for General Contractors",
+        "score": 7.0,
+        "reason": "Relevant topic: ui/ux, web, design",
+        "category": "webdev",
+        "url": "https://www.webdesignmechanic.com/blog/website-design-trends-for-general-contractors/"
+      },
+      {
+        "title": "Frontend Developer \u2013 React & TypeScript - Talent.com",
+        "score": 7.0,
+        "reason": "Relevant topic: frontend development, react, frontend",
+        "category": "webdev",
+        "url": "https://in.talent.com/view?id=607571293865912187"
+      },
+      {
+        "title": "Top Graphic Design Trends in 2026: What Every Designer Must Know",
+        "score": 7.0,
+        "reason": "LLM: relevant for graphic design trends in UI/UX context",
+        "category": "webdev",
+        "url": "https://ifdainstitute.com/blog/top-graphic-design-trends-in-2026-what-every-designer-must-know"
+      },
+      {
+        "title": "UI/UX Designer \u2013 Figma Prototyping Specialist - Upwork",
+        "score": 7.0,
+        "reason": "Relevant topic: figma prototyping, prototyping, ui/ux",
+        "category": "webdev",
+        "url": "https://www.upwork.com/freelance-jobs/apply/Designer-Figma-Prototyping-Specialist_~022025797121509407167/"
+      }
+    ],
+    "briefing": {},
+    "meta": {
+      "version": "3.0",
+      "generated_at": "2026-02-27T10:40:04.071541",
+      "news_count": 80,
+      "critical_count": 0,
+      "high_count": 0,
+      "context_hash": "ad6f22647344"
+    }
+  }
+}

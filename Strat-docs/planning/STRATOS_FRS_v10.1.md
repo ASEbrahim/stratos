@@ -1,9 +1,9 @@
 # StratOS Functional Requirements Specification (FRS)
 
 **Project:** StratOS -- Strategic Intelligence Operating System
-**Version:** 10.0 (V2.1 Production + Auth + UI Sync + Profile Isolation)
-**Date:** March 1, 2026
-**Status:** V2.1 Production
+**Version:** 11.0 (V2.2 Production + Multi-Persona Agent System)
+**Date:** March 11, 2026
+**Status:** V2.2 Production
 **Author:** Ahmad (Computer Engineering student, American University of Kuwait)
 
 ---
@@ -14,7 +14,7 @@ StratOS is a self-hosted, profile-driven strategic intelligence platform. Its co
 
 The system aggregates news from multiple sources, tracks real-time markets, and scores content relevance using a locally fine-tuned AI model. It achieves zero cloud dependency for inference (all scoring runs on a local Ollama server), with optional Claude Opus distillation at approximately $0.40 per cycle for self-improvement.
 
-**Scale:** 45,000+ lines across 40+ modules. Solo project by a Computer Engineering student in Kuwait.
+**Scale:** 71,000+ lines across 50+ modules. Solo project by a Computer Engineering student in Kuwait.
 
 **Intelligence Verticals:**
 - Career Intel -- job openings, employer news, hiring trends
@@ -26,7 +26,7 @@ The system aggregates news from multiple sources, tracks real-time markets, and 
 **Technology Stack:**
 - Backend: Python 3.12, built-in threaded HTTP server (no Flask/FastAPI), ~17,000 lines
 - Frontend: SPA, vanilla JavaScript + Tailwind CSS + TradingView Lightweight Charts, ~18,800+ lines across 16 JS files + HTML + CSS
-- AI: Ollama (local LLM server), Qwen3-8B fine-tuned with DoRA, Claude Opus 4.5 (teacher model for distillation)
+- AI: Ollama (local LLM server), Qwen3.5-9B fine-tuned with DoRA, Claude Opus 4.5 (teacher model for distillation)
 - Database: SQLite with WAL mode
 - Market Data: Yahoo Finance via yfinance
 - Search: DuckDuckGo, Serper API, Google Custom Search API, RSS (30+ feeds)
@@ -71,8 +71,8 @@ News Sources (DDG, Serper, RSS, Scrapers)
 
 | Model | Purpose | Size | Config Key |
 |-------|---------|------|------------|
-| `stratos-scorer-v2` | DoRA fine-tuned Qwen3-8B for relevance scoring | 8.7GB Q8_0 GGUF | `scoring.model` |
-| `qwen3:30b-a3b` | General inference for agent chat, suggestions, profile generation, briefings | 14B params | `scoring.inference_model` |
+| `stratos-scorer-v2.2` | DoRA fine-tuned Qwen3.5-9B for relevance scoring | ~9.5GB Q8_0 GGUF | `scoring.model` |
+| `qwen3.5:9b` | General inference for agent chat, persona prompts, suggestions, profile generation, briefings | ~6.6GB | `scoring.inference_model` / `scoring.wizard_model` |
 
 Both models are served by a local Ollama instance at `http://localhost:11434`. The `think` parameter is omitted entirely from all Ollama calls (see §10.1). All responses are post-processed to strip `<think>...</think>` blocks as a safety net.
 
@@ -426,11 +426,95 @@ The self-improvement system operates on five tiers:
   7. Every N cycles: triggers LoRA fine-tune
   8. Manages budget, persistent state, profile diversity guards
 
-### 4.8 Briefing Generator (`processors/briefing.py`, 455 lines)
+### 4.8 Multi-Persona Agent System (Sprint 2)
+
+**Status:** IMPLEMENTED (March 11, 2026)
+
+The agent system supports multiple personas, each with dedicated system prompts, tool whitelists, and context builders. Personas are defined in a config-driven registry (`routes/personas.py`, 542 lines).
+
+#### 4.8.1 Persona Registry
+
+| Persona | Tools | Context Source |
+|---------|-------|---------------|
+| Intelligence | web_search, search_feed, manage_watchlist, manage_categories, search_files, read_document | News feed, categories, tickers, state.md |
+| Scholarly | search_insights, list_channels, get_video_summary, search_narrations, search_files, read_document, web_search, read_url | YouTube transcripts, video insights, state.md |
+| Market | manage_watchlist, search_feed, web_search | Market data, watchlist, state.md |
+| Games | search_files, read_document | World bible, active scenario, state.md |
+
+Each persona has:
+- **System prompt** (< 300 words for 9B model) with role, capabilities, and routing hints
+- **Tool whitelist** defining which tools are available
+- **Context builder** that loads persona-specific data into the system prompt
+- **Greeting message** shown on persona switch
+- **Routing hints** suggesting when to switch to another persona
+
+#### 4.8.2 Multi-Agent Querying
+
+Users can send `personas: ["intelligence", "scholarly"]` (max 3) in the request body. The system:
+1. Uses the first persona as the primary (drives the system prompt)
+2. Builds context from all selected personas
+3. Merges tool whitelists via set union
+4. Labels each context block (`[INTELLIGENCE DATA]`, `[SCHOLARLY DATA]`, etc.)
+
+#### 4.8.3 YouTube Scholarly Knowledge Extraction
+
+3-tier transcript acquisition pipeline:
+
+| Tier | Method | Cost | Latency |
+|------|--------|------|---------|
+| 1 | youtube-transcript-api v1.2.4 | Free | ~1s |
+| 2 | Supadata API | Per-request | ~3s |
+| 3 | faster-whisper (CPU, base model) | Free (local) | ~60s/min of audio |
+
+Scholarly tools:
+- `search_insights` — Full-text search across video insights
+- `list_channels` — Browse YouTube channel library
+- `get_video_summary` — Get specific video summary + key points
+- `search_narrations` — Search raw transcript text
+- `read_url` — Extract article text from any URL (uses NewsFetcher.scrape_article())
+
+#### 4.8.4 Games/Roleplay Persona
+
+Interactive fiction engine with multi-scenario management:
+- **Save slots** — Create, save, load, delete named scenarios
+- **World bible** — Persistent world state document per scenario
+- **Character tracking** — JSON character registry per scenario
+- **Scenario manager** (`processors/scenarios.py`, 212 lines)
+- Storage: `data/users/{profile_id}/context/gaming/scenarios/{name}/`
+
+#### 4.8.5 Auto-Compression System (`processors/context_compression.py`, 245 lines)
+
+Keeps long-running conversations manageable:
+- **state.md** — Per-persona state document prepended to every context. Updated via LLM after conversations.
+- **Conversation logs** — Daily JSONL files (`data/users/{id}/conversations/{persona}/YYYY-MM-DD.jsonl`)
+- **Weekly summaries** — LLM-generated summaries of the week's conversations
+
+#### 4.8.6 Profile Workspaces (`processors/workspace.py`, 334 lines)
+
+Export/import profiles as ZIP archives:
+- **Export:** manifest.json, profile.json, persona_contexts/, youtube_channels.json, preference_signals.json, insights/, files/
+- **Import strategies:** `replace` (full overwrite), `merge` (additive), `context_only` (persona contexts only)
+- **Stats:** `/api/profile/workspace-stats` returns count breakdown + disk usage
+
+#### 4.8.7 User Preference Signals
+
+Cross-persona feedback loop stored in `user_preference_signals` table:
+- Tracks context edits, topic preferences, style preferences
+- Signals from any persona are visible to all personas
+- API: `POST /GET /DELETE /api/preference-signals`
+
+#### 4.8.8 Persona-Scoped File Isolation
+
+File uploads are tagged with the active persona:
+- `user_files.persona` column (Migration 019)
+- `list_files()` and `search_files()` filter by persona when provided
+- Agent tool dispatch passes `persona=persona_name` to all file operations
+
+### 4.9 Briefing Generator (`processors/briefing.py`, 455 lines)
 
 Generates LLM-powered intelligence summaries. Dynamically builds system prompts from the user's profile (role, location, tracked categories, interests). The briefing is the "voice" of the agent -- formal, professional, focused on actionable intelligence.
 
-Uses the general inference model (`qwen3:30b-a3b`) rather than the scorer model.
+Uses the general inference model (`qwen3.5:9b`) rather than the scorer model.
 
 ### 4.9 Profile Generator (`processors/profile_generator.py`, 400 lines)
 
@@ -500,23 +584,35 @@ Advanced market visualization using TradingView Lightweight Charts:
 - **Chart toolbar:** Enlarged icon buttons (`px-2.5 py-1.5`, `w-4 h-4` icons) for: Line/Candle toggle, Crosshair, Auto Trend, Draw mode, Export. Drawing color picker with `w-5 h-5` circles.
 - **Market agent:** In-panel AI chat for market analysis queries
 
-### 5.3 Strat Agent (`agent.js` 937 lines + `routes/agent.py` 817 lines)
+### 5.3 Multi-Persona Agent (`agent.js` 937 lines + `routes/agent.py` 1,347 lines + `routes/personas.py` 542 lines)
 
-An AI chat assistant with Ollama tool-use capabilities:
+A multi-persona AI chat assistant with Ollama tool-use capabilities. See §4.8 for full persona system details.
 
-**Tools available to the agent:**
-| Tool | Description |
-|------|-------------|
-| `web_search` | Real-time Google search via Serper API (web or news mode) |
-| `manage_watchlist` | View, add, or remove market tickers from watchlist |
-| `manage_categories` | Add/remove keywords, list/toggle news categories |
+**Tools available (persona-dependent):**
+| Tool | Personas | Description |
+|------|----------|-------------|
+| `web_search` | intelligence, scholarly, market | Real-time Google search via Serper API |
+| `search_feed` | intelligence, market | Search scored news feed |
+| `manage_watchlist` | intelligence, market | View, add, or remove market tickers |
+| `manage_categories` | intelligence | Add/remove keywords, list/toggle news categories |
+| `search_files` | intelligence, scholarly, gaming | Search user's uploaded files (persona-scoped) |
+| `read_document` | intelligence, scholarly, gaming | Read uploaded file content |
+| `search_insights` | scholarly | Full-text search across video insights |
+| `list_channels` | scholarly | Browse YouTube channel library |
+| `get_video_summary` | scholarly | Get specific video summary + key points |
+| `search_narrations` | scholarly | Search raw transcript text |
+| `read_url` | scholarly | Extract article text from any URL |
 
 **Features:**
+- Multi-persona support with config-driven prompt/tool/context registry
+- Multi-agent querying (merge 2-3 persona contexts in a single request)
+- Persona routing hints (suggest switching when question suits another persona)
 - Streaming Ollama responses with tool-call detection
 - Ticker commands: `$NVDA` inline syntax for quick ticker info
+- Auto-compression: state.md per persona, daily conversation logs
+- Persona-scoped file uploads and search
 - Conversation export/import
-- Context-aware: agent knows user's profile, categories, and current feed data
-- Uses `qwen3:30b-a3b` inference model
+- Uses `qwen3.5:9b` inference model
 - Dedicated full-screen mobile agent view (see §5.11)
 
 ### 5.4 Onboarding Wizard (`wizard.js` 2,626 lines, `wizard_v4.html` 1,131 lines)
@@ -926,6 +1022,11 @@ Replaces the old single swipe-up toolbar (which had an auto-dismiss bug where th
 | `/api/auth/verify` | Email auth: verify email with 5-digit code | No |
 | `/api/profiles` | List all profiles or device-scoped profiles | Yes |
 | `/api/briefing` | Get latest briefing for active profile | Yes |
+| `/api/profile/workspace-stats` | Profile data breakdown + disk usage | Yes |
+| `/api/persona-state` | Get persona state.md content | Yes |
+| `/api/scenarios` | List game scenarios for profile | Yes |
+| `/api/scenarios/active` | Get active scenario details | Yes |
+| `/api/preference-signals` | List preference signals for profile | Yes |
 
 ### 6.2 POST Endpoints
 
@@ -954,6 +1055,14 @@ Replaces the old single swipe-up toolbar (which had an auto-dismiss bug where th
 | `/api/auth/forgot-password` | Send password reset code via email | No |
 | `/api/auth/reset-password` | Reset password with code (invalidates all sessions) | No |
 | `/api/auth/change-password` | Change password (requires current password) | Yes |
+| `/api/profile/export` | Export profile as ZIP archive | Yes |
+| `/api/profile/import` | Import profile from ZIP (strategy: replace/merge/context_only) | Yes |
+| `/api/conversation-log` | Log conversation turn to daily JSONL | Yes |
+| `/api/update-state` | Update persona state.md via LLM | Yes |
+| `/api/scenarios/create` | Create new game scenario (save slot) | Yes |
+| `/api/scenarios/activate` | Set active game scenario | Yes |
+| `/api/scenarios/save` | Save game scenario state | Yes |
+| `/api/preference-signals` | Create preference signal | Yes |
 
 ### 6.3 Response Formats
 
@@ -1015,7 +1124,7 @@ Replaces the old single swipe-up toolbar (which had an auto-dismiss bug where th
 
 ## 7. Database Schema
 
-SQLite database with WAL mode (`database.py`). Singleton pattern via `get_database()`. Thread-safe commits via `threading.Lock`. Schema managed by `migrations.py` (currently at version 9).
+SQLite database with WAL mode (`database.py`). Singleton pattern via `get_database()`. Thread-safe commits via `threading.Lock`. Schema managed by `migrations.py` (currently at version 19).
 
 **Performance Pragmas:**
 ```sql
@@ -1197,6 +1306,65 @@ PRAGMA temp_store = MEMORY
 | delta | REAL | |
 | created_at | TEXT | |
 
+**`youtube_channels`** -- YouTube channel library (migration 010)
+| Column | Type | Constraints |
+|--------|------|-------------|
+| id | INTEGER | PRIMARY KEY AUTOINCREMENT |
+| profile_id | INTEGER | NOT NULL |
+| channel_id | TEXT | NOT NULL |
+| channel_name | TEXT | |
+| channel_url | TEXT | |
+| added_at | TEXT | DEFAULT CURRENT_TIMESTAMP |
+| UNIQUE | | (profile_id, channel_id) |
+
+**`video_insights`** -- YouTube video insights and transcripts (migration 011)
+| Column | Type | Constraints |
+|--------|------|-------------|
+| id | INTEGER | PRIMARY KEY AUTOINCREMENT |
+| profile_id | INTEGER | NOT NULL |
+| channel_id | TEXT | |
+| video_id | TEXT | NOT NULL |
+| title | TEXT | |
+| summary | TEXT | |
+| key_points | TEXT | |
+| narration | TEXT | |
+| processed_at | TEXT | DEFAULT CURRENT_TIMESTAMP |
+| UNIQUE | | (profile_id, video_id) |
+
+**`persona_context`** -- Per-persona context storage (migration 012)
+| Column | Type | Constraints |
+|--------|------|-------------|
+| id | INTEGER | PRIMARY KEY AUTOINCREMENT |
+| profile_id | INTEGER | NOT NULL |
+| persona | TEXT | NOT NULL |
+| context_key | TEXT | NOT NULL |
+| context_value | TEXT | |
+| updated_at | TEXT | DEFAULT CURRENT_TIMESTAMP |
+| UNIQUE | | (profile_id, persona, context_key) |
+
+**`user_files`** -- Per-user file uploads with text extraction (migration 013)
+| Column | Type | Constraints |
+|--------|------|-------------|
+| id | INTEGER | PRIMARY KEY AUTOINCREMENT |
+| profile_id | INTEGER | NOT NULL |
+| filename | TEXT | NOT NULL |
+| file_type | TEXT | |
+| content_text | TEXT | |
+| uploaded_at | TEXT | |
+| file_path | TEXT | |
+| persona | TEXT | DEFAULT '' |
+
+**`user_preference_signals`** -- Cross-persona feedback loop (migration 018)
+| Column | Type | Constraints |
+|--------|------|-------------|
+| id | INTEGER | PRIMARY KEY AUTOINCREMENT |
+| profile_id | INTEGER | NOT NULL |
+| signal_type | TEXT | NOT NULL |
+| signal_key | TEXT | NOT NULL |
+| signal_value | TEXT | |
+| persona | TEXT | DEFAULT '' |
+| created_at | TEXT | DEFAULT CURRENT_TIMESTAMP |
+
 ### 7.2 Indexes
 
 ```sql
@@ -1230,8 +1398,8 @@ The central configuration file with these sections:
 ```yaml
 scoring:
   model: stratos-scorer-v2      # Fine-tuned scoring model name in Ollama
-  inference_model: qwen3:30b-a3b     # General inference model for agent/suggestions
-  wizard_model: qwen3:14b            # Lighter model for wizard (faster, less over-thinking)
+  inference_model: qwen3.5:9b     # General inference model for agent/suggestions
+  wizard_model: qwen3.5:9b            # Same model for wizard, briefings, profile generation
   ollama_host: http://localhost:11434
   critical_min: 9.0
   high_min: 7.0
@@ -1351,9 +1519,14 @@ backend/
 |   |-- scorer_adaptive.py     # 1,421 lines -- Profile-adaptive scorer
 |   |-- briefing.py            # 455 lines -- LLM briefing generator
 |   |-- profile_generator.py   # 400 lines -- AI profile/category generator
+|   |-- file_handler.py        # 272 lines -- Per-user file storage + text extraction
+|   |-- workspace.py           # 334 lines -- Profile export/import as ZIP
+|   |-- context_compression.py # 245 lines -- State.md, conversation logs, weekly summaries
+|   |-- scenarios.py           # 212 lines -- Games persona save slot management
 |
 |-- routes/
-|   |-- agent.py               # 817 lines -- Chat agent with tool-use
+|   |-- agent.py               # 1,347 lines -- Multi-persona agent chat with tool-use
+|   |-- personas.py            # 542 lines -- Persona registry, prompts, tools, context builders
 |   |-- config.py              # 215 lines -- Config save handler
 |   |-- generate.py            # 254 lines -- Profile generation route
 |   |-- wizard.py              # 342 lines -- Onboarding wizard routes
@@ -1539,7 +1712,7 @@ Do NOT set `TORCH_ROCM_AOTRITON_ENABLE_EXPERIMENTAL=1` -- causes NaN gradients o
 ### 11.2 Ollama Environment Variables
 
 ```bash
-OLLAMA_MAX_LOADED_MODELS=1    # Only one model in VRAM at a time
+OLLAMA_MAX_LOADED_MODELS=2    # Scorer + qwen3.5:9b both in VRAM (~16GB)
 OLLAMA_KEEP_ALIVE=10m         # Auto-unload after 10 min idle
 OLLAMA_NUM_PARALLEL=1         # Single-user, minimize VRAM duplication
 OLLAMA_FLASH_ATTENTION=0      # ROCm 6.2 -- flash attention unreliable
@@ -1746,6 +1919,20 @@ The autopilot system includes 17+ profile templates for diverse training data ge
 - **Cross-device UI sync:** Theme, theme_mode, stars, avatar persisted to `profiles.ui_state` DB column, synced via `/api/ui-state`
 - **Per-request profile isolation:** `self._profile_id` per HTTP handler instance, explicit `profile_id` passed to scan threads, agent chat, and all DB queries
 - **Guided Tours panel:** Settings → System tab, Restart Onboarding + Explore Features buttons for mobile users
+- **V2.2 scorer deployed (Mar 8):** Qwen3.5-9B DoRA, 45 profiles, 40% MAE reduction, $6 Gemini training
+- **Rich media + agent enhancements (Mar 8-10):** Jobs tab, RSS discovery, media grid, Fibonacci charts, agent fullscreen + chips
+- **Sprint 2 — Multi-Persona Agent System (Mar 11):**
+  - Multi-persona agent architecture (intelligence, scholarly, market, games)
+  - YouTube scholarly knowledge extraction (3-tier: youtube-transcript-api → Supadata → Whisper CPU)
+  - Games/Roleplay persona with multi-scenario save slots
+  - Multi-agent querying (merge context from 2-3 personas)
+  - Profile workspaces (export/import as ZIP)
+  - Auto-compression system (state.md, daily JSONL logs, weekly LLM summaries)
+  - Persona routing hints
+  - User preference signals (cross-persona feedback loop)
+  - read_url tool for scholarly web article extraction
+  - Persona-scoped file isolation
+  - Persona registry with config-driven prompts, tools, and context builders
 
 ### 15.2 In Progress
 
@@ -1837,6 +2024,8 @@ Optional encrypted backup of the SQLite database + user configs to cloud storage
 | v8.0 FRS | Feb 26, 2026 | Mobile UI overhaul, interactivity pass, two-tier drawing toolbar |
 | v9.0 FRS | Feb 26, 2026 | Theme overhaul (8 themes, dark mode, stars), header alignment, focus mode, chart toolbar, roadmap addendum |
 | v10.0 FRS | Mar 1, 2026 | Email auth, per-request profile isolation, cross-device UI sync, guided tours, avatar DB persist |
+| v10.1 FRS | Mar 10, 2026 | V2.2 scorer, rich media feeds, Fibonacci charts, agent fullscreen, RSS auto-discovery |
+| v11.0 FRS | Mar 11, 2026 | Multi-persona agent system, YouTube scholarly extraction, games/roleplay, profile workspaces, 19 migrations |
 
 ---
 
@@ -1864,7 +2053,7 @@ repeat_penalty: 1.3
 stop: <|im_end|>, <|endoftext|>, <|im_start|>, <think>, </think>
 ```
 
-**Inference Model (`qwen3:30b-a3b`):**
+**Inference Model (`qwen3.5:9b`):**
 ```
 temperature: 0.2 - 0.3 (varies by use case)
 num_predict: 128 - 1500 (varies by use case)
@@ -1912,4 +2101,4 @@ ef1e38b feat: A3.2 -- mobile-responsive layout enhancements
 
 ---
 
-*This document serves as the definitive specification for StratOS V2.1 Production + Theme Overhaul + Settings Reorganization. It is intended to provide complete context for any new development session or contributor onboarding.*
+*This document serves as the definitive specification for StratOS V2.2 Production + Multi-Persona Agent System. It is intended to provide complete context for any new development session or contributor onboarding.*

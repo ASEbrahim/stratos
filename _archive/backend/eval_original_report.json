@@ -1,0 +1,143 @@
+{
+  "total_samples": 469,
+  "parse_failures": 31,
+  "mae": 0.789,
+  "rmse": 1.22,
+  "direction_accuracy": 0.9851,
+  "spearman_rho": 0.3224,
+  "agreement_pct_1pt": 79.5,
+  "agreement_pct_2pt": 93.6,
+  "band_breakdown": {
+    "noise": {
+      "count": 468,
+      "mae": 0.79
+    },
+    "critical": {
+      "count": 1,
+      "mae": 0.0
+    }
+  },
+  "profile_breakdown": {
+    "Biotech researcher at KAUST studying gene therapy": {
+      "count": 66,
+      "mae": 0.77,
+      "direction_acc": 0.9848
+    },
+    "CTO of a mobile payments startup": {
+      "count": 70,
+      "mae": 0.629,
+      "direction_acc": 1.0
+    },
+    "Corporate lawyer at a major law firm": {
+      "count": 1,
+      "mae": 0.0,
+      "direction_acc": 1.0
+    },
+    "Digital marketing manager at a K-pop entertainment agency": {
+      "count": 71,
+      "mae": 0.8,
+      "direction_acc": 1.0
+    },
+    "HVAC technician and small business owner": {
+      "count": 73,
+      "mae": 0.93,
+      "direction_acc": 0.9726
+    },
+    "Hospital pharmacist specializing": {
+      "count": 73,
+      "mae": 0.645,
+      "direction_acc": 0.9863
+    },
+    "Mining engineer at a copper mine": {
+      "count": 70,
+      "mae": 0.816,
+      "direction_acc": 0.9857
+    },
+    "Senior geophysicist at KOC": {
+      "count": 8,
+      "mae": 0.838,
+      "direction_acc": 1.0
+    },
+    "Undeclared sophomore at University of Chicago": {
+      "count": 37,
+      "mae": 1.068,
+      "direction_acc": 0.9459
+    }
+  },
+  "worst_disagreements": [
+    {
+      "profile": "HVAC technician and small business owner",
+      "predicted": 8.5,
+      "ground_truth": 2.0,
+      "delta": 6.5,
+      "title": "Dimethyl ether production process could significantly advance the ..."
+    },
+    {
+      "profile": "HVAC technician and small business owner",
+      "predicted": 7.5,
+      "ground_truth": 1.0,
+      "delta": 6.5,
+      "title": "$38-$88/hr Aws Glue Jobs (NOW HIRING) Feb 2026"
+    },
+    {
+      "profile": "Undeclared sophomore at University of Chicago",
+      "predicted": 8.5,
+      "ground_truth": 2.0,
+      "delta": 6.5,
+      "title": "Mecklenburg approves $600K in incentives as two firms bring 800 jobs to Charlotte"
+    },
+    {
+      "profile": "Mining engineer at a copper mine",
+      "predicted": 8.5,
+      "ground_truth": 2.0,
+      "delta": 6.5,
+      "title": "Consolidated Water: Utility Stability With Project-Driven Upside"
+    },
+    {
+      "profile": "Undeclared sophomore at University of Chicago",
+      "predicted": 7.5,
+      "ground_truth": 2.0,
+      "delta": 5.5,
+      "title": "ACHR NEWS February 16, 2026, Issue"
+    },
+    {
+      "profile": "Hospital pharmacist specializing",
+      "predicted": 6.5,
+      "ground_truth": 1.0,
+      "delta": 5.5,
+      "title": "Medics declare war on Mutharika's private practice ban"
+    },
+    {
+      "profile": "Biotech researcher at KAUST studying gene therapy",
+      "predicted": 6.5,
+      "ground_truth": 2.0,
+      "delta": 4.5,
+      "title": "$100M for Stanford spinout Simile: AI that simulates human decisions"
+    },
+    {
+      "profile": "CTO of a mobile payments startup",
+      "predicted": 4.5,
+      "ground_truth": 0.5,
+      "delta": 4.0,
+      "title": "All Invest Securities Flash Update to the Equity Research Coverage of ABL Diagnostics (For Professional Investors)"
+    },
+    {
+      "profile": "Biotech researcher at KAUST studying gene therapy",
+      "predicted": 4.5,
+      "ground_truth": 1.0,
+      "delta": 3.5,
+      "title": "Developer Technology Engineer, Public Sector - Santa Clara, CA, US"
+    },
+    {
+      "profile": "Hospital pharmacist specializing",
+      "predicted": 3.5,
+      "ground_truth": 0.0,
+      "delta": 3.5,
+      "title": "TS Inter 2nd Year Hall Ticket 2026 Released At tsbieht.cgg.gov.in; Exams From Feb 26"
+    }
+  ],
+  "model": "stratos-scorer-v2",
+  "eval_file": "data/v2_pipeline/eval_v2.jsonl",
+  "elapsed_seconds": 438.2,
+  "timestamp": "2026-03-06T10:12:26"
+}
