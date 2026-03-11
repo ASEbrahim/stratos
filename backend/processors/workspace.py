@@ -132,6 +132,43 @@ def export_profile(strat, profile_id: int, include_files: bool = True,
             except Exception as e:
                 logger.warning(f"Export: files skipped: {e}")
 
+        # 8. conversations/ — agent chat history
+        try:
+            cursor.execute(
+                "SELECT id, persona, title, messages, is_active, created_at, updated_at "
+                "FROM conversations WHERE profile_id = ? AND archived = 0",
+                (profile_id,)
+            )
+            convs = [dict(r) for r in cursor.fetchall()]
+            for conv in convs:
+                conv['messages'] = json.loads(conv.get('messages', '[]'))
+                zf.writestr(f"conversations/{conv['persona']}/conv_{conv['id']}.json",
+                            json.dumps(conv, indent=2))
+            if convs:
+                zf.writestr("conversations/_index.json",
+                            json.dumps([{"id": c['id'], "persona": c['persona'], "title": c['title'],
+                                         "message_count": len(c['messages'])} for c in convs], indent=2))
+        except Exception as e:
+            logger.warning(f"Export: conversations skipped: {e}")
+
+        # 9. scenarios/ — game scenarios
+        try:
+            cursor.execute(
+                "SELECT id, name, persona, description, state_md, world_md, characters_json, "
+                "genre, is_active, created_at, updated_at "
+                "FROM scenarios WHERE profile_id = ?",
+                (profile_id,)
+            )
+            scenarios = [dict(r) for r in cursor.fetchall()]
+            for sc in scenarios:
+                zf.writestr(f"scenarios/{sc['name']}.json", json.dumps(sc, indent=2))
+            if scenarios:
+                zf.writestr("scenarios/_index.json",
+                            json.dumps([{"name": s['name'], "genre": s.get('genre', ''),
+                                         "is_active": s['is_active']} for s in scenarios], indent=2))
+        except Exception as e:
+            logger.warning(f"Export: scenarios skipped: {e}")
+
     buf.seek(0)
     return buf
 
@@ -270,6 +307,58 @@ def import_profile(strat, profile_id: int, zip_data: bytes,
     stats["files"] = len(file_entries)
     if file_entries:
         logger.info(f"Import: {len(file_entries)} files in export (file import not yet supported)")
+
+    # 7. conversations/
+    stats["conversations"] = 0
+    conv_files = [n for n in zf.namelist()
+                  if n.startswith("conversations/") and n.endswith(".json") and "_index" not in n]
+    for cf in conv_files:
+        try:
+            conv = json.loads(zf.read(cf))
+            cursor.execute(
+                "INSERT INTO conversations (profile_id, persona, title, messages, is_active) "
+                "VALUES (?, ?, ?, ?, 0)",
+                (profile_id, conv.get('persona', 'intelligence'),
+                 conv.get('title', 'Imported'),
+                 json.dumps(conv.get('messages', [])))
+            )
+            stats["conversations"] += 1
+        except Exception as e:
+            logger.warning(f"Import: conversation {cf} failed: {e}")
+
+    # 8. scenarios/
+    stats["scenarios"] = 0
+    sc_files = [n for n in zf.namelist()
+                if n.startswith("scenarios/") and n.endswith(".json") and "_index" not in n]
+    for sf in sc_files:
+        try:
+            sc = json.loads(zf.read(sf))
+            if strategy == "merge":
+                cursor.execute(
+                    "INSERT OR IGNORE INTO scenarios "
+                    "(profile_id, persona, name, description, state_md, world_md, characters_json, genre, is_active) "
+                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0)",
+                    (profile_id, sc.get('persona', 'gaming'), sc.get('name', ''),
+                     sc.get('description', ''), sc.get('state_md', ''),
+                     sc.get('world_md', ''), sc.get('characters_json', '[]'),
+                     sc.get('genre', ''))
+                )
+            else:
+                cursor.execute(
+                    "INSERT INTO scenarios "
+                    "(profile_id, persona, name, description, state_md, world_md, characters_json, genre, is_active) "
+                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0) "
+                    "ON CONFLICT(profile_id, name) DO UPDATE SET "
+                    "state_md = excluded.state_md, world_md = excluded.world_md, "
+                    "characters_json = excluded.characters_json",
+                    (profile_id, sc.get('persona', 'gaming'), sc.get('name', ''),
+                     sc.get('description', ''), sc.get('state_md', ''),
+                     sc.get('world_md', ''), sc.get('characters_json', '[]'),
+                     sc.get('genre', ''))
+                )
+            stats["scenarios"] += 1
+        except Exception as e:
+            logger.warning(f"Import: scenario {sf} failed: {e}")
 
     db._commit()
     return {"ok": True, "strategy": strategy, "stats": stats, "manifest": manifest}
