@@ -1980,6 +1980,50 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                 handle_agent_chat(self, strat, _agent_output_file, profile_id=self._profile_id)
                 return
 
+            # ── File Upload ──────────────────────────────────────────
+            if self.path == "/api/files/upload":
+                try:
+                    from processors.file_handler import FileHandler
+                    content_length = int(self.headers.get('Content-Length', 0))
+                    if content_length > 10 * 1024 * 1024:
+                        _send_json(self, {"error": "File too large (max 10MB)"}, 413)
+                        return
+                    file_data = self.rfile.read(content_length)
+                    # Expect multipart or raw upload with X-Filename header
+                    filename = self.headers.get('X-Filename', 'upload.txt')
+                    fh = FileHandler(strat.config, db=strat.db)
+                    result = fh.save_file(self._profile_id, filename, file_data)
+                    if result:
+                        _send_json(self, {"ok": True, "file": {
+                            "id": result.get("id"),
+                            "filename": result["filename"],
+                            "type": result["file_type"],
+                            "has_text": bool(result.get("content_text")),
+                        }})
+                    else:
+                        _send_json(self, {"error": "Upload failed"}, 400)
+                except Exception as e:
+                    logger.error(f"File upload error: {e}")
+                    _send_json(self, {"error": "Upload failed"}, 500)
+                return
+
+            # ── File List/Search ─────────────────────────────────────
+            if self.path == "/api/files/list":
+                try:
+                    from processors.file_handler import FileHandler
+                    body = json.loads(self.rfile.read(int(self.headers.get('Content-Length', 0))).decode()) if int(self.headers.get('Content-Length', 0)) > 0 else {}
+                    fh = FileHandler(strat.config, db=strat.db)
+                    query = body.get("query", "")
+                    if query:
+                        files = fh.search_files(self._profile_id, query)
+                    else:
+                        files = fh.list_files(self._profile_id)
+                    _send_json(self, {"files": files})
+                except Exception as e:
+                    logger.error(f"File list error: {e}")
+                    _send_json(self, {"error": "Failed to list files"}, 500)
+                return
+
             self.send_response(404)
             self.end_headers()
 
@@ -1988,6 +2032,22 @@ def create_handler(strat, auth, frontend_dir, output_dir):
             if self.path.startswith("/api/profiles/"):
                 if handle_auth_routes(self, "DELETE", self.path, {}, strat.db, strat, _send_json, email_service):
                     return
+            # ── File Delete ──
+            if self.path.startswith("/api/files/"):
+                try:
+                    file_id = int(self.path.split("/")[-1])
+                    from processors.file_handler import FileHandler
+                    fh = FileHandler(strat.config, db=strat.db)
+                    if fh.delete_file(self._profile_id, file_id):
+                        _send_json(self, {"ok": True})
+                    else:
+                        _send_json(self, {"error": "File not found"}, 404)
+                except (ValueError, IndexError):
+                    _send_json(self, {"error": "Invalid file ID"}, 400)
+                except Exception as e:
+                    logger.error(f"File delete error: {e}")
+                    _send_json(self, {"error": "Delete failed"}, 500)
+                return
             self.send_response(404)
             self.end_headers()
 
@@ -1995,7 +2055,7 @@ def create_handler(strat, auth, frontend_dir, output_dir):
             # Handle CORS preflight (Access-Control-Allow-Origin added by end_headers())
             self.send_response(200)
             self.send_header("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS")
-            self.send_header("Access-Control-Allow-Headers", "Content-Type, X-Auth-Token, X-Device-Id")
+            self.send_header("Access-Control-Allow-Headers", "Content-Type, X-Auth-Token, X-Device-Id, X-Filename")
             self.end_headers()
 
         def log_message(self, format, *args):

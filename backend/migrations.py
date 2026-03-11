@@ -369,6 +369,26 @@ def migration_014(cursor):
     )
 
 
+@migration
+def migration_015(cursor):
+    """Create user_files table for per-user document storage."""
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS user_files (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            profile_id INTEGER NOT NULL,
+            filename TEXT NOT NULL,
+            file_type TEXT NOT NULL,
+            content_text TEXT DEFAULT '',
+            uploaded_at TEXT NOT NULL,
+            file_path TEXT NOT NULL
+        )
+    """)
+    cursor.execute(
+        "CREATE INDEX IF NOT EXISTS idx_user_files_profile "
+        "ON user_files(profile_id)"
+    )
+
+
 # =========================================================================
 # Migration runner
 # =========================================================================

@@ -295,6 +295,7 @@ def _scholarly_prompt(role, location, tickers, cat_summary, search_note):
 USER: {role} in {location}
 
 You discuss history, faith, language, philosophy, and academic topics.
+You can search and read the user's uploaded documents using search_files and read_document tools.
 
 RULES:
 - Be thoughtful and precise. Cite sources when possible.
@@ -326,9 +327,9 @@ RULES:
 
 # Tool names available per persona
 PERSONA_TOOLS = {
-    'intelligence': ['web_search', 'search_feed', 'manage_watchlist', 'manage_categories'],
+    'intelligence': ['web_search', 'search_feed', 'manage_watchlist', 'manage_categories', 'search_files', 'read_document'],
     'market': ['manage_watchlist', 'search_feed', 'web_search'],
-    'scholarly': [],  # No tools yet — knowledge discussion only
+    'scholarly': ['search_files', 'read_document'],
     'anime': [],
     'tcg': [],
     'gaming': [],

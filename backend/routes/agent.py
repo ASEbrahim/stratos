@@ -127,6 +127,40 @@ AGENT_TOOLS = [
                 "required": ["action"]
             }
         }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "search_files",
+            "description": "Search across the user's uploaded documents (PDFs, text files, images with OCR). Use when the user asks to find something in their files, look up a term in their documents, or reference uploaded content.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "query": {
+                        "type": "string",
+                        "description": "Search term to find in uploaded documents."
+                    }
+                },
+                "required": ["query"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "read_document",
+            "description": "Read the full extracted text content of an uploaded document by its ID. Use after search_files returns results and the user wants to see the full content of a specific document.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "file_id": {
+                        "type": "integer",
+                        "description": "The file ID returned by search_files or list."
+                    }
+                },
+                "required": ["file_id"]
+            }
+        }
     }
 ]
 
@@ -146,6 +180,10 @@ def _execute_tool(tool_name, args, strat, profile_id=0):
             return _tool_manage_watchlist(args, strat)
         elif tool_name == "manage_categories":
             return _tool_manage_categories(args, strat)
+        elif tool_name == "search_files":
+            return _tool_search_files(args, strat, profile_id=profile_id)
+        elif tool_name == "read_document":
+            return _tool_read_document(args, strat, profile_id=profile_id)
         else:
             return f"Unknown tool: {tool_name}"
     except Exception as e:
@@ -429,6 +467,45 @@ def _write_config(strat):
             yaml.dump(strat.config, f, default_flow_style=False, allow_unicode=True, sort_keys=False)
     except Exception as e:
         logger.error(f"Config write failed: {e}")
+
+
+def _tool_search_files(args, strat, profile_id=0):
+    """Search user's uploaded documents."""
+    query = args.get("query", "").strip()
+    if not query:
+        return "No search query provided."
+    try:
+        from processors.file_handler import FileHandler
+        fh = FileHandler(strat.config, db=strat.db)
+        results = fh.search_files(profile_id, query, limit=10)
+        if not results:
+            return f"No documents found matching '{query}'."
+        lines = []
+        for r in results:
+            lines.append(f"[ID:{r['id']}] {r['filename']} ({r['file_type']}, {r['uploaded_at'][:10]})")
+            if r.get('snippet'):
+                lines.append(f"  ...{r['snippet'].strip()[:200]}...")
+        return f"Found {len(results)} document(s) matching '{query}':\n" + "\n".join(lines)
+    except Exception as e:
+        return f"File search error: {e}"
+
+
+def _tool_read_document(args, strat, profile_id=0):
+    """Read full text content of an uploaded document."""
+    file_id = args.get("file_id")
+    if file_id is None:
+        return "No file_id provided."
+    try:
+        from processors.file_handler import FileHandler
+        fh = FileHandler(strat.config, db=strat.db)
+        content = fh.get_file_content(profile_id, int(file_id))
+        if content is None:
+            return f"Document {file_id} not found or not accessible."
+        if not content:
+            return f"Document {file_id} exists but has no extracted text content."
+        return f"Document content (file_id={file_id}):\n{content[:8000]}"
+    except Exception as e:
+        return f"Read document error: {e}"
 
 
 # ═══════════════════════════════════════════════════════════
