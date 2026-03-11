@@ -1,5 +1,5 @@
 {
-  "total_count": 1021,
+  "total_count": 1292,
   "daily_counts": {
     "2026-02-24": 123,
     "2026-02-25": 1669,
@@ -8,808 +8,810 @@
     "2026-03-05": 56,
     "2026-03-07": 32,
     "2026-03-08": 582,
-    "2026-03-09": 58
+    "2026-03-09": 58,
+    "2026-03-10": 184,
+    "2026-03-11": 87
   },
   "last_queries": [
     {
-      "query": "\"Equate Gas\" equate research r&d Kuwait careers 2026",
-      "time": "2026-03-08T08:13:15.162677"
+      "query": "\"Docker Desktop security patches\" software tools 2026",
+      "time": "2026-03-10T14:08:10.514638"
     },
     {
-      "query": "\"Equate Energy Solutions\" Kuwait hiring OR careers OR recruitment 2026",
-      "time": "2026-03-08T08:13:15.653142"
+      "query": "\"Kuwait tech startups\"  2026",
+      "time": "2026-03-10T14:08:12.964693"
     },
     {
-      "query": "\"Equate Energy Solutions\" equate research r&d Kuwait careers 2026",
-      "time": "2026-03-08T08:13:16.700312"
+      "query": "\"Venture capital funding\" startup ecosystem 2026",
+      "time": "2026-03-10T14:08:12.973479"
     },
     {
-      "query": "\"Equate Innovation Centers\" Kuwait hiring OR careers OR recruitment 2026",
-      "time": "2026-03-08T08:13:18.061456"
+      "query": "\"Tech incubator programs\" startup ecosystem 2026",
+      "time": "2026-03-10T14:08:13.495135"
+    },
+    {
+      "query": "\"Digital transformation cases\" startup ecosystem 2026",
+      "time": "2026-03-10T14:08:14.155507"
+    },
+    {
+      "query": "\"Fintech innovations\" startup ecosystem 2026",
+      "time": "2026-03-10T14:08:15.368669"
+    },
+    {
+      "query": "\"Government digital initiatives\" startup ecosystem 2026",
+      "time": "2026-03-10T14:08:16.284328"
+    },
+    {
+      "query": "\"Kuwait Startup Hub initiatives\"  2026",
+      "time": "2026-03-10T14:08:16.809789"
+    },
+    {
+      "query": "\"Zain Venture Fund investments\" startup ecosystem 2026",
+      "time": "2026-03-10T14:08:17.511401"
+    },
+    {
+      "query": "\"E-commerce growth sectors\" startup ecosystem 2026",
+      "time": "2026-03-10T14:08:17.610341"
+    },
+    {
+      "query": "\"Kuwait Investment Authority (KIA) tech grants\" startup ecosystem 2026",
+      "time": "2026-03-10T14:08:20.113985"
+    },
+    {
+      "query": "\"Ooredoo Digital Innovation Lab programs\" startup ecosystem 2026",
+      "time": "2026-03-10T14:08:20.521442"
+    },
+    {
+      "query": "\"Local e-commerce logistics startups\"  2026",
+      "time": "2026-03-10T14:08:20.557676"
+    },
+    {
+      "query": "site:knpc.com recruitment OR careers OR \"fresh graduate\"",
+      "time": "2026-03-10T14:08:23.152813"
+    },
+    {
+      "query": "site:kockw.com careers OR recruitment OR \"fresh graduate\"",
+      "time": "2026-03-10T14:08:23.230605"
+    },
+    {
+      "query": "site:kipic.com.kw careers OR recruitment",
+      "time": "2026-03-10T14:08:23.641669"
+    },
+    {
+      "query": "site:kpc.com.kw careers OR recruitment OR \"fresh graduate\"",
+      "time": "2026-03-10T14:08:24.099996"
+    },
+    {
+      "query": "Kuwait oil sector \"fresh graduate\" recruitment announcement 2026",
+      "time": "2026-03-10T14:08:25.070547"
+    },
+    {
+      "query": "Kuwait oil sector \"admin circular\" hiring Kuwaiti nationals",
+      "time": "2026-03-10T14:08:25.811719"
+    },
+    {
+      "query": "\"\u0627\u0644\u0642\u0637\u0627\u0639 \u0627\u0644\u0646\u0641\u0637\u064a\" \u062a\u0648\u0638\u064a\u0641 \u062e\u0631\u064a\u062c\u064a\u0646 \u0627\u0644\u0643\u0648\u064a\u062a",
+      "time": "2026-03-10T14:08:27.403073"
+    },
+    {
+      "query": "\"KOC\" OR \"KNPC\" OR \"KIPIC\" \"fresh graduate\" program Kuwait",
+      "time": "2026-03-10T14:08:27.524718"
+    },
+    {
+      "query": "\"University lab openings\" research opportunities 2026",
+      "time": "2026-03-10T20:40:31.185095"
+    },
+    {
+      "query": "\"Government research grants\" technology 2026",
+      "time": "2026-03-10T20:40:31.561246"
+    },
+    {
+      "query": "\"Industry R&D projects\" research opportunities 2026",
+      "time": "2026-03-10T20:40:31.591282"
+    },
+    {
+      "query": "\"Academic publications\" research opportunities 2026",
+      "time": "2026-03-10T20:40:32.864319"
+    },
+    {
+      "query": "\"Tech conference papers\" research opportunities 2026",
+      "time": "2026-03-10T20:40:33.961029"
+    },
+    {
+      "query": "\"Open source contributions\" research opportunities 2026",
+      "time": "2026-03-10T20:40:34.075934"
+    },
+    {
+      "query": "\"Collaborative research initiatives\" technology 2026",
+      "time": "2026-03-10T20:40:34.660052"
+    },
+    {
+      "query": "\"Kuwait Foundation for Advanced Scientific Research\" technology 2026",
+      "time": "2026-03-10T20:40:35.363125"
+    },
+    {
+      "query": "\"Arab Academy for Science\" research opportunities 2026",
+      "time": "2026-03-10T20:40:35.828437"
+    },
+    {
+      "query": "\"Technology and Maritime Transport collaborations\" research opportunities 2026",
+      "time": "2026-03-10T20:40:36.602780"
+    },
+    {
+      "query": "\"National Center for Physics research grants\" technology 2026",
+      "time": "2026-03-10T20:40:37.061373"
+    },
+    {
+      "query": "\"Smart city pilot program studies\" research opportunities 2026",
+      "time": "2026-03-10T20:40:39.701415"
+    },
+    {
+      "query": "\"Zain Kuwait\" Kuwait hiring OR careers OR recruitment 2026",
+      "time": "2026-03-10T20:40:42.215652"
+    },
+    {
+      "query": "\"Zain Kuwait\" kuwait tech employers Kuwait careers 2026",
+      "time": "2026-03-10T20:40:42.476090"
+    },
+    {
+      "query": "\"Ooredoo Kuwait\" Kuwait hiring OR careers OR recruitment 2026",
+      "time": "2026-03-10T20:40:42.586966"
+    },
+    {
+      "query": "\"Ooredoo Kuwait\" kuwait tech employers Kuwait careers 2026",
+      "time": "2026-03-10T20:40:43.214470"
+    },
+    {
+      "query": "\"Etisalat Misr\" Kuwait hiring OR careers OR recruitment 2026",
+      "time": "2026-03-10T20:40:43.537812"
+    },
+    {
+      "query": "\"Etisalat Misr\" kuwait tech employers Kuwait careers 2026",
+      "time": "2026-03-10T20:40:44.113786"
+    },
+    {
+      "query": "\"Mawakeel IT\" Kuwait hiring OR careers OR recruitment 2026",
+      "time": "2026-03-10T20:40:44.292173"
+    },
+    {
+      "query": "\"Mawakeel IT\" kuwait tech employers Kuwait careers 2026",
+      "time": "2026-03-10T20:40:44.862678"
+    },
+    {
+      "query": "\"KIPIC Research Labs\" Kuwait hiring OR careers OR recruitment 2026",
+      "time": "2026-03-10T20:40:47.051667"
+    },
+    {
+      "query": "\"KIPIC Research Labs\" kuwait tech employers Kuwait careers 2026",
+      "time": "2026-03-10T20:40:47.916273"
     },
     {
       "query": "\"Kuwait Institute for Scientific Research\" Kuwait hiring OR careers OR recruitment 2026",
-      "time": "2026-03-08T08:13:19.784311"
+      "time": "2026-03-10T20:40:47.987508"
     },
     {
-      "query": "\"Kuwait Institute for Scientific Research\" kuwait chemistry careers Kuwait careers 2026",
-      "time": "2026-03-08T08:13:20.153491"
+      "query": "\"Kuwait Institute for Scientific Research\" kuwait tech employers Kuwait careers 2026",
+      "time": "2026-03-10T20:40:49.045284"
     },
     {
-      "query": "\"University of Kuwait R&D\" Kuwait hiring OR careers OR recruitment 2026",
-      "time": "2026-03-08T08:13:20.461412"
+      "query": "\"AI in software engineering\" global tech trends 2026",
+      "time": "2026-03-10T20:40:50.597311"
     },
     {
-      "query": "\"University of Kuwait R&D\" kuwait chemistry careers Kuwait careers 2026",
-      "time": "2026-03-08T08:13:20.764079"
+      "query": "\"Cloud computing platforms\" global tech trends 2026",
+      "time": "2026-03-10T20:40:50.803394"
     },
     {
-      "query": "\"Kuwait University Chemistry Dept\" Kuwait hiring OR careers OR recruitment 2026",
-      "time": "2026-03-08T08:13:21.346885"
+      "query": "\"Cybersecurity threats\" global tech trends 2026",
+      "time": "2026-03-10T20:40:51.083892"
     },
     {
-      "query": "\"ADNOC Research Centers\" Kuwait hiring OR careers OR recruitment 2026",
-      "time": "2026-03-08T08:13:22.888728"
+      "query": "\"Edge computing\" global tech trends 2026",
+      "time": "2026-03-10T20:40:51.710653"
     },
     {
-      "query": "\"ADNOC Research Centers\" kuwait chemistry careers Kuwait careers 2026",
-      "time": "2026-03-08T08:13:23.579269"
+      "query": "\"IoT protocols\" global tech trends 2026",
+      "time": "2026-03-10T20:40:51.931104"
     },
     {
-      "query": "\"Kuwait Ministry of Industry\" Kuwait hiring OR careers OR recruitment 2026",
-      "time": "2026-03-08T08:13:24.072198"
+      "query": "\"Quantum computing basics\" global tech trends 2026",
+      "time": "2026-03-10T20:40:52.701105"
     },
     {
-      "query": "\"Kuwait Ministry of Industry\" kuwait chemistry careers Kuwait careers 2026",
-      "time": "2026-03-08T08:13:25.222041"
+      "query": "\"Generative AI for code generation\" global tech trends 2026",
+      "time": "2026-03-10T20:40:53.086958"
     },
     {
-      "query": "\"National Center for Disease Control\" Kuwait hiring OR careers OR recruitment 2026",
-      "time": "2026-03-08T08:13:25.844234"
+      "query": "5G network architecture global tech trends 2026",
+      "time": "2026-03-10T20:40:53.366727"
     },
     {
-      "query": "\"National Center for Disease Control\" kuwait chemistry careers Kuwait careers 2026",
-      "time": "2026-03-08T08:13:26.632881"
+      "query": "\"Serverless computing architectures\" global tech trends 2026",
+      "time": "2026-03-10T20:40:54.290105"
     },
     {
-      "query": "\"Kuwait Institute for Scientific Research (KISR)\" Kuwait hiring OR careers OR recruitment 2026",
-      "time": "2026-03-08T08:13:26.871041"
+      "query": "\"Zero-trust security models\" global tech trends 2026",
+      "time": "2026-03-10T20:40:55.522591"
     },
     {
-      "query": "\"Process Simulation Software\" chemical tech software 2026",
-      "time": "2026-03-08T08:13:28.832469"
+      "query": "\"Digital twin technologies\" global tech trends 2026",
+      "time": "2026-03-10T20:40:55.679003"
     },
     {
-      "query": "\"Lab Information Management Systems\" chemical tech software 2026",
-      "time": "2026-03-08T08:13:29.092658"
+      "query": "\"Blockchain interoperability standards\" global tech trends 2026",
+      "time": "2026-03-10T20:40:56.300549"
     },
     {
-      "query": "\"Spectroscopy Data Analysis\" chemical tech software 2026",
-      "time": "2026-03-08T08:13:29.453015"
+      "query": "\"Spectrum licensing auctions\" telecom industry 2026",
+      "time": "2026-03-10T20:40:59.314054"
     },
     {
-      "query": "\"Molecular Modeling Tools\" chemical tech software 2026",
-      "time": "2026-03-08T08:13:29.809567"
+      "query": "\"Mobile network optimization\" telecom industry 2026",
+      "time": "2026-03-10T20:40:59.413849"
     },
     {
-      "query": "\"Chemical Process Automation\" chemical tech software 2026",
-      "time": "2026-03-08T08:13:30.292380"
+      "query": "5G deployment updates telecom industry 2026",
+      "time": "2026-03-10T20:40:59.668612"
     },
     {
-      "query": "\"Predictive Analytics Chemistry\" chemical tech software 2026",
-      "time": "2026-03-08T08:13:30.900098"
+      "query": "\"Telecom regulatory changes\"  2026",
+      "time": "2026-03-10T20:41:00.585265"
     },
     {
-      "query": "\"Digital Twin Technology\" chemical tech software 2026",
-      "time": "2026-03-08T08:13:32.023519"
+      "query": "\"Network infrastructure costs\" telecom industry 2026",
+      "time": "2026-03-10T20:41:00.700924"
     },
     {
-      "query": "\"AI in Chemical Engineering\" chemical tech software 2026",
-      "time": "2026-03-08T08:13:33.089177"
+      "query": "\"Satellite internet services\" telecom industry 2026",
+      "time": "2026-03-10T20:41:01.784610"
     },
     {
-      "query": "\"AspenTech Process Simulation\" chemical tech software 2026",
-      "time": "2026-03-08T08:13:33.175714"
+      "query": "\"Data privacy regulations\" telecom industry 2026",
+      "time": "2026-03-10T20:41:02.280624"
     },
     {
-      "query": "\"SAP EAM Chemical Management\" chemical tech software 2026",
-      "time": "2026-03-08T08:13:33.759483"
+      "query": "\"Kuwait Communications Regulatory Authority (KCRA) updates\" telecom industry 2026",
+      "time": "2026-03-10T20:41:02.909430"
     },
     {
-      "query": "\"Thermo Fisher Scientific Lab Automation\" chemical tech software 2026",
-      "time": "2026-03-08T08:13:35.986837"
+      "query": "\"Fiber optic network expansion plans\" telecom industry 2026",
+      "time": "2026-03-10T20:41:03.274859"
     },
     {
-      "query": "\"Schneider Electric Industrial Control Systems\" chemical tech software 2026",
-      "time": "2026-03-08T08:13:36.664814"
+      "query": "\"Cross-border data transfer protocols\" telecom industry 2026",
+      "time": "2026-03-10T20:41:03.700786"
     },
     {
-      "query": "\"Medical Device Materials\" chemical healthcare trends 2026",
-      "time": "2026-03-08T08:13:39.338956"
+      "query": "\"Network slicing for enterprise clients\" telecom industry 2026",
+      "time": "2026-03-10T20:41:05.914379"
     },
     {
-      "query": "\"Pharmaceutical Manufacturing\" chemical healthcare trends 2026",
-      "time": "2026-03-08T08:13:39.434619"
+      "query": "\"E-waste recycling regulations\" telecom industry 2026",
+      "time": "2026-03-10T20:41:05.958959"
     },
     {
-      "query": "\"Biocompatible Polymers\" chemical healthcare trends 2026",
-      "time": "2026-03-08T08:13:39.725489"
+      "query": "\"Online coding courses\" career development hiring OR jobs 2026",
+      "time": "2026-03-10T20:41:09.062634"
     },
     {
-      "query": "\"Sterilization Technologies\" chemical healthcare trends 2026",
-      "time": "2026-03-08T08:13:40.467063"
+      "query": "\"Entry-level certifications\" career development hiring OR jobs 2026",
+      "time": "2026-03-10T20:41:09.095054"
     },
     {
-      "query": "\"Drug Delivery Systems\" chemical healthcare trends 2026",
-      "time": "2026-03-08T08:13:40.487399"
+      "query": "\"Professional networking events\" career development hiring OR jobs 2026",
+      "time": "2026-03-10T20:41:09.505639"
     },
     {
-      "query": "\"Personal Care Chemistry\" chemical healthcare trends 2026",
-      "time": "2026-03-08T08:13:40.966236"
+      "query": "\"Resume building tips\" career development hiring OR jobs 2026",
+      "time": "2026-03-10T20:41:10.717485"
     },
     {
-      "query": "\"Clinical Lab Reagents\" chemical healthcare trends 2026",
-      "time": "2026-03-08T08:13:41.607241"
+      "query": "\"Technical interview prep\" career development hiring OR jobs 2026",
+      "time": "2026-03-10T20:41:11.092840"
     },
     {
-      "query": "\"Healthcare Safety Standards\" chemical healthcare trends 2026",
-      "time": "2026-03-08T08:13:42.165429"
+      "query": "\"Software development bootcamps\"  hiring OR jobs 2026",
+      "time": "2026-03-10T20:41:11.366180"
     },
     {
-      "query": "\"Kuwait Pharma Manufacturing\" chemical healthcare trends 2026",
-      "time": "2026-03-08T08:13:43.465418"
+      "query": "\"Freelance platform trends\" career development hiring OR jobs 2026",
+      "time": "2026-03-10T20:41:11.817828"
     },
     {
-      "query": "\"Al-Mina Pharmaceutical Company\" chemical healthcare trends 2026",
-      "time": "2026-03-08T08:13:43.467303"
+      "query": "\"Microsoft Learn Kuwait paths\" career development hiring OR jobs 2026",
+      "time": "2026-03-10T20:41:12.602879"
     },
     {
-      "query": "\"Medicines and Medical Devices Authority\" chemical healthcare trends 2026",
-      "time": "2026-03-08T08:13:44.160523"
+      "query": "\"AWS Certified Cloud Practitioner\" career development hiring OR jobs 2026",
+      "time": "2026-03-10T20:41:13.590407"
     },
     {
-      "query": "\"Bayer Healthcare Middle East\" chemical healthcare trends 2026",
-      "time": "2026-03-08T08:13:46.331835"
+      "query": "\"Certified Ethical Hacker (CEH) training\" career development hiring OR jobs 2026",
+      "time": "2026-03-10T20:41:14.517443"
     },
     {
-      "query": "\"RSC Membership Benefits\" chemistry certifications skills hiring OR jobs 2026",
-      "time": "2026-03-08T08:13:49.123088"
+      "query": "\"PMP certification for IT project managers\" career development hiring OR jobs 2026",
+      "time": "2026-03-10T20:41:14.710059"
     },
     {
-      "query": "\"OSHA Chemical Safety Training\" chemistry certifications skills hiring OR jobs 2026",
-      "time": "2026-03-08T08:13:49.621735"
+      "query": "\"Local tech meetups in Kuwait City\" career development hiring OR jobs 2026",
+      "time": "2026-03-10T20:41:15.933642"
     },
     {
-      "query": "\"ACS Professional Certification\" chemistry certifications skills hiring OR jobs 2026",
-      "time": "2026-03-08T08:13:49.638530"
+      "query": "\"IDE updates and features\" software tools 2026",
+      "time": "2026-03-10T20:41:18.524811"
     },
     {
-      "query": "\"GHS Compliance Courses\" chemistry certifications skills hiring OR jobs 2026",
-      "time": "2026-03-08T08:13:52.312049"
+      "query": "\"Containerization tools\" technology 2026",
+      "time": "2026-03-10T20:41:18.854787"
     },
     {
-      "query": "\"Advanced Lab Techniques\" chemistry certifications skills hiring OR jobs 2026",
-      "time": "2026-03-08T08:13:52.365686"
+      "query": "\"DevOps pipeline changes\" software tools 2026",
+      "time": "2026-03-10T20:41:19.105941"
     },
     {
-      "query": "\"Process Safety Management\" chemistry certifications skills hiring OR jobs 2026",
-      "time": "2026-03-08T08:13:53.263719"
+      "query": "\"API management platforms\" software tools 2026",
+      "time": "2026-03-10T20:41:19.981817"
     },
     {
-      "query": "\"Green Chemistry Principles\" chemistry certifications skills hiring OR jobs 2026",
-      "time": "2026-03-08T08:13:54.575315"
+      "query": "\"Version control best practices\" software tools 2026",
+      "time": "2026-03-10T20:41:20.768257"
     },
     {
-      "query": "\"Analytical Method Validation\" chemistry certifications skills hiring OR jobs 2026",
-      "time": "2026-03-08T08:13:55.148314"
+      "query": "\"Testing frameworks releases\" software tools 2026",
+      "time": "2026-03-10T20:41:20.968743"
     },
     {
-      "query": "\"Kuwait Institute for Scientific Research Training\" chemistry certifications skills hiring OR jobs 2",
-      "time": "2026-03-08T08:13:55.338357"
+      "query": "\"Low-code development trends\" software tools 2026",
+      "time": "2026-03-10T20:41:21.804323"
     },
     {
-      "query": "\"American Chemical Society (ACS) Local Chapters\" chemistry certifications skills hiring OR jobs 2026",
-      "time": "2026-03-08T08:13:55.964972"
+      "query": "\"GitHub Copilot integration updates\" software tools 2026",
+      "time": "2026-03-10T20:41:22.767966"
     },
     {
-      "query": "\"International Association of Chemical Engineers\" chemistry certifications skills hiring OR jobs 202",
-      "time": "2026-03-08T08:13:56.695706"
+      "query": "\"Kubernetes cluster management tools\" technology 2026",
+      "time": "2026-03-10T20:41:23.631588"
     },
     {
-      "query": "\"Middle East Laboratory Accreditation Board\" chemistry certifications skills hiring OR jobs 2026",
-      "time": "2026-03-08T08:13:58.649149"
+      "query": "\"Jenkins CI/CD pipeline plugins\" software tools 2026",
+      "time": "2026-03-10T20:41:24.702945"
     },
     {
-      "query": "\"GCC Petrochemical Market\" kuwait chemical industry 2026",
-      "time": "2026-03-08T08:14:01.486643"
+      "query": "\"PostgreSQL database optimization features\" software tools 2026",
+      "time": "2026-03-10T20:41:25.243044"
     },
     {
-      "query": "\"Kuwait Oil & Gas Reports\" kuwait chemical industry 2026",
-      "time": "2026-03-08T08:14:01.651976"
+      "query": "\"Docker Desktop security patches\" software tools 2026",
+      "time": "2026-03-10T20:41:25.836420"
     },
     {
-      "query": "\"Regional Chemical Regulations\" kuwait chemical industry 2026",
-      "time": "2026-03-08T08:14:02.861200"
+      "query": "\"Venture capital funding\" startup ecosystem 2026",
+      "time": "2026-03-10T20:41:28.413380"
     },
     {
-      "query": "\"Middle East R&D Funding\" kuwait chemical industry 2026",
-      "time": "2026-03-08T08:14:04.218660"
+      "query": "\"Kuwait tech startups\"  2026",
+      "time": "2026-03-10T20:41:28.485596"
     },
     {
-      "query": "\"Industrial Safety Updates\" kuwait chemical industry 2026",
-      "time": "2026-03-08T08:14:04.565636"
+      "query": "\"Tech incubator programs\" startup ecosystem 2026",
+      "time": "2026-03-10T20:41:28.691293"
     },
     {
-      "query": "\"Chemical Supply Chain News\" kuwait chemical industry 2026",
-      "time": "2026-03-08T08:14:05.556783"
+      "query": "\"Digital transformation cases\" startup ecosystem 2026",
+      "time": "2026-03-10T20:41:29.470661"
     },
     {
-      "query": "\"Local Manufacturing Trends\" kuwait chemical industry 2026",
-      "time": "2026-03-08T08:14:06.678772"
+      "query": "\"Fintech innovations\" startup ecosystem 2026",
+      "time": "2026-03-10T20:41:30.742118"
     },
     {
-      "query": "\"Environmental Compliance Alerts\" kuwait chemical industry 2026",
-      "time": "2026-03-08T08:14:07.211524"
+      "query": "\"E-commerce growth sectors\" startup ecosystem 2026",
+      "time": "2026-03-10T20:41:31.278157"
     },
     {
-      "query": "\"Kuwait Petroleum Corporation Reports\" kuwait chemical industry 2026",
-      "time": "2026-03-08T08:14:08.238387"
+      "query": "\"Government digital initiatives\" startup ecosystem 2026",
+      "time": "2026-03-10T20:41:31.886201"
     },
     {
-      "query": "\"Zain Kuwait Sustainability Reports\" kuwait chemical industry 2026",
-      "time": "2026-03-08T08:14:09.208090"
+      "query": "\"Kuwait Startup Hub initiatives\"  2026",
+      "time": "2026-03-10T20:41:32.629290"
     },
     {
-      "query": "\"Ooredoo Kuwait Tech Updates\" kuwait chemical industry 2026",
-      "time": "2026-03-08T08:14:09.473688"
+      "query": "\"Zain Venture Fund investments\" startup ecosystem 2026",
+      "time": "2026-03-10T20:41:33.140081"
     },
     {
-      "query": "\"Mubadala Investment Company Insights\" kuwait chemical industry 2026",
-      "time": "2026-03-08T08:14:09.859614"
+      "query": "\"Ooredoo Digital Innovation Lab programs\" startup ecosystem 2026",
+      "time": "2026-03-10T20:41:33.596979"
     },
     {
-      "query": "site:knpc.com recruitment OR careers OR \"fresh graduate\"",
-      "time": "2026-03-08T08:14:12.461433"
+      "query": "\"Kuwait Investment Authority (KIA) tech grants\" startup ecosystem 2026",
+      "time": "2026-03-10T20:41:34.866912"
+    },
+    {
+      "query": "\"Local e-commerce logistics startups\"  2026",
+      "time": "2026-03-10T20:41:38.432316"
     },
     {
       "query": "site:kockw.com careers OR recruitment OR \"fresh graduate\"",
-      "time": "2026-03-08T08:14:12.682871"
-    },
-    {
-      "query": "site:kipic.com.kw careers OR recruitment",
-      "time": "2026-03-08T08:14:12.852624"
-    },
-    {
-      "query": "site:kpc.com.kw careers OR recruitment OR \"fresh graduate\"",
-      "time": "2026-03-08T08:14:13.628617"
-    },
-    {
-      "query": "Kuwait oil sector \"fresh graduate\" recruitment announcement 2026",
-      "time": "2026-03-08T08:14:13.959776"
-    },
-    {
-      "query": "Kuwait oil sector \"admin circular\" hiring Kuwaiti nationals",
-      "time": "2026-03-08T08:14:14.795252"
-    },
-    {
-      "query": "\"\u0627\u0644\u0642\u0637\u0627\u0639 \u0627\u0644\u0646\u0641\u0637\u064a\" \u062a\u0648\u0638\u064a\u0641 \u062e\u0631\u064a\u062c\u064a\u0646 \u0627\u0644\u0643\u0648\u064a\u062a",
-      "time": "2026-03-08T08:14:14.949959"
-    },
-    {
-      "query": "\"KOC\" OR \"KNPC\" OR \"KIPIC\" \"fresh graduate\" program Kuwait",
-      "time": "2026-03-08T08:14:15.233680"
-    },
-    {
-      "query": "\"KIPIC Games\" Kuwait hiring OR careers OR recruitment 2026",
-      "time": "2026-03-08T23:15:50.356311"
-    },
-    {
-      "query": "\"GDC Kuwait\" Kuwait hiring OR careers OR recruitment 2026",
-      "time": "2026-03-08T23:15:51.312492"
-    },
-    {
-      "query": "\"KIPIC Games\" kuwait game industry employers Kuwait careers 2026",
-      "time": "2026-03-08T23:15:51.350146"
-    },
-    {
-      "query": "\"GDC Kuwait\" kuwait game industry employers Kuwait careers 2026",
-      "time": "2026-03-08T23:15:54.242153"
-    },
-    {
-      "query": "\"Kuwait Interactive Entertainment Association\" Kuwait hiring OR careers OR recruitment 2026",
-      "time": "2026-03-08T23:15:54.871130"
-    },
-    {
-      "query": "\"Kuwait Interactive Entertainment Association\" kuwait game industry employers Kuwait careers 2026",
-      "time": "2026-03-08T23:15:59.748596"
-    },
-    {
-      "query": "local game studios Kuwait hiring OR careers OR recruitment 2026",
-      "time": "2026-03-08T23:16:00.812080"
-    },
-    {
-      "query": "local game studios kuwait game industry employers Kuwait careers 2026",
-      "time": "2026-03-08T23:16:02.316888"
-    },
-    {
-      "query": "indie developer grants Kuwait hiring OR careers OR recruitment 2026",
-      "time": "2026-03-08T23:16:02.766009"
-    },
-    {
-      "query": "indie developer grants kuwait game industry employers Kuwait careers 2026",
-      "time": "2026-03-08T23:16:03.774178"
-    },
-    {
-      "query": "\"gaming incubators\" Kuwait hiring OR careers OR recruitment 2026",
-      "time": "2026-03-08T23:16:04.149526"
-    },
-    {
-      "query": "\"gaming incubators\" kuwait game industry employers Kuwait careers 2026",
-      "time": "2026-03-08T23:16:04.707257"
-    },
-    {
-      "query": "\"Unity Engine updates\" global game tech tools 2026",
-      "time": "2026-03-08T23:16:09.674023"
-    },
-    {
-      "query": "\"Unreal Engine features\" global game tech tools 2026",
-      "time": "2026-03-08T23:16:09.764950"
-    },
-    {
-      "query": "game physics engines global game tech tools 2026",
-      "time": "2026-03-08T23:16:09.817207"
-    },
-    {
-      "query": "procedural generation tools global game tech tools 2026",
-      "time": "2026-03-08T23:16:11.499666"
-    },
-    {
-      "query": "cloud game streaming tech technology 2026",
-      "time": "2026-03-08T23:16:13.204248"
-    },
-    {
-      "query": "\"VR/AR development kits\" global game tech tools 2026",
-      "time": "2026-03-08T23:16:13.270849"
-    },
-    {
-      "query": "\"AI in game design\" global game tech tools 2026",
-      "time": "2026-03-08T23:16:13.950762"
-    },
-    {
-      "query": "\"Unreal Engine Marketplace\" global game tech tools 2026",
-      "time": "2026-03-08T23:16:14.788573"
-    },
-    {
-      "query": "\"Unity Asset Store\" global game tech tools 2026",
-      "time": "2026-03-08T23:16:17.966920"
-    },
-    {
-      "query": "\"Blender Foundation\" global game tech tools 2026",
-      "time": "2026-03-08T23:16:18.352612"
-    },
-    {
-      "query": "indie game releases  2026",
-      "time": "2026-03-08T23:16:19.708659"
-    },
-    {
-      "query": "mobile gaming trends indie game trends 2026",
-      "time": "2026-03-08T23:16:19.933128"
-    },
-    {
-      "query": "metaverse game projects indie game trends 2026",
-      "time": "2026-03-08T23:16:20.248369"
-    },
-    {
-      "query": "esports scene updates indie game trends 2026",
-      "time": "2026-03-08T23:16:20.880108"
-    },
-    {
-      "query": "game monetization models indie game trends 2026",
-      "time": "2026-03-08T23:16:21.313572"
-    },
-    {
-      "query": "viral game mechanics indie game trends 2026",
-      "time": "2026-03-08T23:16:22.269729"
-    },
-    {
-      "query": "player engagement strategies indie game trends 2026",
-      "time": "2026-03-08T23:16:22.309754"
-    },
-    {
-      "query": "\"Roblox Developer Exchange\" indie game trends 2026",
-      "time": "2026-03-08T23:16:22.877304"
-    },
-    {
-      "query": "\"Epic Games Store\" indie game trends 2026",
-      "time": "2026-03-08T23:16:23.674529"
-    },
-    {
-      "query": "\"Steam Direct guidelines\" indie game trends 2026",
-      "time": "2026-03-08T23:16:23.849447"
-    },
-    {
-      "query": "\"Unity certification programs\" game dev education skills hiring OR jobs 2026",
-      "time": "2026-03-08T23:16:27.208477"
-    },
-    {
-      "query": "\"Unreal Engine training\" game dev education skills hiring OR jobs 2026",
-      "time": "2026-03-08T23:16:27.587761"
-    },
-    {
-      "query": "online game courses game dev education skills hiring OR jobs 2026",
-      "time": "2026-03-08T23:16:27.905384"
-    },
-    {
-      "query": "game design workshops game dev education skills hiring OR jobs 2026",
-      "time": "2026-03-08T23:16:29.845103"
-    },
-    {
-      "query": "programming bootcamps game dev education skills hiring OR jobs 2026",
-      "time": "2026-03-08T23:16:31.496350"
-    },
-    {
-      "query": "3D modeling tutorials game dev education skills hiring OR jobs 2026",
-      "time": "2026-03-08T23:16:32.281690"
-    },
-    {
-      "query": "\"Coursera Game Development Specializations\"  hiring OR jobs 2026",
-      "time": "2026-03-08T23:16:32.916439"
-    },
-    {
-      "query": "\"Udemy Unity 3D courses\" game dev education skills hiring OR jobs 2026",
-      "time": "2026-03-08T23:16:33.663846"
-    },
-    {
-      "query": "indie dev conferences game dev education skills hiring OR jobs 2026",
-      "time": "2026-03-08T23:16:34.656652"
-    },
-    {
-      "query": "\"GDC Online Summit\" game dev education skills hiring OR jobs 2026",
-      "time": "2026-03-08T23:16:36.611188"
-    },
-    {
-      "query": "\"Middle East esports events\" regional gaming tech GCC OR Kuwait OR \"Middle East\" 2026",
-      "time": "2026-03-08T23:16:41.728911"
-    },
-    {
-      "query": "regional tech summits  GCC OR Kuwait OR \"Middle East\" 2026",
-      "time": "2026-03-08T23:16:41.787516"
-    },
-    {
-      "query": "\"GCC game festivals\" regional gaming tech GCC OR Kuwait OR \"Middle East\" 2026",
-      "time": "2026-03-08T23:16:43.291311"
-    },
-    {
-      "query": "\"Arab gaming community news\" regional gaming tech GCC OR Kuwait OR \"Middle East\" 2026",
-      "time": "2026-03-08T23:16:43.482248"
-    },
-    {
-      "query": "local startup funding rounds regional gaming tech GCC OR Kuwait OR \"Middle East\" 2026",
-      "time": "2026-03-08T23:16:43.520040"
-    },
-    {
-      "query": "regional digital transformation regional gaming tech GCC OR Kuwait OR \"Middle East\" 2026",
-      "time": "2026-03-08T23:16:44.693706"
-    },
-    {
-      "query": "tech policy updates regional gaming tech GCC OR Kuwait OR \"Middle East\" 2026",
-      "time": "2026-03-08T23:16:44.819486"
-    },
-    {
-      "query": "\"Arab Games Awards\" regional gaming tech GCC OR Kuwait OR \"Middle East\" 2026",
-      "time": "2026-03-08T23:16:45.944710"
-    },
-    {
-      "query": "\"GITEX Global\" regional gaming tech GCC OR Kuwait OR \"Middle East\" 2026",
-      "time": "2026-03-08T23:16:46.181953"
-    },
-    {
-      "query": "\"MENA Game Developers Conference\" regional gaming tech GCC OR Kuwait OR \"Middle East\" 2026",
-      "time": "2026-03-08T23:16:46.446325"
-    },
-    {
-      "query": "lead designer positions mid career growth hiring OR jobs 2026",
-      "time": "2026-03-08T23:16:48.952166"
-    },
-    {
-      "query": "senior developer roles mid career growth hiring OR jobs 2026",
-      "time": "2026-03-08T23:16:49.022025"
-    },
-    {
-      "query": "technical director jobs mid career growth hiring OR jobs 2026",
-      "time": "2026-03-08T23:16:49.209619"
-    },
-    {
-      "query": "freelance game contracts mid career growth hiring OR jobs 2026",
-      "time": "2026-03-08T23:16:50.401810"
-    },
-    {
-      "query": "remote work opportunities mid career growth hiring OR jobs 2026",
-      "time": "2026-03-08T23:16:50.725755"
-    },
-    {
-      "query": "portfolio building tips mid career growth hiring OR jobs 2026",
-      "time": "2026-03-08T23:16:50.959709"
-    },
-    {
-      "query": "\"networking events\" mid career growth hiring OR jobs 2026",
-      "time": "2026-03-08T23:16:51.674903"
-    },
-    {
-      "query": "\"LinkedIn Gaming Jobs\" mid career growth hiring OR jobs 2026",
-      "time": "2026-03-08T23:16:52.274478"
-    },
-    {
-      "query": "\"IndieHackers job board\" mid career growth hiring OR jobs 2026",
-      "time": "2026-03-08T23:16:52.945148"
-    },
-    {
-      "query": "\"GameDevJobs.com\" mid career growth hiring OR jobs 2026",
-      "time": "2026-03-08T23:16:53.226725"
-    },
-    {
-      "query": "site:kockw.com careers OR recruitment OR \"fresh graduate\"",
-      "time": "2026-03-08T23:16:57.195923"
+      "time": "2026-03-10T20:41:41.120216"
     },
     {
       "query": "site:knpc.com recruitment OR careers OR \"fresh graduate\"",
-      "time": "2026-03-08T23:16:57.393184"
+      "time": "2026-03-10T20:41:41.321240"
     },
     {
       "query": "site:kipic.com.kw careers OR recruitment",
-      "time": "2026-03-08T23:16:57.805985"
-    },
-    {
-      "query": "site:kpc.com.kw careers OR recruitment OR \"fresh graduate\"",
-      "time": "2026-03-08T23:16:58.393219"
+      "time": "2026-03-10T20:41:41.558588"
     },
     {
       "query": "Kuwait oil sector \"fresh graduate\" recruitment announcement 2026",
-      "time": "2026-03-08T23:16:59.014473"
+      "time": "2026-03-10T20:41:42.630666"
+    },
+    {
+      "query": "site:kpc.com.kw careers OR recruitment OR \"fresh graduate\"",
+      "time": "2026-03-10T20:41:42.658562"
     },
     {
       "query": "Kuwait oil sector \"admin circular\" hiring Kuwaiti nationals",
-      "time": "2026-03-08T23:17:00.328490"
-    },
-    {
-      "query": "\"KOC\" OR \"KNPC\" OR \"KIPIC\" \"fresh graduate\" program Kuwait",
-      "time": "2026-03-08T23:17:00.733860"
+      "time": "2026-03-10T20:41:43.837493"
     },
     {
       "query": "\"\u0627\u0644\u0642\u0637\u0627\u0639 \u0627\u0644\u0646\u0641\u0637\u064a\" \u062a\u0648\u0638\u064a\u0641 \u062e\u0631\u064a\u062c\u064a\u0646 \u0627\u0644\u0643\u0648\u064a\u062a",
-      "time": "2026-03-08T23:17:00.818357"
+      "time": "2026-03-10T20:41:44.031248"
     },
     {
-      "query": "\"Al Khaleej Creative\" kuwait hiring OR careers OR recruitment 2026",
-      "time": "2026-03-09T03:27:37.182032"
+      "query": "\"KOC\" OR \"KNPC\" OR \"KIPIC\" \"fresh graduate\" program Kuwait",
+      "time": "2026-03-10T20:41:44.200732"
     },
     {
-      "query": "\"Al Khaleej Creative\" kuwait design studios kuwait careers 2026",
-      "time": "2026-03-09T03:27:37.312827"
+      "query": "\"Zain Kuwait\" kuwait tech employers Kuwait careers 2026",
+      "time": "2026-03-11T01:37:21.529298"
     },
     {
-      "query": "\"Gulf Brands Agency\" kuwait hiring OR careers OR recruitment 2026",
-      "time": "2026-03-09T03:27:37.552400"
+      "query": "\"Zain Kuwait\" Kuwait hiring OR careers OR recruitment 2026",
+      "time": "2026-03-11T01:37:21.587896"
     },
     {
-      "query": "\"Gulf Brands Agency\" kuwait design studios kuwait careers 2026",
-      "time": "2026-03-09T03:27:40.243675"
+      "query": "\"Ooredoo Kuwait\" Kuwait hiring OR careers OR recruitment 2026",
+      "time": "2026-03-11T01:37:21.787300"
     },
     {
-      "query": "\"Kuwaiti advertising firms\" kuwait hiring OR careers OR recruitment 2026",
-      "time": "2026-03-09T03:27:40.455578"
+      "query": "\"Ooredoo Kuwait\" kuwait tech employers Kuwait careers 2026",
+      "time": "2026-03-11T01:37:22.589496"
     },
     {
-      "query": "\"Kuwaiti advertising firms\" kuwait design studios kuwait careers 2026",
-      "time": "2026-03-09T03:27:41.191697"
+      "query": "\"Mawakeel\" Kuwait hiring OR careers OR recruitment 2026",
+      "time": "2026-03-11T01:37:22.760273"
     },
     {
-      "query": "local branding agencies kuwait hiring OR careers OR recruitment 2026",
-      "time": "2026-03-09T03:27:42.447264"
+      "query": "\"Mawakeel\" kuwait tech employers Kuwait careers 2026",
+      "time": "2026-03-11T01:37:23.050740"
     },
     {
-      "query": "local branding agencies kuwait design studios kuwait careers 2026",
-      "time": "2026-03-09T03:27:43.020496"
+      "query": "\"Eratech\" Kuwait hiring OR careers OR recruitment 2026",
+      "time": "2026-03-11T01:37:23.577407"
     },
     {
-      "query": "\"print design studios Kuwait\" kuwait hiring OR careers OR recruitment 2026",
-      "time": "2026-03-09T03:27:43.955977"
+      "query": "\"Eratech\" kuwait tech employers Kuwait careers 2026",
+      "time": "2026-03-11T01:37:25.587900"
     },
     {
-      "query": "digital creative houses kuwait hiring OR careers OR recruitment 2026",
-      "time": "2026-03-09T03:27:44.370452"
+      "query": "\"KIPIC\" Kuwait hiring OR careers OR recruitment 2026",
+      "time": "2026-03-11T01:37:26.257849"
     },
     {
-      "query": "digital creative houses kuwait design studios kuwait careers 2026",
-      "time": "2026-03-09T03:27:44.386548"
+      "query": "\"KIPIC\" kuwait tech employers Kuwait careers 2026",
+      "time": "2026-03-11T01:37:26.703160"
     },
     {
-      "query": "\"Al Rawabi Creative\" kuwait hiring OR careers OR recruitment 2026",
-      "time": "2026-03-09T03:27:46.564751"
+      "query": "\"Ministry of Communications\" Kuwait hiring OR careers OR recruitment 2026",
+      "time": "2026-03-11T01:37:27.385689"
     },
     {
-      "query": "\"Middle East design trends\" regional creative trends 2026",
-      "time": "2026-03-09T03:27:49.018040"
+      "query": "\"Ministry of Communications\" kuwait tech employers Kuwait careers 2026",
+      "time": "2026-03-11T01:37:28.287053"
     },
     {
-      "query": "\"GCC branding updates\" regional creative trends 2026",
-      "time": "2026-03-09T03:27:49.362927"
+      "query": "\"AI infrastructure\" global tech trends 2026",
+      "time": "2026-03-11T01:37:29.598607"
     },
     {
-      "query": "\"Arabic typography styles\" regional creative trends 2026",
-      "time": "2026-03-09T03:27:49.622037"
+      "query": "\"cloud computing\" global tech trends 2026",
+      "time": "2026-03-11T01:37:29.971057"
     },
     {
-      "query": "regional art exhibitions regional creative trends 2026",
-      "time": "2026-03-09T03:27:51.396044"
+      "query": "5G network upgrades global tech trends 2026",
+      "time": "2026-03-11T01:37:30.309466"
     },
     {
-      "query": "\"Dubai design week news\" regional creative trends 2026",
-      "time": "2026-03-09T03:27:51.956106"
+      "query": "cybersecurity threats global tech trends 2026",
+      "time": "2026-03-11T01:37:30.818008"
     },
     {
-      "query": "\"Saudi creative industry\" regional creative trends 2026",
-      "time": "2026-03-09T03:27:52.432138"
+      "query": "\"quantum computing\" global tech trends 2026",
+      "time": "2026-03-11T01:37:31.197603"
     },
     {
-      "query": "\"Abu Dhabi Art exhibition updates\" regional creative trends 2026",
-      "time": "2026-03-09T03:27:52.650744"
+      "query": "\"Generative AI models\" global tech trends 2026",
+      "time": "2026-03-11T01:37:31.870395"
     },
     {
-      "query": "\"Oman National Day creative campaigns\" regional creative trends 2026",
-      "time": "2026-03-09T03:27:55.447352"
+      "query": "\"IoT security protocols\" global tech trends 2026",
+      "time": "2026-03-11T01:37:32.152863"
     },
     {
-      "query": "\"Riyadh Season design showcases\" regional creative trends 2026",
-      "time": "2026-03-09T03:27:55.831457"
+      "query": "\"edge devices\" global tech trends 2026",
+      "time": "2026-03-11T01:37:32.390051"
     },
     {
-      "query": "\"Adobe Creative Cloud updates\" global design tools 2026",
-      "time": "2026-03-09T03:27:58.162950"
+      "query": "\"Green data centers\" global tech trends 2026",
+      "time": "2026-03-11T01:37:32.942322"
     },
     {
-      "query": "\"Figma new features\" global design tools 2026",
-      "time": "2026-03-09T03:27:58.351236"
+      "query": "\"Satellite internet constellations\" global tech trends 2026",
+      "time": "2026-03-11T01:37:33.694756"
     },
     {
-      "query": "3D modeling software global design tools 2026",
-      "time": "2026-03-09T03:28:00.635467"
+      "query": "\"GCC digital transformation\" regional tech 2026",
+      "time": "2026-03-11T01:37:36.318339"
     },
     {
-      "query": "\"AI image generation tools\" global design tools 2026",
-      "time": "2026-03-09T03:28:00.832989"
+      "query": "\"UAE tech hubs\" technology 2026",
+      "time": "2026-03-11T01:37:36.812159"
     },
     {
-      "query": "vector design apps global design tools 2026",
-      "time": "2026-03-09T03:28:01.485742"
+      "query": "\"Saudi tech sector\" technology 2026",
+      "time": "2026-03-11T01:37:36.969133"
     },
     {
-      "query": "\"Canva Pro enterprise plans\" global design tools 2026",
-      "time": "2026-03-09T03:28:02.069599"
+      "query": "\"Middle East startups\" regional tech 2026",
+      "time": "2026-03-11T01:37:37.707149"
     },
     {
-      "query": "design system platforms global design tools 2026",
-      "time": "2026-03-09T03:28:02.452380"
+      "query": "\"Arab tech summits\" technology 2026",
+      "time": "2026-03-11T01:37:38.784507"
     },
     {
-      "query": "\"Blender 3D rendering suites\" global design tools 2026",
-      "time": "2026-03-09T03:28:03.264810"
+      "query": "\"Bahrain Fintech Hub\" technology 2026",
+      "time": "2026-03-11T01:37:39.635979"
     },
     {
-      "query": "\"Midjourney v6 image generation models\" global design tools 2026",
-      "time": "2026-03-09T03:28:03.672409"
+      "query": "regional telecom regulations technology 2026",
+      "time": "2026-03-11T01:37:40.131140"
     },
     {
-      "query": "mid-career portfolio reviews design career growth hiring OR jobs 2026",
-      "time": "2026-03-09T03:28:06.489351"
+      "query": "\"Oman Digital Government Strategy\" regional tech 2026",
+      "time": "2026-03-11T01:37:41.417438"
     },
     {
-      "query": "\"Freelance design jobs Kuwait\" design career growth hiring OR jobs 2026",
-      "time": "2026-03-09T03:28:06.617104"
+      "query": "\"Egypt tech ecosystem growth\" technology 2026",
+      "time": "2026-03-11T01:37:41.603438"
     },
     {
-      "query": "design leadership roles design career growth hiring OR jobs 2026",
-      "time": "2026-03-09T03:28:07.140124"
+      "query": "\"Jordan startup incubators\" regional tech 2026",
+      "time": "2026-03-11T01:37:42.280333"
     },
     {
-      "query": "remote creative positions design career growth hiring OR jobs 2026",
-      "time": "2026-03-09T03:28:08.146020"
+      "query": "\"Python programming\" software development skills 2026",
+      "time": "2026-03-11T01:37:45.621551"
     },
     {
-      "query": "creative agency openings design career growth hiring OR jobs 2026",
-      "time": "2026-03-09T03:28:08.940646"
+      "query": "\"DevOps practices\" software development skills 2026",
+      "time": "2026-03-11T01:37:45.853278"
     },
     {
-      "query": "\"Kuwait Design Council membership\" design career growth hiring OR jobs 2026",
-      "time": "2026-03-09T03:28:09.607542"
+      "query": "\"cloud certifications\" software development skills 2026",
+      "time": "2026-03-11T01:37:45.998600"
     },
     {
-      "query": "\"Arab Design Awards submissions\" design career growth hiring OR jobs 2026",
-      "time": "2026-03-09T03:28:10.196126"
+      "query": "\"API development\" software development skills 2026",
+      "time": "2026-03-11T01:37:46.722869"
     },
     {
-      "query": "\"Gulf Creative Network partnerships\" design career growth hiring OR jobs 2026",
-      "time": "2026-03-09T03:28:11.177845"
+      "query": "\"Agile methodologies\" software development skills 2026",
+      "time": "2026-03-11T01:37:46.987543"
     },
     {
-      "query": "international design conferences design learning resources 2026",
-      "time": "2026-03-09T03:28:14.455904"
+      "query": "container orchestration software development skills 2026",
+      "time": "2026-03-11T01:37:47.365991"
     },
     {
-      "query": "hands-on skill workshops design learning resources 2026",
-      "time": "2026-03-09T03:28:14.524531"
+      "query": "\"Terraform infrastructure as code\" software development skills 2026",
+      "time": "2026-03-11T01:37:48.106424"
     },
     {
-      "query": "industry networking events design learning resources 2026",
-      "time": "2026-03-09T03:28:15.946726"
+      "query": "\"Kubernetes administration\" software development skills 2026",
+      "time": "2026-03-11T01:37:48.278285"
     },
     {
-      "query": "online design courses design learning resources 2026",
-      "time": "2026-03-09T03:28:17.190451"
+      "query": "\"React Native mobile development\" software development skills 2026",
+      "time": "2026-03-11T01:37:48.582331"
     },
     {
-      "query": "\"Coursera UX/UI specialization\" design learning resources 2026",
-      "time": "2026-03-09T03:28:18.306509"
+      "query": "\"GraphQL API design\" software development skills 2026",
+      "time": "2026-03-11T01:37:50.106710"
     },
     {
-      "query": "design certification programs design learning resources 2026",
-      "time": "2026-03-09T03:28:18.475017"
+      "query": "\"University lab positions\" research r&d roles hiring OR jobs 2026",
+      "time": "2026-03-11T01:37:51.215557"
     },
     {
-      "query": "\"LinkedIn Learning design paths\"  2026",
-      "time": "2026-03-09T03:28:18.712649"
+      "query": "government research grants research r&d roles hiring OR jobs 2026",
+      "time": "2026-03-11T01:37:51.614449"
     },
     {
-      "query": "\"Adobe Certified Professional exams\" design learning resources 2026",
-      "time": "2026-03-09T03:28:19.751539"
+      "query": "\"industry R&D projects\" research r&d roles hiring OR jobs 2026",
+      "time": "2026-03-11T01:37:51.656192"
     },
     {
-      "query": "\"Kuwait design expos\" design industry events 2026",
-      "time": "2026-03-09T03:28:22.627828"
+      "query": "\"patent filings\" research r&d roles hiring OR jobs 2026",
+      "time": "2026-03-11T01:37:52.747002"
     },
     {
-      "query": "regional art festivals design industry events 2026",
-      "time": "2026-03-09T03:28:23.080536"
+      "query": "technical publications research r&d roles hiring OR jobs 2026",
+      "time": "2026-03-11T01:37:53.891611"
     },
     {
-      "query": "creative tech summits design industry events 2026",
-      "time": "2026-03-09T03:28:23.988154"
+      "query": "collaborative research research r&d roles hiring OR jobs 2026",
+      "time": "2026-03-11T01:37:54.599415"
     },
     {
-      "query": "design awards ceremonies design industry events 2026",
-      "time": "2026-03-09T03:28:24.792204"
+      "query": "\"Kuwait Institute for Scientific Research\" research r&d roles hiring OR jobs 2026",
+      "time": "2026-03-11T01:37:54.710238"
     },
     {
-      "query": "\"Kuwait International Exhibition\" design industry events 2026",
-      "time": "2026-03-09T03:28:25.882743"
+      "query": "\"American University of Kuwait research centers\" research r&d roles hiring OR jobs 2026",
+      "time": "2026-03-11T01:37:55.268491"
     },
     {
-      "query": "startup pitch events design industry events 2026",
-      "time": "2026-03-09T03:28:26.102546"
+      "query": "\"University of Kuwait Applied Sciences\" research r&d roles hiring OR jobs 2026",
+      "time": "2026-03-11T01:37:55.758474"
     },
     {
-      "query": "\"Arabian Gulf Design Forum\" design industry events 2026",
-      "time": "2026-03-09T03:28:27.540466"
+      "query": "\"National Center for Physics\" research r&d roles hiring OR jobs 2026",
+      "time": "2026-03-11T01:37:57.704242"
     },
     {
-      "query": "\"Middle East Creative Summit\" design industry events 2026",
-      "time": "2026-03-09T03:28:28.715019"
+      "query": "\"Cisco certifications\"  hiring OR jobs 2026",
+      "time": "2026-03-11T01:38:00.300161"
     },
     {
-      "query": "best coloring books 2026 recommendations top picks",
-      "time": "2026-03-09T03:41:20.430863"
+      "query": "\"Microsoft Azure roles\" professional certifications hiring OR jobs 2026",
+      "time": "2026-03-11T01:38:00.804516"
     },
     {
-      "query": "top adult coloring books 2026 best sellers Amazon reviews",
-      "time": "2026-03-09T03:41:24.350716"
+      "query": "\"AWS cloud certs\" professional certifications hiring OR jobs 2026",
+      "time": "2026-03-11T01:38:00.953014"
     },
     {
-      "query": "new adult coloring books released 2026 top rated titles",
-      "time": "2026-03-09T03:41:27.624796"
+      "query": "\"CompTIA security\" professional certifications hiring OR jobs 2026",
+      "time": "2026-03-11T01:38:01.611115"
     },
     {
-      "query": "best adult coloring books 2026 Amazon new releases",
-      "time": "2026-03-09T03:42:04.725210"
+      "query": "software engineering exams professional certifications hiring OR jobs 2026",
+      "time": "2026-03-11T01:38:02.779259"
+    },
+    {
+      "query": "\"leadership training\" professional certifications hiring OR jobs 2026",
+      "time": "2026-03-11T01:38:03.299448"
+    },
+    {
+      "query": "\"PMP project management\" professional certifications hiring OR jobs 2026",
+      "time": "2026-03-11T01:38:03.925830"
+    },
+    {
+      "query": "\"Google Cloud Professional certifications\"  hiring OR jobs 2026",
+      "time": "2026-03-11T01:38:04.463135"
+    },
+    {
+      "query": "\"ISC2 Certified Security Professional\"  hiring OR jobs 2026",
+      "time": "2026-03-11T01:38:04.608968"
+    },
+    {
+      "query": "\"Oracle Java SE certification\" professional certifications hiring OR jobs 2026",
+      "time": "2026-03-11T01:38:05.259565"
+    },
+    {
+      "query": "tech market analysis industry intelligence 2026",
+      "time": "2026-03-11T01:38:09.199078"
+    },
+    {
+      "query": "software licensing deals industry intelligence 2026",
+      "time": "2026-03-11T01:38:09.607644"
+    },
+    {
+      "query": "telecom investment news industry intelligence 2026",
+      "time": "2026-03-11T01:38:09.986000"
+    },
+    {
+      "query": "startup funding rounds industry intelligence 2026",
+      "time": "2026-03-11T01:38:10.672606"
+    },
+    {
+      "query": "emerging tech standards industry intelligence 2026",
+      "time": "2026-03-11T01:38:11.203345"
+    },
+    {
+      "query": "hardware supply chain industry intelligence 2026",
+      "time": "2026-03-11T01:38:11.504431"
+    },
+    {
+      "query": "\"Gulf Technology Council reports\" industry intelligence 2026",
+      "time": "2026-03-11T01:38:11.953935"
+    },
+    {
+      "query": "\"Arab Telecommunications Union data\" industry intelligence 2026",
+      "time": "2026-03-11T01:38:12.521986"
+    },
+    {
+      "query": "\"Middle East Venture Capital trends\" industry intelligence 2026",
+      "time": "2026-03-11T01:38:13.223288"
+    },
+    {
+      "query": "\"GCC free zone technology regulations\" industry intelligence 2026",
+      "time": "2026-03-11T01:38:15.197701"
+    },
+    {
+      "query": "site:kockw.com careers OR recruitment OR \"fresh graduate\"",
+      "time": "2026-03-11T01:38:17.929788"
+    },
+    {
+      "query": "site:knpc.com recruitment OR careers OR \"fresh graduate\"",
+      "time": "2026-03-11T01:38:18.088443"
+    },
+    {
+      "query": "site:kipic.com.kw careers OR recruitment",
+      "time": "2026-03-11T01:38:18.290623"
+    },
+    {
+      "query": "site:kpc.com.kw careers OR recruitment OR \"fresh graduate\"",
+      "time": "2026-03-11T01:38:19.537171"
+    },
+    {
+      "query": "Kuwait oil sector \"admin circular\" hiring Kuwaiti nationals",
+      "time": "2026-03-11T01:38:20.544172"
+    },
+    {
+      "query": "Kuwait oil sector \"fresh graduate\" recruitment announcement 2026",
+      "time": "2026-03-11T01:38:20.673841"
+    },
+    {
+      "query": "\"\u0627\u0644\u0642\u0637\u0627\u0639 \u0627\u0644\u0646\u0641\u0637\u064a\" \u062a\u0648\u0638\u064a\u0641 \u062e\u0631\u064a\u062c\u064a\u0646 \u0627\u0644\u0643\u0648\u064a\u062a",
+      "time": "2026-03-11T01:38:21.030864"
+    },
+    {
+      "query": "\"KOC\" OR \"KNPC\" OR \"KIPIC\" \"fresh graduate\" program Kuwait",
+      "time": "2026-03-11T01:38:21.752064"
+    },
+    {
+      "query": "schools of Islamic philosophy beyond Mu'tazila Ash'ari Maturidi Peripatetic Illuminationist",
+      "time": "2026-03-11T18:10:57.545883"
+    },
+    {
+      "query": "Shia schools of Islamic philosophy Ismaili Kalam Ilm al-Kalam",
+      "time": "2026-03-11T18:11:31.584779"
+    },
+    {
+      "query": "YouTube video F29LqvqIHgM summary",
+      "time": "2026-03-11T20:17:52.031919"
+    },
+    {
+      "query": "Sword Art Online Aincrad canon locations floors Town Forest guilds",
+      "time": "2026-03-11T20:51:50.413060"
+    },
+    {
+      "query": "Sword Art Online canon NPCs Klein Argo Silica Eugeo Alice Synthesis guild Iron Covenant Fairy's Squa",
+      "time": "2026-03-11T20:51:54.841145"
+    },
+    {
+      "query": "Sword Art Online Aincrad Floor 1 starting area Forest Zone quest board training ground canon names",
+      "time": "2026-03-11T20:51:58.901351"
+    },
+    {
+      "query": "Sword Art Online canon Floor 1 players Klein Argo Silica Eugeo Lisbeth NPC names starting equipment",
+      "time": "2026-03-11T20:52:04.106605"
     }
   ]
 }

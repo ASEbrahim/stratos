@@ -1,8 +1,8 @@
 # STRAT_OS — Strategic Intelligence Operating System
 
-A self-hosted intelligence dashboard that hunts for actionable signals across markets, careers, and emerging tech — with a self-improving AI scorer that learns from teacher models (Gemini Flash + Claude Opus) and your own feedback.
+A self-hosted intelligence dashboard that hunts for actionable signals across markets, careers, and emerging tech — with a self-improving AI scorer that learns from teacher models (Gemini Flash + Claude Opus) and your own feedback. Now with a multi-persona agent system for scholarly research, market analysis, gaming, and more.
 
-> Built as a solo project by a Computer Engineering student in Kuwait. 61,000+ lines across 40+ modules. Runs entirely on free, local tools — with a $6 training pipeline (Gemini Flash) that permanently improves the local model. Three scorer generations, each cheaper and better. Installable as a Progressive Web App on any device.
+> Built as a solo project by a Computer Engineering student in Kuwait. 71,000+ lines across 50+ modules. Runs entirely on free, local tools — with a $6 training pipeline (Gemini Flash) that permanently improves the local model. Three scorer generations, each cheaper and better. Installable as a Progressive Web App on any device.
 
 ---
 
@@ -19,6 +19,14 @@ STRAT_OS scores everything it finds on a 0–10 scale of **"how actionable is th
 - **Regional Industry** — GCC-specific developments, government projects.
 - **Rich Media** — Video/stream/image/manga detection with grid view, RSS auto-discovery, contextual feed suggestions, and Cloudflare Worker proxy for media sources.
 
+**Multi-persona agent system:**
+
+- **Intelligence** — Default persona. News analysis, watchlist management, category tuning, web search.
+- **Scholarly** — YouTube knowledge extraction with 3-tier transcript pipeline (youtube-transcript-api, Supadata API, Whisper CPU). Search video insights, narrations, and channel libraries.
+- **Market** — Focused market analysis with watchlist and feed tools.
+- **Games/Roleplay** — Interactive fiction engine with save slots, world bibles, and character tracking. Multi-scenario management.
+- **Multi-agent mode** — Merge context from up to 3 personas in a single query for cross-domain answers.
+
 Everything is profile-aware. The scoring adapts to who you are. Trained on 45 profiles across 20+ countries.
 
 ---
@@ -32,11 +40,12 @@ Everything is profile-aware. The scoring adapts to who you are. Trained on 45 pr
 │  Fetchers ──► Scorer ──► JSON ──SSE─┼────►  Dashboard (desktop + mobile)  │
 │  ├─ Market (yfinance)               │     │  ├─ Executive Summary          │
 │  ├─ News (DDG + Serper + RSS)       │     │  ├─ Markets Panel + Focus Mode │
-│  ├─ Discovery (entity detect)       │     │  ├─ Strat Agent Chat           │
+│  ├─ Discovery (entity detect)       │     │  ├─ Multi-Persona Agent Chat   │
 │  ├─ CF Worker proxy (media/RSS)     │     │  ├─ Wizard (4-step onboarding) │
-│  └─ Kuwait scrapers                 │     │  ├─ Settings / 24 Theme Vars   │
-│                                     │     │  ├─ Rich Media (video/manga)   │
-│  Ollama (local LLM scoring)  ◄──┐   │     │  └─ Mobile (gestures, PWA)     │
+│  ├─ YouTube transcripts (3-tier)    │     │  ├─ Settings / 24 Theme Vars   │
+│  └─ Kuwait scrapers                 │     │  ├─ Rich Media (video/manga)   │
+│                                     │     │  └─ Mobile (gestures, PWA)     │
+│  Ollama (local LLM scoring)  ◄──┐   │
 │  SQLite (dedup + feedback)      │   │     │                                │
 │  DB-Auth (email verify)         │   │     │  TradingView Charts            │
 │  Stop Scan (graceful cancel)    │   │     │  Vanilla CSS (24 variants)     │
@@ -102,27 +111,14 @@ Dual teacher pipeline: **Gemini Flash** ($0.00012/article) for bulk training dat
 - Python 3.11+
 - [Ollama](https://ollama.ai/download)
 
-### Setup
+### Setup & Run
 
 ```bash
-# Windows:
-setup.bat
-
-# Linux/Mac:
-chmod +x setup.sh && ./setup.sh
-```
-
-### Run
-
-```bash
-# Windows:
-start.bat
-
-# Linux/Mac:
-chmod +x start.sh && ./start.sh
+# Using the launcher script (recommended):
+cd backend && bash stratos.sh
 
 # Or manually:
-cd backend && python main.py --serve
+cd backend && python3 main.py --serve
 ```
 
 Open `http://localhost:8080` — register with email + password on first visit (or PIN auth for legacy profiles).
@@ -235,7 +231,7 @@ StratOS/
 │   ├── email_service.py           # SMTP delivery, verification/reset emails
 │   ├── user_data.py               # Per-user data directories (JSONL exports)
 │   ├── sse.py                     # Server-Sent Events broadcasting
-│   ├── migrations.py              # DB schema migrations (version 9)
+│   ├── migrations.py              # DB schema migrations (version 19)
 │   ├── config.yaml                # Global configuration
 │   ├── distill.py                 # Claude Opus distillation pipeline
 │   ├── export_training.py         # Corrections → LoRA training data
@@ -261,9 +257,14 @@ StratOS/
 │   │   ├── scorer_base.py         # Shared scorer infrastructure
 │   │   ├── scorer_adaptive.py     # Profile-adaptive scorer (primary)
 │   │   ├── briefing.py            # AI briefing generator
-│   │   └── profile_generator.py   # AI category generation pipeline
+│   │   ├── profile_generator.py   # AI category generation pipeline
+│   │   ├── file_handler.py        # Per-user file storage with text extraction
+│   │   ├── workspace.py           # Profile export/import as ZIP
+│   │   ├── context_compression.py # Auto-compression: state.md, conversation logs, weekly summaries
+│   │   └── scenarios.py           # Games persona save slot management
 │   ├── routes/
-│   │   ├── agent.py               # Strat Agent chat with tool-use
+│   │   ├── agent.py               # Multi-persona agent chat with tool-use (1,347 lines)
+│   │   ├── personas.py            # Persona registry, prompts, tools, context builders (542 lines)
 │   │   ├── auth.py                # DB-auth routes (register, verify, login, profiles)
 │   │   ├── config.py              # Settings save API
 │   │   ├── generate.py            # Profile/category generation
@@ -321,8 +322,17 @@ An always-visible 48px hotbar with 6 quick-access drawing tools and a grip handl
 ### Site-Wide Interactivity
 Hover effects on all buttons, navigation items, cards, and dropdowns across every page. Accent-colored focus glow on inputs and form elements. Active press feedback provides tactile response on every interactive control.
 
-### Strat Agent
-Context-aware AI chat with ticker commands (`$NVDA`, `$BTC`), full portfolio context, conversation export/import, and streaming responses via Ollama. Tools: web search, feed search, watchlist management, category management. Fullscreen desktop mode, free/structured chat toggle, suggestion chips after responses, and "Continue in Agent" from any Ask AI answer. Dedicated full-screen agent view on mobile.
+### Multi-Persona Agent
+Context-aware AI chat with ticker commands (`$NVDA`, `$BTC`), full portfolio context, conversation export/import, and streaming responses via Ollama. Four active personas with dedicated tools and context:
+
+| Persona | Tools | Context |
+|---------|-------|---------|
+| Intelligence | web_search, search_feed, manage_watchlist, manage_categories, search_files, read_document | News feed, categories, tickers |
+| Scholarly | search_insights, list_channels, get_video_summary, search_narrations, search_files, read_document, web_search, read_url | YouTube transcripts, video insights |
+| Market | manage_watchlist, search_feed, web_search | Market data, watchlist |
+| Games | search_files, read_document | World bible, active scenario state |
+
+Features: multi-agent querying (merge 2-3 personas), persona routing hints, persona-scoped file uploads, auto-compression (state.md + conversation logs), preference signals feedback loop. Fullscreen desktop mode, suggestion chips, dedicated mobile agent view.
 
 ### Profile System
 AI-generated interest categories, per-profile watchlists and RSS feeds, email-based authentication with verification codes, and theme customization with 8 themes × 3 modes = 24 variants. Cross-device sync for theme, mode, stars, and avatar via DB-backed `ui_state`. 45 trained profiles across 20+ countries.
@@ -396,7 +406,7 @@ distillation:
 ```yaml
 scoring:
   model: stratos-scorer-v2.2   # V2.2 DoRA fine-tuned (Qwen3.5-9B)
-  inference_model: qwen3.5:9b  # Agent chat, market analysis
+  inference_model: qwen3.5:9b  # Agent chat, market analysis, persona prompts
   wizard_model: qwen3.5:9b     # Wizard, briefings, profile generation
   ollama_host: http://localhost:11434
 ```
@@ -416,8 +426,7 @@ ROCR_VISIBLE_DEVICES=0        # Prevent iGPU interference
 ## Known Issues
 
 - **Profile isolation** — SSE events and `is_url_seen()` not fully scoped to profile_id (designed, not yet built)
-- **Chat history** — Agent conversation history not persisting across sessions
-- **Expanded agent mode** — Fullscreen agent mode missing tool-use capabilities
+- **YouTube Tier 1 IP blocked** — youtube-transcript-api returns `IpBlocked` on non-residential IPs; Tier 2 (Supadata) and Tier 3 (Whisper) handle as fallbacks
 - **innerHTML XSS** — Several frontend innerHTML assignments need sanitization
 
 ---
@@ -471,6 +480,19 @@ ROCR_VISIBLE_DEVICES=0        # Prevent iGPU interference
 - [x] Button animations (save pulse, customize glow, bell blink)
 - [x] Cloudflare Worker proxy for RSS/media sources
 
+**Sprint 2 — Multi-Persona Agent System (Mar 11, 2026):**
+- [x] Multi-persona agent architecture (intelligence, scholarly, market, games)
+- [x] YouTube scholarly knowledge extraction (3-tier transcript: youtube-transcript-api → Supadata → Whisper CPU)
+- [x] Games/Roleplay persona with multi-scenario save slots
+- [x] Multi-agent querying (merge context from 2-3 personas)
+- [x] Profile workspaces (export/import as ZIP)
+- [x] Auto-compression system (state.md per persona, daily JSONL logs, weekly LLM summaries)
+- [x] Persona routing hints (suggest switching when question suits another persona)
+- [x] User preference signals (cross-persona feedback loop)
+- [x] read_url tool for scholarly web article extraction
+- [x] Persona-scoped file isolation (uploads tagged with active persona)
+- [x] Persona registry with config-driven prompts, tools, and context builders
+
 #### In Progress
 - [ ] V2.2 expansion scoring (2,000 articles × 25 profiles via Gemini Flash, ~27% complete)
 - [ ] Feed density implementation
@@ -488,11 +510,6 @@ ROCR_VISIBLE_DEVICES=0        # Prevent iGPU interference
 - [ ] Google OAuth
 - [ ] Dual Ollama instances (scorer + inference)
 
-#### Future — Platform Vision
-- [ ] Anime/Manga mode (AniList-inspired, 60% UI already built)
-- [ ] Collection/TCG mode (TCGPlayer-inspired, 70% infra reuse)
-- [ ] Gaming mode (Steam-inspired)
-
 ### Development History
 
 | Milestone | Date | Details |
@@ -506,6 +523,7 @@ ROCR_VISIBLE_DEVICES=0        # Prevent iGPU interference
 | V2.2 Scorer Deployed | Mar 8, 2026 | Qwen3.5-9B DoRA, 40% MAE reduction, $6 Gemini training, zero parse failures |
 | Rich Media + Agent | Mar 8-10, 2026 | Jobs tab, RSS discovery, media grid, Fibonacci charts, agent fullscreen + chips |
 | Codebase Audit | Mar 4, 2026 | 102 issues found (7 P0, 43 P1, 52 P2), threading fixes, security analysis |
+| Sprint 2: Persona System | Mar 11, 2026 | Multi-persona agent (4 personas), YouTube scholarly extraction, games/roleplay, multi-agent querying, profile workspaces, auto-compression, 19 DB migrations |
 
 ---
 

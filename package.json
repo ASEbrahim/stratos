@@ -1,0 +1,19 @@
+{
+  "name": "stratos1",
+  "version": "1.0.0",
+  "description": "A self-hosted intelligence dashboard that hunts for actionable signals across markets, careers, and emerging tech — with a self-improving AI scorer that learns from teacher models (Gemini Flash + Claude Opus) and your own feedback. Now with a multi-persona agent system for scholarly research, market analysis, gaming, and more.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@playwright/test": "^1.58.2",
+    "playwright": "^1.58.2"
+  }
+}

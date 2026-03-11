@@ -40,7 +40,7 @@ search:
   provider: serper
   searxng_host: http://localhost:8888
   serper_api_key: bc26c29537b924cf7e8022eaaf83c50cfdeb51be
-  serper_credits: 1215
+  serper_credits: 1208
 system:
   database_file: strat_os.db
   frontend_port: 8080
@@ -53,59 +53,281 @@ email:
   smtp_user: StratintOS@gmail.com
   smtp_password: ctko nnjl skkl kxxj
 profile:
-  role: ''
-  location: ''
-  context: ''
+  role: Computer Engineer
+  location: Kuwait
+  context: Computer Engineer in Kuwait seeking entry-level and research positions,
+    tracking telecom industry developments, software trends, and professional certifications
+    to advance career prospects.
   interests: []
 market:
-  tickers: []
+  tickers:
+  - symbol: AAPL
+    name: Apple
+  - symbol: MSFT
+    name: Microsoft
+  - symbol: NVDA
+    name: NVIDIA
+  - symbol: GOOGL
+    name: Google
+  - symbol: AMZN
+    name: Amazon
+  - symbol: META
+    name: Meta
+  - symbol: TSLA
+    name: Tesla
+  - symbol: AMD
+    name: AMD
+  - symbol: INTC
+    name: Intel
+  - symbol: IBM
+    name: IBM
+  - symbol: BTC-USD
+    name: Bitcoin
+  - symbol: ETH-USD
+    name: Ethereum
+  - symbol: GC=F
+    name: Gold
+  - symbol: CL=F
+    name: Crude Oil
+  - symbol: EURUSD=X
+    name: EURUSD=X
+  - symbol: ^GSPC
+    name: S&P 500
+  - symbol: CE
+    name: CE
 news:
-  timelimit: w
-  career:
-    root: global
-    keywords: []
-    queries: []
-  finance:
-    root: global
-    keywords: []
-    queries: []
-  tech_trends:
-    root: global
-    keywords: []
-    queries: []
-  regional:
-    root: regional
-    keywords: []
-    queries: []
-dynamic_categories: []
-tickers: []
-extra_feeds_jobs: {}
-proxy:
-  cloudflare_worker: https://stratos-proxy.stratintos.workers.dev
-  blocked_domains:
-  - yande.re
-  - danbooru.donmai.us
-  - gelbooru.com
-  - konachan.com
-  - safebooru.org
-  - f95zone.to
-  - files.yande.re
-  - cdn.donmai.us
-  - raikou1.donmai.us
-  - raikou2.donmai.us
-  - img1.gelbooru.com
-  - img2.gelbooru.com
-  - img3.gelbooru.com
-  - mangadex.org
-  - uploads.mangadex.org
-  - api.mangadex.org
-  - konachan.net
-  - zerochan.net
-  - iwara.tv
-  - rule34.xxx
-  - rule34video.com
-  - nhentai.net
-  - e-hentai.org
-  - chan.sankakucomplex.com
-  - kemono.su
-  - kemono.party
+  timelimit: d
+dynamic_categories:
+- id: research-opportunities
+  label: Research Opportunities
+  icon: flask-conical
+  items:
+  - University lab openings
+  - Government research grants
+  - Industry R&D projects
+  - Academic publications
+  - Tech conference papers
+  - Open source contributions
+  - Collaborative research initiatives
+  - Kuwait Foundation for Advanced Scientific Research
+  - Arab Academy for Science
+  - Technology and Maritime Transport collaborations
+  - National Center for Physics research grants
+  - Smart city pilot program studies
+  - Renewable energy grid optimization papers
+  enabled: true
+  scorer_type: tech
+  root: global
+- id: kuwait-tech-employers
+  label: Kuwait Tech Employers
+  icon: briefcase
+  items:
+  - Zain Kuwait
+  - Ooredoo Kuwait
+  - Etisalat Misr
+  - Mawakeel IT
+  - KIPIC Research Labs
+  - Kuwait Institute for Scientific Research
+  - National Telecom Company
+  - Al-Futtaim Technology Solutions
+  - QatarEnergy Digital
+  - Boubyan Bank IT Department
+  - NBD Kuwait IT Division
+  - Gulf Energy Company IT
+  enabled: true
+  scorer_type: career
+  root: kuwait
+- id: global-tech-trends
+  label: Global Tech Trends
+  icon: cpu
+  items:
+  - AI in software engineering
+  - Cloud computing platforms
+  - Cybersecurity threats
+  - Edge computing
+  - IoT protocols
+  - 5G network architecture
+  - Quantum computing basics
+  - Generative AI for code generation
+  - Serverless computing architectures
+  - Zero-trust security models
+  - Digital twin technologies
+  - Blockchain interoperability standards
+  enabled: true
+  scorer_type: tech
+  root: global
+- id: telecom-industry-news
+  label: Telecom Industry News
+  icon: bar-chart-3
+  items:
+  - 5G deployment updates
+  - Spectrum licensing auctions
+  - Mobile network optimization
+  - Telecom regulatory changes
+  - Network infrastructure costs
+  - Satellite internet services
+  - Data privacy regulations
+  - Kuwait Communications Regulatory Authority (KCRA) updates
+  - Fiber optic network expansion plans
+  - Cross-border data transfer protocols
+  - Network slicing for enterprise clients
+  - E-waste recycling regulations
+  enabled: true
+  scorer_type: auto
+  root: regional
+- id: career-development
+  label: Career Development
+  icon: book-open
+  items:
+  - Entry-level certifications
+  - Online coding courses
+  - Professional networking events
+  - Software development bootcamps
+  - Technical interview prep
+  - Resume building tips
+  - Freelance platform trends
+  - Microsoft Learn Kuwait paths
+  - AWS Certified Cloud Practitioner
+  - Certified Ethical Hacker (CEH) training
+  - PMP certification for IT project managers
+  - Local tech meetups in Kuwait City
+  enabled: true
+  scorer_type: career
+  root: global
+- id: software-tools-news
+  label: Software Tools News
+  icon: zap
+  items:
+  - IDE updates and features
+  - Containerization tools
+  - DevOps pipeline changes
+  - API management platforms
+  - Version control best practices
+  - Testing frameworks releases
+  - Low-code development trends
+  - GitHub Copilot integration updates
+  - Kubernetes cluster management tools
+  - Jenkins CI/CD pipeline plugins
+  - PostgreSQL database optimization features
+  - Docker Desktop security patches
+  enabled: true
+  scorer_type: tech
+  root: global
+- id: startup-ecosystem
+  label: Startup Ecosystem
+  icon: building-2
+  items:
+  - Kuwait tech startups
+  - Venture capital funding
+  - Tech incubator programs
+  - Digital transformation cases
+  - Fintech innovations
+  - E-commerce growth sectors
+  - Government digital initiatives
+  - Kuwait Startup Hub initiatives
+  - Zain Venture Fund investments
+  - Ooredoo Digital Innovation Lab programs
+  - Kuwait Investment Authority (KIA) tech grants
+  - Local e-commerce logistics startups
+  enabled: true
+  scorer_type: auto
+  root: regional
+extra_feeds_finance:
+  cnbc_top: false
+  cnbc_finance: false
+  marketwatch: false
+  mw_pulse: false
+  yahoo_fin: false
+  investing: false
+  ft: true
+  bloomberg: false
+  wsj_world: false
+  economist: false
+  seekingalpha: false
+  biz_insider: false
+  coindesk: false
+  cointelegraph: false
+  gn_kuwait_biz: false
+  gn_gcc_finance: false
+  zawya: false
+  arab_times_biz: false
+  boursa_kuwait: false
+  oilprice: false
+  rigzone: false
+extra_feeds_politics:
+  bbc_world: true
+  bbc_mideast: true
+  aljazeera: true
+  npr_world: false
+  nyt_world: false
+  nyt_mideast: true
+  wapo_world: false
+  wapo_politics: false
+  cnn_world: false
+  fox_world: false
+  guardian: false
+  dw: false
+  france24: false
+  gn_kuwait: true
+  arab_times: true
+  times_kuwait: true
+  gn_mideast: true
+  alarabiya: true
+  middleeasteye: true
+  newarab: true
+  scmp: false
+  nikkei_asia: false
+extra_feeds_jobs:
+  gn_kuwait_jobs: false
+  gn_gcc_careers: false
+  gn_tech_jobs: false
+  gn_remote_work: false
+  gn_job_market: false
+  wwr_programming: false
+  wwr_design: false
+  wwr_devops: false
+  wwr_management: false
+  wwr_sales: false
+  wwr_all: false
+  remoteok: false
+  hn_hiring: false
+  hn_freelance: false
+  gn_linkedin_news: false
+  gn_indeed_trends: false
+  gn_finance_jobs: false
+  gn_oil_gas_jobs: false
+  gn_ai_ml_jobs: false
+  angellist: false
+  gn_startup_jobs: false
+custom_feeds:
+- url: https://remoteok.com/remote-jobs.rss
+  name: RemoteOK
+  'on': false
+- url: https://www.linkedin.com/jobs/search/feed?keywords=&location=Kuwait&sortBy=DD
+  name: LinkedIn Kuwait
+  'on': false
+- url: https://news.google.com/rss/search?q=indeed+jobs+Kuwait&hl=en
+  name: Indeed Kuwait (Google)
+  'on': false
+- url: https://www.youtube.com/feeds/videos.xml?channel_id=UCsvn_Po0SmunchJYOWpOxMg
+  name: VGD
+  'on': false
+- url: https://yande.re/post/atom?tags=rating:safe+landscape
+  name: yayay
+  'on': false
+- url: https://konachan.com/post/atom?tags=rating:safe
+  name: kon
+  'on': false
+- url: https://danbooru.donmai.us/posts.atom?tags=rating:general+scenery
+  name: dan
+  'on': false
+- url: https://danbooru.donmai.us/posts.atom?tags=rating:general+genshin_impact
+  name: ga
+  'on': false
+- url: https://safebooru.org/index.php?page=atom&s=post&tags=scenery
+  name: saf
+  'on': false
+- url: https://www.youtube.com/feeds/videos.xml?channel_id=UCI1BdAoa8DK8jt03jBRhw1w
+  name: Baha
+  'on': true
+custom_tab_name: Custom
