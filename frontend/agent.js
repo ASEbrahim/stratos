@@ -706,6 +706,9 @@ function appendAgentMessage(role, content) {
                     <button onclick="_copyAgentMessage(this)" class="opacity-0 group-hover/msg:opacity-60 hover:!opacity-100 transition-opacity p-0.5 rounded" title="Copy message">
                         <i data-lucide="copy" class="w-3 h-3" style="color:var(--text-muted);"></i>
                     </button>
+                    <button onclick="speakMessage(this.closest('.group\\/msg').querySelector('.agent-response').innerText, this)" class="speak-btn opacity-0 group-hover/msg:opacity-60 hover:!opacity-100 transition-opacity p-0.5 rounded" title="Read aloud">
+                        <i data-lucide="volume-2" class="w-3 h-3" style="color:var(--text-muted);"></i>
+                    </button>
                 </div>
             </div>`;
     }
@@ -722,6 +725,59 @@ function appendAgentMessage(role, content) {
     });
     msgs.scrollTop = msgs.scrollHeight;
     return wrapper;
+}
+
+// ── TTS (Text-to-Speech) ──
+let _currentTTSAudio = null;
+
+async function speakMessage(text, btn) {
+    // Toggle off if already playing
+    if (_currentTTSAudio && !_currentTTSAudio.paused) {
+        _currentTTSAudio.pause();
+        _currentTTSAudio.currentTime = 0;
+        _currentTTSAudio = null;
+        const icon = btn.querySelector('[data-lucide]');
+        if (icon) { icon.setAttribute('data-lucide', 'volume-2'); lucide.createIcons(); }
+        return;
+    }
+
+    const origIcon = btn.querySelector('[data-lucide]');
+    if (origIcon) { origIcon.setAttribute('data-lucide', 'loader'); lucide.createIcons(); }
+    btn.disabled = true;
+
+    try {
+        const resp = await fetch('/api/tts', {
+            method: 'POST',
+            headers: _agentHeaders(),
+            body: JSON.stringify({ text: text.substring(0, 5000) })
+        });
+        if (!resp.ok) throw new Error('TTS ' + resp.status);
+
+        const blob = await resp.blob();
+        const url = URL.createObjectURL(blob);
+        _currentTTSAudio = new Audio(url);
+
+        _currentTTSAudio.onended = () => {
+            if (origIcon) { origIcon.setAttribute('data-lucide', 'volume-2'); lucide.createIcons(); }
+            btn.disabled = false;
+            URL.revokeObjectURL(url);
+            _currentTTSAudio = null;
+        };
+        _currentTTSAudio.onerror = () => {
+            if (origIcon) { origIcon.setAttribute('data-lucide', 'volume-2'); lucide.createIcons(); }
+            btn.disabled = false;
+            URL.revokeObjectURL(url);
+            _currentTTSAudio = null;
+        };
+
+        if (origIcon) { origIcon.setAttribute('data-lucide', 'square'); lucide.createIcons(); }
+        btn.disabled = false;
+        _currentTTSAudio.play();
+    } catch (e) {
+        console.error('TTS error:', e);
+        if (origIcon) { origIcon.setAttribute('data-lucide', 'volume-2'); lucide.createIcons(); }
+        btn.disabled = false;
+    }
 }
 
 function _copyAgentMessage(btn) {
@@ -1383,7 +1439,7 @@ var _fsCustomizerOpen = false;
 var _fsCustomDefaults = {
     chatOpacity: 0.7, chatBlur: 16, sidebarOpacity: 0.75, sidebarBlur: 20,
     fontSize: 15, lineHeight: 1.65, bubblePadding: 14, bubbleRadius: 16,
-    chatWidth: 860, inputHeight: 52, sendSize: 44, uiScale: 1, gradBar: true
+    chatWidth: 800, inputHeight: 52, sendSize: 44, uiScale: 1, gradBar: true
 };
 
 function _loadFsCustom() {
@@ -2047,6 +2103,10 @@ function _syncSimpleTickers(tickers) {
         _restoreAgentHistory();
         // Render initial suggestion chips
         renderAgentSuggestions();
+        // Restore TTS preference
+        if (localStorage.getItem('stratos_tts_enabled') === '0') {
+            document.body.classList.add('tts-disabled');
+        }
         
         setTimeout(() => {
             const handle = document.getElementById('agent-resize-handle');

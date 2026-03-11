@@ -125,6 +125,7 @@ function updateChartTheme() {
 function togglePerfMode() {
     const on = localStorage.getItem('stratos-perf-mode') !== 'true';
     localStorage.setItem('stratos-perf-mode', on ? 'true' : 'false');
+    document.body.classList.toggle('perf-mode', on);
     updatePerfToggleUI(on);
     renderStars();
 }
@@ -1191,7 +1192,9 @@ setTheme(savedTheme);
 // Restore stars toggle + perf mode
 const savedStars = localStorage.getItem('stratos-stars') === 'true';
 updateStarsToggleUI(savedStars);
-updatePerfToggleUI(localStorage.getItem('stratos-perf-mode') === 'true');
+const savedPerfMode = localStorage.getItem('stratos-perf-mode') === 'true';
+updatePerfToggleUI(savedPerfMode);
+if (savedPerfMode) document.body.classList.add('perf-mode');
 updateCosmosPresetUI();
 
 // === UI STATE SYNC (cross-device theme/stars persistence) ===

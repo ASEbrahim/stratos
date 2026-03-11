@@ -2652,6 +2652,53 @@ body.density-comfortable .score-pill { min-height: 36px !important; padding: 6px
     to { opacity: 1; transform: translateX(-50%) translateY(0); }
 }
 
+/* ═══════════════════════════════════════════════════
+   PERFORMANCE MODE — body.perf-mode disables expensive GPU effects
+   ═══════════════════════════════════════════════════ */
+body.perf-mode *,
+body.perf-mode *::before,
+body.perf-mode *::after {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+}
+
+body.perf-mode .glass-panel {
+    box-shadow: none !important;
+    background: var(--bg-panel-solid, var(--bg-panel)) !important;
+}
+
+body.perf-mode .cosmos-canvas,
+body.perf-mode .star-field,
+body.perf-mode #cosmos-container,
+body.perf-mode #auth-star-field {
+    display: none !important;
+}
+
+/* Preserve essential animations in perf mode */
+body.perf-mode .loading-spinner,
+body.perf-mode .scan-progress-bar,
+body.perf-mode .scan-progress-fill,
+body.perf-mode [class*="animate-spin"],
+body.perf-mode [class*="animate-pulse"] {
+    animation-duration: 1s !important;
+    animation-iteration-count: infinite !important;
+    transition-duration: 0.2s !important;
+}
+
+/* TTS speak button — hidden in perf mode and when TTS disabled */
+body.perf-mode .speak-btn,
+body.tts-disabled .speak-btn {
+    display: none !important;
+}
+
+/* Mobile: always show speak button (no hover) */
+@media (hover: none) {
+    .speak-btn { opacity: 0.5 !important; }
+}
+
 /* Respect reduced-motion system preference */
 @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after {

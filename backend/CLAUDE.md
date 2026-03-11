@@ -148,6 +148,28 @@ OLLAMA_FLASH_ATTENTION=0      # ROCm 6.2 — flash attention unreliable
 ROCR_VISIBLE_DEVICES=0        # Prevent Ollama from using 7900X3D iGPU
 ```
 
+## Fullscreen Customizer Policy
+The fullscreen agent customizer is FROZEN. It works but is not actively tested.
+All development and testing uses default settings only (font: 15px, width: 800px,
+dark background, sidebar: right). Power users who change settings accept edge case risk.
+Do NOT add new customizer options. Do NOT test against non-default configurations.
+Re-evaluate this policy when the agent UI stabilizes.
+
+## Performance Mode
+`body.perf-mode` CSS class disables: backdrop-filter, animations, transitions, box-shadow, cosmos canvas.
+Essential animations preserved (spinners, progress bars). Persists via localStorage `stratos_perf_mode`.
+To add exceptions for new animations, add them to the perf-mode preserve list in styles.css.
+
+## TTS (Text-to-Speech)
+`speakMessage(text, btn)` in agent.js handles play/stop. Global `_currentTTSAudio` tracks active playback.
+Uses POST /api/tts endpoint. Fails gracefully if endpoint missing. Hidden in perf-mode.
+Toggle: `body.tts-disabled` class, localStorage `stratos_tts_enabled`.
+
+## Cross-Session Communication
+- `Strat-docs/bugs/BUG_*.md` — frontend writes backend bug reports here
+- `Strat-docs/todo-backend.md` — frontend writes backend feature requests
+- `Strat-docs/todo-frontend.md` — backend writes frontend feature requests
+
 ## API Endpoints (served from main.py)
 
 Key endpoints: `/api/news`, `/api/market`, `/api/refresh` (trigger scan), `/api/scan/status` (GET), `/api/scan/cancel` (POST), `/api/status`, `/api/feedback`, `/api/agent-chat`, `/api/suggest-context`, `/api/generate-profile`, `/api/config`, `/api/events` (SSE stream), `/api/briefing`, `/api/wizard-preselect`, `/api/wizard-tab-suggest`, `/api/wizard-rv-items`.
