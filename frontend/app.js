@@ -1143,6 +1143,13 @@ function _connectSSE() {
             } catch(err) { console.warn('[SSE] critical_signal parse error:', err); }
         });
 
+        _sseSource.addEventListener('youtube_processing', (e) => {
+            try {
+                const d = JSON.parse(e.data);
+                if (typeof _handleYouTubeSSE === 'function') _handleYouTubeSSE(d);
+            } catch(err) { console.warn('[SSE] youtube_processing parse error:', err); }
+        });
+
         _sseSource.onerror = () => {
             // SSE disconnected — fall back to polling
             if (_sseConnected) {

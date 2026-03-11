@@ -6,6 +6,53 @@ let _ytChannels = [];
 let _ytVideos = {};
 let _ytInsights = {};
 
+// ── SSE handler for realtime video processing updates ──
+function _handleYouTubeSSE(event) {
+    const { video_id, title, status, error, insights_count, transcript_method } = event;
+    if (!video_id) return;
+
+    // Find and update the video status in any visible video list
+    const statusEl = document.querySelector(`[data-yt-video="${video_id}"]`);
+    if (statusEl) {
+        const statusColor = {
+            'complete': 'text-emerald-400', 'transcribing': 'text-blue-400',
+            'extracting': 'text-purple-400', 'failed': 'text-red-400',
+            'started': 'text-amber-400'
+        }[status] || 'text-slate-500';
+        const statusIcon = {
+            'complete': 'check-circle', 'transcribing': 'mic',
+            'extracting': 'sparkles', 'failed': 'alert-circle',
+            'started': 'loader-2'
+        }[status] || 'clock';
+        const iconEl = statusEl.querySelector('[data-lucide]');
+        const textEl = statusEl.querySelector('.yt-video-status');
+        if (iconEl) {
+            iconEl.setAttribute('data-lucide', statusIcon);
+            iconEl.className = `w-3 h-3 ${statusColor} flex-shrink-0${status === 'started' || status === 'transcribing' || status === 'extracting' ? ' animate-spin' : ''}`;
+        }
+        if (textEl) textEl.textContent = status;
+        // Make clickable when complete
+        if (status === 'complete') {
+            const dbId = statusEl.dataset.ytDbId;
+            if (dbId) {
+                statusEl.style.cursor = 'pointer';
+                statusEl.onclick = () => _ytShowInsights(parseInt(dbId));
+            }
+        }
+        lucide.createIcons();
+    }
+
+    // Show toast for key transitions
+    const shortTitle = (title || video_id).substring(0, 40);
+    if (status === 'transcribing') {
+        if (typeof showToast === 'function') showToast(`Transcribing: ${shortTitle}...`, 'info');
+    } else if (status === 'complete') {
+        if (typeof showToast === 'function') showToast(`✓ ${shortTitle} — ${insights_count || 0} insights extracted`, 'success');
+    } else if (status === 'failed') {
+        if (typeof showToast === 'function') showToast(`✗ ${shortTitle} failed: ${error || 'unknown'}`, 'error');
+    }
+}
+
 function _ytHeaders() {
     return {
         'Content-Type': 'application/json',
@@ -183,10 +230,10 @@ async function _ytToggleVideos(channelId) {
                 }[v.status] || 'clock';
                 const clickable = v.status === 'complete' ? `onclick="_ytShowInsights(${v.id})" class="cursor-pointer"` : '';
 
-                return `<div ${clickable} class="flex items-center gap-2 px-2 py-1.5 rounded-md transition-colors" onmouseenter="this.style.background='var(--bg-hover)'" onmouseleave="this.style.background='transparent'">
-                    <i data-lucide="${statusIcon}" class="w-3 h-3 ${statusColor} flex-shrink-0${v.status === 'processing' ? ' animate-spin' : ''}"></i>
+                return `<div data-yt-video="${v.video_id}" data-yt-db-id="${v.id}" ${clickable} class="flex items-center gap-2 px-2 py-1.5 rounded-md transition-colors" onmouseenter="this.style.background='var(--bg-hover)'" onmouseleave="this.style.background='transparent'">
+                    <i data-lucide="${statusIcon}" class="w-3 h-3 ${statusColor} flex-shrink-0${v.status === 'transcribing' || v.status === 'extracting' ? ' animate-spin' : ''}"></i>
                     <span class="text-[10px] flex-1 truncate" style="color:var(--text-secondary)">${_escHtml(v.title || v.video_id)}</span>
-                    <span class="text-[8px] ${statusColor}">${v.status}</span>
+                    <span class="text-[8px] yt-video-status ${statusColor}">${v.status}</span>
                 </div>`;
             }).join('');
             lucide.createIcons();
