@@ -1314,7 +1314,7 @@ function _buildFsSidebar() {
     // Build persona options
     const personaItems = Object.entries(PERSONA_THEMES).map(([key, t]) => {
         const active = key === currentPersona;
-        return `<button onclick="switchPersona('${key}');_refreshFsSidebar()" class="flex items-center gap-2.5 w-full px-3 py-2 rounded-lg text-left transition-all" style="background:${active ? t.bg : 'transparent'};color:${active ? t.color : 'var(--text-muted)'};" onmouseenter="if(!${active})this.style.background='rgba(255,255,255,0.03)'" onmouseleave="if(!${active})this.style.background='${active ? t.bg : 'transparent'}'">
+        return `<button onclick="switchPersona('${key}')" class="flex items-center gap-2.5 w-full px-3 py-2 rounded-lg text-left transition-all" style="background:${active ? t.bg : 'transparent'};color:${active ? t.color : 'var(--text-muted)'};" onmouseenter="if(!${active})this.style.background='rgba(255,255,255,0.03)'" onmouseleave="if(!${active})this.style.background='${active ? t.bg : 'transparent'}'">
             <i data-lucide="${t.icon}" class="w-4 h-4"></i>
             <span class="text-[13px] font-medium">${t.label}</span>
         </button>`;
@@ -1324,7 +1324,7 @@ function _buildFsSidebar() {
     <div class="agent-fs-sidebar" style="width:280px;min-width:280px;height:100%;display:flex;flex-direction:column;border-right:1px solid rgba(255,255,255,0.05);">
         <!-- New Chat button -->
         <div class="px-3 pt-4 pb-2">
-            <button onclick="newAgentChat();_refreshFsSidebar()" class="w-full flex items-center gap-2.5 px-4 py-2.5 rounded-xl text-[13px] font-medium transition-all" style="border:1px solid var(--border-strong);color:var(--text-heading);background:rgba(255,255,255,0.02);" onmouseenter="this.style.borderColor='${theme.color}';this.style.background='${theme.bg}'" onmouseleave="this.style.borderColor='var(--border-strong)';this.style.background='rgba(255,255,255,0.02)'">
+            <button onclick="newAgentChat()" class="w-full flex items-center gap-2.5 px-4 py-2.5 rounded-xl text-[13px] font-medium transition-all" style="border:1px solid var(--border-strong);color:var(--text-heading);background:rgba(255,255,255,0.02);" onmouseenter="this.style.borderColor='${theme.color}';this.style.background='${theme.bg}'" onmouseleave="this.style.borderColor='var(--border-strong)';this.style.background='rgba(255,255,255,0.02)'">
                 <i data-lucide="plus" class="w-4.5 h-4.5"></i> New Chat
             </button>
         </div>
@@ -1359,7 +1359,7 @@ function _buildFsSidebar() {
                 </button>
             </div>
             <div class="flex items-center gap-1">
-                <button onclick="clearAgentChat();_refreshFsSidebar()" class="flex-1 flex items-center gap-2 px-3 py-2 rounded-lg text-[12px] transition-all" style="color:var(--text-muted);" title="Clear current chat" onmouseenter="this.style.color='#f87171';this.style.background='rgba(239,68,68,0.06)'" onmouseleave="this.style.color='var(--text-muted)';this.style.background='transparent'">
+                <button onclick="clearAgentChat()" class="flex-1 flex items-center gap-2 px-3 py-2 rounded-lg text-[12px] transition-all" style="color:var(--text-muted);" title="Clear current chat" onmouseenter="this.style.color='#f87171';this.style.background='rgba(239,68,68,0.06)'" onmouseleave="this.style.color='var(--text-muted)';this.style.background='transparent'">
                     <i data-lucide="trash-2" class="w-4 h-4"></i> Clear Chat
                 </button>
                 <button onclick="toggleAgentFullscreen()" class="flex-1 flex items-center gap-2 px-3 py-2 rounded-lg text-[12px] transition-all" style="color:var(--text-muted);" title="Exit fullscreen" onmouseenter="this.style.background='rgba(255,255,255,0.04)'" onmouseleave="this.style.background='transparent'">
@@ -1488,7 +1488,7 @@ function _toggleFsCustomizer() {
                     <div class="text-[10px] font-bold uppercase tracking-wider mb-2 strat-tip" style="color:var(--text-muted);" data-tip="Adjust text sizing for messages, input, and all UI elements">Typography</div>
                     <label class="fs-cust-label strat-tip" data-tip="Scale everything — sidebar, messages, buttons, input, all text and UI. This zooms the entire fullscreen view">UI Scale</label>
                     <div class="fs-cust-row">
-                        <input type="range" class="fs-cust-slider" id="fsc-ui-scale" min="0.7" max="1.5" step="0.05" value="${c.uiScale}" oninput="_fsCustUpdate()">
+                        <input type="range" class="fs-cust-slider" id="fsc-ui-scale" min="0.85" max="1.3" step="0.01" value="${c.uiScale}" oninput="_fsCustUpdate()">
                         <span class="fs-cust-val" id="fsc-ui-scale-val">${Math.round(c.uiScale*100)}%</span>
                     </div>
                     <label class="fs-cust-label strat-tip" data-tip="Base font size for message bubbles, input field, welcome text, and option buttons">Message Font</label>
@@ -1645,15 +1645,13 @@ function _refreshFsSidebar() {
     if (!_agentFullscreen) return;
     const existing = document.querySelector('.agent-fs-sidebar');
     if (!existing) return;
-    // Reload conv list and re-render
-    _loadConversations(currentPersona).then(() => {
-        const wrapper = existing.parentElement;
-        if (wrapper) {
-            existing.remove();
-            wrapper.insertAdjacentHTML('afterbegin', _buildFsSidebar());
-            lucide.createIcons();
-        }
-    });
+    // Rebuild sidebar from current _agentConvList (already loaded by caller)
+    const wrapper = existing.parentElement;
+    if (wrapper) {
+        existing.remove();
+        wrapper.insertAdjacentHTML('afterbegin', _buildFsSidebar());
+        lucide.createIcons();
+    }
 }
 
 function toggleAgentFullscreen() {
