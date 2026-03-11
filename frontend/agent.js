@@ -6,6 +6,7 @@ let agentHistory = [];   // {role:'user'|'assistant', content:string}
 let agentOpen = false;
 let agentStreaming = false;
 let agentMode = 'structured'; // 'structured' or 'free'
+let _agentAbortController = null;
 let currentPersona = 'intelligence';
 let selectedPersonas = ['intelligence']; // Multi-persona selection (max 3)
 let availablePersonas = [];
@@ -900,16 +901,20 @@ async function sendAgentMessage() {
     const typingEl = appendAgentMessage('assistant', `<div class="flex items-center gap-2"><div class="flex gap-1"><span class="w-1.5 h-1.5 rounded-full animate-bounce" style="background:var(--accent,#34d399);animation-delay:0ms;"></span><span class="w-1.5 h-1.5 rounded-full animate-bounce" style="background:var(--accent,#34d399);animation-delay:150ms;"></span><span class="w-1.5 h-1.5 rounded-full animate-bounce" style="background:var(--accent,#34d399);animation-delay:300ms;"></span></div><span class="text-[10px]" style="color:var(--text-muted);">Thinking...</span></div>`);
     
     agentStreaming = true;
-    sendBtn.disabled = true;
+    _agentAbortController = new AbortController();
+    sendBtn.disabled = false;
     input.disabled = true;
-    sendBtn.style.opacity = '0.5';
-    sendBtn.innerHTML = '<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i>';
+    sendBtn.style.opacity = '1';
+    sendBtn.innerHTML = '<i data-lucide="square" class="w-4 h-4"></i>';
+    sendBtn.title = 'Stop generating';
+    sendBtn.onclick = function() { cancelAgentStream(); };
     lucide.createIcons();
-    
+
     try {
         const response = await fetch('/api/agent-chat', {
             method: 'POST',
-            headers: { 
+            signal: _agentAbortController.signal,
+            headers: {
                 'Content-Type': 'application/json',
                 'X-Auth-Token': typeof getAuthToken === 'function' ? getAuthToken() : '',
                 'X-Device-Id': typeof getDeviceId === 'function' ? getDeviceId() : ''
@@ -1035,14 +1040,25 @@ async function sendAgentMessage() {
     } finally {
         _saveAgentHistory();
         agentStreaming = false;
+        _agentAbortController = null;
         sendBtn.disabled = false;
         input.disabled = false;
         sendBtn.style.opacity = '1';
         sendBtn.innerHTML = '<i data-lucide="arrow-up" class="w-4 h-4"></i>';
+        sendBtn.title = 'Send message';
+        sendBtn.onclick = function() { sendAgentMessage(); };
         lucide.createIcons();
         input.focus();
     }
 }
+
+function cancelAgentStream() {
+    if (_agentAbortController) {
+        _agentAbortController.abort();
+        _agentAbortController = null;
+    }
+}
+window.cancelAgentStream = cancelAgentStream;
 
 // ═══════════════════════════════════════════════════════════
 // F2: RESPONSE SUGGESTION CHIPS
