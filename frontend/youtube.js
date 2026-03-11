@@ -15,7 +15,7 @@ function _ytHeaders() {
 
 // ── Initialize YouTube panel in Settings ──
 function initYouTubePanel() {
-    const container = document.getElementById('youtube-panel-content');
+    const container = document.getElementById('youtube-settings-panel') || document.getElementById('youtube-panel-content');
     if (!container) return;
     _ytLoadChannels();
 }
