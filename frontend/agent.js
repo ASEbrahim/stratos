@@ -129,10 +129,27 @@ function _renderConvTabs() {
     container.innerHTML = _agentConvList.map(c => {
         const active = c.id === _agentActiveConvId;
         const title = (c.title || 'New Chat').length > 24 ? (c.title || 'New Chat').slice(0, 22) + '…' : (c.title || 'New Chat');
-        return `<button onclick="_switchConversation(${c.id})" class="flex items-center gap-1 px-2 py-1 rounded-md text-[9px] font-medium whitespace-nowrap transition-all flex-shrink-0 group" style="background:${active ? theme.bg : 'transparent'};border:1px solid ${active ? theme.color + '40' : 'transparent'};color:${active ? theme.color : 'var(--text-muted)'};" onmouseenter="if(!${active})this.style.background='rgba(255,255,255,0.03)'" onmouseleave="if(!${active})this.style.background='transparent'">${escAgent(title)}${_agentConvList.length > 1 ? `<span onclick="event.stopPropagation();_deleteConversation(${c.id})" class="opacity-0 group-hover:opacity-100 ml-1 transition-opacity" style="color:var(--text-muted);" title="Delete">×</span>` : ''}</button>`;
+        return `<button onclick="_switchConversation(${c.id})" ondblclick="event.stopPropagation();_renameConversation(${c.id})" class="flex items-center gap-1 px-2 py-1 rounded-md text-[9px] font-medium whitespace-nowrap transition-all flex-shrink-0 group" style="background:${active ? theme.bg : 'transparent'};border:1px solid ${active ? theme.color + '40' : 'transparent'};color:${active ? theme.color : 'var(--text-muted)'};" title="Double-click to rename" onmouseenter="if(!${active})this.style.background='rgba(255,255,255,0.03)'" onmouseleave="if(!${active})this.style.background='transparent'">${escAgent(title)}${_agentConvList.length > 1 ? `<span onclick="event.stopPropagation();_deleteConversation(${c.id})" class="opacity-0 group-hover:opacity-100 ml-1 transition-opacity" style="color:var(--text-muted);" title="Delete">×</span>` : ''}</button>`;
     }).join('') + `<button onclick="newAgentChat()" class="px-1.5 py-1 rounded-md text-[9px] transition-all flex-shrink-0" style="color:var(--text-muted);" title="New chat" onmouseenter="this.style.color='${theme.color}'" onmouseleave="this.style.color='var(--text-muted)'"><i data-lucide="plus" class="w-3 h-3"></i></button>`;
     lucide.createIcons();
 }
+
+async function _renameConversation(convId) {
+    const conv = _agentConvList.find(c => c.id === convId);
+    if (!conv) return;
+    const newTitle = prompt('Rename conversation:', conv.title || 'New Chat');
+    if (newTitle === null || !newTitle.trim()) return;
+    try {
+        await fetch(`/api/conversations/${convId}`, {
+            method: 'PUT', headers: _agentHeaders(),
+            body: JSON.stringify({ title: newTitle.trim() })
+        });
+        await _loadConversations(currentPersona);
+        _renderConvTabs();
+        if (_agentFullscreen) _refreshFsSidebar();
+    } catch(e) {}
+}
+window._renameConversation = _renameConversation;
 
 // Save agent history to DB (called after each exchange)
 async function _saveAgentHistory() {
@@ -1280,71 +1297,74 @@ function _buildFsSidebar() {
     const convItems = _agentConvList.map(c => {
         const active = c.id === _agentActiveConvId;
         const title = (c.title || 'New Chat').length > 28 ? (c.title || 'New Chat').slice(0, 26) + '…' : (c.title || 'New Chat');
-        return `<div class="group flex items-center gap-2 px-3 py-2 rounded-lg cursor-pointer transition-all ${active ? 'fs-conv-active' : ''}" style="background:${active ? 'rgba(255,255,255,0.06)' : 'transparent'};" onclick="_switchConversation(${c.id})" onmouseenter="if(!${active})this.style.background='rgba(255,255,255,0.03)'" onmouseleave="if(!${active})this.style.background='${active ? 'rgba(255,255,255,0.06)' : 'transparent'}'">
-            <i data-lucide="message-square" class="w-3.5 h-3.5 flex-shrink-0" style="color:${active ? theme.color : 'var(--text-muted)'};"></i>
-            <span class="flex-1 text-[11px] truncate" style="color:${active ? 'var(--text-heading)' : 'var(--text-muted)'};">${escAgent(title)}</span>
-            ${_agentConvList.length > 1 ? `<span onclick="event.stopPropagation();_deleteConversation(${c.id})" class="opacity-0 group-hover:opacity-100 p-0.5 rounded transition-all" style="color:var(--text-muted);" title="Delete chat" onmouseenter="this.style.color='#f87171'" onmouseleave="this.style.color='var(--text-muted)'"><i data-lucide="trash-2" class="w-3 h-3"></i></span>` : ''}
+        return `<div class="group flex items-center gap-2.5 px-3 py-2.5 rounded-lg cursor-pointer transition-all" style="background:${active ? 'rgba(255,255,255,0.06)' : 'transparent'};" onclick="_switchConversation(${c.id})" ondblclick="event.stopPropagation();_renameConversation(${c.id})" title="Double-click to rename" onmouseenter="if(!${active})this.style.background='rgba(255,255,255,0.03)'" onmouseleave="if(!${active})this.style.background='${active ? 'rgba(255,255,255,0.06)' : 'transparent'}'">
+            <i data-lucide="message-square" class="w-4 h-4 flex-shrink-0" style="color:${active ? theme.color : 'var(--text-muted)'};"></i>
+            <span class="flex-1 text-[13px] truncate" style="color:${active ? 'var(--text-heading)' : 'var(--text-muted)'};">${escAgent(title)}</span>
+            <div class="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">
+                <span onclick="event.stopPropagation();_renameConversation(${c.id})" class="p-1 rounded transition-all" style="color:var(--text-muted);" title="Rename" onmouseenter="this.style.color='${theme.color}'" onmouseleave="this.style.color='var(--text-muted)'"><i data-lucide="pencil" class="w-3 h-3"></i></span>
+                ${_agentConvList.length > 1 ? `<span onclick="event.stopPropagation();_deleteConversation(${c.id})" class="p-1 rounded transition-all" style="color:var(--text-muted);" title="Delete" onmouseenter="this.style.color='#f87171'" onmouseleave="this.style.color='var(--text-muted)'"><i data-lucide="trash-2" class="w-3 h-3"></i></span>` : ''}
+            </div>
         </div>`;
     }).join('');
     // Build persona options
     const personaItems = Object.entries(PERSONA_THEMES).map(([key, t]) => {
         const active = key === currentPersona;
-        return `<button onclick="switchPersona('${key}');_refreshFsSidebar()" class="flex items-center gap-2 w-full px-2 py-1.5 rounded-md text-left transition-all" style="background:${active ? t.bg : 'transparent'};color:${active ? t.color : 'var(--text-muted)'};" onmouseenter="if(!${active})this.style.background='rgba(255,255,255,0.03)'" onmouseleave="if(!${active})this.style.background='${active ? t.bg : 'transparent'}'">
-            <i data-lucide="${t.icon}" class="w-3.5 h-3.5"></i>
-            <span class="text-[11px] font-medium">${t.label}</span>
+        return `<button onclick="switchPersona('${key}');_refreshFsSidebar()" class="flex items-center gap-2.5 w-full px-3 py-2 rounded-lg text-left transition-all" style="background:${active ? t.bg : 'transparent'};color:${active ? t.color : 'var(--text-muted)'};" onmouseenter="if(!${active})this.style.background='rgba(255,255,255,0.03)'" onmouseleave="if(!${active})this.style.background='${active ? t.bg : 'transparent'}'">
+            <i data-lucide="${t.icon}" class="w-4 h-4"></i>
+            <span class="text-[13px] font-medium">${t.label}</span>
         </button>`;
     }).join('');
 
     return `
-    <div class="agent-fs-sidebar" style="width:260px;min-width:260px;height:100%;display:flex;flex-direction:column;background:var(--bg-panel-solid,#0f172a);border-right:1px solid var(--border-strong);">
+    <div class="agent-fs-sidebar" style="width:280px;min-width:280px;height:100%;display:flex;flex-direction:column;background:var(--bg-panel-solid,#0f172a);border-right:1px solid var(--border-strong);">
         <!-- New Chat button -->
-        <div class="px-3 pt-3 pb-2">
-            <button onclick="newAgentChat();_refreshFsSidebar()" class="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-[11px] font-medium transition-all" style="border:1px solid var(--border-strong);color:var(--text-heading);background:rgba(255,255,255,0.02);" onmouseenter="this.style.borderColor='${theme.color}';this.style.background='${theme.bg}'" onmouseleave="this.style.borderColor='var(--border-strong)';this.style.background='rgba(255,255,255,0.02)'">
-                <i data-lucide="plus" class="w-4 h-4"></i> New Chat
+        <div class="px-3 pt-4 pb-2">
+            <button onclick="newAgentChat();_refreshFsSidebar()" class="w-full flex items-center gap-2.5 px-4 py-2.5 rounded-xl text-[13px] font-medium transition-all" style="border:1px solid var(--border-strong);color:var(--text-heading);background:rgba(255,255,255,0.02);" onmouseenter="this.style.borderColor='${theme.color}';this.style.background='${theme.bg}'" onmouseleave="this.style.borderColor='var(--border-strong)';this.style.background='rgba(255,255,255,0.02)'">
+                <i data-lucide="plus" class="w-4.5 h-4.5"></i> New Chat
             </button>
         </div>
         <!-- Persona selector -->
         <div class="px-3 pb-2">
-            <div class="text-[9px] font-bold uppercase tracking-wider mb-1.5 px-1" style="color:var(--text-muted);">Persona</div>
+            <div class="text-[10px] font-bold uppercase tracking-wider mb-2 px-1" style="color:var(--text-muted);">Persona</div>
             <div class="space-y-0.5">${personaItems}</div>
         </div>
         <div class="mx-3 mb-2" style="height:1px;background:var(--border-strong);"></div>
         <!-- Conversation list -->
         <div class="flex-1 overflow-y-auto px-2" style="scrollbar-width:thin;">
-            <div class="text-[9px] font-bold uppercase tracking-wider mb-1.5 px-1" style="color:var(--text-muted);">Chats</div>
+            <div class="text-[10px] font-bold uppercase tracking-wider mb-2 px-1" style="color:var(--text-muted);">Chats</div>
             <div class="space-y-0.5">${convItems}</div>
         </div>
         <div class="mx-3 my-1" style="height:1px;background:var(--border-strong);"></div>
         <!-- Bottom actions -->
-        <div class="px-3 pb-3 pt-1 space-y-1">
+        <div class="px-3 pb-4 pt-2 space-y-1.5">
             <div class="flex items-center gap-1">
-                <button onclick="importAgentChat()" class="flex-1 flex items-center gap-1.5 px-2 py-1.5 rounded-md text-[10px] transition-all" style="color:var(--text-muted);border:1px solid transparent;" title="Import chat" onmouseenter="this.style.background='rgba(255,255,255,0.03)'" onmouseleave="this.style.background='transparent'">
-                    <i data-lucide="upload" class="w-3.5 h-3.5"></i> Import
+                <button onclick="importAgentChat()" class="flex-1 flex items-center gap-2 px-3 py-2 rounded-lg text-[12px] transition-all" style="color:var(--text-muted);border:1px solid transparent;" title="Import chat" onmouseenter="this.style.background='rgba(255,255,255,0.04)'" onmouseleave="this.style.background='transparent'">
+                    <i data-lucide="upload" class="w-4 h-4"></i> Import
                 </button>
-                <button onclick="exportAgentChat()" class="flex-1 flex items-center gap-1.5 px-2 py-1.5 rounded-md text-[10px] transition-all" style="color:var(--text-muted);border:1px solid transparent;" title="Export chat" onmouseenter="this.style.background='rgba(255,255,255,0.03)'" onmouseleave="this.style.background='transparent'">
-                    <i data-lucide="download" class="w-3.5 h-3.5"></i> Export
+                <button onclick="exportAgentChat()" class="flex-1 flex items-center gap-2 px-3 py-2 rounded-lg text-[12px] transition-all" style="color:var(--text-muted);border:1px solid transparent;" title="Export chat" onmouseenter="this.style.background='rgba(255,255,255,0.04)'" onmouseleave="this.style.background='transparent'">
+                    <i data-lucide="download" class="w-4 h-4"></i> Export
                 </button>
             </div>
             <div class="flex items-center gap-1">
-                <button onclick="toggleContextEditor()" class="flex-1 flex items-center gap-1.5 px-2 py-1.5 rounded-md text-[10px] transition-all" style="color:var(--text-muted);" title="Edit context" onmouseenter="this.style.background='rgba(255,255,255,0.03)'" onmouseleave="this.style.background='transparent'">
-                    <i data-lucide="file-cog" class="w-3.5 h-3.5"></i> Context
+                <button onclick="toggleContextEditor()" class="flex-1 flex items-center gap-2 px-3 py-2 rounded-lg text-[12px] transition-all" style="color:var(--text-muted);" title="Edit context" onmouseenter="this.style.background='rgba(255,255,255,0.04)'" onmouseleave="this.style.background='transparent'">
+                    <i data-lucide="file-cog" class="w-4 h-4"></i> Context
                 </button>
-                <button onclick="toggleFileBrowser()" class="flex-1 flex items-center gap-1.5 px-2 py-1.5 rounded-md text-[10px] transition-all" style="color:var(--text-muted);" title="Browse files" onmouseenter="this.style.background='rgba(255,255,255,0.03)'" onmouseleave="this.style.background='transparent'">
-                    <i data-lucide="folder-open" class="w-3.5 h-3.5"></i> Files
+                <button onclick="toggleFileBrowser()" class="flex-1 flex items-center gap-2 px-3 py-2 rounded-lg text-[12px] transition-all" style="color:var(--text-muted);" title="Browse files" onmouseenter="this.style.background='rgba(255,255,255,0.04)'" onmouseleave="this.style.background='transparent'">
+                    <i data-lucide="folder-open" class="w-4 h-4"></i> Files
                 </button>
             </div>
             <div class="flex items-center gap-1">
-                <button onclick="clearAgentChat();_refreshFsSidebar()" class="flex-1 flex items-center gap-1.5 px-2 py-1.5 rounded-md text-[10px] transition-all" style="color:var(--text-muted);" title="Clear current chat" onmouseenter="this.style.color='#f87171';this.style.background='rgba(239,68,68,0.06)'" onmouseleave="this.style.color='var(--text-muted)';this.style.background='transparent'">
-                    <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Clear Chat
+                <button onclick="clearAgentChat();_refreshFsSidebar()" class="flex-1 flex items-center gap-2 px-3 py-2 rounded-lg text-[12px] transition-all" style="color:var(--text-muted);" title="Clear current chat" onmouseenter="this.style.color='#f87171';this.style.background='rgba(239,68,68,0.06)'" onmouseleave="this.style.color='var(--text-muted)';this.style.background='transparent'">
+                    <i data-lucide="trash-2" class="w-4 h-4"></i> Clear Chat
                 </button>
-                <button onclick="toggleAgentFullscreen()" class="flex-1 flex items-center gap-1.5 px-2 py-1.5 rounded-md text-[10px] transition-all" style="color:var(--text-muted);" title="Exit fullscreen" onmouseenter="this.style.background='rgba(255,255,255,0.03)'" onmouseleave="this.style.background='transparent'">
-                    <i data-lucide="minimize-2" class="w-3.5 h-3.5"></i> Collapse
+                <button onclick="toggleAgentFullscreen()" class="flex-1 flex items-center gap-2 px-3 py-2 rounded-lg text-[12px] transition-all" style="color:var(--text-muted);" title="Exit fullscreen" onmouseenter="this.style.background='rgba(255,255,255,0.04)'" onmouseleave="this.style.background='transparent'">
+                    <i data-lucide="minimize-2" class="w-4 h-4"></i> Collapse
                 </button>
             </div>
             <!-- Model badge -->
-            <div class="flex items-center gap-1.5 px-2 py-1.5 mt-1">
-                <i data-lucide="cpu" class="w-3 h-3" style="color:${theme.color};"></i>
-                <span class="text-[9px] font-mono" style="color:var(--text-muted);">${escAgent(modelName)}</span>
+            <div class="flex items-center gap-2 px-3 py-2 mt-1">
+                <i data-lucide="cpu" class="w-3.5 h-3.5" style="color:${theme.color};"></i>
+                <span class="text-[11px] font-mono" style="color:var(--text-muted);">${escAgent(modelName)}</span>
             </div>
         </div>
     </div>`;

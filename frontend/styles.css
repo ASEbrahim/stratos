@@ -439,16 +439,23 @@ select:hover { border-color: var(--text-muted) !important; }
 .agent-fullscreen {
     position: fixed !important;
     top: 0; left: 0; right: 0; bottom: 0;
-    z-index: 300;
+    z-index: 9999;
     margin: 0 !important;
     padding: 0;
     background: var(--bg-app, #0f172a);
     border-radius: 0 !important;
+    pointer-events: auto;
+    isolation: isolate;
+}
+.agent-fullscreen * {
+    pointer-events: auto;
 }
 .agent-fullscreen > .agent-fs-wrapper {
     display: flex;
     height: 100%;
     width: 100%;
+    position: relative;
+    z-index: 1;
 }
 .agent-fullscreen > .agent-fs-wrapper > .rounded-xl {
     flex: 1;
@@ -477,19 +484,39 @@ select:hover { border-color: var(--text-muted) !important; }
     flex: 1;
     max-height: none !important;
     height: auto !important;
-    padding: 24px 20px;
+    padding: 32px 28px;
 }
+/* Larger text in fullscreen */
 .agent-fullscreen .agent-bubble-ai,
 .agent-fullscreen .agent-bubble-user {
     max-width: 90%;
+    font-size: 15px;
+    line-height: 1.65;
+    padding: 14px 18px !important;
 }
+.agent-fullscreen #agent-input {
+    font-size: 15px !important;
+    padding: 14px 18px !important;
+    min-height: 52px;
+    border-radius: 16px !important;
+}
+.agent-fullscreen #agent-send-btn {
+    width: 44px !important;
+    height: 44px !important;
+    border-radius: 14px !important;
+}
+.agent-fullscreen #agent-welcome .text-sm { font-size: 18px !important; }
+.agent-fullscreen #agent-welcome .text-\\[11px\\] { font-size: 13px !important; }
+.agent-fullscreen #agent-welcome .w-12 { width: 56px !important; height: 56px !important; }
+.agent-fullscreen .agent-chips button { font-size: 12px !important; padding: 8px 14px !important; }
+.agent-fullscreen .agent-option-btn { font-size: 13px !important; padding: 10px 14px !important; }
 /* Hide the compact header buttons in fullscreen (sidebar replaces them) */
 .agent-fullscreen #agent-conv-tabs { display: none !important; }
 /* Hide sidebar and main content behind fullscreen agent */
-.agent-fullscreen ~ *,
 body:has(.agent-fullscreen) #sidebar,
 body:has(.agent-fullscreen) #main-content {
     pointer-events: none;
+    opacity: 0;
 }
 /* Sidebar scrollbar styling */
 .agent-fs-sidebar::-webkit-scrollbar { width: 4px; }
