@@ -119,6 +119,72 @@ GENERIC_KEYWORDS = {
 
 
 # ═══════════════════════════════════════════════════════════════════
+# Article Content Enrichment
+# ═══════════════════════════════════════════════════════════════════
+
+def _enrich_content(item: Dict[str, Any], max_chars: int = 500) -> str:
+    """Extract enriched content from an article for scoring.
+
+    Improvements over raw truncation:
+    1. Truncates at sentence boundaries instead of mid-sentence
+    2. Strips common boilerplate patterns (cookie notices, subscribe prompts)
+    """
+    raw = (item.get('content', '') or item.get('summary', '')).strip()
+    if not raw:
+        return ''
+
+    # Strip common boilerplate
+    boilerplate = [
+        r'(?i)accept\s+(all\s+)?cookies?.*?$',
+        r'(?i)subscribe\s+to\s+(our\s+)?newsletter.*?$',
+        r'(?i)sign\s+up\s+for\s+.*?updates.*?$',
+        r'(?i)we\s+use\s+cookies.*?$',
+        r'(?i)this\s+website\s+uses\s+cookies.*?$',
+        r'(?i)click\s+here\s+to\s+read\s+more.*?$',
+    ]
+    for pat in boilerplate:
+        raw = re.sub(pat, '', raw, flags=re.MULTILINE).strip()
+
+    if len(raw) <= max_chars:
+        return raw
+
+    # Truncate at the last sentence boundary within max_chars
+    truncated = raw[:max_chars]
+    # Find last sentence-ending punctuation
+    last_period = max(truncated.rfind('. '), truncated.rfind('? '), truncated.rfind('! '))
+    if last_period > max_chars * 0.4:  # Only if we keep at least 40% of content
+        return truncated[:last_period + 1].strip()
+    return truncated.strip()
+
+
+def _extract_domain(item: Dict[str, Any]) -> str:
+    """Extract domain name from article URL."""
+    url = item.get('url', '')
+    if not url:
+        return ''
+    try:
+        from urllib.parse import urlparse
+        parsed = urlparse(url)
+        domain = parsed.netloc.lower().replace('www.', '')
+        return domain
+    except Exception:
+        return ''
+
+
+def _extract_pub_date(item: Dict[str, Any]) -> str:
+    """Extract publication date if available, formatted as a short label."""
+    ts = item.get('timestamp', '') or item.get('fetched_at', '')
+    if not ts:
+        return ''
+    try:
+        # Parse ISO format and return just the date
+        dt = datetime.fromisoformat(ts.replace('Z', '+00:00'))
+        return dt.strftime('%Y-%m-%d')
+    except Exception:
+        return ''
+
+
+# ═══════════════════════════════════════════════════════════════════
 # Keyword Index Builder
 # ═══════════════════════════════════════════════════════════════════
 
@@ -841,7 +907,9 @@ class AdaptiveScorer(ScorerBase):
         cat_items = ', '.join(cat_meta.get('items', [])[:8])
 
         title = item.get('title', '')
-        content = (item.get('content', '') or item.get('summary', ''))[:500]
+        content = _enrich_content(item, max_chars=500)
+        domain = _extract_domain(item)
+        pub_date = _extract_pub_date(item)
 
         level_note = ""
         if self._is_student:
@@ -873,10 +941,13 @@ Score each article 0.0-10.0:
 
 Reply ONLY with: SCORE: X.X | REASON: brief explanation"""
 
+        # Build article block with enriched signals
+        source_line = f"\nSource: {domain}" if domain else ""
+        date_line = f"\nDate: {pub_date}" if pub_date else ""
         user = f"""Score this article:
 Category: {cat_label}
 Keywords: {cat_items}
-Title: {title}
+Title: {title}{source_line}{date_line}
 Content: {content}"""
 
         check_prompt_alignment(system, user, context="scorer_adaptive_inference")
@@ -905,7 +976,9 @@ Content: {content}"""
         cat_items = ', '.join(cat_meta.get('items', [])[:8])
 
         title = item.get('title', '')
-        content = (item.get('content', '') or item.get('summary', ''))[:500]
+        content = _enrich_content(item, max_chars=500)
+        domain = _extract_domain(item)
+        pub_date = _extract_pub_date(item)
 
         level_note = ""
         if self._is_student:
@@ -935,10 +1008,12 @@ EVALUATION RUBRIC:
 Score 0.0-10.0. Be decisive.
 Reply ONLY with: SCORE: X.X | REASON: brief explanation"""
 
+        source_line = f"\nSource: {domain}" if domain else ""
+        date_line = f"\nDate: {pub_date}" if pub_date else ""
         user = f"""Carefully evaluate this article:
 Category: {cat_label}
 Keywords: {cat_items}
-Title: {title}
+Title: {title}{source_line}{date_line}
 Content: {content}
 
 Previous automated score was {first_score:.1f} (uncertain). Please re-evaluate carefully."""
@@ -1096,8 +1171,10 @@ Reply with EXACTLY one line per article, numbered:
             cat_label = cat_meta.get('label', category)
             cat_items = ', '.join(cat_meta.get('items', [])[:6])
             title = item.get('title', '')
-            content = (item.get('content', '') or item.get('summary', ''))[:300]
-            articles.append(f"[{idx}] Category: {cat_label} | Keywords: {cat_items}\n    Title: {title}\n    Content: {content}")
+            content = _enrich_content(item, max_chars=300)
+            domain = _extract_domain(item)
+            source_part = f" | Source: {domain}" if domain else ""
+            articles.append(f"[{idx}] Category: {cat_label} | Keywords: {cat_items}{source_part}\n    Title: {title}\n    Content: {content}")
 
         user_prompt = f"Score these {len(batch)} articles:\n\n" + "\n\n".join(articles)
         return system, user_prompt
