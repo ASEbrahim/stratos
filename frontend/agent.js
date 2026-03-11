@@ -238,17 +238,31 @@ function switchPersona(name) {
     const conv = _getActiveConv(name);
     agentHistory = conv.messages;
     const msgs = document.getElementById('agent-messages');
-    if (msgs) msgs.innerHTML = '';
-    if (agentHistory.length > 0) {
-        const welcome = document.getElementById('agent-welcome');
-        if (welcome) welcome.style.display = 'none';
-        _renderRestoredHistory();
-    } else {
-        _updatePersonaWelcome();
+    if (msgs) {
+        // Brief transition animation
+        const theme = PERSONA_THEMES[name] || PERSONA_THEMES.intelligence;
+        msgs.innerHTML = `<div class="flex flex-col items-center justify-center py-8" style="animation:fadeIn 0.3s ease;">
+            <i data-lucide="${theme.icon}" class="w-8 h-8 mb-2" style="color:${theme.color};"></i>
+            <div class="text-[11px] font-semibold" style="color:${theme.color};">${theme.label}</div>
+            <div class="text-[9px] mt-0.5" style="color:var(--text-muted);">Loading context...</div>
+        </div>`;
+        lucide.createIcons();
+        // After brief display, show actual content
+        setTimeout(() => {
+            msgs.innerHTML = '';
+            if (agentHistory.length > 0) {
+                const welcome = document.getElementById('agent-welcome');
+                if (welcome) welcome.style.display = 'none';
+                _renderRestoredHistory();
+            } else {
+                _updatePersonaWelcome();
+            }
+        }, 400);
     }
     _renderConvTabs();
     renderAgentSuggestions();
-    if (typeof showToast === 'function') showToast(`Switched to ${name} persona`, 'info');
+    // Update context indicator
+    _updateContextBadge(name);
     if (typeof _onPersonaChanged === 'function') _onPersonaChanged(name);
     if (typeof updateScenarioBar === 'function') updateScenarioBar();
 }
@@ -513,6 +527,20 @@ function _updatePersonaWelcome() {
     if (titleEl) titleEl.textContent = w.title;
     const descEl = welcome.querySelector('.text-\\[11px\\]');
     if (descEl) descEl.textContent = w.desc;
+}
+
+function _updateContextBadge(persona) {
+    // Color the context button with persona theme
+    const ctxBtn = document.querySelector('[onclick*="toggleContextEditor"]');
+    const theme = PERSONA_THEMES[persona] || PERSONA_THEMES.intelligence;
+    if (ctxBtn) {
+        ctxBtn.title = `Edit ${theme.label} context`;
+    }
+    // Color the file browser button
+    const fileBtn = document.querySelector('[onclick*="toggleFileBrowser"]');
+    if (fileBtn) {
+        fileBtn.title = `${theme.label} files`;
+    }
 }
 
 function toggleAgentChat() {
