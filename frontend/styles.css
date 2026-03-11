@@ -2520,6 +2520,90 @@ body.density-comfortable .score-pill { min-height: 36px !important; padding: 6px
 }
 
 /* ═══════════════════════════════════════════════════
+   MOBILE — File Browser & Context Editor as Bottom Sheets
+   ═══════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+    /* ── Context editor: bottom sheet instead of right sidebar ── */
+    .ctx-editor-sidebar {
+        position: absolute; top: auto; right: 0; bottom: 0; left: 0;
+        width: 100vw !important; max-height: 85vh;
+        border-left: none; border-top: 1px solid var(--border-strong);
+        border-radius: 16px 16px 0 0;
+        transform: translateY(100%);
+        box-shadow: 0 -4px 24px rgba(0,0,0,0.4);
+    }
+    .ctx-slide-in .ctx-editor-sidebar { transform: translateY(0); }
+    .ctx-editor-header { padding: 14px 16px; }
+    .ctx-editor-header::before {
+        content: ''; position: absolute; top: 8px; left: 50%; transform: translateX(-50%);
+        width: 36px; height: 4px; border-radius: 2px; background: rgba(255,255,255,0.15);
+    }
+    .ctx-editor-body { padding: 10px 14px; }
+    .ctx-editor-textarea { min-height: 160px; font-size: 14px; }
+    .ctx-btn { padding: 8px 16px; font-size: 12px; min-height: 36px; }
+
+    /* ── File browser: bottom sheet ── */
+    #file-browser-panel .ctx-editor-sidebar {
+        max-height: 80vh;
+    }
+    #file-browser-panel .ctx-editor-header::before {
+        content: ''; position: absolute; top: 8px; left: 50%; transform: translateX(-50%);
+        width: 36px; height: 4px; border-radius: 2px; background: rgba(255,255,255,0.15);
+    }
+    /* Larger touch targets for file browser entries */
+    .fb-tool-btn { padding: 8px 10px; min-height: 36px; min-width: 36px; }
+    #fb-file-list > div { padding: 10px 12px !important; min-height: 44px; }
+    /* Always show delete button on touch (no hover) */
+    #fb-file-list .group button { opacity: 0.6 !important; }
+    #fb-file-list > div span { font-size: 13px !important; }
+    /* File editor textarea touch-friendly */
+    #fb-editor-textarea { font-size: 14px !important; }
+
+    /* ── Mobile agent: persona row & actions ── */
+    #mobile-agent-view .mav-header {
+        flex-wrap: wrap; gap: 6px; padding: 10px 12px;
+    }
+    .mav-persona-row {
+        display: flex; gap: 4px; padding: 6px 12px; overflow-x: auto;
+        border-bottom: 1px solid var(--border-strong);
+        -webkit-overflow-scrolling: touch; scrollbar-width: none;
+    }
+    .mav-persona-row::-webkit-scrollbar { display: none; }
+    .mav-persona-btn {
+        flex-shrink: 0; padding: 5px 12px; border-radius: 16px;
+        font-size: 11px; font-weight: 600; border: 1px solid var(--border-strong);
+        background: transparent; color: var(--text-muted); cursor: pointer;
+        transition: all 0.15s;
+    }
+    .mav-persona-btn:active { transform: scale(0.95); }
+    .mav-persona-active {
+        background: var(--accent-bg); color: var(--accent);
+        border-color: var(--accent-border);
+    }
+    /* ── Minimum font sizes (WCAG AA) ── */
+    .text-\\[9px\\] { font-size: 10px !important; }
+    .text-\\[10px\\] { font-size: 11px !important; }
+    .text-\\[11px\\] { font-size: 12px !important; }
+}
+
+/* ═══════════════════════════════════════════════════
+   MOBILE — Touch-friendly interactions
+   ═══════════════════════════════════════════════════ */
+@media (hover: none) and (pointer: coarse) {
+    /* Replace hover-only delete buttons with always-visible (reduced opacity) */
+    .group-hover\:opacity-100 { opacity: 0.5 !important; }
+    /* Larger touch targets for small buttons */
+    .fb-tool-btn { min-height: 36px; min-width: 36px; }
+    /* File browser entries — touch-friendly spacing */
+    #fb-file-list > div { min-height: 44px; }
+    /* Context editor buttons — touch-friendly */
+    .ctx-btn { min-height: 36px; }
+    /* Active states instead of hover */
+    .fb-tool-btn:active { color: var(--accent); border-color: var(--accent); background: rgba(16,185,129,0.1); }
+    .ctx-btn-reset:active { color: #f87171; border-color: rgba(239,68,68,0.3); }
+}
+
+/* ═══════════════════════════════════════════════════
    MOBILE PERFORMANCE — disable heavy GPU effects
    ═══════════════════════════════════════════════════ */
 @media (max-width: 768px) {
@@ -2529,6 +2613,18 @@ body.density-comfortable .score-pill { min-height: 36px !important; padding: 6px
     .cfs-hotbar { backdrop-filter: none; -webkit-backdrop-filter: none; }
     .chart-toolbar { backdrop-filter: none; -webkit-backdrop-filter: none; }
     .profile-popup { backdrop-filter: none; -webkit-backdrop-filter: none; }
+    .ctx-editor-backdrop { backdrop-filter: none; -webkit-backdrop-filter: none; }
+    /* Reduce animation durations on mobile */
+    .ctx-editor-sidebar { transition-duration: 0.2s; }
+    /* Simplify box shadows on mobile */
+    .glass-panel { box-shadow: none; }
+    /* Optimize scroll containers */
+    #news-feed, #fb-file-list, .mav-body, main {
+        -webkit-overflow-scrolling: touch;
+        will-change: scroll-position;
+    }
+    /* Reduce paint by disabling unnecessary transitions */
+    .news-card { transition: none; }
 }
 
 /* Disable heavy effects on touch devices (tablets + phones) */

@@ -447,20 +447,24 @@ function _openMobileAgent() {
 
     const view = document.createElement('div');
     view.id = 'mobile-agent-view';
+    const personaRow = typeof _mavBuildPersonaRow === 'function' ? _mavBuildPersonaRow() : '';
     view.innerHTML = `
         <div class="mav-header">
             <div class="mav-title">
                 <div class="mav-dot" id="mav-status-dot"></div>
                 STRAT AGENT
-                <span id="mav-model-badge" style="font-size:9px;font-weight:500;color:var(--text-muted);"></span>
+                <span id="mav-model-badge" style="font-size:10px;font-weight:500;color:var(--text-muted);"></span>
             </div>
             <div class="mav-actions">
-                <button onclick="_mavImport()" title="Import"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></button>
+                <button onclick="_mavNewChat()" title="New chat"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+                <button onclick="_mavToggleFiles()" title="Files"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg></button>
+                <button onclick="_mavToggleContext()" title="Context"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></button>
                 <button onclick="_mavExport()" title="Export"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></button>
                 <button onclick="_mavClear()" title="Clear" style="color:#f87171;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg></button>
                 <button class="mav-close" onclick="_closeMobileAgent()" title="Close"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
             </div>
         </div>
+        ${personaRow}
         <div class="mav-body" id="mav-messages"></div>
         <div class="mav-input-wrap">
             <div class="mav-input-row">
@@ -544,6 +548,12 @@ window._mavSend = function() {
 
 window._mavImport = function() { if (typeof importAgentChat === 'function') importAgentChat(); };
 window._mavExport = function() { if (typeof exportAgentChat === 'function') exportAgentChat(); };
+window._mavNewChat = function() {
+    if (typeof newAgentChat === 'function') newAgentChat();
+    setTimeout(_mavSyncMessages, 200);
+};
+window._mavToggleFiles = function() { if (typeof toggleFileBrowser === 'function') toggleFileBrowser(); };
+window._mavToggleContext = function() { if (typeof toggleContextEditor === 'function') toggleContextEditor(); };
 window._mavClear = function() {
     if (typeof clearAgentChat === 'function') clearAgentChat();
     setTimeout(_mavSyncMessages, 100);
@@ -551,6 +561,113 @@ window._mavClear = function() {
 
 /* Also expose _closeMobileAgent globally for onclick */
 window._closeMobileAgent = _closeMobileAgent;
+
+/* ═══════════════════════════════════════════════
+   D3. MOBILE BOTTOM SHEET SWIPE-TO-DISMISS
+   (Context editor & file browser)
+   ═══════════════════════════════════════════════ */
+
+function initBottomSheetSwipe() {
+    if (!isSmall()) return;
+    /* Observe DOM for bottom sheet panels appearing */
+    const observer = new MutationObserver(mutations => {
+        for (const m of mutations) {
+            for (const node of m.addedNodes) {
+                if (node.nodeType !== 1) continue;
+                if (node.id === 'context-editor-panel' || node.id === 'file-browser-panel') {
+                    _attachSheetSwipe(node);
+                }
+            }
+        }
+    });
+    observer.observe(document.body, { childList: true });
+    /* Also attach to already-existing panels */
+    const existing = ['context-editor-panel', 'file-browser-panel'];
+    existing.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) _attachSheetSwipe(el);
+    });
+}
+
+function _attachSheetSwipe(panel) {
+    const sidebar = panel.querySelector('.ctx-editor-sidebar');
+    if (!sidebar || sidebar._sheetSwipe) return;
+    sidebar._sheetSwipe = true;
+
+    let startY = 0, curY = 0, tracking = false;
+
+    sidebar.addEventListener('touchstart', e => {
+        /* Only start swipe from header area (top 60px) */
+        const rect = sidebar.getBoundingClientRect();
+        const ty = e.touches[0].clientY - rect.top;
+        if (ty > 60) return;
+        startY = e.touches[0].clientY;
+        curY = startY;
+        tracking = true;
+        sidebar.style.transition = 'none';
+    }, { passive: true });
+
+    sidebar.addEventListener('touchmove', e => {
+        if (!tracking) return;
+        curY = e.touches[0].clientY;
+        const dy = curY - startY;
+        if (dy > 0) {
+            sidebar.style.transform = `translateY(${dy}px)`;
+            e.preventDefault();
+        }
+    }, { passive: false });
+
+    sidebar.addEventListener('touchend', () => {
+        if (!tracking) return;
+        tracking = false;
+        sidebar.style.transition = '';
+        const dy = curY - startY;
+        if (dy > 80) {
+            /* Dismiss */
+            if (panel.id === 'context-editor-panel' && typeof toggleContextEditor === 'function') {
+                toggleContextEditor();
+            } else if (panel.id === 'file-browser-panel' && typeof toggleFileBrowser === 'function') {
+                toggleFileBrowser();
+            }
+        }
+        sidebar.style.transform = '';
+    }, { passive: true });
+}
+
+/* Init bottom sheet swipe on DOMContentLoaded (touch only) */
+document.addEventListener('DOMContentLoaded', () => {
+    if (isTouchDevice() && isSmall()) initBottomSheetSwipe();
+});
+
+/* ═══════════════════════════════════════════════
+   D4. MOBILE AGENT — Persona & Conversation Tabs
+   ═══════════════════════════════════════════════ */
+
+function _mavBuildPersonaRow() {
+    const personas = (typeof availablePersonas !== 'undefined' && availablePersonas.length)
+        ? availablePersonas
+        : [{name:'intelligence'},{name:'market'},{name:'scholarly'},{name:'gaming'}];
+    const cur = typeof currentPersona !== 'undefined' ? currentPersona : 'intelligence';
+
+    return '<div class="mav-persona-row">' + personas.map(p => {
+        const active = p.name === cur ? ' mav-persona-active' : '';
+        const label = p.name.charAt(0).toUpperCase() + p.name.slice(1);
+        return `<button class="mav-persona-btn${active}" onclick="_mavSwitchPersona('${p.name}')">${label}</button>`;
+    }).join('') + '</div>';
+}
+
+window._mavSwitchPersona = function(name) {
+    if (typeof switchPersona === 'function') switchPersona(name);
+    /* Update active state */
+    const row = document.querySelector('.mav-persona-row');
+    if (row) {
+        row.querySelectorAll('.mav-persona-btn').forEach(btn => {
+            btn.classList.toggle('mav-persona-active', btn.textContent.toLowerCase() === name);
+        });
+    }
+    /* Sync messages after switch */
+    setTimeout(_mavSyncMessages, 200);
+};
 
 
 /* ═══════════════════════════════════════════════
