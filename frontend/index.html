@@ -26,7 +26,7 @@
         </button>
 
         <!-- Left Sidebar -->
-        <aside id="sidebar" class="border-r flex flex-col z-20 relative flex-shrink-0" style="background:var(--sidebar-bg); border-color:var(--border-strong); width:224px; min-width:160px; max-width:400px;">
+        <aside id="sidebar" role="navigation" aria-label="Main navigation" class="border-r flex flex-col z-20 relative flex-shrink-0" style="background:var(--sidebar-bg); border-color:var(--border-strong); width:224px; min-width:160px; max-width:400px;">
             <!-- Resize handle -->
             <div id="sidebar-resize-handle" class="absolute top-0 right-0 w-1 h-full cursor-col-resize z-30 hover:bg-emerald-500/30 active:bg-emerald-500/50 transition-colors" style="right:-1px;"></div>
             <div class="p-5 flex-1 overflow-y-auto min-h-0">
@@ -305,7 +305,7 @@
                                     <div id="games-scenario-content"></div>
                                 </div>
                                 <!-- Messages -->
-                                <div id="agent-messages" class="px-4 py-3 space-y-3 overflow-y-auto" style="scroll-behavior:smooth; height:280px; min-height:120px; max-height:600px;">
+                                <div id="agent-messages" role="log" aria-label="Chat messages" aria-live="polite" class="px-4 py-3 space-y-3 overflow-y-auto" style="scroll-behavior:smooth; height:280px; min-height:120px; max-height:600px;">
                                     <div id="agent-welcome" class="flex flex-col items-center py-6 px-2">
                                         <div class="w-12 h-12 rounded-2xl flex items-center justify-center mb-4" style="background:rgba(16,185,129,0.08); border:1px solid rgba(16,185,129,0.15);">
                                             <i data-lucide="sparkles" class="w-6 h-6 text-emerald-400"></i>
@@ -322,11 +322,11 @@
                                 <!-- Input -->
                                 <div class="px-3 py-2.5">
                                     <div class="flex gap-2 items-end">
-                                        <button onclick="toggleAgentMode()" id="agent-mode-btn" class="w-9 h-9 rounded-xl flex items-center justify-center transition-all flex-shrink-0" style="background:rgba(16,185,129,0.1); color:var(--accent,#34d399); border:1px solid rgba(16,185,129,0.2);" title="Structured mode (tools enabled)" onmouseenter="this.style.opacity='0.85'" onmouseleave="this.style.opacity='1'">
+                                        <button onclick="toggleAgentMode()" id="agent-mode-btn" aria-label="Toggle agent mode" class="w-9 h-9 rounded-xl flex items-center justify-center transition-all flex-shrink-0" style="background:rgba(16,185,129,0.1); color:var(--accent,#34d399); border:1px solid rgba(16,185,129,0.2);" title="Structured mode (tools enabled)" onmouseenter="this.style.opacity='0.85'" onmouseleave="this.style.opacity='1'">
                                             <i data-lucide="wrench" class="w-3.5 h-3.5"></i>
                                         </button>
                                         <div class="flex-1 relative">
-                                            <textarea id="agent-input" rows="1" placeholder="Ask anything, search the web, manage tickers..."
+                                            <textarea id="agent-input" rows="1" aria-label="Chat message" placeholder="Ask anything, search the web, manage tickers..."
                                                 class="w-full rounded-xl px-4 py-2.5 text-xs focus:outline-none transition-all resize-none"
                                                 style="background:rgba(255,255,255,0.03); border:1px solid var(--border-strong); color:var(--text-heading); max-height:96px; overflow-y:auto;"
                                                 onfocus="this.style.borderColor='var(--accent,#34d399)';this.style.boxShadow='0 0 0 2px rgba(16,185,129,0.1)'"
@@ -334,7 +334,7 @@
                                                 oninput="_autoResizeAgentInput(this)"
                                                 onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendAgentMessage();}"></textarea>
                                         </div>
-                                        <button onclick="sendAgentMessage()" id="agent-send-btn" class="w-9 h-9 rounded-xl flex items-center justify-center transition-all flex-shrink-0" style="background:var(--accent,#10b981); color:white;" onmouseenter="this.style.opacity='0.85'" onmouseleave="this.style.opacity='1'">
+                                        <button onclick="sendAgentMessage()" id="agent-send-btn" aria-label="Send message" class="w-9 h-9 rounded-xl flex items-center justify-center transition-all flex-shrink-0" style="background:var(--accent,#10b981); color:white;" onmouseenter="this.style.opacity='0.85'" onmouseleave="this.style.opacity='1'">
                                             <i data-lucide="arrow-up" class="w-4 h-4"></i>
                                         </button>
                                     </div>
