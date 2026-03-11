@@ -52,6 +52,11 @@ function _renderRestoredHistory() {
     msgs.scrollTop = msgs.scrollHeight;
 }
 
+function _autoResizeAgentInput(el) {
+    el.style.height = 'auto';
+    el.style.height = Math.min(el.scrollHeight, 96) + 'px';
+}
+
 function toggleAgentMode() {
     agentMode = agentMode === 'structured' ? 'free' : 'structured';
     const btn = document.getElementById('agent-mode-btn');
@@ -535,7 +540,8 @@ async function sendAgentMessage() {
     if (!msg) return;
     
     input.value = '';
-    
+    input.style.height = 'auto';
+
     // Remove welcome suggestions on first message
     const welcome = document.getElementById('agent-welcome');
     if (welcome) welcome.remove();

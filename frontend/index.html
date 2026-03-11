@@ -326,12 +326,13 @@
                                             <i data-lucide="wrench" class="w-3.5 h-3.5"></i>
                                         </button>
                                         <div class="flex-1 relative">
-                                            <input id="agent-input" type="text" placeholder="Ask anything, search the web, manage tickers..."
-                                                class="w-full rounded-xl px-4 py-2.5 text-xs focus:outline-none transition-all"
-                                                style="background:rgba(255,255,255,0.03); border:1px solid var(--border-strong); color:var(--text-heading);"
+                                            <textarea id="agent-input" rows="1" placeholder="Ask anything, search the web, manage tickers..."
+                                                class="w-full rounded-xl px-4 py-2.5 text-xs focus:outline-none transition-all resize-none"
+                                                style="background:rgba(255,255,255,0.03); border:1px solid var(--border-strong); color:var(--text-heading); max-height:96px; overflow-y:auto;"
                                                 onfocus="this.style.borderColor='var(--accent,#34d399)';this.style.boxShadow='0 0 0 2px rgba(16,185,129,0.1)'"
                                                 onblur="this.style.borderColor='var(--border-strong)';this.style.boxShadow='none'"
-                                                onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendAgentMessage();}">
+                                                oninput="_autoResizeAgentInput(this)"
+                                                onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendAgentMessage();}"></textarea>
                                         </div>
                                         <button onclick="sendAgentMessage()" id="agent-send-btn" class="w-9 h-9 rounded-xl flex items-center justify-center transition-all flex-shrink-0" style="background:var(--accent,#10b981); color:white;" onmouseenter="this.style.opacity='0.85'" onmouseleave="this.style.opacity='1'">
                                             <i data-lucide="arrow-up" class="w-4 h-4"></i>
@@ -341,7 +342,7 @@
                                         <div class="flex items-center gap-2">
                                             <span id="agent-serper-badge" class="text-[9px] font-mono flex items-center gap-1" style="color:var(--text-muted);"></span>
                                         </div>
-                                        <span class="text-[9px]" style="color:var(--text-muted); opacity:0.5;">Enter to send</span>
+                                        <span class="text-[9px]" style="color:var(--text-muted); opacity:0.5;">Enter to send · Shift+Enter for newline</span>
                                     </div>
                                 </div>
                             </div>
