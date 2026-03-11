@@ -389,6 +389,73 @@ def migration_015(cursor):
     )
 
 
+# -- Migration 016: YouTube knowledge extraction tables --
+@migration
+def migration_016(cursor):
+    """Create YouTube channel tracking, video processing, and insight extraction tables."""
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS youtube_channels (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            profile_id INTEGER NOT NULL,
+            channel_id TEXT NOT NULL,
+            channel_name TEXT,
+            channel_url TEXT,
+            lenses TEXT,
+            added_at TEXT DEFAULT (datetime('now')),
+            last_checked TEXT,
+            UNIQUE(profile_id, channel_id)
+        )
+    """)
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS youtube_videos (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            channel_id INTEGER REFERENCES youtube_channels(id),
+            profile_id INTEGER NOT NULL,
+            video_id TEXT NOT NULL,
+            title TEXT,
+            published_at TEXT,
+            duration_seconds INTEGER,
+            transcript_text TEXT,
+            transcript_method TEXT,
+            status TEXT DEFAULT 'pending',
+            error_message TEXT,
+            processed_at TEXT,
+            UNIQUE(profile_id, video_id)
+        )
+    """)
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS video_insights (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            video_id INTEGER REFERENCES youtube_videos(id),
+            profile_id INTEGER NOT NULL,
+            lens_name TEXT NOT NULL,
+            content TEXT NOT NULL,
+            created_at TEXT DEFAULT (datetime('now'))
+        )
+    """)
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_yt_channels_profile ON youtube_channels(profile_id)")
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_yt_videos_profile ON youtube_videos(profile_id, status)")
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_yt_insights_profile_lens ON video_insights(profile_id, lens_name)")
+
+
+# -- Migration 017: Persona context isolation table --
+@migration
+def migration_017(cursor):
+    """Create persona_context table for per-persona, per-profile context storage."""
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS persona_context (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            profile_id INTEGER NOT NULL,
+            persona_name TEXT NOT NULL,
+            context_key TEXT NOT NULL,
+            content TEXT NOT NULL,
+            updated_at TEXT DEFAULT (datetime('now')),
+            UNIQUE(profile_id, persona_name, context_key)
+        )
+    """)
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_persona_context ON persona_context(profile_id, persona_name)")
+
+
 # =========================================================================
 # Migration runner
 # =========================================================================
