@@ -150,15 +150,20 @@ async function _ytAddChannel() {
             body: JSON.stringify({ channel_url: url, lenses: lenses.length ? lenses : undefined })
         });
         if (r.ok) {
+            const d = await r.json();
             input.value = '';
             _ytLoadChannels();
-            if (typeof showToast === 'function') showToast('Channel added', 'success');
+            if (d.type === 'video') {
+                if (typeof showToast === 'function') showToast(`Video queued: ${d.video?.title || 'Processing...'}`, 'success');
+            } else {
+                if (typeof showToast === 'function') showToast('Channel added', 'success');
+            }
         } else {
             const d = await r.json().catch(() => ({}));
-            if (typeof showToast === 'function') showToast(d.error || 'Failed to add channel', 'error');
+            if (typeof showToast === 'function') showToast(d.error || 'Failed to add', 'error');
         }
     } catch (e) {
-        if (typeof showToast === 'function') showToast('Failed to add channel', 'error');
+        if (typeof showToast === 'function') showToast('Failed to add', 'error');
     }
 }
 window._ytAddChannel = _ytAddChannel;

@@ -2207,11 +2207,23 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                     if not channel_input:
                         _send_json(self, {"error": "No channel URL/handle provided"}, 400)
                         return
-                    result = yt.add_channel(self._profile_id, channel_input, lenses)
-                    if result:
-                        _send_json(self, {"ok": True, "channel": result})
+
+                    # Detect video URL vs channel URL
+                    from processors.youtube import parse_youtube_input
+                    parsed = parse_youtube_input(channel_input)
+
+                    if parsed['type'] == 'video':
+                        result = yt.add_single_video(self._profile_id, parsed['id'], lenses)
+                        if result:
+                            _send_json(self, {"ok": True, "video": result, "type": "video"})
+                        else:
+                            _send_json(self, {"error": "Could not add video"}, 400)
                     else:
-                        _send_json(self, {"error": "Could not resolve channel"}, 400)
+                        result = yt.add_channel(self._profile_id, channel_input, lenses)
+                        if result:
+                            _send_json(self, {"ok": True, "channel": result})
+                        else:
+                            _send_json(self, {"error": "Could not resolve channel"}, 400)
                     return
 
                 path_parts = self.path.strip('/').split('/')

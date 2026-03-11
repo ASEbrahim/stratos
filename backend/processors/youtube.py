@@ -32,6 +32,27 @@ logger = logging.getLogger(__name__)
 # CHANNEL MANAGEMENT
 # ═══════════════════════════════════════════════════════════
 
+def parse_youtube_input(input_str: str) -> Dict[str, str]:
+    """Detect whether input is a video URL, channel URL, or handle.
+
+    Returns dict with 'type' ('video', 'channel', or 'unknown') and 'id'.
+    """
+    input_str = input_str.strip()
+
+    # Video URL: youtube.com/watch?v=XXXXX or youtu.be/XXXXX
+    video_match = re.search(r'(?:youtube\.com/watch\?v=|youtu\.be/)([\w-]{11})', input_str)
+    if video_match:
+        return {'type': 'video', 'id': video_match.group(1)}
+
+    # YouTube Shorts: youtube.com/shorts/XXXXX
+    shorts_match = re.search(r'youtube\.com/shorts/([\w-]{11})', input_str)
+    if shorts_match:
+        return {'type': 'video', 'id': shorts_match.group(1)}
+
+    # Everything else is treated as a channel input
+    return {'type': 'channel', 'id': input_str}
+
+
 def resolve_channel_id(channel_input: str) -> Optional[Dict[str, str]]:
     """Resolve a YouTube channel URL, @handle, or channel ID to a channel_id.
 
@@ -390,6 +411,86 @@ class YouTubeProcessor:
             }
         except Exception as e:
             logger.error(f"Failed to add channel: {e}")
+            return None
+
+    def add_single_video(self, profile_id: int, video_id: str,
+                         lenses: List[str] = None) -> Optional[Dict[str, Any]]:
+        """Add a single YouTube video by video ID for processing.
+
+        Creates a pseudo-channel '__singles__' to hold standalone videos,
+        then inserts the video as pending.
+        """
+        if not self.db:
+            return None
+        lenses = lenses or ['summary']
+
+        try:
+            cursor = self.db.conn.cursor()
+
+            # Ensure a pseudo-channel exists for single videos
+            cursor.execute(
+                "SELECT id FROM youtube_channels WHERE profile_id = ? AND channel_id = '__singles__'",
+                (profile_id,)
+            )
+            row = cursor.fetchone()
+            if row:
+                ch_db_id = row['id']
+                # Update lenses to include any new ones
+                cursor.execute(
+                    "UPDATE youtube_channels SET lenses = ? WHERE id = ?",
+                    (json.dumps(lenses), ch_db_id)
+                )
+            else:
+                cursor.execute(
+                    """INSERT INTO youtube_channels
+                       (profile_id, channel_id, channel_name, channel_url, lenses)
+                       VALUES (?, '__singles__', 'Single Videos', '', ?)""",
+                    (profile_id, json.dumps(lenses))
+                )
+                ch_db_id = cursor.lastrowid
+
+            # Fetch video title from YouTube page
+            title = video_id
+            try:
+                resp = requests.get(
+                    f'https://www.youtube.com/watch?v={video_id}',
+                    headers={'User-Agent': 'Mozilla/5.0'},
+                    timeout=10,
+                )
+                m = re.search(r'<title>(.+?)(?:\s*-\s*YouTube)?</title>', resp.text)
+                if m:
+                    title = m.group(1).strip()
+            except Exception:
+                pass
+
+            # Insert video (ignore if already exists)
+            cursor.execute(
+                """INSERT OR IGNORE INTO youtube_videos
+                   (channel_id, profile_id, video_id, title, published_at, status)
+                   VALUES (?, ?, ?, ?, ?, 'pending')""",
+                (ch_db_id, profile_id, video_id, title,
+                 datetime.now().isoformat())
+            )
+            self.db._commit()
+
+            if cursor.rowcount == 0:
+                # Already exists — return existing
+                cursor.execute(
+                    "SELECT * FROM youtube_videos WHERE profile_id = ? AND video_id = ?",
+                    (profile_id, video_id)
+                )
+                existing = cursor.fetchone()
+                return dict(existing) if existing else None
+
+            return {
+                'id': cursor.lastrowid,
+                'video_id': video_id,
+                'title': title,
+                'status': 'pending',
+                'channel_id': ch_db_id,
+            }
+        except Exception as e:
+            logger.error(f"Failed to add single video: {e}")
             return None
 
     def list_channels(self, profile_id: int) -> List[Dict[str, Any]]:
