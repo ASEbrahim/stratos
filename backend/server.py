@@ -1052,6 +1052,11 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                 handle_agent_status(self, strat)
                 return
 
+            if self.path == "/api/agent-personas":
+                from routes.personas import list_personas
+                _send_json(self, {"personas": list_personas()})
+                return
+
             # --- Static file serving with gzip compression ---
             accepts_gzip = 'gzip' in self.headers.get('Accept-Encoding', '')
             ext = os.path.splitext(self.path.split('?')[0])[1].lower()

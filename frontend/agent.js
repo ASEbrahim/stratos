@@ -6,6 +6,8 @@ let agentHistory = [];   // {role:'user'|'assistant', content:string}
 let agentOpen = false;
 let agentStreaming = false;
 let agentMode = 'structured'; // 'structured' or 'free'
+let currentPersona = 'intelligence';
+let availablePersonas = [];
 
 // Persist agent chat to localStorage
 function _saveAgentHistory() {
@@ -74,6 +76,45 @@ function toggleAgentMode() {
     }
     lucide.createIcons();
     if (typeof showToast === 'function') showToast(agentMode === 'free' ? 'Free chat mode' : 'Structured mode (tools)', 'info');
+}
+
+function switchPersona(name) {
+    currentPersona = name;
+    // Update subtitle text based on persona
+    const subtitles = {
+        intelligence: 'Search the web, manage your feed, analyze signals',
+        market: 'Market data, price analysis, watchlist management',
+        scholarly: 'History, language, philosophy, academic discussion',
+        anime: 'Anime & manga tracking (coming soon)',
+        tcg: 'Trading card games (coming soon)',
+        gaming: 'Gaming news & deals (coming soon)',
+    };
+    const subtitle = document.querySelector('#agent-panel .text-\\[10px\\].mt-0\\.5');
+    if (subtitle) subtitle.textContent = subtitles[name] || subtitles.intelligence;
+    if (typeof showToast === 'function') showToast(`Switched to ${name} persona`, 'info');
+}
+
+async function loadPersonas() {
+    try {
+        const r = await fetch('/api/agent-personas', {
+            headers: { 'X-Auth-Token': typeof getAuthToken === 'function' ? getAuthToken() : '' }
+        });
+        if (r.ok) {
+            const d = await r.json();
+            availablePersonas = d.personas || [];
+            const select = document.getElementById('agent-persona-select');
+            if (select && availablePersonas.length > 0) {
+                select.innerHTML = '';
+                for (const p of availablePersonas) {
+                    const opt = document.createElement('option');
+                    opt.value = p.name;
+                    opt.textContent = p.name.charAt(0).toUpperCase() + p.name.slice(1);
+                    if (p.name === currentPersona) opt.selected = true;
+                    select.appendChild(opt);
+                }
+            }
+        }
+    } catch (e) { /* ignore — hardcoded options in HTML are fine as fallback */ }
 }
 
 // ── Clickable suggestion chips (dynamically generated from profile) ──
@@ -213,6 +254,7 @@ function showAgentPanel(show) {
         panel.classList.remove('hidden');
         // Update status dot based on Ollama availability
         checkAgentStatus();
+        loadPersonas();
     } else {
         panel.classList.add('hidden');
     }
@@ -459,7 +501,8 @@ async function sendAgentMessage() {
             body: JSON.stringify({
                 message: msg,
                 history: agentHistory.slice(-20),
-                mode: agentMode
+                mode: agentMode,
+                persona: currentPersona
             })
         });
         

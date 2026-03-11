@@ -262,13 +262,17 @@ class AuthManager:
             cursor.execute("SELECT expires_at FROM sessions WHERE token = ?", (token,))
             row = cursor.fetchone()
             if not row:
+                logger.debug(f"DB session: token not found")
                 return False
-            if row[0] and datetime.fromisoformat(row[0]) < datetime.now():
+            expires = row[0] if isinstance(row[0], str) else row['expires_at']
+            if expires and datetime.fromisoformat(expires) < datetime.now():
                 cursor.execute("DELETE FROM sessions WHERE token = ?", (token,))
                 db._commit()
+                logger.debug(f"DB session: token expired")
                 return False
             return True
-        except Exception:
+        except Exception as e:
+            logger.error(f"DB session validation error: {e}", exc_info=True)
             return False
 
     def get_session_profile(self, token):

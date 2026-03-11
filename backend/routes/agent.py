@@ -453,19 +453,21 @@ def handle_agent_status(handler, strat):
 def handle_agent_chat(handler, strat, output_file, profile_id=0):
     """POST /api/agent-chat — Streaming agent conversation with tool use."""
     try:
+        from routes.personas import (
+            build_persona_prompt, build_persona_context, get_persona_config
+        )
+
         body = read_json_body(handler)
         user_msg = body.get("message", "").strip()
         history = body.get("history", [])
         free_mode = body.get("mode") == "free"
+        persona_name = body.get("persona", "intelligence")
         if not user_msg:
             raise ValueError("Empty message")
 
-        news_context = _build_agent_context(strat, output_file)
-        historical_context = _build_historical_context(strat, profile_id)
-
         scoring_cfg = strat.config.get("scoring", {})
         ollama_host = scoring_cfg.get("ollama_host", "http://localhost:11434")
-        model = scoring_cfg.get("inference_model", "qwen3.5:9b")  # Use inference model, not scorer
+        model = scoring_cfg.get("inference_model", "qwen3.5:9b")
         profile = strat.config.get("profile", {})
         role = profile.get("role", "user")
         location = profile.get("location", "")
@@ -477,33 +479,17 @@ def handle_agent_chat(handler, strat, output_file, profile_id=0):
         cats = strat.config.get("dynamic_categories", [])
         cat_summary = ", ".join(f"{c.get('label','')} ({len(c.get('items',[]))} kw)" for c in cats[:10])
 
-        system_prompt = f"""You are STRAT AGENT, an AI assistant in a strategic intelligence dashboard (StratOS).
-
-USER PROFILE: {role} in {location}
-WATCHLIST: {', '.join(tickers) if tickers else '(empty)'}
-CATEGORIES: {cat_summary or '(none)'}
-
-TOOLS:
-1. {search_note}
-2. search_feed — search scored news feed history.
-3. manage_watchlist — add/remove/list tickers.
-4. manage_categories — add/remove keywords, list/toggle categories.
-
-IMPORTANT: Your CURRENT FEED DATA section below contains LIVE market prices and top news signals from the latest scan. USE THIS DATA FIRST before calling any tools. If the user asks about prices, performance, or market data — check the MARKET DATA section below. Only use web_search if the data below is insufficient or stale.
-
-RULES:
-- Be concise. 3-5 bullet points or 2-3 short paragraphs max. Under 200 words unless asked for detail.
-- When you have market data in the context below, USE IT directly. Don't say "I can't access prices" when prices are right there.
-- For questions about current events NOT in the feed — use web_search.
-- Use **bold** for key terms. Be direct. Match the user's tone.
-- NEVER output raw JSON, XML tags, or function call syntax.
-- CRITICAL: Respond DIRECTLY. No narrating your thought process.
-
-CURRENT FEED DATA:
-{news_context[:5000]}
-
-HISTORICAL DATA:
-{historical_context[:3000]}"""
+        # Build persona-specific prompt and context
+        persona_config = get_persona_config(persona_name)
+        base_prompt = build_persona_prompt(
+            persona_name, role, location, tickers, cat_summary, search_note
+        )
+        persona_context = build_persona_context(
+            persona_name, strat, output_file, profile_id
+        )
+        system_prompt = base_prompt
+        if persona_context:
+            system_prompt += f"\n\n{persona_context}"
 
         # Keyword-triggered history search
         _triggers = ['history','last week','past','before','trend','used to','earlier','previously','been','lately']
@@ -594,8 +580,47 @@ HISTORICAL DATA:
 
         start_sse(handler)
 
-        # Tools to send
-        tools = AGENT_TOOLS if serper_available else [t for t in AGENT_TOOLS if t["function"]["name"] != "web_search"]
+        # Tools to send — filtered by persona config
+        allowed_tools = persona_config['tools']
+        if not serper_available and 'web_search' in allowed_tools:
+            allowed_tools = [t for t in allowed_tools if t != 'web_search']
+        tools = [t for t in AGENT_TOOLS if t["function"]["name"] in allowed_tools]
+
+        # ── No-tools persona: stream response directly (like free mode but with full prompt) ──
+        if not tools:
+            try:
+                r = req.post(
+                    f"{ollama_host}/api/chat",
+                    json={"model": model, "messages": messages, "stream": True,
+                          "options": {"temperature": 0.5, "num_predict": 3000}},
+                    timeout=180, stream=True
+                )
+                if r.status_code != 200:
+                    sse_event(handler, {"error": f"Ollama returned {r.status_code}"})
+                    return
+                in_think = False
+                for line in r.iter_lines():
+                    if not line:
+                        continue
+                    try:
+                        chunk = json.loads(line)
+                        token = chunk.get("message", {}).get("content", "")
+                        if token:
+                            if '<think>' in token:
+                                in_think = True
+                            if '</think>' in token:
+                                in_think = False
+                                continue
+                            if not in_think:
+                                sse_event(handler, {"token": token})
+                        if chunk.get("done"):
+                            break
+                    except json.JSONDecodeError:
+                        continue
+                sse_event(handler, {"done": True})
+            except Exception as e:
+                sse_event(handler, {"error": str(e)})
+            return
 
         # ── Tool-call loop (max 8 rounds) ──
         for round_num in range(8):
