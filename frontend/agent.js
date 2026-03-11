@@ -1055,21 +1055,28 @@ function toggleAgentFullscreen() {
     _agentFullscreen = !_agentFullscreen;
 
     if (_agentFullscreen) {
-        // Open the chat body if collapsed
         _openAgentPanel();
+        // Store original dimensions for smooth reverse transition
+        panel.dataset.origStyle = panel.getAttribute('style') || '';
         panel.classList.add('agent-fullscreen');
-        if (msgs) { msgs.style.height = 'calc(100vh - 180px)'; msgs.style.maxHeight = 'none'; }
-        if (btn) btn.title = 'Exit fullscreen';
-        // Swap icon
+        if (msgs) {
+            msgs.style.height = '';
+            msgs.style.maxHeight = 'none';
+        }
+        if (btn) btn.title = 'Exit fullscreen (Esc)';
         const icon = btn?.querySelector('[data-lucide]');
         if (icon) { icon.setAttribute('data-lucide', 'minimize-2'); lucide.createIcons(); }
+        // Focus input for immediate typing
+        setTimeout(() => document.getElementById('agent-input')?.focus(), 300);
     } else {
         panel.classList.remove('agent-fullscreen');
         if (msgs) { msgs.style.height = '280px'; msgs.style.maxHeight = '600px'; }
-        if (btn) btn.title = 'Toggle fullscreen';
+        if (btn) btn.title = 'Fullscreen';
         const icon = btn?.querySelector('[data-lucide]');
         if (icon) { icon.setAttribute('data-lucide', 'maximize-2'); lucide.createIcons(); }
     }
+    // Scroll to bottom after layout settles
+    setTimeout(() => { if (msgs) msgs.scrollTop = msgs.scrollHeight; }, 100);
 }
 
 // Escape key exits agent fullscreen

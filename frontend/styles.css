@@ -433,23 +433,31 @@ select:hover { border-color: var(--text-muted) !important; }
 .customize-pulse { animation: customizePulse 2.5s ease-in-out 3; }
 
 /* F3: Agent fullscreen mode */
+/* Agent panel transition for fullscreen */
+#agent-panel {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
 .agent-fullscreen {
     position: fixed !important;
     top: 0; left: 0; right: 0; bottom: 0;
     z-index: 300;
     margin: 0 !important;
-    padding: 16px;
+    padding: 0;
     background: var(--bg-app, #0f172a);
     display: flex;
     flex-direction: column;
+    border-radius: 0 !important;
 }
 .agent-fullscreen > .rounded-xl {
     flex: 1;
     display: flex;
     flex-direction: column;
-    max-width: 900px;
+    max-width: 800px;
     margin: 0 auto;
     width: 100%;
+    border-radius: 0;
+    border: none;
+    background: transparent;
 }
 .agent-fullscreen #agent-body {
     flex: 1;
@@ -458,6 +466,19 @@ select:hover { border-color: var(--text-muted) !important; }
 }
 .agent-fullscreen #agent-messages {
     flex: 1;
+    max-height: none !important;
+    height: auto !important;
+    padding: 24px 16px;
+}
+.agent-fullscreen .agent-bubble-ai,
+.agent-fullscreen .agent-bubble-user {
+    max-width: 90%;
+}
+/* Hide sidebar and main content behind fullscreen agent */
+.agent-fullscreen ~ *,
+body:has(.agent-fullscreen) #sidebar,
+body:has(.agent-fullscreen) #main-content {
+    pointer-events: none;
 }
 
 /* ── Context Editor Panel ── */
