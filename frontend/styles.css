@@ -515,6 +515,15 @@ select:hover { border-color: var(--text-muted) !important; }
     .ctx-editor-sidebar { width: 100vw; }
 }
 
+/* ── File Browser ── */
+.fb-tool-btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    padding: 4px 6px; border-radius: 4px; cursor: pointer;
+    color: var(--text-muted); border: 1px solid var(--border-strong);
+    background: transparent; transition: all 0.15s; font-size: 10px;
+}
+.fb-tool-btn:hover { color: var(--accent); border-color: var(--accent); background: rgba(16,185,129,0.06); }
+
 /* Sidebar nav items — hover for inactive */
 #nav-menu button:not(.active-nav):hover {
     background: var(--bg-hover);
