@@ -481,6 +481,32 @@ body:has(.agent-fullscreen) #main-content {
     pointer-events: none;
 }
 
+/* ── Agent option buttons: touch-friendly ── */
+.agent-option-btn {
+    min-height: 44px;
+}
+.agent-options {
+    max-width: 100%;
+}
+/* ── Agent suggestion chips: prevent overflow ── */
+.agent-chips {
+    overflow-x: auto;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+}
+.agent-chips::-webkit-scrollbar { display: none; }
+/* ── Conversation tabs: scroll, no wrap ── */
+#agent-conv-tabs {
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+}
+#agent-conv-tabs::-webkit-scrollbar { display: none; }
+/* ── fadeIn animation ── */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
 /* ── Context Editor Panel ── */
 #context-editor-panel {
     position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 100;
