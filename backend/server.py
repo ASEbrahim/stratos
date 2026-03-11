@@ -1153,6 +1153,69 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                 _send_json(self, {"results": results})
                 return
 
+            # ── Conversations GET ───────────────────────────
+            if self.path.startswith("/api/conversations"):
+                from urllib.parse import urlparse, parse_qs
+                parsed_url = urlparse(self.path)
+                params = parse_qs(parsed_url.query)
+                path_parts = parsed_url.path.rstrip('/').split('/')
+                cursor = strat.db.conn.cursor()
+
+                if len(path_parts) == 3:
+                    # GET /api/conversations?persona=intelligence — list metadata
+                    persona = params.get('persona', [''])[0]
+                    cursor.execute(
+                        "SELECT id, persona, title, is_active, created_at, updated_at, "
+                        "LENGTH(messages) as msg_size FROM conversations "
+                        "WHERE profile_id = ? AND archived = 0 "
+                        + ("AND persona = ? " if persona else "") +
+                        "ORDER BY updated_at DESC",
+                        (self._profile_id, persona) if persona else (self._profile_id,)
+                    )
+                    rows = cursor.fetchall()
+                    convs = []
+                    for r in rows:
+                        d = dict(r)
+                        try:
+                            d['message_count'] = len(json.loads(d.get('messages', '[]') if 'messages' in d.keys() else '[]'))
+                        except Exception:
+                            d['message_count'] = 0
+                        # Don't send messages in list — get msg_size for count estimation
+                        msgs_raw = cursor.execute("SELECT messages FROM conversations WHERE id = ?", (d['id'],)).fetchone()
+                        try:
+                            d['message_count'] = len(json.loads(msgs_raw[0])) if msgs_raw else 0
+                        except Exception:
+                            d['message_count'] = 0
+                        d.pop('msg_size', None)
+                        convs.append(d)
+                    _send_json(self, {"conversations": convs})
+                    return
+
+                elif len(path_parts) == 4:
+                    # GET /api/conversations/:id — full conversation with messages
+                    try:
+                        conv_id = int(path_parts[3])
+                    except ValueError:
+                        _send_json(self, {"error": "Invalid conversation ID"}, 400)
+                        return
+                    cursor.execute(
+                        "SELECT id, profile_id, persona, title, messages, is_active, created_at, updated_at "
+                        "FROM conversations WHERE id = ? AND profile_id = ?",
+                        (conv_id, self._profile_id)
+                    )
+                    row = cursor.fetchone()
+                    if not row:
+                        _send_json(self, {"error": "Not found"}, 404)
+                        return
+                    d = dict(row)
+                    d['messages'] = json.loads(d.get('messages', '[]'))
+                    d.pop('profile_id', None)
+                    _send_json(self, d)
+                    return
+
+                _send_json(self, {"error": "Invalid conversations path"}, 400)
+                return
+
             # ── Scenario GET ────────────────────────────────
             if self.path.startswith("/api/scenarios"):
                 from processors.scenarios import ScenarioManager
@@ -2277,6 +2340,104 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                     _send_json(self, {"ok": ok})
                     return
 
+            # ── Conversations POST/PUT ──────────────────────
+            if self.path.startswith("/api/conversations"):
+                from urllib.parse import urlparse
+                parsed_url = urlparse(self.path)
+                path_parts = parsed_url.path.rstrip('/').split('/')
+                content_length = int(self.headers.get('Content-Length', 0))
+                body = json.loads(self.rfile.read(content_length).decode()) if content_length > 0 else {}
+                cursor = strat.db.conn.cursor()
+
+                # POST /api/conversations — create new
+                if len(path_parts) == 3 and self.command == 'POST':
+                    persona = body.get('persona', 'intelligence')
+                    title = body.get('title', 'New Chat')
+                    # Enforce max 10 active per persona — archive oldest
+                    cursor.execute(
+                        "SELECT id FROM conversations WHERE profile_id = ? AND persona = ? AND archived = 0 "
+                        "ORDER BY updated_at ASC",
+                        (self._profile_id, persona)
+                    )
+                    existing = [r['id'] for r in cursor.fetchall()]
+                    if len(existing) >= 10:
+                        cursor.execute("UPDATE conversations SET archived = 1 WHERE id = ?", (existing[0],))
+                    # Deactivate others
+                    cursor.execute(
+                        "UPDATE conversations SET is_active = 0 WHERE profile_id = ? AND persona = ?",
+                        (self._profile_id, persona)
+                    )
+                    cursor.execute(
+                        "INSERT INTO conversations (profile_id, persona, title, messages, is_active) "
+                        "VALUES (?, ?, ?, '[]', 1)",
+                        (self._profile_id, persona, title)
+                    )
+                    strat.db._commit()
+                    _send_json(self, {"ok": True, "id": cursor.lastrowid})
+                    return
+
+                # PUT /api/conversations/:id — update
+                if len(path_parts) == 4 and self.command == 'PUT':
+                    try:
+                        conv_id = int(path_parts[3])
+                    except ValueError:
+                        _send_json(self, {"error": "Invalid ID"}, 400)
+                        return
+                    # Verify ownership
+                    cursor.execute("SELECT id FROM conversations WHERE id = ? AND profile_id = ?",
+                                   (conv_id, self._profile_id))
+                    if not cursor.fetchone():
+                        _send_json(self, {"error": "Not found"}, 404)
+                        return
+                    if 'messages' in body:
+                        cursor.execute("UPDATE conversations SET messages = ?, updated_at = ? WHERE id = ?",
+                                       (json.dumps(body['messages']), datetime.now().isoformat(), conv_id))
+                    if 'title' in body:
+                        cursor.execute("UPDATE conversations SET title = ? WHERE id = ?",
+                                       (body['title'], conv_id))
+                    if body.get('is_active'):
+                        # Get persona for this conv
+                        cursor.execute("SELECT persona FROM conversations WHERE id = ?", (conv_id,))
+                        row = cursor.fetchone()
+                        if row:
+                            cursor.execute(
+                                "UPDATE conversations SET is_active = 0 WHERE profile_id = ? AND persona = ?",
+                                (self._profile_id, row['persona'])
+                            )
+                        cursor.execute("UPDATE conversations SET is_active = 1 WHERE id = ?", (conv_id,))
+                    strat.db._commit()
+                    _send_json(self, {"ok": True})
+                    return
+
+                # POST /api/conversations/:id/append — append a message
+                if len(path_parts) == 5 and path_parts[4] == 'append':
+                    try:
+                        conv_id = int(path_parts[3])
+                    except ValueError:
+                        _send_json(self, {"error": "Invalid ID"}, 400)
+                        return
+                    cursor.execute("SELECT messages FROM conversations WHERE id = ? AND profile_id = ?",
+                                   (conv_id, self._profile_id))
+                    row = cursor.fetchone()
+                    if not row:
+                        _send_json(self, {"error": "Not found"}, 404)
+                        return
+                    messages = json.loads(row['messages'])
+                    messages.append({
+                        "id": f"msg_{len(messages)+1}",
+                        "role": body.get('role', 'user'),
+                        "content": body.get('content', ''),
+                        "timestamp": datetime.now().isoformat()
+                    })
+                    cursor.execute("UPDATE conversations SET messages = ?, updated_at = ? WHERE id = ?",
+                                   (json.dumps(messages), datetime.now().isoformat(), conv_id))
+                    strat.db._commit()
+                    _send_json(self, {"ok": True, "message_count": len(messages)})
+                    return
+
+                _send_json(self, {"error": "Invalid conversations path"}, 400)
+                return
+
             # ── Scenario POST ───────────────────────────────
             if self.path.startswith("/api/scenarios"):
                 from processors.scenarios import ScenarioManager
@@ -2485,6 +2646,21 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                     _send_json(self, {"error": "Missing persona or key"}, 400)
                 return
 
+            # ── Conversation Delete ──
+            if self.path.startswith("/api/conversations/"):
+                try:
+                    conv_id = int(self.path.split("/")[-1])
+                    cursor = strat.db.conn.cursor()
+                    cursor.execute(
+                        "DELETE FROM conversations WHERE id = ? AND profile_id = ?",
+                        (conv_id, self._profile_id)
+                    )
+                    strat.db._commit()
+                    _send_json(self, {"ok": cursor.rowcount > 0})
+                except (ValueError, IndexError):
+                    _send_json(self, {"error": "Invalid conversation ID"}, 400)
+                return
+
             # ── Scenario Delete ──
             if self.path.startswith("/api/scenarios"):
                 from processors.scenarios import ScenarioManager
@@ -2548,10 +2724,14 @@ def create_handler(strat, auth, frontend_dir, output_dir):
             self.send_response(404)
             self.end_headers()
 
+        def do_PUT(self):
+            """Route PUT requests through do_POST (conversations use PUT for updates)."""
+            self.do_POST()
+
         def do_OPTIONS(self):
             # Handle CORS preflight (Access-Control-Allow-Origin added by end_headers())
             self.send_response(200)
-            self.send_header("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS")
+            self.send_header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
             self.send_header("Access-Control-Allow-Headers", "Content-Type, X-Auth-Token, X-Device-Id, X-Filename")
             self.end_headers()
 
