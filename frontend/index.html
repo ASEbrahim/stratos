@@ -256,11 +256,14 @@
                                     <div>
                                         <div class="flex items-center gap-2">
                                             <span class="text-xs font-bold tracking-wide" style="color:var(--text-heading);">STRAT AGENT</span>
-                                            <select id="agent-persona-select" onclick="event.stopPropagation()" onchange="switchPersona(this.value)" class="text-[9px] font-mono px-1.5 py-0.5 rounded cursor-pointer" style="background:rgba(16,185,129,0.08); color:var(--accent,#34d399); border:1px solid rgba(16,185,129,0.15); outline:none;">
-                                                <option value="intelligence">Intelligence</option>
-                                                <option value="market">Market</option>
-                                                <option value="scholarly">Scholarly</option>
-                                            </select>
+                                            <div id="agent-persona-picker" class="relative" onclick="event.stopPropagation()">
+                                                <button onclick="_togglePersonaPicker()" class="text-[9px] font-mono px-1.5 py-0.5 rounded cursor-pointer flex items-center gap-1" style="background:rgba(16,185,129,0.08); color:var(--accent,#34d399); border:1px solid rgba(16,185,129,0.15);">
+                                                    <span id="persona-picker-label">Intelligence</span>
+                                                    <i data-lucide="chevron-down" class="w-2.5 h-2.5"></i>
+                                                </button>
+                                                <div id="persona-picker-dropdown" class="hidden absolute top-full left-0 mt-1 rounded-lg p-1.5 space-y-0.5 z-50" style="background:var(--bg-panel-solid);border:1px solid var(--border-strong);box-shadow:0 8px 24px rgba(0,0,0,0.4);min-width:140px;">
+                                                </div>
+                                            </div>
                                             <button onclick="event.stopPropagation(); toggleContextEditor()" class="relative p-1 rounded-md transition-all" style="color:var(--text-muted);" title="Edit persona context" onmouseenter="this.style.color='var(--accent)';this.style.background='rgba(16,185,129,0.08)'" onmouseleave="this.style.color='var(--text-muted)';this.style.background='transparent'">
                                                 <i data-lucide="file-cog" class="w-3.5 h-3.5"></i>
                                                 <span id="ctx-indicator-dot" class="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-amber-400" style="display:none;box-shadow:0 0 4px rgba(251,191,36,0.5);"></span>

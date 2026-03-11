@@ -7,6 +7,7 @@ let agentOpen = false;
 let agentStreaming = false;
 let agentMode = 'structured'; // 'structured' or 'free'
 let currentPersona = 'intelligence';
+let selectedPersonas = ['intelligence']; // Multi-persona selection (max 3)
 let availablePersonas = [];
 
 // Persist agent chat to localStorage
@@ -80,6 +81,8 @@ function toggleAgentMode() {
 
 function switchPersona(name) {
     currentPersona = name;
+    selectedPersonas = [name];
+    _updatePersonaPickerLabel();
     // Update subtitle text based on persona
     const subtitles = {
         intelligence: 'Search the web, manage your feed, analyze signals',
@@ -97,6 +100,86 @@ function switchPersona(name) {
     if (typeof updateScenarioBar === 'function') updateScenarioBar();
 }
 
+// ── Multi-Persona Picker ──
+function _togglePersonaPicker() {
+    const dd = document.getElementById('persona-picker-dropdown');
+    if (!dd) return;
+    if (dd.classList.contains('hidden')) {
+        _renderPersonaPicker();
+        dd.classList.remove('hidden');
+        // Close on outside click
+        setTimeout(() => document.addEventListener('click', _closePersonaPicker, { once: true }), 0);
+    } else {
+        dd.classList.add('hidden');
+    }
+}
+window._togglePersonaPicker = _togglePersonaPicker;
+
+function _closePersonaPicker() {
+    const dd = document.getElementById('persona-picker-dropdown');
+    if (dd) dd.classList.add('hidden');
+}
+
+function _renderPersonaPicker() {
+    const dd = document.getElementById('persona-picker-dropdown');
+    if (!dd) return;
+    const personas = availablePersonas.length ? availablePersonas : [
+        {name:'intelligence'},{name:'market'},{name:'scholarly'},{name:'gaming'},{name:'anime'},{name:'tcg'}
+    ];
+    dd.innerHTML = personas.map(p => {
+        const checked = selectedPersonas.includes(p.name);
+        const disabled = !checked && selectedPersonas.length >= 3;
+        const label = p.name.charAt(0).toUpperCase() + p.name.slice(1);
+        return `<label class="flex items-center gap-2 px-2 py-1.5 rounded-md cursor-pointer transition-colors text-[10px] ${disabled ? 'opacity-40' : ''}" style="color:var(--text-secondary)" onmouseenter="this.style.background='var(--bg-hover)'" onmouseleave="this.style.background='transparent'">
+            <input type="checkbox" ${checked ? 'checked' : ''} ${disabled ? 'disabled' : ''} value="${p.name}" onchange="_onPersonaCheckChange(this)" class="accent-emerald-500" style="width:12px;height:12px;">
+            <span>${label}</span>
+        </label>`;
+    }).join('');
+}
+
+function _onPersonaCheckChange(cb) {
+    const name = cb.value;
+    if (cb.checked) {
+        if (selectedPersonas.length >= 3) { cb.checked = false; return; }
+        if (!selectedPersonas.includes(name)) selectedPersonas.push(name);
+    } else {
+        selectedPersonas = selectedPersonas.filter(p => p !== name);
+        if (selectedPersonas.length === 0) {
+            selectedPersonas = ['intelligence'];
+            cb.checked = false;
+        }
+    }
+    currentPersona = selectedPersonas[0];
+    _updatePersonaPickerLabel();
+    _renderPersonaPicker();
+    // Update subtitle for primary persona
+    const subtitles = {
+        intelligence: 'Search the web, manage your feed, analyze signals',
+        market: 'Market data, price analysis, watchlist management',
+        scholarly: 'History, language, philosophy, academic discussion',
+        anime: 'Anime & manga tracking (coming soon)',
+        tcg: 'Trading card games (coming soon)',
+        gaming: 'Gaming news & deals (coming soon)',
+    };
+    const subtitle = document.querySelector('#agent-panel .text-\\[10px\\].mt-0\\.5');
+    if (subtitle) subtitle.textContent = selectedPersonas.length > 1
+        ? `Multi-agent: ${selectedPersonas.map(p => p.charAt(0).toUpperCase() + p.slice(1)).join(' + ')}`
+        : (subtitles[currentPersona] || subtitles.intelligence);
+    if (typeof _onPersonaChanged === 'function') _onPersonaChanged(currentPersona);
+    if (typeof updateScenarioBar === 'function') updateScenarioBar();
+}
+window._onPersonaCheckChange = _onPersonaCheckChange;
+
+function _updatePersonaPickerLabel() {
+    const label = document.getElementById('persona-picker-label');
+    if (!label) return;
+    if (selectedPersonas.length === 1) {
+        label.textContent = selectedPersonas[0].charAt(0).toUpperCase() + selectedPersonas[0].slice(1);
+    } else {
+        label.textContent = selectedPersonas.map(p => p.charAt(0).toUpperCase() + p.slice(1)).join(' + ');
+    }
+}
+
 async function loadPersonas() {
     try {
         const r = await fetch('/api/agent-personas', {
@@ -105,19 +188,9 @@ async function loadPersonas() {
         if (r.ok) {
             const d = await r.json();
             availablePersonas = d.personas || [];
-            const select = document.getElementById('agent-persona-select');
-            if (select && availablePersonas.length > 0) {
-                select.innerHTML = '';
-                for (const p of availablePersonas) {
-                    const opt = document.createElement('option');
-                    opt.value = p.name;
-                    opt.textContent = p.name.charAt(0).toUpperCase() + p.name.slice(1);
-                    if (p.name === currentPersona) opt.selected = true;
-                    select.appendChild(opt);
-                }
-            }
+            _updatePersonaPickerLabel();
         }
-    } catch (e) { /* ignore — hardcoded options in HTML are fine as fallback */ }
+    } catch (e) { /* ignore — fallback persona list in picker */ }
 }
 
 // ── Clickable suggestion chips (dynamically generated from profile) ──
@@ -505,7 +578,8 @@ async function sendAgentMessage() {
                 message: msg,
                 history: agentHistory.slice(-20),
                 mode: agentMode,
-                persona: currentPersona
+                persona: currentPersona,
+                ...(selectedPersonas.length > 1 ? { personas: selectedPersonas } : {})
             })
         });
         
