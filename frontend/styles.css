@@ -513,6 +513,10 @@ select:hover { border-color: var(--text-muted) !important; }
 .ctx-btn-reset:hover { color: #f87171; border-color: rgba(239,68,68,0.3); }
 @media (max-width: 768px) {
     .ctx-editor-sidebar { width: 100vw; }
+    /* Workspace stats: 2 columns on mobile */
+    #ws-stats-content .grid { grid-template-columns: repeat(2, 1fr) !important; }
+    /* Persona picker dropdown: full width */
+    .persona-picker-dropdown { min-width: 200px; }
 }
 
 /* ── YouTube Channel Cards ── */
