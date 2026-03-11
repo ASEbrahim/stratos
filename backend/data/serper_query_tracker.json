@@ -1,5 +1,5 @@
 {
-  "total_count": 1292,
+  "total_count": 1293,
   "daily_counts": {
     "2026-02-24": 123,
     "2026-02-25": 1669,
@@ -10,13 +10,9 @@
     "2026-03-08": 582,
     "2026-03-09": 58,
     "2026-03-10": 184,
-    "2026-03-11": 87
+    "2026-03-11": 88
   },
   "last_queries": [
-    {
-      "query": "\"Docker Desktop security patches\" software tools 2026",
-      "time": "2026-03-10T14:08:10.514638"
-    },
     {
       "query": "\"Kuwait tech startups\"  2026",
       "time": "2026-03-10T14:08:12.964693"
@@ -812,6 +808,10 @@
     {
       "query": "Sword Art Online canon Floor 1 players Klein Argo Silica Eugeo Lisbeth NPC names starting equipment",
       "time": "2026-03-11T20:52:04.106605"
+    },
+    {
+      "query": "silver futures SL=F current price today March 11 2026",
+      "time": "2026-03-11T22:00:44.210395"
     }
   ]
 }

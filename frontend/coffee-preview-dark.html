@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coffee Rework — Dark Mode (Cosmos Inverted)</title>
+    <style>
+        /* Coffee Rework: Cosmos Inverted — Dark (Deeper)
+           Ultra-dark warm base, muted blue accent, minimal contrast */
+        :root {
+            --bg-primary: #070503;
+            --bg-secondary: #0c0906;
+            --bg-panel: rgba(22, 15, 8, 0.88);
+            --bg-panel-solid: #160f08;
+            --bg-hover: rgba(38, 26, 14, 0.35);
+            --bg-input: rgba(12, 8, 4, 0.8);
+            --accent: #3a7aac;
+            --accent-light: #4a8ec2;
+            --accent-dim: #163854;
+            --accent-bg: rgba(58, 122, 172, 0.07);
+            --accent-border: rgba(58, 122, 172, 0.15);
+            --text-primary: #c8bca8;
+            --text-secondary: #887460;
+            --text-muted: #605040;
+            --text-faint: #40302a;
+            --border: rgba(60, 42, 22, 0.20);
+            --border-strong: rgba(60, 42, 22, 0.35);
+            --sidebar-bg: rgba(5, 3, 2, 0.97);
+            --chart-line: #3a7aac;
+            --chart-fill-top: rgba(58, 122, 172, 0.10);
+            --star-color-1: rgba(58, 122, 172, 0.3);
+            --star-color-2: rgba(150, 130, 100, 0.2);
+            --star-color-3: rgba(210, 225, 245, 0.12);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+        .layout { display: flex; height: 100vh; overflow: hidden; }
+
+        .sidebar {
+            width: 224px; flex-shrink: 0;
+            background: var(--sidebar-bg);
+            border-right: 1px solid var(--border-strong);
+            display: flex; flex-direction: column;
+            padding: 20px;
+        }
+        .brand { display: flex; align-items: center; gap: 8px; color: var(--accent); font-weight: 700; font-size: 17px; letter-spacing: 1.5px; margin-bottom: 32px; }
+        .brand-dot { width: 10px; height: 10px; background: var(--accent); border-radius: 50%; }
+        .nav-item {
+            display: flex; align-items: center; gap: 10px;
+            padding: 8px 12px; border-radius: 8px;
+            color: var(--text-secondary); font-size: 14px;
+            cursor: pointer; transition: all 0.15s;
+            margin-bottom: 2px;
+        }
+        .nav-item:hover { background: var(--bg-hover); color: var(--text-primary); }
+        .nav-item.active { background: var(--accent-bg); color: var(--accent); border: 1px solid var(--accent-border); }
+        .nav-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; opacity: 0.5; }
+        .sidebar-section { margin-top: auto; padding-top: 16px; border-top: 1px solid var(--border-strong); }
+        .status-row { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-muted); margin-bottom: 6px; }
+        .status-dot { width: 6px; height: 6px; border-radius: 50%; }
+        .status-dot.online { background: #22c55e; }
+        .theme-label { font-size: 11px; color: var(--text-faint); margin-top: 12px; text-transform: uppercase; letter-spacing: 1px; }
+
+        .main { flex: 1; overflow-y: auto; background: var(--bg-primary); }
+        .header {
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--border);
+            display: flex; align-items: center; justify-content: space-between;
+            background: var(--bg-secondary);
+        }
+        .header-title { font-size: 18px; font-weight: 600; }
+        .header-actions { display: flex; gap: 8px; }
+        .btn {
+            padding: 6px 14px; border-radius: 6px; font-size: 13px;
+            border: 1px solid var(--border-strong); background: var(--bg-panel-solid);
+            color: var(--text-secondary); cursor: pointer; transition: all 0.15s;
+        }
+        .btn:hover { border-color: var(--accent-border); color: var(--text-primary); }
+        .btn-accent {
+            background: var(--accent); color: #fff; border: none;
+            padding: 6px 16px; border-radius: 6px; font-size: 13px; font-weight: 500;
+            cursor: pointer;
+        }
+        .btn-accent:hover { background: var(--accent-light); }
+
+        .content { padding: 24px; }
+
+        .card-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px; }
+        .card {
+            background: var(--bg-panel);
+            border: 1px solid var(--border);
+            border-radius: 10px; padding: 18px;
+            backdrop-filter: blur(8px);
+            transition: all 0.15s;
+        }
+        .card:hover { border-color: var(--accent-border); box-shadow: 0 0 20px rgba(58, 122, 172, 0.04); }
+        .card-label { font-size: 12px; color: var(--text-muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .card-value { font-size: 28px; font-weight: 700; color: var(--accent); }
+        .card-sub { font-size: 12px; color: var(--text-secondary); margin-top: 4px; }
+
+        .score-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 24px; }
+        .score-item {
+            display: flex; align-items: center; gap: 12px;
+            background: var(--bg-panel); border: 1px solid var(--border);
+            border-radius: 8px; padding: 12px 16px;
+        }
+        .score-badge {
+            width: 40px; height: 40px; border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700; font-size: 14px; flex-shrink: 0;
+        }
+        .score-critical { background: rgba(239, 68, 68, 0.10); color: #dc4444; }
+        .score-high { background: rgba(249, 115, 22, 0.10); color: #e06816; }
+        .score-medium { background: rgba(58, 122, 172, 0.10); color: var(--accent); }
+        .score-title { font-size: 14px; color: var(--text-primary); flex: 1; }
+        .score-source { font-size: 12px; color: var(--text-muted); }
+
+        .chart-container {
+            background: var(--bg-panel); border: 1px solid var(--border);
+            border-radius: 10px; padding: 20px; margin-bottom: 24px;
+            height: 200px; position: relative; overflow: hidden;
+        }
+        .chart-title { font-size: 14px; font-weight: 600; margin-bottom: 12px; }
+        .chart-line-svg { width: 100%; height: 140px; }
+
+        .agent-panel {
+            background: var(--bg-panel); border: 1px solid var(--border);
+            border-radius: 10px; padding: 16px;
+        }
+        .agent-header { font-size: 14px; font-weight: 600; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+        .agent-msg {
+            padding: 10px 14px; border-radius: 8px; font-size: 13px;
+            margin-bottom: 8px; max-width: 80%;
+        }
+        .agent-msg.bot { background: var(--bg-input); color: var(--text-primary); }
+        .agent-msg.user { background: var(--accent-bg); color: var(--accent-light); border: 1px solid var(--accent-border); margin-left: auto; }
+        .agent-input {
+            display: flex; gap: 8px; margin-top: 12px;
+            padding-top: 12px; border-top: 1px solid var(--border);
+        }
+        .agent-input input {
+            flex: 1; padding: 8px 12px; border-radius: 6px;
+            background: var(--bg-input); border: 1px solid var(--border);
+            color: var(--text-primary); font-size: 13px; outline: none;
+        }
+        .agent-input input:focus { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-bg); }
+        .agent-input input::placeholder { color: var(--text-faint); }
+
+        .stars { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
+        .star {
+            position: absolute; border-radius: 50%;
+            animation: twinkle 3s ease-in-out infinite;
+        }
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.1; }
+            50% { opacity: 0.5; }
+        }
+
+        .mode-badge {
+            position: fixed; top: 12px; right: 12px; z-index: 100;
+            background: var(--accent); color: #fff; padding: 6px 14px;
+            border-radius: 20px; font-size: 12px; font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="mode-badge">COFFEE REWORK — DARK</div>
+    <div class="stars" id="stars"></div>
+
+    <div class="layout" style="position: relative; z-index: 1;">
+        <div class="sidebar">
+            <div class="brand"><div class="brand-dot"></div> STRAT_OS</div>
+            <div class="nav-item active"><div class="nav-dot"></div> Dashboard</div>
+            <div class="nav-item"><div class="nav-dot"></div> Markets</div>
+            <div class="nav-item"><div class="nav-dot"></div> Scholarly</div>
+            <div class="nav-item"><div class="nav-dot"></div> Games</div>
+            <div class="nav-item"><div class="nav-dot"></div> Saved</div>
+            <div class="nav-item"><div class="nav-dot"></div> Settings</div>
+            <div class="sidebar-section">
+                <div class="status-row"><div class="status-dot online"></div> Ollama connected</div>
+                <div class="status-row"><div class="status-dot online"></div> Last scan: 3m ago</div>
+                <div class="theme-label">Coffee Rework (Dark)</div>
+            </div>
+        </div>
+
+        <div class="main">
+            <div class="header">
+                <div class="header-title">Intelligence Dashboard</div>
+                <div class="header-actions">
+                    <button class="btn">History</button>
+                    <button class="btn-accent">Scan Now</button>
+                </div>
+            </div>
+
+            <div class="content">
+                <div class="card-grid">
+                    <div class="card">
+                        <div class="card-label">Critical Signals</div>
+                        <div class="card-value">3</div>
+                        <div class="card-sub">+1 from last scan</div>
+                    </div>
+                    <div class="card">
+                        <div class="card-label">High Relevance</div>
+                        <div class="card-value">12</div>
+                        <div class="card-sub">across 4 categories</div>
+                    </div>
+                    <div class="card">
+                        <div class="card-label">Market Movers</div>
+                        <div class="card-value">5</div>
+                        <div class="card-sub">2 above threshold</div>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <div class="chart-title">$AAPL — 1Y</div>
+                    <svg class="chart-line-svg" viewBox="0 0 600 140" preserveAspectRatio="none">
+                        <defs>
+                            <linearGradient id="chartGrad" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0%" style="stop-color: var(--accent); stop-opacity: 0.18" />
+                                <stop offset="100%" style="stop-color: var(--accent); stop-opacity: 0" />
+                            </linearGradient>
+                        </defs>
+                        <path d="M0,110 L30,105 L60,95 L90,100 L120,80 L150,85 L180,70 L210,75 L240,55 L270,60 L300,50 L330,45 L360,50 L390,35 L420,40 L450,30 L480,35 L510,25 L540,28 L570,20 L600,22" fill="none" stroke="var(--accent)" stroke-width="2"/>
+                        <path d="M0,110 L30,105 L60,95 L90,100 L120,80 L150,85 L180,70 L210,75 L240,55 L270,60 L300,50 L330,45 L360,50 L390,35 L420,40 L450,30 L480,35 L510,25 L540,28 L570,20 L600,22 L600,140 L0,140 Z" fill="url(#chartGrad)"/>
+                    </svg>
+                </div>
+
+                <div class="score-list">
+                    <div class="score-item">
+                        <div class="score-badge score-critical">9.2</div>
+                        <div style="flex:1">
+                            <div class="score-title">Kuwait announces $12B AI infrastructure fund</div>
+                            <div class="score-source">Reuters &middot; 2h ago</div>
+                        </div>
+                    </div>
+                    <div class="score-item">
+                        <div class="score-badge score-high">8.1</div>
+                        <div style="flex:1">
+                            <div class="score-title">NVIDIA unveils next-gen inference chips at GTC</div>
+                            <div class="score-source">Bloomberg &middot; 4h ago</div>
+                        </div>
+                    </div>
+                    <div class="score-item">
+                        <div class="score-badge score-medium">6.5</div>
+                        <div style="flex:1">
+                            <div class="score-title">EU carbon border tax enters second phase</div>
+                            <div class="score-source">Financial Times &middot; 6h ago</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="agent-panel">
+                    <div class="agent-header">
+                        <span style="color: var(--accent);">&#9679;</span> Strat Agent — Games
+                    </div>
+                    <div class="agent-msg bot">Welcome to the Ashenvale campaign. You stand at the crossroads of the Forgotten Road. The wind carries whispers of distant drums from the north. Your party is rested, supplies at 60%.</div>
+                    <div class="agent-msg user">We head north toward the drums, weapons drawn</div>
+                    <div class="agent-msg bot">The forest thickens as you advance. After 20 minutes of careful progress, you spot flickering firelight through the trees. A small encampment — 4 tents arranged around a bonfire. You count 6 figures, armed but relaxed. They haven't noticed your approach.</div>
+                    <div class="agent-input">
+                        <input type="text" placeholder="What do you do?">
+                        <button class="btn-accent">Send</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const starsEl = document.getElementById('stars');
+        for (let i = 0; i < 45; i++) {
+            const star = document.createElement('div');
+            star.className = 'star';
+            const colors = [
+                'rgba(58, 122, 172, 0.3)',
+                'rgba(150, 130, 100, 0.2)',
+                'rgba(210, 225, 245, 0.12)'
+            ];
+            const size = Math.random() * 2 + 0.8;
+            star.style.cssText = `
+                left: ${Math.random() * 100}%;
+                top: ${Math.random() * 100}%;
+                width: ${size}px; height: ${size}px;
+                background: ${colors[Math.floor(Math.random() * 3)]};
+                animation-delay: ${Math.random() * 3}s;
+                animation-duration: ${2.5 + Math.random() * 3}s;
+            `;
+            starsEl.appendChild(star);
+        }
+    </script>
+</body>
+</html>
