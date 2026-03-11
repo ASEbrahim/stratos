@@ -184,31 +184,29 @@ def get_transcript(video_id: str, preferred_lang: str = 'ar',
 
 
 def _tier1_youtube_api(video_id: str, preferred_lang: str = 'ar') -> Tuple[Optional[str], str]:
-    """Tier 1: Free youtube-transcript-api library."""
+    """Tier 1: Free youtube-transcript-api library (v1.2.4+)."""
     try:
         from youtube_transcript_api import YouTubeTranscriptApi
-        # Try preferred language first, then English, then any auto-generated
-        lang_priorities = [preferred_lang, 'en'] if preferred_lang != 'en' else ['en']
+        api = YouTubeTranscriptApi()
 
+        # Try fetching transcript (auto-detects available captions)
+        transcript = None
         try:
-            transcript = YouTubeTranscriptApi.get_transcript(video_id, languages=lang_priorities)
+            transcript = api.fetch(video_id)
         except Exception:
-            # Try auto-generated captions
-            try:
-                transcript_list = YouTubeTranscriptApi.list_transcripts(video_id)
-                # Get first available (auto or manual)
-                for t in transcript_list:
-                    transcript = t.fetch()
-                    break
-                else:
-                    return None, ''
-            except Exception:
-                return None, ''
+            pass
 
         if not transcript:
             return None, ''
 
-        full_text = ' '.join(entry['text'] for entry in transcript if entry.get('text'))
+        # Extract text from transcript entries (v1.2.4 returns objects with .text)
+        parts = []
+        for entry in transcript:
+            text = getattr(entry, 'text', None) or (entry.get('text') if isinstance(entry, dict) else '')
+            if text:
+                parts.append(text)
+
+        full_text = ' '.join(parts)
         if len(full_text.strip()) < 50:
             return None, ''
 
