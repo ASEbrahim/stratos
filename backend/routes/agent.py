@@ -161,6 +161,74 @@ AGENT_TOOLS = [
                 "required": ["file_id"]
             }
         }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "search_insights",
+            "description": "Search across extracted YouTube video insights. Use when the user asks about what a channel or lecture discussed, or wants to find specific topics from processed videos.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "query": {
+                        "type": "string",
+                        "description": "Search term (topic, name, event, etc.)"
+                    },
+                    "lens": {
+                        "type": "string",
+                        "enum": ["summary", "eloquence", "history", "spiritual", "politics", "narrations"],
+                        "description": "Filter by lens type. Omit to search all lenses."
+                    }
+                },
+                "required": ["query"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "list_channels",
+            "description": "List tracked YouTube channels with video counts and configured lenses. Use when the user asks what channels they're tracking or wants to see processing status.",
+            "parameters": {
+                "type": "object",
+                "properties": {},
+                "required": []
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "get_video_summary",
+            "description": "Get all extracted insights for a specific YouTube video. Use when the user asks about a specific video or lecture.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "video_title": {
+                        "type": "string",
+                        "description": "Video title or partial title to search for."
+                    }
+                },
+                "required": ["video_title"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "search_narrations",
+            "description": "Search for verified or unverified scholarly narrations (hadith, historical citations) from processed videos. Use when the user asks about specific narrations or scholarly citations.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "query": {
+                        "type": "string",
+                        "description": "Search term (narrator, topic, hadith text, etc.)"
+                    }
+                },
+                "required": ["query"]
+            }
+        }
     }
 ]
 
@@ -184,6 +252,14 @@ def _execute_tool(tool_name, args, strat, profile_id=0):
             return _tool_search_files(args, strat, profile_id=profile_id)
         elif tool_name == "read_document":
             return _tool_read_document(args, strat, profile_id=profile_id)
+        elif tool_name == "search_insights":
+            return _tool_search_insights(args, strat, profile_id=profile_id)
+        elif tool_name == "list_channels":
+            return _tool_list_channels(args, strat, profile_id=profile_id)
+        elif tool_name == "get_video_summary":
+            return _tool_get_video_summary(args, strat, profile_id=profile_id)
+        elif tool_name == "search_narrations":
+            return _tool_search_narrations(args, strat, profile_id=profile_id)
         else:
             return f"Unknown tool: {tool_name}"
     except Exception as e:
@@ -506,6 +582,119 @@ def _tool_read_document(args, strat, profile_id=0):
         return f"Document content (file_id={file_id}):\n{content[:8000]}"
     except Exception as e:
         return f"Read document error: {e}"
+
+
+def _tool_search_insights(args, strat, profile_id=0):
+    """Search extracted YouTube video insights."""
+    query = args.get("query", "").strip()
+    if not query:
+        return "No search query provided."
+    try:
+        from processors.youtube import YouTubeProcessor
+        yt = YouTubeProcessor(strat.config, db=strat.db)
+        lens = args.get("lens")
+        results = yt.search_insights(profile_id, query, lens_name=lens, limit=10)
+        if not results:
+            return f"No insights found matching '{query}'."
+        lines = []
+        for r in results:
+            content = r.get('content', {})
+            preview = json.dumps(content, ensure_ascii=False)[:200] if isinstance(content, (dict, list)) else str(content)[:200]
+            lines.append(
+                f"[{r.get('lens_name','')}] Video: {r.get('video_title','')} "
+                f"(Channel: {r.get('channel_name','')})\n  {preview}"
+            )
+        return f"Found {len(results)} insight(s) for '{query}':\n" + "\n".join(lines)
+    except Exception as e:
+        return f"Insight search error: {e}"
+
+
+def _tool_list_channels(args, strat, profile_id=0):
+    """List tracked YouTube channels."""
+    try:
+        from processors.youtube import YouTubeProcessor
+        yt = YouTubeProcessor(strat.config, db=strat.db)
+        channels = yt.list_channels(profile_id)
+        if not channels:
+            return "No YouTube channels tracked. Add one with the YouTube channel management API."
+        lines = []
+        for ch in channels:
+            lenses = json.loads(ch.get('lenses', '[]')) if isinstance(ch.get('lenses'), str) else ch.get('lenses', [])
+            lines.append(
+                f"• {ch.get('channel_name', ch.get('channel_id',''))} — "
+                f"{ch.get('video_count', 0)} videos ({ch.get('completed_count', 0)} processed), "
+                f"Lenses: {', '.join(lenses)}"
+            )
+        return "Tracked channels:\n" + "\n".join(lines)
+    except Exception as e:
+        return f"Channel list error: {e}"
+
+
+def _tool_get_video_summary(args, strat, profile_id=0):
+    """Get all insights for a video by title search."""
+    title = args.get("video_title", "").strip()
+    if not title:
+        return "No video title provided."
+    try:
+        cursor = strat.db.conn.cursor()
+        cursor.execute(
+            "SELECT id, title, video_id, status FROM youtube_videos "
+            "WHERE profile_id = ? AND title LIKE ? ORDER BY published_at DESC LIMIT 1",
+            (profile_id, f'%{title}%')
+        )
+        row = cursor.fetchone()
+        if not row:
+            return f"No video found matching '{title}'."
+        video = dict(row)
+        if video['status'] != 'complete':
+            return f"Video '{video['title']}' is {video['status']} — not yet processed."
+
+        from processors.youtube import YouTubeProcessor
+        yt = YouTubeProcessor(strat.config, db=strat.db)
+        insights = yt.get_video_insights(video['id'], profile_id)
+        if not insights:
+            return f"Video '{video['title']}' has no extracted insights."
+
+        parts = [f"Insights for: {video['title']}"]
+        for ins in insights:
+            content = ins.get('content', {})
+            content_str = json.dumps(content, ensure_ascii=False, indent=2) if isinstance(content, (dict, list)) else str(content)
+            parts.append(f"\n--- {ins['lens_name'].upper()} ---\n{content_str[:1500]}")
+        return "\n".join(parts)
+    except Exception as e:
+        return f"Video summary error: {e}"
+
+
+def _tool_search_narrations(args, strat, profile_id=0):
+    """Search narrations from processed videos."""
+    query = args.get("query", "").strip()
+    if not query:
+        return "No search query provided."
+    try:
+        from processors.youtube import YouTubeProcessor
+        yt = YouTubeProcessor(strat.config, db=strat.db)
+        results = yt.search_insights(profile_id, query, lens_name='narrations', limit=10)
+        if not results:
+            return f"No narrations found matching '{query}'."
+        lines = []
+        for r in results:
+            content = r.get('content', [])
+            if isinstance(content, list):
+                for narr in content:
+                    if isinstance(narr, dict) and query.lower() in json.dumps(narr, ensure_ascii=False).lower():
+                        verified = narr.get('verification', {}).get('verified', False)
+                        status = "✓ Verified" if verified else "⚠ Unverified"
+                        lines.append(
+                            f"[{status}] {narr.get('narration_text', '')[:200]}\n"
+                            f"  Attribution: {narr.get('speaker_attribution', 'N/A')}\n"
+                            f"  Source: {narr.get('source_claimed', 'N/A')}\n"
+                            f"  Video: {r.get('video_title', '')}"
+                        )
+            if not lines:
+                lines.append(f"Video: {r.get('video_title', '')} — narrations lens result found but no text match")
+        return f"Narration search for '{query}':\n" + "\n".join(lines) if lines else f"No specific narrations matching '{query}'."
+    except Exception as e:
+        return f"Narration search error: {e}"
 
 
 # ═══════════════════════════════════════════════════════════

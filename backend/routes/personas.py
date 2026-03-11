@@ -167,6 +167,62 @@ def _build_historical_context(strat, profile_id: int = 0) -> str:
     return "\n\n".join(parts)
 
 
+def _build_scholarly_context(strat, profile_id: int = 0) -> str:
+    """Build scholarly context: tracked channels, recent insights, user context."""
+    parts = []
+    db = strat.db
+    if not db:
+        return ""
+
+    try:
+        cursor = db.conn.cursor()
+
+        # Channel summary
+        cursor.execute(
+            """SELECT c.channel_name, COUNT(v.id) as total,
+                      SUM(CASE WHEN v.status = 'complete' THEN 1 ELSE 0 END) as done
+               FROM youtube_channels c
+               LEFT JOIN youtube_videos v ON v.channel_id = c.id AND v.profile_id = c.profile_id
+               WHERE c.profile_id = ?
+               GROUP BY c.id""",
+            (profile_id,)
+        )
+        channels = [dict(r) for r in cursor.fetchall()]
+        if channels:
+            lines = [f"  {c['channel_name']}: {c['done']}/{c['total']} videos processed" for c in channels]
+            parts.append("TRACKED CHANNELS:\n" + "\n".join(lines))
+
+        # Recent insights (last 5 processed videos)
+        cursor.execute(
+            """SELECT v.title, v.video_id, c.channel_name, v.processed_at
+               FROM youtube_videos v
+               JOIN youtube_channels c ON v.channel_id = c.id
+               WHERE v.profile_id = ? AND v.status = 'complete'
+               ORDER BY v.processed_at DESC LIMIT 5""",
+            (profile_id,)
+        )
+        recent = [dict(r) for r in cursor.fetchall()]
+        if recent:
+            lines = [f"  {r['title']} ({r['channel_name']}, {r.get('processed_at','')[:10]})" for r in recent]
+            parts.append("RECENT PROCESSED VIDEOS:\n" + "\n".join(lines))
+
+        # User-editable persona context
+        cursor.execute(
+            "SELECT content FROM persona_context WHERE profile_id = ? AND persona_name = 'scholarly' AND context_key = 'system_context'",
+            (profile_id,)
+        )
+        row = cursor.fetchone()
+        if row:
+            user_ctx = dict(row).get('content', '')
+            if user_ctx.strip():
+                parts.append(f"USER CONTEXT:\n{user_ctx[:1000]}")
+
+    except Exception as e:
+        logger.warning(f"Scholarly context error: {e}")
+
+    return "\n\n".join(parts)
+
+
 def _build_market_context(strat, output_file: str) -> str:
     """Build market-focused context: prices, movers, finance news."""
     output_path = Path(output_file)
@@ -290,21 +346,26 @@ RULES:
 
 def _scholarly_prompt(role, location, tickers, cat_summary, search_note):
     """System prompt for the Scholarly persona."""
-    return f"""You are STRAT SCHOLAR — a thoughtful academic assistant in StratOS.
+    return f"""You are STRAT SCHOLAR — a research assistant in StratOS with access to YouTube lecture insights.
 
 USER: {role} in {location}
 
-You discuss history, faith, language, philosophy, and academic topics.
-You can search and read the user's uploaded documents using search_files and read_document tools.
+TOOLS:
+1. search_insights — search extracted insights from YouTube lectures by topic.
+2. list_channels — see tracked YouTube channels.
+3. get_video_summary — get all extracted insights for a specific video.
+4. search_narrations — find hadith/narrations with verification status.
+5. search_files / read_document — search and read uploaded documents.
+6. {search_note}
 
 RULES:
-- Be thoughtful and precise. Cite sources when possible.
-- Distinguish between established facts and scholarly debate.
+- Use search tools to find relevant lecture insights before answering from memory.
+- Cite video titles and channels when referencing extracted content.
+- For narrations: clearly state if VERIFIED (found in scholarly database) or UNVERIFIED.
+- NEVER fabricate citations, hadith references, or historical dates.
 - For Arabic/Islamic topics: use proper transliteration, reference original terms.
-- Acknowledge when a topic has multiple valid scholarly positions.
-- Keep responses focused: 2-4 paragraphs max unless depth requested.
-- Never fabricate citations, hadith references, or historical dates.
-- Say "I'm not certain" when you're not — don't guess on scholarly matters."""
+- Be thoughtful and precise. 2-4 paragraphs max unless depth requested.
+- Say "I'm not certain" when you're not."""
 
 
 def _stub_prompt(persona_name, role, location, tickers, cat_summary, search_note):
@@ -329,7 +390,7 @@ RULES:
 PERSONA_TOOLS = {
     'intelligence': ['web_search', 'search_feed', 'manage_watchlist', 'manage_categories', 'search_files', 'read_document'],
     'market': ['manage_watchlist', 'search_feed', 'web_search'],
-    'scholarly': ['search_files', 'read_document'],
+    'scholarly': ['search_insights', 'list_channels', 'get_video_summary', 'search_narrations', 'search_files', 'read_document', 'web_search'],
     'anime': [],
     'tcg': [],
     'gaming': [],
@@ -379,7 +440,7 @@ def build_persona_context(persona: str, strat, output_file: str,
         market = _build_market_context(strat, output_file)
         return f"{market[:6000]}"
     elif persona == 'scholarly':
-        return ""  # No data context yet — pure knowledge mode
+        return _build_scholarly_context(strat, profile_id)
     else:
         return ""  # Stub personas have no data
 
