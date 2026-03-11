@@ -433,9 +433,12 @@ function renderFeed() {
             ? 'No matches for "' + esc(searchQuery) + '"' 
             : activeRoot === 'saved' ? 'No saved signals yet. Bookmark signals from any tab to see them here.'
             : (isExtraFeed ? 'No headlines yet.' : 'No signals detected.');
-        container.innerHTML = `<div class="p-8 text-center text-slate-500 border border-dashed border-slate-700 rounded-xl">
+        const emptyIcon = activeRoot === 'saved' ? '🔖' : searchQuery ? '🔍' : isExtraFeed ? '📡' : '📊';
+        container.innerHTML = `<div class="empty-state">
+            <div class="empty-icon">${emptyIcon}</div>
             <p>${emptyMsg}</p>
-            ${isExtraFeed ? `<button onclick="${refreshAction}" class="mt-3 text-[10px] text-slate-400 hover:text-emerald-400 inline-flex items-center gap-1 transition-colors"><i data-lucide="refresh-cw" class="w-3 h-3"></i> Refresh</button>` : ''}
+            ${isExtraFeed ? `<button onclick="${refreshAction}" class="mt-3 text-[10px] text-slate-400 hover:text-emerald-400 inline-flex items-center gap-1 transition-colors"><i data-lucide="refresh-cw" class="w-3 h-3"></i> Refresh feeds</button>` : ''}
+            ${!isExtraFeed && !searchQuery && activeRoot !== 'saved' ? '<p class="text-[11px] text-slate-600 mt-1">Run a scan or adjust your categories to see signals here.</p>' : ''}
         </div>`;
         if (isExtraFeed) lucide.createIcons();
         return;

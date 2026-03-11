@@ -181,7 +181,7 @@ function toggleNavSection(storageKey) {
             activeRoot = 'dashboard';
             const nav = (window.navItems || navItems).find(n => n.id === 'dashboard');
             if (nav) {
-                document.getElementById('page-title').textContent = nav.label.toUpperCase();
+                document.getElementById('page-title').textContent = nav.label;
                 document.getElementById('page-subtitle').textContent = nav.subtitle;
             }
             document.getElementById('main-content').classList.remove('hidden');
@@ -197,7 +197,7 @@ function setActive(id) {
     activeRoot = id;
     const nav = (window.navItems || navItems).find(n => n.id === id);
     if (nav) {
-        document.getElementById('page-title').textContent = nav.label.toUpperCase();
+        document.getElementById('page-title').textContent = nav.label;
         document.getElementById('page-subtitle').textContent = nav.subtitle;
     }
     
