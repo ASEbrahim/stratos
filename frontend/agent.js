@@ -402,14 +402,19 @@ function appendAgentMessage(role, content) {
                 <div class="text-[9px] mt-1 text-right" style="color:var(--text-muted); opacity:0.4;">${time}</div>
             </div>`;
     } else {
-        wrapper.className = 'flex gap-3 mb-3';
+        wrapper.className = 'flex gap-3 mb-3 group/msg';
         wrapper.innerHTML = `
             <div class="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5" style="background:rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.15);">
                 <i data-lucide="bot" class="w-3.5 h-3.5 text-emerald-400"></i>
             </div>
             <div class="flex-1 min-w-0">
                 <div class="agent-response text-xs leading-relaxed" style="color:var(--text-body,#cbd5e1);">${content}</div>
-                <div class="text-[9px] mt-1" style="color:var(--text-muted); opacity:0.4;">${time}</div>
+                <div class="flex items-center gap-2 mt-1">
+                    <span class="text-[9px]" style="color:var(--text-muted); opacity:0.4;">${time}</span>
+                    <button onclick="_copyAgentMessage(this)" class="opacity-0 group-hover/msg:opacity-60 hover:!opacity-100 transition-opacity p-0.5 rounded" title="Copy message">
+                        <i data-lucide="copy" class="w-3 h-3" style="color:var(--text-muted);"></i>
+                    </button>
+                </div>
             </div>`;
     }
     
@@ -425,6 +430,19 @@ function appendAgentMessage(role, content) {
     });
     msgs.scrollTop = msgs.scrollHeight;
     return wrapper;
+}
+
+function _copyAgentMessage(btn) {
+    const resp = btn.closest('.group\\/msg')?.querySelector('.agent-response');
+    if (!resp) return;
+    const text = resp.innerText || resp.textContent || '';
+    navigator.clipboard.writeText(text).then(() => {
+        const icon = btn.querySelector('[data-lucide]');
+        if (icon) { icon.setAttribute('data-lucide', 'check'); lucide.createIcons(); }
+        setTimeout(() => {
+            if (icon) { icon.setAttribute('data-lucide', 'copy'); lucide.createIcons(); }
+        }, 1500);
+    }).catch(() => {});
 }
 
 function escAgent(s) {
