@@ -840,8 +840,8 @@ input::placeholder, textarea::placeholder {
 .card-content.expanded { max-height: 500px; opacity: 1; overflow-y: auto; }
 
 /* === DRILL-DOWN PILLS === */
-.drill-pill { cursor: pointer; transition: background-color 0.15s, color 0.15s, border-color 0.15s, opacity 0.15s; }
-.drill-pill:hover { opacity: 1 !important; text-decoration: underline; }
+.drill-pill { cursor: pointer; transition: background-color 0.15s, color 0.15s, border-color 0.15s, opacity 0.15s; padding: 1px 6px; border-radius: 4px; background: rgba(255,255,255,0.04); }
+.drill-pill:hover { opacity: 1 !important; background: rgba(255,255,255,0.08); text-decoration: none; }
 
 /* === STALE INDICATORS === */
 .stale-warning { color: #f59e0b; }
@@ -2039,13 +2039,43 @@ input::placeholder, textarea::placeholder {
     margin-bottom: 8px;
 }
 .stab {
-    flex: 1; padding: 8px 0; border: none; border-radius: 8px;
+    flex: 1; padding: 8px 0; border: 1px solid transparent; border-radius: 8px;
     background: transparent; color: var(--text-muted); font-size: 12px;
     font-weight: 500; cursor: pointer; transition: background-color 0.2s, color 0.2s, border-color 0.2s, opacity 0.2s;
     font-family: inherit;
 }
 .stab:hover { color: var(--text-primary); background: rgba(255,255,255,0.04); }
-.stab.active { color: var(--text-primary); background: rgba(255,255,255,0.08); }
+.stab.active { color: var(--accent, #34d399); background: rgba(16,185,129,0.1); border-color: rgba(16,185,129,0.2); font-weight: 600; }
+
+/* === DANGER ZONE (Delete Account) === */
+.danger-zone { margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid rgba(239,68,68,0.15); }
+.danger-zone-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; color: #ef4444; opacity: 0.6; margin-bottom: 0.75rem; font-weight: 600; }
+
+/* === SUGGESTION CHIPS STAGGER === */
+.agent-chips button { animation: chipFadeIn 0.25s ease both; }
+.agent-chips button:nth-child(1) { animation-delay: 0.05s; }
+.agent-chips button:nth-child(2) { animation-delay: 0.1s; }
+.agent-chips button:nth-child(3) { animation-delay: 0.15s; }
+.agent-chips button:nth-child(4) { animation-delay: 0.2s; }
+.agent-chips button:nth-child(5) { animation-delay: 0.25s; }
+.agent-chips button:nth-child(6) { animation-delay: 0.3s; }
+@keyframes chipFadeIn { from { opacity: 0; transform: translateY(6px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
+
+/* === FOCUS VISIBLE (Accessibility) === */
+:focus-visible { outline: 2px solid var(--accent, #34d399); outline-offset: 2px; border-radius: 4px; }
+button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible { outline: 2px solid var(--accent, #34d399); outline-offset: 2px; }
+
+/* === REDUCED MOTION (Accessibility) === */
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+    .glass-panel[data-card-idx]:hover { transform: none; }
+    .score-pill:active { transform: none; }
+}
 
 /* Ticker preset buttons */
 .ticker-preset-btn {

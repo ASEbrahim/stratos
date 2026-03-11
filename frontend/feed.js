@@ -875,9 +875,8 @@ function renderFeed() {
             <div class="flex justify-between items-start mb-2">
                 <div class="flex gap-2 items-center text-[10px] tracking-wider font-mono flex-wrap">
                     <span class="drill-pill text-slate-400 font-bold uppercase hover:text-emerald-400" onclick="event.stopPropagation(); drillFilter('${esc(item.root || 'global')}')">${esc(item.root || 'global')}</span>
-                    <span class="text-slate-600">|</span>
                     <span class="drill-pill text-slate-500 uppercase hover:text-emerald-400" onclick="event.stopPropagation(); drillFilter('${esc(item.category || 'general')}')">${esc(item.category || 'general')}</span>
-                    ${age ? `<span class="text-slate-600">|</span><span class="text-slate-600 time-ago">${age}</span>` : ''}
+                    ${age ? `<span class="text-slate-600 time-ago" style="margin-left:2px;">${age}</span>` : ''}
                 </div>
                 ${item.retained ? '<span class="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold border border-amber-700/40 text-amber-500 bg-amber-500/10" title="Kept from previous scan">kept</span>' : ''}
                 <span class="px-2 py-0.5 rounded text-xs font-mono font-bold border ${scoreClass}">${s.toFixed(1)}</span>
