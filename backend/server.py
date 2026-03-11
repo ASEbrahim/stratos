@@ -1057,6 +1057,101 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                 _send_json(self, {"personas": list_personas()})
                 return
 
+            # ── Persona Context GET endpoints ───────────────
+            if self.path.startswith("/api/persona-context"):
+                from processors.persona_context import PersonaContextManager
+                pcm = PersonaContextManager(strat.config, db=strat.db)
+                from urllib.parse import urlparse, parse_qs
+                parsed = urlparse(self.path)
+                params = parse_qs(parsed.query)
+                persona = params.get('persona', [''])[0]
+
+                if parsed.path == '/api/persona-context/list':
+                    keys = pcm.list_context_keys(self._profile_id, persona)
+                    _send_json(self, {"keys": keys})
+                    return
+                elif parsed.path == '/api/persona-context/versions':
+                    versions = pcm.get_versions(self._profile_id, persona)
+                    _send_json(self, {"versions": versions})
+                    return
+                elif parsed.path == '/api/persona-context':
+                    key = params.get('key', ['system_context'])[0]
+                    content = pcm.get_context(self._profile_id, persona, key)
+                    _send_json(self, {"persona": persona, "key": key, "content": content or ''})
+                    return
+
+            # ── YouTube GET endpoints ───────────────────────
+            if self.path.startswith("/api/youtube/"):
+                from processors.youtube import YouTubeProcessor
+                yt = YouTubeProcessor(strat.config, db=strat.db)
+                from urllib.parse import urlparse, parse_qs
+                parsed = urlparse(self.path)
+                path_parts = parsed.path.strip('/').split('/')
+
+                if parsed.path == '/api/youtube/channels':
+                    channels = yt.list_channels(self._profile_id)
+                    _send_json(self, {"channels": channels})
+                    return
+                elif parsed.path == '/api/youtube/status':
+                    pending = yt.get_pending_videos(self._profile_id)
+                    _send_json(self, {"pending_count": len(pending), "pending": pending[:5]})
+                    return
+                elif len(path_parts) == 4 and path_parts[2] == 'videos':
+                    # /api/youtube/videos/:channel_id
+                    try:
+                        ch_id = int(path_parts[3])
+                        cursor = strat.db.conn.cursor()
+                        cursor.execute(
+                            "SELECT * FROM youtube_videos WHERE channel_id = ? AND profile_id = ? ORDER BY published_at DESC",
+                            (ch_id, self._profile_id)
+                        )
+                        _send_json(self, {"videos": [dict(r) for r in cursor.fetchall()]})
+                    except (ValueError, IndexError):
+                        _send_json(self, {"error": "Invalid channel ID"}, 400)
+                    return
+                elif len(path_parts) == 4 and path_parts[2] == 'insights':
+                    # /api/youtube/insights/:video_db_id
+                    try:
+                        vid_id = int(path_parts[3])
+                        insights = yt.get_video_insights(vid_id, self._profile_id)
+                        _send_json(self, {"insights": insights})
+                    except (ValueError, IndexError):
+                        _send_json(self, {"error": "Invalid video ID"}, 400)
+                    return
+
+            # ── Persona Files GET endpoints ─────────────────
+            if self.path.startswith("/api/persona-files"):
+                from processors.persona_context import PersonaContextManager
+                pcm = PersonaContextManager(strat.config, db=strat.db)
+                from urllib.parse import urlparse, parse_qs
+                parsed = urlparse(self.path)
+                params = parse_qs(parsed.query)
+                persona = params.get('persona', [''])[0]
+                filepath = params.get('path', ['/'])[0]
+
+                if parsed.path == '/api/persona-files/read':
+                    content = pcm.read_file(self._profile_id, persona, filepath)
+                    if content is not None:
+                        _send_json(self, {"path": filepath, "content": content})
+                    else:
+                        _send_json(self, {"error": "File not found"}, 404)
+                    return
+                elif parsed.path == '/api/persona-files':
+                    entries = pcm.list_files(self._profile_id, persona, filepath)
+                    _send_json(self, {"path": filepath, "entries": entries})
+                    return
+
+            # ── Cross-persona search ────────────────────────
+            if self.path.startswith("/api/search-all-contexts"):
+                from processors.persona_context import PersonaContextManager
+                pcm = PersonaContextManager(strat.config, db=strat.db)
+                from urllib.parse import urlparse, parse_qs
+                params = parse_qs(urlparse(self.path).query)
+                q = params.get('q', [''])[0]
+                results = pcm.search_all_contexts(self._profile_id, q)
+                _send_json(self, {"results": results})
+                return
+
             # --- Static file serving with gzip compression ---
             accepts_gzip = 'gzip' in self.headers.get('Accept-Encoding', '')
             ext = os.path.splitext(self.path.split('?')[0])[1].lower()
@@ -2024,6 +2119,97 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                     _send_json(self, {"error": "Failed to list files"}, 500)
                 return
 
+            # ── YouTube POST endpoints ──────────────────────
+            if self.path.startswith("/api/youtube/"):
+                from processors.youtube import YouTubeProcessor
+                yt = YouTubeProcessor(strat.config, db=strat.db)
+                body = json.loads(self.rfile.read(int(self.headers.get('Content-Length', 0))).decode()) if int(self.headers.get('Content-Length', 0)) > 0 else {}
+
+                if self.path == "/api/youtube/channels":
+                    channel_input = body.get('channel', '').strip()
+                    lenses = body.get('lenses', ['summary'])
+                    if not channel_input:
+                        _send_json(self, {"error": "No channel URL/handle provided"}, 400)
+                        return
+                    result = yt.add_channel(self._profile_id, channel_input, lenses)
+                    if result:
+                        _send_json(self, {"ok": True, "channel": result})
+                    else:
+                        _send_json(self, {"error": "Could not resolve channel"}, 400)
+                    return
+
+                path_parts = self.path.strip('/').split('/')
+                if len(path_parts) == 4 and path_parts[2] == 'process':
+                    # POST /api/youtube/process/:channel_db_id
+                    try:
+                        ch_id = int(path_parts[3])
+                        new_videos = yt.discover_new_videos(self._profile_id, ch_id)
+                        _send_json(self, {"ok": True, "new_videos": len(new_videos), "videos": new_videos[:10]})
+                    except (ValueError, IndexError):
+                        _send_json(self, {"error": "Invalid channel ID"}, 400)
+                    return
+
+                if len(path_parts) == 5 and path_parts[2] == 'channels' and path_parts[4] == 'lenses':
+                    # PUT-like: POST /api/youtube/channels/:id/lenses
+                    try:
+                        ch_id = int(path_parts[3])
+                        lenses = body.get('lenses', [])
+                        cursor = strat.db.conn.cursor()
+                        cursor.execute(
+                            "UPDATE youtube_channels SET lenses = ? WHERE id = ? AND profile_id = ?",
+                            (json.dumps(lenses), ch_id, self._profile_id)
+                        )
+                        strat.db._commit()
+                        _send_json(self, {"ok": True})
+                    except (ValueError, IndexError):
+                        _send_json(self, {"error": "Invalid channel ID"}, 400)
+                    return
+
+            # ── Persona Context POST endpoints ──────────────
+            if self.path.startswith("/api/persona-context"):
+                from processors.persona_context import PersonaContextManager
+                pcm = PersonaContextManager(strat.config, db=strat.db)
+                body = json.loads(self.rfile.read(int(self.headers.get('Content-Length', 0))).decode()) if int(self.headers.get('Content-Length', 0)) > 0 else {}
+
+                if self.path == '/api/persona-context':
+                    persona = body.get('persona', '')
+                    key = body.get('key', 'system_context')
+                    content = body.get('content', '')
+                    if not persona:
+                        _send_json(self, {"error": "No persona specified"}, 400)
+                        return
+                    ok = pcm.save_context(self._profile_id, persona, key, content)
+                    _send_json(self, {"ok": ok})
+                    return
+
+                if self.path == '/api/persona-context/revert':
+                    persona = body.get('persona', '')
+                    version = body.get('version', '')
+                    ok = pcm.revert_to_version(self._profile_id, persona, version)
+                    _send_json(self, {"ok": ok})
+                    return
+
+            # ── Persona Files POST endpoints ────────────────
+            if self.path.startswith("/api/persona-files"):
+                from processors.persona_context import PersonaContextManager
+                pcm = PersonaContextManager(strat.config, db=strat.db)
+                body = json.loads(self.rfile.read(int(self.headers.get('Content-Length', 0))).decode()) if int(self.headers.get('Content-Length', 0)) > 0 else {}
+
+                if self.path == '/api/persona-files/write':
+                    persona = body.get('persona', '')
+                    filepath = body.get('path', '')
+                    content = body.get('content', '')
+                    ok = pcm.write_file(self._profile_id, persona, filepath, content)
+                    _send_json(self, {"ok": ok})
+                    return
+
+                if self.path == '/api/persona-files/mkdir':
+                    persona = body.get('persona', '')
+                    dirpath = body.get('path', '')
+                    ok = pcm.make_dir(self._profile_id, persona, dirpath)
+                    _send_json(self, {"ok": ok})
+                    return
+
             self.send_response(404)
             self.end_headers()
 
@@ -2032,6 +2218,50 @@ def create_handler(strat, auth, frontend_dir, output_dir):
             if self.path.startswith("/api/profiles/"):
                 if handle_auth_routes(self, "DELETE", self.path, {}, strat.db, strat, _send_json, email_service):
                     return
+            # ── YouTube Channel Delete ──
+            if self.path.startswith("/api/youtube/channels/"):
+                try:
+                    ch_id = int(self.path.split("/")[-1])
+                    from processors.youtube import YouTubeProcessor
+                    yt = YouTubeProcessor(strat.config, db=strat.db)
+                    if yt.remove_channel(self._profile_id, ch_id):
+                        _send_json(self, {"ok": True})
+                    else:
+                        _send_json(self, {"error": "Channel not found"}, 404)
+                except (ValueError, IndexError):
+                    _send_json(self, {"error": "Invalid channel ID"}, 400)
+                return
+
+            # ── Persona Context Delete ──
+            if self.path.startswith("/api/persona-context"):
+                from processors.persona_context import PersonaContextManager
+                pcm = PersonaContextManager(strat.config, db=strat.db)
+                from urllib.parse import urlparse, parse_qs
+                params = parse_qs(urlparse(self.path).query)
+                persona = params.get('persona', [''])[0]
+                key = params.get('key', [''])[0]
+                if persona and key:
+                    pcm.delete_context(self._profile_id, persona, key)
+                    _send_json(self, {"ok": True})
+                else:
+                    _send_json(self, {"error": "Missing persona or key"}, 400)
+                return
+
+            # ── Persona Files Delete ──
+            if self.path.startswith("/api/persona-files"):
+                from processors.persona_context import PersonaContextManager
+                pcm = PersonaContextManager(strat.config, db=strat.db)
+                from urllib.parse import urlparse, parse_qs
+                params = parse_qs(urlparse(self.path).query)
+                persona = params.get('persona', [''])[0]
+                filepath = params.get('path', [''])[0]
+                if persona and filepath:
+                    ok = pcm.delete_file(self._profile_id, persona, filepath)
+                    _send_json(self, {"ok": ok})
+                else:
+                    _send_json(self, {"error": "Missing persona or path"}, 400)
+                return
+
             # ── File Delete ──
             if self.path.startswith("/api/files/"):
                 try:
