@@ -23,6 +23,8 @@ function toggleFileBrowser(persona) {
         panel = document.getElementById('file-browser-panel');
     }
     if (_fbOpen) {
+        // Close context editor if open
+        if (typeof _ctxEditorOpen !== 'undefined' && _ctxEditorOpen) toggleContextEditor();
         _fbPersona = persona || currentPersona || 'intelligence';
         _fbPath = '/';
         panel.classList.remove('hidden');
@@ -43,6 +45,7 @@ function _createFileBrowserPanel() {
     const panel = document.createElement('div');
     panel.id = 'file-browser-panel';
     panel.className = 'hidden';
+    panel.style.cssText = 'position:fixed;inset:0;z-index:10000;';
     panel.innerHTML = `
         <div class="ctx-editor-backdrop" onclick="toggleFileBrowser()"></div>
         <div class="ctx-editor-sidebar">

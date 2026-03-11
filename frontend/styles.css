@@ -442,7 +442,7 @@ select:hover { border-color: var(--text-muted) !important; }
     z-index: 9999;
     margin: 0 !important;
     padding: 0;
-    background: var(--bg-app, #0f172a);
+    background: transparent;
     border-radius: 0 !important;
     pointer-events: auto;
     isolation: isolate;
@@ -457,7 +457,7 @@ select:hover { border-color: var(--text-muted) !important; }
     position: relative;
     z-index: 1;
 }
-.agent-fullscreen > .agent-fs-wrapper > .rounded-xl {
+.agent-fullscreen > .agent-fs-wrapper > [data-agent-inner] {
     flex: 1;
     display: flex;
     flex-direction: column;
@@ -466,14 +466,36 @@ select:hover { border-color: var(--text-muted) !important; }
     width: 100%;
     border-radius: 0;
     border: none;
-    background: transparent;
+    background: rgba(8, 8, 26, 0.7);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
 }
 .agent-fullscreen .agent-fs-sidebar {
     animation: slideInLeft 0.25s ease;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
 }
 @keyframes slideInLeft {
     from { transform: translateX(-20px); opacity: 0; }
     to { transform: translateX(0); opacity: 1; }
+}
+/* Arcane-style gradient bar at top of fullscreen agent */
+.agent-fullscreen::before {
+    content: '';
+    display: var(--fs-grad-display, block);
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    z-index: 10;
+    background: linear-gradient(90deg, var(--accent), var(--accent-light, var(--accent)), var(--accent));
+    background-size: 300% 100%;
+    animation: agentBarShift 6s ease infinite;
+    opacity: 0.8;
+}
+@keyframes agentBarShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
 }
 .agent-fullscreen #agent-body {
     flex: 1;
@@ -486,37 +508,70 @@ select:hover { border-color: var(--text-muted) !important; }
     height: auto !important;
     padding: 32px 28px;
 }
-/* Larger text in fullscreen */
+/* Larger text in fullscreen — uses CSS vars for customizer */
 .agent-fullscreen .agent-bubble-ai,
 .agent-fullscreen .agent-bubble-user {
     max-width: 90%;
-    font-size: 15px;
-    line-height: 1.65;
-    padding: 14px 18px !important;
+    font-size: var(--fs-font-size, 15px) !important;
+    line-height: var(--fs-line-height, 1.65) !important;
+    padding: var(--fs-bubble-padding, 14px 18px) !important;
+    border-radius: var(--fs-bubble-radius, 16px) !important;
 }
 .agent-fullscreen #agent-input {
-    font-size: 15px !important;
+    font-size: var(--fs-font-size, 15px) !important;
     padding: 14px 18px !important;
-    min-height: 52px;
-    border-radius: 16px !important;
+    min-height: var(--fs-input-height, 52px);
+    border-radius: var(--fs-bubble-radius, 16px) !important;
 }
 .agent-fullscreen #agent-send-btn {
-    width: 44px !important;
-    height: 44px !important;
+    width: var(--fs-send-size, 44px) !important;
+    height: var(--fs-send-size, 44px) !important;
     border-radius: 14px !important;
 }
-.agent-fullscreen #agent-welcome .text-sm { font-size: 18px !important; }
-.agent-fullscreen #agent-welcome .text-\\[11px\\] { font-size: 13px !important; }
+.agent-fullscreen #agent-welcome .text-sm { font-size: calc(var(--fs-font-size, 15px) + 3px) !important; }
+.agent-fullscreen #agent-welcome .text-\\[11px\\] { font-size: calc(var(--fs-font-size, 15px) - 2px) !important; }
 .agent-fullscreen #agent-welcome .w-12 { width: 56px !important; height: 56px !important; }
-.agent-fullscreen .agent-chips button { font-size: 12px !important; padding: 8px 14px !important; }
-.agent-fullscreen .agent-option-btn { font-size: 13px !important; padding: 10px 14px !important; }
+.agent-fullscreen .agent-chips button { font-size: calc(var(--fs-font-size, 15px) - 3px) !important; padding: 8px 14px !important; }
+.agent-fullscreen .agent-option-btn { font-size: calc(var(--fs-font-size, 15px) - 2px) !important; padding: 10px 14px !important; }
+/* Global UI scale for fullscreen — applied via zoom on the wrapper */
+.agent-fullscreen > .agent-fs-wrapper {
+    zoom: var(--fs-ui-scale, 1);
+}
+/* Fullscreen customizer styles */
+.fs-cust-group { }
+.fs-cust-label { display:block; font-size:11px; color:var(--text-muted); margin-bottom:4px; margin-top:8px; }
+.fs-cust-label:first-child { margin-top:0; }
+.fs-cust-row { display:flex; align-items:center; gap:8px; }
+.fs-cust-slider {
+    flex:1; height:4px; -webkit-appearance:none; appearance:none; border-radius:2px;
+    background:rgba(255,255,255,0.1); outline:none; cursor:pointer;
+}
+.fs-cust-slider::-webkit-slider-thumb {
+    -webkit-appearance:none; width:14px; height:14px; border-radius:50%;
+    background:var(--accent,#34d399); border:2px solid rgba(0,0,0,0.3);
+    box-shadow:0 0 6px rgba(var(--accent-rgb,52,211,153),0.3); cursor:pointer;
+}
+.fs-cust-slider::-moz-range-thumb {
+    width:14px; height:14px; border-radius:50%;
+    background:var(--accent,#34d399); border:2px solid rgba(0,0,0,0.3); cursor:pointer;
+}
+.fs-cust-val { font-size:10px; font-family:monospace; color:var(--text-muted); min-width:40px; text-align:right; }
+.agent-fs-customizer::-webkit-scrollbar { width:4px; }
+.agent-fs-customizer::-webkit-scrollbar-track { background:transparent; }
+.agent-fs-customizer::-webkit-scrollbar-thumb { background:rgba(100,116,139,0.2); border-radius:2px; }
+/* Tooltips inside customizer — use title fallback via JS-positioned tooltip */
+.agent-fs-customizer .strat-tip { cursor: default; position: relative; }
+.agent-fs-customizer .strat-tip::after { display: none !important; }
+
 /* Hide the compact header buttons in fullscreen (sidebar replaces them) */
 .agent-fullscreen #agent-conv-tabs { display: none !important; }
 /* Hide sidebar and main content behind fullscreen agent */
 body:has(.agent-fullscreen) #sidebar,
-body:has(.agent-fullscreen) #main-content {
-    pointer-events: none;
-    opacity: 0;
+body:has(.agent-fullscreen) > .flex > main {
+    pointer-events: none !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    transition: opacity 0.2s;
 }
 /* Sidebar scrollbar styling */
 .agent-fs-sidebar::-webkit-scrollbar { width: 4px; }
@@ -557,7 +612,7 @@ body:has(.agent-fullscreen) #main-content {
 #context-editor-panel:not(.hidden) { pointer-events: auto; }
 .ctx-editor-backdrop {
     position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(0,0,0,0.4); backdrop-filter: blur(2px);
+    background: rgba(0,0,0,0.4);
 }
 .ctx-editor-sidebar {
     position: absolute; top: 0; right: 0; bottom: 0; width: min(420px, 90vw);

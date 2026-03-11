@@ -23,6 +23,8 @@ function toggleContextEditor() {
         panel = document.getElementById('context-editor-panel');
     }
     if (_ctxEditorOpen) {
+        // Close file browser if open
+        if (typeof _fbOpen !== 'undefined' && _fbOpen) toggleFileBrowser();
         _ctxEditorPersona = currentPersona || 'intelligence';
         panel.classList.remove('hidden');
         panel.classList.add('ctx-slide-in');
@@ -39,6 +41,7 @@ function _createContextEditorPanel() {
     const panel = document.createElement('div');
     panel.id = 'context-editor-panel';
     panel.className = 'hidden';
+    panel.style.cssText = 'position:fixed;inset:0;z-index:10000;';
     panel.innerHTML = `
         <div class="ctx-editor-backdrop" onclick="toggleContextEditor()"></div>
         <div class="ctx-editor-sidebar">

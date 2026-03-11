@@ -177,6 +177,31 @@ function updateStarsToggleUI(starsOn) {
     }
 }
 
+// ── Zen Mode — hide all panels, show only background + sidebar ──
+var _zenMode = false;
+function toggleZenMode() {
+    _zenMode = !_zenMode;
+    const mc = document.getElementById('main-content');
+    const btn = document.getElementById('zen-toggle');
+    const icon = document.getElementById('zen-toggle-icon');
+    const label = document.getElementById('zen-toggle-label');
+    const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
+
+    if (_zenMode) {
+        // Hide all main-content children
+        if (mc) Array.from(mc.children).forEach(c => { c.dataset.zenPrevDisplay = c.style.display; c.style.display = 'none'; });
+        if (btn) { btn.style.color = accent; btn.style.borderColor = accent + '40'; btn.style.background = accent + '10'; }
+        if (icon) icon.textContent = '\u25CF';
+        if (label) label.textContent = 'Zen';
+    } else {
+        // Restore all main-content children
+        if (mc) Array.from(mc.children).forEach(c => { c.style.display = c.dataset.zenPrevDisplay || ''; delete c.dataset.zenPrevDisplay; });
+        if (btn) { btn.style.color = 'var(--text-muted)'; btn.style.borderColor = 'var(--border-strong)'; btn.style.background = 'transparent'; }
+        if (icon) icon.textContent = '\u25CB';
+        if (label) label.textContent = 'Zen';
+    }
+}
+
 // Cosmos solar system preset toggle (P1 = classic, P2 = tilted)
 function setCosmosPreset(preset) {
     localStorage.setItem('stratos-cosmos-preset', preset);

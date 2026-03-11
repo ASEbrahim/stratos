@@ -399,8 +399,15 @@
         const opacity = parseFloat(localStorage.getItem('stratos-cosmos-opacity') || '1');
         const density = parseFloat(localStorage.getItem('stratos-cosmos-density') || '1');
 
+        const curPreset = localStorage.getItem('stratos-cosmos-preset') || 'P1';
         section.innerHTML = `
-            <div class="te-group-label">Solar System</div>
+            <div class="te-group-label" style="display:flex;align-items:center;justify-content:space-between;">
+                Solar System
+                <div style="display:flex;gap:4px;">
+                    <button class="te-cosmos-preset-btn" data-preset="P1" onclick="setCosmosPreset('P1');window._themeEditor._buildCosmosControls(document.getElementById('te-body'))" style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px;cursor:pointer;border:1px solid ${curPreset==='P1'?'var(--accent)':'var(--border-strong)'};color:${curPreset==='P1'?'var(--accent)':'var(--text-muted)'};background:${curPreset==='P1'?'rgba(var(--accent-rgb,52,211,153),0.12)':'transparent'};" title="Classic flat solar system">P1</button>
+                    <button class="te-cosmos-preset-btn" data-preset="P2" onclick="setCosmosPreset('P2');window._themeEditor._buildCosmosControls(document.getElementById('te-body'))" style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px;cursor:pointer;border:1px solid ${curPreset==='P2'?'var(--accent)':'var(--border-strong)'};color:${curPreset==='P2'?'var(--accent)':'var(--text-muted)'};background:${curPreset==='P2'?'rgba(var(--accent-rgb,52,211,153),0.12)':'transparent'};" title="Tilted perspective solar system">P2</button>
+                </div>
+            </div>
             <div style="display:flex;gap:12px;align-items:flex-start;">
                 <div style="flex:0 0 auto;">
                     <label class="te-color-label" style="margin-bottom:4px;display:block;">Position</label>
@@ -867,6 +874,10 @@
                     _buildThemeElementControls(document.getElementById('te-body'));
                 }
             }, 50);
+        },
+
+        _buildCosmosControls(body) {
+            _buildCosmosControls(body);
         },
 
         _resetCosmosPos() {
