@@ -453,7 +453,15 @@ function escAgent(s) {
 
 // Markdown-style formatting for agent responses with smart color highlighting
 function formatAgentText(text) {
-    let html = text
+    // Extract fenced code blocks before escaping HTML
+    const codeBlocks = [];
+    let processed = text.replace(/```(\w*)\n([\s\S]*?)```/g, (_, lang, code) => {
+        const idx = codeBlocks.length;
+        codeBlocks.push({ lang, code: code.replace(/\n$/, '') });
+        return `\x00CODEBLOCK_${idx}\x00`;
+    });
+
+    let html = processed
         .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
         // Bold
         .replace(/\*\*(.+?)\*\*/g, '<strong class="text-slate-100">$1</strong>')
@@ -518,6 +526,15 @@ function formatAgentText(text) {
         const re = new RegExp(`(?<!<[^>]*)\\b(${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})\\b(?![^<]*>)`, 'g');
         html = html.replace(re, '<span class="text-slate-100">$1</span>');
     });
+
+    // Re-inject fenced code blocks
+    codeBlocks.forEach((block, i) => {
+        const escaped = block.code.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+        const langBadge = block.lang ? `<span class="absolute top-1.5 right-2 text-[9px] font-mono" style="color:var(--text-muted);opacity:0.5;">${block.lang}</span>` : '';
+        html = html.replace(`\x00CODEBLOCK_${i}\x00`,
+            `<div class="relative my-2 rounded-lg overflow-hidden" style="background:rgba(0,0,0,0.3);border:1px solid var(--border-strong);">${langBadge}<pre class="p-3 overflow-x-auto text-[11px] leading-relaxed font-mono" style="color:#e2e8f0;"><code>${escaped}</code></pre></div>`);
+    });
+
     return html;
 }
 
