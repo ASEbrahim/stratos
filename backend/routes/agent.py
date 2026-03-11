@@ -727,7 +727,14 @@ def handle_agent_chat(handler, strat, output_file, profile_id=0):
         user_msg = body.get("message", "").strip()
         history = body.get("history", [])
         free_mode = body.get("mode") == "free"
-        persona_name = body.get("persona", "intelligence")
+        # Support single persona or multi-persona querying
+        personas_param = body.get("personas", body.get("persona", "intelligence"))
+        if isinstance(personas_param, list) and len(personas_param) > 1:
+            multi_personas = personas_param[:3]  # Max 3 for context budget
+            persona_name = multi_personas[0]  # Primary persona
+        else:
+            multi_personas = None
+            persona_name = personas_param if isinstance(personas_param, str) else personas_param[0] if isinstance(personas_param, list) else "intelligence"
         if not user_msg:
             raise ValueError("Empty message")
 
@@ -747,15 +754,36 @@ def handle_agent_chat(handler, strat, output_file, profile_id=0):
 
         # Build persona-specific prompt and context
         persona_config = get_persona_config(persona_name)
-        base_prompt = build_persona_prompt(
-            persona_name, role, location, tickers, cat_summary, search_note
-        )
-        persona_context = build_persona_context(
-            persona_name, strat, output_file, profile_id
-        )
-        system_prompt = base_prompt
-        if persona_context:
-            system_prompt += f"\n\n{persona_context}"
+        if multi_personas:
+            # Multi-persona mode: merge contexts and tools from all selected personas
+            base_prompt = build_persona_prompt(
+                persona_name, role, location, tickers, cat_summary, search_note
+            )
+            # Merge contexts from all personas
+            context_parts = []
+            merged_tools = set()
+            for p in multi_personas:
+                p_config = get_persona_config(p)
+                merged_tools.update(p_config['tools'])
+                ctx = build_persona_context(p, strat, output_file, profile_id)
+                if ctx:
+                    context_parts.append(f"[{p.upper()} DATA]\n{ctx}")
+            persona_config = {**persona_config, 'tools': list(merged_tools)}
+            # Add cross-persona note to prompt
+            other_names = [p for p in multi_personas if p != persona_name]
+            system_prompt = base_prompt + f"\n\nYou also have context from: {', '.join(other_names)}. Use all available data to answer."
+            if context_parts:
+                system_prompt += "\n\n" + "\n\n".join(context_parts)
+        else:
+            base_prompt = build_persona_prompt(
+                persona_name, role, location, tickers, cat_summary, search_note
+            )
+            persona_context = build_persona_context(
+                persona_name, strat, output_file, profile_id
+            )
+            system_prompt = base_prompt
+            if persona_context:
+                system_prompt += f"\n\n{persona_context}"
 
         # Keyword-triggered history search
         _triggers = ['history','last week','past','before','trend','used to','earlier','previously','been','lately']
