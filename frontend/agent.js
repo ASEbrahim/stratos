@@ -57,31 +57,10 @@ function _autoResizeAgentInput(el) {
     el.style.height = Math.min(el.scrollHeight, 96) + 'px';
 }
 
+// Mode toggle removed — always use structured mode with tools.
+// Free mode added confusion without meaningful value (Problems 6 & 7).
 function toggleAgentMode() {
-    agentMode = agentMode === 'structured' ? 'free' : 'structured';
-    const btn = document.getElementById('agent-mode-btn');
-    const input = document.getElementById('agent-input');
-    if (agentMode === 'free') {
-        if (btn) {
-            btn.title = 'Free chat mode (no tools)';
-            btn.style.background = 'rgba(99,102,241,0.1)';
-            btn.style.color = '#818cf8';
-            btn.style.borderColor = 'rgba(99,102,241,0.2)';
-            btn.innerHTML = '<i data-lucide="message-circle" class="w-3.5 h-3.5"></i>';
-        }
-        if (input) input.placeholder = 'Free chat — no tools, just conversation...';
-    } else {
-        if (btn) {
-            btn.title = 'Structured mode (tools enabled)';
-            btn.style.background = 'rgba(16,185,129,0.1)';
-            btn.style.color = 'var(--accent,#34d399)';
-            btn.style.borderColor = 'rgba(16,185,129,0.2)';
-            btn.innerHTML = '<i data-lucide="wrench" class="w-3.5 h-3.5"></i>';
-        }
-        if (input) input.placeholder = 'Ask anything, search the web, manage tickers...';
-    }
-    lucide.createIcons();
-    if (typeof showToast === 'function') showToast(agentMode === 'free' ? 'Free chat mode' : 'Structured mode (tools)', 'info');
+    // No-op: structured mode is always active
 }
 
 const PERSONA_SUBTITLES = {
