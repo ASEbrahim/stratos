@@ -105,6 +105,16 @@ function switchPersona(name) {
     if (typeof updateScenarioBar === 'function') updateScenarioBar();
 }
 
+// ── Persona theme data ──
+const PERSONA_THEMES = {
+    intelligence: { icon: 'radar', color: '#34d399', bg: 'rgba(16,185,129,0.1)', label: 'Intelligence' },
+    market:       { icon: 'trending-up', color: '#60a5fa', bg: 'rgba(96,165,250,0.1)', label: 'Market' },
+    scholarly:    { icon: 'book-open', color: '#c084fc', bg: 'rgba(192,132,252,0.1)', label: 'Scholarly' },
+    gaming:       { icon: 'gamepad-2', color: '#f472b6', bg: 'rgba(244,114,182,0.1)', label: 'Gaming' },
+    anime:        { icon: 'sparkles', color: '#fb923c', bg: 'rgba(251,146,60,0.1)', label: 'Anime' },
+    tcg:          { icon: 'layers', color: '#fbbf24', bg: 'rgba(251,191,36,0.1)', label: 'TCG' },
+};
+
 // ── Multi-Persona Picker ──
 function _togglePersonaPicker() {
     const dd = document.getElementById('persona-picker-dropdown');
@@ -134,12 +144,14 @@ function _renderPersonaPicker() {
     dd.innerHTML = personas.map(p => {
         const checked = selectedPersonas.includes(p.name);
         const disabled = !checked && selectedPersonas.length >= 3;
-        const label = p.name.charAt(0).toUpperCase() + p.name.slice(1);
+        const theme = PERSONA_THEMES[p.name] || PERSONA_THEMES.intelligence;
         return `<label class="flex items-center gap-2 px-2 py-1.5 rounded-md cursor-pointer transition-colors text-[10px] ${disabled ? 'opacity-40' : ''}" style="color:var(--text-secondary)" onmouseenter="this.style.background='var(--bg-hover)'" onmouseleave="this.style.background='transparent'">
-            <input type="checkbox" ${checked ? 'checked' : ''} ${disabled ? 'disabled' : ''} value="${p.name}" onchange="_onPersonaCheckChange(this)" class="accent-emerald-500" style="width:12px;height:12px;">
-            <span>${label}</span>
+            <input type="checkbox" ${checked ? 'checked' : ''} ${disabled ? 'disabled' : ''} value="${p.name}" onchange="_onPersonaCheckChange(this)" style="width:12px;height:12px;accent-color:${theme.color};">
+            <i data-lucide="${theme.icon}" class="w-3 h-3" style="color:${theme.color};"></i>
+            <span>${theme.label}</span>
         </label>`;
     }).join('');
+    lucide.createIcons();
 }
 
 function _onPersonaCheckChange(cb) {
@@ -179,9 +191,20 @@ function _updatePersonaPickerLabel() {
     const label = document.getElementById('persona-picker-label');
     if (!label) return;
     if (selectedPersonas.length === 1) {
-        label.textContent = selectedPersonas[0].charAt(0).toUpperCase() + selectedPersonas[0].slice(1);
+        const theme = PERSONA_THEMES[selectedPersonas[0]] || PERSONA_THEMES.intelligence;
+        label.innerHTML = `<span style="color:${theme.color};">${theme.label}</span>`;
     } else {
-        label.textContent = selectedPersonas.map(p => p.charAt(0).toUpperCase() + p.slice(1)).join(' + ');
+        label.innerHTML = selectedPersonas.map(p => {
+            const t = PERSONA_THEMES[p] || PERSONA_THEMES.intelligence;
+            return `<span class="px-1 py-0.5 rounded" style="background:${t.bg};color:${t.color};">${t.label}</span>`;
+        }).join(' ');
+    }
+    // Update the picker button border to match primary persona
+    const btn = label.closest('button');
+    const primaryTheme = PERSONA_THEMES[selectedPersonas[0]] || PERSONA_THEMES.intelligence;
+    if (btn) {
+        btn.style.borderColor = primaryTheme.color + '30';
+        btn.style.background = primaryTheme.bg;
     }
 }
 
@@ -199,21 +222,58 @@ async function loadPersonas() {
 }
 
 // ── Clickable suggestion chips (dynamically generated from profile) ──
-const _GENERIC_SUGGESTIONS = [
-    "What are today's top stories?",
-    "What's the most critical alert right now?",
-    "Summarize today's news in 3 bullets",
-    "What should I pay attention to today?",
-    "How are the markets doing?",
-    "Which assets are up and which are down?",
-    "What's the single best signal for me?",
-    "Anything I should be concerned about?",
-    "What trends am I seeing this week?",
-    "What are the top picks and why?",
-];
+const _PERSONA_SUGGESTIONS = {
+    intelligence: [
+        "What are today's top stories?",
+        "What's the most critical alert right now?",
+        "Summarize today's news in 3 bullets",
+        "What should I pay attention to today?",
+        "What's the single best signal for me?",
+        "Anything I should be concerned about?",
+        "What trends am I seeing this week?",
+    ],
+    market: [
+        "How are the markets doing?",
+        "Which assets are up and which are down?",
+        "Show my watchlist",
+        "Compare BTC and ETH performance",
+        "What are the top movers today?",
+        "Any earnings reports coming up?",
+        "What's the market sentiment?",
+    ],
+    scholarly: [
+        "Tell me about the history of Baghdad",
+        "Explain the concept of dialectics",
+        "What are the key schools of Islamic philosophy?",
+        "Summarize Plato's Republic",
+        "Compare Sunni and Shia jurisprudence",
+        "What were the causes of WWI?",
+    ],
+    gaming: [
+        "What are the top gaming deals right now?",
+        "Any new game releases this week?",
+        "What's trending on Steam?",
+        "Best indie games of this year",
+        "Compare PS5 vs Xbox Series X specs",
+    ],
+    anime: [
+        "What anime is airing this season?",
+        "Top rated manga this year",
+        "Recommend something like Attack on Titan",
+        "What's new on Crunchyroll?",
+    ],
+    tcg: [
+        "What are the most valuable Pokémon cards?",
+        "Latest Magic: The Gathering sets",
+        "Yu-Gi-Oh meta decks right now",
+        "Best TCG investments this month",
+    ],
+};
+const _GENERIC_SUGGESTIONS = _PERSONA_SUGGESTIONS.intelligence;
 
 function _buildDynamicSuggestions() {
-    const suggestions = [..._GENERIC_SUGGESTIONS];
+    const personaSugs = _PERSONA_SUGGESTIONS[currentPersona] || _PERSONA_SUGGESTIONS.intelligence;
+    const suggestions = [...personaSugs];
     try {
         // Ticker management hints
         suggestions.push("Show my tickers");
