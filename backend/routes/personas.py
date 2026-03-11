@@ -497,6 +497,310 @@ def build_persona_prompt(persona: str, role: str, location: str,
         return _stub_prompt(persona, role, location, tickers, cat_summary, search_note)
 
 
+# ═══════════════════════════════════════════════════════════
+# SMART CONTEXT PACKING (Sprint 5K Phase 4)
+# ═══════════════════════════════════════════════════════════
+
+def _estimate_tokens(text: str) -> int:
+    """Estimate token count: word count * 1.3."""
+    return int(len(text.split()) * 1.3) if text else 0
+
+
+def _get_profile_context(strat, profile_id: int) -> str:
+    """Role, location, user_context from profile config. ~200 tokens."""
+    profile = strat.config.get("profile", {})
+    role = profile.get("role", "")
+    location = profile.get("location", "")
+    context = profile.get("context", "")
+    if not any([role, location, context]):
+        return ""
+    lines = ["## Your User Profile"]
+    if role:
+        lines.append(f"Role: {role}")
+    if location:
+        lines.append(f"Location: {location}")
+    if context:
+        lines.append(f"Context: {context}")
+    return "\n".join(lines)
+
+
+def _get_persona_custom_context(strat, profile_id: int, persona: str) -> str:
+    """User-edited system_context from persona_context table."""
+    try:
+        cursor = strat.db.conn.cursor()
+        cursor.execute(
+            "SELECT content FROM persona_context WHERE profile_id = ? AND persona_name = ? AND context_key = 'system_context'",
+            (profile_id, persona)
+        )
+        row = cursor.fetchone()
+        if row:
+            content = dict(row).get('content', '')
+            if content.strip():
+                return f"## Custom Instructions\n{content.strip()}"
+    except Exception:
+        pass
+    return ""
+
+
+def _get_preference_signals(strat, profile_id: int, persona: str) -> str:
+    """Read user_preference_signals for this persona. ~200 tokens."""
+    try:
+        cursor = strat.db.conn.cursor()
+        cursor.execute(
+            "SELECT signal_type, signal_key, signal_weight FROM user_preference_signals "
+            "WHERE profile_id = ? AND (persona_source = ? OR persona_source = 'global') "
+            "ORDER BY signal_weight DESC LIMIT 20",
+            (profile_id, persona)
+        )
+        signals = [dict(r) for r in cursor.fetchall()]
+        if not signals:
+            return ""
+        lines = ["## Your Preferences"]
+        for s in signals:
+            lines.append(f"- {s['signal_type']}: {s['signal_key']} (importance: {s['signal_weight']:.1f})")
+        return "\n".join(lines)
+    except Exception:
+        return ""
+
+
+def _get_recent_feed(strat, profile_id: int, limit: int = 10) -> str:
+    """Top scored articles from last 24h. ~1000 tokens."""
+    try:
+        cursor = strat.db.conn.cursor()
+        cursor.execute(
+            "SELECT title, score, source, category FROM news_items "
+            "WHERE profile_id = ? AND fetched_at > datetime('now', '-1 day') "
+            "ORDER BY score DESC LIMIT ?",
+            (profile_id, limit)
+        )
+        articles = [dict(r) for r in cursor.fetchall()]
+        if not articles:
+            return ""
+        lines = ["## Recent Feed Intelligence (last 24h)"]
+        for a in articles:
+            lines.append(f"- [{a['score']:.1f}] {a['title']} ({a['source']}, {a['category']})")
+        return "\n".join(lines)
+    except Exception:
+        return ""
+
+
+def _get_feedback_summary(strat, profile_id: int) -> str:
+    """What the user has saved/rated highly. ~300 tokens."""
+    try:
+        cursor = strat.db.conn.cursor()
+        cursor.execute(
+            "SELECT title, action, user_score FROM user_feedback "
+            "WHERE profile_id = ? AND action IN ('save', 'rate') AND (user_score IS NULL OR user_score >= 7) "
+            "ORDER BY created_at DESC LIMIT 8",
+            (profile_id,)
+        )
+        rows = [dict(r) for r in cursor.fetchall()]
+        if not rows:
+            return ""
+        lines = ["## Your Saved/Highly-Rated Articles"]
+        for r in rows:
+            score_str = f" (rated {r['user_score']:.0f})" if r.get('user_score') else ""
+            lines.append(f"- {r['title']}{score_str}")
+        return "\n".join(lines)
+    except Exception:
+        return ""
+
+
+def _get_file_summaries(strat, profile_id: int, persona: str) -> str:
+    """List of uploaded files with content preview. ~500 tokens."""
+    try:
+        cursor = strat.db.conn.cursor()
+        cursor.execute(
+            "SELECT filename, file_type, SUBSTR(content_text, 1, 100) as preview FROM user_files "
+            "WHERE profile_id = ? AND (persona = ? OR persona = '') ORDER BY uploaded_at DESC LIMIT 10",
+            (profile_id, persona)
+        )
+        files = [dict(r) for r in cursor.fetchall()]
+        if not files:
+            return ""
+        lines = ["## Your Document Library"]
+        for f in files:
+            preview = f['preview'].replace('\n', ' ')[:80] if f.get('preview') else ''
+            suffix = f": {preview}..." if preview else ""
+            lines.append(f"- {f['filename']} ({f['file_type']}){suffix}")
+        return "\n".join(lines)
+    except Exception:
+        return ""
+
+
+def _get_youtube_knowledge(strat, profile_id: int) -> str:
+    """Tracked channels and recent insights. ~1000 tokens."""
+    try:
+        cursor = strat.db.conn.cursor()
+        cursor.execute(
+            "SELECT id, channel_name FROM youtube_channels WHERE profile_id = ?",
+            (profile_id,)
+        )
+        channels = [dict(r) for r in cursor.fetchall()]
+        if not channels:
+            return ""
+        lines = ["## YouTube Knowledge Base"]
+        for ch in channels:
+            lines.append(f"\n### {ch['channel_name']}")
+            cursor.execute(
+                "SELECT id, title FROM youtube_videos WHERE channel_id = ? AND status = 'complete' "
+                "ORDER BY processed_at DESC LIMIT 3",
+                (ch['id'],)
+            )
+            videos = [dict(r) for r in cursor.fetchall()]
+            for v in videos:
+                lines.append(f"- {v['title']}")
+                # Get summary lens if available
+                cursor.execute(
+                    "SELECT content FROM video_insights WHERE video_id = ? AND lens_name = 'summary' LIMIT 1",
+                    (v['id'],)
+                )
+                summary_row = cursor.fetchone()
+                if summary_row:
+                    content = dict(summary_row).get('content', '')
+                    if content:
+                        # Parse JSON content if needed
+                        try:
+                            parsed = json.loads(content) if isinstance(content, str) and content.startswith('{') else content
+                            if isinstance(parsed, dict):
+                                content = parsed.get('summary', str(parsed))[:200]
+                            else:
+                                content = str(content)[:200]
+                        except Exception:
+                            content = str(content)[:200]
+                        lines.append(f"  Summary: {content}...")
+        return "\n".join(lines)
+    except Exception as e:
+        logger.debug(f"YouTube knowledge context error: {e}")
+        return ""
+
+
+def _get_active_scenario(strat, profile_id: int) -> str:
+    """Full gaming scenario: state + world + characters. ~2000 tokens."""
+    try:
+        cursor = strat.db.conn.cursor()
+        cursor.execute(
+            "SELECT name, description, state_md, world_md, characters_json, genre "
+            "FROM scenarios WHERE profile_id = ? AND is_active = 1 LIMIT 1",
+            (profile_id,)
+        )
+        row = cursor.fetchone()
+        if not row:
+            return ""
+        s = dict(row)
+        parts = [f"## Active Scenario: {s['name']}"]
+        if s.get('genre'):
+            parts.append(f"Genre: {s['genre']}")
+        if s.get('description'):
+            parts.append(f"Description: {s['description']}")
+        if s.get('world_md'):
+            parts.append(f"\n### World\n{s['world_md'][:1500]}")
+        if s.get('characters_json'):
+            try:
+                chars = json.loads(s['characters_json']) if isinstance(s['characters_json'], str) else s['characters_json']
+                if isinstance(chars, list) and chars:
+                    parts.append("\n### Characters")
+                    for c in chars[:5]:
+                        if isinstance(c, dict):
+                            parts.append(f"- {c.get('name', '???')}: {c.get('description', '')[:100]}")
+                        else:
+                            parts.append(f"- {str(c)[:100]}")
+            except Exception:
+                pass
+        if s.get('state_md'):
+            parts.append(f"\n### Current State\n{s['state_md'][:1000]}")
+        return "\n".join(parts)
+    except Exception:
+        return ""
+
+
+def _get_market_articles(strat, profile_id: int, limit: int = 5) -> str:
+    """Top finance/market category articles. ~500 tokens."""
+    try:
+        cursor = strat.db.conn.cursor()
+        cursor.execute(
+            "SELECT title, score, source FROM news_items "
+            "WHERE profile_id = ? AND LOWER(category) IN ('finance', 'markets', 'economy', 'crypto', 'banks') "
+            "AND fetched_at > datetime('now', '-2 days') ORDER BY score DESC LIMIT ?",
+            (profile_id, limit)
+        )
+        articles = [dict(r) for r in cursor.fetchall()]
+        if not articles:
+            return ""
+        lines = ["## Recent Market News"]
+        for a in articles:
+            lines.append(f"- [{a['score']:.1f}] {a['title']} ({a['source']})")
+        return "\n".join(lines)
+    except Exception:
+        return ""
+
+
+def _pack_context(persona_name: str, strat, output_file: str,
+                  profile_id: int, max_tokens: int = 16000) -> str:
+    """Build the richest possible context that fits in max_tokens.
+
+    Token estimation: word count * 1.3
+    Budget: 16,000 tokens. Qwen3.5:9b has 32K context.
+    Tool definitions ~2K + conversation history ~3K + response ~2K = 7K used.
+    Leaves 25K, so 16K for context is conservative and safe.
+    """
+    sections = []
+
+    # Universal: always include (highest priority)
+    sections.append(('profile', _get_profile_context(strat, profile_id)))
+    sections.append(('custom_context', _get_persona_custom_context(strat, profile_id, persona_name)))
+    sections.append(('preferences', _get_preference_signals(strat, profile_id, persona_name)))
+
+    # Persona-specific data (fills remaining budget)
+    if persona_name == 'intelligence':
+        # Existing rich context builders
+        news = _build_news_context(strat, output_file)
+        hist = _build_historical_context(strat, profile_id)
+        sections.append(('feed_data', f"CURRENT FEED DATA:\n{news}" if news else ''))
+        sections.append(('historical', f"HISTORICAL DATA:\n{hist}" if hist else ''))
+        sections.append(('recent_feed', _get_recent_feed(strat, profile_id, limit=10)))
+        sections.append(('feedback', _get_feedback_summary(strat, profile_id)))
+
+    elif persona_name == 'scholarly':
+        scholarly = _build_scholarly_context(strat, profile_id)
+        sections.append(('scholarly_data', scholarly))
+        sections.append(('files', _get_file_summaries(strat, profile_id, 'scholarly')))
+        sections.append(('youtube', _get_youtube_knowledge(strat, profile_id)))
+
+    elif persona_name == 'market':
+        market = _build_market_context(strat, output_file)
+        sections.append(('market_data', market))
+        sections.append(('market_news', _get_market_articles(strat, profile_id, limit=5)))
+
+    elif persona_name == 'gaming':
+        games = _build_games_context(strat, profile_id)
+        sections.append(('games_data', games))
+        sections.append(('scenario', _get_active_scenario(strat, profile_id)))
+        sections.append(('files', _get_file_summaries(strat, profile_id, 'gaming')))
+
+    # Pack into prompt, respecting token budget
+    prompt_parts = []
+    token_count = 0
+    for label, content in sections:
+        if not content:
+            continue
+        section_tokens = _estimate_tokens(content)
+        if token_count + section_tokens > max_tokens:
+            # Try to fit a truncated version
+            remaining_tokens = max_tokens - token_count
+            if remaining_tokens > 100:
+                # Rough truncation: ~0.77 words per token, ~5 chars per word
+                max_chars = int(remaining_tokens / 1.3 * 5)
+                truncated = content[:max_chars].rsplit('\n', 1)[0]
+                if truncated:
+                    prompt_parts.append(truncated + "\n[...truncated...]")
+            break
+        prompt_parts.append(content)
+        token_count += section_tokens
+
+    return '\n\n'.join(prompt_parts)
+
+
 def _load_state_md(strat, profile_id: int, persona_name: str) -> str:
     """Load state.md for a persona if it exists."""
     try:
@@ -512,22 +816,9 @@ def _load_state_md(strat, profile_id: int, persona_name: str) -> str:
 
 def build_persona_context(persona: str, strat, output_file: str,
                           profile_id: int = 0) -> str:
-    """Build context data for the given persona."""
+    """Build context data for the given persona using smart context packing."""
     state = _load_state_md(strat, profile_id, persona)
-
-    if persona == 'intelligence':
-        news = _build_news_context(strat, output_file)
-        hist = _build_historical_context(strat, profile_id)
-        ctx = f"CURRENT FEED DATA:\n{news[:5000]}\n\nHISTORICAL DATA:\n{hist[:3000]}"
-    elif persona == 'market':
-        market = _build_market_context(strat, output_file)
-        ctx = f"{market[:6000]}"
-    elif persona == 'scholarly':
-        ctx = _build_scholarly_context(strat, profile_id)
-    elif persona == 'gaming':
-        ctx = _build_games_context(strat, profile_id)
-    else:
-        ctx = ""  # Stub personas have no data
+    ctx = _pack_context(persona, strat, output_file, profile_id)
 
     if state:
         ctx = f"{state}\n\n{ctx}" if ctx else state
