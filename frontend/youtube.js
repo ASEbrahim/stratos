@@ -326,8 +326,9 @@ function _ytRenderLens(index) {
     const ins = _ytInsights[index];
     const lens = ins.lens_name || 'unknown';
     let data;
-    try { data = typeof ins.data === 'string' ? JSON.parse(ins.data) : ins.data; }
-    catch (e) { data = ins.data; }
+    const raw = ins.content || ins.data;
+    try { data = typeof raw === 'string' ? JSON.parse(raw) : raw; }
+    catch (e) { data = raw; }
 
     if (lens === 'summary') {
         content.innerHTML = _ytRenderSummary(data);
