@@ -432,8 +432,7 @@ select:hover { border-color: var(--text-muted) !important; }
 }
 .customize-pulse { animation: customizePulse 2.5s ease-in-out 3; }
 
-/* F3: Agent fullscreen mode */
-/* Agent panel transition for fullscreen */
+/* F3: Agent fullscreen mode — Claude/ChatGPT-like layout */
 #agent-panel {
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -444,20 +443,30 @@ select:hover { border-color: var(--text-muted) !important; }
     margin: 0 !important;
     padding: 0;
     background: var(--bg-app, #0f172a);
-    display: flex;
-    flex-direction: column;
     border-radius: 0 !important;
 }
-.agent-fullscreen > .rounded-xl {
+.agent-fullscreen > .agent-fs-wrapper {
+    display: flex;
+    height: 100%;
+    width: 100%;
+}
+.agent-fullscreen > .agent-fs-wrapper > .rounded-xl {
     flex: 1;
     display: flex;
     flex-direction: column;
-    max-width: 800px;
+    max-width: 860px;
     margin: 0 auto;
     width: 100%;
     border-radius: 0;
     border: none;
     background: transparent;
+}
+.agent-fullscreen .agent-fs-sidebar {
+    animation: slideInLeft 0.25s ease;
+}
+@keyframes slideInLeft {
+    from { transform: translateX(-20px); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
 }
 .agent-fullscreen #agent-body {
     flex: 1;
@@ -468,18 +477,24 @@ select:hover { border-color: var(--text-muted) !important; }
     flex: 1;
     max-height: none !important;
     height: auto !important;
-    padding: 24px 16px;
+    padding: 24px 20px;
 }
 .agent-fullscreen .agent-bubble-ai,
 .agent-fullscreen .agent-bubble-user {
     max-width: 90%;
 }
+/* Hide the compact header buttons in fullscreen (sidebar replaces them) */
+.agent-fullscreen #agent-conv-tabs { display: none !important; }
 /* Hide sidebar and main content behind fullscreen agent */
 .agent-fullscreen ~ *,
 body:has(.agent-fullscreen) #sidebar,
 body:has(.agent-fullscreen) #main-content {
     pointer-events: none;
 }
+/* Sidebar scrollbar styling */
+.agent-fs-sidebar::-webkit-scrollbar { width: 4px; }
+.agent-fs-sidebar::-webkit-scrollbar-track { background: transparent; }
+.agent-fs-sidebar::-webkit-scrollbar-thumb { background: rgba(100,116,139,0.2); border-radius: 2px; }
 
 /* ── Agent option buttons: touch-friendly ── */
 .agent-option-btn {
@@ -923,6 +938,8 @@ input::placeholder, textarea::placeholder {
     #adv-grid { grid-template-columns: 1fr !important; }
     /* News source tabs smaller */
     #settings-sources button { padding: 0.375rem 0.75rem; font-size: 0.625rem; }
+    /* Agent fullscreen sidebar hidden on mobile */
+    .agent-fs-sidebar { display: none !important; }
 }
 
 /* Tablets (769px–1024px) */

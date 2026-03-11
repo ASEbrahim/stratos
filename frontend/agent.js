@@ -1271,6 +1271,100 @@ function _openAgentPanel() {
 }
 
 var _agentFullscreen = false;
+var _agentFsSidebarOpen = true;
+
+function _buildFsSidebar() {
+    const theme = PERSONA_THEMES[currentPersona] || PERSONA_THEMES.intelligence;
+    const modelName = document.getElementById('agent-model-badge')?.textContent || 'qwen3.5:9b';
+    // Build conversation list
+    const convItems = _agentConvList.map(c => {
+        const active = c.id === _agentActiveConvId;
+        const title = (c.title || 'New Chat').length > 28 ? (c.title || 'New Chat').slice(0, 26) + '…' : (c.title || 'New Chat');
+        return `<div class="group flex items-center gap-2 px-3 py-2 rounded-lg cursor-pointer transition-all ${active ? 'fs-conv-active' : ''}" style="background:${active ? 'rgba(255,255,255,0.06)' : 'transparent'};" onclick="_switchConversation(${c.id})" onmouseenter="if(!${active})this.style.background='rgba(255,255,255,0.03)'" onmouseleave="if(!${active})this.style.background='${active ? 'rgba(255,255,255,0.06)' : 'transparent'}'">
+            <i data-lucide="message-square" class="w-3.5 h-3.5 flex-shrink-0" style="color:${active ? theme.color : 'var(--text-muted)'};"></i>
+            <span class="flex-1 text-[11px] truncate" style="color:${active ? 'var(--text-heading)' : 'var(--text-muted)'};">${escAgent(title)}</span>
+            ${_agentConvList.length > 1 ? `<span onclick="event.stopPropagation();_deleteConversation(${c.id})" class="opacity-0 group-hover:opacity-100 p-0.5 rounded transition-all" style="color:var(--text-muted);" title="Delete chat" onmouseenter="this.style.color='#f87171'" onmouseleave="this.style.color='var(--text-muted)'"><i data-lucide="trash-2" class="w-3 h-3"></i></span>` : ''}
+        </div>`;
+    }).join('');
+    // Build persona options
+    const personaItems = Object.entries(PERSONA_THEMES).map(([key, t]) => {
+        const active = key === currentPersona;
+        return `<button onclick="switchPersona('${key}');_refreshFsSidebar()" class="flex items-center gap-2 w-full px-2 py-1.5 rounded-md text-left transition-all" style="background:${active ? t.bg : 'transparent'};color:${active ? t.color : 'var(--text-muted)'};" onmouseenter="if(!${active})this.style.background='rgba(255,255,255,0.03)'" onmouseleave="if(!${active})this.style.background='${active ? t.bg : 'transparent'}'">
+            <i data-lucide="${t.icon}" class="w-3.5 h-3.5"></i>
+            <span class="text-[11px] font-medium">${t.label}</span>
+        </button>`;
+    }).join('');
+
+    return `
+    <div class="agent-fs-sidebar" style="width:260px;min-width:260px;height:100%;display:flex;flex-direction:column;background:var(--bg-panel-solid,#0f172a);border-right:1px solid var(--border-strong);">
+        <!-- New Chat button -->
+        <div class="px-3 pt-3 pb-2">
+            <button onclick="newAgentChat();_refreshFsSidebar()" class="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-[11px] font-medium transition-all" style="border:1px solid var(--border-strong);color:var(--text-heading);background:rgba(255,255,255,0.02);" onmouseenter="this.style.borderColor='${theme.color}';this.style.background='${theme.bg}'" onmouseleave="this.style.borderColor='var(--border-strong)';this.style.background='rgba(255,255,255,0.02)'">
+                <i data-lucide="plus" class="w-4 h-4"></i> New Chat
+            </button>
+        </div>
+        <!-- Persona selector -->
+        <div class="px-3 pb-2">
+            <div class="text-[9px] font-bold uppercase tracking-wider mb-1.5 px-1" style="color:var(--text-muted);">Persona</div>
+            <div class="space-y-0.5">${personaItems}</div>
+        </div>
+        <div class="mx-3 mb-2" style="height:1px;background:var(--border-strong);"></div>
+        <!-- Conversation list -->
+        <div class="flex-1 overflow-y-auto px-2" style="scrollbar-width:thin;">
+            <div class="text-[9px] font-bold uppercase tracking-wider mb-1.5 px-1" style="color:var(--text-muted);">Chats</div>
+            <div class="space-y-0.5">${convItems}</div>
+        </div>
+        <div class="mx-3 my-1" style="height:1px;background:var(--border-strong);"></div>
+        <!-- Bottom actions -->
+        <div class="px-3 pb-3 pt-1 space-y-1">
+            <div class="flex items-center gap-1">
+                <button onclick="importAgentChat()" class="flex-1 flex items-center gap-1.5 px-2 py-1.5 rounded-md text-[10px] transition-all" style="color:var(--text-muted);border:1px solid transparent;" title="Import chat" onmouseenter="this.style.background='rgba(255,255,255,0.03)'" onmouseleave="this.style.background='transparent'">
+                    <i data-lucide="upload" class="w-3.5 h-3.5"></i> Import
+                </button>
+                <button onclick="exportAgentChat()" class="flex-1 flex items-center gap-1.5 px-2 py-1.5 rounded-md text-[10px] transition-all" style="color:var(--text-muted);border:1px solid transparent;" title="Export chat" onmouseenter="this.style.background='rgba(255,255,255,0.03)'" onmouseleave="this.style.background='transparent'">
+                    <i data-lucide="download" class="w-3.5 h-3.5"></i> Export
+                </button>
+            </div>
+            <div class="flex items-center gap-1">
+                <button onclick="toggleContextEditor()" class="flex-1 flex items-center gap-1.5 px-2 py-1.5 rounded-md text-[10px] transition-all" style="color:var(--text-muted);" title="Edit context" onmouseenter="this.style.background='rgba(255,255,255,0.03)'" onmouseleave="this.style.background='transparent'">
+                    <i data-lucide="file-cog" class="w-3.5 h-3.5"></i> Context
+                </button>
+                <button onclick="toggleFileBrowser()" class="flex-1 flex items-center gap-1.5 px-2 py-1.5 rounded-md text-[10px] transition-all" style="color:var(--text-muted);" title="Browse files" onmouseenter="this.style.background='rgba(255,255,255,0.03)'" onmouseleave="this.style.background='transparent'">
+                    <i data-lucide="folder-open" class="w-3.5 h-3.5"></i> Files
+                </button>
+            </div>
+            <div class="flex items-center gap-1">
+                <button onclick="clearAgentChat();_refreshFsSidebar()" class="flex-1 flex items-center gap-1.5 px-2 py-1.5 rounded-md text-[10px] transition-all" style="color:var(--text-muted);" title="Clear current chat" onmouseenter="this.style.color='#f87171';this.style.background='rgba(239,68,68,0.06)'" onmouseleave="this.style.color='var(--text-muted)';this.style.background='transparent'">
+                    <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Clear Chat
+                </button>
+                <button onclick="toggleAgentFullscreen()" class="flex-1 flex items-center gap-1.5 px-2 py-1.5 rounded-md text-[10px] transition-all" style="color:var(--text-muted);" title="Exit fullscreen" onmouseenter="this.style.background='rgba(255,255,255,0.03)'" onmouseleave="this.style.background='transparent'">
+                    <i data-lucide="minimize-2" class="w-3.5 h-3.5"></i> Collapse
+                </button>
+            </div>
+            <!-- Model badge -->
+            <div class="flex items-center gap-1.5 px-2 py-1.5 mt-1">
+                <i data-lucide="cpu" class="w-3 h-3" style="color:${theme.color};"></i>
+                <span class="text-[9px] font-mono" style="color:var(--text-muted);">${escAgent(modelName)}</span>
+            </div>
+        </div>
+    </div>`;
+}
+
+function _refreshFsSidebar() {
+    if (!_agentFullscreen) return;
+    const existing = document.querySelector('.agent-fs-sidebar');
+    if (!existing) return;
+    // Reload conv list and re-render
+    _loadConversations(currentPersona).then(() => {
+        const wrapper = existing.parentElement;
+        if (wrapper) {
+            existing.remove();
+            wrapper.insertAdjacentHTML('afterbegin', _buildFsSidebar());
+            lucide.createIcons();
+        }
+    });
+}
+
 function toggleAgentFullscreen() {
     const panel = document.getElementById('agent-panel');
     const msgs = document.getElementById('agent-messages');
@@ -1281,26 +1375,48 @@ function toggleAgentFullscreen() {
 
     if (_agentFullscreen) {
         _openAgentPanel();
-        // Store original dimensions for smooth reverse transition
         panel.dataset.origStyle = panel.getAttribute('style') || '';
         panel.classList.add('agent-fullscreen');
-        if (msgs) {
-            msgs.style.height = '';
-            msgs.style.maxHeight = 'none';
+
+        // Inject sidebar wrapper around existing content
+        const inner = panel.querySelector('.rounded-xl');
+        if (inner && !panel.querySelector('.agent-fs-sidebar')) {
+            // Wrap existing content in a flex container
+            const wrapper = document.createElement('div');
+            wrapper.className = 'agent-fs-wrapper';
+            wrapper.style.cssText = 'display:flex;height:100%;width:100%;';
+            panel.appendChild(wrapper);
+            wrapper.insertAdjacentHTML('afterbegin', _buildFsSidebar());
+            wrapper.appendChild(inner);
+            lucide.createIcons();
         }
+
+        if (msgs) { msgs.style.height = ''; msgs.style.maxHeight = 'none'; }
         if (btn) btn.title = 'Exit fullscreen (Esc)';
         const icon = btn?.querySelector('[data-lucide]');
         if (icon) { icon.setAttribute('data-lucide', 'minimize-2'); lucide.createIcons(); }
-        // Focus input for immediate typing
+        // Hide conversation tabs in main chat (sidebar replaces them)
+        const tabs = document.getElementById('agent-conv-tabs');
+        if (tabs) tabs.style.display = 'none';
         setTimeout(() => document.getElementById('agent-input')?.focus(), 300);
     } else {
+        // Remove sidebar wrapper, restore normal layout
+        const wrapper = panel.querySelector('.agent-fs-wrapper');
+        const inner = wrapper?.querySelector('.rounded-xl');
+        if (wrapper && inner) {
+            panel.appendChild(inner);
+            wrapper.remove();
+        }
         panel.classList.remove('agent-fullscreen');
         if (msgs) { msgs.style.height = '280px'; msgs.style.maxHeight = '600px'; }
         if (btn) btn.title = 'Fullscreen';
         const icon = btn?.querySelector('[data-lucide]');
         if (icon) { icon.setAttribute('data-lucide', 'maximize-2'); lucide.createIcons(); }
+        // Restore conversation tabs
+        const tabs = document.getElementById('agent-conv-tabs');
+        if (tabs) tabs.style.display = '';
+        _renderConvTabs();
     }
-    // Scroll to bottom after layout settles
     setTimeout(() => { if (msgs) msgs.scrollTop = msgs.scrollHeight; }, 100);
 }
 
