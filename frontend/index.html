@@ -910,6 +910,59 @@
                         </div>
                     </div>
 
+                    <!-- Workspace Export/Import -->
+                    <div class="glass-panel rounded-xl p-6" id="workspace-panel" data-stab="system">
+                        <h3 class="text-sm font-bold text-slate-200 mb-1 flex items-center gap-2">
+                            <i data-lucide="package" class="w-4 h-4" style="color:var(--accent)"></i> Profile Workspace
+                        </h3>
+                        <p class="text-xs text-slate-500 mb-3">Export/import your full profile — contexts, channels, signals, and files.</p>
+                        <div id="ws-stats-content" class="mb-4">
+                            <div class="text-[10px]" style="color:var(--text-muted)">Loading workspace stats...</div>
+                        </div>
+                        <div class="flex flex-wrap gap-2 mb-3">
+                            <button onclick="_wsExport()" class="px-3 py-2 rounded-lg text-xs font-medium flex items-center gap-2 transition-all" style="background:var(--accent);color:white;">
+                                <i data-lucide="download" class="w-3.5 h-3.5"></i> Export Profile
+                            </button>
+                            <div class="flex items-center gap-2">
+                                <select id="ws-import-strategy" class="text-[10px] px-2 py-2 rounded-lg" style="background:var(--bg-panel-solid);color:var(--text-secondary);border:1px solid var(--border-strong);">
+                                    <option value="merge">Merge</option>
+                                    <option value="replace">Replace All</option>
+                                    <option value="context_only">Context Only</option>
+                                </select>
+                                <label class="px-3 py-2 rounded-lg text-xs font-medium flex items-center gap-2 transition-all cursor-pointer" style="background:var(--bg-panel-solid);border:1px solid var(--border-strong);color:var(--text-secondary);">
+                                    <i data-lucide="upload" class="w-3.5 h-3.5"></i> Import Profile
+                                    <input type="file" class="hidden" accept=".zip" onchange="_wsImport(event)">
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Preference Signals -->
+                    <div class="glass-panel rounded-xl p-6" id="preference-signals-panel" data-stab="system">
+                        <h3 class="text-sm font-bold text-slate-200 mb-1 flex items-center gap-2">
+                            <i data-lucide="zap" class="w-4 h-4" style="color:var(--accent)"></i> Preference Signals
+                        </h3>
+                        <p class="text-xs text-slate-500 mb-3">Learned preferences across personas. Auto-generated from your interactions.</p>
+                        <div id="ws-signals-list" class="space-y-1.5 mb-3">
+                            <div class="text-[10px]" style="color:var(--text-muted)">Loading signals...</div>
+                        </div>
+                        <div class="flex gap-2">
+                            <select id="ws-signal-persona" class="text-[10px] px-2 py-1.5 rounded-lg" style="background:var(--bg-panel-solid);color:var(--text-secondary);border:1px solid var(--border-strong);">
+                                <option value="intelligence">Intelligence</option>
+                                <option value="market">Market</option>
+                                <option value="scholarly">Scholarly</option>
+                                <option value="gaming">Gaming</option>
+                            </select>
+                            <select id="ws-signal-type" class="text-[10px] px-2 py-1.5 rounded-lg" style="background:var(--bg-panel-solid);color:var(--text-secondary);border:1px solid var(--border-strong);">
+                                <option value="topic_interest">Topic Interest</option>
+                                <option value="keyword_boost">Keyword Boost</option>
+                                <option value="source_preference">Source Preference</option>
+                            </select>
+                            <input id="ws-signal-key" type="text" class="flex-1 text-[10px] px-2 py-1.5 rounded-lg" style="background:var(--bg-panel-solid);color:var(--text-secondary);border:1px solid var(--border-strong);" placeholder="Signal key (e.g., AI, Islamic history)">
+                            <button onclick="_wsAddSignal()" class="px-2 py-1.5 rounded-lg text-[10px] font-medium" style="background:var(--accent);color:white;">Add</button>
+                        </div>
+                    </div>
+
                     <!-- Data & Privacy -->
                     <div class="glass-panel rounded-xl p-6" id="data-privacy-panel" data-stab="system">
                         <h3 class="text-sm font-bold text-slate-200 mb-1 flex items-center gap-2">
@@ -1437,6 +1490,7 @@
     <script defer src="file-browser.js"></script>
     <script defer src="youtube.js"></script>
     <script defer src="games-ui.js"></script>
+    <script defer src="workspace.js"></script>
     <script defer src="agent.js"></script>
     <script defer src="ui.js"></script>
     <script defer src="scan-history.js"></script>

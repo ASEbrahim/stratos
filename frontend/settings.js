@@ -1753,6 +1753,8 @@ function switchSettingsTab(tabId) {
     }
     /* Load YouTube channels when YouTube tab shown */
     if (tabId === 'youtube' && typeof initYouTubePanel === 'function') initYouTubePanel();
+    /* Load workspace stats when system tab shown */
+    if (tabId === 'system' && typeof initWorkspacePanel === 'function') initWorkspacePanel();
     /* Show first-time tab tooltip */
     if (typeof _showTabTooltip === 'function') _showTabTooltip(tabId);
 }
