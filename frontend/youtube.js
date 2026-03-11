@@ -181,7 +181,7 @@ async function _ytToggleVideos(channelId) {
                     'pending': 'clock', 'failed': 'alert-circle',
                     'transcribing': 'mic', 'extracting': 'sparkles'
                 }[v.status] || 'clock';
-                const clickable = v.status === 'complete' ? `onclick="_ytShowInsights('${v.video_id}')" class="cursor-pointer"` : '';
+                const clickable = v.status === 'complete' ? `onclick="_ytShowInsights(${v.id})" class="cursor-pointer"` : '';
 
                 return `<div ${clickable} class="flex items-center gap-2 px-2 py-1.5 rounded-md transition-colors" onmouseenter="this.style.background='var(--bg-hover)'" onmouseleave="this.style.background='transparent'">
                     <i data-lucide="${statusIcon}" class="w-3 h-3 ${statusColor} flex-shrink-0${v.status === 'processing' ? ' animate-spin' : ''}"></i>
