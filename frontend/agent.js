@@ -84,21 +84,32 @@ function toggleAgentMode() {
     if (typeof showToast === 'function') showToast(agentMode === 'free' ? 'Free chat mode' : 'Structured mode (tools)', 'info');
 }
 
+const PERSONA_SUBTITLES = {
+    intelligence: 'Search the web, manage your feed, analyze signals',
+    market: 'Market data, price analysis, watchlist management',
+    scholarly: 'History, language, philosophy, academic discussion',
+    anime: 'Anime & manga tracking (coming soon)',
+    tcg: 'Trading card games (coming soon)',
+    gaming: 'Gaming news & deals (coming soon)',
+};
+const PERSONA_WELCOMES = {
+    intelligence: { title: 'How can I help?', desc: 'I can search the web, manage your watchlist & categories, and analyze your feed data.' },
+    market: { title: 'Market Intelligence', desc: 'Ask about prices, manage your watchlist, compare assets, or get market analysis.' },
+    scholarly: { title: 'Scholarly Assistant', desc: 'Ask about history, philosophy, language, or any academic topic.' },
+    gaming: { title: 'Gaming Hub', desc: 'Game deals, news, releases, and recommendations.' },
+    anime: { title: 'Anime & Manga', desc: 'Seasonal anime, manga recommendations, and otaku culture.' },
+    tcg: { title: 'Trading Card Games', desc: 'Card valuations, meta decks, set releases, and TCG news.' },
+};
+
 function switchPersona(name) {
     currentPersona = name;
     selectedPersonas = [name];
     _updatePersonaPickerLabel();
-    // Update subtitle text based on persona
-    const subtitles = {
-        intelligence: 'Search the web, manage your feed, analyze signals',
-        market: 'Market data, price analysis, watchlist management',
-        scholarly: 'History, language, philosophy, academic discussion',
-        anime: 'Anime & manga tracking (coming soon)',
-        tcg: 'Trading card games (coming soon)',
-        gaming: 'Gaming news & deals (coming soon)',
-    };
     const subtitle = document.querySelector('#agent-panel .text-\\[10px\\].mt-0\\.5');
-    if (subtitle) subtitle.textContent = subtitles[name] || subtitles.intelligence;
+    if (subtitle) subtitle.textContent = PERSONA_SUBTITLES[name] || PERSONA_SUBTITLES.intelligence;
+    // Refresh welcome and suggestions if chat is empty
+    _updatePersonaWelcome();
+    renderAgentSuggestions();
     if (typeof showToast === 'function') showToast(`Switched to ${name} persona`, 'info');
     // Notify context editor and games UI
     if (typeof _onPersonaChanged === 'function') _onPersonaChanged(name);
@@ -169,19 +180,12 @@ function _onPersonaCheckChange(cb) {
     currentPersona = selectedPersonas[0];
     _updatePersonaPickerLabel();
     _renderPersonaPicker();
-    // Update subtitle for primary persona
-    const subtitles = {
-        intelligence: 'Search the web, manage your feed, analyze signals',
-        market: 'Market data, price analysis, watchlist management',
-        scholarly: 'History, language, philosophy, academic discussion',
-        anime: 'Anime & manga tracking (coming soon)',
-        tcg: 'Trading card games (coming soon)',
-        gaming: 'Gaming news & deals (coming soon)',
-    };
     const subtitle = document.querySelector('#agent-panel .text-\\[10px\\].mt-0\\.5');
     if (subtitle) subtitle.textContent = selectedPersonas.length > 1
-        ? `Multi-agent: ${selectedPersonas.map(p => p.charAt(0).toUpperCase() + p.slice(1)).join(' + ')}`
-        : (subtitles[currentPersona] || subtitles.intelligence);
+        ? `Multi-agent: ${selectedPersonas.map(p => (PERSONA_THEMES[p]||PERSONA_THEMES.intelligence).label).join(' + ')}`
+        : (PERSONA_SUBTITLES[currentPersona] || PERSONA_SUBTITLES.intelligence);
+    _updatePersonaWelcome();
+    renderAgentSuggestions();
     if (typeof _onPersonaChanged === 'function') _onPersonaChanged(currentPersona);
     if (typeof updateScenarioBar === 'function') updateScenarioBar();
 }
@@ -355,6 +359,23 @@ function sendSuggestion(btn) {
     const input = document.getElementById('agent-input');
     if (input) input.value = text;
     sendAgentMessage();
+}
+
+function _updatePersonaWelcome() {
+    const welcome = document.getElementById('agent-welcome');
+    if (!welcome) return; // Chat has messages, no welcome to update
+    const theme = PERSONA_THEMES[currentPersona] || PERSONA_THEMES.intelligence;
+    const w = PERSONA_WELCOMES[currentPersona] || PERSONA_WELCOMES.intelligence;
+    const iconDiv = welcome.querySelector('.w-12.h-12 [data-lucide]');
+    if (iconDiv) {
+        iconDiv.setAttribute('data-lucide', theme.icon);
+        iconDiv.style.color = theme.color;
+        lucide.createIcons();
+    }
+    const titleEl = welcome.querySelector('.text-sm.font-semibold');
+    if (titleEl) titleEl.textContent = w.title;
+    const descEl = welcome.querySelector('.text-\\[11px\\]');
+    if (descEl) descEl.textContent = w.desc;
 }
 
 function toggleAgentChat() {
