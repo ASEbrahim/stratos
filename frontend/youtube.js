@@ -284,8 +284,8 @@ function _ytRenderLens(index) {
     } else if (lens === 'narrations') {
         content.innerHTML = _ytRenderNarrations(data);
     } else {
-        // Generic JSON render
-        content.innerHTML = `<pre class="text-[10px] font-mono whitespace-pre-wrap" style="color:var(--text-secondary)">${_escHtml(JSON.stringify(data, null, 2))}</pre>`;
+        // Generic structured render for unknown lens types
+        content.innerHTML = _ytRenderGeneric(data, lens);
     }
 }
 
@@ -293,11 +293,27 @@ function _ytRenderSummary(data) {
     if (!data) return '<div class="text-[10px]" style="color:var(--text-muted)">No summary data</div>';
     const items = Array.isArray(data) ? data : (data.takeaways || data.points || [data]);
     return items.map(item => {
-        const text = typeof item === 'string' ? item : (item.takeaway || item.point || item.text || JSON.stringify(item));
+        const text = typeof item === 'string' ? item : (item.takeaway || item.point || item.text || Object.values(item).filter(v => typeof v === 'string').join(' — ') || 'No content');
         return `<div class="mb-3 px-3 py-2 rounded-lg" style="background:var(--bg-hover);border:1px solid var(--border);">
             <div class="text-[11px] leading-relaxed" style="color:var(--text-secondary)">${_escHtml(text)}</div>
         </div>`;
     }).join('');
+}
+
+function _ytRenderGeneric(data, lens) {
+    if (!data) return `<div class="text-[10px]" style="color:var(--text-muted)">No data for ${_escHtml(lens)} lens</div>`;
+    const lensLabel = lens.charAt(0).toUpperCase() + lens.slice(1);
+    const items = Array.isArray(data) ? data : (typeof data === 'object' ? Object.entries(data) : [data]);
+    let html = `<div class="text-[10px] font-semibold mb-2" style="color:var(--text-heading);">${_escHtml(lensLabel)} Analysis</div>`;
+    for (const item of items) {
+        let text;
+        if (typeof item === 'string') text = item;
+        else if (Array.isArray(item) && item.length === 2) text = `<strong>${_escHtml(String(item[0]))}</strong>: ${_escHtml(String(item[1]))}`;
+        else if (typeof item === 'object' && item !== null) text = Object.entries(item).map(([k,v]) => `<strong>${_escHtml(k)}</strong>: ${_escHtml(String(v))}`).join('<br>');
+        else text = String(item);
+        html += `<div class="mb-2 px-3 py-2 rounded-lg text-[11px] leading-relaxed" style="background:var(--bg-hover);border:1px solid var(--border);color:var(--text-secondary);">${text}</div>`;
+    }
+    return html;
 }
 
 function _ytRenderEloquence(data) {
