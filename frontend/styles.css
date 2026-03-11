@@ -515,6 +515,13 @@ select:hover { border-color: var(--text-muted) !important; }
     .ctx-editor-sidebar { width: 100vw; }
 }
 
+/* ── YouTube Channel Cards ── */
+.yt-channel-card {
+    padding: 10px 12px; border-radius: 8px; transition: background 0.15s;
+    border: 1px solid var(--border-strong); background: rgba(255,255,255,0.02);
+}
+.yt-channel-card:hover { background: var(--bg-hover); }
+
 /* ── File Browser ── */
 .fb-tool-btn {
     display: inline-flex; align-items: center; justify-content: center;

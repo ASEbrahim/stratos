@@ -719,6 +719,7 @@
                         <button class="stab active" data-stab="profile" onclick="switchSettingsTab('profile')">Profile</button>
                         <button class="stab" data-stab="sources" data-tour="sources-tab" onclick="switchSettingsTab('sources')">Sources</button>
                         <button class="stab" data-stab="market" onclick="switchSettingsTab('market')">Market</button>
+                        <button class="stab" data-stab="youtube" onclick="switchSettingsTab('youtube')">YouTube</button>
                         <button class="stab" data-stab="system" onclick="switchSettingsTab('system')">System</button>
                     </div>
 
@@ -847,6 +848,57 @@
                                     <span class="text-xs text-slate-300">Retain high-scoring articles across scans</span>
                                 </label>
                                 <p class="text-[10px] text-slate-600 mt-1">Articles scored 8.0+ persist for 24h so you don't lose actionable signals between scans.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- YouTube Channel Management -->
+                    <div class="glass-panel rounded-xl p-6" id="youtube-settings-panel" data-stab="youtube">
+                        <h3 class="text-sm font-bold text-slate-200 mb-1 flex items-center gap-2">
+                            <i data-lucide="youtube" class="w-4 h-4 text-red-400"></i> YouTube Channels
+                        </h3>
+                        <p class="text-xs text-slate-500 mb-4">Track YouTube channels for scholarly knowledge extraction. Videos are transcribed and analyzed through configurable lenses.</p>
+
+                        <!-- Add Channel -->
+                        <div class="flex gap-2 mb-3">
+                            <input type="text" id="yt-channel-url" class="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-200 focus:border-emerald-500 focus:outline-none" placeholder="YouTube channel URL or @handle" onkeydown="if(event.key==='Enter')_ytAddChannel()">
+                            <button onclick="_ytAddChannel()" class="px-3 py-2 bg-red-600 hover:bg-red-500 text-white text-xs font-medium rounded-lg transition-colors flex items-center gap-1.5">
+                                <i data-lucide="plus" class="w-3 h-3"></i> Add
+                            </button>
+                        </div>
+
+                        <!-- Lens Checkboxes -->
+                        <div id="yt-lens-checkboxes" class="flex flex-wrap gap-3 mb-4">
+                            <label class="flex items-center gap-1.5 text-[10px] cursor-pointer" style="color:var(--text-secondary)">
+                                <input type="checkbox" value="summary" checked class="accent-emerald-500"> Summary
+                            </label>
+                            <label class="flex items-center gap-1.5 text-[10px] cursor-pointer" style="color:var(--text-secondary)">
+                                <input type="checkbox" value="eloquence" class="accent-emerald-500"> Eloquence
+                            </label>
+                            <label class="flex items-center gap-1.5 text-[10px] cursor-pointer" style="color:var(--text-secondary)">
+                                <input type="checkbox" value="history" class="accent-emerald-500"> History
+                            </label>
+                            <label class="flex items-center gap-1.5 text-[10px] cursor-pointer" style="color:var(--text-secondary)">
+                                <input type="checkbox" value="spiritual" class="accent-emerald-500"> Spiritual
+                            </label>
+                            <label class="flex items-center gap-1.5 text-[10px] cursor-pointer" style="color:var(--text-secondary)">
+                                <input type="checkbox" value="politics" class="accent-emerald-500"> Politics
+                            </label>
+                            <label class="flex items-center gap-1.5 text-[10px] cursor-pointer" style="color:var(--text-secondary)">
+                                <input type="checkbox" value="narrations" class="accent-emerald-500"> Narrations
+                            </label>
+                        </div>
+
+                        <!-- Channel List -->
+                        <div id="youtube-channel-list" class="space-y-2">
+                            <div class="text-[10px] text-center py-4" style="color:var(--text-muted)">Loading channels...</div>
+                        </div>
+
+                        <!-- Processing Status -->
+                        <div id="yt-processing-status" class="hidden mt-3 px-3 py-2 rounded-lg" style="background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.15);">
+                            <div class="flex items-center gap-2">
+                                <div class="w-3 h-3 border-2 rounded-full animate-spin flex-shrink-0" style="border-color:rgba(16,185,129,0.3);border-top-color:var(--accent);"></div>
+                                <span id="yt-processing-text" class="text-[10px]" style="color:var(--accent)">Processing...</span>
                             </div>
                         </div>
                     </div>
@@ -1376,6 +1428,7 @@
     <script defer src="feed.js"></script>
     <script defer src="persona-context.js"></script>
     <script defer src="file-browser.js"></script>
+    <script defer src="youtube.js"></script>
     <script defer src="agent.js"></script>
     <script defer src="ui.js"></script>
     <script defer src="scan-history.js"></script>

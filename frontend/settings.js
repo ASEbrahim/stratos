@@ -1751,6 +1751,8 @@ function switchSettingsTab(tabId) {
         }
         ss.style.display = anyVisible ? '' : 'none';
     }
+    /* Load YouTube channels when YouTube tab shown */
+    if (tabId === 'youtube' && typeof initYouTubePanel === 'function') initYouTubePanel();
     /* Show first-time tab tooltip */
     if (typeof _showTabTooltip === 'function') _showTabTooltip(tabId);
 }
