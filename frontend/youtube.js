@@ -51,7 +51,9 @@ function _ytRenderChannels() {
     }
 
     container.innerHTML = _ytChannels.map(ch => {
-        const lenses = (ch.lenses || []).join(', ') || 'all';
+        const lensArr = typeof ch.lenses === 'string' ? (function(){ try { return JSON.parse(ch.lenses); } catch(e) { return []; } })() : (ch.lenses || []);
+        const lenses = lensArr.join(', ') || 'all';
+        const channelName = ch.channel_name || ch.name || ch.channel_id;
         const videoCount = ch.video_count || 0;
         return `<div class="yt-channel-card" data-channel-id="${ch.id}">
             <div class="flex items-center justify-between">
@@ -60,7 +62,7 @@ function _ytRenderChannels() {
                         <i data-lucide="youtube" class="w-4 h-4 text-red-400"></i>
                     </div>
                     <div class="min-w-0">
-                        <div class="text-[11px] font-semibold truncate" style="color:var(--text-heading)">${_escHtml(ch.name || ch.channel_id)}</div>
+                        <div class="text-[11px] font-semibold truncate" style="color:var(--text-heading)">${_escHtml(channelName)}</div>
                         <div class="text-[9px]" style="color:var(--text-muted)">${videoCount} videos · Lenses: ${lenses}</div>
                     </div>
                 </div>
@@ -71,7 +73,7 @@ function _ytRenderChannels() {
                     <button onclick="_ytToggleVideos(${ch.id})" class="fb-tool-btn" title="Show videos">
                         <i data-lucide="list" class="w-3 h-3"></i>
                     </button>
-                    <button onclick="_ytDeleteChannel(${ch.id}, '${_escAttr(ch.name || ch.channel_id)}')" class="fb-tool-btn" title="Remove channel" onmouseenter="this.style.color='#f87171';this.style.borderColor='rgba(239,68,68,0.3)'" onmouseleave="this.style.color='var(--text-muted)';this.style.borderColor='var(--border-strong)'">
+                    <button onclick="_ytDeleteChannel(${ch.id}, '${_escAttr(channelName)}')" class="fb-tool-btn" title="Remove channel" onmouseenter="this.style.color='#f87171';this.style.borderColor='rgba(239,68,68,0.3)'" onmouseleave="this.style.color='var(--text-muted)';this.style.borderColor='var(--border-strong)'">
                         <i data-lucide="trash-2" class="w-3 h-3"></i>
                     </button>
                 </div>
