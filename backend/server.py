@@ -1152,6 +1152,21 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                 _send_json(self, {"results": results})
                 return
 
+            # ── Context compression GET ─────────────────────
+            if self.path.startswith("/api/persona-state"):
+                from processors.context_compression import ContextCompressor
+                from urllib.parse import urlparse, parse_qs
+                params = parse_qs(urlparse(self.path).query)
+                persona = params.get('persona', ['intelligence'])[0]
+                try:
+                    cc = ContextCompressor(strat.config, db=strat.db)
+                    state = cc.get_state(self._profile_id, persona)
+                    summaries = cc.get_summaries(self._profile_id, persona)
+                    _send_json(self, {"state": state, "summaries": summaries})
+                except Exception as e:
+                    _send_json(self, {"error": str(e)}, 500)
+                return
+
             # ── Profile workspace GET ───────────────────────
             if self.path == "/api/profile/workspace-stats":
                 from processors.workspace import get_workspace_stats
@@ -2220,6 +2235,33 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                     ok = pcm.revert_to_version(self._profile_id, persona, version)
                     _send_json(self, {"ok": ok})
                     return
+
+            # ── Context compression POST ────────────────────
+            if self.path == "/api/conversation-log":
+                from processors.context_compression import ContextCompressor
+                body = json.loads(self.rfile.read(int(self.headers.get('Content-Length', 0))).decode()) if int(self.headers.get('Content-Length', 0)) > 0 else {}
+                try:
+                    cc = ContextCompressor(strat.config, db=strat.db)
+                    persona = body.get('persona', 'intelligence')
+                    messages = body.get('messages', [])
+                    cc.log_conversation(self._profile_id, persona, messages)
+                    _send_json(self, {"ok": True})
+                except Exception as e:
+                    _send_json(self, {"error": str(e)}, 500)
+                return
+
+            if self.path == "/api/update-state":
+                from processors.context_compression import ContextCompressor
+                body = json.loads(self.rfile.read(int(self.headers.get('Content-Length', 0))).decode()) if int(self.headers.get('Content-Length', 0)) > 0 else {}
+                try:
+                    cc = ContextCompressor(strat.config, db=strat.db)
+                    persona = body.get('persona', 'intelligence')
+                    messages = body.get('messages', [])
+                    state = cc.update_state(self._profile_id, persona, messages)
+                    _send_json(self, {"ok": True, "state": state})
+                except Exception as e:
+                    _send_json(self, {"error": str(e)}, 500)
+                return
 
             # ── Profile workspace POST ──────────────────────
             if self.path == "/api/profile/export":

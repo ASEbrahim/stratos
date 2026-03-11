@@ -493,22 +493,41 @@ def build_persona_prompt(persona: str, role: str, location: str,
         return _stub_prompt(persona, role, location, tickers, cat_summary, search_note)
 
 
+def _load_state_md(strat, profile_id: int, persona_name: str) -> str:
+    """Load state.md for a persona if it exists."""
+    try:
+        from processors.context_compression import ContextCompressor
+        cc = ContextCompressor(strat.config, db=strat.db)
+        state = cc.get_state(profile_id, persona_name)
+        if state.strip():
+            return f"PERSONA STATE:\n{state[:2000]}"
+    except Exception:
+        pass
+    return ""
+
+
 def build_persona_context(persona: str, strat, output_file: str,
                           profile_id: int = 0) -> str:
     """Build context data for the given persona."""
+    state = _load_state_md(strat, profile_id, persona)
+
     if persona == 'intelligence':
         news = _build_news_context(strat, output_file)
         hist = _build_historical_context(strat, profile_id)
-        return f"CURRENT FEED DATA:\n{news[:5000]}\n\nHISTORICAL DATA:\n{hist[:3000]}"
+        ctx = f"CURRENT FEED DATA:\n{news[:5000]}\n\nHISTORICAL DATA:\n{hist[:3000]}"
     elif persona == 'market':
         market = _build_market_context(strat, output_file)
-        return f"{market[:6000]}"
+        ctx = f"{market[:6000]}"
     elif persona == 'scholarly':
-        return _build_scholarly_context(strat, profile_id)
+        ctx = _build_scholarly_context(strat, profile_id)
     elif persona == 'gaming':
-        return _build_games_context(strat, profile_id)
+        ctx = _build_games_context(strat, profile_id)
     else:
-        return ""  # Stub personas have no data
+        ctx = ""  # Stub personas have no data
+
+    if state:
+        ctx = f"{state}\n\n{ctx}" if ctx else state
+    return ctx
 
 
 def list_personas() -> List[Dict[str, str]]:
