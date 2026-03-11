@@ -10,25 +10,171 @@ let currentPersona = 'intelligence';
 let selectedPersonas = ['intelligence']; // Multi-persona selection (max 3)
 let availablePersonas = [];
 
-// Persist agent chat to localStorage
+// ── Conversation management (per-persona, multiple threads) ──
+let _agentConversations = {};  // { persona: [{id, title, messages, created}] }
+let _agentActiveConvId = {};   // { persona: "conv_xxx" }
+
+function _loadConversations() {
+    try {
+        const raw = localStorage.getItem('stratos_agent_conversations');
+        if (raw) _agentConversations = JSON.parse(raw);
+        const active = localStorage.getItem('stratos_agent_active_conv');
+        if (active) _agentActiveConvId = JSON.parse(active);
+    } catch(e) { _agentConversations = {}; _agentActiveConvId = {}; }
+}
+
+function _saveConversations() {
+    try {
+        localStorage.setItem('stratos_agent_conversations', JSON.stringify(_agentConversations));
+        localStorage.setItem('stratos_agent_active_conv', JSON.stringify(_agentActiveConvId));
+    } catch(e) {}
+}
+
+function _getPersonaConvs(persona) {
+    if (!_agentConversations[persona]) _agentConversations[persona] = [];
+    return _agentConversations[persona];
+}
+
+function _getActiveConv(persona) {
+    const convs = _getPersonaConvs(persona);
+    const activeId = _agentActiveConvId[persona];
+    if (activeId) {
+        const found = convs.find(c => c.id === activeId);
+        if (found) return found;
+    }
+    // No active conv — create one
+    if (convs.length === 0) {
+        const conv = { id: 'conv_' + Date.now(), title: 'New chat', messages: [], created: new Date().toISOString() };
+        convs.push(conv);
+        _agentActiveConvId[persona] = conv.id;
+        _saveConversations();
+        return conv;
+    }
+    _agentActiveConvId[persona] = convs[convs.length - 1].id;
+    return convs[convs.length - 1];
+}
+
+function _switchConversation(convId) {
+    const persona = currentPersona;
+    _agentActiveConvId[persona] = convId;
+    const conv = _getActiveConv(persona);
+    agentHistory = conv.messages;
+    _saveConversations();
+    // Re-render chat
+    const msgs = document.getElementById('agent-messages');
+    if (msgs) msgs.innerHTML = '';
+    const welcome = document.getElementById('agent-welcome');
+    if (agentHistory.length === 0) {
+        _updatePersonaWelcome();
+    } else {
+        if (welcome) welcome.style.display = 'none';
+        _renderRestoredHistory();
+    }
+    _renderConvTabs();
+}
+window._switchConversation = _switchConversation;
+
+function newAgentChat() {
+    if (agentStreaming) return;
+    const persona = currentPersona;
+    const convs = _getPersonaConvs(persona);
+    // Don't create a new empty conv if current is already empty
+    const current = _getActiveConv(persona);
+    if (current.messages.length === 0) return;
+    // Limit to 10 conversations per persona
+    if (convs.length >= 10) convs.shift();
+    const conv = { id: 'conv_' + Date.now(), title: 'New chat', messages: [], created: new Date().toISOString() };
+    convs.push(conv);
+    _agentActiveConvId[persona] = conv.id;
+    agentHistory = conv.messages;
+    _saveConversations();
+    // Clear UI
+    const msgs = document.getElementById('agent-messages');
+    if (msgs) msgs.innerHTML = '';
+    _updatePersonaWelcome();
+    _renderConvTabs();
+    renderAgentSuggestions();
+}
+window.newAgentChat = newAgentChat;
+
+function _deleteConversation(convId) {
+    const persona = currentPersona;
+    const convs = _getPersonaConvs(persona);
+    const idx = convs.findIndex(c => c.id === convId);
+    if (idx < 0) return;
+    convs.splice(idx, 1);
+    // If we deleted the active one, switch to latest or create new
+    if (_agentActiveConvId[persona] === convId) {
+        if (convs.length > 0) {
+            _switchConversation(convs[convs.length - 1].id);
+        } else {
+            const conv = { id: 'conv_' + Date.now(), title: 'New chat', messages: [], created: new Date().toISOString() };
+            convs.push(conv);
+            _switchConversation(conv.id);
+        }
+    }
+    _saveConversations();
+    _renderConvTabs();
+}
+window._deleteConversation = _deleteConversation;
+
+function _renderConvTabs() {
+    const container = document.getElementById('agent-conv-tabs');
+    if (!container) return;
+    const convs = _getPersonaConvs(currentPersona);
+    const activeId = _agentActiveConvId[currentPersona];
+    if (convs.length <= 1 && (!convs[0] || convs[0].messages.length === 0)) {
+        container.innerHTML = '';
+        return;
+    }
+    const theme = PERSONA_THEMES[currentPersona] || PERSONA_THEMES.intelligence;
+    container.innerHTML = convs.map(c => {
+        const active = c.id === activeId;
+        const title = c.title.length > 24 ? c.title.slice(0, 22) + '…' : c.title;
+        return `<button onclick="_switchConversation('${c.id}')" class="flex items-center gap-1 px-2 py-1 rounded-md text-[9px] font-medium whitespace-nowrap transition-all flex-shrink-0 group" style="background:${active ? theme.bg : 'transparent'};border:1px solid ${active ? theme.color + '40' : 'transparent'};color:${active ? theme.color : 'var(--text-muted)'};" onmouseenter="if(!${active})this.style.background='rgba(255,255,255,0.03)'" onmouseleave="if(!${active})this.style.background='transparent'">${title}${convs.length > 1 ? `<span onclick="event.stopPropagation();_deleteConversation('${c.id}')" class="opacity-0 group-hover:opacity-100 ml-1 transition-opacity" style="color:var(--text-muted);" title="Delete">×</span>` : ''}</button>`;
+    }).join('') + `<button onclick="newAgentChat()" class="px-1.5 py-1 rounded-md text-[9px] transition-all flex-shrink-0" style="color:var(--text-muted);" title="New chat" onmouseenter="this.style.color='${theme.color}'" onmouseleave="this.style.color='var(--text-muted)'"><i data-lucide="plus" class="w-3 h-3"></i></button>`;
+    lucide.createIcons();
+}
+
+// Persist agent chat to localStorage (now saves to active conversation)
 function _saveAgentHistory() {
     try {
-        // Keep last 40 messages to avoid localStorage bloat
-        const toSave = agentHistory.slice(-40);
-        localStorage.setItem('stratos_agent_history', JSON.stringify(toSave));
-    } catch (e) { /* quota exceeded — silently skip */ }
-}
-function _restoreAgentHistory() {
-    try {
-        const saved = localStorage.getItem('stratos_agent_history');
-        if (saved) {
-            const parsed = JSON.parse(saved);
-            if (Array.isArray(parsed) && parsed.length > 0) {
-                agentHistory = parsed;
-                _renderRestoredHistory();
-            }
+        const conv = _getActiveConv(currentPersona);
+        conv.messages = agentHistory.slice(-40);
+        // Auto-title from first user message
+        if (conv.title === 'New chat' && agentHistory.length > 0) {
+            const firstUser = agentHistory.find(m => m.role === 'user');
+            if (firstUser) conv.title = firstUser.content.slice(0, 30).trim() || 'Chat';
         }
-    } catch (e) { /* corrupt data — start fresh */ }
+        _saveConversations();
+        _renderConvTabs();
+    } catch (e) {}
+}
+
+function _restoreAgentHistory() {
+    _loadConversations();
+    // Migrate old single-history format
+    try {
+        const old = localStorage.getItem('stratos_agent_history');
+        if (old) {
+            const parsed = JSON.parse(old);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+                const conv = _getActiveConv(currentPersona);
+                if (conv.messages.length === 0) {
+                    conv.messages = parsed;
+                    agentHistory = conv.messages;
+                    _saveConversations();
+                }
+            }
+            localStorage.removeItem('stratos_agent_history');
+        }
+    } catch(e) {}
+    const conv = _getActiveConv(currentPersona);
+    agentHistory = conv.messages;
+    if (agentHistory.length > 0) {
+        _renderRestoredHistory();
+    }
+    _renderConvTabs();
 }
 function _renderRestoredHistory() {
     const msgs = document.getElementById('agent-messages');
@@ -81,16 +227,28 @@ const PERSONA_WELCOMES = {
 };
 
 function switchPersona(name) {
+    // Save current conversation before switching
+    _saveAgentHistory();
     currentPersona = name;
     selectedPersonas = [name];
     _updatePersonaPickerLabel();
     const subtitle = document.querySelector('#agent-panel .text-\\[10px\\].mt-0\\.5');
     if (subtitle) subtitle.textContent = PERSONA_SUBTITLES[name] || PERSONA_SUBTITLES.intelligence;
-    // Refresh welcome and suggestions if chat is empty
-    _updatePersonaWelcome();
+    // Load persona's conversation
+    const conv = _getActiveConv(name);
+    agentHistory = conv.messages;
+    const msgs = document.getElementById('agent-messages');
+    if (msgs) msgs.innerHTML = '';
+    if (agentHistory.length > 0) {
+        const welcome = document.getElementById('agent-welcome');
+        if (welcome) welcome.style.display = 'none';
+        _renderRestoredHistory();
+    } else {
+        _updatePersonaWelcome();
+    }
+    _renderConvTabs();
     renderAgentSuggestions();
     if (typeof showToast === 'function') showToast(`Switched to ${name} persona`, 'info');
-    // Notify context editor and games UI
     if (typeof _onPersonaChanged === 'function') _onPersonaChanged(name);
     if (typeof updateScenarioBar === 'function') updateScenarioBar();
 }

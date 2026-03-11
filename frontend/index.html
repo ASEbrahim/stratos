@@ -282,6 +282,9 @@
                                     </div>
                                 </div>
                                 <div class="flex items-center gap-0.5">
+                                    <button onclick="event.stopPropagation(); newAgentChat()" class="p-1.5 rounded-md transition-all" style="color:var(--text-muted);" title="New chat" onmouseenter="this.style.background='rgba(16,185,129,0.08)';this.style.color='var(--accent)'" onmouseleave="this.style.background='transparent';this.style.color='var(--text-muted)'">
+                                        <i data-lucide="plus" class="w-3 h-3"></i>
+                                    </button>
                                     <button onclick="event.stopPropagation(); toggleAgentFullscreen()" id="agent-fs-btn" class="p-1.5 rounded-md transition-all" style="color:var(--text-muted);" title="Toggle fullscreen" onmouseenter="this.style.background='rgba(255,255,255,0.05)';this.style.color='var(--text-heading)'" onmouseleave="this.style.background='transparent';this.style.color='var(--text-muted)'">
                                         <i data-lucide="maximize-2" class="w-3 h-3"></i>
                                     </button>
@@ -298,6 +301,8 @@
                                     <i data-lucide="chevron-down" id="agent-chevron" class="w-4 h-4 transition-transform" style="color:var(--text-muted);"></i>
                                 </div>
                             </div>
+                            <!-- Conversation Tabs -->
+                            <div id="agent-conv-tabs" class="flex items-center gap-1 px-3 py-1.5 overflow-x-auto" style="border-bottom:1px solid var(--border-strong);scrollbar-width:none;"></div>
                             <!-- Body -->
                             <div id="agent-body" class="hidden">
                                 <!-- Games Scenario Bar (shown only when games persona active) -->
