@@ -229,6 +229,23 @@ AGENT_TOOLS = [
                 "required": ["query"]
             }
         }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "read_url",
+            "description": "Fetch and read the text content of a web page or article. Use when the user pastes a URL and wants you to summarize it, or when you need to read a source found via web_search.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "url": {
+                        "type": "string",
+                        "description": "The full URL to read (must start with http:// or https://)."
+                    }
+                },
+                "required": ["url"]
+            }
+        }
     }
 ]
 
@@ -260,6 +277,8 @@ def _execute_tool(tool_name, args, strat, profile_id=0):
             return _tool_get_video_summary(args, strat, profile_id=profile_id)
         elif tool_name == "search_narrations":
             return _tool_search_narrations(args, strat, profile_id=profile_id)
+        elif tool_name == "read_url":
+            return _tool_read_url(args, strat)
         else:
             return f"Unknown tool: {tool_name}"
     except Exception as e:
@@ -695,6 +714,25 @@ def _tool_search_narrations(args, strat, profile_id=0):
         return f"Narration search for '{query}':\n" + "\n".join(lines) if lines else f"No specific narrations matching '{query}'."
     except Exception as e:
         return f"Narration search error: {e}"
+
+
+def _tool_read_url(args, strat):
+    """Fetch and extract text content from a URL."""
+    url = args.get("url", "").strip()
+    if not url or not url.startswith("http"):
+        return "Invalid URL. Must start with http:// or https://."
+    try:
+        from fetchers.news import NewsFetcher
+        fetcher = NewsFetcher(strat.config)
+        text = fetcher.scrape_article(url)
+        if not text:
+            return f"Could not extract text from {url}. The page may be blocked, require JavaScript, or not contain readable text."
+        # Truncate for context budget
+        if len(text) > 4000:
+            text = text[:4000] + "\n\n[...truncated — article continues...]"
+        return f"Content from {url}:\n\n{text}"
+    except Exception as e:
+        return f"Error reading URL: {e}"
 
 
 # ═══════════════════════════════════════════════════════════

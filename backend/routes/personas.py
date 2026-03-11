@@ -397,7 +397,8 @@ TOOLS:
 3. get_video_summary — get all extracted insights for a specific video.
 4. search_narrations — find hadith/narrations with verification status.
 5. search_files / read_document — search and read uploaded documents.
-6. {search_note}
+6. read_url — fetch and read a web page or article by URL.
+7. {search_note}
 
 RULES:
 - Use search tools to find relevant lecture insights before answering from memory.
@@ -451,7 +452,7 @@ RULES:
 PERSONA_TOOLS = {
     'intelligence': ['web_search', 'search_feed', 'manage_watchlist', 'manage_categories', 'search_files', 'read_document'],
     'market': ['manage_watchlist', 'search_feed', 'web_search'],
-    'scholarly': ['search_insights', 'list_channels', 'get_video_summary', 'search_narrations', 'search_files', 'read_document', 'web_search'],
+    'scholarly': ['search_insights', 'list_channels', 'get_video_summary', 'search_narrations', 'search_files', 'read_document', 'web_search', 'read_url'],
     'gaming': ['search_files', 'read_document'],
     'anime': [],
     'tcg': [],
