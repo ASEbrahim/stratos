@@ -358,7 +358,8 @@ RULES:
 - For current events NOT in feed — use web_search.
 - Use **bold** for key terms. Be direct. Match user's tone.
 - NEVER output raw JSON, XML tags, or function call syntax.
-- Respond DIRECTLY. No narrating your thought process."""
+- Respond DIRECTLY. No narrating your thought process.
+- If the question is better suited for Market, Scholarly, or Games persona, suggest switching."""
 
 
 def _market_prompt(role, location, tickers, cat_summary, search_note):
@@ -382,7 +383,8 @@ RULES:
 - When asked about a ticker, cite the exact price and change from context.
 - Do NOT search news feed unless user specifically asks about news.
 - Never give investment advice. Report data, let user decide.
-- If data isn't available, say so. Never invent prices."""
+- If data isn't available, say so. Never invent prices.
+- If the question is about news, research, or games, suggest the relevant persona."""
 
 
 def _scholarly_prompt(role, location, tickers, cat_summary, search_note):
@@ -407,7 +409,8 @@ RULES:
 - NEVER fabricate citations, hadith references, or historical dates.
 - For Arabic/Islamic topics: use proper transliteration, reference original terms.
 - Be thoughtful and precise. 2-4 paragraphs max unless depth requested.
-- Say "I'm not certain" when you're not."""
+- Say "I'm not certain" when you're not.
+- If the question is about market prices or news, suggest the Market or Intelligence persona."""
 
 
 def _games_prompt(role, location, tickers, cat_summary, search_note):
@@ -427,7 +430,8 @@ RULES:
 - Track world state: remember character positions, relationships, injuries, inventory.
 - Let the user drive major plot decisions. You advance the scene, they choose the direction.
 - If no scenario is active, help the user set one up.
-- Never break character unless the user explicitly asks an out-of-character question (marked with OOC:)."""
+- Never break character unless the user explicitly asks an out-of-character question (marked with OOC:).
+- If asked a factual/research question, suggest OOC: switching to Intelligence or Scholarly persona."""
 
 
 def _stub_prompt(persona_name, role, location, tickers, cat_summary, search_note):
