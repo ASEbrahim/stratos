@@ -258,7 +258,9 @@ def handle_agent_chat(handler, strat, output_file, profile_id=0):
             for p in multi_personas:
                 p_config = get_persona_config(p)
                 merged_tools.update(p_config['tools'])
-                ctx = build_persona_context(p, strat, output_file, profile_id)
+                ctx = build_persona_context(p, strat, output_file, profile_id,
+                                            user_message=user_msg, rp_mode=rp_mode,
+                                            active_npc=active_npc)
                 if ctx:
                     context_parts.append(f"[{p.upper()} DATA]\n{ctx}")
             persona_config = {**persona_config, 'tools': list(merged_tools)}
@@ -317,7 +319,8 @@ def handle_agent_chat(handler, strat, output_file, profile_id=0):
                 npc_personality=npc_personality, npc_memory=npc_memory
             )
             persona_context = build_persona_context(
-                persona_name, strat, output_file, profile_id
+                persona_name, strat, output_file, profile_id,
+                user_message=user_msg, rp_mode=rp_mode, active_npc=active_npc
             )
             system_prompt = base_prompt
             if persona_context:

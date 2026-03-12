@@ -13,6 +13,7 @@ No core agent logic changes needed.
 
 import json
 import logging
+import os
 from pathlib import Path
 from typing import Dict, Any, List, Optional
 
@@ -224,7 +225,8 @@ def _build_scholarly_context(strat, profile_id: int = 0) -> str:
 
 
 def _build_games_context(strat, profile_id: int = 0) -> str:
-    """Build games/roleplay context: world bible + active scenario state."""
+    """Build games/roleplay context: world bible + active scenario state.
+    Legacy fallback — used only if no file-based scenario exists."""
     parts = []
     db = strat.db
     if not db:
@@ -262,6 +264,212 @@ def _build_games_context(strat, profile_id: int = 0) -> str:
         parts.append("No scenario active. Help the user set up a new roleplay scenario.")
 
     return "\n\n".join(parts)
+
+
+# ═══════════════════════════════════════════════════════════
+# SELECTIVE CONTEXT LOADING (Sprint 7)
+# ═══════════════════════════════════════════════════════════
+
+def _get_scenario_path(strat, profile_id: int) -> Optional[str]:
+    """Get the file-system path for the active scenario, or None."""
+    try:
+        data_dir = strat.config.get("system", {}).get("data_dir", "data")
+        base = os.path.join(data_dir, "users", str(profile_id), "context", "gaming", "scenarios")
+        if not os.path.isdir(base):
+            return None
+
+        # Check DB for active scenario name
+        cursor = strat.db.conn.cursor()
+        cursor.execute(
+            "SELECT name FROM scenarios WHERE profile_id = ? AND is_active = 1 LIMIT 1",
+            (profile_id,))
+        row = cursor.fetchone()
+        if not row:
+            return None
+        scenario_name = row['name']
+
+        scenario_path = os.path.join(base, scenario_name)
+        # Only use file-based loading if the new structure exists
+        if os.path.isfile(os.path.join(scenario_path, '_index.json')):
+            return scenario_path
+    except Exception as e:
+        logger.debug(f"Scenario path lookup failed: {e}")
+    return None
+
+
+def _load_scenario_file(scenario_path: str, relative_path: str) -> Optional[str]:
+    """Load a text file from the scenario, return None if missing."""
+    try:
+        full_path = os.path.join(scenario_path, relative_path)
+        with open(full_path, 'r') as f:
+            return f.read().strip()
+    except (FileNotFoundError, OSError):
+        return None
+
+
+def _load_scenario_json(scenario_path: str, relative_path: str) -> Optional[dict]:
+    """Load a JSON file from the scenario, return None if missing."""
+    try:
+        full_path = os.path.join(scenario_path, relative_path)
+        with open(full_path, 'r') as f:
+            return json.load(f)
+    except Exception:
+        return None
+
+
+def _enforce_context_budget(parts: list, budget_tokens: int) -> str:
+    """Enforce token budget. Core parts are never dropped. Conditional parts trimmed."""
+    def est_tokens(text):
+        return int(len(text.split()) * 1.3)
+
+    core = [(text, label) for text, label in parts if label == 'core']
+    conditional = [(text, label) for text, label in parts if label != 'core']
+
+    core_text = '\n\n'.join(t for t, _ in core)
+    core_tokens = est_tokens(core_text)
+    remaining = budget_tokens - core_tokens
+
+    included = [core_text] if core_text.strip() else []
+    for text, label in conditional:
+        tokens = est_tokens(text)
+        if tokens <= remaining:
+            included.append(text)
+            remaining -= tokens
+        else:
+            words = text.split()
+            max_words = int(remaining / 1.3)
+            if max_words > 20:
+                included.append(' '.join(words[:max_words]) + '\n...(truncated)')
+            break
+
+    return '\n\n---\n\n'.join(included)
+
+
+def _pack_gaming_context_selective(strat, profile_id: int, scenario_path: str,
+                                   mode: str = 'gm', active_npc: str = '',
+                                   user_message: str = '') -> str:
+    """Build gaming context by selectively loading only relevant files.
+
+    Instead of loading one massive world.md, this scans the user's message
+    for keywords and loads only the files that matter for this interaction.
+
+    Budget: ~4000 tokens for gaming context.
+    """
+    parts = []
+
+    # ──────────────────────────────────────────────
+    # ALWAYS LOADED (core state, ~400 tokens total)
+    # ──────────────────────────────────────────────
+    setting = _load_scenario_file(scenario_path, 'world/setting.md')
+    if setting:
+        parts.append(("## World\n" + setting, 'core'))
+
+    current_scene = _load_scenario_file(scenario_path, 'scenes/current.md')
+    if current_scene:
+        parts.append((current_scene, 'core'))
+
+    player_stats = _load_scenario_file(scenario_path, 'characters/player/stats.md')
+    if player_stats:
+        parts.append(("## Player Stats\n" + player_stats, 'core'))
+
+    # ──────────────────────────────────────────────
+    # MODE-SPECIFIC LOADING
+    # ──────────────────────────────────────────────
+    if mode == 'gm':
+        rules = _load_scenario_file(scenario_path, 'world/rules.md')
+        if rules:
+            parts.append(("## Rules\n" + rules, 'gm'))
+
+        index = _load_scenario_json(scenario_path, '_index.json')
+        current_loc = index.get('current_location', '') if index else ''
+        if current_loc:
+            loc_file = _load_scenario_file(scenario_path, f'world/locations/{current_loc}.md')
+            if loc_file:
+                parts.append((loc_file, 'location'))
+
+        active_npcs = index.get('active_npcs_in_scene', []) if index else []
+        for npc_id in active_npcs[:5]:
+            profile = _load_scenario_file(scenario_path, f'characters/npcs/{npc_id}/profile.md')
+            if profile:
+                summary = '\n'.join(profile.split('\n')[:5])
+                parts.append((summary, 'npc_summary'))
+
+    elif mode == 'immersive':
+        if active_npc:
+            npc_id = active_npc.strip().lower().replace(' ', '_')
+            for npc_file in ['profile.md', 'memory.md', 'knowledge.md', 'dialogue.md']:
+                content = _load_scenario_file(scenario_path, f'characters/npcs/{npc_id}/{npc_file}')
+                if content:
+                    parts.append((content, 'active_npc'))
+
+    # ──────────────────────────────────────────────
+    # KEYWORD-TRIGGERED LOADING
+    # ──────────────────────────────────────────────
+    msg = user_message.lower()
+
+    keyword_file_map = [
+        (['inventory', 'backpack', 'items', 'what do i have', 'carrying', 'bag'],
+         'characters/player/inventory.md', 'inventory'),
+        (['quest', 'mission', 'objective', 'what should i do', 'task', 'quest board'],
+         'characters/player/quests.md', 'quests'),
+        (['skill', 'ability', 'spell', 'what can i do', 'learn', 'technique'],
+         'characters/player/skills.md', 'skills'),
+        (['equipment', 'gear', 'weapon', 'armor', 'equip', 'wearing'],
+         'characters/player/equipment.md', 'equipment'),
+        (['buy', 'sell', 'shop', 'price', 'trade', 'merchant', 'store', 'gold', 'coin', 'money'],
+         'world/mechanics/economy.md', 'economy'),
+        (['craft', 'forge', 'upgrade', 'smith', 'create', 'build', 'enchant'],
+         'world/mechanics/crafting.md', 'crafting'),
+        (['fight', 'attack', 'combat', 'battle', 'swing', 'cast', 'defend', 'dodge', 'block', 'hit'],
+         'world/mechanics/combat.md', 'combat'),
+        (['guild', 'join', 'faction', 'alliance', 'clan', 'group', 'team up'],
+         None, 'factions'),
+        (['journal', 'notes', 'discoveries', 'what do i know', 'remember'],
+         'characters/player/journal.md', 'journal'),
+    ]
+
+    for keywords, filepath, label in keyword_file_map:
+        if any(kw in msg for kw in keywords):
+            if filepath:
+                content = _load_scenario_file(scenario_path, filepath)
+                if content:
+                    parts.append((content, label))
+            elif label == 'factions':
+                factions_dir = os.path.join(scenario_path, 'world', 'factions')
+                if os.path.isdir(factions_dir):
+                    for fname in os.listdir(factions_dir):
+                        if fname.endswith('.md'):
+                            content = _load_scenario_file(scenario_path, f'world/factions/{fname}')
+                            if content:
+                                parts.append((content, 'faction'))
+
+    # COMBAT TRIGGER: also load player equipment
+    if any(kw in msg for kw in ['fight', 'attack', 'combat', 'battle', 'swing']):
+        equip = _load_scenario_file(scenario_path, 'characters/player/equipment.md')
+        if equip:
+            parts.append((equip, 'combat_equip'))
+
+    # NPC NAME DETECTION: if user mentions an NPC, load their profile
+    roster = _load_scenario_json(scenario_path, 'characters/_roster.json')
+    if roster:
+        for npc in roster.get('npcs', []):
+            npc_name = npc.get('name', '').lower()
+            npc_keywords = [k.lower() for k in npc.get('keywords', [])]
+
+            if npc_name in msg or any(kw in msg for kw in npc_keywords):
+                npc_id = npc['id']
+                profile = _load_scenario_file(scenario_path, f'characters/npcs/{npc_id}/profile.md')
+                if profile:
+                    parts.append((profile, f'npc_{npc_id}'))
+                if mode == 'immersive':
+                    memory = _load_scenario_file(scenario_path, f'characters/npcs/{npc_id}/memory.md')
+                    if memory:
+                        parts.append((memory, f'npc_{npc_id}_memory'))
+
+    # ──────────────────────────────────────────────
+    # BUDGET ENFORCEMENT (4000 tokens)
+    # ──────────────────────────────────────────────
+    return _enforce_context_budget(parts, 4000)
 
 
 def _build_market_context(strat, output_file: str) -> str:
@@ -785,7 +993,9 @@ def _get_market_articles(strat, profile_id: int, limit: int = 5) -> str:
 
 
 def _pack_context(persona_name: str, strat, output_file: str,
-                  profile_id: int, max_tokens: int = 16000) -> str:
+                  profile_id: int, max_tokens: int = 16000,
+                  user_message: str = '', rp_mode: str = 'gm',
+                  active_npc: str = '') -> str:
     """Build the richest possible context that fits in max_tokens.
 
     Token estimation: word count * 1.3
@@ -795,10 +1005,31 @@ def _pack_context(persona_name: str, strat, output_file: str,
     """
     sections = []
 
-    # Universal: always include (highest priority)
-    sections.append(('profile', _get_profile_context(strat, profile_id)))
-    sections.append(('custom_context', _get_persona_custom_context(strat, profile_id, persona_name)))
-    sections.append(('preferences', _get_preference_signals(strat, profile_id, persona_name)))
+    # Gaming persona: skip real-world profile, use selective file loading
+    if persona_name == 'gaming':
+        scenario_path = _get_scenario_path(strat, profile_id)
+        if scenario_path:
+            # New file-based selective loading
+            gaming_ctx = _pack_gaming_context_selective(
+                strat, profile_id, scenario_path,
+                mode=rp_mode, active_npc=active_npc,
+                user_message=user_message
+            )
+            sections.append(('gaming_selective', gaming_ctx))
+            sections.append(('files', _get_file_summaries(strat, profile_id, 'gaming')))
+        else:
+            # Fallback to DB-based context for old scenarios
+            sections.append(('profile', _get_profile_context(strat, profile_id)))
+            sections.append(('custom_context', _get_persona_custom_context(strat, profile_id, persona_name)))
+            games = _build_games_context(strat, profile_id)
+            sections.append(('games_data', games))
+            sections.append(('scenario', _get_active_scenario(strat, profile_id)))
+            sections.append(('files', _get_file_summaries(strat, profile_id, 'gaming')))
+    else:
+        # Universal: always include (highest priority) — non-gaming personas
+        sections.append(('profile', _get_profile_context(strat, profile_id)))
+        sections.append(('custom_context', _get_persona_custom_context(strat, profile_id, persona_name)))
+        sections.append(('preferences', _get_preference_signals(strat, profile_id, persona_name)))
 
     # Persona-specific data (fills remaining budget)
     if persona_name == 'intelligence':
@@ -820,12 +1051,6 @@ def _pack_context(persona_name: str, strat, output_file: str,
         market = _build_market_context(strat, output_file)
         sections.append(('market_data', market))
         sections.append(('market_news', _get_market_articles(strat, profile_id, limit=5)))
-
-    elif persona_name == 'gaming':
-        games = _build_games_context(strat, profile_id)
-        sections.append(('games_data', games))
-        sections.append(('scenario', _get_active_scenario(strat, profile_id)))
-        sections.append(('files', _get_file_summaries(strat, profile_id, 'gaming')))
 
     # Pack into prompt, respecting token budget
     prompt_parts = []
@@ -864,10 +1089,13 @@ def _load_state_md(strat, profile_id: int, persona_name: str) -> str:
 
 
 def build_persona_context(persona: str, strat, output_file: str,
-                          profile_id: int = 0) -> str:
+                          profile_id: int = 0, user_message: str = '',
+                          rp_mode: str = 'gm', active_npc: str = '') -> str:
     """Build context data for the given persona using smart context packing."""
     state = _load_state_md(strat, profile_id, persona)
-    ctx = _pack_context(persona, strat, output_file, profile_id)
+    ctx = _pack_context(persona, strat, output_file, profile_id,
+                        user_message=user_message, rp_mode=rp_mode,
+                        active_npc=active_npc)
 
     if state:
         ctx = f"{state}\n\n{ctx}" if ctx else state
