@@ -138,21 +138,19 @@ function _fbCreateModal() {
 
                     <!-- Editor view (hidden by default) -->
                     <div id="fe-editor-view" style="flex:1;flex-direction:column;min-height:0;display:none;">
-                        <div class="flex items-center gap-1.5 px-3 py-2" style="border-bottom:1px solid var(--border-strong);">
-                            <button onclick="_fbCloseEditor()" class="fe-nav-btn" data-tip="Back to file list"><i data-lucide="arrow-left" class="w-4 h-4"></i></button>
-                            <span id="fe-editor-name" class="text-[12px] font-mono flex-1 truncate" style="color:var(--text-secondary)"></span>
-                            <span id="fe-editor-dirty" style="display:none;font-size:10px;padding:2px 6px;border-radius:4px;background:rgba(251,191,36,0.15);color:#fbbf24;">unsaved</span>
-                            <div class="fe-toolbar-divider"></div>
+                        <div class="fe-editor-toolbar">
                             ${_FB_TOOLBAR.map(t => `<button onclick="_fbInsertFormat('${t.prefix.replace(/\n/g,'\\n')}','${t.suffix.replace(/\n/g,'\\n')}')" class="fe-fmt-btn" data-tip="${t.key}"><i data-lucide="${t.icon}" class="w-3.5 h-3.5"></i></button>`).join('')}
                             <div class="fe-toolbar-divider"></div>
-                            <button onclick="_fbTogglePreview()" class="fe-fmt-btn" data-tip="Toggle preview (Ctrl+Shift+P)"><i data-lucide="eye" class="w-3.5 h-3.5"></i></button>
+                            <button onclick="_fbTogglePreview()" class="fe-fmt-btn" id="fe-preview-toggle-btn" data-tip="Toggle preview (Ctrl+Shift+P)"><i data-lucide="eye" class="w-3.5 h-3.5"></i></button>
+                            <div class="flex-1"></div>
+                            <span id="fe-editor-dirty" class="fe-dirty-badge" style="display:none">●</span>
                             <button onclick="_fbAiAssistMenu(event)" class="fe-ai-btn" data-tip="AI writing assistant"><i data-lucide="sparkles" class="w-3.5 h-3.5"></i> AI</button>
                         </div>
                         <textarea id="fe-editor-textarea" class="fe-textarea" spellcheck="false" placeholder="Start typing..."></textarea>
                         <div id="fe-preview-pane" style="display:none" class="fe-preview"></div>
-                        <div class="fe-status-bar">
+                        <div class="fe-action-bar">
                             <button onclick="_fbSaveFile()" class="fe-save-btn" data-tip="Save file (Ctrl+S)"><i data-lucide="save" class="w-3.5 h-3.5"></i> Save</button>
-                            <button onclick="_fbTogglePreview()" class="fe-action-btn text-[11px]" data-tip="Toggle markdown preview"><i data-lucide="eye" class="w-3.5 h-3.5"></i> Preview</button>
+                            <button onclick="_fbTogglePreview()" class="fe-action-btn" data-tip="Toggle markdown preview"><i data-lucide="eye" class="w-3.5 h-3.5"></i> Preview</button>
                             <div class="flex-1"></div>
                             <span id="fe-word-count" class="text-[11px]" style="color:var(--text-faint)"></span>
                         </div>
@@ -275,6 +273,9 @@ function _fbShowList() {
     if (listView) listView.style.display = 'flex';
     if (editorView) editorView.style.display = 'none';
     if (colHeader) colHeader.style.display = 'flex';
+    // Restore titlebar to explorer mode
+    _fbSetTitlebarMode('explorer');
+    _fbRenderBreadcrumb();
 }
 
 function _fbShowEditor() {
@@ -288,6 +289,47 @@ function _fbShowEditor() {
     const prev = document.getElementById('fe-preview-pane');
     if (ta) { ta.style.display = ''; }
     if (prev) { prev.style.display = 'none'; }
+    // Switch titlebar to editor mode (back button + file breadcrumb)
+    _fbSetTitlebarMode('editor');
+}
+
+function _fbSetTitlebarMode(mode) {
+    const left = document.querySelector('.fe-titlebar-left');
+    if (!left) return;
+    if (mode === 'editor') {
+        left.innerHTML = `
+            <button onclick="_fbCloseEditor()" class="fe-nav-btn" data-tip="Back to file list" data-tip-pos="bottom">
+                <i data-lucide="arrow-left" class="w-4 h-4"></i>
+            </button>
+            <span class="fe-titlebar-title">Edit</span>`;
+    } else {
+        left.innerHTML = `
+            <i data-lucide="search" class="w-4 h-4" style="color:var(--text-muted)"></i>
+            <span class="fe-titlebar-title">Files</span>`;
+    }
+    lucide.createIcons();
+}
+
+function _fbRenderEditorBreadcrumb(filePath) {
+    const el = document.getElementById('fe-breadcrumb');
+    if (!el) return;
+    const p = _FB_PERSONAS.find(p => p.name === _fbPersona);
+    const icon = p ? p.icon : '📁';
+    const label = p ? p.label : _fbPersona;
+    // Build breadcrumb: Persona / path / to / file.md
+    const parts = filePath.replace(/^\//, '').split('/').filter(Boolean);
+    let html = `<button onclick="_fbCloseEditor()" class="fe-crumb"><span class="fe-crumb-icon">${icon}</span> ${label}</button>`;
+    for (let i = 0; i < parts.length; i++) {
+        const isLast = i === parts.length - 1;
+        html += `<span class="fe-crumb-sep">/</span>`;
+        if (isLast) {
+            html += `<span class="fe-crumb fe-crumb-file"><b>${_escHtml(parts[i])}</b></span>`;
+        } else {
+            const pathSoFar = '/' + parts.slice(0, i + 1).join('/');
+            html += `<button onclick="_fbCloseEditor();_fbLoadDir('${_escAttr(pathSoFar)}')" class="fe-crumb"><b>${_escHtml(parts[i])}</b></button>`;
+        }
+    }
+    el.innerHTML = html;
 }
 
 // ── Breadcrumb ──
@@ -385,11 +427,11 @@ function _fbNavigateUp() {
 async function _fbOpenFile(path, name) {
     _fbShowEditor();
     const textarea = document.getElementById('fe-editor-textarea');
-    const nameEl = document.getElementById('fe-editor-name');
     const dirty = document.getElementById('fe-editor-dirty');
     if (!textarea) return;
 
-    if (nameEl) nameEl.textContent = name;
+    // Update breadcrumb to show file path
+    _fbRenderEditorBreadcrumb(path);
     if (dirty) dirty.style.display = 'none';
     const aiBadge = document.getElementById('fe-ai-badge');
     if (aiBadge) aiBadge.remove();
@@ -608,7 +650,7 @@ let _fbAiUndoContent = null;  // stores content before AI edit
 function _fbShowAiBadge() {
     let existing = document.getElementById('fe-ai-badge');
     if (existing) existing.remove();
-    const statusBar = document.querySelector('#fe-editor-view .fe-status-bar, #fe-editor-view [style*="border-top"]');
+    const statusBar = document.querySelector('#fe-editor-view .fe-action-bar');
     if (!statusBar) return;
     const badge = document.createElement('span');
     badge.id = 'fe-ai-badge';
