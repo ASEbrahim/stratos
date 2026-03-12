@@ -37,7 +37,10 @@ def handle_agent_status(handler, strat):
             available = any(model.split(":")[0] in m for m in models)
     except Exception:
         pass
-    json_response(handler, {"available": available, "model": model, "host": ollama_host})
+    from processors.stt import STTProcessor
+    stt_ok, stt_msg = STTProcessor.is_available()
+    json_response(handler, {"available": available, "model": model, "host": ollama_host,
+                             "stt": {"available": stt_ok, "message": stt_msg}})
 
 
 # ═══════════════════════════════════════════════════════════

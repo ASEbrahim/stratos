@@ -895,6 +895,11 @@ function _restoreDisplaySettings() {
     if (ttsEl) {
         ttsEl.checked = localStorage.getItem('stratos_tts_enabled') !== '0';
     }
+    // STT toggle — read from localStorage
+    var sttEl = document.getElementById('cfg-stt');
+    if (sttEl) {
+        sttEl.checked = localStorage.getItem('stratos_stt_enabled') !== '0';
+    }
     _updateStorageUsage();
 }
 

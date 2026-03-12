@@ -183,6 +183,36 @@ def handle_post(handler, strat, auth, path):
             _send_json(handler, {"error": "TTS failed"}, 500)
         return True
 
+    # ── STT — Speech-to-Text via faster-whisper ──────
+    if path == "/api/stt":
+        from processors.stt import STTProcessor
+        available, msg = STTProcessor.is_available()
+        if not available:
+            _send_json(handler, {"error": f"Speech-to-text unavailable: {msg}"}, 503)
+            return True
+        content_length = int(handler.headers.get('Content-Length', 0))
+        if content_length == 0:
+            _send_json(handler, {"error": "No audio data received"}, 400)
+            return True
+        if content_length > STTProcessor.MAX_AUDIO_BYTES:
+            _send_json(handler, {"error": f"Audio too large ({content_length} bytes). Max: {STTProcessor.MAX_AUDIO_BYTES}"}, 413)
+            return True
+        audio_bytes = handler.rfile.read(content_length)
+        language_hint = handler.headers.get('X-Language-Hint', None)
+        if language_hint and language_hint not in ('en', 'ar', 'ja', 'ko', 'zh', 'fr', 'de', 'es'):
+            language_hint = None
+        try:
+            result = STTProcessor.transcribe(audio_bytes, language_hint=language_hint)
+            _send_json(handler, result)
+        except ValueError as e:
+            _send_json(handler, {"error": str(e)}, 400)
+        except RuntimeError as e:
+            _send_json(handler, {"error": str(e)}, 500)
+        except Exception as e:
+            logger.error(f"STT error: {e}", exc_info=True)
+            _send_json(handler, {"error": "Transcription failed. Please try again."}, 500)
+        return True
+
     # ── Persona Files POST endpoints ────────────────
     if path in ('/api/persona-files/write', '/api/persona-files/mkdir'):
         from processors.persona_context import PersonaContextManager

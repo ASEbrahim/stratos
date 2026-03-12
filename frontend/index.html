@@ -876,6 +876,14 @@
                                 </label>
                                 <p class="text-[10px] text-slate-600 mt-1">Uses Piper TTS to read agent responses aloud. Requires Piper installed on server.</p>
                             </div>
+                            <div>
+                                <label class="text-xs text-slate-400 block mb-1.5 font-medium">Voice Input (STT)</label>
+                                <label class="flex items-center gap-2 cursor-pointer">
+                                    <input type="checkbox" id="cfg-stt" onchange="_toggleSTT(this.checked)" class="accent-emerald-500" checked>
+                                    <span class="text-xs text-slate-300">Enable microphone button for voice input</span>
+                                </label>
+                                <p class="text-[10px] text-slate-600 mt-1">Uses faster-whisper to transcribe speech. CPU-only, auto-detects language.</p>
+                            </div>
                         </div>
                     </div>
 
@@ -1521,6 +1529,7 @@
     <script defer src="agent-suggestions.js"></script>
     <script defer src="agent-customizer.js"></script>
     <script defer src="agent-tickers.js"></script>
+    <script defer src="stt.js"></script>
     <script defer src="agent.js"></script>
     <script defer src="ui.js"></script>
     <script defer src="scan-history.js"></script>
