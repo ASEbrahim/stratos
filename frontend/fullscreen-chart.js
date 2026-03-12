@@ -1192,12 +1192,13 @@ function _openFullscreenChartInner(sourceEl, title) {
         }
         if (toolId === 'trash') {
             if (_fs.drawings.length === 0) return;
-            if (confirm('Delete all drawings on this chart?')) {
+            stratosConfirm('Delete all drawings on this chart?', { title: 'Clear Drawings', okText: 'Delete All', cancelText: 'Cancel' }).then(ok => {
+                if (!ok) return;
                 _fs.drawings = [];
                 _fs.selectedIdx = -1;
                 _fsSaveDrawings();
                 _fsRedrawCanvas();
-            }
+            });
             return;
         }
         if (toolId === 'screenshot') {
@@ -1555,11 +1556,13 @@ function _openFullscreenChartInner(sourceEl, title) {
             _fsSaveDrawings(); _fsRedrawCanvas(); return;
         }
         if (_fs.drawMode === 'text') {
-            var txt = prompt('Enter text annotation:');
-            if (txt) {
-                _fs.drawings.push({ type:'text', text: txt, price: coords.price, timeIdx: coords.timeIdx });
-                _fsSaveDrawings(); _fsRedrawCanvas();
-            }
+            (async () => {
+                const txt = await stratosPrompt({ title: 'Text Annotation', label: 'Annotation text', placeholder: 'Support level...' });
+                if (txt) {
+                    _fs.drawings.push({ type:'text', text: txt, price: coords.price, timeIdx: coords.timeIdx });
+                    _fsSaveDrawings(); _fsRedrawCanvas();
+                }
+            })();
             return;
         }
 

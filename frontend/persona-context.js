@@ -217,7 +217,7 @@ async function _ctxSave() {
 
 // ── Reset context to default ──
 async function _ctxReset() {
-    if (!confirm(`Reset ${_ctxEditorPersona} context to default? This cannot be undone.`)) return;
+    if (!(await stratosConfirm(`Reset ${_ctxEditorPersona} context to default? This cannot be undone.`, { title: 'Reset Context', okText: 'Reset', cancelText: 'Cancel' }))) return;
     try {
         const r = await fetch(`/api/persona-context?persona=${encodeURIComponent(_ctxEditorPersona)}&key=system_context`, {
             method: 'DELETE',
@@ -240,7 +240,7 @@ async function _ctxReset() {
 // ── Revert to a previous version ──
 async function _ctxRevert(filename) {
     if (!filename) return;
-    if (!confirm(`Revert to this version? Current content will be saved as a new version.`)) {
+    if (!(await stratosConfirm('Revert to this version? Current content will be saved as a new version.', { title: 'Revert Version', okText: 'Revert', cancelText: 'Cancel' }))) {
         document.getElementById('ctx-version-select').value = '';
         return;
     }

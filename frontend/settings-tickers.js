@@ -328,8 +328,8 @@ function saveTickerPreset() {
     if (typeof showToast === 'function') showToast('Saved preset: ' + name, 'success');
 }
 
-function deleteTickerPreset(name) {
-    if (!confirm('Delete preset "' + name + '"?')) return;
+async function deleteTickerPreset(name) {
+    if (!(await stratosConfirm('Delete preset "' + name + '"?', { title: 'Delete Preset', okText: 'Delete', cancelText: 'Cancel' }))) return;
     _tickerPresets = _tickerPresets.filter(function(p) { return p.name !== name; });
     renderTickerPresets();
     var token = localStorage.getItem('stratos_token');

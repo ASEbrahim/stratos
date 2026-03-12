@@ -170,7 +170,7 @@ window._ytAddChannel = _ytAddChannel;
 
 // ── Delete channel ──
 async function _ytDeleteChannel(id, name) {
-    if (!confirm(`Remove channel "${name}"?`)) return;
+    if (!(await stratosConfirm(`Remove channel "${name}"?`, { title: 'Remove Channel', okText: 'Remove', cancelText: 'Cancel' }))) return;
     try {
         await fetch(`/api/youtube/channels/${id}`, {
             method: 'DELETE',

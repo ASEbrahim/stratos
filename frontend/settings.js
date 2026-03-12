@@ -482,7 +482,7 @@ async function savePreset() {
 }
 
 async function loadPreset(name) {
-    if (!confirm(`Load preset "${name}"? This will replace your current settings.`)) return;
+    if (!(await stratosConfirm(`Load preset "${name}"? This will replace your current settings.`, { title: 'Load Preset', okText: 'Load', cancelText: 'Cancel' }))) return;
     try {
         const response = await fetch('/api/profiles', {
             method: 'POST',
@@ -504,7 +504,7 @@ async function loadPreset(name) {
 }
 
 async function deletePreset(name) {
-    if (!confirm(`Delete preset "${name}"?`)) return;
+    if (!(await stratosConfirm(`Delete preset "${name}"?`, { title: 'Delete Preset', okText: 'Delete', cancelText: 'Cancel' }))) return;
     try {
         const delResp = await fetch('/api/profiles', {
             method: 'POST',
@@ -1429,8 +1429,8 @@ async function saveFromSimple() {
 // QUICK SAVE (icon in header + Ctrl+S)
 // ═══════════════════════════════════════════════════════════
 
-function clearSimpleSettings() {
-    if (!confirm('Clear all Simple settings? This will remove your role, context, and all generated categories.')) return;
+async function clearSimpleSettings() {
+    if (!(await stratosConfirm('This will remove your role, context, and all generated categories.', { title: 'Clear Settings', okText: 'Clear All', cancelText: 'Cancel' }))) return;
     
     // Clear fields
     const roleEl = document.getElementById('simple-role');

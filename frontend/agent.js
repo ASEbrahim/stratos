@@ -142,7 +142,7 @@ function _renderConvTabs() {
 async function _renameConversation(convId) {
     const conv = _agentConvList.find(c => c.id === convId);
     if (!conv) return;
-    const newTitle = prompt('Rename conversation:', conv.title || 'New Chat');
+    const newTitle = await stratosPrompt({ title: 'Rename Conversation', label: 'Title', defaultValue: conv.title || 'New Chat' });
     if (newTitle === null || !newTitle.trim()) return;
     try {
         await fetch(`/api/conversations/${convId}`, {

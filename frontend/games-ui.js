@@ -167,9 +167,13 @@ window._gamesGetState = function() {
 
 // ── Create scenario ──
 async function _gamesCreateScenario() {
-    const name = prompt('Scenario name (e.g., Dragon_Quest):');
-    if (!name || !name.trim()) return;
-    const world = prompt('World description (optional):') || '';
+    const result = await stratosPrompt({ title: 'New Scenario', fields: [
+        { key: 'name', label: 'Scenario name', placeholder: 'e.g., Dragon_Quest' },
+        { key: 'world', label: 'World description', placeholder: 'A dark fantasy setting...', optional: true }
+    ]});
+    if (!result) return;
+    const name = result.name;
+    const world = result.world || '';
     try {
         const r = await fetch('/api/scenarios/create', {
             method: 'POST',
@@ -192,7 +196,7 @@ window._gamesCreateScenario = _gamesCreateScenario;
 
 // ── Create with genre preset ──
 async function _gamesCreateScenarioWithGenre(genre) {
-    const name = prompt(`${genre} scenario name:`, genre.replace(/\s/g, '_'));
+    const name = await stratosPrompt({ title: `New ${genre} Scenario`, label: 'Scenario name', placeholder: genre.replace(/\s/g, '_'), defaultValue: genre.replace(/\s/g, '_') });
     if (!name || !name.trim()) return;
     try {
         const r = await fetch('/api/scenarios/create', {
@@ -235,7 +239,7 @@ window._gamesActivateScenario = _gamesActivateScenario;
 
 // ── Delete scenario ──
 async function _gamesDeleteScenario(name) {
-    if (!confirm(`Delete scenario "${name}"? This cannot be undone.`)) return;
+    if (!(await stratosConfirm(`Delete scenario "${name}"? This cannot be undone.`, { title: 'Delete Scenario', okText: 'Delete', cancelText: 'Cancel' }))) return;
     try {
         await fetch(`/api/scenarios?name=${encodeURIComponent(name)}`, {
             method: 'DELETE',
@@ -314,9 +318,13 @@ window._gamesSelectEntity = _gamesSelectEntity;
 async function _gamesCreateEntity() {
     const persona = (typeof currentPersona !== 'undefined') ? currentPersona : 'gaming';
     const entityLabel = persona === 'scholarly' ? 'Figure' : 'Character';
-    const displayName = prompt(`${entityLabel} name:`);
-    if (!displayName || !displayName.trim()) return;
-    const personality = prompt(`${entityLabel} personality (optional):`) || '';
+    const result = await stratosPrompt({ title: `New ${entityLabel}`, fields: [
+        { key: 'name', label: `${entityLabel} name`, placeholder: 'e.g., Tanjiro' },
+        { key: 'personality', label: 'Personality', placeholder: 'Brave, kind-hearted...', optional: true }
+    ]});
+    if (!result) return;
+    const displayName = result.name;
+    const personality = result.personality || '';
     try {
         const r = await fetch(`/api/personas/${persona}/entities`, {
             method: 'POST',
@@ -344,7 +352,7 @@ window._gamesCreateEntity = _gamesCreateEntity;
 
 async function _gamesDeleteEntity(name) {
     const persona = (typeof currentPersona !== 'undefined') ? currentPersona : 'gaming';
-    if (!confirm(`Delete "${name}"?`)) return;
+    if (!(await stratosConfirm(`Delete "${name}"?`, { title: 'Delete Character', okText: 'Delete', cancelText: 'Cancel' }))) return;
     try {
         await fetch(`/api/personas/${persona}/entities/${encodeURIComponent(name)}?scenario=${encodeURIComponent(_gamesActiveScenario || '')}`, {
             method: 'DELETE',

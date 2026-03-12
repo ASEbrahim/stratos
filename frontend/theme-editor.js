@@ -816,10 +816,10 @@
             if (typeof renderStars === 'function') renderStars();
         },
 
-        savePreset() {
+        async savePreset() {
             const overrides = loadOverrides();
             if (!Object.keys(overrides).length) return;
-            const name = prompt('Preset name:');
+            const name = await stratosPrompt({ title: 'Save Theme Preset', label: 'Preset name', placeholder: 'My custom theme' });
             if (!name || !name.trim()) return;
             const presets = _getPresets();
             // Overwrite if same name exists
@@ -855,10 +855,13 @@
             const idx = parseInt(sel.value);
             const preset = presets[idx];
             if (!preset) return;
-            if (!confirm(`Delete preset "${preset.name}"?`)) return;
-            presets.splice(idx, 1);
-            _savePresets(presets);
-            _refreshPresetList();
+            stratosConfirm(`Delete preset "${preset.name}"?`, { title: 'Delete Preset', okText: 'Delete', cancelText: 'Cancel' }).then(ok => {
+                if (!ok) return;
+                const presets2 = _getPresets();
+                presets2.splice(idx, 1);
+                _savePresets(presets2);
+                _refreshPresetList();
+            });
         },
 
         // Called by setTheme() to re-apply overrides on theme switch

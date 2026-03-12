@@ -533,16 +533,16 @@ function _loadPresetState(preset) {
   _rvLoading = false;
 }
 
-function savePreset() {
+async function savePreset() {
   const role = document.getElementById('simple-role')?.value?.trim() || '';
   const location = document.getElementById('simple-location')?.value?.trim() || '';
   const suggested = role + (location ? ' \u00B7 ' + location : '');
-  const name = prompt('Save profile as:', suggested);
+  const name = await stratosPrompt({ title: 'Save Profile', label: 'Profile name', defaultValue: suggested });
   if (!name || !name.trim()) return;
   const key = name.trim();
   const presets = _getPresets();
   if (presets[key]) {
-    if (!confirm(`"${key}" already exists. Overwrite?`)) return;
+    if (!(await stratosConfirm(`"${key}" already exists. Overwrite?`, { title: 'Overwrite Profile', okText: 'Overwrite', cancelText: 'Cancel' }))) return;
   }
   presets[key] = {
     name: key,
@@ -578,9 +578,9 @@ function loadPreset(name) {
   if (typeof showToast === 'function') showToast(`Loaded "${name}"`, 'success');
 }
 
-function deletePreset(name, evt) {
+async function deletePreset(name, evt) {
   if (evt) { evt.stopPropagation(); evt.preventDefault(); }
-  if (!confirm(`Delete "${name}"?`)) return;
+  if (!(await stratosConfirm(`Delete "${name}"?`, { title: 'Delete Profile', okText: 'Delete', cancelText: 'Cancel' }))) return;
   const presets = _getPresets();
   delete presets[name];
   _setPresets(presets);

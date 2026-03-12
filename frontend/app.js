@@ -684,9 +684,9 @@ function _forgotPin() {
 }
 
 async function _deleteAccount() {
-    const confirmed = confirm('Are you sure you want to delete your account? This will permanently remove all your data and profiles. This action cannot be undone.');
+    const confirmed = await stratosConfirm('This will permanently remove all your data and profiles. This action cannot be undone.', { title: 'Delete Account', okText: 'Delete', cancelText: 'Keep Account' });
     if (!confirmed) return;
-    const password = prompt('Enter your password to confirm:');
+    const password = await stratosPrompt({ title: 'Confirm Deletion', label: 'Enter your password to confirm' });
     if (!password) return;
     try {
         const token = getAuthToken();

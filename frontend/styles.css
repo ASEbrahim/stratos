@@ -861,7 +861,7 @@ body:has(.agent-fullscreen) > .flex > main {
 }
 .fe-ai-btn:hover { background: rgba(192,132,252,0.12); }
 .fe-ai-menu {
-    position: absolute; top: 100%; right: 0; margin-top: 4px; z-index: 100;
+    position: fixed; z-index: 999999;
     background: var(--bg-panel-solid, #0e1026); border: 1px solid var(--border-strong);
     border-radius: 8px; padding: 4px; min-width: 180px;
     box-shadow: 0 8px 24px rgba(0,0,0,0.4);
@@ -872,6 +872,36 @@ body:has(.agent-fullscreen) > .flex > main {
     color: var(--text-secondary); border: none; background: none; transition: all 0.12s;
 }
 .fe-ai-menu-item:hover { background: rgba(192,132,252,0.1); color: #c084fc; }
+/* AI loading overlay */
+.fe-ai-loading {
+    position: absolute; inset: 0; z-index: 50;
+    background: rgba(0,0,0,0.55); backdrop-filter: blur(3px);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    border-radius: 8px; gap: 12px;
+}
+.fe-ai-spinner {
+    width: 28px; height: 28px; border: 3px solid rgba(192,132,252,0.2);
+    border-top-color: #c084fc; border-radius: 50%;
+    animation: feAiSpin 0.7s linear infinite;
+}
+@keyframes feAiSpin { to { transform: rotate(360deg); } }
+.fe-ai-loading-text {
+    font-size: 12px; font-weight: 500; color: #c084fc;
+}
+/* AI edited badge in editor status bar */
+.fe-ai-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 600;
+    background: rgba(192,132,252,0.12); color: #c084fc;
+    border: 1px solid rgba(192,132,252,0.25);
+}
+.fe-ai-undo {
+    padding: 1px 6px; border-radius: 3px; font-size: 9px; font-weight: 700;
+    background: rgba(251,191,36,0.15); color: #fbbf24;
+    border: 1px solid rgba(251,191,36,0.3); cursor: pointer;
+    transition: all 0.12s;
+}
+.fe-ai-undo:hover { background: rgba(251,191,36,0.25); }
 /* Resize handle */
 /* Tooltips — appended to body via JS for guaranteed top layer */
 .fe-tooltip {
@@ -3091,3 +3121,72 @@ body.tts-disabled .speak-btn {
     }
     .auth-orb { animation: none !important; }
 }
+
+/* ═══════════════════════════════════════════════════════════ */
+/* STRATOS PROMPT / CONFIRM MODAL                             */
+/* ═══════════════════════════════════════════════════════════ */
+.stratos-prompt-backdrop {
+    position: fixed; inset: 0; z-index: 999990;
+    background: rgba(0,0,0,0.55); backdrop-filter: blur(4px);
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; transition: opacity 0.15s ease;
+}
+.stratos-prompt-dialog {
+    background: var(--bg-panel-solid, #12162b);
+    border: 1px solid var(--border-strong, rgba(255,255,255,0.1));
+    border-radius: 14px; padding: 20px 24px; min-width: 340px; max-width: 440px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.04) inset;
+    transform: scale(0.95); opacity: 0; transition: transform 0.15s ease, opacity 0.15s ease;
+}
+.sp-title {
+    font-size: 14px; font-weight: 600; color: var(--text-primary, #e2e8f0);
+    margin-bottom: 14px;
+}
+.sp-message {
+    font-size: 13px; color: var(--text-secondary, #94a3b8);
+    margin-bottom: 16px; line-height: 1.5;
+}
+.sp-field { margin-bottom: 10px; }
+.sp-label {
+    display: block; font-size: 11px; font-weight: 500;
+    color: var(--text-secondary, #94a3b8); margin-bottom: 4px;
+}
+.sp-input {
+    width: 100%; padding: 9px 12px; font-size: 13px;
+    background: rgba(255,255,255,0.04); border: 1px solid var(--border-strong, rgba(255,255,255,0.1));
+    border-radius: 8px; color: var(--text-primary, #e2e8f0);
+    outline: none; transition: border-color 0.15s, box-shadow 0.15s;
+}
+.sp-input:focus {
+    border-color: var(--accent, #60a5fa);
+    box-shadow: 0 0 0 2px rgba(96,165,250,0.15);
+}
+.sp-input.sp-shake {
+    animation: spShake 0.3s ease;
+    border-color: #f87171;
+}
+@keyframes spShake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-4px); }
+    75% { transform: translateX(4px); }
+}
+.sp-buttons {
+    display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px;
+}
+.sp-btn {
+    padding: 7px 16px; border-radius: 8px; font-size: 12px; font-weight: 600;
+    cursor: pointer; border: 1px solid transparent; transition: all 0.12s;
+}
+.sp-cancel {
+    background: rgba(255,255,255,0.05); color: var(--text-secondary, #94a3b8);
+    border-color: var(--border-strong, rgba(255,255,255,0.1));
+}
+.sp-cancel:hover { background: rgba(255,255,255,0.08); color: var(--text-primary, #e2e8f0); }
+.sp-ok {
+    background: var(--accent, #60a5fa); color: #fff; border-color: transparent;
+}
+.sp-ok:hover { filter: brightness(1.1); }
+.sp-danger {
+    background: rgba(239,68,68,0.8);
+}
+.sp-danger:hover { background: rgba(239,68,68,1); }

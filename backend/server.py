@@ -469,6 +469,11 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                 handle_ask(self, strat, output_dir)
                 return
 
+            if self.path == "/api/file-assist":
+                from routes.agent import handle_file_assist
+                handle_file_assist(self, strat)
+                return
+
             if self.path == "/api/suggest-context":
                 handle_suggest_context(self, strat)
                 return

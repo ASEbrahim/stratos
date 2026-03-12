@@ -560,9 +560,9 @@ function toggleAllCustomFeeds(state) {
     renderCustomCatalog();
 }
 
-function editCustomTabName() {
+async function editCustomTabName() {
     const current = customTabName || 'Custom';
-    const newName = prompt('Rename custom tab:', current);
+    const newName = await stratosPrompt({ title: 'Rename Tab', label: 'Tab name', defaultValue: current });
     if (newName && newName.trim()) {
         customTabName = newName.trim();
         const label = document.getElementById('custom-tab-label');

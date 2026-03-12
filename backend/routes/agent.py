@@ -596,6 +596,60 @@ def handle_ask(handler, strat, output_dir):
 
 
 # ═══════════════════════════════════════════════════════════
+# FILE ASSIST — lightweight LLM for file editor operations
+# ═══════════════════════════════════════════════════════════
+
+def handle_file_assist(handler, strat):
+    """POST /api/file-assist — Fast LLM call for file editing (revise, continue, grammar, etc.)"""
+    try:
+        body = read_json_body(handler)
+        action = body.get("action", "").strip()
+        content = body.get("content", "").strip()
+        filename = body.get("filename", "file")
+        instruction = body.get("instruction", "").strip()
+        if not content:
+            raise ValueError("No content")
+
+        prompts = {
+            "revise": f"Revise and improve this text. Keep the same format and structure. Return ONLY the improved text:\n\n{content}",
+            "continue": f"Continue writing from where this text leaves off. Match the style and format. Return ONLY the continuation:\n\n{content}",
+            "summarize": f"Summarize the contents of this file ({filename}) in 2-3 sentences:\n\n{content}",
+            "grammar": f"Fix any grammar, spelling, or punctuation errors. Return ONLY the corrected text:\n\n{content}",
+            "custom": f"{instruction}\n\nFile: {filename}\nContent:\n{content}",
+        }
+        prompt = prompts.get(action)
+        if not prompt:
+            raise ValueError(f"Unknown action: {action}")
+
+        scorer = strat.scorer
+        max_tokens = 300 if action == "summarize" else min(len(content.split()) * 2, 2000)
+
+        response = req.post(
+            f"{scorer.host}/api/chat",
+            json={
+                "model": scorer.inference_model,
+                "messages": [
+                    {"role": "system", "content": "You are a writing assistant. Follow the instruction exactly. Return only the requested output, no explanations or preamble."},
+                    {"role": "user", "content": prompt},
+                ],
+                "stream": False,
+                "think": False,
+                "options": {"temperature": 0.4, "num_predict": max_tokens, "num_ctx": 4096},
+            },
+            timeout=90,
+        )
+        answer = ""
+        if response.status_code == 200:
+            answer = response.json().get("message", {}).get("content", "").strip()
+            answer = strip_think_blocks(answer)
+            answer = strip_reasoning_preamble(answer)
+        json_response(handler, {"result": answer, "action": action})
+    except Exception as e:
+        logger.error(f"file-assist error: {e}")
+        error_response(handler, str(e), 500)
+
+
+# ═══════════════════════════════════════════════════════════
 # SUGGEST CONTEXT
 # ═══════════════════════════════════════════════════════════
 

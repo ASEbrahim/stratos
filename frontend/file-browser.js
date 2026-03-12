@@ -66,8 +66,8 @@ function toggleFileBrowser(persona) {
 }
 window.toggleFileBrowser = toggleFileBrowser;
 
-function _fbClose() {
-    if (_fbEditorDirty && !confirm('Unsaved changes will be lost. Close anyway?')) return;
+async function _fbClose() {
+    if (_fbEditorDirty && !(await stratosConfirm('Unsaved changes will be lost. Close anyway?', { title: 'Unsaved Changes', okText: 'Discard', cancelText: 'Keep Editing' }))) return;
     _fbOpen = false;
     window._fbOpen = false;
     _fbEditorDirty = false;
@@ -391,6 +391,9 @@ async function _fbOpenFile(path, name) {
 
     if (nameEl) nameEl.textContent = name;
     if (dirty) dirty.style.display = 'none';
+    const aiBadge = document.getElementById('fe-ai-badge');
+    if (aiBadge) aiBadge.remove();
+    _fbAiUndoContent = null;
     textarea.value = 'Loading...';
     textarea.disabled = true;
     _fbEditorPath = path;
@@ -415,8 +418,8 @@ async function _fbOpenFile(path, name) {
     lucide.createIcons();
 }
 
-function _fbCloseEditor() {
-    if (_fbEditorDirty && !confirm('Unsaved changes. Discard?')) return;
+async function _fbCloseEditor() {
+    if (_fbEditorDirty && !(await stratosConfirm('Unsaved changes will be lost.', { title: 'Discard Changes?', okText: 'Discard', cancelText: 'Keep Editing' }))) return;
     _fbEditorDirty = false;
     _fbShowList();
     _fbLoadDir(_fbPath);
@@ -497,7 +500,11 @@ function _fbTogglePreview() {
 
 // ── AI Assist ──
 function _fbAiAssistMenu(event) {
-    document.querySelectorAll('.fe-ai-menu').forEach(el => el.remove());
+    event.stopPropagation();
+    const existing = document.querySelector('.fe-ai-menu');
+    if (existing) { existing.remove(); return; }
+    const btn = event.target.closest('.fe-ai-btn');
+    if (!btn) return;
     const menu = document.createElement('div');
     menu.className = 'fe-ai-menu';
     const actions = [
@@ -507,69 +514,130 @@ function _fbAiAssistMenu(event) {
         { label: 'Fix grammar', action: 'grammar' },
         { label: 'Custom instruction...', action: 'custom' },
     ];
-    menu.innerHTML = actions.map(a =>
-        `<button class="fe-ai-menu-item" onclick="_fbAiAssist('${a.action}')">${a.label}</button>`
-    ).join('');
-    event.target.closest('.fe-ai-btn')?.appendChild(menu);
-    setTimeout(() => document.addEventListener('click', function close() { menu.remove(); document.removeEventListener('click', close); }), 10);
+    actions.forEach(a => {
+        const item = document.createElement('button');
+        item.className = 'fe-ai-menu-item';
+        item.textContent = a.label;
+        item.addEventListener('click', (e) => { e.stopPropagation(); menu.remove(); _fbAiAssist(a.action); });
+        menu.appendChild(item);
+    });
+    document.body.appendChild(menu);
+    const rect = btn.getBoundingClientRect();
+    menu.style.top = (rect.bottom + 4) + 'px';
+    menu.style.left = Math.max(8, rect.right - menu.offsetWidth) + 'px';
+    function dismiss(e) { if (!menu.contains(e.target) && e.target !== btn) { menu.remove(); document.removeEventListener('click', dismiss); } }
+    setTimeout(() => document.addEventListener('click', dismiss), 0);
 }
 
 async function _fbAiAssist(action) {
     const ta = document.getElementById('fe-editor-textarea');
     if (!ta) return;
     const content = ta.value;
-    if (!content.trim()) { if (typeof showToast === 'function') showToast('Nothing to process', 'info'); return; }
+    if (!content.trim()) { if (typeof showToast === 'function') showToast('Nothing to process — file is empty', 'info'); return; }
 
     let instruction = '';
     if (action === 'custom') {
-        instruction = prompt('What should AI do with this text?');
+        instruction = await stratosPrompt({ title: 'Custom AI Instruction', label: 'What should AI do with this file?', placeholder: 'e.g., Rewrite in a formal tone' });
         if (!instruction) return;
     }
 
-    const prompts = {
-        revise: `Revise and improve this text. Keep the same format and structure. Return ONLY the improved text:\n\n${content}`,
-        continue: `Continue writing from where this text leaves off. Match the style and format. Return ONLY the continuation:\n\n${content}`,
-        summarize: `Summarize this text in 2-3 sentences:\n\n${content}`,
-        grammar: `Fix any grammar, spelling, or punctuation errors. Return ONLY the corrected text:\n\n${content}`,
-        custom: `${instruction}\n\nText:\n${content}`
-    };
+    const fileName = _fbEditorPath ? _fbEditorPath.split('/').pop() : 'file';
 
-    if (typeof showToast === 'function') showToast('AI processing...', 'info');
+    // Show loading overlay on the editor
+    const editorView = document.getElementById('fe-editor-view');
+    let overlay = null;
+    if (editorView) {
+        overlay = document.createElement('div');
+        overlay.className = 'fe-ai-loading';
+        overlay.innerHTML = '<div class="fe-ai-spinner"></div><div class="fe-ai-loading-text">AI processing ' + fileName + '...</div>';
+        editorView.style.position = 'relative';
+        editorView.appendChild(overlay);
+    }
+    ta.disabled = true;
+
     try {
-        const r = await fetch('/api/ask', {
+        const r = await fetch('/api/file-assist', {
             method: 'POST', headers: _fbHeaders(),
-            body: JSON.stringify({
-                question: prompts[action], persona: _fbPersona,
-                system_override: 'You are a writing assistant. Follow the instruction exactly. Return only the requested output, no explanations.'
-            })
+            body: JSON.stringify({ action, content, filename: fileName, instruction })
         });
         if (r.ok) {
             const d = await r.json();
-            const result = (d.answer || d.response || '').trim();
+            const result = (d.result || '').trim();
             if (result) {
                 if (action === 'continue') {
-                    ta.value = content + '\n\n' + result;
+                    // Insert AI continuation with a visible marker
+                    _fbAiUndoContent = content;
+                    const marker = '\n\n── AI generated ──\n';
+                    ta.value = content + marker + result;
+                    _fbEditorDirty = true;
+                    _fbShowAiBadge();
                 } else if (action === 'summarize') {
-                    if (typeof showToast === 'function') showToast(result, 'info');
-                    return;
+                    if (typeof showToast === 'function') showToast(result, 'info', 8000);
                 } else {
-                    if (confirm('Replace content with AI result?\n\nPreview:\n' + result.substring(0, 200) + '...')) {
+                    // Show preview — let user accept or reject
+                    if (await stratosConfirm(result.substring(0, 400) + (result.length > 400 ? '...' : ''), { title: 'Replace with AI result?', okText: 'Apply', cancelText: 'Keep Original' })) {
+                        _fbAiUndoContent = content;
                         ta.value = result;
+                        _fbEditorDirty = true;
+                        _fbShowAiBadge();
                     }
                 }
-                _fbEditorDirty = true;
-                const dirty = document.getElementById('fe-editor-dirty');
-                if (dirty) dirty.style.display = '';
-                _fbUpdateWordCount();
+                if (_fbEditorDirty) {
+                    const dirty = document.getElementById('fe-editor-dirty');
+                    if (dirty) dirty.style.display = '';
+                    _fbUpdateWordCount();
+                }
                 if (typeof showToast === 'function') showToast('AI assist complete', 'success');
+            } else {
+                if (typeof showToast === 'function') showToast('AI returned empty result', 'warning');
             }
         } else {
-            if (typeof showToast === 'function') showToast('AI assist failed', 'error');
+            const err = await r.json().catch(() => ({}));
+            if (typeof showToast === 'function') showToast(err.error || 'AI assist failed', 'error');
         }
     } catch (e) {
-        if (typeof showToast === 'function') showToast('AI assist failed', 'error');
+        if (typeof showToast === 'function') showToast('AI assist failed: ' + e.message, 'error');
+    } finally {
+        ta.disabled = false;
+        if (overlay) overlay.remove();
     }
 }
+
+let _fbAiUndoContent = null;  // stores content before AI edit
+
+function _fbShowAiBadge() {
+    let existing = document.getElementById('fe-ai-badge');
+    if (existing) existing.remove();
+    const statusBar = document.querySelector('#fe-editor-view .fe-status-bar, #fe-editor-view [style*="border-top"]');
+    if (!statusBar) return;
+    const badge = document.createElement('span');
+    badge.id = 'fe-ai-badge';
+    badge.className = 'fe-ai-badge';
+    badge.innerHTML = '✦ AI edited';
+    // Add undo button
+    const undoBtn = document.createElement('button');
+    undoBtn.className = 'fe-ai-undo';
+    undoBtn.textContent = 'Undo';
+    undoBtn.onclick = _fbAiUndo;
+    badge.appendChild(undoBtn);
+    statusBar.prepend(badge);
+}
+
+function _fbAiUndo() {
+    if (_fbAiUndoContent === null) return;
+    const ta = document.getElementById('fe-editor-textarea');
+    if (!ta) return;
+    ta.value = _fbAiUndoContent;
+    _fbAiUndoContent = null;
+    _fbEditorDirty = true;
+    const dirty = document.getElementById('fe-editor-dirty');
+    if (dirty) dirty.style.display = '';
+    const badge = document.getElementById('fe-ai-badge');
+    if (badge) badge.remove();
+    _fbUpdateWordCount();
+    if (typeof showToast === 'function') showToast('AI changes reverted', 'info');
+}
+window._fbAiUndo = _fbAiUndo;
 
 // ── Word count ──
 function _fbUpdateWordCount() {
@@ -581,7 +649,7 @@ function _fbUpdateWordCount() {
 
 // ── Create file/folder ──
 async function _fbCreateFile() {
-    const name = prompt('File name (e.g., notes.md):');
+    const name = await stratosPrompt({ title: 'New File', label: 'File name', placeholder: 'e.g., notes.md' });
     if (!name || !name.trim()) return;
     const path = _fbPath === '/' ? '/' + name.trim() : _fbPath + '/' + name.trim();
     try {
@@ -594,7 +662,7 @@ async function _fbCreateFile() {
 }
 
 async function _fbCreateFolder() {
-    const name = prompt('Folder name:');
+    const name = await stratosPrompt({ title: 'New Folder', label: 'Folder name', placeholder: 'e.g., characters' });
     if (!name || !name.trim()) return;
     const path = _fbPath === '/' ? '/' + name.trim() : _fbPath + '/' + name.trim();
     try {
@@ -607,7 +675,7 @@ async function _fbCreateFolder() {
 }
 
 async function _fbDelete(path, name) {
-    if (!confirm(`Delete "${name}"?`)) return;
+    if (!(await stratosConfirm(`Delete "${name}"? This cannot be undone.`, { title: 'Delete File', okText: 'Delete', cancelText: 'Cancel' }))) return;
     try {
         await fetch(`/api/persona-files?persona=${encodeURIComponent(_fbPersona)}&path=${encodeURIComponent(path)}`, {
             method: 'DELETE', headers: _fbHeaders()
@@ -859,10 +927,13 @@ function _fbInitTooltips() {
 
     document.addEventListener('mouseout', (e) => {
         const target = e.target.closest('[data-tip]');
-        if (target === _fbTipTarget) {
+        if (target && target === _fbTipTarget) {
             // Check if we're leaving to a child — if so, don't hide
             const related = e.relatedTarget;
             if (related && target.contains(related)) return;
+            _fbTipEl.classList.remove('visible');
+            _fbTipTarget = null;
+        } else if (!target && _fbTipTarget) {
             _fbTipEl.classList.remove('visible');
             _fbTipTarget = null;
         }

@@ -138,7 +138,7 @@ async function exportDashboard(format) {
         URL.revokeObjectURL(url);
     } catch (e) {
         console.error('Export failed:', e);
-        alert('Export failed: ' + e.message);
+        if (typeof showToast === 'function') showToast('Export failed: ' + e.message, 'error');
     } finally {
         if (btn) { btn.disabled = false; btn.style.opacity = ''; }
     }
