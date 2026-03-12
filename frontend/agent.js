@@ -646,6 +646,12 @@ async function speakMessage(text, btn) {
         console.error('TTS error:', e);
         if (origIcon) { origIcon.setAttribute('data-lucide', 'volume-2'); lucide.createIcons(); }
         btn.disabled = false;
+        if (typeof showToast === 'function') {
+            const msg = e.message && e.message.includes('503') ? 'TTS unavailable — Piper not installed' :
+                        e.message && e.message.includes('401') ? 'TTS failed — session expired, please refresh' :
+                        'TTS failed — ' + (e.message || 'unknown error');
+            showToast(msg, 'error');
+        }
     }
 }
 

@@ -868,6 +868,14 @@
                                 </label>
                                 <p class="text-[10px] text-slate-600 mt-1">Articles scored 8.0+ persist for 24h so you don't lose actionable signals between scans.</p>
                             </div>
+                            <div>
+                                <label class="text-xs text-slate-400 block mb-1.5 font-medium">Text-to-Speech</label>
+                                <label class="flex items-center gap-2 cursor-pointer">
+                                    <input type="checkbox" id="cfg-tts" onchange="_toggleTTS(this.checked)" class="accent-emerald-500" checked>
+                                    <span class="text-xs text-slate-300">Enable speak button on agent messages</span>
+                                </label>
+                                <p class="text-[10px] text-slate-600 mt-1">Uses Piper TTS to read agent responses aloud. Requires Piper installed on server.</p>
+                            </div>
                         </div>
                     </div>
 

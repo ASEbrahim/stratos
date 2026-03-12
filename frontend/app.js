@@ -820,6 +820,17 @@ function _toggleRetention(enabled) {
     });
 }
 
+function _toggleTTS(enabled) {
+    if (enabled) {
+        localStorage.removeItem('stratos_tts_enabled');
+        document.body.classList.remove('tts-disabled');
+    } else {
+        localStorage.setItem('stratos_tts_enabled', '0');
+        document.body.classList.add('tts-disabled');
+    }
+    if (typeof showToast === 'function') showToast(enabled ? 'Text-to-speech enabled' : 'Text-to-speech disabled', 'success');
+}
+
 function _exportSignals(fmt) {
     var data = typeof newsData !== 'undefined' ? newsData : [];
     if (!data.length) { if (typeof showToast === 'function') showToast('No signals to export', 'warning'); return; }
@@ -878,6 +889,11 @@ function _restoreDisplaySettings() {
     if (retainEl && typeof configData !== 'undefined' && configData) {
         var retainOn = configData.scoring?.retain_high_scores !== false; // default true
         retainEl.checked = retainOn;
+    }
+    // TTS toggle — read from localStorage
+    var ttsEl = document.getElementById('cfg-tts');
+    if (ttsEl) {
+        ttsEl.checked = localStorage.getItem('stratos_tts_enabled') !== '0';
     }
     _updateStorageUsage();
 }
