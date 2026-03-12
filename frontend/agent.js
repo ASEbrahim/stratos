@@ -227,17 +227,11 @@ function _renderRestoredHistory() {
     const welcome = document.getElementById('agent-welcome');
     if (welcome) welcome.style.display = 'none';
     for (const h of agentHistory) {
-        const div = document.createElement('div');
-        div.className = h.role === 'user'
-            ? 'flex justify-end mb-2'
-            : 'flex justify-start mb-2';
-        const bubble = document.createElement('div');
-        bubble.className = h.role === 'user'
-            ? 'agent-bubble-user max-w-[85%] rounded-2xl px-3 py-2 text-sm'
-            : 'agent-bubble-ai max-w-[85%] rounded-2xl px-3 py-2 text-sm';
-        bubble.innerHTML = h.role === 'assistant' ? formatAgentText(h.content) : escAgent(h.content);
-        div.appendChild(bubble);
-        msgs.appendChild(div);
+        if (h.role === 'assistant') {
+            appendAgentMessage('assistant', formatAgentText(h.content));
+        } else {
+            appendAgentMessage('user', h.content);
+        }
     }
     msgs.scrollTop = msgs.scrollHeight;
 }
