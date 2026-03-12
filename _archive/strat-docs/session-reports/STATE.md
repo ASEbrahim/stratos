@@ -717,3 +717,61 @@ Legacy YAML profiles are no longer used. All new users go through DB-auth with e
 ### Note for Ahmad
 Insights API response now includes `available_languages`, `transcript_language`, `current_language` fields.
 If any agent tests check YouTube insights response format, update assertions to expect these new fields.
+
+---
+
+## Kirissie Session — March 12, 2026
+
+### All commits this session
+
+| Commit | Description |
+|--------|------------|
+| `f7589a4` | fix: YouTube transcript language fallback chain |
+| `25f3da9` | feat: bilingual YouTube lens extraction — Japanese support + language toggle |
+| `1747db4` | docs: bilingual extraction handoff — STATE.md + CLAUDE.md updates |
+| `c602c3f` | improve: harmonize file editor with explorer — shared layout, matching styles |
+| `3a461b5` | fix: show Generate Categories button only on Sources tab |
+| `3363d3d` | feat: voice input — STT via faster-whisper with mic button in agent input |
+
+### 1. Bilingual YouTube Lens Extraction
+- Japanese ('ja') in transcript fallback chain (all 3 tiers)
+- Migration 023: `language` column on `video_insights`, `transcript_language` on `youtube_videos`
+- Each lens extracted twice for non-English videos (original + English)
+- Frontend language toggle in insights viewer header
+- Files: `backend/processors/youtube.py`, `backend/processors/lenses.py`, `backend/processors/youtube_worker.py`, `backend/routes/youtube_endpoints.py`, `backend/migrations.py`, `frontend/youtube.js`, `frontend/styles.css`
+
+### 2. File Editor Visual Harmony
+- Editor now shares same titlebar as explorer (back arrow + "Edit" + breadcrumb)
+- Editor toolbar matches column header row (same height, bg, muted buttons)
+- Editor action bar (Save/Preview) matches explorer action bar
+- Sidebar stays visible during editing
+- Atmosphere-specific styles for Arcane/Clean/Deep themes
+- Files: `frontend/file-browser.js`, `frontend/styles.css`
+
+### 3. Settings Bug Fix
+- "Generate Categories from Context" button was missing `data-stab="sources"` — showed on every tab
+- One attribute fix in `frontend/index.html`
+
+### 4. STT Voice Input (faster-whisper)
+- **Backend:** `backend/processors/stt.py` — singleton, lazy model loading, CPU-only int8
+- **Endpoint:** `POST /api/stt` — accepts WebM/WAV/OGG audio body, returns `{text, language, language_probability, duration_seconds, processing_seconds}`
+- **No ffmpeg CLI needed** — PyAV (already installed) handles WebM/Opus natively
+- **Frontend:** `frontend/stt.js` — standalone module, injects mic button next to send button via DOM (no agent.js changes)
+- **Recording modes:** click-to-toggle + hold-to-record (>300ms press)
+- **Visual states:** idle (mic icon) → recording (pulsing red + stop icon + duration counter) → processing (spinner) → error (red flash)
+- **Limits:** 2-minute max recording, 10MB max upload, 0.5s minimum (filters taps)
+- **Settings:** STT toggle in System tab, `stratos_stt_enabled` localStorage, `body.stt-disabled` CSS class
+- **Status:** `/api/agent-status` now includes `stt: {available, message}`
+- **Perf mode:** animations disabled, button stays functional
+- **Mobile:** 44px touch target
+- Files: `backend/processors/stt.py`, `backend/routes/media.py`, `backend/routes/agent.py`, `frontend/stt.js`, `frontend/styles.css`, `frontend/index.html`, `frontend/app.js`
+
+### What's NOT done (optional future work)
+- STT model preload endpoint (`POST /api/stt/preload`) — not wired up, model loads on first use (~10s cold start)
+- Arabic/Japanese voice roundtrip testing (TTS → STT)
+- Playwright browser test specs for STT (requires real mic or mock MediaRecorder)
+
+### Server state
+- Running on port 8080 (restarted this session)
+- Schema version 23
+- No blockers

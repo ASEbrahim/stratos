@@ -183,6 +183,13 @@ To add exceptions for new animations, add them to the perf-mode preserve list in
 Uses POST /api/tts endpoint. Fails gracefully if endpoint missing. Hidden in perf-mode.
 Toggle: `body.tts-disabled` class, localStorage `stratos_tts_enabled`.
 
+## STT (Speech-to-Text)
+`backend/processors/stt.py` — singleton `STTProcessor`, lazy-loads faster-whisper `large-v3-turbo` on CPU (int8).
+Endpoint: `POST /api/stt` — raw audio body (WebM/WAV/OGG), optional `X-Language-Hint` header, returns `{text, language, ...}`.
+Uses PyAV (not ffmpeg CLI) for audio decoding. Model loads on first request (~10s, ~1.6GB RAM).
+Frontend: `stt.js` injects mic button into agent input via DOM. Toggle: `body.stt-disabled`, localStorage `stratos_stt_enabled`.
+STT availability reported in `/api/agent-status` response under `stt` key.
+
 ## Cross-Session Communication
 - `Strat-docs/bugs/BUG_*.md` — frontend writes backend bug reports here
 - `Strat-docs/todo-backend.md` — frontend writes backend feature requests
