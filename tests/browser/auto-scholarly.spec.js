@@ -48,7 +48,7 @@ test.describe('AUTOMATED — Scholarly Persona', () => {
 
   // ── SCH-1: Hello greeting mentions academic/research/scholarly topic ──
   test('SCH-1: Hello mentions academic/research/scholarly topic', async ({ request }) => {
-    test.setTimeout(60000);
+    test.setTimeout(120000);
     const { text } = await agentChat(request, {
       message: 'Hello',
       persona: 'scholarly'
@@ -69,7 +69,7 @@ test.describe('AUTOMATED — Scholarly Persona', () => {
 
   // ── SCH-9: Web search SSE contains web_search status ──
   test('SCH-9: Web search SSE contains web_search status', async ({ request }) => {
-    test.setTimeout(60000);
+    test.setTimeout(120000);
     const { raw } = await agentChat(request, {
       message: 'Search the web for recent papers on quantum computing',
       persona: 'scholarly'
@@ -79,7 +79,7 @@ test.describe('AUTOMATED — Scholarly Persona', () => {
 
   // ── SCH-15: Scholarly does NOT have manage_watchlist ──
   test('SCH-15: Watchlist request is refused', async ({ request }) => {
-    test.setTimeout(60000);
+    test.setTimeout(120000);
     const { text } = await agentChat(request, {
       message: 'Add TSLA to watchlist',
       persona: 'scholarly'

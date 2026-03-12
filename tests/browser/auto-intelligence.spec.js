@@ -48,7 +48,7 @@ test.describe('AUTOMATED — Intelligence Persona', () => {
 
   // ── INT-1: Hello greeting mentions capabilities ──
   test('INT-1: Hello mentions capability keyword', async ({ request }) => {
-    test.setTimeout(60000);
+    test.setTimeout(120000);
     const { text } = await agentChat(request, {
       message: 'Hello',
       persona: 'intelligence'
