@@ -1514,19 +1514,56 @@ var _fsPresetTips = {
     Wide: 'Extra-wide chat area for long conversations',
     Compact: 'Maximum density — fit more on screen',
 };
+function _fsLoadUserPresets() {
+    try { return JSON.parse(localStorage.getItem('stratos-fs-user-presets') || '{}'); } catch { return {}; }
+}
+function _fsSaveUserPresets(p) { localStorage.setItem('stratos-fs-user-presets', JSON.stringify(p)); }
+function _fsAllPresets() { return Object.assign({}, _fsPresets, _fsLoadUserPresets()); }
 function _fsPresetActiveCheck(c, name) {
-    const p = _fsPresets[name];
+    const all = _fsAllPresets();
+    const p = all[name];
     if (!p) return false;
     for (const k of Object.keys(p)) { if (c[k] !== p[k]) return false; }
     return true;
 }
 function _fsCustApplyPreset(name) {
-    const p = _fsPresets[name];
+    const all = _fsAllPresets();
+    const p = all[name];
     if (!p) return;
     const c = Object.assign({}, _fsCustomDefaults, p);
     _saveFsCustom(c);
     _applyFsCustom(c);
-    // Refresh the customizer panel to reflect new values
+    if (_fsCustomizerOpen) { _fsCustomizerOpen = false; _toggleFsCustomizer(); }
+}
+async function _fsCustSavePreset() {
+    const name = await stratosPrompt({ title: 'Save Preset', message: 'Name your preset:', placeholder: 'My Preset' });
+    if (!name || !name.trim()) return;
+    const trimmed = name.trim();
+    if (_fsPresets[trimmed]) {
+        if (typeof showToast === 'function') showToast('Cannot overwrite a built-in preset', 'error');
+        return;
+    }
+    const userPresets = _fsLoadUserPresets();
+    if (userPresets[trimmed]) {
+        const ok = await stratosConfirm(`Overwrite existing preset "${trimmed}"?`);
+        if (!ok) return;
+    }
+    const c = _loadFsCustom();
+    const saved = {};
+    for (const k of Object.keys(_fsCustomDefaults)) saved[k] = c[k];
+    userPresets[trimmed] = saved;
+    _fsSaveUserPresets(userPresets);
+    if (typeof showToast === 'function') showToast(`Preset "${trimmed}" saved`);
+    if (_fsCustomizerOpen) { _fsCustomizerOpen = false; _toggleFsCustomizer(); }
+}
+async function _fsCustDeletePreset(name) {
+    if (_fsPresets[name]) return; // can't delete built-ins
+    const ok = await stratosConfirm(`Delete preset "${name}"?`, { danger: true });
+    if (!ok) return;
+    const userPresets = _fsLoadUserPresets();
+    delete userPresets[name];
+    _fsSaveUserPresets(userPresets);
+    if (typeof showToast === 'function') showToast(`Preset "${name}" deleted`);
     if (_fsCustomizerOpen) { _fsCustomizerOpen = false; _toggleFsCustomizer(); }
 }
 
@@ -1596,11 +1633,20 @@ function _toggleFsCustomizer() {
                 </div>
                 <!-- Presets -->
                 <div class="fs-cust-group" style="margin-top:14px;">
-                    <div class="text-[10px] font-bold uppercase tracking-wider mb-2 strat-tip" style="color:var(--text-muted);" data-tip="Quick presets that configure all settings at once">Presets</div>
-                    <div style="display:flex;flex-wrap:wrap;gap:4px;">${Object.keys(_fsPresets).map(name => {
-                        const active = _fsPresetActiveCheck(c, name);
-                        return `<button onclick="_fsCustApplyPreset('${name}')" class="px-2 py-1 rounded text-[10px] font-bold transition-all strat-tip" data-tip="${_fsPresetTips[name] || ''}" style="color:${active?'var(--accent)':'var(--text-muted)'};border:1px solid ${active?'rgba(var(--accent-rgb,52,211,153),0.4)':'var(--border-strong)'};background:${active?'rgba(var(--accent-rgb,52,211,153),0.12)':'transparent'};" onmouseenter="this.style.background='rgba(255,255,255,0.05)'" onmouseleave="this.style.background='${active?'rgba(var(--accent-rgb,52,211,153),0.12)':'transparent'}'">${name}</button>`;
-                    }).join('')}</div>
+                    <div class="text-[10px] font-bold uppercase tracking-wider mb-2 strat-tip" style="color:var(--text-muted);display:flex;align-items:center;justify-content:space-between;" data-tip="Quick presets that configure all settings at once. Right-click a saved preset to delete it">
+                        Presets
+                        <button onclick="_fsCustSavePreset()" class="strat-tip" data-tip="Save current settings as a new preset" style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px;cursor:pointer;border:1px solid var(--border-strong);color:var(--text-muted);background:transparent;text-transform:none;letter-spacing:normal;" onmouseenter="this.style.color='var(--accent)';this.style.borderColor='rgba(var(--accent-rgb,52,211,153),0.4)'" onmouseleave="this.style.color='var(--text-muted)';this.style.borderColor='var(--border-strong)'">+ Save</button>
+                    </div>
+                    <div style="display:flex;flex-wrap:wrap;gap:4px;">${(() => {
+                        const allP = _fsAllPresets();
+                        const userP = _fsLoadUserPresets();
+                        return Object.keys(allP).map(name => {
+                            const active = _fsPresetActiveCheck(c, name);
+                            const isUser = !!userP[name];
+                            const tip = _fsPresetTips[name] || (isUser ? 'Your saved preset — right-click to delete' : '');
+                            return `<button onclick="_fsCustApplyPreset('${name.replace(/'/g, "\\'")}')" ${isUser ? `oncontextmenu="event.preventDefault();_fsCustDeletePreset('${name.replace(/'/g, "\\'")}')"` : ''} class="px-2 py-1 rounded text-[10px] font-bold transition-all strat-tip" data-tip="${tip}" style="color:${active?'var(--accent)':'var(--text-muted)'};border:1px solid ${active?'rgba(var(--accent-rgb,52,211,153),0.4)':'var(--border-strong)'};background:${active?'rgba(var(--accent-rgb,52,211,153),0.12)':'transparent'};${isUser?'font-style:italic;':''}" onmouseenter="this.style.background='rgba(255,255,255,0.05)'" onmouseleave="this.style.background='${active?'rgba(var(--accent-rgb,52,211,153),0.12)':'transparent'}'">${isUser ? '◆ ' : ''}${name}</button>`;
+                        }).join('');
+                    })()}</div>
                 </div>
                 <!-- Chat Area -->
                 <div class="fs-cust-group" style="margin-top:14px;">
