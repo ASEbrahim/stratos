@@ -610,31 +610,62 @@ def handle_file_assist(handler, strat):
         if not content:
             raise ValueError("No content")
 
-        prompts = {
-            "revise": f"Revise and improve this text. Keep the same format and structure. Return ONLY the improved text:\n\n{content}",
-            "continue": f"Continue writing from where this text leaves off. Match the style and format. Return ONLY the continuation:\n\n{content}",
-            "summarize": f"Summarize the contents of this file ({filename}) in 2-3 sentences:\n\n{content}",
-            "grammar": f"Fix any grammar, spelling, or punctuation errors. Return ONLY the corrected text:\n\n{content}",
-            "custom": f"{instruction}\n\nFile: {filename}\nContent:\n{content}",
-        }
-        prompt = prompts.get(action)
-        if not prompt:
+        # Action-specific system prompts and user prompts
+        word_count = len(content.split())
+        if action == "continue":
+            system = ("You are a creative writer continuing a story/document. "
+                       "Read the existing text carefully — match the tone, style, characters, and setting exactly. "
+                       "Continue naturally from where the text ends. Write 2-4 paragraphs. "
+                       "Output ONLY the continuation text, nothing else.")
+            user_msg = content
+            max_tokens = min(max(word_count, 200), 1000)
+            temperature = 0.7
+        elif action == "revise":
+            system = ("You are an editor. Improve the writing quality: better word choice, flow, clarity. "
+                       "Keep the same meaning, characters, setting, and structure. "
+                       "Output ONLY the revised text, nothing else.")
+            user_msg = content
+            max_tokens = min(max(word_count * 2, 200), 2000)
+            temperature = 0.5
+        elif action == "grammar":
+            system = ("You are a proofreader. Fix grammar, spelling, and punctuation errors ONLY. "
+                       "Do NOT change meaning, style, or word choice. "
+                       "Output ONLY the corrected text, nothing else.")
+            user_msg = content
+            max_tokens = min(max(word_count * 2, 100), 2000)
+            temperature = 0.2
+        elif action == "summarize":
+            system = "Summarize the given text in 2-3 concise sentences. Output ONLY the summary."
+            user_msg = content
+            max_tokens = 150
+            temperature = 0.3
+        elif action == "custom":
+            if not instruction:
+                raise ValueError("No instruction provided")
+            system = ("You are a writing assistant. Follow the user's instruction precisely. "
+                       "Apply it to the provided text. Output ONLY the result, no explanations.")
+            user_msg = f"Instruction: {instruction}\n\n---\n\n{content}"
+            max_tokens = min(max(word_count * 2, 200), 2000)
+            temperature = 0.5
+        else:
             raise ValueError(f"Unknown action: {action}")
 
-        scorer = strat.scorer
-        max_tokens = 300 if action == "summarize" else min(len(content.split()) * 2, 2000)
+        # Estimate context size needed — content tokens + output tokens + overhead
+        est_input_tokens = int(word_count * 1.3) + 100
+        num_ctx = min(max(est_input_tokens + max_tokens + 256, 1024), 4096)
 
+        scorer = strat.scorer
         response = req.post(
             f"{scorer.host}/api/chat",
             json={
                 "model": scorer.inference_model,
                 "messages": [
-                    {"role": "system", "content": "You are a writing assistant. Follow the instruction exactly. Return only the requested output, no explanations or preamble."},
-                    {"role": "user", "content": prompt},
+                    {"role": "system", "content": system},
+                    {"role": "user", "content": user_msg},
                 ],
                 "stream": False,
                 "think": False,
-                "options": {"temperature": 0.4, "num_predict": max_tokens, "num_ctx": 4096},
+                "options": {"temperature": temperature, "num_predict": max_tokens, "num_ctx": num_ctx},
             },
             timeout=90,
         )
