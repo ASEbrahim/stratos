@@ -1044,8 +1044,8 @@ async function sendAgentMessage() {
     agentHistory.push({ role: 'user', content: msg });
     appendAgentMessage('user', msg);
     
-    // Show typing indicator
-    const typingEl = appendAgentMessage('assistant', `<div class="flex items-center gap-2"><div class="flex gap-1"><span class="w-1.5 h-1.5 rounded-full animate-bounce" style="background:var(--accent,#34d399);animation-delay:0ms;"></span><span class="w-1.5 h-1.5 rounded-full animate-bounce" style="background:var(--accent,#34d399);animation-delay:150ms;"></span><span class="w-1.5 h-1.5 rounded-full animate-bounce" style="background:var(--accent,#34d399);animation-delay:300ms;"></span></div><span class="text-[10px]" style="color:var(--text-muted);">Thinking...</span></div>`);
+    // Show typing indicator with bouncing dots
+    const typingEl = appendAgentMessage('assistant', `<div class="flex items-center gap-2.5"><div class="agent-thinking-dots flex gap-1"><span></span><span></span><span></span></div><span class="text-[10px]" style="color:var(--text-muted);">Thinking...</span></div>`);
     
     agentStreaming = true;
     _agentAbortController = new AbortController();
@@ -1120,7 +1120,7 @@ async function sendAgentMessage() {
                                 const isSearch = payload.status.includes('web_search');
                                 const icon = isSearch ? '🔍' : '⚙️';
                                 const label = payload.status.replace(/^[🔍⚙️]\s*/, '');
-                                respDiv.innerHTML = `<div class="flex items-center gap-2 py-1"><div class="flex gap-1"><span class="w-1.5 h-1.5 rounded-full animate-bounce" style="background:var(--accent);animation-delay:0ms;"></span><span class="w-1.5 h-1.5 rounded-full animate-bounce" style="background:var(--accent);animation-delay:150ms;"></span><span class="w-1.5 h-1.5 rounded-full animate-bounce" style="background:var(--accent);animation-delay:300ms;"></span></div><span class="text-[10px] font-mono" style="color:var(--accent,#34d399);">${icon} ${escAgent(label)}</span></div>`;
+                                respDiv.innerHTML = `<div class="flex items-center gap-2.5 py-1"><div class="agent-thinking-dots flex gap-1"><span></span><span></span><span></span></div><span class="text-[10px] font-mono" style="color:var(--accent,#34d399);">${icon} ${escAgent(label)}</span></div>`;
                                 const msgs = document.getElementById('agent-messages');
                                 if (msgs) msgs.scrollTop = msgs.scrollHeight;
                             }

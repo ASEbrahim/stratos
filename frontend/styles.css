@@ -1234,6 +1234,24 @@ input::placeholder, textarea::placeholder {
 .agent-response strong { font-weight: 600; }
 .agent-response br + br { display: none; }
 
+/* Agent thinking indicator — bouncing dots */
+.agent-thinking-dots span {
+    display: inline-block;
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--accent, #10b981);
+    opacity: 0.4;
+    animation: agentThinkBounce 1.4s infinite ease-in-out;
+}
+.agent-thinking-dots span:nth-child(2) { animation-delay: 0.2s; }
+.agent-thinking-dots span:nth-child(3) { animation-delay: 0.4s; }
+@keyframes agentThinkBounce {
+    0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+    40% { transform: scale(1); opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .agent-thinking-dots span { animation: none; opacity: 0.6; }
+}
+
 /* Agent message action buttons (copy, speak) — visible on hover */
 .group\/msg .agent-msg-actions button { opacity: 0; transition: opacity 0.2s ease; }
 .group\/msg:hover .agent-msg-actions button { opacity: 0.6; }
