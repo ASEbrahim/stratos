@@ -1497,6 +1497,38 @@ var _fsCustomDefaults = {
     fontSize: 15, lineHeight: 1.65, bubblePadding: 14, bubbleRadius: 16,
     chatWidth: 800, inputHeight: 52, sendSize: 44, uiScale: 1, gradBar: true
 };
+var _fsPresets = {
+    Default:   { chatOpacity:0.7, chatBlur:16, sidebarOpacity:0.75, sidebarBlur:20, fontSize:15, lineHeight:1.65, bubblePadding:14, bubbleRadius:16, chatWidth:800, inputHeight:52, sendSize:44, uiScale:1, gradBar:true },
+    Minimal:   { chatOpacity:0.55, chatBlur:12, sidebarOpacity:0.6, sidebarBlur:14, fontSize:13, lineHeight:1.5, bubblePadding:10, bubbleRadius:8, chatWidth:700, inputHeight:42, sendSize:36, uiScale:0.92, gradBar:false },
+    Cozy:      { chatOpacity:0.82, chatBlur:22, sidebarOpacity:0.85, sidebarBlur:24, fontSize:17, lineHeight:1.8, bubblePadding:18, bubbleRadius:20, chatWidth:900, inputHeight:58, sendSize:48, uiScale:1.05, gradBar:true },
+    Glass:     { chatOpacity:0.3, chatBlur:32, sidebarOpacity:0.25, sidebarBlur:36, fontSize:15, lineHeight:1.65, bubblePadding:14, bubbleRadius:16, chatWidth:800, inputHeight:52, sendSize:44, uiScale:1, gradBar:true },
+    Wide:      { chatOpacity:0.7, chatBlur:16, sidebarOpacity:0.75, sidebarBlur:20, fontSize:14, lineHeight:1.55, bubblePadding:12, bubbleRadius:12, chatWidth:1200, inputHeight:48, sendSize:42, uiScale:1, gradBar:true },
+    Compact:   { chatOpacity:0.8, chatBlur:10, sidebarOpacity:0.85, sidebarBlur:12, fontSize:13, lineHeight:1.4, bubblePadding:8, bubbleRadius:6, chatWidth:680, inputHeight:38, sendSize:32, uiScale:0.9, gradBar:false },
+};
+
+var _fsPresetTips = {
+    Default: 'Balanced defaults — good for most setups',
+    Minimal: 'Clean and compact — less chrome, more content',
+    Cozy: 'Larger text, extra padding — comfortable reading',
+    Glass: 'Translucent panels — lets the theme shine through',
+    Wide: 'Extra-wide chat area for long conversations',
+    Compact: 'Maximum density — fit more on screen',
+};
+function _fsPresetActiveCheck(c, name) {
+    const p = _fsPresets[name];
+    if (!p) return false;
+    for (const k of Object.keys(p)) { if (c[k] !== p[k]) return false; }
+    return true;
+}
+function _fsCustApplyPreset(name) {
+    const p = _fsPresets[name];
+    if (!p) return;
+    const c = Object.assign({}, _fsCustomDefaults, p);
+    _saveFsCustom(c);
+    _applyFsCustom(c);
+    // Refresh the customizer panel to reflect new values
+    if (_fsCustomizerOpen) { _fsCustomizerOpen = false; _toggleFsCustomizer(); }
+}
 
 function _loadFsCustom() {
     try { return Object.assign({}, _fsCustomDefaults, JSON.parse(localStorage.getItem('stratos-fs-custom') || '{}')); }
@@ -1561,6 +1593,14 @@ function _toggleFsCustomizer() {
                 <div class="fs-cust-group">
                     <div class="text-[10px] font-bold uppercase tracking-wider mb-2 strat-tip" style="color:var(--text-muted);" data-tip="Switch the base color theme for the entire app">Theme</div>
                     <div style="display:flex;flex-wrap:wrap;gap:4px;">${themeBtns}</div>
+                </div>
+                <!-- Presets -->
+                <div class="fs-cust-group" style="margin-top:14px;">
+                    <div class="text-[10px] font-bold uppercase tracking-wider mb-2 strat-tip" style="color:var(--text-muted);" data-tip="Quick presets that configure all settings at once">Presets</div>
+                    <div style="display:flex;flex-wrap:wrap;gap:4px;">${Object.keys(_fsPresets).map(name => {
+                        const active = _fsPresetActiveCheck(c, name);
+                        return `<button onclick="_fsCustApplyPreset('${name}')" class="px-2 py-1 rounded text-[10px] font-bold transition-all strat-tip" data-tip="${_fsPresetTips[name] || ''}" style="color:${active?'var(--accent)':'var(--text-muted)'};border:1px solid ${active?'rgba(var(--accent-rgb,52,211,153),0.4)':'var(--border-strong)'};background:${active?'rgba(var(--accent-rgb,52,211,153),0.12)':'transparent'};" onmouseenter="this.style.background='rgba(255,255,255,0.05)'" onmouseleave="this.style.background='${active?'rgba(var(--accent-rgb,52,211,153),0.12)':'transparent'}'">${name}</button>`;
+                    }).join('')}</div>
                 </div>
                 <!-- Chat Area -->
                 <div class="fs-cust-group" style="margin-top:14px;">
