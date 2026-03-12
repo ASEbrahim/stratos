@@ -11,8 +11,8 @@ let _gamesActiveNpc = '';   // Currently talking to NPC name
 try { _gamesRpMode = localStorage.getItem('stratos_games_rp_mode') || 'gm'; } catch(e) {}
 
 function _refreshFileBrowserIfOpen() {
-    if (typeof _fbLoadDir === 'function' && typeof _fbOpen !== 'undefined' && _fbOpen) {
-        _fbLoadDir(typeof _fbPath !== 'undefined' ? _fbPath : '/');
+    if (typeof window._fbLoadDir === 'function' && window._fbOpen) {
+        window._fbLoadDir(window._fbPath || '/');
     }
 }
 
@@ -109,7 +109,10 @@ function _renderScenarioBar() {
             </div>
             ${_gamesRpMode === 'immersive' ? `<div class="flex items-center gap-1">
                 <span class="text-[9px]" style="color:var(--text-muted)">Talking to:</span>
-                <input id="games-npc-input" type="text" value="${_escHtmlG(_gamesActiveNpc)}" placeholder="NPC name..." class="text-[9px] px-2 py-1 rounded-md" style="background:rgba(168,85,247,0.06);border:1px solid rgba(168,85,247,0.2);color:#c084fc;width:120px;" onchange="_gamesSetNpc(this.value)">
+                <select id="games-npc-input" class="text-[9px] px-2 py-1 rounded-md" style="background:rgba(168,85,247,0.06);border:1px solid rgba(168,85,247,0.2);color:#c084fc;min-width:120px;outline:none;cursor:pointer;" onchange="_gamesSetNpc(this.value)">
+                    <option value="" style="background:var(--bg-panel-solid);color:var(--text-muted)">— select —</option>
+                    ${_gamesEntities.map(e => `<option value="${_escHtmlG(e.display_name)}" style="background:var(--bg-panel-solid);color:var(--text-primary)"${_gamesActiveNpc === e.display_name ? ' selected' : ''}>${_escHtmlG(e.display_name)}</option>`).join('')}
+                </select>
             </div>` : ''}
             <button onclick="toggleFileBrowser('gaming')" class="text-[9px] px-2 py-1 rounded-md flex items-center gap-1 transition-all" style="color:var(--text-muted);border:1px solid var(--border-strong);" onmouseenter="this.style.color='${theme.color}';this.style.borderColor='${theme.color}40'" onmouseleave="this.style.color='var(--text-muted)';this.style.borderColor='var(--border-strong)'"><i data-lucide="folder-open" class="w-3 h-3"></i> Files</button>
             <button onclick="_gamesDeleteScenario('${_escForAttr(_gamesActiveScenario)}')" class="text-[9px] px-2 py-1 rounded-md flex items-center gap-1 transition-all" style="color:var(--text-muted);border:1px solid var(--border-strong);" onmouseenter="this.style.color='#f87171';this.style.borderColor='rgba(239,68,68,0.3)'" onmouseleave="this.style.color='var(--text-muted)';this.style.borderColor='var(--border-strong)'"><i data-lucide="trash-2" class="w-3 h-3"></i> Delete</button>
@@ -132,8 +135,30 @@ window._gamesSetMode = _gamesSetMode;
 
 function _gamesSetNpc(name) {
     _gamesActiveNpc = name.trim();
+    _renderEntityBar();
 }
 window._gamesSetNpc = _gamesSetNpc;
+
+// Auto-detect character name in message text and switch active NPC
+function _gamesAutoDetectNpc(msg) {
+    if (_gamesRpMode !== 'immersive' || _gamesEntities.length === 0) return;
+    const lower = msg.toLowerCase();
+    // Check each entity — match display_name (case-insensitive)
+    // Prefer longest match first to avoid partial matches (e.g., "Gojo Satoru" before "Gojo")
+    const sorted = [..._gamesEntities].sort((a, b) => b.display_name.length - a.display_name.length);
+    for (const e of sorted) {
+        if (lower.includes(e.display_name.toLowerCase())) {
+            if (_gamesActiveNpc !== e.display_name) {
+                _gamesActiveNpc = e.display_name;
+                const sel = document.getElementById('games-npc-input');
+                if (sel) sel.value = e.display_name;
+                _renderEntityBar();
+            }
+            return;
+        }
+    }
+}
+window._gamesAutoDetectNpc = _gamesAutoDetectNpc;
 
 // Expose state for agent.js to read when sending messages
 window._gamesGetState = function() {
@@ -280,8 +305,8 @@ function _renderEntityBar() {
 
 function _gamesSelectEntity(displayName) {
     _gamesActiveNpc = displayName;
-    const npcInput = document.getElementById('games-npc-input');
-    if (npcInput) npcInput.value = displayName;
+    const sel = document.getElementById('games-npc-input');
+    if (sel) sel.value = displayName;
     _renderEntityBar();
 }
 window._gamesSelectEntity = _gamesSelectEntity;

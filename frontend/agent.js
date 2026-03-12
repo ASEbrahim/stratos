@@ -705,7 +705,7 @@ function appendAgentMessage(role, content) {
         wrapper.className = 'flex justify-end mb-3';
         wrapper.innerHTML = `
             <div class="max-w-[82%]">
-                <div class="rounded-2xl rounded-br-sm px-4 py-2.5 text-xs leading-relaxed" style="color:var(--text-heading); background:rgba(59,130,246,0.1); border:1px solid rgba(59,130,246,0.15);">
+                <div class="agent-bubble-user rounded-2xl rounded-br-sm px-4 py-2.5 text-xs leading-relaxed" style="color:var(--text-heading); background:rgba(59,130,246,0.12); border:1px solid rgba(59,130,246,0.18); backdrop-filter:blur(6px);">
                     ${escAgent(content)}
                 </div>
                 <div class="text-[9px] mt-1 text-right" style="color:var(--text-muted); opacity:0.4;">${time}</div>
@@ -1041,9 +1041,12 @@ async function sendAgentMessage() {
         return;
     }
     
+    // Auto-detect character name in gaming immersive mode
+    if (typeof _gamesAutoDetectNpc === 'function') _gamesAutoDetectNpc(msg);
+
     agentHistory.push({ role: 'user', content: msg });
     appendAgentMessage('user', msg);
-    
+
     // Show typing indicator with bouncing dots
     const typingEl = appendAgentMessage('assistant', `<div class="flex items-center gap-2.5"><div class="agent-thinking-dots flex gap-1"><span></span><span></span><span></span></div><span class="text-[10px]" style="color:var(--text-muted);">Thinking...</span></div>`);
     
@@ -1423,65 +1426,65 @@ function _buildFsSidebar() {
     // Build persona options
     const personaItems = Object.entries(PERSONA_THEMES).map(([key, t]) => {
         const active = key === currentPersona;
-        return `<button onclick="switchPersona('${key}')" class="flex items-center gap-2.5 w-full px-3 py-2 rounded-lg text-left transition-all" style="background:${active ? t.bg : 'transparent'};color:${active ? t.color : 'var(--text-muted)'};" onmouseenter="if(!${active})this.style.background='rgba(255,255,255,0.03)'" onmouseleave="if(!${active})this.style.background='${active ? t.bg : 'transparent'}'">
-            <i data-lucide="${t.icon}" class="w-4 h-4"></i>
-            <span class="text-[13px] font-medium">${t.label}</span>
+        return `<button onclick="switchPersona('${key}')" class="flex items-center gap-2.5 w-full px-3 py-2.5 rounded-lg text-left transition-all" style="background:${active ? t.bg : 'transparent'};color:${active ? t.color : 'var(--text-muted)'};" onmouseenter="if(!${active})this.style.background='rgba(255,255,255,0.03)'" onmouseleave="if(!${active})this.style.background='${active ? t.bg : 'transparent'}'">
+            <i data-lucide="${t.icon}" class="w-4.5 h-4.5"></i>
+            <span class="text-[14px] font-medium">${t.label}</span>
         </button>`;
     }).join('');
 
     return `
-    <div class="agent-fs-sidebar" style="width:280px;min-width:280px;height:100%;display:flex;flex-direction:column;border-right:1px solid rgba(255,255,255,0.05);">
+    <div class="agent-fs-sidebar" style="width:300px;min-width:300px;height:100%;display:flex;flex-direction:column;border-right:1px solid rgba(255,255,255,0.05);">
         <!-- New Chat button -->
-        <div class="px-3 pt-4 pb-2">
-            <button onclick="newAgentChat()" class="w-full flex items-center gap-2.5 px-4 py-2.5 rounded-xl text-[13px] font-medium transition-all" style="border:1px solid var(--border-strong);color:var(--text-heading);background:rgba(255,255,255,0.02);" onmouseenter="this.style.borderColor='${theme.color}';this.style.background='${theme.bg}'" onmouseleave="this.style.borderColor='var(--border-strong)';this.style.background='rgba(255,255,255,0.02)'">
-                <i data-lucide="plus" class="w-4.5 h-4.5"></i> New Chat
+        <div class="px-4 pt-4 pb-2">
+            <button onclick="newAgentChat()" class="w-full flex items-center gap-2.5 px-4 py-3 rounded-xl text-[14px] font-medium transition-all" style="border:1px solid var(--border-strong);color:var(--text-heading);background:rgba(255,255,255,0.02);" onmouseenter="this.style.borderColor='${theme.color}';this.style.background='${theme.bg}'" onmouseleave="this.style.borderColor='var(--border-strong)';this.style.background='rgba(255,255,255,0.02)'">
+                <i data-lucide="plus" class="w-5 h-5"></i> New Chat
             </button>
         </div>
         <!-- Persona selector -->
-        <div class="px-3 pb-2">
-            <div class="text-[10px] font-bold uppercase tracking-wider mb-2 px-1" style="color:var(--text-muted);">Persona</div>
+        <div class="px-4 pb-2">
+            <div class="text-[11px] font-bold uppercase tracking-wider mb-2 px-1" style="color:var(--text-muted);">Persona</div>
             <div class="space-y-0.5">${personaItems}</div>
         </div>
-        <div class="mx-3 mb-2" style="height:1px;background:var(--border-strong);"></div>
+        <div class="mx-4 mb-2" style="height:1px;background:var(--border-strong);"></div>
         <!-- Conversation list -->
-        <div class="flex-1 overflow-y-auto px-2" style="scrollbar-width:thin;">
-            <div class="text-[10px] font-bold uppercase tracking-wider mb-2 px-1" style="color:var(--text-muted);">Chats</div>
+        <div class="flex-1 overflow-y-auto px-3" style="scrollbar-width:thin;">
+            <div class="text-[11px] font-bold uppercase tracking-wider mb-2 px-1" style="color:var(--text-muted);">Chats</div>
             <div class="space-y-0.5">${convItems}</div>
         </div>
-        <div class="mx-3 my-1" style="height:1px;background:var(--border-strong);"></div>
+        <div class="mx-4 my-1" style="height:1px;background:var(--border-strong);"></div>
         <!-- Bottom actions -->
-        <div class="px-3 pb-4 pt-2 space-y-1.5">
-            <div class="flex items-center gap-1">
-                <button onclick="importAgentChat()" class="flex-1 flex items-center gap-2 px-3 py-2 rounded-lg text-[12px] transition-all" style="color:var(--text-muted);border:1px solid transparent;" title="Import chat" onmouseenter="this.style.background='rgba(255,255,255,0.04)'" onmouseleave="this.style.background='transparent'">
-                    <i data-lucide="upload" class="w-4 h-4"></i> Import
+        <div class="px-4 pb-4 pt-2 space-y-1.5">
+            <div class="flex items-center gap-1.5">
+                <button onclick="importAgentChat()" class="flex-1 flex items-center gap-2 px-3 py-2.5 rounded-lg text-[13px] transition-all" style="color:var(--text-muted);border:1px solid transparent;" title="Import chat" onmouseenter="this.style.background='rgba(255,255,255,0.04)'" onmouseleave="this.style.background='transparent'">
+                    <i data-lucide="upload" class="w-4.5 h-4.5"></i> Import
                 </button>
-                <button onclick="exportAgentChat()" class="flex-1 flex items-center gap-2 px-3 py-2 rounded-lg text-[12px] transition-all" style="color:var(--text-muted);border:1px solid transparent;" title="Export chat" onmouseenter="this.style.background='rgba(255,255,255,0.04)'" onmouseleave="this.style.background='transparent'">
-                    <i data-lucide="download" class="w-4 h-4"></i> Export
-                </button>
-            </div>
-            <div class="flex items-center gap-1">
-                <button onclick="toggleContextEditor()" class="flex-1 flex items-center gap-2 px-3 py-2 rounded-lg text-[12px] transition-all" style="color:var(--text-muted);" title="Edit context" onmouseenter="this.style.background='rgba(255,255,255,0.04)'" onmouseleave="this.style.background='transparent'">
-                    <i data-lucide="file-cog" class="w-4 h-4"></i> Context
-                </button>
-                <button onclick="toggleFileBrowser()" class="flex-1 flex items-center gap-2 px-3 py-2 rounded-lg text-[12px] transition-all" style="color:var(--text-muted);" title="Browse files" onmouseenter="this.style.background='rgba(255,255,255,0.04)'" onmouseleave="this.style.background='transparent'">
-                    <i data-lucide="folder-open" class="w-4 h-4"></i> Files
+                <button onclick="exportAgentChat()" class="flex-1 flex items-center gap-2 px-3 py-2.5 rounded-lg text-[13px] transition-all" style="color:var(--text-muted);border:1px solid transparent;" title="Export chat" onmouseenter="this.style.background='rgba(255,255,255,0.04)'" onmouseleave="this.style.background='transparent'">
+                    <i data-lucide="download" class="w-4.5 h-4.5"></i> Export
                 </button>
             </div>
-            <div class="flex items-center gap-1">
-                <button onclick="clearAgentChat()" class="flex-1 flex items-center gap-2 px-3 py-2 rounded-lg text-[12px] transition-all" style="color:var(--text-muted);" title="Clear current chat" onmouseenter="this.style.color='#f87171';this.style.background='rgba(239,68,68,0.06)'" onmouseleave="this.style.color='var(--text-muted)';this.style.background='transparent'">
-                    <i data-lucide="trash-2" class="w-4 h-4"></i> Clear Chat
+            <div class="flex items-center gap-1.5">
+                <button onclick="toggleContextEditor()" class="flex-1 flex items-center gap-2 px-3 py-2.5 rounded-lg text-[13px] transition-all" style="color:var(--text-muted);" title="Edit context" onmouseenter="this.style.background='rgba(255,255,255,0.04)'" onmouseleave="this.style.background='transparent'">
+                    <i data-lucide="file-cog" class="w-4.5 h-4.5"></i> Context
                 </button>
-                <button onclick="toggleAgentFullscreen()" class="flex-1 flex items-center gap-2 px-3 py-2 rounded-lg text-[12px] transition-all" style="color:var(--text-muted);" title="Exit fullscreen" onmouseenter="this.style.background='rgba(255,255,255,0.04)'" onmouseleave="this.style.background='transparent'">
-                    <i data-lucide="minimize-2" class="w-4 h-4"></i> Collapse
+                <button onclick="toggleFileBrowser()" class="flex-1 flex items-center gap-2 px-3 py-2.5 rounded-lg text-[13px] transition-all" style="color:var(--text-muted);" title="Browse files" onmouseenter="this.style.background='rgba(255,255,255,0.04)'" onmouseleave="this.style.background='transparent'">
+                    <i data-lucide="folder-open" class="w-4.5 h-4.5"></i> Files
                 </button>
             </div>
-            <button onclick="_toggleFsCustomizer()" class="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-[12px] transition-all" style="color:var(--accent);" title="Customize fullscreen appearance" onmouseenter="this.style.background='rgba(255,255,255,0.04)'" onmouseleave="this.style.background='transparent'">
-                <i data-lucide="palette" class="w-4 h-4"></i> Customize
+            <div class="flex items-center gap-1.5">
+                <button onclick="clearAgentChat()" class="flex-1 flex items-center gap-2 px-3 py-2.5 rounded-lg text-[13px] transition-all" style="color:var(--text-muted);" title="Clear current chat" onmouseenter="this.style.color='#f87171';this.style.background='rgba(239,68,68,0.06)'" onmouseleave="this.style.color='var(--text-muted)';this.style.background='transparent'">
+                    <i data-lucide="trash-2" class="w-4.5 h-4.5"></i> Clear Chat
+                </button>
+                <button onclick="toggleAgentFullscreen()" class="flex-1 flex items-center gap-2 px-3 py-2.5 rounded-lg text-[13px] transition-all" style="color:var(--text-muted);" title="Exit fullscreen" onmouseenter="this.style.background='rgba(255,255,255,0.04)'" onmouseleave="this.style.background='transparent'">
+                    <i data-lucide="minimize-2" class="w-4.5 h-4.5"></i> Collapse
+                </button>
+            </div>
+            <button onclick="_toggleFsCustomizer()" class="w-full flex items-center gap-2 px-3 py-2.5 rounded-lg text-[13px] transition-all" style="color:var(--accent);" title="Customize fullscreen appearance" onmouseenter="this.style.background='rgba(255,255,255,0.04)'" onmouseleave="this.style.background='transparent'">
+                <i data-lucide="palette" class="w-4.5 h-4.5"></i> Customize
             </button>
             <!-- Model badge -->
-            <div class="flex items-center gap-2 px-3 py-2 mt-1">
-                <i data-lucide="cpu" class="w-3.5 h-3.5" style="color:${theme.color};"></i>
-                <span class="text-[11px] font-mono" style="color:var(--text-muted);">${escAgent(modelName)}</span>
+            <div class="flex items-center gap-2 px-3 py-2.5 mt-1">
+                <i data-lucide="cpu" class="w-4 h-4" style="color:${theme.color};"></i>
+                <span class="text-[12px] font-mono" style="color:var(--text-muted);">${escAgent(modelName)}</span>
             </div>
         </div>
     </div>`;

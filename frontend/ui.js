@@ -48,6 +48,7 @@ function setTheme(theme) {
     updateStarsToggleUI(starsOn);
     updateCosmosPresetUI();
 
+    if (typeof _initSakuraQuickControls === 'function') _initSakuraQuickControls();
     if (window._themeEditor) window._themeEditor.onThemeChange();
     if (!_isApplyingFromServer) _syncUiStateToServer();
 }
@@ -1196,6 +1197,32 @@ const savedPerfMode = localStorage.getItem('stratos-perf-mode') === 'true';
 updatePerfToggleUI(savedPerfMode);
 if (savedPerfMode) document.body.classList.add('perf-mode');
 updateCosmosPresetUI();
+_initSakuraQuickControls();
+
+// === SAKURA QUICK CONTROLS (inline petal customization) ===
+function _initSakuraQuickControls() {
+    const map = [
+        { id: 'sq-size',    key: 'stratos-sakura-size',    valId: 'sq-size-val',    fmt: v => v.toFixed(2) + 'x', def: '1' },
+        { id: 'sq-fall',    key: 'stratos-sakura-fall',    valId: 'sq-fall-val',    fmt: v => v.toFixed(1) + 'x', def: '1' },
+        { id: 'sq-wind',    key: 'stratos-sakura-wind',    valId: 'sq-wind-val',    fmt: v => v.toFixed(1) + 'x', def: '1' },
+        { id: 'sq-density', key: 'stratos-sakura-density', valId: 'sq-density-val', fmt: v => v.toFixed(1) + 'x', def: '1' },
+        { id: 'sq-opacity', key: 'stratos-sakura-opacity', valId: 'sq-opacity-val', fmt: v => Math.round(v * 100) + '%', def: '1' },
+    ];
+    map.forEach(({ id, key, valId, fmt, def }) => {
+        const sl = document.getElementById(id);
+        const vl = document.getElementById(valId);
+        if (!sl || !vl) return;
+        const saved = parseFloat(localStorage.getItem(key) || def);
+        sl.value = saved;
+        vl.textContent = fmt(saved);
+        sl.addEventListener('input', () => {
+            const v = parseFloat(sl.value);
+            vl.textContent = fmt(v);
+            localStorage.setItem(key, v.toString());
+            if (key === 'stratos-sakura-density' && typeof renderStars === 'function') renderStars();
+        });
+    });
+}
 
 // === UI STATE SYNC (cross-device theme/stars persistence) ===
 

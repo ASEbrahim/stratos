@@ -84,7 +84,7 @@
                         <div class="flex items-center gap-2 mb-2">
                             <button class="theme-label" data-theme="aurora" onclick="setTheme('aurora')" style="--label-color:#34d399" title="Midnight blue + green shimmer ✦">Aurora</button>
                             <button class="theme-label" data-theme="cosmos" onclick="setTheme('cosmos')" style="--label-color:#e8b931" title="Deep space + starlight gold ✦">Cosmos</button>
-                            <button class="theme-label" data-theme="sakura" onclick="setTheme('sakura')" style="--label-color:#f0a0b8" title="Nighttime cherry blossoms 🌸">Sakura</button>
+                            <button class="theme-label sakura-btn" data-theme="sakura" onclick="setTheme('sakura')" style="--label-color:#f0a0b8" title="Nighttime cherry blossoms 🌸"><svg class="sakura-icon" width="10" height="10" viewBox="0 0 100 100" fill="currentColor" style="vertical-align:-1px;margin-right:1px;opacity:0.9;flex-shrink:0;"><path d="M50 8 C54 20,60 28,50 38 C40 28,46 20,50 8Z"/><path d="M50 8 C54 20,60 28,50 38 C40 28,46 20,50 8Z" transform="rotate(72,50,42)"/><path d="M50 8 C54 20,60 28,50 38 C40 28,46 20,50 8Z" transform="rotate(144,50,42)"/><path d="M50 8 C54 20,60 28,50 38 C40 28,46 20,50 8Z" transform="rotate(216,50,42)"/><path d="M50 8 C54 20,60 28,50 38 C40 28,46 20,50 8Z" transform="rotate(288,50,42)"/><circle cx="50" cy="42" r="6" fill="currentColor" opacity="0.6"/></svg>Sakura</button>
                             <button class="theme-label" data-theme="nebula" onclick="setTheme('nebula')" style="--label-color:#38bdf8" title="Purple depths + cyan glow ✦">Nebula</button>
                         </div>
                         <!-- Toggles row -->
@@ -105,6 +105,34 @@
                                 <span id="zen-toggle-icon">&#x25CB;</span>
                                 <span id="zen-toggle-label">Zen</span>
                             </button>
+                        </div>
+                        <!-- Sakura petal customizer — only visible when sakura theme active -->
+                        <div id="sakura-quick-controls">
+                            <div class="sakura-slider-row">
+                                <span class="sakura-slider-label">Size</span>
+                                <input type="range" id="sq-size" min="0.3" max="2.5" step="0.05" value="1">
+                                <span class="sakura-slider-val" id="sq-size-val">1.00x</span>
+                            </div>
+                            <div class="sakura-slider-row">
+                                <span class="sakura-slider-label">Fall</span>
+                                <input type="range" id="sq-fall" min="0.1" max="3" step="0.1" value="1">
+                                <span class="sakura-slider-val" id="sq-fall-val">1.0x</span>
+                            </div>
+                            <div class="sakura-slider-row">
+                                <span class="sakura-slider-label">Wind</span>
+                                <input type="range" id="sq-wind" min="0" max="3" step="0.1" value="1">
+                                <span class="sakura-slider-val" id="sq-wind-val">1.0x</span>
+                            </div>
+                            <div class="sakura-slider-row">
+                                <span class="sakura-slider-label">Dense</span>
+                                <input type="range" id="sq-density" min="0.2" max="3" step="0.1" value="1">
+                                <span class="sakura-slider-val" id="sq-density-val">1.0x</span>
+                            </div>
+                            <div class="sakura-slider-row">
+                                <span class="sakura-slider-label">Alpha</span>
+                                <input type="range" id="sq-opacity" min="0.05" max="1" step="0.05" value="1">
+                                <span class="sakura-slider-val" id="sq-opacity-val">100%</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -262,45 +290,45 @@
                                     </div>
                                     <div>
                                         <div class="flex items-center gap-2">
-                                            <span class="text-xs font-bold tracking-wide" style="color:var(--text-heading);">STRAT AGENT</span>
+                                            <span class="text-sm font-bold tracking-wide" style="color:var(--text-heading);">STRAT AGENT</span>
                                             <div id="agent-persona-picker" class="relative" onclick="event.stopPropagation()">
-                                                <button onclick="_togglePersonaPicker()" class="text-[9px] font-mono px-1.5 py-0.5 rounded cursor-pointer flex items-center gap-1" style="background:rgba(16,185,129,0.08); color:var(--accent,#34d399); border:1px solid rgba(16,185,129,0.15);">
+                                                <button onclick="_togglePersonaPicker()" class="text-[10px] font-mono px-2 py-1 rounded cursor-pointer flex items-center gap-1" style="background:rgba(16,185,129,0.08); color:var(--accent,#34d399); border:1px solid rgba(16,185,129,0.15);">
                                                     <span id="persona-picker-label">Intelligence</span>
-                                                    <i data-lucide="chevron-down" class="w-2.5 h-2.5"></i>
+                                                    <i data-lucide="chevron-down" class="w-3 h-3"></i>
                                                 </button>
                                                 <div id="persona-picker-dropdown" class="hidden absolute top-full left-0 mt-1 rounded-lg p-1.5 space-y-0.5 z-50" style="background:var(--bg-panel-solid);border:1px solid var(--border-strong);box-shadow:0 8px 24px rgba(0,0,0,0.4);min-width:140px;">
                                                 </div>
                                             </div>
-                                            <button onclick="event.stopPropagation(); toggleContextEditor()" class="relative p-1 rounded-md transition-all" style="color:var(--text-muted);" title="Edit persona context" onmouseenter="this.style.color='var(--accent)';this.style.background='rgba(16,185,129,0.08)'" onmouseleave="this.style.color='var(--text-muted)';this.style.background='transparent'">
-                                                <i data-lucide="file-cog" class="w-3.5 h-3.5"></i>
+                                            <button onclick="event.stopPropagation(); toggleContextEditor()" class="relative p-1.5 rounded-md transition-all" style="color:var(--text-muted);" title="Edit persona context" onmouseenter="this.style.color='var(--accent)';this.style.background='rgba(16,185,129,0.08)'" onmouseleave="this.style.color='var(--text-muted)';this.style.background='transparent'">
+                                                <i data-lucide="file-cog" class="w-4 h-4"></i>
                                                 <span id="ctx-indicator-dot" class="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-amber-400" style="display:none;box-shadow:0 0 4px rgba(251,191,36,0.5);"></span>
                                             </button>
-                                            <button onclick="event.stopPropagation(); toggleFileBrowser()" class="p-1 rounded-md transition-all" style="color:var(--text-muted);" title="Browse persona files" onmouseenter="this.style.color='var(--accent)';this.style.background='rgba(16,185,129,0.08)'" onmouseleave="this.style.color='var(--text-muted)';this.style.background='transparent'">
-                                                <i data-lucide="folder-open" class="w-3.5 h-3.5"></i>
+                                            <button onclick="event.stopPropagation(); toggleFileBrowser()" class="p-1.5 rounded-md transition-all" style="color:var(--text-muted);" title="Browse persona files" onmouseenter="this.style.color='var(--accent)';this.style.background='rgba(16,185,129,0.08)'" onmouseleave="this.style.color='var(--text-muted)';this.style.background='transparent'">
+                                                <i data-lucide="folder-open" class="w-4 h-4"></i>
                                             </button>
-                                            <span id="agent-model-badge" class="text-[9px] font-mono px-1.5 py-0.5 rounded" style="background:rgba(16,185,129,0.08); color:var(--accent,#34d399); border:1px solid rgba(16,185,129,0.15);"></span>
+                                            <span id="agent-model-badge" class="text-[10px] font-mono px-2 py-0.5 rounded" style="background:rgba(16,185,129,0.08); color:var(--accent,#34d399); border:1px solid rgba(16,185,129,0.15);"></span>
                                         </div>
-                                        <p class="text-[10px] mt-0.5" style="color:var(--text-muted);">Search the web, manage your feed, analyze signals</p>
-                                        <div class="flex items-center gap-1 mt-1">
-                                            <span class="text-[8px] font-mono px-1.5 py-0.5 rounded-full strat-tip" style="background:rgba(99,102,241,0.1); color:#818cf8; border:1px solid rgba(99,102,241,0.2);" data-tip="Agent can search the web for real-time info.">🔍 Search</span>
-                                            <span class="text-[8px] font-mono px-1.5 py-0.5 rounded-full strat-tip" style="background:rgba(16,185,129,0.1); color:#34d399; border:1px solid rgba(16,185,129,0.2);" data-tip="Agent can add/remove market tickers.">📊 Watchlist</span>
-                                            <span class="text-[8px] font-mono px-1.5 py-0.5 rounded-full strat-tip" style="background:rgba(251,191,36,0.1); color:#fbbf24; border:1px solid rgba(251,191,36,0.2);" data-tip="Agent can manage tracking categories.">🏷️ Categories</span>
-                                            <button onclick="event.stopPropagation(); newAgentChat()" class="text-[8px] font-mono px-1.5 py-0.5 rounded-full transition-all cursor-pointer" style="background:rgba(16,185,129,0.08); color:var(--accent,#34d399); border:1px solid rgba(16,185,129,0.15);" onmouseenter="this.style.background='rgba(16,185,129,0.18)'" onmouseleave="this.style.background='rgba(16,185,129,0.08)'">+ New Chat</button>
+                                        <p class="text-[11px] mt-0.5" style="color:var(--text-muted);">Search the web, manage your feed, analyze signals</p>
+                                        <div class="flex items-center gap-1.5 mt-1">
+                                            <span class="text-[9px] font-mono px-1.5 py-0.5 rounded-full strat-tip" style="background:rgba(99,102,241,0.1); color:#818cf8; border:1px solid rgba(99,102,241,0.2);" data-tip="Agent can search the web for real-time info.">🔍 Search</span>
+                                            <span class="text-[9px] font-mono px-1.5 py-0.5 rounded-full strat-tip" style="background:rgba(16,185,129,0.1); color:#34d399; border:1px solid rgba(16,185,129,0.2);" data-tip="Agent can add/remove market tickers.">📊 Watchlist</span>
+                                            <span class="text-[9px] font-mono px-1.5 py-0.5 rounded-full strat-tip" style="background:rgba(251,191,36,0.1); color:#fbbf24; border:1px solid rgba(251,191,36,0.2);" data-tip="Agent can manage tracking categories.">🏷️ Categories</span>
+                                            <button onclick="event.stopPropagation(); newAgentChat()" class="text-[9px] font-mono px-1.5 py-0.5 rounded-full transition-all cursor-pointer" style="background:rgba(16,185,129,0.08); color:var(--accent,#34d399); border:1px solid rgba(16,185,129,0.15);" onmouseenter="this.style.background='rgba(16,185,129,0.18)'" onmouseleave="this.style.background='rgba(16,185,129,0.08)'">+ New Chat</button>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="flex items-center gap-0.5">
                                     <button onclick="event.stopPropagation(); toggleAgentFullscreen()" id="agent-fs-btn" class="p-1.5 rounded-md transition-all" style="color:var(--text-muted);" title="Toggle fullscreen" onmouseenter="this.style.background='rgba(255,255,255,0.05)';this.style.color='var(--text-heading)'" onmouseleave="this.style.background='transparent';this.style.color='var(--text-muted)'">
-                                        <i data-lucide="maximize-2" class="w-3 h-3"></i>
+                                        <i data-lucide="maximize-2" class="w-3.5 h-3.5"></i>
                                     </button>
                                     <button onclick="event.stopPropagation(); importAgentChat()" class="p-1.5 rounded-md transition-all" style="color:var(--text-muted);" title="Import chat or context file" onmouseenter="this.style.background='rgba(255,255,255,0.05)';this.style.color='var(--text-heading)'" onmouseleave="this.style.background='transparent';this.style.color='var(--text-muted)'">
-                                        <i data-lucide="upload" class="w-3 h-3"></i>
+                                        <i data-lucide="upload" class="w-3.5 h-3.5"></i>
                                     </button>
                                     <button onclick="event.stopPropagation(); exportAgentChat()" class="p-1.5 rounded-md transition-all" style="color:var(--text-muted);" title="Export chat" onmouseenter="this.style.background='rgba(255,255,255,0.05)';this.style.color='var(--text-heading)'" onmouseleave="this.style.background='transparent';this.style.color='var(--text-muted)'">
-                                        <i data-lucide="download" class="w-3 h-3"></i>
+                                        <i data-lucide="download" class="w-3.5 h-3.5"></i>
                                     </button>
                                     <button onclick="event.stopPropagation(); clearAgentChat()" class="p-1.5 rounded-md transition-all" style="color:var(--text-muted);" title="Clear chat" onmouseenter="this.style.background='rgba(239,68,68,0.08)';this.style.color='rgb(248,113,113)'" onmouseleave="this.style.background='transparent';this.style.color='var(--text-muted)'">
-                                        <i data-lucide="trash-2" class="w-3 h-3"></i>
+                                        <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
                                     </button>
                                     <div class="w-px h-4 mx-1" style="background:var(--border-strong);"></div>
                                     <i data-lucide="chevron-down" id="agent-chevron" class="w-4 h-4 transition-transform" style="color:var(--text-muted);"></i>

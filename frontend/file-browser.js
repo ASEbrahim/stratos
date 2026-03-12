@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════
-// FILE EXPLORER — Ubuntu-style modal file browser + editor
+// FILE EXPLORER — Nautilus-style modal file browser + editor
 // ═══════════════════════════════════════════════════════════
 
 let _fbOpen = false;
@@ -8,6 +8,7 @@ let _fbPath = '/';
 let _fbEntries = [];
 let _fbEditorDirty = false;
 let _fbEditorPath = '';
+let _fbInteracting = false; // drag/resize in progress — suppress backdrop close
 
 const _FB_ICONS = {
     folder: 'folder', md: 'file-text', txt: 'file-text', text: 'file-text',
@@ -15,6 +16,15 @@ const _FB_ICONS = {
     pdf: 'file', png: 'image', jpg: 'image', jpeg: 'image', gif: 'image',
     webp: 'image', svg: 'image', wav: 'volume-2', mp3: 'volume-2', default: 'file'
 };
+
+const _FB_PERSONAS = [
+    { name: 'intelligence', icon: '🔍', label: 'Intelligence' },
+    { name: 'market', icon: '📊', label: 'Market' },
+    { name: 'scholarly', icon: '📚', label: 'Scholarly' },
+    { name: 'gaming', icon: '🎮', label: 'Gaming' },
+    { name: 'anime', icon: '🎌', label: 'Anime' },
+    { name: 'tcg', icon: '🃏', label: 'TCG' },
+];
 
 const _FB_TOOLBAR = [
     { key: 'B', prefix: '**', suffix: '**', icon: 'bold' },
@@ -35,13 +45,12 @@ function _fbHeaders() {
 
 // ── Toggle file explorer ──
 function toggleFileBrowser(persona) {
-    if (_fbOpen) {
-        _fbClose();
-        return;
-    }
+    if (_fbOpen) { _fbClose(); return; }
     _fbOpen = true;
+    window._fbOpen = true;
     _fbPersona = persona || (typeof currentPersona !== 'undefined' ? currentPersona : 'intelligence');
     _fbPath = '/';
+    window._fbPath = '/';
     _fbEditorDirty = false;
     _fbEditorPath = '';
 
@@ -50,8 +59,8 @@ function toggleFileBrowser(persona) {
         _fbCreateModal();
         modal = document.getElementById('file-explorer-modal');
     }
-    modal.classList.remove('hidden');
-    _fbPopulatePersonaSelect();
+    modal.style.display = 'flex';
+    _fbUpdateSidebar();
     _fbLoadDir('/');
     _fbShowList();
 }
@@ -60,74 +69,101 @@ window.toggleFileBrowser = toggleFileBrowser;
 function _fbClose() {
     if (_fbEditorDirty && !confirm('Unsaved changes will be lost. Close anyway?')) return;
     _fbOpen = false;
+    window._fbOpen = false;
     _fbEditorDirty = false;
+    _fbStopStars();
     const modal = document.getElementById('file-explorer-modal');
-    if (modal) modal.classList.add('hidden');
+    if (modal) modal.style.display = 'none';
 }
 
 // ── Create Modal DOM ──
 function _fbCreateModal() {
     const modal = document.createElement('div');
     modal.id = 'file-explorer-modal';
-    modal.className = 'hidden';
-    modal.style.cssText = 'position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;';
-    modal.onclick = (e) => { if (e.target === modal) _fbClose(); };
+    modal.style.cssText = 'position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,0.6);display:none;align-items:center;justify-content:center;';
+    modal.onclick = (e) => { if (e.target === modal && !_fbInteracting) _fbClose(); };
 
     modal.innerHTML = `
         <div class="fe-container" onclick="event.stopPropagation()">
-            <!-- Header / breadcrumb -->
-            <div class="fe-header">
-                <div class="flex items-center gap-2 flex-1 min-w-0 overflow-x-auto" style="scrollbar-width:none;">
-                    <button onclick="_fbNavigateUp()" class="fe-btn flex-shrink-0" title="Go up">
-                        <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
+            <canvas id="fe-stars-canvas" class="fe-stars-canvas"></canvas>
+            <!-- Title bar (Nautilus style) -->
+            <div class="fe-titlebar" id="fe-titlebar">
+                <div class="fe-titlebar-left">
+                    <i data-lucide="search" class="w-4 h-4" style="color:var(--text-muted)"></i>
+                    <span class="fe-titlebar-title">Files</span>
+                </div>
+                <div class="fe-titlebar-center">
+                    <button onclick="_fbNavigateUp()" class="fe-nav-btn" data-tip="Navigate up" data-tip-pos="bottom">
+                        <i data-lucide="chevron-left" class="w-4 h-4"></i>
                     </button>
-                    <div id="fe-breadcrumb" class="flex items-center gap-1 text-[11px] flex-shrink-0"></div>
+                    <button class="fe-nav-btn" disabled style="opacity:0.3" data-tip="Forward" data-tip-pos="bottom">
+                        <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                    </button>
+                    <div id="fe-breadcrumb" class="fe-breadcrumb-bar"></div>
                 </div>
-                <div class="flex items-center gap-2 flex-shrink-0">
-                    <select id="fb-persona-select" onchange="_fbSwitchPersona(this.value)" class="text-[10px] px-2 py-1 rounded cursor-pointer" style="background:var(--bg-panel-solid);color:var(--accent);border:1px solid var(--border-strong);outline:none;"></select>
-                    <button onclick="_fbClose()" class="fe-btn" title="Close"><i data-lucide="x" class="w-4 h-4"></i></button>
-                </div>
-            </div>
-
-            <!-- File list view -->
-            <div id="fe-list-view" style="flex:1;display:flex;flex-direction:column;min-height:0;">
-                <div id="fe-file-list" class="flex-1 overflow-y-auto" style="min-height:0;"></div>
-                <div class="fe-action-bar">
-                    <button onclick="_fbCreateFile()" class="fe-action-btn"><i data-lucide="file-plus" class="w-3.5 h-3.5"></i> New File</button>
-                    <button onclick="_fbCreateFolder()" class="fe-action-btn"><i data-lucide="folder-plus" class="w-3.5 h-3.5"></i> New Folder</button>
-                    <label class="fe-action-btn cursor-pointer"><i data-lucide="upload" class="w-3.5 h-3.5"></i> Upload<input type="file" class="hidden" onchange="_fbUpload(event)"></label>
-                    <div class="flex-1"></div>
-                    <button onclick="_fbLoadDir(_fbPath)" class="fe-btn" title="Refresh"><i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i></button>
+                <div class="fe-titlebar-right">
+                    <div class="fe-atmos-group" id="fe-atmos-group"></div>
+                    <button onclick="_fbClose()" class="fe-wnd-btn fe-wnd-close" data-tip="Close file browser" data-tip-pos="left">
+                        <i data-lucide="x" class="w-3.5 h-3.5"></i>
+                    </button>
                 </div>
             </div>
 
-            <!-- Editor view (hidden by default) -->
-            <div id="fe-editor-view" style="flex:1;flex-direction:column;min-height:0;display:none;">
-                <!-- Editor toolbar -->
-                <div class="flex items-center gap-1 px-3 py-1.5" style="border-bottom:1px solid var(--border-strong);">
-                    <button onclick="_fbCloseEditor()" class="fe-btn" title="Back to files"><i data-lucide="arrow-left" class="w-3.5 h-3.5"></i></button>
-                    <span id="fe-editor-name" class="text-[11px] font-mono flex-1 truncate" style="color:var(--text-secondary)"></span>
-                    <span id="fe-editor-dirty" class="hidden text-[9px] px-1.5 py-0.5 rounded" style="background:rgba(251,191,36,0.15);color:#fbbf24;">unsaved</span>
-                    <div class="fe-toolbar-divider"></div>
-                    ${_FB_TOOLBAR.map(t => `<button onclick="_fbInsertFormat('${t.prefix.replace(/\n/g,'\\n')}','${t.suffix.replace(/\n/g,'\\n')}')" class="fe-fmt-btn" title="${t.key}"><i data-lucide="${t.icon}" class="w-3 h-3"></i></button>`).join('')}
-                    <div class="fe-toolbar-divider"></div>
-                    <button onclick="_fbTogglePreview()" id="fe-preview-btn" class="fe-fmt-btn" title="Preview (Ctrl+Shift+P)"><i data-lucide="eye" class="w-3 h-3"></i></button>
-                    <button onclick="_fbAiAssistMenu(event)" class="fe-ai-btn" title="AI Assist"><i data-lucide="sparkles" class="w-3 h-3"></i> AI</button>
-                </div>
-                <!-- Editor + preview -->
-                <textarea id="fe-editor-textarea" class="fe-textarea" spellcheck="false"></textarea>
-                <div id="fe-preview-pane" class="hidden fe-preview"></div>
-                <!-- Status bar -->
-                <div class="fe-status-bar">
-                    <button onclick="_fbSaveFile()" class="fe-save-btn"><i data-lucide="save" class="w-3 h-3"></i> Save</button>
-                    <button onclick="_fbTogglePreview()" class="fe-action-btn text-[10px]"><i data-lucide="eye" class="w-3 h-3"></i> Preview</button>
-                    <div class="flex-1"></div>
-                    <span id="fe-word-count" class="text-[10px]" style="color:var(--text-faint)"></span>
+            <!-- Body: sidebar + main -->
+            <div class="fe-body">
+                <!-- Left sidebar -->
+                <div class="fe-sidebar" id="fe-sidebar"></div>
+
+                <!-- Main content area -->
+                <div class="fe-main">
+                    <!-- Column header -->
+                    <div class="fe-col-header">
+                        <span class="fe-col-name">Name</span>
+                        <span class="fe-col-size">Size</span>
+                        <span class="fe-col-date">Modified</span>
+                        <span class="fe-col-actions"></span>
+                    </div>
+
+                    <!-- File list view -->
+                    <div id="fe-list-view" style="flex:1;display:flex;flex-direction:column;min-height:0;">
+                        <div id="fe-file-list" class="flex-1 overflow-y-auto" style="min-height:0;"></div>
+                        <div class="fe-action-bar">
+                            <button onclick="_fbCreateFile()" class="fe-action-btn" data-tip="Create a new text file" data-tip-pos="bottom"><i data-lucide="file-plus" class="w-4 h-4"></i> New File</button>
+                            <button onclick="_fbCreateFolder()" class="fe-action-btn" data-tip="Create a new folder" data-tip-pos="bottom"><i data-lucide="folder-plus" class="w-4 h-4"></i> New Folder</button>
+                            <label class="fe-action-btn cursor-pointer" data-tip="Upload a file from your device" data-tip-pos="bottom"><i data-lucide="upload" class="w-4 h-4"></i> Upload<input type="file" class="hidden" onchange="_fbUpload(event)"></label>
+                            <div class="flex-1"></div>
+                            <button onclick="_fbLoadDir(_fbPath)" class="fe-nav-btn" data-tip="Refresh file list" data-tip-pos="bottom"><i data-lucide="refresh-cw" class="w-4 h-4"></i></button>
+                        </div>
+                    </div>
+
+                    <!-- Editor view (hidden by default) -->
+                    <div id="fe-editor-view" style="flex:1;flex-direction:column;min-height:0;display:none;">
+                        <div class="flex items-center gap-1.5 px-3 py-2" style="border-bottom:1px solid var(--border-strong);">
+                            <button onclick="_fbCloseEditor()" class="fe-nav-btn" data-tip="Back to file list"><i data-lucide="arrow-left" class="w-4 h-4"></i></button>
+                            <span id="fe-editor-name" class="text-[12px] font-mono flex-1 truncate" style="color:var(--text-secondary)"></span>
+                            <span id="fe-editor-dirty" style="display:none;font-size:10px;padding:2px 6px;border-radius:4px;background:rgba(251,191,36,0.15);color:#fbbf24;">unsaved</span>
+                            <div class="fe-toolbar-divider"></div>
+                            ${_FB_TOOLBAR.map(t => `<button onclick="_fbInsertFormat('${t.prefix.replace(/\n/g,'\\n')}','${t.suffix.replace(/\n/g,'\\n')}')" class="fe-fmt-btn" data-tip="${t.key}"><i data-lucide="${t.icon}" class="w-3.5 h-3.5"></i></button>`).join('')}
+                            <div class="fe-toolbar-divider"></div>
+                            <button onclick="_fbTogglePreview()" class="fe-fmt-btn" data-tip="Toggle preview (Ctrl+Shift+P)"><i data-lucide="eye" class="w-3.5 h-3.5"></i></button>
+                            <button onclick="_fbAiAssistMenu(event)" class="fe-ai-btn" data-tip="AI writing assistant"><i data-lucide="sparkles" class="w-3.5 h-3.5"></i> AI</button>
+                        </div>
+                        <textarea id="fe-editor-textarea" class="fe-textarea" spellcheck="false" placeholder="Start typing..."></textarea>
+                        <div id="fe-preview-pane" style="display:none" class="fe-preview"></div>
+                        <div class="fe-status-bar">
+                            <button onclick="_fbSaveFile()" class="fe-save-btn" data-tip="Save file (Ctrl+S)"><i data-lucide="save" class="w-3.5 h-3.5"></i> Save</button>
+                            <button onclick="_fbTogglePreview()" class="fe-action-btn text-[11px]" data-tip="Toggle markdown preview"><i data-lucide="eye" class="w-3.5 h-3.5"></i> Preview</button>
+                            <div class="flex-1"></div>
+                            <span id="fe-word-count" class="text-[11px]" style="color:var(--text-faint)"></span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>`;
 
     document.body.appendChild(modal);
+    _fbInitDrag(modal);
+    _fbInitResize(modal);
     lucide.createIcons();
 
     // Keyboard shortcuts
@@ -136,7 +172,7 @@ function _fbCreateModal() {
         textarea.addEventListener('input', () => {
             _fbEditorDirty = true;
             const dirty = document.getElementById('fe-editor-dirty');
-            if (dirty) dirty.classList.remove('hidden');
+            if (dirty) dirty.style.display = '';
             _fbUpdateWordCount();
         });
         textarea.addEventListener('keydown', (e) => {
@@ -146,25 +182,87 @@ function _fbCreateModal() {
     }
 }
 
-function _fbPopulatePersonaSelect() {
-    const select = document.getElementById('fb-persona-select');
-    if (!select) return;
-    const personas = typeof availablePersonas !== 'undefined' && availablePersonas.length ? availablePersonas : [
-        {name:'intelligence'},{name:'market'},{name:'scholarly'},{name:'gaming'},{name:'anime'},{name:'tcg'}
-    ];
-    select.innerHTML = '';
-    for (const p of personas) {
-        const opt = document.createElement('option');
-        opt.value = p.name;
-        opt.textContent = p.name.charAt(0).toUpperCase() + p.name.slice(1);
-        if (p.name === _fbPersona) opt.selected = true;
-        select.appendChild(opt);
-    }
+// ── Drag to move ──
+function _fbInitDrag(modal) {
+    const titlebar = modal.querySelector('#fe-titlebar');
+    const container = modal.querySelector('.fe-container');
+    if (!titlebar || !container) return;
+    let dragging = false, startX, startY, origLeft, origTop;
+
+    titlebar.addEventListener('mousedown', (e) => {
+        if (e.target.closest('button')) return;
+        dragging = true;
+        _fbInteracting = true;
+        const rect = container.getBoundingClientRect();
+        startX = e.clientX; startY = e.clientY;
+        origLeft = rect.left; origTop = rect.top;
+        container.style.position = 'fixed';
+        container.style.margin = '0';
+        container.style.left = origLeft + 'px';
+        container.style.top = origTop + 'px';
+        e.preventDefault();
+    });
+    document.addEventListener('mousemove', (e) => {
+        if (!dragging) return;
+        container.style.left = (origLeft + e.clientX - startX) + 'px';
+        container.style.top = (origTop + e.clientY - startY) + 'px';
+    });
+    document.addEventListener('mouseup', () => { dragging = false; setTimeout(() => { _fbInteracting = false; }, 0); });
+}
+
+// ── Resize from edges ──
+function _fbInitResize(modal) {
+    const container = modal.querySelector('.fe-container');
+    if (!container) return;
+    const handle = document.createElement('div');
+    handle.className = 'fe-resize-handle';
+    container.appendChild(handle);
+
+    let resizing = false, startX, startY, startW, startH;
+    handle.addEventListener('mousedown', (e) => {
+        resizing = true;
+        _fbInteracting = true;
+        startX = e.clientX; startY = e.clientY;
+        startW = container.offsetWidth; startH = container.offsetHeight;
+        e.preventDefault(); e.stopPropagation();
+    });
+    document.addEventListener('mousemove', (e) => {
+        if (!resizing) return;
+        const newW = Math.max(500, startW + (e.clientX - startX));
+        const newH = Math.max(300, startH + (e.clientY - startY));
+        container.style.width = newW + 'px';
+        container.style.height = newH + 'px';
+    });
+    document.addEventListener('mouseup', () => { resizing = false; setTimeout(() => { _fbInteracting = false; }, 0); });
+}
+
+// ── Sidebar ──
+function _fbUpdateSidebar() {
+    const sidebar = document.getElementById('fe-sidebar');
+    if (!sidebar) return;
+    const personas = typeof availablePersonas !== 'undefined' && availablePersonas.length
+        ? availablePersonas.map(p => _FB_PERSONAS.find(fp => fp.name === p.name) || { name: p.name, icon: '📁', label: p.name.charAt(0).toUpperCase() + p.name.slice(1) })
+        : _FB_PERSONAS;
+
+    sidebar.innerHTML = `
+        <div class="fe-sidebar-section">
+            ${personas.map(p => `
+                <button onclick="_fbSwitchPersona('${p.name}')" class="fe-sidebar-item${p.name === _fbPersona ? ' fe-sidebar-active' : ''}" data-tip="Browse ${p.label} files" data-tip-pos="bottom">
+                    <span class="fe-sidebar-icon">${p.icon}</span>
+                    <span>${p.label}</span>
+                </button>
+            `).join('')}
+        </div>
+    `;
+    // Render atmosphere buttons in titlebar
+    _fbRenderAtmosButtons();
 }
 
 function _fbSwitchPersona(name) {
     _fbPersona = name;
     _fbPath = '/';
+    window._fbPath = '/';
+    _fbUpdateSidebar();
     _fbShowList();
     _fbLoadDir('/');
 }
@@ -173,37 +271,41 @@ function _fbSwitchPersona(name) {
 function _fbShowList() {
     const listView = document.getElementById('fe-list-view');
     const editorView = document.getElementById('fe-editor-view');
-    if (listView) { listView.style.display = 'flex'; }
-    if (editorView) { editorView.style.display = 'none'; }
+    const colHeader = document.querySelector('.fe-col-header');
+    if (listView) listView.style.display = 'flex';
+    if (editorView) editorView.style.display = 'none';
+    if (colHeader) colHeader.style.display = 'flex';
 }
 
 function _fbShowEditor() {
     const listView = document.getElementById('fe-list-view');
     const editorView = document.getElementById('fe-editor-view');
-    if (listView) { listView.style.display = 'none'; }
-    if (editorView) { editorView.style.display = 'flex'; }
-    // Hide preview, show textarea
+    const colHeader = document.querySelector('.fe-col-header');
+    if (listView) listView.style.display = 'none';
+    if (editorView) editorView.style.display = 'flex';
+    if (colHeader) colHeader.style.display = 'none';
     const ta = document.getElementById('fe-editor-textarea');
     const prev = document.getElementById('fe-preview-pane');
-    if (ta) { ta.style.display = ''; ta.classList.remove('hidden'); }
-    if (prev) { prev.style.display = 'none'; prev.classList.add('hidden'); }
+    if (ta) { ta.style.display = ''; }
+    if (prev) { prev.style.display = 'none'; }
 }
 
 // ── Breadcrumb ──
 function _fbRenderBreadcrumb() {
     const el = document.getElementById('fe-breadcrumb');
     if (!el) return;
-    const personaIcon = { gaming: '🎮', scholarly: '📚', market: '📊', intelligence: '🔍', anime: '🎌', tcg: '🃏' };
-    const icon = personaIcon[_fbPersona] || '📁';
+    const p = _FB_PERSONAS.find(p => p.name === _fbPersona);
+    const icon = p ? p.icon : '📁';
+    const label = p ? p.label : _fbPersona;
     const parts = _fbPath.split('/').filter(Boolean);
 
-    let html = `<button onclick="_fbLoadDir('/')" class="fe-crumb">${icon} ${_fbPersona.charAt(0).toUpperCase() + _fbPersona.slice(1)}</button>`;
+    let html = `<button onclick="_fbLoadDir('/')" class="fe-crumb"><span class="fe-crumb-icon">${icon}</span> ${label}</button>`;
     let accumulated = '';
     for (const part of parts) {
         accumulated += '/' + part;
-        const p = accumulated;
-        html += `<span style="color:var(--text-faint)">›</span>`;
-        html += `<button onclick="_fbLoadDir('${_escAttr(p)}')" class="fe-crumb">${_escHtml(part)}</button>`;
+        const pathStr = accumulated;
+        html += `<span class="fe-crumb-sep">/</span>`;
+        html += `<button onclick="_fbLoadDir('${_escAttr(pathStr)}')" class="fe-crumb"><b>${_escHtml(part)}</b></button>`;
     }
     el.innerHTML = html;
 }
@@ -211,6 +313,7 @@ function _fbRenderBreadcrumb() {
 // ── Load directory ──
 async function _fbLoadDir(path) {
     _fbPath = path;
+    window._fbPath = path;
     _fbRenderBreadcrumb();
     const list = document.getElementById('fe-file-list');
     if (!list) return;
@@ -257,13 +360,13 @@ function _fbRenderEntries() {
             ? `_fbLoadDir('${_escAttr(entry.path)}')`
             : `_fbOpenFile('${_escAttr(entry.path)}', '${_escAttr(entry.name)}')`;
 
-        return `<div class="fe-row" onclick="${clickAction}">
+        return `<div class="fe-row" onclick="${clickAction}" data-tip="${isDir ? 'Open folder' : 'Edit file'}" data-tip-pos="bottom">
             <div class="fe-icon"><i data-lucide="${icon}" class="w-5 h-5" style="color:${isDir ? 'var(--accent)' : 'var(--text-muted)'}"></i></div>
             <div class="fe-name">${_escHtml(entry.name)}</div>
             <div class="fe-size">${size}</div>
             <div class="fe-date">${date}</div>
-            <button onclick="event.stopPropagation();_fbDelete('${_escAttr(entry.path)}','${_escAttr(entry.name)}')" class="fe-del-btn" title="Delete">
-                <i data-lucide="trash-2" class="w-3 h-3"></i>
+            <button onclick="event.stopPropagation();_fbDelete('${_escAttr(entry.path)}','${_escAttr(entry.name)}')" class="fe-del-btn" data-tip="Delete ${_escHtml(entry.name)}">
+                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
             </button>
         </div>`;
     }).join('');
@@ -287,7 +390,7 @@ async function _fbOpenFile(path, name) {
     if (!textarea) return;
 
     if (nameEl) nameEl.textContent = name;
-    if (dirty) dirty.classList.add('hidden');
+    if (dirty) dirty.style.display = 'none';
     textarea.value = 'Loading...';
     textarea.disabled = true;
     _fbEditorPath = path;
@@ -323,17 +426,15 @@ function _fbCloseEditor() {
 async function _fbSaveFile() {
     const textarea = document.getElementById('fe-editor-textarea');
     if (!textarea || !_fbEditorPath) return;
-
     try {
         const r = await fetch('/api/persona-files/write', {
-            method: 'POST',
-            headers: _fbHeaders(),
+            method: 'POST', headers: _fbHeaders(),
             body: JSON.stringify({ persona: _fbPersona, path: _fbEditorPath, content: textarea.value })
         });
         if (r.ok) {
             _fbEditorDirty = false;
             const dirty = document.getElementById('fe-editor-dirty');
-            if (dirty) dirty.classList.add('hidden');
+            if (dirty) dirty.style.display = 'none';
             if (typeof showToast === 'function') showToast('Saved', 'success');
         } else {
             if (typeof showToast === 'function') showToast('Save failed', 'error');
@@ -349,19 +450,21 @@ function _fbInsertFormat(prefix, suffix) {
     if (!ta) return;
     prefix = prefix.replace(/\\n/g, '\n');
     suffix = suffix.replace(/\\n/g, '\n');
+    ta.focus();
     const start = ta.selectionStart;
     const end = ta.selectionEnd;
     const selected = ta.value.substring(start, end) || 'text';
     const replacement = prefix + selected + suffix;
-    ta.value = ta.value.substring(0, start) + replacement + ta.value.substring(end);
-    ta.focus();
+    // Use execCommand to preserve undo stack
+    ta.setSelectionRange(start, end);
+    document.execCommand('insertText', false, replacement);
+    // Position cursor around the selected text
     ta.selectionStart = start + prefix.length;
     ta.selectionEnd = start + prefix.length + selected.length;
     _fbEditorDirty = true;
     const dirty = document.getElementById('fe-editor-dirty');
-    if (dirty) dirty.classList.remove('hidden');
+    if (dirty) dirty.style.display = '';
 }
-window._fbInsertFormat = _fbInsertFormat;
 
 // ── Preview toggle ──
 function _fbTogglePreview() {
@@ -375,12 +478,10 @@ function _fbTogglePreview() {
     } else {
         ta.style.display = 'none';
         preview.style.display = '';
-        // Render markdown — use marked if available, otherwise basic
         const md = ta.value;
         if (typeof marked !== 'undefined') {
             preview.innerHTML = marked.parse(md);
         } else {
-            // Basic markdown rendering
             preview.innerHTML = md
                 .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
                 .replace(/^### (.+)$/gm, '<h3>$1</h3>')
@@ -393,11 +494,9 @@ function _fbTogglePreview() {
         }
     }
 }
-window._fbTogglePreview = _fbTogglePreview;
 
 // ── AI Assist ──
 function _fbAiAssistMenu(event) {
-    // Remove existing menu
     document.querySelectorAll('.fe-ai-menu').forEach(el => el.remove());
     const menu = document.createElement('div');
     menu.className = 'fe-ai-menu';
@@ -414,7 +513,6 @@ function _fbAiAssistMenu(event) {
     event.target.closest('.fe-ai-btn')?.appendChild(menu);
     setTimeout(() => document.addEventListener('click', function close() { menu.remove(); document.removeEventListener('click', close); }), 10);
 }
-window._fbAiAssistMenu = _fbAiAssistMenu;
 
 async function _fbAiAssist(action) {
     const ta = document.getElementById('fe-editor-textarea');
@@ -439,11 +537,9 @@ async function _fbAiAssist(action) {
     if (typeof showToast === 'function') showToast('AI processing...', 'info');
     try {
         const r = await fetch('/api/ask', {
-            method: 'POST',
-            headers: _fbHeaders(),
+            method: 'POST', headers: _fbHeaders(),
             body: JSON.stringify({
-                question: prompts[action],
-                persona: _fbPersona,
+                question: prompts[action], persona: _fbPersona,
                 system_override: 'You are a writing assistant. Follow the instruction exactly. Return only the requested output, no explanations.'
             })
         });
@@ -457,14 +553,13 @@ async function _fbAiAssist(action) {
                     if (typeof showToast === 'function') showToast(result, 'info');
                     return;
                 } else {
-                    // Show confirm before replacing
                     if (confirm('Replace content with AI result?\n\nPreview:\n' + result.substring(0, 200) + '...')) {
                         ta.value = result;
                     }
                 }
                 _fbEditorDirty = true;
                 const dirty = document.getElementById('fe-editor-dirty');
-                if (dirty) dirty.classList.remove('hidden');
+                if (dirty) dirty.style.display = '';
                 _fbUpdateWordCount();
                 if (typeof showToast === 'function') showToast('AI assist complete', 'success');
             }
@@ -475,15 +570,13 @@ async function _fbAiAssist(action) {
         if (typeof showToast === 'function') showToast('AI assist failed', 'error');
     }
 }
-window._fbAiAssist = _fbAiAssist;
 
 // ── Word count ──
 function _fbUpdateWordCount() {
     const ta = document.getElementById('fe-editor-textarea');
     const el = document.getElementById('fe-word-count');
     if (!ta || !el) return;
-    const words = ta.value.trim() ? ta.value.trim().split(/\s+/).length : 0;
-    el.textContent = `${words} words`;
+    el.textContent = `${ta.value.length} chars`;
 }
 
 // ── Create file/folder ──
@@ -499,7 +592,6 @@ async function _fbCreateFile() {
         _fbLoadDir(_fbPath);
     } catch (e) { if (typeof showToast === 'function') showToast('Failed', 'error'); }
 }
-window._fbCreateFile = _fbCreateFile;
 
 async function _fbCreateFolder() {
     const name = prompt('Folder name:');
@@ -513,7 +605,6 @@ async function _fbCreateFolder() {
         _fbLoadDir(_fbPath);
     } catch (e) { if (typeof showToast === 'function') showToast('Failed', 'error'); }
 }
-window._fbCreateFolder = _fbCreateFolder;
 
 async function _fbDelete(path, name) {
     if (!confirm(`Delete "${name}"?`)) return;
@@ -525,7 +616,6 @@ async function _fbDelete(path, name) {
         if (typeof showToast === 'function') showToast(`Deleted ${name}`, 'success');
     } catch (e) { if (typeof showToast === 'function') showToast('Failed', 'error'); }
 }
-window._fbDelete = _fbDelete;
 
 async function _fbUpload(event) {
     const file = event.target.files?.[0];
@@ -545,7 +635,6 @@ async function _fbUpload(event) {
     } catch (e) { if (typeof showToast === 'function') showToast('Upload failed', 'error'); }
     event.target.value = '';
 }
-window._fbUpload = _fbUpload;
 
 // ── Helpers ──
 function _escHtml(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
@@ -557,3 +646,249 @@ function _formatBytes(b) {
     const i = Math.floor(Math.log(b) / Math.log(k));
     return parseFloat((b / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
 }
+
+// ── Atmosphere system ──
+function _fbRenderAtmosButtons() {
+    const group = document.getElementById('fe-atmos-group');
+    if (!group) return;
+    const curAtmos = localStorage.getItem('fe-atmosphere') || 'clean';
+    group.innerHTML = [
+        { id: 'arcane', label: '✦ Arcane', tip: 'Starfield with accent glow' },
+        { id: 'clean', label: '○ Clean', tip: 'Frosted glass transparency' },
+        { id: 'deep', label: '● Deep', tip: 'Pure black minimal' },
+    ].map(a => `<button onclick="_fbSetAtmosphere('${a.id}')" class="fe-atmos-btn${curAtmos === a.id ? ' active' : ''}" data-atmos="${a.id}" data-tip="${a.tip}">${a.label}</button>`).join('');
+    _fbApplyAtmosphere(curAtmos);
+}
+
+function _fbSetAtmosphere(atmos) {
+    _fbApplyAtmosphere(atmos);
+    try { localStorage.setItem('fe-atmosphere', atmos); } catch(e) {}
+    document.querySelectorAll('.fe-atmos-btn').forEach(b => {
+        b.classList.toggle('active', b.getAttribute('data-atmos') === atmos);
+    });
+}
+
+function _fbApplyAtmosphere(atmos) {
+    const container = document.querySelector('.fe-container');
+    if (!container) return;
+    if (atmos) {
+        container.setAttribute('data-fe-atmos', atmos);
+    } else {
+        container.removeAttribute('data-fe-atmos');
+    }
+    if (atmos === 'arcane') {
+        _fbStartStars();
+    } else {
+        _fbStopStars();
+    }
+}
+
+// ── Star parallax engine (matches wizard Arcane) ──
+let _fbStarEngine = null;
+
+function _fbStopStars() {
+    if (!_fbStarEngine) return;
+    cancelAnimationFrame(_fbStarEngine.raf);
+    if (_fbStarEngine.onResize) window.removeEventListener('resize', _fbStarEngine.onResize);
+    _fbStarEngine = null;
+    const c = document.getElementById('fe-stars-canvas');
+    if (c) { const ctx = c.getContext('2d'); ctx.clearRect(0, 0, c.width, c.height); }
+}
+
+function _fbStartStars() {
+    _fbStopStars();
+    const canvas = document.getElementById('fe-stars-canvas');
+    if (!canvas) return;
+    const container = canvas.parentElement;
+    if (!container) return;
+    const ctx = canvas.getContext('2d');
+
+    function resize() {
+        canvas.width = container.offsetWidth;
+        canvas.height = container.offsetHeight;
+    }
+    resize();
+
+    const isMobile = window.innerWidth <= 768;
+    const COUNT = isMobile ? 30 : 120;
+    const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#34d399';
+
+    const temp = document.createElement('div');
+    temp.style.color = accent;
+    document.body.appendChild(temp);
+    const rgb = getComputedStyle(temp).color.match(/\d+/g) || [52, 211, 153];
+    temp.remove();
+    const ar = +rgb[0], ag = +rgb[1], ab = +rgb[2];
+
+    const stars = [];
+    for (let i = 0; i < COUNT; i++) {
+        stars.push({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height,
+            r: Math.random() * 1.4 + 0.3,
+            a: Math.random() * 0.4 + 0.08,
+            speed: Math.random() * 0.08 + 0.02,
+            phase: Math.random() * Math.PI * 2,
+            cr: Math.random() < 0.3 ? ar : 255,
+            cg: Math.random() < 0.3 ? ag : 255,
+            cb: Math.random() < 0.3 ? ab : 255
+        });
+    }
+
+    const shooters = [];
+    let lastShoot = Date.now();
+
+    function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        const t = Date.now() * 0.001;
+
+        for (const s of stars) {
+            s.y -= s.speed;
+            if (s.y < -2) { s.y = canvas.height + 2; s.x = Math.random() * canvas.width; }
+            const flicker = 0.6 + 0.4 * Math.sin(t * 2 + s.phase);
+            const alpha = s.a * flicker;
+            ctx.beginPath();
+            ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(${s.cr},${s.cg},${s.cb},${alpha})`;
+            ctx.fill();
+            if (s.r > 1) {
+                ctx.beginPath();
+                ctx.arc(s.x, s.y, s.r * 3, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(${s.cr},${s.cg},${s.cb},${alpha * 0.15})`;
+                ctx.fill();
+            }
+        }
+
+        // Constellation lines
+        for (let i = 0; i < stars.length; i++) {
+            for (let j = i + 1; j < stars.length; j++) {
+                const dx = stars[i].x - stars[j].x;
+                const dy = stars[i].y - stars[j].y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                if (dist < 100) {
+                    ctx.beginPath();
+                    ctx.moveTo(stars[i].x, stars[i].y);
+                    ctx.lineTo(stars[j].x, stars[j].y);
+                    ctx.strokeStyle = `rgba(${ar},${ag},${ab},${0.06 * (1 - dist / 100)})`;
+                    ctx.lineWidth = 0.5;
+                    ctx.stroke();
+                }
+            }
+        }
+
+        // Shooting stars
+        if (Date.now() - lastShoot > 5000 + Math.random() * 4000) {
+            lastShoot = Date.now();
+            const angle = Math.random() * 0.5 + 0.2;
+            const spd = Math.random() * 5 + 3;
+            shooters.push({
+                x: Math.random() * canvas.width * 0.6,
+                y: Math.random() * canvas.height * 0.3,
+                vx: Math.cos(angle) * spd, vy: Math.sin(angle) * spd,
+                life: 1, len: Math.random() * 35 + 20
+            });
+        }
+        for (let i = shooters.length - 1; i >= 0; i--) {
+            const sh = shooters[i];
+            sh.x += sh.vx; sh.y += sh.vy; sh.life -= 0.015;
+            if (sh.life <= 0) { shooters.splice(i, 1); continue; }
+            const grad = ctx.createLinearGradient(sh.x, sh.y, sh.x - sh.vx * sh.len / 5, sh.y - sh.vy * sh.len / 5);
+            grad.addColorStop(0, `rgba(255,255,255,${sh.life * 0.7})`);
+            grad.addColorStop(1, 'rgba(255,255,255,0)');
+            ctx.beginPath();
+            ctx.moveTo(sh.x, sh.y);
+            ctx.lineTo(sh.x - sh.vx * sh.len / 5, sh.y - sh.vy * sh.len / 5);
+            ctx.strokeStyle = grad;
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
+        }
+
+        _fbStarEngine.raf = requestAnimationFrame(draw);
+    }
+
+    _fbStarEngine = { raf: requestAnimationFrame(draw) };
+    const onResize = () => { if (_fbStarEngine) resize(); };
+    window.addEventListener('resize', onResize);
+    _fbStarEngine.onResize = onResize;
+}
+
+// ── Tooltip engine — appends to body so it's always on top ──
+let _fbTipEl = null;
+let _fbTipTarget = null;
+
+function _fbInitTooltips() {
+    if (_fbTipEl) return;
+    _fbTipEl = document.createElement('div');
+    _fbTipEl.className = 'fe-tooltip';
+    document.body.appendChild(_fbTipEl);
+
+    document.addEventListener('mouseover', (e) => {
+        const target = e.target.closest('[data-tip]');
+        // Only handle tips inside the file explorer
+        if (!target || !target.closest('#file-explorer-modal')) {
+            if (_fbTipTarget) { _fbTipEl.classList.remove('visible'); _fbTipTarget = null; }
+            return;
+        }
+        if (target === _fbTipTarget) return;
+        _fbTipTarget = target;
+        _fbTipEl.textContent = target.getAttribute('data-tip');
+        const rect = target.getBoundingClientRect();
+        // Position below the element, centered
+        const tipW = _fbTipEl.offsetWidth || 100;
+        let left = rect.left + rect.width / 2 - tipW / 2;
+        let top = rect.bottom + 6;
+        // If tip goes off right edge
+        if (left + tipW > window.innerWidth - 8) left = window.innerWidth - tipW - 8;
+        if (left < 8) left = 8;
+        // If tip goes below viewport, show above instead
+        if (top + 30 > window.innerHeight) {
+            top = rect.top - 30;
+        }
+        _fbTipEl.style.left = left + 'px';
+        _fbTipEl.style.top = top + 'px';
+        // Re-measure after content set
+        requestAnimationFrame(() => {
+            const actualW = _fbTipEl.offsetWidth;
+            let adjLeft = rect.left + rect.width / 2 - actualW / 2;
+            if (adjLeft + actualW > window.innerWidth - 8) adjLeft = window.innerWidth - actualW - 8;
+            if (adjLeft < 8) adjLeft = 8;
+            _fbTipEl.style.left = adjLeft + 'px';
+            _fbTipEl.classList.add('visible');
+        });
+    });
+
+    document.addEventListener('mouseout', (e) => {
+        const target = e.target.closest('[data-tip]');
+        if (target === _fbTipTarget) {
+            // Check if we're leaving to a child — if so, don't hide
+            const related = e.relatedTarget;
+            if (related && target.contains(related)) return;
+            _fbTipEl.classList.remove('visible');
+            _fbTipTarget = null;
+        }
+    });
+}
+
+// Init tooltips on first load
+_fbInitTooltips();
+
+// ── Expose all functions to window for onclick handlers + cross-module access ──
+window._fbOpen = _fbOpen;
+window._fbPath = _fbPath;
+window._fbClose = _fbClose;
+window._fbNavigateUp = _fbNavigateUp;
+window._fbCloseEditor = _fbCloseEditor;
+window._fbSwitchPersona = _fbSwitchPersona;
+window._fbLoadDir = _fbLoadDir;
+window._fbOpenFile = _fbOpenFile;
+window._fbSaveFile = _fbSaveFile;
+window._fbDelete = _fbDelete;
+window._fbCreateFile = _fbCreateFile;
+window._fbCreateFolder = _fbCreateFolder;
+window._fbUpload = _fbUpload;
+window._fbInsertFormat = _fbInsertFormat;
+window._fbTogglePreview = _fbTogglePreview;
+window._fbAiAssistMenu = _fbAiAssistMenu;
+window._fbAiAssist = _fbAiAssist;
+window._fbSetAtmosphere = _fbSetAtmosphere;
+window._fbRenderAtmosButtons = _fbRenderAtmosButtons;
