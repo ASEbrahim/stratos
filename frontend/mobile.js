@@ -457,31 +457,42 @@ function _openMobileAgent() {
             </div>
             <div class="mav-actions">
                 <button onclick="_mavNewChat()" title="New chat"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
-                <button onclick="_mavToggleFiles()" title="Files"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg></button>
+                <button onclick="_mavToggleConvs()" id="mav-convs-btn" title="Conversations"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></button>
                 <button onclick="_mavToggleContext()" title="Context"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></button>
-                <button onclick="_mavExport()" title="Export"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></button>
+                <button onclick="_mavToggleFiles()" title="Files"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg></button>
                 <button onclick="_mavClear()" title="Clear" style="color:#f87171;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg></button>
                 <button class="mav-close" onclick="_closeMobileAgent()" title="Close"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
             </div>
         </div>
         ${personaRow}
+        <div id="mav-conv-tabs" class="mav-conv-tabs"></div>
         <div class="mav-body" id="mav-messages"></div>
+        <div id="mav-suggestions" class="mav-suggestions"></div>
         <div class="mav-input-wrap">
             <div class="mav-input-row">
-                <input class="mav-input" id="mav-input" type="text" placeholder="Ask anything..."
-                    onkeydown="if(event.key==='Enter'){event.preventDefault();_mavSend();}">
+                <textarea class="mav-input" id="mav-input" rows="1" placeholder="Ask anything..."
+                    oninput="_mavAutoResize(this)"
+                    onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();_mavSend();}"></textarea>
                 <button class="mav-send" onclick="_mavSend()">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
                 </button>
+            </div>
+            <div class="mav-input-hint">
+                <span style="color:var(--text-muted);opacity:0.5;font-size:9px;">Enter to send · Shift+Enter newline</span>
             </div>
         </div>`;
     document.body.appendChild(view);
 
     /* Sync messages from existing agent panel */
     _mavSyncMessages();
-
-    /* Sync status dot */
     _mavSyncStatus();
+    _mavRenderConvTabs();
+    _mavRenderSuggestions();
+
+    /* Install hooks for real-time sync (replaces polling) */
+    window._onAgentMessageHook = _mavOnMessage;
+    window._onAgentStreamEndHook = _mavOnStreamEnd;
+    window._onAgentStreamChunkHook = _mavOnStreamChunk;
 
     /* Back button support */
     history.pushState({ mobileAgent: true }, '');
@@ -495,12 +506,34 @@ function _closeMobileAgent() {
     const view = document.getElementById('mobile-agent-view');
     if (view) view.remove();
     _mobileAgentOpen = false;
+    /* Remove hooks */
+    window._onAgentMessageHook = null;
+    window._onAgentStreamEndHook = null;
+    window._onAgentStreamChunkHook = null;
     window.removeEventListener('popstate', _onAgentPop);
     _updateBottomNav();
 }
 
 function _onAgentPop() {
     _closeMobileAgent();
+}
+
+/* ── Hook-based sync (replaces 500ms polling) ── */
+function _mavOnMessage(role, content) {
+    _mavSyncMessages();
+}
+function _mavOnStreamEnd() {
+    _mavSyncMessages();
+    _mavRenderConvTabs();
+}
+/* Throttled streaming sync — max every 300ms */
+let _mavChunkTimer = null;
+function _mavOnStreamChunk() {
+    if (_mavChunkTimer) return;
+    _mavChunkTimer = setTimeout(() => {
+        _mavChunkTimer = null;
+        _mavSyncMessages();
+    }, 300);
 }
 
 /* Sync messages from #agent-messages to #mav-messages */
@@ -510,7 +543,6 @@ function _mavSyncMessages() {
     if (!src || !dst) return;
     dst.innerHTML = src.innerHTML;
     dst.scrollTop = dst.scrollHeight;
-    /* Also re-init lucide icons in cloned content */
     if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 
@@ -524,39 +556,94 @@ function _mavSyncStatus() {
     if (origBadge && mavBadge) mavBadge.textContent = origBadge.textContent;
 }
 
-/* Send message through existing agent system */
+/* ── Conversation tabs for mobile ── */
+function _mavRenderConvTabs() {
+    const container = document.getElementById('mav-conv-tabs');
+    if (!container) return;
+    const convList = typeof _agentConvList !== 'undefined' ? _agentConvList : [];
+    const activeId = typeof _agentActiveConvId !== 'undefined' ? _agentActiveConvId : null;
+    if (convList.length <= 1) { container.innerHTML = ''; return; }
+    container.innerHTML = convList.map(c => {
+        const active = c.id === activeId;
+        const title = (c.title || 'New Chat').length > 18 ? (c.title || 'New Chat').slice(0, 16) + '…' : (c.title || 'New Chat');
+        return `<button class="mav-conv-tab${active ? ' mav-conv-active' : ''}" onclick="_mavSwitchConv(${c.id})">${title.replace(/</g,'&lt;')}</button>`;
+    }).join('');
+}
+
+/* ── Suggestion chips for mobile ── */
+function _mavRenderSuggestions() {
+    const container = document.getElementById('mav-suggestions');
+    if (!container) return;
+    /* Only show suggestions when conversation is empty */
+    const hasMessages = typeof agentHistory !== 'undefined' && agentHistory.length > 0;
+    if (hasMessages) { container.innerHTML = ''; return; }
+    const persona = typeof currentPersona !== 'undefined' ? currentPersona : 'intelligence';
+    const suggestions = typeof _PERSONA_SUGGESTIONS !== 'undefined' ? (_PERSONA_SUGGESTIONS[persona] || []) : [];
+    const chips = suggestions.slice(0, 4);
+    if (chips.length === 0) { container.innerHTML = ''; return; }
+    container.innerHTML = chips.map(s => {
+        const label = typeof s === 'string' ? s : (s.label || s.text || '');
+        return `<button class="mav-chip" onclick="_mavSendChip(this)" data-text="${label.replace(/"/g,'&quot;')}">${label.replace(/</g,'&lt;')}</button>`;
+    }).join('');
+}
+
+/* Auto-resize textarea */
+window._mavAutoResize = function(el) {
+    el.style.height = 'auto';
+    el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+};
+
+/* Send message through existing agent system — hook-based, no polling */
 window._mavSend = function() {
     const input = document.getElementById('mav-input');
     if (!input || !input.value.trim()) return;
 
-    /* Copy value to real agent input and send */
     const realInput = document.getElementById('agent-input');
     if (realInput) {
         realInput.value = input.value;
         input.value = '';
+        input.style.height = 'auto';
         if (typeof sendAgentMessage === 'function') sendAgentMessage();
-
-        /* Poll for response updates */
-        let polls = 0;
-        const poller = setInterval(() => {
-            _mavSyncMessages();
-            polls++;
-            if (polls > 120) clearInterval(poller); /* 60 seconds max */
-        }, 500);
+        /* Hide suggestions after first message */
+        const sug = document.getElementById('mav-suggestions');
+        if (sug) sug.innerHTML = '';
     }
 };
 
-window._mavImport = function() { if (typeof importAgentChat === 'function') importAgentChat(); };
+window._mavSendChip = function(btn) {
+    const text = btn.dataset.text;
+    if (!text) return;
+    const realInput = document.getElementById('agent-input');
+    if (realInput) {
+        realInput.value = text;
+        if (typeof sendAgentMessage === 'function') sendAgentMessage();
+        const sug = document.getElementById('mav-suggestions');
+        if (sug) sug.innerHTML = '';
+    }
+};
+
 window._mavExport = function() { if (typeof exportAgentChat === 'function') exportAgentChat(); };
 window._mavNewChat = function() {
     if (typeof newAgentChat === 'function') newAgentChat();
-    setTimeout(_mavSyncMessages, 200);
+    setTimeout(() => { _mavSyncMessages(); _mavRenderConvTabs(); _mavRenderSuggestions(); }, 200);
 };
 window._mavToggleFiles = function() { if (typeof toggleFileBrowser === 'function') toggleFileBrowser(); };
 window._mavToggleContext = function() { if (typeof toggleContextEditor === 'function') toggleContextEditor(); };
 window._mavClear = function() {
     if (typeof clearAgentChat === 'function') clearAgentChat();
-    setTimeout(_mavSyncMessages, 100);
+    setTimeout(() => { _mavSyncMessages(); _mavRenderSuggestions(); }, 100);
+};
+window._mavSwitchConv = function(convId) {
+    if (typeof _switchConversation === 'function') _switchConversation(convId);
+    setTimeout(() => { _mavSyncMessages(); _mavRenderConvTabs(); _mavRenderSuggestions(); }, 300);
+};
+
+/* Toggle conversation list drawer */
+let _mavConvsOpen = false;
+window._mavToggleConvs = function() {
+    _mavConvsOpen = !_mavConvsOpen;
+    const tabs = document.getElementById('mav-conv-tabs');
+    if (tabs) tabs.style.display = _mavConvsOpen ? 'flex' : 'none';
 };
 
 /* Also expose _closeMobileAgent globally for onclick */

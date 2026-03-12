@@ -137,6 +137,8 @@ function _renderConvTabs() {
         return `<button onclick="_switchConversation(${c.id})" ondblclick="event.stopPropagation();_renameConversation(${c.id})" class="flex items-center gap-1 px-2 py-1 rounded-md text-[9px] font-medium whitespace-nowrap transition-all flex-shrink-0 group" style="background:${active ? theme.bg : 'transparent'};border:1px solid ${active ? theme.color + '40' : 'transparent'};color:${active ? theme.color : 'var(--text-muted)'};" title="Double-click to rename" onmouseenter="if(!${active})this.style.background='rgba(255,255,255,0.03)'" onmouseleave="if(!${active})this.style.background='transparent'">${escAgent(title)}${_agentConvList.length > 1 ? `<span onclick="event.stopPropagation();_deleteConversation(${c.id})" class="opacity-0 group-hover:opacity-100 ml-1 transition-opacity" style="color:var(--text-muted);" title="Delete">×</span>` : ''}</button>`;
     }).join('') + `<button onclick="newAgentChat()" class="px-1.5 py-1 rounded-md text-[9px] transition-all flex-shrink-0" style="color:var(--text-muted);" title="New chat" onmouseenter="this.style.color='${theme.color}'" onmouseleave="this.style.color='var(--text-muted)'"><i data-lucide="plus" class="w-3 h-3"></i></button>`;
     lucide.createIcons();
+    // Also refresh compact sidebar if open
+    if (typeof _refreshCompactSidebar === 'function') _refreshCompactSidebar();
 }
 
 async function _renameConversation(convId) {
@@ -593,6 +595,8 @@ function appendAgentMessage(role, content) {
         wrapper.style.transform = 'translateY(0)';
     });
     msgs.scrollTop = msgs.scrollHeight;
+    // Fire hook for mobile agent sync (replaces polling)
+    if (typeof _onAgentMessageHook === 'function') _onAgentMessageHook(role, content);
     return wrapper;
 }
 
@@ -976,6 +980,8 @@ async function sendAgentMessage() {
                                 respDiv.innerHTML = formatAgentText(fullResponse);
                                 const msgs = document.getElementById('agent-messages');
                                 if (msgs) msgs.scrollTop = msgs.scrollHeight;
+                                // Throttled mobile sync during streaming
+                                if (typeof _onAgentStreamChunkHook === 'function') _onAgentStreamChunkHook();
                             }
                         }
                         if (payload.suggestions && Array.isArray(payload.suggestions)) {
@@ -1067,6 +1073,8 @@ async function sendAgentMessage() {
         sendBtn.onclick = function() { sendAgentMessage(); };
         lucide.createIcons();
         input.focus();
+        // Fire stream-end hook for mobile agent sync
+        if (typeof _onAgentStreamEndHook === 'function') _onAgentStreamEndHook();
     }
 }
 
@@ -1452,3 +1460,92 @@ document.addEventListener('keydown', function(e) {
         }, 500);
     });
 })();
+
+// ═══════════════════════════════════════════════
+// COMPACT SIDEBAR (desktop agent panel)
+// ═══════════════════════════════════════════════
+let _compactSidebarOpen = false;
+
+function _toggleCompactSidebar() {
+    _compactSidebarOpen = !_compactSidebarOpen;
+    const existing = document.getElementById('agent-compact-sidebar');
+    if (!_compactSidebarOpen && existing) {
+        existing.style.transform = 'translateX(-100%)';
+        existing.style.opacity = '0';
+        setTimeout(() => existing.remove(), 200);
+        return;
+    }
+    if (_compactSidebarOpen) {
+        // Ensure agent body is visible
+        _openAgentPanel();
+        if (!agentOpen) { agentOpen = true; }
+        _renderCompactSidebar();
+    }
+}
+window._toggleCompactSidebar = _toggleCompactSidebar;
+
+function _renderCompactSidebar() {
+    const body = document.getElementById('agent-body');
+    if (!body) return;
+    let sb = document.getElementById('agent-compact-sidebar');
+    const theme = PERSONA_THEMES[currentPersona] || PERSONA_THEMES.intelligence;
+
+    // Build conversation items
+    const convItems = _agentConvList.map(c => {
+        const active = c.id === _agentActiveConvId;
+        const title = (c.title || 'New Chat').length > 22 ? (c.title || 'New Chat').slice(0, 20) + '…' : (c.title || 'New Chat');
+        return `<div class="acs-conv-item${active ? ' acs-active' : ''}" onclick="_switchConversation(${c.id})" ondblclick="event.stopPropagation();_renameConversation(${c.id})" title="${escAgent(c.title || 'New Chat')}">
+            <span class="acs-conv-title">${escAgent(title)}</span>
+            ${_agentConvList.length > 1 ? `<span class="acs-conv-del" onclick="event.stopPropagation();_deleteConversation(${c.id})" title="Delete">&times;</span>` : ''}
+        </div>`;
+    }).join('');
+
+    // Build persona items
+    const personaItems = Object.entries(PERSONA_THEMES).map(([key, t]) => {
+        const active = key === currentPersona;
+        return `<button class="acs-persona-btn${active ? ' acs-persona-active' : ''}" onclick="switchPersona('${key}')" style="${active ? 'background:' + t.bg + ';color:' + t.color + ';border-color:' + t.color + '40' : ''}">
+            ${t.label}
+        </button>`;
+    }).join('');
+
+    const html = `
+        <div class="acs-section">
+            <div class="acs-heading">Persona</div>
+            <div class="acs-persona-list">${personaItems}</div>
+        </div>
+        <div class="acs-divider"></div>
+        <div class="acs-section acs-flex-1">
+            <div class="acs-heading">Chats</div>
+            <div class="acs-conv-list">${convItems}</div>
+        </div>
+        <div class="acs-divider"></div>
+        <div class="acs-actions">
+            <button onclick="importAgentChat()" title="Import"><i data-lucide="upload" class="w-3.5 h-3.5"></i></button>
+            <button onclick="exportAgentChat()" title="Export"><i data-lucide="download" class="w-3.5 h-3.5"></i></button>
+            <button onclick="toggleContextEditor()" title="Context"><i data-lucide="file-cog" class="w-3.5 h-3.5"></i></button>
+            <button onclick="toggleFileBrowser()" title="Files"><i data-lucide="folder-open" class="w-3.5 h-3.5"></i></button>
+        </div>`;
+
+    if (!sb) {
+        sb = document.createElement('div');
+        sb.id = 'agent-compact-sidebar';
+        sb.className = 'agent-compact-sidebar';
+        body.insertBefore(sb, body.firstChild);
+        // Animate in
+        sb.style.transform = 'translateX(-100%)';
+        sb.style.opacity = '0';
+        requestAnimationFrame(() => {
+            sb.style.transition = 'transform 0.2s ease, opacity 0.2s ease';
+            sb.style.transform = 'translateX(0)';
+            sb.style.opacity = '1';
+        });
+    }
+    sb.innerHTML = html;
+    lucide.createIcons();
+}
+
+// Refresh compact sidebar when conversations change
+function _refreshCompactSidebar() {
+    if (_compactSidebarOpen) _renderCompactSidebar();
+}
+

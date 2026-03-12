@@ -281,20 +281,20 @@
                                             </button>
                                             <span id="agent-model-badge" class="text-[10px] font-mono px-2 py-0.5 rounded" style="background:rgba(16,185,129,0.08); color:var(--accent,#34d399); border:1px solid rgba(16,185,129,0.15);"></span>
                                         </div>
-                                        <p class="text-[11px] mt-0.5" style="color:var(--text-muted);">Search the web, manage your feed, analyze signals</p>
-                                        <div class="flex items-center gap-1.5 mt-1">
-                                            <span class="text-[9px] font-mono px-1.5 py-0.5 rounded-full strat-tip" style="background:rgba(99,102,241,0.1); color:#818cf8; border:1px solid rgba(99,102,241,0.2);" data-tip="Agent can search the web for real-time info.">🔍 Search</span>
-                                            <span class="text-[9px] font-mono px-1.5 py-0.5 rounded-full strat-tip" style="background:rgba(16,185,129,0.1); color:#34d399; border:1px solid rgba(16,185,129,0.2);" data-tip="Agent can add/remove market tickers.">📊 Watchlist</span>
-                                            <span class="text-[9px] font-mono px-1.5 py-0.5 rounded-full strat-tip" style="background:rgba(251,191,36,0.1); color:#fbbf24; border:1px solid rgba(251,191,36,0.2);" data-tip="Agent can manage tracking categories.">🏷️ Categories</span>
-                                            <button onclick="event.stopPropagation(); newAgentChat()" class="text-[9px] font-mono px-1.5 py-0.5 rounded-full transition-all cursor-pointer" style="background:rgba(16,185,129,0.08); color:var(--accent,#34d399); border:1px solid rgba(16,185,129,0.15);" onmouseenter="this.style.background='rgba(16,185,129,0.18)'" onmouseleave="this.style.background='rgba(16,185,129,0.08)'">+ New Chat</button>
-                                        </div>
+                                        <p class="text-[10px] mt-0.5" style="color:var(--text-muted); opacity:0.7;">AI-powered research assistant</p>
                                     </div>
                                 </div>
                                 <div class="flex items-center gap-0.5">
+                                    <button onclick="event.stopPropagation(); newAgentChat()" class="p-1.5 rounded-md transition-all" style="color:var(--text-muted);" title="New chat" onmouseenter="this.style.background='rgba(255,255,255,0.05)';this.style.color='var(--accent)'" onmouseleave="this.style.background='transparent';this.style.color='var(--text-muted)'">
+                                        <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                                    </button>
+                                    <button onclick="event.stopPropagation(); _toggleCompactSidebar()" id="agent-sidebar-btn" class="p-1.5 rounded-md transition-all" style="color:var(--text-muted);" title="Toggle sidebar" onmouseenter="this.style.background='rgba(255,255,255,0.05)';this.style.color='var(--text-heading)'" onmouseleave="this.style.background='transparent';this.style.color='var(--text-muted)'">
+                                        <i data-lucide="panel-left" class="w-3.5 h-3.5"></i>
+                                    </button>
                                     <button onclick="event.stopPropagation(); toggleAgentFullscreen()" id="agent-fs-btn" class="p-1.5 rounded-md transition-all" style="color:var(--text-muted);" title="Toggle fullscreen" onmouseenter="this.style.background='rgba(255,255,255,0.05)';this.style.color='var(--text-heading)'" onmouseleave="this.style.background='transparent';this.style.color='var(--text-muted)'">
                                         <i data-lucide="maximize-2" class="w-3.5 h-3.5"></i>
                                     </button>
-                                    <button onclick="event.stopPropagation(); importAgentChat()" class="p-1.5 rounded-md transition-all" style="color:var(--text-muted);" title="Import chat or context file" onmouseenter="this.style.background='rgba(255,255,255,0.05)';this.style.color='var(--text-heading)'" onmouseleave="this.style.background='transparent';this.style.color='var(--text-muted)'">
+                                    <button onclick="event.stopPropagation(); importAgentChat()" class="p-1.5 rounded-md transition-all" style="color:var(--text-muted);" title="Import chat" onmouseenter="this.style.background='rgba(255,255,255,0.05)';this.style.color='var(--text-heading)'" onmouseleave="this.style.background='transparent';this.style.color='var(--text-muted)'">
                                         <i data-lucide="upload" class="w-3.5 h-3.5"></i>
                                     </button>
                                     <button onclick="event.stopPropagation(); exportAgentChat()" class="p-1.5 rounded-md transition-all" style="color:var(--text-muted);" title="Export chat" onmouseenter="this.style.background='rgba(255,255,255,0.05)';this.style.color='var(--text-heading)'" onmouseleave="this.style.background='transparent';this.style.color='var(--text-muted)'">
@@ -309,8 +309,8 @@
                             </div>
                             <!-- Conversation Tabs -->
                             <div id="agent-conv-tabs" class="flex items-center gap-1 px-3 py-1.5 overflow-x-auto" style="border-bottom:1px solid var(--border-strong);scrollbar-width:none;"></div>
-                            <!-- Body -->
-                            <div id="agent-body" class="hidden">
+                            <!-- Body with optional compact sidebar -->
+                            <div id="agent-body" class="hidden" style="position:relative;">
                                 <!-- Games Scenario Bar (shown only when games persona active) -->
                                 <div id="games-scenario-bar" class="hidden px-3 py-2" style="border-bottom:1px solid var(--border-strong);background:rgba(255,255,255,0.02);">
                                     <div id="games-scenario-content"></div>
