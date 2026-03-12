@@ -53,11 +53,35 @@ def handle_get(handler, strat, auth, path):
             _send_json(handler, {"error": "Invalid channel ID"}, 400)
         return True
     elif len(path_parts) == 4 and path_parts[2] == 'insights':
-        # /api/youtube/insights/:video_db_id
+        # /api/youtube/insights/:video_db_id?language=en|ar|ja|all
         try:
             vid_id = int(path_parts[3])
-            insights = yt.get_video_insights(vid_id, handler._profile_id)
-            _send_json(handler, {"insights": insights})
+            qs = parse_qs(parsed.query)
+            language = qs.get('language', ['en'])[0]
+            insights = yt.get_video_insights(vid_id, handler._profile_id, language=language)
+
+            # Get available languages and video title for this video
+            cursor = strat.db.conn.cursor()
+            cursor.execute(
+                "SELECT DISTINCT language FROM video_insights WHERE video_id = ? AND profile_id = ?",
+                (vid_id, handler._profile_id)
+            )
+            available_langs = [row['language'] for row in cursor.fetchall()]
+            cursor.execute(
+                "SELECT title, transcript_language FROM youtube_videos WHERE id = ? AND profile_id = ?",
+                (vid_id, handler._profile_id)
+            )
+            vrow = cursor.fetchone()
+            video_title = vrow['title'] if vrow else ''
+            transcript_lang = (vrow['transcript_language'] if vrow else 'en') or 'en'
+
+            _send_json(handler, {
+                "insights": insights,
+                "video_title": video_title,
+                "available_languages": available_langs,
+                "transcript_language": transcript_lang,
+                "current_language": language,
+            })
         except (ValueError, IndexError):
             _send_json(handler, {"error": "Invalid video ID"}, 400)
         return True

@@ -118,9 +118,25 @@ JSON array only. If no narrations found, output [].""",
 
 AVAILABLE_LENSES = list(LENS_PROMPTS.keys())
 
+# Language display names for prompts
+LANGUAGE_NAMES = {
+    'en': 'English', 'ar': 'Arabic', 'ja': 'Japanese',
+    'ko': 'Korean', 'zh': 'Chinese', 'fr': 'French',
+    'de': 'German', 'es': 'Spanish', 'ru': 'Russian',
+}
+
+
+def _build_language_instruction(target_language: str) -> str:
+    """Build a language instruction suffix for lens prompts."""
+    if target_language == 'en':
+        return ''  # Default — no extra instruction needed
+    lang_name = LANGUAGE_NAMES.get(target_language, target_language)
+    return f'Respond in {lang_name}. All output text (summaries, definitions, analysis) must be in {lang_name}. Keep JSON keys in English.'
+
 
 def extract_lens(transcript: str, lens_name: str, video_title: str,
-                 ollama_host: str, model: str) -> Optional[Any]:
+                 ollama_host: str, model: str,
+                 target_language: str = 'en') -> Optional[Any]:
     """Run a single lens extraction against a transcript.
 
     Args:
@@ -129,6 +145,7 @@ def extract_lens(transcript: str, lens_name: str, video_title: str,
         video_title: Video title for context
         ollama_host: Ollama API host
         model: Model name (e.g., 'qwen3.5:9b')
+        target_language: Language to extract in ('en', 'ar', 'ja', etc.)
 
     Returns:
         Parsed JSON result (dict or list) or None on failure
@@ -141,9 +158,13 @@ def extract_lens(transcript: str, lens_name: str, video_title: str,
 
     # Chunk transcript if too long
     if len(transcript) > MAX_TRANSCRIPT_CHUNK:
-        return _extract_lens_chunked(transcript, lens_name, video_title, ollama_host, model)
+        return _extract_lens_chunked(transcript, lens_name, video_title, ollama_host, model, target_language)
 
+    # Build language instruction
+    lang_instruction = _build_language_instruction(target_language)
     user_prompt = lens['user'].format(title=video_title, transcript=transcript)
+    if lang_instruction:
+        user_prompt += f'\n\n{lang_instruction}'
 
     try:
         resp = requests.post(
@@ -174,14 +195,15 @@ def extract_lens(transcript: str, lens_name: str, video_title: str,
 
 
 def _extract_lens_chunked(transcript: str, lens_name: str, video_title: str,
-                          ollama_host: str, model: str) -> Optional[Any]:
+                          ollama_host: str, model: str,
+                          target_language: str = 'en') -> Optional[Any]:
     """Process long transcripts in chunks, then merge results."""
     chunks = _split_transcript(transcript, MAX_TRANSCRIPT_CHUNK)
     all_results = []
 
     for i, chunk in enumerate(chunks):
         chunk_title = f"{video_title} (part {i+1}/{len(chunks)})"
-        result = extract_lens(chunk, lens_name, chunk_title, ollama_host, model)
+        result = extract_lens(chunk, lens_name, chunk_title, ollama_host, model, target_language)
         if result:
             if isinstance(result, list):
                 all_results.extend(result)

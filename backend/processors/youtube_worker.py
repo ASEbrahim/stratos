@@ -102,7 +102,7 @@ def _worker_loop(strat, sse_manager):
             })
 
             try:
-                transcript, method = yt.get_transcript_for_video(video_id)
+                transcript, method, detected_lang = yt.get_transcript_for_video(video_id)
             except RuntimeError as e:
                 yt._update_status(video_db_id, 'failed', str(e))
                 _notify(sse_manager, {
@@ -115,13 +115,13 @@ def _worker_loop(strat, sse_manager):
                 logger.error(f"YouTube worker: transcription failed for {video_id}: {e}")
                 continue
 
-            # Save transcript
+            # Save transcript + detected language
             cursor.execute(
-                "UPDATE youtube_videos SET transcript_text = ?, transcript_method = ? WHERE id = ?",
-                (transcript, method, video_db_id)
+                "UPDATE youtube_videos SET transcript_text = ?, transcript_method = ?, transcript_language = ? WHERE id = ?",
+                (transcript, method, detected_lang, video_db_id)
             )
             db._commit()
-            logger.info(f"YouTube worker: transcribed {video_id} via {method} ({len(transcript)} chars)")
+            logger.info(f"YouTube worker: transcribed {video_id} via {method} ({len(transcript)} chars) [lang={detected_lang}]")
 
             # Step 2: Run lenses
             yt._update_status(video_db_id, 'extracting')
@@ -140,20 +140,40 @@ def _worker_loop(strat, sse_manager):
                     break
                 try:
                     from processors.lenses import extract_lens
-                    insight = extract_lens(
+                    # Extract in English (always)
+                    insight_en = extract_lens(
                         transcript, lens_name, title,
                         yt.ollama_host, yt.inference_model,
+                        target_language='en',
                     )
-                    if insight:
+                    if insight_en:
                         cursor.execute(
                             """INSERT INTO video_insights
-                               (video_id, profile_id, lens_name, content)
-                               VALUES (?, ?, ?, ?)""",
+                               (video_id, profile_id, lens_name, content, language)
+                               VALUES (?, ?, ?, ?, 'en')""",
                             (video_db_id, profile_id, lens_name,
-                             json.dumps(insight, ensure_ascii=False))
+                             json.dumps(insight_en, ensure_ascii=False))
                         )
                         insights_count += 1
-                        logger.info(f"YouTube worker: lens '{lens_name}' extracted for {video_id}")
+                        logger.info(f"YouTube worker: lens '{lens_name}' [en] extracted for {video_id}")
+
+                    # Extract in original language (if non-English)
+                    if detected_lang and detected_lang != 'en':
+                        insight_orig = extract_lens(
+                            transcript, lens_name, title,
+                            yt.ollama_host, yt.inference_model,
+                            target_language=detected_lang,
+                        )
+                        if insight_orig:
+                            cursor.execute(
+                                """INSERT INTO video_insights
+                                   (video_id, profile_id, lens_name, content, language)
+                                   VALUES (?, ?, ?, ?, ?)""",
+                                (video_db_id, profile_id, lens_name,
+                                 json.dumps(insight_orig, ensure_ascii=False), detected_lang)
+                            )
+                            insights_count += 1
+                            logger.info(f"YouTube worker: lens '{lens_name}' [{detected_lang}] extracted for {video_id}")
                 except Exception as e:
                     logger.error(f"YouTube worker: lens '{lens_name}' failed: {e}")
 

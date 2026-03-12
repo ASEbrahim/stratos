@@ -398,6 +398,26 @@ body:has(.agent-fullscreen) > .flex > main {
 }
 .yt-channel-card:hover { background: var(--bg-hover); }
 
+/* ── YouTube Language Toggle ── */
+.yt-lang-toggle {
+    display: inline-flex; border: 1px solid var(--border-strong);
+    border-radius: 6px; overflow: hidden;
+}
+.yt-lang-btn {
+    padding: 3px 10px; border: none; background: transparent;
+    color: var(--text-muted); cursor: pointer; transition: all 0.15s;
+    font-size: 10px; white-space: nowrap; line-height: 1.4;
+}
+.yt-lang-btn.active {
+    background: rgba(192,132,252,0.15); color: #c084fc;
+}
+.yt-lang-btn:hover:not(.active) {
+    background: rgba(255,255,255,0.04); color: var(--text-secondary);
+}
+@media (max-width: 768px) {
+    .yt-lang-btn { padding: 5px 14px; font-size: 11px; }
+}
+
 /* ── File Browser ── */
 .fb-tool-btn {
     display: inline-flex; align-items: center; justify-content: center;

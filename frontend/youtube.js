@@ -5,6 +5,14 @@
 let _ytChannels = [];
 let _ytVideos = {};
 let _ytInsights = {};
+let _ytInsightsAll = {};      // keyed by `${lens_name}_${language}`
+let _ytAvailableLangs = [];
+let _ytCurrentLang = localStorage.getItem('stratos_insight_lang') || 'en';
+
+const _ytLangLabels = {
+    'ar': 'العربية', 'ja': '日本語', 'ko': '한국어', 'zh': '中文',
+    'fr': 'Français', 'de': 'Deutsch', 'es': 'Español', 'ru': 'Русский',
+};
 
 // ── SSE handler for realtime video processing updates ──
 function _handleYouTubeSSE(event) {
@@ -300,15 +308,60 @@ async function _ytShowInsights(videoId) {
     if (content) content.innerHTML = '<div class="flex items-center justify-center py-12"><div class="flex gap-1"><span class="w-2 h-2 rounded-full animate-bounce" style="background:#c084fc;animation-delay:0ms;"></span><span class="w-2 h-2 rounded-full animate-bounce" style="background:#c084fc;animation-delay:150ms;"></span><span class="w-2 h-2 rounded-full animate-bounce" style="background:#c084fc;animation-delay:300ms;"></span></div></div>';
 
     try {
-        const r = await fetch(`/api/youtube/insights/${videoId}`, { headers: _ytHeaders() });
+        // Fetch ALL languages at once for instant toggle
+        const r = await fetch(`/api/youtube/insights/${videoId}?language=all`, { headers: _ytHeaders() });
         if (r.ok) {
             const d = await r.json();
-            const insights = d.insights || [];
+            const allInsights = d.insights || [];
             const videoTitle = d.video_title || d.title || '';
-            if (titleEl && videoTitle) titleEl.textContent = videoTitle;
-            if (metaEl) metaEl.textContent = `${insights.length} lens${insights.length !== 1 ? 'es' : ''} extracted`;
+            _ytAvailableLangs = d.available_languages || ['en'];
+            const hasMultipleLangs = _ytAvailableLangs.length > 1;
 
-            if (insights.length === 0) {
+            // Build lookup: `${lens_name}_${language}` → insight
+            _ytInsightsAll = {};
+            for (const ins of allInsights) {
+                const key = `${ins.lens_name}_${ins.language || 'en'}`;
+                _ytInsightsAll[key] = ins;
+            }
+
+            // If current preferred lang isn't available, fall back to 'en'
+            if (!_ytAvailableLangs.includes(_ytCurrentLang)) _ytCurrentLang = 'en';
+
+            // Filter insights for current language
+            const insights = allInsights.filter(ins => (ins.language || 'en') === _ytCurrentLang);
+            // Deduplicate lens names (show each lens once)
+            const seenLenses = new Set();
+            const uniqueInsights = [];
+            for (const ins of insights) {
+                if (!seenLenses.has(ins.lens_name)) {
+                    seenLenses.add(ins.lens_name);
+                    uniqueInsights.push(ins);
+                }
+            }
+
+            if (titleEl && videoTitle) titleEl.textContent = videoTitle;
+            if (metaEl) metaEl.textContent = `${uniqueInsights.length} lens${uniqueInsights.length !== 1 ? 'es' : ''} extracted`;
+
+            // Render language toggle in header (next to close button)
+            const toggleContainer = document.getElementById('yt-lang-toggle-container');
+            if (toggleContainer) toggleContainer.remove();
+            if (hasMultipleLangs) {
+                const headerBtns = modal.querySelector('.flex.items-center.gap-1.flex-shrink-0');
+                if (headerBtns) {
+                    const origLang = _ytAvailableLangs.find(l => l !== 'en') || 'en';
+                    const origLabel = _ytLangLabels[origLang] || origLang.toUpperCase();
+                    const toggleDiv = document.createElement('div');
+                    toggleDiv.id = 'yt-lang-toggle-container';
+                    toggleDiv.className = 'flex items-center mr-1';
+                    toggleDiv.innerHTML = `<div class="yt-lang-toggle">
+                        <button class="yt-lang-btn${_ytCurrentLang === 'en' ? ' active' : ''}" data-lang="en" onclick="_ytSwitchLang('en')">EN</button>
+                        <button class="yt-lang-btn${_ytCurrentLang === origLang ? ' active' : ''}" data-lang="${origLang}" onclick="_ytSwitchLang('${origLang}')">${_escHtml(origLabel)}</button>
+                    </div>`;
+                    headerBtns.insertBefore(toggleDiv, headerBtns.firstChild);
+                }
+            }
+
+            if (uniqueInsights.length === 0) {
                 if (tabs) tabs.innerHTML = '';
                 if (content) content.innerHTML = '<div class="flex flex-col items-center py-12"><i data-lucide="search-x" class="w-8 h-8 mb-2" style="color:var(--text-muted);opacity:0.3;"></i><div class="text-[11px]" style="color:var(--text-muted)">No insights extracted yet</div><div class="text-[9px] mt-1" style="color:var(--text-muted);opacity:0.6">Video may still be processing</div></div>';
                 lucide.createIcons();
@@ -317,16 +370,16 @@ async function _ytShowInsights(videoId) {
 
             const lensIcons = { summary: 'file-text', eloquence: 'pen-tool', narrations: 'book-open', history: 'landmark', spiritual: 'heart', politics: 'flag' };
             if (tabs) {
-                tabs.innerHTML = insights.map((ins, i) => {
+                tabs.innerHTML = uniqueInsights.map((ins, i) => {
                     const lens = ins.lens_name || 'unknown';
                     const lensName = lens.charAt(0).toUpperCase() + lens.slice(1);
                     const icon = lensIcons[lens] || 'sparkles';
-                    return `<button onclick="_ytShowLens(${i})" class="yt-lens-tab flex items-center gap-1.5 text-[10px] px-3 py-1.5 rounded-lg font-medium transition-all whitespace-nowrap ${i === 0 ? 'yt-lens-active' : ''}" style="color:${i === 0 ? '#c084fc' : 'var(--text-muted)'};background:${i === 0 ? 'rgba(192,132,252,0.1)' : 'transparent'};border:1px solid ${i === 0 ? 'rgba(192,132,252,0.3)' : 'var(--border-strong)'};" onmouseenter="if(!this.classList.contains('yt-lens-active')){this.style.background='rgba(255,255,255,0.03)';this.style.borderColor='rgba(192,132,252,0.2)'}" onmouseleave="if(!this.classList.contains('yt-lens-active')){this.style.background='transparent';this.style.borderColor='var(--border-strong)'}"><i data-lucide="${icon}" class="w-3 h-3"></i>${lensName}</button>`;
+                    return `<button onclick="_ytShowLens(${i})" data-lens="${lens}" class="yt-lens-tab flex items-center gap-1.5 text-[10px] px-3 py-1.5 rounded-lg font-medium transition-all whitespace-nowrap ${i === 0 ? 'yt-lens-active' : ''}" style="color:${i === 0 ? '#c084fc' : 'var(--text-muted)'};background:${i === 0 ? 'rgba(192,132,252,0.1)' : 'transparent'};border:1px solid ${i === 0 ? 'rgba(192,132,252,0.3)' : 'var(--border-strong)'};" onmouseenter="if(!this.classList.contains('yt-lens-active')){this.style.background='rgba(255,255,255,0.03)';this.style.borderColor='rgba(192,132,252,0.2)'}" onmouseleave="if(!this.classList.contains('yt-lens-active')){this.style.background='transparent';this.style.borderColor='var(--border-strong)'}"><i data-lucide="${icon}" class="w-3 h-3"></i>${lensName}</button>`;
                 }).join('');
                 lucide.createIcons();
             }
 
-            _ytInsights = insights;
+            _ytInsights = uniqueInsights;
             _ytRenderLens(0);
         }
     } catch (e) {
@@ -363,7 +416,12 @@ function _ytRenderLens(index) {
     const content = document.getElementById('yt-insights-content');
     if (!content || !_ytInsights[index]) return;
 
-    const ins = _ytInsights[index];
+    const baseLens = _ytInsights[index].lens_name || 'unknown';
+    // Look up the insight for the current language, fall back to base
+    const langKey = `${baseLens}_${_ytCurrentLang}`;
+    const fallbackKey = `${baseLens}_en`;
+    const ins = _ytInsightsAll[langKey] || _ytInsightsAll[fallbackKey] || _ytInsights[index];
+
     const lens = ins.lens_name || 'unknown';
     let data;
     const raw = ins.content || ins.data;
@@ -377,10 +435,27 @@ function _ytRenderLens(index) {
     } else if (lens === 'narrations') {
         content.innerHTML = _ytRenderNarrations(data);
     } else {
-        // Generic structured render for unknown lens types
         content.innerHTML = _ytRenderGeneric(data, lens);
     }
 }
+
+function _ytSwitchLang(lang) {
+    _ytCurrentLang = lang;
+    localStorage.setItem('stratos_insight_lang', lang);
+
+    // Update toggle button states
+    document.querySelectorAll('.yt-lang-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.lang === lang);
+    });
+
+    // Re-render the currently active lens
+    const activeTab = document.querySelector('.yt-lens-tab.yt-lens-active');
+    if (activeTab) {
+        const idx = Array.from(document.querySelectorAll('.yt-lens-tab')).indexOf(activeTab);
+        if (idx >= 0) _ytRenderLens(idx);
+    }
+}
+window._ytSwitchLang = _ytSwitchLang;
 
 function _ytRenderSummary(data) {
     if (!data) return '<div class="text-[10px]" style="color:var(--text-muted)">No summary data</div>';

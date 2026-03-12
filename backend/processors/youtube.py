@@ -173,7 +173,7 @@ def fetch_channel_videos(channel_id: str, limit: int = 15) -> List[Dict[str, Any
 # ═══════════════════════════════════════════════════════════
 
 def get_transcript(video_id: str, preferred_lang: str = 'ar',
-                   supadata_key: str = '', whisper_model: str = 'large-v3-turbo') -> Tuple[str, str]:
+                   supadata_key: str = '', whisper_model: str = 'large-v3-turbo') -> Tuple[str, str, str]:
     """Get transcript using best available method.
 
     Tries in order:
@@ -181,30 +181,30 @@ def get_transcript(video_id: str, preferred_lang: str = 'ar',
       Tier 2: Supadata API (if key configured)
       Tier 3: faster-whisper on CPU (slow but reliable)
 
-    Returns (transcript_text, method) where method is
+    Returns (transcript_text, method, detected_language) where method is
     'youtube-api'/'supadata'/'whisper-turbo'/'whisper-v3'.
     Raises RuntimeError if all tiers fail.
     """
     # Tier 1: youtube-transcript-api
-    text, method = _tier1_youtube_api(video_id, preferred_lang)
+    text, method, lang = _tier1_youtube_api(video_id, preferred_lang)
     if text:
-        return text, method
+        return text, method, lang
 
     # Tier 2: Supadata API
     if supadata_key:
-        text, method = _tier2_supadata(video_id, supadata_key, preferred_lang)
+        text, method, lang = _tier2_supadata(video_id, supadata_key, preferred_lang)
         if text:
-            return text, method
+            return text, method, lang
 
     # Tier 3: faster-whisper
-    text, method = _tier3_whisper(video_id, whisper_model)
+    text, method, lang = _tier3_whisper(video_id, whisper_model)
     if text:
-        return text, method
+        return text, method, lang
 
     raise RuntimeError(f"All transcript tiers failed for video {video_id}")
 
 
-def _tier1_youtube_api(video_id: str, preferred_lang: str = 'ar') -> Tuple[Optional[str], str]:
+def _tier1_youtube_api(video_id: str, preferred_lang: str = 'ar') -> Tuple[Optional[str], str, str]:
     """Tier 1: Free youtube-transcript-api library (v1.2.4+)."""
     try:
         from youtube_transcript_api import YouTubeTranscriptApi
@@ -212,19 +212,30 @@ def _tier1_youtube_api(video_id: str, preferred_lang: str = 'ar') -> Tuple[Optio
 
         # Try fetching transcript with language fallback chain
         transcript = None
-        for lang_list in [['en'], ['en-US', 'en-GB'], ['ar'], []]:
+        detected_lang = 'en'
+        for lang_list in [['en'], ['en-US', 'en-GB'], ['ar'], ['ja'], []]:
             try:
                 if lang_list:
                     transcript = api.fetch(video_id, languages=lang_list)
                 else:
                     transcript = api.fetch(video_id)
                 if transcript:
+                    # Detect language from which list succeeded
+                    if lang_list and lang_list[0].startswith('ar'):
+                        detected_lang = 'ar'
+                    elif lang_list and lang_list[0] == 'ja':
+                        detected_lang = 'ja'
+                    elif lang_list and lang_list[0].startswith('en'):
+                        detected_lang = 'en'
+                    else:
+                        # Unknown/any — try to detect from transcript language attr
+                        detected_lang = getattr(transcript, 'language', None) or 'en'
                     break
             except Exception:
                 continue
 
         if not transcript:
-            return None, ''
+            return None, '', ''
 
         # Extract text from transcript entries (v1.2.4 returns objects with .text)
         parts = []
@@ -235,24 +246,25 @@ def _tier1_youtube_api(video_id: str, preferred_lang: str = 'ar') -> Tuple[Optio
 
         full_text = ' '.join(parts)
         if len(full_text.strip()) < 50:
-            return None, ''
+            return None, '', ''
 
-        logger.info(f"Tier 1 (youtube-api): got {len(full_text)} chars for {video_id}")
-        return full_text.strip(), 'youtube-api'
+        logger.info(f"Tier 1 (youtube-api): got {len(full_text)} chars for {video_id} [lang={detected_lang}]")
+        return full_text.strip(), 'youtube-api', detected_lang
 
     except ImportError:
         logger.warning("youtube-transcript-api not installed")
-        return None, ''
+        return None, '', ''
     except Exception as e:
         logger.debug(f"Tier 1 failed for {video_id}: {e}")
-        return None, ''
+        return None, '', ''
 
 
-def _tier2_supadata(video_id: str, api_key: str, preferred_lang: str = 'en') -> Tuple[Optional[str], str]:
+def _tier2_supadata(video_id: str, api_key: str, preferred_lang: str = 'en') -> Tuple[Optional[str], str, str]:
     """Tier 2: Supadata hosted API for no-caption videos."""
     try:
+        detected_lang = 'en'
         # Try preferred lang first, then fallback to no lang preference
-        for lang in [preferred_lang, 'en', None]:
+        for lang in [preferred_lang, 'en', 'ja', None]:
             params = {'url': f'https://youtube.com/watch?v={video_id}'}
             if lang:
                 params['lang'] = lang
@@ -263,16 +275,19 @@ def _tier2_supadata(video_id: str, api_key: str, preferred_lang: str = 'en') -> 
                 timeout=60,
             )
             if resp.status_code == 200:
+                detected_lang = lang or 'en'
                 break
         else:
             logger.debug(f"Tier 2 (Supadata) all langs failed for {video_id}")
-            return None, ''
+            return None, '', ''
 
         if resp.status_code != 200:
             logger.debug(f"Tier 2 (Supadata) returned {resp.status_code} for {video_id}")
-            return None, ''
+            return None, '', ''
 
         data = resp.json()
+        # Supadata may return detected language
+        detected_lang = data.get('lang', detected_lang) or detected_lang
         # Supadata returns content as array of segments or as text
         content = data.get('content', '')
         if isinstance(content, list):
@@ -280,26 +295,26 @@ def _tier2_supadata(video_id: str, api_key: str, preferred_lang: str = 'en') -> 
         elif isinstance(content, str):
             full_text = content
         else:
-            return None, ''
+            return None, '', ''
 
         if len(full_text.strip()) < 50:
-            return None, ''
+            return None, '', ''
 
-        logger.info(f"Tier 2 (Supadata): got {len(full_text)} chars for {video_id}")
-        return full_text.strip(), 'supadata'
+        logger.info(f"Tier 2 (Supadata): got {len(full_text)} chars for {video_id} [lang={detected_lang}]")
+        return full_text.strip(), 'supadata', detected_lang
 
     except Exception as e:
         logger.debug(f"Tier 2 failed for {video_id}: {e}")
-        return None, ''
+        return None, '', ''
 
 
-def _tier3_whisper(video_id: str, model_name: str = 'large-v3-turbo') -> Tuple[Optional[str], str]:
+def _tier3_whisper(video_id: str, model_name: str = 'large-v3-turbo') -> Tuple[Optional[str], str, str]:
     """Tier 3: Local faster-whisper transcription on CPU."""
     try:
         from faster_whisper import WhisperModel
     except ImportError:
         logger.warning("faster-whisper not installed — skipping Tier 3")
-        return None, ''
+        return None, '', ''
 
     # Download audio via yt-dlp
     audio_path = None
@@ -317,19 +332,20 @@ def _tier3_whisper(video_id: str, model_name: str = 'large-v3-turbo') -> Tuple[O
             )
             if result.returncode != 0:
                 logger.error(f"yt-dlp failed: {result.stderr.decode()[:200]}")
-                return None, ''
+                return None, '', ''
 
             # Find the actual output file (yt-dlp may add extension)
             actual_files = list(Path(tmpdir).glob(f'{video_id}*'))
             if not actual_files:
                 logger.error("yt-dlp produced no output file")
-                return None, ''
+                return None, '', ''
             audio_path = str(actual_files[0])
 
             # Transcribe with faster-whisper
             logger.info(f"Tier 3: Transcribing {video_id} with {model_name} on CPU...")
             model = WhisperModel(model_name, device='cpu', compute_type='int8')
             segments, info = model.transcribe(audio_path, language=None)  # auto-detect language
+            detected_lang = getattr(info, 'language', 'en') or 'en'
 
             full_text = ' '.join(segment.text for segment in segments)
             if len(full_text.strip()) < 50:
@@ -338,23 +354,24 @@ def _tier3_whisper(video_id: str, model_name: str = 'large-v3-turbo') -> Tuple[O
                     logger.info("Turbo output too short, trying large-v3...")
                     model = WhisperModel('large-v3', device='cpu', compute_type='int8')
                     segments, info = model.transcribe(audio_path, language=None)
+                    detected_lang = getattr(info, 'language', 'en') or 'en'
                     full_text = ' '.join(segment.text for segment in segments)
                     if len(full_text.strip()) >= 50:
                         method = 'whisper-v3'
-                        logger.info(f"Tier 3 (whisper-v3): got {len(full_text)} chars for {video_id}")
-                        return full_text.strip(), method
-                return None, ''
+                        logger.info(f"Tier 3 (whisper-v3): got {len(full_text)} chars for {video_id} [lang={detected_lang}]")
+                        return full_text.strip(), method, detected_lang
+                return None, '', ''
 
             method = f'whisper-{"turbo" if "turbo" in model_name else "v3"}'
-            logger.info(f"Tier 3 ({method}): got {len(full_text)} chars for {video_id}")
-            return full_text.strip(), method
+            logger.info(f"Tier 3 ({method}): got {len(full_text)} chars for {video_id} [lang={detected_lang}]")
+            return full_text.strip(), method, detected_lang
 
     except subprocess.TimeoutExpired:
         logger.error("yt-dlp timed out")
-        return None, ''
+        return None, '', ''
     except Exception as e:
         logger.error(f"Tier 3 failed for {video_id}: {e}")
-        return None, ''
+        return None, '', ''
 
 
 # ═══════════════════════════════════════════════════════════
@@ -617,8 +634,11 @@ class YouTubeProcessor:
             logger.info(f"Discovered {len(new_videos)} new videos for profile {profile_id}")
         return new_videos
 
-    def get_transcript_for_video(self, video_id: str) -> Tuple[str, str]:
-        """Get transcript for a video using the 3-tier system."""
+    def get_transcript_for_video(self, video_id: str) -> Tuple[str, str, str]:
+        """Get transcript for a video using the 3-tier system.
+
+        Returns (transcript_text, method, detected_language).
+        """
         return get_transcript(
             video_id,
             preferred_lang='ar',
@@ -651,35 +671,52 @@ class YouTubeProcessor:
         # Step 1: Transcribe
         self._update_status(video_db_id, 'transcribing')
         try:
-            transcript, method = self.get_transcript_for_video(video_id)
+            transcript, method, detected_lang = self.get_transcript_for_video(video_id)
         except RuntimeError as e:
             self._update_status(video_db_id, 'failed', str(e))
             return False
 
-        # Save transcript
+        # Save transcript + detected language
         cursor.execute(
-            "UPDATE youtube_videos SET transcript_text = ?, transcript_method = ? WHERE id = ?",
-            (transcript, method, video_db_id)
+            "UPDATE youtube_videos SET transcript_text = ?, transcript_method = ?, transcript_language = ? WHERE id = ?",
+            (transcript, method, detected_lang, video_db_id)
         )
         self.db._commit()
 
-        # Step 2: Run lenses
+        # Step 2: Run lenses (bilingual — original language + English)
         self._update_status(video_db_id, 'extracting')
         lenses = json.loads(video.get('lenses', '["summary"]'))
         for lens_name in lenses:
             try:
                 from processors.lenses import extract_lens
-                insight = extract_lens(
+                # Always extract in English
+                insight_en = extract_lens(
                     transcript, lens_name, video.get('title', ''),
                     self.ollama_host, self.inference_model,
+                    target_language='en',
                 )
-                if insight:
+                if insight_en:
                     cursor.execute(
                         """INSERT INTO video_insights
-                           (video_id, profile_id, lens_name, content)
-                           VALUES (?, ?, ?, ?)""",
-                        (video_db_id, profile_id, lens_name, json.dumps(insight, ensure_ascii=False))
+                           (video_id, profile_id, lens_name, content, language)
+                           VALUES (?, ?, ?, ?, 'en')""",
+                        (video_db_id, profile_id, lens_name, json.dumps(insight_en, ensure_ascii=False))
                     )
+                # If transcript is non-English, also extract in original language
+                if detected_lang and detected_lang != 'en':
+                    insight_orig = extract_lens(
+                        transcript, lens_name, video.get('title', ''),
+                        self.ollama_host, self.inference_model,
+                        target_language=detected_lang,
+                    )
+                    if insight_orig:
+                        cursor.execute(
+                            """INSERT INTO video_insights
+                               (video_id, profile_id, lens_name, content, language)
+                               VALUES (?, ?, ?, ?, ?)""",
+                            (video_db_id, profile_id, lens_name,
+                             json.dumps(insight_orig, ensure_ascii=False), detected_lang)
+                        )
             except Exception as e:
                 logger.error(f"Lens '{lens_name}' failed for video {video_id}: {e}")
 
@@ -718,15 +755,26 @@ class YouTubeProcessor:
             )
         return [dict(r) for r in cursor.fetchall()]
 
-    def get_video_insights(self, video_db_id: int, profile_id: int) -> List[Dict[str, Any]]:
-        """Get all insights for a video."""
+    def get_video_insights(self, video_db_id: int, profile_id: int,
+                           language: str = 'en') -> List[Dict[str, Any]]:
+        """Get insights for a video, optionally filtered by language.
+
+        Args:
+            language: 'en', 'ar', 'ja', or 'all' for all languages.
+        """
         if not self.db:
             return []
         cursor = self.db.conn.cursor()
-        cursor.execute(
-            "SELECT * FROM video_insights WHERE video_id = ? AND profile_id = ? ORDER BY lens_name",
-            (video_db_id, profile_id)
-        )
+        if language == 'all':
+            cursor.execute(
+                "SELECT * FROM video_insights WHERE video_id = ? AND profile_id = ? ORDER BY lens_name, language",
+                (video_db_id, profile_id)
+            )
+        else:
+            cursor.execute(
+                "SELECT * FROM video_insights WHERE video_id = ? AND profile_id = ? AND language = ? ORDER BY lens_name",
+                (video_db_id, profile_id, language)
+            )
         results = []
         for row in cursor.fetchall():
             d = dict(row)

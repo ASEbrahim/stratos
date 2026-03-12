@@ -565,6 +565,29 @@ def migration_022(cursor):
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_entities_profile ON persona_entities(profile_id, persona, scenario_name)")
 
 
+# -- Migration 023: Bilingual lens extraction --
+@migration
+def migration_023(cursor):
+    """Add language column to video_insights and transcript_language to youtube_videos for bilingual extraction."""
+    # Add language column to video_insights (default 'en' for existing rows)
+    try:
+        cursor.execute("ALTER TABLE video_insights ADD COLUMN language TEXT NOT NULL DEFAULT 'en'")
+    except sqlite3.OperationalError:
+        pass  # Column already exists
+
+    # Add transcript_language to youtube_videos
+    try:
+        cursor.execute("ALTER TABLE youtube_videos ADD COLUMN transcript_language TEXT DEFAULT 'en'")
+    except sqlite3.OperationalError:
+        pass  # Column already exists
+
+    # Add index for language-scoped queries
+    cursor.execute(
+        "CREATE INDEX IF NOT EXISTS idx_yt_insights_lang "
+        "ON video_insights(video_id, lens_name, language)"
+    )
+
+
 # =========================================================================
 # Migration runner
 # =========================================================================
