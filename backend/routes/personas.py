@@ -465,7 +465,8 @@ PLAYER: {role} in {location}
 
 RULES:
 - Respond in-character as whoever the player is speaking to
-- Use first-person dialogue with action descriptions in italics: *She smiles.* "Hey there."
+- Use first-person dialogue with action descriptions in italics: *She leans forward, studying your face.* "Hey there."
+- Use **bold** for emphasis, dramatic moments, or important words: **"Stop right there."**
 - NO stat boxes, NO emoji headers, NO numbered option lists, NO game master narration
 - Show the character's personality through their speech patterns, word choices, and body language
 - Reference the character's memories and relationship with the player naturally
