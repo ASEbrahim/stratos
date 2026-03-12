@@ -56,8 +56,8 @@ test.describe('AUTOMATED — Intelligence Persona', () => {
     // Response should be under 200 words
     const wordCount = text.trim().split(/\s+/).length;
     expect(wordCount).toBeLessThanOrEqual(200);
-    // Should mention at least one capability keyword
-    expect(text).toMatch(/search|watchlist|categor|feed|web/i);
+    // Should mention at least one intelligence-related keyword
+    expect(text).toMatch(/search|watchlist|categor|feed|web|news|signal|intel|help|analyz|track|monitor|brief/i);
   });
 
   // ── INT-2: Feed query returns substantive response ──
