@@ -348,13 +348,90 @@ def handle_post(handler, strat, auth, path):
         body = json.loads(handler.rfile.read(int(handler.headers.get('Content-Length', 0))).decode()) if int(handler.headers.get('Content-Length', 0)) > 0 else {}
 
         if path == "/api/scenarios/create":
+            name_raw = body.get('name', '')
+            description = body.get('description', body.get('world', ''))
+            genre = body.get('genre', 'fantasy RPG')
+
+            # Create DB record (existing flow)
             result = sm.create_scenario(
-                handler._profile_id, body.get('name', ''),
-                world_md=body.get('world', ''),
+                handler._profile_id, name_raw,
+                world_md=description,
                 characters=body.get('characters')
             )
-            status = 200 if result.get("ok") else 400
-            _send_json(handler, result, status)
+            if not result.get("ok"):
+                _send_json(handler, result, 400)
+                return True
+
+            safe_name = result.get('name', name_raw)
+
+            # Create file-based folder structure
+            try:
+                from processors.scenario_templates import create_scenario_skeleton, get_scenario_base_path
+                data_dir = strat.config.get("system", {}).get("data_dir", "data")
+                base_path = get_scenario_base_path(data_dir, handler._profile_id)
+                scenario_path = create_scenario_skeleton(base_path, safe_name)
+                logger.info(f"Created scenario skeleton: {scenario_path}")
+
+                # Run LLM generation in background thread
+                if description.strip():
+                    import threading
+                    scoring_cfg = strat.config.get("scoring", {})
+                    ollama_host = scoring_cfg.get("ollama_host", "http://localhost:11434")
+                    model = scoring_cfg.get("inference_model", "qwen3.5:9b")
+
+                    # Track generation status
+                    if not hasattr(strat, '_scenario_gen_status'):
+                        strat._scenario_gen_status = {}
+                    status_key = f"{handler._profile_id}:{safe_name}"
+                    strat._scenario_gen_status[status_key] = {"status": "generating", "passes": {}}
+
+                    def _progress_cb(pass_num, pass_name, status):
+                        strat._scenario_gen_status[status_key]["passes"][str(pass_num)] = {
+                            "name": pass_name, "status": status
+                        }
+                        if pass_num == 4 and status == "done":
+                            strat._scenario_gen_status[status_key]["status"] = "complete"
+                            # Update DB world_md with generated setting
+                            try:
+                                import os
+                                setting_path = os.path.join(scenario_path, 'world', 'setting.md')
+                                if os.path.exists(setting_path):
+                                    with open(setting_path) as f:
+                                        setting = f.read()
+                                    sm.save_scenario(handler._profile_id, safe_name, world=setting)
+                            except Exception:
+                                pass
+
+                    def generate_in_background():
+                        try:
+                            from processors.scenario_generator import generate_scenario_content
+                            generate_scenario_content(
+                                ollama_host, scenario_path, safe_name, genre, description,
+                                model=model, progress_callback=_progress_cb
+                            )
+                        except Exception as e:
+                            logger.error(f"Scenario generation failed: {e}")
+                            strat._scenario_gen_status[status_key]["status"] = "failed"
+
+                    threading.Thread(target=generate_in_background, daemon=True).start()
+                    result["status"] = "generating"
+                else:
+                    result["status"] = "skeleton_only"
+            except Exception as e:
+                logger.warning(f"Scenario skeleton creation failed: {e}")
+
+            _send_json(handler, result)
+            return True
+
+        if path == "/api/scenarios/generate-status":
+            profile_id = handler._profile_id
+            name = body.get('name', '')
+            status_key = f"{profile_id}:{name}"
+            gen_status = getattr(strat, '_scenario_gen_status', {}).get(status_key)
+            if gen_status:
+                _send_json(handler, gen_status)
+            else:
+                _send_json(handler, {"status": "unknown"})
             return True
 
         if path == "/api/scenarios/activate":

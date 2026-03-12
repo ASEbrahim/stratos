@@ -185,7 +185,7 @@ Return ONLY a JSON object:
 
 def _post_response_tasks(handler, strat, ollama_host, model, user_msg, ai_response,
                          persona_name, profile_id, rp_mode='gm', active_npc='', scenario=''):
-    """Run post-response tasks: suggestions + entity memory update."""
+    """Run post-response tasks: suggestions + entity memory update + scenario auto-update."""
     _generate_suggestions(handler, ollama_host, model, user_msg, ai_response,
                           persona_name, rp_mode=rp_mode, active_scenario=scenario, active_npc=active_npc)
 
@@ -198,6 +198,26 @@ def _post_response_tasks(handler, strat, ollama_host, model, user_msg, ai_respon
                   scenario, entity_name, user_msg, ai_response),
             daemon=True
         ).start()
+
+    # Background scenario auto-update for gaming persona (Sprint 7)
+    if persona_name == 'gaming' and scenario:
+        try:
+            from routes.personas import _get_scenario_path
+            scenario_path = _get_scenario_path(strat, profile_id)
+            if scenario_path:
+                def _run_scenario_update():
+                    try:
+                        from processors.scenario_updater import post_response_update
+                        post_response_update(
+                            ollama_host, model, scenario_path,
+                            user_msg, ai_response,
+                            mode=rp_mode, active_npc=active_npc
+                        )
+                    except Exception as e:
+                        logger.debug(f"Scenario auto-update failed: {e}")
+                threading.Thread(target=_run_scenario_update, daemon=True).start()
+        except Exception as e:
+            logger.debug(f"Scenario path lookup failed: {e}")
 
 
 # ═══════════════════════════════════════════════════════════
