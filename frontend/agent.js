@@ -1466,15 +1466,19 @@ document.addEventListener('keydown', function(e) {
 // ═══════════════════════════════════════════════
 let _compactSidebarOpen = false;
 
+let _compactSidebarRemoveTimer = null;
 function _toggleCompactSidebar() {
     _compactSidebarOpen = !_compactSidebarOpen;
     const existing = document.getElementById('agent-compact-sidebar');
     if (!_compactSidebarOpen && existing) {
         existing.style.transform = 'translateX(-100%)';
         existing.style.opacity = '0';
-        setTimeout(() => existing.remove(), 200);
+        if (_compactSidebarRemoveTimer) clearTimeout(_compactSidebarRemoveTimer);
+        _compactSidebarRemoveTimer = setTimeout(() => { existing.remove(); _compactSidebarRemoveTimer = null; }, 200);
         return;
     }
+    // Cancel pending removal if re-opening quickly
+    if (_compactSidebarRemoveTimer) { clearTimeout(_compactSidebarRemoveTimer); _compactSidebarRemoveTimer = null; }
     if (_compactSidebarOpen) {
         // Ensure agent body is visible
         _openAgentPanel();

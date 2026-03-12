@@ -506,10 +506,11 @@ function _closeMobileAgent() {
     const view = document.getElementById('mobile-agent-view');
     if (view) view.remove();
     _mobileAgentOpen = false;
-    /* Remove hooks */
+    /* Remove hooks + clear stale timers */
     window._onAgentMessageHook = null;
     window._onAgentStreamEndHook = null;
     window._onAgentStreamChunkHook = null;
+    if (_mavChunkTimer) { clearTimeout(_mavChunkTimer); _mavChunkTimer = null; }
     window.removeEventListener('popstate', _onAgentPop);
     _updateBottomNav();
 }
