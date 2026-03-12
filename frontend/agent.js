@@ -826,18 +826,37 @@ function formatAgentText(text) {
         return `\x00CODEBLOCK_${idx}\x00`;
     });
 
-    // ── Detect clickable option blocks (2+ consecutive numbered lines preceded by a question) ──
+    // ── Detect clickable option blocks (2+ consecutive numbered/lettered lines, optionally preceded by a question) ──
     const optionBlocks = [];
+    // Pass 1: with question trigger line
     processed = processed.replace(
-        /((?:^.*(?:\?|choose|select|would you like|options|what do you want|what would you)[^\n]*\n))((?:^\d+[.):\-]\s+.+\n?){2,})/gmi,
+        /((?:^.*(?:\?|choose|select|would you like|options|what do you want|what would you)[^\n]*\n))((?:^(?:\d+|[a-zA-Z])[.):\-]\s+.+\n?){2,})/gmi,
         (match, questionLine, optionLines) => {
             const idx = optionBlocks.length;
             const options = [];
-            optionLines.replace(/^(\d+)[.):\-]\s+(.+)$/gm, (_, num, text) => {
-                options.push({ num, text: text.trim() });
+            let seq = 1;
+            optionLines.replace(/^(?:\d+|[a-zA-Z])[.):\-]\s+(.+)$/gm, (_, text) => {
+                options.push({ num: seq++, text: text.trim() });
             });
             optionBlocks.push({ questionLine: questionLine.trim(), options });
             return `\x00OPTBLOCK_${idx}\x00\n`;
+        }
+    );
+    // Pass 2: option blocks without a question trigger (3+ consecutive to avoid false positives)
+    processed = processed.replace(
+        /^((?:(?:\d+|[a-zA-Z])[.):\-]\s+.+\n?){3,})/gm,
+        (match) => {
+            const idx = optionBlocks.length;
+            const options = [];
+            let seq = 1;
+            match.replace(/^(?:\d+|[a-zA-Z])[.):\-]\s+(.+)$/gm, (_, text) => {
+                options.push({ num: seq++, text: text.trim() });
+            });
+            if (options.length >= 3) {
+                optionBlocks.push({ questionLine: '', options });
+                return `\x00OPTBLOCK_${idx}\x00\n`;
+            }
+            return match;
         }
     );
 
@@ -928,8 +947,9 @@ function formatAgentText(text) {
                 <span>${opt.text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')}</span>
             </button>`;
         }).join('');
+        const qBlock = qHtml.trim() ? `<div class="mb-1">${qHtml}</div>` : '';
         html = html.replace(`\x00OPTBLOCK_${i}\x00`,
-            `<div class="mb-1">${qHtml}</div><div class="agent-options flex flex-col gap-1.5 my-2">${buttonsHtml}</div>`);
+            `${qBlock}<div class="agent-options flex flex-col gap-1.5 my-2">${buttonsHtml}</div>`);
     });
 
     return html;

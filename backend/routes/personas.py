@@ -431,6 +431,7 @@ RULES:
 - Let the user drive major plot decisions. You advance the scene, they choose the direction.
 - If no scenario is active, help the user set one up.
 - Never break character unless the user explicitly asks an out-of-character question (marked with OOC:).
+- When presenting choices, use sequential numbering: 1, 2, 3, 4 (not all 1s).
 - If asked a factual/research question, suggest OOC: switching to Intelligence or Scholarly persona."""
 
 
