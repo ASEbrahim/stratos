@@ -187,6 +187,7 @@ pre-sprint5b         → original pre-sprint state
 pre-sprint5b-phase2  → before batch 1 (f2a181c)
 pre-sprint5b-phase3  → before batch 2 (41d21d6)
 pre-sprint5b-phase4  → before batch 3 (2ff3cc3)
+pre-sprint5b-phase5  → before batch 5 (89a2cc9)
 ```
 
 **To rollback entire sprint:** `git reset --hard pre-sprint5b`
@@ -208,6 +209,18 @@ pre-sprint5b-phase4  → before batch 3 (2ff3cc3)
 | Phase 7: Accessibility | 8th | COMPLETED | Focus rings, reduced motion |
 
 **Overall: 6/8 phases completed, 1 verified (no changes needed), 1 deferred (lowest priority)**
+
+### Batch 5: `89a2cc9` — Tour Button Clarity & Generate Button Layout
+**Files:** `frontend/styles.css`, `frontend/index.html`
+
+| Change | Detail |
+|--------|--------|
+| Tour "Skip tour" glow | `.tour-skip` gains border, border-radius, padding, `text-shadow: 0 0 8px`, hover `box-shadow` glow |
+| Tour "Don't show again" glow | `.tour-never` higher opacity (0.55), `text-shadow: 0 0 6px`, hover glow |
+| Tour welcome "Don't show again" | `.tour-welcome-never` gets border, border-radius, hover background |
+| Generate button layout | Moved below context textarea as full-width primary action with gradient background |
+| Generate button rename | "Generate" → "Generate Categories from Context" with zap icon |
+| Suggest/Save row | Suggest Context + Save Context moved to their own row above Generate |
 
 ---
 
