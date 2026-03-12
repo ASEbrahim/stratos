@@ -2372,23 +2372,21 @@ body.density-comfortable .score-pill { min-height: 36px !important; padding: 6px
     padding: 10px 16px 14px;
 }
 .tour-skip {
-    background: none; border: 1px solid rgba(100,116,139,0.25); border-radius: 6px; cursor: pointer;
-    font-size: 12px; color: var(--text-secondary, #94a3b8); opacity: 0.7;
-    padding: 6px 14px;
-    transition: opacity 0.25s ease, color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
-    text-shadow: 0 0 8px rgba(100,116,139,0.2);
+    background: none; border: 1px solid rgba(148,163,184,0.3); border-radius: 8px; cursor: pointer;
+    font-size: 13px; color: var(--text-secondary, #94a3b8); opacity: 0.85;
+    padding: 8px 18px;
+    transition: opacity 0.25s ease, color 0.25s ease, border-color 0.25s ease, background 0.25s ease;
 }
-.tour-skip:hover { opacity: 1; color: var(--text-primary, #e2e8f0); border-color: rgba(100,116,139,0.5); box-shadow: 0 0 10px rgba(100,116,139,0.15); }
+.tour-skip:hover { opacity: 1; color: var(--text-primary, #e2e8f0); border-color: rgba(148,163,184,0.5); background: rgba(148,163,184,0.06); }
 .tour-never {
-    display: block; width: 100%; text-align: center; margin-top: 4px; padding: 6px 0 4px;
-    background: none; border: none; border-top: 1px solid rgba(100,116,139,0.15); cursor: pointer;
-    font-size: 10px; color: var(--text-muted, #64748b); opacity: 0.55;
-    transition: opacity 0.25s ease, color 0.25s ease, text-shadow 0.25s ease;
-    text-shadow: 0 0 6px rgba(100,116,139,0.15);
+    display: block; width: 100%; text-align: center; margin-top: 6px; padding: 8px 0 6px;
+    background: none; border: none; border-top: 1px solid rgba(148,163,184,0.12); cursor: pointer;
+    font-size: 11px; color: var(--text-secondary, #94a3b8); opacity: 0.65;
+    transition: opacity 0.25s ease, color 0.25s ease;
 }
-.tour-never:hover { opacity: 0.9; color: var(--text-secondary, #94a3b8); text-shadow: 0 0 12px rgba(100,116,139,0.3); }
-.tour-welcome-never { margin-top: 10px; border-top: none; font-size: 11px; padding: 8px 16px; border-radius: 6px; border: 1px solid rgba(100,116,139,0.15); }
-.tour-welcome-never:hover { border-color: rgba(100,116,139,0.35); background: rgba(100,116,139,0.05); }
+.tour-never:hover { opacity: 1; color: var(--text-primary, #e2e8f0); }
+.tour-welcome-never { margin-top: 14px; border-top: none; font-size: 12px; padding: 10px 20px; border-radius: 8px; border: 1px solid rgba(148,163,184,0.2); color: var(--text-secondary, #94a3b8); opacity: 0.7; }
+.tour-welcome-never:hover { border-color: rgba(148,163,184,0.4); background: rgba(148,163,184,0.06); opacity: 1; color: var(--text-primary, #e2e8f0); }
 .tour-next {
     padding: 8px 22px; border-radius: 8px; border: none; cursor: pointer;
     font-size: 13px; font-weight: 600;
@@ -2460,11 +2458,12 @@ body.density-comfortable .score-pill { min-height: 36px !important; padding: 6px
 }
 .tour-welcome-actions { display: flex; align-items: center; justify-content: center; gap: 16px; position: relative; z-index: 1; }
 .tour-welcome-skip {
-    background: none; border: none; cursor: pointer;
-    font-size: 13px; color: var(--text-muted, #64748b); opacity: 0.5;
-    transition: opacity 0.25s ease;
+    background: none; border: 1px solid rgba(148,163,184,0.3); border-radius: 10px; cursor: pointer;
+    font-size: 13px; color: var(--text-secondary, #94a3b8); opacity: 0.85;
+    padding: 12px 24px;
+    transition: opacity 0.25s ease, color 0.25s ease, border-color 0.25s ease, background 0.25s ease;
 }
-.tour-welcome-skip:hover { opacity: 1; }
+.tour-welcome-skip:hover { opacity: 1; color: var(--text-primary, #e2e8f0); border-color: rgba(148,163,184,0.5); background: rgba(148,163,184,0.06); }
 .tour-welcome-cta {
     padding: 12px 28px; border-radius: 10px; border: none; cursor: pointer;
     font-size: 14px; font-weight: 700;
