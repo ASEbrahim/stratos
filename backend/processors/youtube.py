@@ -210,12 +210,18 @@ def _tier1_youtube_api(video_id: str, preferred_lang: str = 'ar') -> Tuple[Optio
         from youtube_transcript_api import YouTubeTranscriptApi
         api = YouTubeTranscriptApi()
 
-        # Try fetching transcript (auto-detects available captions)
+        # Try fetching transcript with language fallback chain
         transcript = None
-        try:
-            transcript = api.fetch(video_id)
-        except Exception:
-            pass
+        for lang_list in [['en'], ['en-US', 'en-GB'], ['ar'], []]:
+            try:
+                if lang_list:
+                    transcript = api.fetch(video_id, languages=lang_list)
+                else:
+                    transcript = api.fetch(video_id)
+                if transcript:
+                    break
+            except Exception:
+                continue
 
         if not transcript:
             return None, ''
@@ -242,18 +248,25 @@ def _tier1_youtube_api(video_id: str, preferred_lang: str = 'ar') -> Tuple[Optio
         return None, ''
 
 
-def _tier2_supadata(video_id: str, api_key: str, preferred_lang: str = 'ar') -> Tuple[Optional[str], str]:
+def _tier2_supadata(video_id: str, api_key: str, preferred_lang: str = 'en') -> Tuple[Optional[str], str]:
     """Tier 2: Supadata hosted API for no-caption videos."""
     try:
-        resp = requests.get(
-            'https://api.supadata.ai/v1/youtube/transcript',
-            params={
-                'url': f'https://youtube.com/watch?v={video_id}',
-                'lang': preferred_lang,
-            },
-            headers={'x-api-key': api_key},
-            timeout=60,
-        )
+        # Try preferred lang first, then fallback to no lang preference
+        for lang in [preferred_lang, 'en', None]:
+            params = {'url': f'https://youtube.com/watch?v={video_id}'}
+            if lang:
+                params['lang'] = lang
+            resp = requests.get(
+                'https://api.supadata.ai/v1/youtube/transcript',
+                params=params,
+                headers={'x-api-key': api_key},
+                timeout=60,
+            )
+            if resp.status_code == 200:
+                break
+        else:
+            logger.debug(f"Tier 2 (Supadata) all langs failed for {video_id}")
+            return None, ''
 
         if resp.status_code != 200:
             logger.debug(f"Tier 2 (Supadata) returned {resp.status_code} for {video_id}")
