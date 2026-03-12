@@ -10,6 +10,8 @@ let _agentAbortController = null;
 let currentPersona = 'intelligence';
 let selectedPersonas = ['intelligence']; // Multi-persona selection (max 3)
 let availablePersonas = [];
+let _personaSuggestions = {};  // Per-persona dynamic suggestion cache
+try { _personaSuggestions = JSON.parse(localStorage.getItem('stratos_persona_suggestions') || '{}'); } catch(e) {}
 
 // ── Conversation management (DB-backed via /api/conversations) ──
 let _agentConvList = [];       // [{id, persona, title, is_active, message_count, ...}]
@@ -523,10 +525,20 @@ function _buildDynamicSuggestions() {
 function renderAgentSuggestions() {
     const container = document.getElementById('agent-suggestions');
     if (!container) return;
-    const suggestions = _buildDynamicSuggestions();
-    const shuffled = [...suggestions].sort(() => Math.random() - 0.5);
-    const picks = shuffled.slice(0, 6);
-    
+
+    // Use cached dynamic suggestions for this persona if available
+    const cached = _personaSuggestions[currentPersona];
+    let picks;
+    let isDynamic = false;
+    if (cached && cached.length > 0) {
+        picks = cached.slice(0, 6);
+        isDynamic = true;
+    } else {
+        const suggestions = _buildDynamicSuggestions();
+        const shuffled = [...suggestions].sort(() => Math.random() - 0.5);
+        picks = shuffled.slice(0, 6);
+    }
+
     // Map suggestions to icons
     const iconMap = {
         'top': 'trending-up', 'critical': 'alert-triangle', 'market': 'bar-chart-2',
@@ -535,14 +547,19 @@ function renderAgentSuggestions() {
         'signal': 'zap', 'recommend': 'lightbulb', 'concern': 'shield-alert',
         'trend': 'activity', 'add': 'plus', 'show': 'eye'
     };
-    
+
     container.innerHTML = picks.map(s => {
         const lower = s.toLowerCase();
-        let icon = 'message-circle';
-        for (const [key, val] of Object.entries(iconMap)) {
-            if (lower.includes(key)) { icon = val; break; }
+        let icon = isDynamic ? 'sparkles' : 'message-circle';
+        if (!isDynamic) {
+            for (const [key, val] of Object.entries(iconMap)) {
+                if (lower.includes(key)) { icon = val; break; }
+            }
         }
-        return `<button onclick="sendSuggestion(this)" class="text-[10px] px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap" style="border:1px solid var(--border-strong); color:var(--text-muted); background:rgba(255,255,255,0.02);" onmouseenter="this.style.borderColor='var(--accent,#34d399)';this.style.color='var(--accent,#34d399)';this.style.background='rgba(16,185,129,0.06)'" onmouseleave="this.style.borderColor='var(--border-strong)';this.style.color='var(--text-muted)';this.style.background='rgba(255,255,255,0.02)'"><i data-lucide="${icon}" class="w-3 h-3 opacity-60"></i>${s}</button>`;
+        const onclick = isDynamic
+            ? `document.getElementById('agent-input').value='${s.replace(/'/g,"\\'")}';sendAgentMessage()`
+            : `sendSuggestion(this)`;
+        return `<button onclick="${onclick}" class="text-[10px] px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap" style="border:1px solid var(--border-strong); color:var(--text-muted); background:rgba(255,255,255,0.02);" onmouseenter="this.style.borderColor='var(--accent,#34d399)';this.style.color='var(--accent,#34d399)';this.style.background='rgba(16,185,129,0.06)'" onmouseleave="this.style.borderColor='var(--border-strong)';this.style.color='var(--text-muted)';this.style.background='rgba(255,255,255,0.02)'"><i data-lucide="${icon}" class="w-3 h-3 opacity-60"></i>${s}</button>`;
     }).join('');
     lucide.createIcons();
 }
@@ -1065,6 +1082,8 @@ async function sendAgentMessage() {
                         }
                         if (payload.suggestions && Array.isArray(payload.suggestions)) {
                             dynamicSuggestions = payload.suggestions;
+                            _personaSuggestions[currentPersona] = payload.suggestions;
+                            try { localStorage.setItem('stratos_persona_suggestions', JSON.stringify(_personaSuggestions)); } catch(e) {}
                         }
                         if (payload.status) {
                             // Tool usage indicator — animated status bar
