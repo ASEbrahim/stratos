@@ -694,3 +694,26 @@ Legacy YAML profiles are no longer used. All new users go through DB-auth with e
 - **Decision Log:** Append-only. Never edit old entries.
 - **Failure Log:** Curated. Only non-obvious failures worth preventing.
 - **Session Log:** 3-5 lines per session, most recent first.
+
+---
+
+## YouTube Bilingual Lens Extraction (Kirissie, 2026-03-12)
+
+### Commit
+| Commit | Description |
+|--------|------------|
+| `25f3da9` | feat: bilingual YouTube lens extraction — Japanese support + language toggle |
+
+### What changed
+- Japanese ('ja') added to transcript language fallback chain (all 3 tiers)
+- Migration 023: `language` column on `video_insights`, `transcript_language` on `youtube_videos`
+- Each lens runs twice for non-English videos (original language + English)
+- `get_transcript()` now returns 3-tuple: `(text, method, detected_language)`
+- Insights API accepts `?language=en|ar|ja|all` — returns `available_languages` + `transcript_language`
+- Frontend toggle (EN / Original) in insights viewer header — instant switching via pre-loaded data
+- Language preference persists to `localStorage` (`stratos_insight_lang`)
+- Existing English-only insights preserved (backward compatible, all get `language='en'`)
+
+### Note for Ahmad
+Insights API response now includes `available_languages`, `transcript_language`, `current_language` fields.
+If any agent tests check YouTube insights response format, update assertions to expect these new fields.

@@ -80,7 +80,7 @@ News Sources → NewsFetcher → AI Scorer → SQLite DB → JSON API → Fronte
 - `feeds.py` — Extra RSS feeds (`/api/finance-news`, `/api/politics-news`, `/api/jobs-news`, `/api/custom-news`), feed catalog, RSS discovery.
 - `data_endpoints.py` — `/api/data`, `/api/briefing`, `/api/status`, `/api/config`, `/api/profiles`, `/api/export`, `/api/health`, feedback, search.
 - `controls.py` — Refresh triggers, scan status/cancel, ticker presets, agent warmup.
-- `youtube_endpoints.py` — YouTube channel/video/insight CRUD.
+- `youtube_endpoints.py` — YouTube channel/video/insight CRUD. Insights endpoint supports `?language=en|ar|ja|all`.
 - `persona_data.py` — Conversations, scenarios, preferences, persona-context, workspace export/import.
 - `media.py` — Proxy, file upload/list/delete, persona files, TTS endpoint (`POST /api/tts`).
 - `generate.py` — `/api/generate-profile` — AI generates categories + tickers from user profile.
