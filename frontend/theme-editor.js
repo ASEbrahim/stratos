@@ -586,6 +586,7 @@
         const cx = parseFloat(localStorage.getItem('stratos-sakura-tree-cx') || '0.5');
         const cy = parseFloat(localStorage.getItem('stratos-sakura-tree-cy') || '0.55');
         const scale = parseFloat(localStorage.getItem('stratos-sakura-tree-scale') || '0.75');
+        const blur = parseFloat(localStorage.getItem('stratos-sakura-tree-blur') || '0');
         const treeOpacity = parseFloat(localStorage.getItem('stratos-sakura-tree-opacity') || '1');
 
         section.innerHTML = `
@@ -625,6 +626,11 @@
                         <div style="display:flex;align-items:center;gap:8px;">
                             <input type="range" class="te-range-slider" id="te-sktree-scale" min="0.2" max="2" step="0.05" value="${scale}" style="flex:1;" />
                             <span class="te-range-val" id="te-sktree-scale-val">${scale.toFixed(2)}x</span>
+                        </div>
+                        <label class="te-color-label" style="margin-bottom:2px;margin-top:6px;display:block;">Blur</label>
+                        <div style="display:flex;align-items:center;gap:8px;">
+                            <input type="range" class="te-range-slider" id="te-sktree-blur" min="0" max="8" step="0.5" value="${blur}" style="flex:1;" />
+                            <span class="te-range-val" id="te-sktree-blur-val">${blur.toFixed(1)}px</span>
                         </div>
                         <label class="te-color-label" style="margin-bottom:2px;margin-top:6px;display:block;">Opacity</label>
                         <div style="display:flex;align-items:center;gap:8px;">
@@ -687,6 +693,7 @@
             });
         }
         _wireSlider('#te-sktree-scale', '#te-sktree-scale-val', 'stratos-sakura-tree-scale', v => v.toFixed(2) + 'x');
+        _wireSlider('#te-sktree-blur', '#te-sktree-blur-val', 'stratos-sakura-tree-blur', v => v.toFixed(1) + 'px');
         _wireSlider('#te-sktree-opacity', '#te-sktree-opacity-val', 'stratos-sakura-tree-opacity', v => Math.round(v * 100) + '%');
     }
 

@@ -400,6 +400,9 @@ function renderStars() {
     }
 
     // ── Sakura tree (ported from auth.js) ──
+    // Tree is generated at a fixed reference center (0.5, 0.55) with fixed scale 0.75.
+    // Live position/scale/blur/opacity are applied via canvas transforms in draw().
+    const _SK_REF_CX = 0.5, _SK_REF_CY = 0.55, _SK_REF_SC = 0.75;
     const _skTree = { branches: [], blossoms: [], tips: [], lastW: 0, lastH: 0 };
     if (isSakura) {
         let _tSeed = 12345;
@@ -409,9 +412,9 @@ function renderStars() {
         _skTree.genFn = function(w, h) {
             _tSeed = 12345;
             const br = [], bl = [], tips = [];
-            const sc = parseFloat(localStorage.getItem('stratos-sakura-tree-scale') || '0.75');
-            const cx = w * parseFloat(localStorage.getItem('stratos-sakura-tree-cx') || '0.5');
-            const baseY = h * parseFloat(localStorage.getItem('stratos-sakura-tree-cy') || '0.55');
+            const sc = _SK_REF_SC;
+            const cx = w * _SK_REF_CX;
+            const baseY = h * _SK_REF_CY;
             const trunkTop = baseY - (h * 0.15) * sc;
             const lean = w * 0.004 * sc;
             br.push({ x0:cx-w*0.003*sc, y0:baseY, x1:cx+lean, y1:trunkTop, cpx:cx-w*0.001*sc, cpy:baseY-(baseY-trunkTop)*0.53, w0:w*0.005*sc, d:0 });
@@ -457,20 +460,32 @@ function renderStars() {
             Object.assign(_skTree, d, { lastW: cw, lastH: ch });
         }
         ctx.save();
+        // Read live settings
         const treeOpacity = parseFloat(localStorage.getItem('stratos-sakura-tree-opacity') || '1');
+        const treeScale = parseFloat(localStorage.getItem('stratos-sakura-tree-scale') || '1');
+        const treeCx = parseFloat(localStorage.getItem('stratos-sakura-tree-cx') || '0.5');
+        const treeCy = parseFloat(localStorage.getItem('stratos-sakura-tree-cy') || '0.55');
+        const treeBlur = _perfMode ? 0 : parseFloat(localStorage.getItem('stratos-sakura-tree-blur') || '0');
+        // Apply transforms (same pattern as _drawThemeElement / cosmos)
+        const refPx = cw * _SK_REF_CX, refPy = ch * _SK_REF_CY;
+        const livePx = cw * treeCx, livePy = ch * treeCy;
+        const relScale = treeScale / _SK_REF_SC;
         ctx.globalAlpha = treeOpacity;
+        if (treeBlur > 0) ctx.filter = `blur(${treeBlur}px)`;
+        ctx.translate(livePx, livePy);
+        ctx.scale(relScale, relScale);
+        ctx.translate(-refPx, -refPy);
+
         const windBase = Math.sin(t * 0.4) * 0.8 + Math.sin(t * 0.7) * 0.4;
         const pulse = 0.85 + 0.15 * Math.sin(t * 0.6);
 
-        // Ambient glow
-        const gcx = cw * parseFloat(localStorage.getItem('stratos-sakura-tree-cx') || '0.5');
-        const gcy = ch * parseFloat(localStorage.getItem('stratos-sakura-tree-cy') || '0.55') - ch * 0.15;
+        // Ambient glow (at ref center, transforms will move it)
         const ambR = Math.min(cw, ch) * 0.18;
-        const amb = ctx.createRadialGradient(gcx, gcy, 0, gcx, gcy, ambR);
+        const amb = ctx.createRadialGradient(refPx, refPy - ch * 0.15, 0, refPx, refPy - ch * 0.15, ambR);
         amb.addColorStop(0, `rgba(240,180,200,${0.035 * pulse})`);
         amb.addColorStop(0.6, `rgba(220,160,185,${0.015 * pulse})`);
         amb.addColorStop(1, 'transparent');
-        ctx.fillStyle = amb; ctx.beginPath(); ctx.arc(gcx, gcy, ambR, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = amb; ctx.beginPath(); ctx.arc(refPx, refPy - ch * 0.15, ambR, 0, Math.PI * 2); ctx.fill();
 
         // Branches
         const sorted = [..._skTree.branches].sort((a,b) => b.w0 - a.w0);
