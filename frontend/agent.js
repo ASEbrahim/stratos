@@ -956,11 +956,30 @@ async function sendAgentMessage() {
         // Replace typing indicator with empty response div
         const respDiv = typingEl.querySelector('.agent-response');
         if (respDiv) respDiv.innerHTML = '';
-        
+
+        // Throttle DOM updates during streaming for smooth rendering
+        let _streamRenderPending = false;
+        let _streamRenderTimer = null;
+        const STREAM_RENDER_INTERVAL = 80; // ms between DOM updates
+
+        function _scheduleStreamRender() {
+            if (_streamRenderPending) return;
+            _streamRenderPending = true;
+            _streamRenderTimer = setTimeout(() => {
+                _streamRenderPending = false;
+                if (respDiv) {
+                    respDiv.innerHTML = formatAgentText(fullResponse);
+                    const msgs = document.getElementById('agent-messages');
+                    if (msgs) msgs.scrollTop = msgs.scrollHeight;
+                    if (typeof _onAgentStreamChunkHook === 'function') _onAgentStreamChunkHook();
+                }
+            }, STREAM_RENDER_INTERVAL);
+        }
+
         while (true) {
             const { done, value } = await reader.read();
             if (done) break;
-            
+
             const chunk = decoder.decode(value, { stream: true });
             // Parse SSE lines
             const lines = chunk.split('\n');
@@ -970,13 +989,7 @@ async function sendAgentMessage() {
                         const payload = JSON.parse(line.slice(6));
                         if (payload.token) {
                             fullResponse += payload.token;
-                            if (respDiv) {
-                                respDiv.innerHTML = formatAgentText(fullResponse);
-                                const msgs = document.getElementById('agent-messages');
-                                if (msgs) msgs.scrollTop = msgs.scrollHeight;
-                                // Throttled mobile sync during streaming
-                                if (typeof _onAgentStreamChunkHook === 'function') _onAgentStreamChunkHook();
-                            }
+                            _scheduleStreamRender();
                         }
                         if (payload.suggestions && Array.isArray(payload.suggestions)) {
                             dynamicSuggestions = payload.suggestions;
@@ -1002,6 +1015,9 @@ async function sendAgentMessage() {
                 }
             }
         }
+
+        // Cancel any pending throttled render — final render below replaces it
+        if (_streamRenderTimer) clearTimeout(_streamRenderTimer);
 
         // Clean non-English text (Qwen model sometimes leaks Chinese/Arabic characters)
         fullResponse = fullResponse.replace(/[\u4e00-\u9fff\u3400-\u4dbf\u{20000}-\u{2a6df}]+/gu, '').trim();
