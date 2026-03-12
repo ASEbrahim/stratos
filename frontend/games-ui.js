@@ -4,6 +4,11 @@
 
 let _gamesScenarios = [];
 let _gamesActiveScenario = null;
+let _gamesRpMode = 'gm';  // 'gm' or 'immersive'
+let _gamesActiveNpc = '';   // Currently talking to NPC name
+
+// Restore RP mode from localStorage
+try { _gamesRpMode = localStorage.getItem('stratos_games_rp_mode') || 'gm'; } catch(e) {}
 
 function _refreshFileBrowserIfOpen() {
     if (typeof _fbLoadDir === 'function' && typeof _fbOpen !== 'undefined' && _fbOpen) {
@@ -97,8 +102,16 @@ function _renderScenarioBar() {
                 <i data-lucide="plus" class="w-4 h-4"></i>
             </button>
         </div>
-        ${_gamesActiveScenario ? `<div class="flex items-center gap-1.5 mt-1.5">
-            <button onclick="toggleFileBrowser('gaming')" class="text-[9px] px-2 py-1 rounded-md flex items-center gap-1 transition-all" style="color:var(--text-muted);border:1px solid var(--border-strong);" onmouseenter="this.style.color='${theme.color}';this.style.borderColor='${theme.color}40'" onmouseleave="this.style.color='var(--text-muted)';this.style.borderColor='var(--border-strong)'"><i data-lucide="folder-open" class="w-3 h-3"></i> World Files</button>
+        ${_gamesActiveScenario ? `<div class="flex items-center gap-1.5 mt-1.5 flex-wrap">
+            <div class="games-mode-toggle flex rounded-md overflow-hidden" style="border:1px solid var(--border-strong);">
+                <button onclick="_gamesSetMode('gm')" class="text-[9px] px-2.5 py-1 flex items-center gap-1 transition-all" style="background:${_gamesRpMode === 'gm' ? theme.bg : 'transparent'};color:${_gamesRpMode === 'gm' ? theme.color : 'var(--text-muted)'};border-right:1px solid var(--border-strong);" title="Game Master mode — third-person narration, stat boxes, choices"><i data-lucide="gamepad-2" class="w-3 h-3"></i> GM</button>
+                <button onclick="_gamesSetMode('immersive')" class="text-[9px] px-2.5 py-1 flex items-center gap-1 transition-all" style="background:${_gamesRpMode === 'immersive' ? 'rgba(168,85,247,0.1)' : 'transparent'};color:${_gamesRpMode === 'immersive' ? '#c084fc' : 'var(--text-muted)'};" title="Immersive RP mode — AI responds AS characters"><i data-lucide="message-circle" class="w-3 h-3"></i> RP</button>
+            </div>
+            ${_gamesRpMode === 'immersive' ? `<div class="flex items-center gap-1">
+                <span class="text-[9px]" style="color:var(--text-muted)">Talking to:</span>
+                <input id="games-npc-input" type="text" value="${_escHtmlG(_gamesActiveNpc)}" placeholder="NPC name..." class="text-[9px] px-2 py-1 rounded-md" style="background:rgba(168,85,247,0.06);border:1px solid rgba(168,85,247,0.2);color:#c084fc;width:120px;" onchange="_gamesSetNpc(this.value)">
+            </div>` : ''}
+            <button onclick="toggleFileBrowser('gaming')" class="text-[9px] px-2 py-1 rounded-md flex items-center gap-1 transition-all" style="color:var(--text-muted);border:1px solid var(--border-strong);" onmouseenter="this.style.color='${theme.color}';this.style.borderColor='${theme.color}40'" onmouseleave="this.style.color='var(--text-muted)';this.style.borderColor='var(--border-strong)'"><i data-lucide="folder-open" class="w-3 h-3"></i> Files</button>
             <button onclick="_gamesDeleteScenario('${_escForAttr(_gamesActiveScenario)}')" class="text-[9px] px-2 py-1 rounded-md flex items-center gap-1 transition-all" style="color:var(--text-muted);border:1px solid var(--border-strong);" onmouseenter="this.style.color='#f87171';this.style.borderColor='rgba(239,68,68,0.3)'" onmouseleave="this.style.color='var(--text-muted)';this.style.borderColor='var(--border-strong)'"><i data-lucide="trash-2" class="w-3 h-3"></i> Delete</button>
         </div>` : ''}`;
     lucide.createIcons();
@@ -106,6 +119,24 @@ function _renderScenarioBar() {
 
 function _escHtmlG(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
 function _escForAttr(s) { return s.replace(/'/g, "\\'").replace(/"/g, '&quot;'); }
+
+function _gamesSetMode(mode) {
+    _gamesRpMode = mode;
+    try { localStorage.setItem('stratos_games_rp_mode', mode); } catch(e) {}
+    _renderScenarioBar();
+    if (typeof showToast === 'function') showToast(mode === 'immersive' ? 'Immersive RP mode — AI speaks as characters' : 'Game Master mode — narration & choices', 'info');
+}
+window._gamesSetMode = _gamesSetMode;
+
+function _gamesSetNpc(name) {
+    _gamesActiveNpc = name.trim();
+}
+window._gamesSetNpc = _gamesSetNpc;
+
+// Expose state for agent.js to read when sending messages
+window._gamesGetState = function() {
+    return { rpMode: _gamesRpMode, activeNpc: _gamesActiveNpc, activeScenario: _gamesActiveScenario };
+};
 
 // ── Create scenario ──
 async function _gamesCreateScenario() {

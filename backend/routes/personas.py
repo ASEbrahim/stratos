@@ -435,6 +435,31 @@ RULES:
 - If asked a factual/research question, suggest OOC: switching to Intelligence or Scholarly persona."""
 
 
+def _games_immersive_prompt(role, location, active_npc='', npc_personality='', npc_memory='', scene=''):
+    """System prompt for immersive RP mode — AI responds AS characters."""
+    npc_section = ''
+    if active_npc:
+        npc_section = f"""
+CURRENT CHARACTER: {active_npc}
+{npc_personality}
+{npc_memory}"""
+
+    return f"""You are a creative roleplay partner. You inhabit the characters of this world and respond AS them when the player talks to them.
+
+PLAYER: {role} in {location}
+
+RULES:
+- Respond in-character as whoever the player is speaking to
+- Use first-person dialogue with action descriptions in italics: *She smiles.* "Hey there."
+- NO stat boxes, NO emoji headers, NO numbered option lists, NO game master narration
+- Show the character's personality through their speech patterns, word choices, and body language
+- Reference the character's memories and relationship with the player naturally
+- If the player does something that requires a scene change or GM intervention, briefly narrate it in italics then return to character dialogue
+- Keep responses natural length — a few paragraphs, not walls of text
+{npc_section}
+{('SCENE: ' + scene) if scene else ''}"""
+
+
 def _stub_prompt(persona_name, role, location, tickers, cat_summary, search_note):
     """Placeholder prompt for future personas."""
     return f"""You are the {persona_name.title()} assistant in StratOS.
@@ -484,7 +509,9 @@ def get_persona_config(persona: str) -> Dict[str, Any]:
 
 def build_persona_prompt(persona: str, role: str, location: str,
                          tickers: List[str], cat_summary: str,
-                         search_note: str) -> str:
+                         search_note: str, rp_mode: str = 'gm',
+                         active_npc: str = '', npc_personality: str = '',
+                         npc_memory: str = '', scene: str = '') -> str:
     """Build the system prompt for the given persona."""
     if persona == 'intelligence':
         return _intelligence_prompt(role, location, tickers, cat_summary, search_note)
@@ -493,6 +520,8 @@ def build_persona_prompt(persona: str, role: str, location: str,
     elif persona == 'scholarly':
         return _scholarly_prompt(role, location, tickers, cat_summary, search_note)
     elif persona == 'gaming':
+        if rp_mode == 'immersive':
+            return _games_immersive_prompt(role, location, active_npc, npc_personality, npc_memory, scene)
         return _games_prompt(role, location, tickers, cat_summary, search_note)
     else:
         return _stub_prompt(persona, role, location, tickers, cat_summary, search_note)

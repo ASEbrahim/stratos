@@ -1071,7 +1071,11 @@ async function sendAgentMessage() {
                 history: agentHistory.slice(-20),
                 mode: agentMode,
                 persona: currentPersona,
-                ...(selectedPersonas.length > 1 ? { personas: selectedPersonas } : {})
+                ...(selectedPersonas.length > 1 ? { personas: selectedPersonas } : {}),
+                ...(currentPersona === 'gaming' && typeof _gamesGetState === 'function' ? {
+                    rp_mode: _gamesGetState().rpMode,
+                    active_npc: _gamesGetState().activeNpc
+                } : {})
             })
         });
         

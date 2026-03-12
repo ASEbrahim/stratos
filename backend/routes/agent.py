@@ -99,6 +99,10 @@ def handle_agent_chat(handler, strat, output_file, profile_id=0):
         user_msg = body.get("message", "").strip()
         history = body.get("history", [])
         free_mode = body.get("mode") == "free"
+        rp_mode = body.get("rp_mode", "gm")  # 'gm' or 'immersive'
+        active_npc = body.get("active_npc", "")
+        npc_personality = body.get("npc_personality", "")
+        npc_memory = body.get("npc_memory", "")
         # Support single persona or multi-persona querying
         personas_param = body.get("personas", body.get("persona", "intelligence"))
         if isinstance(personas_param, list) and len(personas_param) > 1:
@@ -148,7 +152,9 @@ def handle_agent_chat(handler, strat, output_file, profile_id=0):
                 system_prompt += "\n\n" + "\n\n".join(context_parts)
         else:
             base_prompt = build_persona_prompt(
-                persona_name, role, location, tickers, cat_summary, search_note
+                persona_name, role, location, tickers, cat_summary, search_note,
+                rp_mode=rp_mode, active_npc=active_npc,
+                npc_personality=npc_personality, npc_memory=npc_memory
             )
             persona_context = build_persona_context(
                 persona_name, strat, output_file, profile_id
