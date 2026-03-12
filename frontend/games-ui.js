@@ -165,58 +165,125 @@ window._gamesGetState = function() {
     return { rpMode: _gamesRpMode, activeNpc: _gamesActiveNpc, activeScenario: _gamesActiveScenario };
 };
 
-// ── Create scenario ──
+// ── Create scenario (enhanced with genre + description) ──
 async function _gamesCreateScenario() {
-    const result = await stratosPrompt({ title: 'New Scenario', fields: [
-        { key: 'name', label: 'Scenario name', placeholder: 'e.g., Dragon_Quest' },
-        { key: 'world', label: 'World description', placeholder: 'A dark fantasy setting...', optional: true }
+    const result = await stratosPrompt({ title: 'Create New Scenario', fields: [
+        { key: 'name', label: 'Scenario name', placeholder: 'e.g., SAO_Aincrad' },
+        { key: 'genre', label: 'Genre', placeholder: 'Fantasy RPG', optional: true },
+        { key: 'description', label: 'Describe your world', placeholder: 'A dark fantasy setting where...\n\nThe more detail you provide, the richer the generated world.', optional: true, multiline: true }
     ]});
     if (!result) return;
     const name = result.name;
-    const world = result.world || '';
-    try {
-        const r = await fetch('/api/scenarios/create', {
-            method: 'POST',
-            headers: _gamesHeaders(),
-            body: JSON.stringify({ name: name.trim(), world })
-        });
-        if (r.ok) {
-            if (typeof showToast === 'function') showToast(`Created scenario "${name.trim()}"`, 'success');
-            _loadScenarios();
-            _refreshFileBrowserIfOpen();
-        } else {
-            const d = await r.json().catch(() => ({}));
-            if (typeof showToast === 'function') showToast(d.error || 'Failed to create scenario', 'error');
-        }
-    } catch (e) {
-        if (typeof showToast === 'function') showToast('Failed to create scenario', 'error');
-    }
+    const genre = result.genre || 'Fantasy RPG';
+    const description = result.description || '';
+    await _gamesDoCreate(name.trim(), genre, description);
 }
 window._gamesCreateScenario = _gamesCreateScenario;
 
 // ── Create with genre preset ──
 async function _gamesCreateScenarioWithGenre(genre) {
-    const name = await stratosPrompt({ title: `New ${genre} Scenario`, label: 'Scenario name', placeholder: genre.replace(/\s/g, '_'), defaultValue: genre.replace(/\s/g, '_') });
-    if (!name || !name.trim()) return;
+    const result = await stratosPrompt({ title: `New ${genre} Scenario`, fields: [
+        { key: 'name', label: 'Scenario name', placeholder: genre.replace(/\s/g, '_'), defaultValue: genre.replace(/\s/g, '_') },
+        { key: 'description', label: 'Describe your world (optional)', placeholder: `A ${genre.toLowerCase()} setting...`, optional: true, multiline: true }
+    ]});
+    if (!result) return;
+    const name = result.name;
+    const description = result.description || `A ${genre.toLowerCase()} setting.`;
+    await _gamesDoCreate(name.trim(), genre, description);
+}
+window._gamesCreateScenarioWithGenre = _gamesCreateScenarioWithGenre;
+
+// ── Shared create + generation progress ──
+async function _gamesDoCreate(name, genre, description) {
+    if (!name) return;
     try {
         const r = await fetch('/api/scenarios/create', {
             method: 'POST',
             headers: _gamesHeaders(),
-            body: JSON.stringify({ name: name.trim(), world: `A ${genre.toLowerCase()} setting.` })
+            body: JSON.stringify({ name, genre, description })
         });
-        if (r.ok) {
-            if (typeof showToast === 'function') showToast(`Created "${name.trim()}"`, 'success');
-            _loadScenarios();
-            _refreshFileBrowserIfOpen();
-        } else {
-            const d = await r.json().catch(() => ({}));
-            if (typeof showToast === 'function') showToast(d.error || 'Failed to create', 'error');
+        const d = await r.json().catch(() => ({}));
+        if (!r.ok) {
+            if (typeof showToast === 'function') showToast(d.error || 'Failed to create scenario', 'error');
+            return;
+        }
+        const safeName = d.name || name;
+        if (typeof showToast === 'function') showToast(`Created "${safeName}"`, 'success');
+        _loadScenarios();
+        _refreshFileBrowserIfOpen();
+
+        // Poll generation status if LLM generation was triggered
+        if (d.status === 'generating') {
+            _pollGenerationStatus(safeName);
         }
     } catch (e) {
         if (typeof showToast === 'function') showToast('Failed to create scenario', 'error');
     }
 }
-window._gamesCreateScenarioWithGenre = _gamesCreateScenarioWithGenre;
+
+// ── Poll generation progress and show in scenario bar ──
+let _genPollTimer = null;
+function _pollGenerationStatus(scenarioName) {
+    // Show progress indicator in the scenario bar
+    const bar = document.getElementById('games-scenario-content');
+    if (bar) {
+        const theme = (typeof PERSONA_THEMES !== 'undefined') ? (PERSONA_THEMES.gaming || { color: '#f472b6' }) : { color: '#f472b6' };
+        let progressEl = document.getElementById('games-gen-progress');
+        if (!progressEl) {
+            progressEl = document.createElement('div');
+            progressEl.id = 'games-gen-progress';
+            progressEl.className = 'mt-1.5 text-[10px] flex flex-col gap-0.5';
+            progressEl.style.color = theme.color;
+            bar.appendChild(progressEl);
+        }
+        progressEl.innerHTML = '<div class="flex items-center gap-1"><span class="animate-pulse">Generating scenario...</span></div>';
+    }
+
+    let pollCount = 0;
+    const maxPolls = 60; // 2 minutes max
+    if (_genPollTimer) clearInterval(_genPollTimer);
+    _genPollTimer = setInterval(async () => {
+        pollCount++;
+        if (pollCount > maxPolls) {
+            clearInterval(_genPollTimer);
+            _genPollTimer = null;
+            const el = document.getElementById('games-gen-progress');
+            if (el) el.remove();
+            return;
+        }
+        try {
+            const r = await fetch('/api/scenarios/generate-status', {
+                method: 'POST',
+                headers: _gamesHeaders(),
+                body: JSON.stringify({ name: scenarioName })
+            });
+            if (!r.ok) return;
+            const status = await r.json();
+            const el = document.getElementById('games-gen-progress');
+            if (!el) { clearInterval(_genPollTimer); _genPollTimer = null; return; }
+
+            if (status.passes) {
+                const lines = Object.entries(status.passes).map(([num, p]) => {
+                    const icon = p.status === 'done' ? '&#10003;' : p.status === 'failed' ? '&#10007;' : '<span class="animate-pulse">&#9679;</span>';
+                    return `<div class="flex items-center gap-1"><span>${icon}</span> ${p.name}</div>`;
+                }).join('');
+                el.innerHTML = lines;
+            }
+
+            if (status.status === 'complete' || status.status === 'failed') {
+                clearInterval(_genPollTimer);
+                _genPollTimer = null;
+                setTimeout(() => {
+                    const el2 = document.getElementById('games-gen-progress');
+                    if (el2) el2.remove();
+                    _loadScenarios();
+                    _refreshFileBrowserIfOpen();
+                }, 2000);
+            }
+        } catch (e) {}
+    }, 2000);
+}
+window._pollGenerationStatus = _pollGenerationStatus;
 
 // ── Activate scenario ──
 async function _gamesActivateScenario(name) {
