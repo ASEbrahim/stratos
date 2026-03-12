@@ -50,18 +50,16 @@ def handle_agent_status(handler, strat):
 def _generate_suggestions(handler, ollama_host, model, user_msg, agent_response,
                           persona_name, rp_mode='', active_scenario='', active_npc=''):
     """Generate 3 contextual follow-up suggestions via a lightweight LLM call.
-    Sends a 'suggestions' SSE event. Falls back silently on failure."""
+    Sends a 'suggestions' SSE event. Falls back silently on failure.
+    Gaming persona returns rich suggestions: {label, prompt} pairs."""
     try:
-        context_hint = ''
+        # Gaming persona: rich suggestions with label + immersive prompt
         if persona_name == 'gaming' and active_scenario:
-            if rp_mode == 'gm':
-                context_hint = (f"Mode: Game Master (third-person narration with choices). "
-                                f"Scenario: {active_scenario}. "
-                                f"Suggest in-world actions: explore, fight, talk to NPC, check inventory, rest, etc.")
-            elif rp_mode == 'immersive':
-                context_hint = (f"Mode: Immersive RP (first-person character dialogue). "
-                                f"Scenario: {active_scenario}. Talking to: {active_npc or 'no one'}. "
-                                f"Suggest things to say or do with the character: ask about, confess, challenge, explore together, etc.")
+            _generate_gaming_suggestions(handler, ollama_host, model, user_msg, agent_response,
+                                         rp_mode, active_scenario, active_npc)
+            return
+
+        context_hint = ''
         prompt = (
             f"Based on this conversation, suggest 3 short follow-up actions (3-8 words each). "
             f"They should feel like natural continuations.\n\n"
@@ -86,7 +84,6 @@ def _generate_suggestions(handler, ollama_host, model, user_msg, agent_response,
         if r.status_code == 200:
             raw = r.json().get("message", {}).get("content", "").strip()
             raw = strip_think_blocks(raw)
-            # Extract JSON array from response
             bracket_start = raw.find("[")
             bracket_end = raw.rfind("]")
             if bracket_start >= 0 and bracket_end > bracket_start:
@@ -98,6 +95,57 @@ def _generate_suggestions(handler, ollama_host, model, user_msg, agent_response,
                         return
     except Exception as e:
         logger.debug(f"Suggestion generation failed: {e}")
+
+
+def _generate_gaming_suggestions(handler, ollama_host, model, user_msg, agent_response,
+                                  rp_mode, active_scenario, active_npc):
+    """Generate rich gaming suggestions with label + immersive prompt."""
+    try:
+        mode_desc = "Game Master (third-person narration)" if rp_mode == 'gm' else f"Immersive RP (talking to {active_npc or 'a character'})"
+        prompt = (
+            f"Based on this game exchange, suggest 3-4 next actions.\n\n"
+            f"Mode: {mode_desc}\n"
+            f"Scenario: {active_scenario}\n"
+            f"Last player action: {user_msg[:200]}\n"
+            f"Last game response: {agent_response[:500]}\n\n"
+            f'Return a JSON array of suggestion objects:\n'
+            f'[{{"label": "Talk to Klein", "prompt": "I walk over to Klein. \'Hey, got any tips?\'"}}]\n\n'
+            f"Rules:\n"
+            f'- "label": 3-6 words, shown on the button\n'
+            f'- "prompt": 1-2 immersive sentences, first person as the player\n'
+            f"- Vary types: exploration, social, combat, investigation\n"
+            f"Return ONLY the JSON array."
+        )
+        r = req.post(
+            f"{ollama_host}/api/chat",
+            json={
+                "model": model,
+                "messages": [{"role": "user", "content": prompt}],
+                "stream": False,
+                "options": {"temperature": 0.7, "num_predict": 300},
+                "think": False,
+            },
+            timeout=10,
+        )
+        if r.status_code == 200:
+            raw = r.json().get("message", {}).get("content", "").strip()
+            raw = strip_think_blocks(raw)
+            bracket_start = raw.find("[")
+            bracket_end = raw.rfind("]")
+            if bracket_start >= 0 and bracket_end > bracket_start:
+                arr = json.loads(raw[bracket_start:bracket_end + 1])
+                if isinstance(arr, list) and len(arr) >= 1:
+                    suggestions = []
+                    for s in arr[:4]:
+                        if isinstance(s, dict) and s.get('label') and s.get('prompt'):
+                            suggestions.append({"label": s['label'][:50], "prompt": s['prompt'][:200]})
+                        elif isinstance(s, str) and 2 < len(s.strip()) < 80:
+                            suggestions.append(s.strip())
+                    if suggestions:
+                        sse_event(handler, {"suggestions": suggestions})
+                        return
+    except Exception as e:
+        logger.debug(f"Gaming suggestion generation failed: {e}")
 
 
 # ═══════════════════════════════════════════════════════════

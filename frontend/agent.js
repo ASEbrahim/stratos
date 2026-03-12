@@ -1032,7 +1032,13 @@ async function sendAgentMessage() {
             finalDiv.innerHTML = wrapWithShowMore(fullResponse, formatAgentText(fullResponse));
             // Add suggestion chips — prefer LLM-generated, fallback to rule-based
             const chipSuggestions = dynamicSuggestions.length > 0
-                ? dynamicSuggestions.map(s => ({ label: s, icon: 'sparkles', action: s, tip: s }))
+                ? dynamicSuggestions.map(s => {
+                    // Support rich suggestions: {label, prompt} or plain strings
+                    if (typeof s === 'object' && s.label && s.prompt) {
+                        return { label: s.label, icon: 'sparkles', action: s.prompt, tip: s.prompt };
+                    }
+                    return { label: s, icon: 'sparkles', action: s, tip: s };
+                })
                 : _generateResponseChips(fullResponse, msg);
             if (chipSuggestions.length) {
                 const chipHtml = chipSuggestions.map(c => {
