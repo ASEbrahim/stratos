@@ -1234,6 +1234,14 @@ input::placeholder, textarea::placeholder {
 .agent-response strong { font-weight: 600; }
 .agent-response br + br { display: none; }
 
+/* Agent message action buttons (copy, speak) — visible on hover */
+.group\/msg .agent-msg-actions button { opacity: 0; transition: opacity 0.2s ease; }
+.group\/msg:hover .agent-msg-actions button { opacity: 0.6; }
+.group\/msg .agent-msg-actions button:hover { opacity: 1 !important; }
+@media (hover: none) {
+    .group\/msg .agent-msg-actions button { opacity: 0.5; }
+}
+
 /* === CHART TOOLBAR === */
 .chart-tool-btn {
     background: transparent;

@@ -718,12 +718,12 @@ function appendAgentMessage(role, content) {
             </div>
             <div class="flex-1 min-w-0">
                 <div class="agent-response text-xs leading-relaxed" style="color:var(--text-body,#cbd5e1);">${content}</div>
-                <div class="flex items-center gap-2 mt-1">
+                <div class="flex items-center gap-2 mt-1 agent-msg-actions">
                     <span class="text-[9px]" style="color:var(--text-muted); opacity:0.4;">${time}</span>
-                    <button onclick="_copyAgentMessage(this)" class="opacity-0 group-hover/msg:opacity-60 hover:!opacity-100 transition-opacity p-0.5 rounded" title="Copy message">
+                    <button onclick="_copyAgentMessage(this)" class="p-0.5 rounded" title="Copy message">
                         <i data-lucide="copy" class="w-3 h-3" style="color:var(--text-muted);"></i>
                     </button>
-                    <button onclick="speakMessage(this.closest('.group\\/msg').querySelector('.agent-response').innerText, this)" class="speak-btn opacity-0 group-hover/msg:opacity-60 hover:!opacity-100 transition-opacity p-0.5 rounded" title="Read aloud">
+                    <button onclick="speakMessage(this.closest('.group\\/msg').querySelector('.agent-response').innerText, this)" class="speak-btn p-0.5 rounded" title="Read aloud">
                         <i data-lucide="volume-2" class="w-3 h-3" style="color:var(--text-muted);"></i>
                     </button>
                 </div>
@@ -801,13 +801,22 @@ function _copyAgentMessage(btn) {
     const resp = btn.closest('.group\\/msg')?.querySelector('.agent-response');
     if (!resp) return;
     const text = resp.innerText || resp.textContent || '';
-    navigator.clipboard.writeText(text).then(() => {
+    const showCheck = () => {
         const icon = btn.querySelector('[data-lucide]');
         if (icon) { icon.setAttribute('data-lucide', 'check'); lucide.createIcons(); }
+        btn.style.opacity = '1';
         setTimeout(() => {
             if (icon) { icon.setAttribute('data-lucide', 'copy'); lucide.createIcons(); }
         }, 1500);
-    }).catch(() => {});
+    };
+    if (navigator.clipboard?.writeText) {
+        navigator.clipboard.writeText(text).then(showCheck).catch(() => {});
+    } else {
+        const ta = document.createElement('textarea');
+        ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+        document.body.appendChild(ta); ta.select(); document.execCommand('copy');
+        document.body.removeChild(ta); showCheck();
+    }
 }
 
 function escAgent(s) {
