@@ -88,6 +88,13 @@ class StratOS:
         self._load_env_secrets()
         self._sync_serper_credits()
 
+        # Load TTS persona voice overrides from config
+        try:
+            from processors.tts import load_persona_voices_from_config
+            load_persona_voices_from_config(self.config)
+        except Exception:
+            pass  # TTS not critical for startup
+
         # Initialize database (resolve relative paths against backend dir)
         db_path = self.config.get("system", {}).get("database_file", "strat_os.db")
         if not os.path.isabs(db_path):

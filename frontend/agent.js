@@ -605,6 +605,7 @@ async function speakMessage(text, btn) {
         _currentTTSAudio = null;
         const icon = btn.querySelector('[data-lucide]');
         if (icon) { icon.setAttribute('data-lucide', 'volume-2'); lucide.createIcons(); }
+        btn.title = 'Read aloud';
         return;
     }
 
@@ -612,13 +613,27 @@ async function speakMessage(text, btn) {
     if (origIcon) { origIcon.setAttribute('data-lucide', 'loader'); lucide.createIcons(); }
     btn.disabled = true;
 
+    // Determine voice from persona + user preferences
+    const persona = typeof _currentPersona !== 'undefined' ? _currentPersona : '';
+    const voice = localStorage.getItem(`stratos_tts_voice_${persona}`)
+                || localStorage.getItem('stratos_tts_voice')
+                || null;
+    const speed = parseFloat(localStorage.getItem('stratos_tts_speed') || '1.0');
+
     try {
         const resp = await fetch('/api/tts', {
             method: 'POST',
             headers: _agentHeaders(),
-            body: JSON.stringify({ text: text.substring(0, 5000) })
+            body: JSON.stringify({ text: text.substring(0, 5000), voice, speed, persona })
         });
-        if (!resp.ok) throw new Error('TTS ' + resp.status);
+        if (!resp.ok) {
+            const errBody = await resp.json().catch(() => ({}));
+            throw new Error(errBody.error || 'TTS ' + resp.status);
+        }
+
+        // Read engine info from headers for tooltip
+        const engine = resp.headers.get('X-TTS-Engine') || '';
+        const processing = resp.headers.get('X-TTS-Processing') || '';
 
         const blob = await resp.blob();
         const url = URL.createObjectURL(blob);
@@ -627,25 +642,29 @@ async function speakMessage(text, btn) {
         _currentTTSAudio.onended = () => {
             if (origIcon) { origIcon.setAttribute('data-lucide', 'volume-2'); lucide.createIcons(); }
             btn.disabled = false;
+            btn.title = engine && processing ? `${engine} · ${processing}s` : 'Read aloud';
             URL.revokeObjectURL(url);
             _currentTTSAudio = null;
         };
         _currentTTSAudio.onerror = () => {
             if (origIcon) { origIcon.setAttribute('data-lucide', 'volume-2'); lucide.createIcons(); }
             btn.disabled = false;
+            btn.title = 'Read aloud';
             URL.revokeObjectURL(url);
             _currentTTSAudio = null;
         };
 
         if (origIcon) { origIcon.setAttribute('data-lucide', 'square'); lucide.createIcons(); }
         btn.disabled = false;
+        btn.title = engine && processing ? `Playing · ${engine} · ${processing}s` : 'Playing...';
         _currentTTSAudio.play();
     } catch (e) {
         console.error('TTS error:', e);
         if (origIcon) { origIcon.setAttribute('data-lucide', 'volume-2'); lucide.createIcons(); }
         btn.disabled = false;
         if (typeof showToast === 'function') {
-            const msg = e.message && e.message.includes('503') ? 'TTS unavailable — Piper not installed' :
+            const msg = e.message && e.message.includes('Nothing to speak') ? e.message :
+                        e.message && e.message.includes('503') ? 'TTS unavailable — no engine installed' :
                         e.message && e.message.includes('401') ? 'TTS failed — session expired, please refresh' :
                         'TTS failed — ' + (e.message || 'unknown error');
             showToast(msg, 'error');

@@ -197,12 +197,23 @@ class ScenarioManager:
         return {"ok": True, "name": safe_name}
 
     def delete_scenario(self, profile_id: int, scenario_name: str) -> bool:
-        """Delete a scenario."""
+        """Delete a scenario from DB and remove its file folder."""
         cursor = self.db.conn.cursor()
         cursor.execute("DELETE FROM scenarios WHERE profile_id = ? AND name = ?",
                        (profile_id, scenario_name))
         self.db._commit()
-        return cursor.rowcount > 0
+        deleted = cursor.rowcount > 0
+
+        # Also remove file-based scenario folder to prevent re-migration
+        scenario_dir = self._legacy_dir(profile_id) / scenario_name
+        if scenario_dir.exists() and scenario_dir.is_dir():
+            try:
+                shutil.rmtree(scenario_dir)
+                logger.info(f"Removed scenario folder: {scenario_dir}")
+            except Exception as e:
+                logger.warning(f"Failed to remove scenario folder {scenario_dir}: {e}")
+
+        return deleted
 
     def get_scenario(self, profile_id: int, scenario_name: str) -> Optional[Dict[str, Any]]:
         """Get full scenario data."""

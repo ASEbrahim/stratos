@@ -6,6 +6,7 @@ Extracted from server.py (Sprint 5K Phase 1).
 import io
 import json
 import logging
+import os
 import struct
 from urllib.parse import urlparse, parse_qs
 
@@ -74,6 +75,20 @@ def handle_get(handler, strat, auth, path):
             logger.warning(f"Proxy error: {e}")
             from routes.helpers import error_response
             error_response(handler, f"Proxy error: {e}", 502)
+        return True
+
+    # ── TTS Voice List ─────────────────────────────
+    if path == "/api/tts/voices":
+        from processors.tts import TTSProcessor
+        voices = TTSProcessor.get_available_voices()
+        _send_json(handler, voices)
+        return True
+
+    # ── TTS Engine Status ──────────────────────────
+    if path == "/api/tts/status":
+        from processors.tts import TTSProcessor
+        status = TTSProcessor.get_engine_status()
+        _send_json(handler, status)
         return True
 
     # ── Persona Files GET endpoints ─────────────────
@@ -149,7 +164,7 @@ def handle_post(handler, strat, auth, path):
             _send_json(handler, {"error": "Failed to list files"}, 500)
         return True
 
-    # ── TTS — Text-to-Speech via Piper ──────────────
+    # ── TTS — Dual-engine Text-to-Speech ──────────────
     if path == "/api/tts":
         try:
             body = json.loads(handler.rfile.read(int(handler.headers.get('Content-Length', 0))).decode()) if int(handler.headers.get('Content-Length', 0)) > 0 else {}
@@ -158,29 +173,116 @@ def handle_post(handler, strat, auth, path):
                 _send_json(handler, {"error": "No text provided"}, 400)
                 return True
 
-            from processors.tts import TTSProcessor
-            tts = TTSProcessor()
-            if not tts.is_available():
-                _send_json(handler, {"error": "TTS not available — Piper not installed or voice model missing"}, 503)
-                return True
+            from processors.tts import TTSProcessor, PERSONA_DEFAULT_VOICES
 
-            raw_audio = tts.synthesize(text)
-            if not raw_audio:
-                _send_json(handler, {"error": "TTS synthesis failed"}, 500)
-                return True
+            voice = body.get('voice')
+            language = body.get('language')
+            speed = float(body.get('speed', 1.0))
+            persona = body.get('persona')
 
-            # Wrap raw PCM (16-bit mono 22050 Hz) in WAV header
-            wav_bytes = _pcm_to_wav(raw_audio, sample_rate=22050, channels=1, bits_per_sample=16)
+            # Persona-based default voice
+            if not voice and persona and persona in PERSONA_DEFAULT_VOICES:
+                voice = PERSONA_DEFAULT_VOICES[persona]
+
+            # User's stored voice preference (sent by frontend)
+            if not voice:
+                stored_voice = body.get('preferred_voice')
+                if stored_voice:
+                    voice = stored_voice
+
+            speed = max(0.5, min(2.0, speed))
+
+            result = TTSProcessor.synthesize(text, voice=voice, language=language, speed=speed)
+
+            if 'error' in result:
+                _send_json(handler, result, 503)
+                return True
 
             handler.send_response(200)
             handler.send_header("Content-Type", "audio/wav")
-            handler.send_header("Content-Length", str(len(wav_bytes)))
+            handler.send_header("Content-Length", str(len(result['audio'])))
             handler.send_header("Access-Control-Allow-Origin", "*")
+            handler.send_header("X-TTS-Engine", result['engine'])
+            handler.send_header("X-TTS-Voice", result['voice'])
+            handler.send_header("X-TTS-Language", result['language'])
+            handler.send_header("X-TTS-Processing", str(result['processing_seconds']))
             handler.end_headers()
-            handler.wfile.write(wav_bytes)
+            handler.wfile.write(result['audio'])
         except Exception as e:
             logger.error(f"TTS endpoint error: {e}")
             _send_json(handler, {"error": "TTS failed"}, 500)
+        return True
+
+    # ── TTS Preview ──────────────────────────────────
+    if path == "/api/tts/preview":
+        try:
+            body = json.loads(handler.rfile.read(int(handler.headers.get('Content-Length', 0))).decode()) if int(handler.headers.get('Content-Length', 0)) > 0 else {}
+            from processors.tts import TTSProcessor, KOKORO_VOICES, XTTS_VOICES
+
+            voice = body.get('voice', 'af_heart')
+
+            previews = {
+                'en': "Welcome to StratOS. I'm your strategic intelligence assistant.",
+                'ar': '\u0645\u0631\u062d\u0628\u0627 \u0628\u0643\u0645 \u0641\u064a \u0633\u062a\u0631\u0627\u062a\u0648\u0633. \u0623\u0646\u0627 \u0645\u0633\u0627\u0639\u062f\u0643\u0645 \u0627\u0644\u0630\u0643\u064a.',
+                'ja': 'StratOS\u3078\u3088\u3046\u3053\u305d\u3002\u79c1\u306f\u3042\u306a\u305f\u306e\u6226\u7565\u60c5\u5831\u30a2\u30b7\u30b9\u30bf\u30f3\u30c8\u3067\u3059\u3002',
+                'zh': '\u6b22\u8fce\u4f7f\u7528StratOS\u3002\u6211\u662f\u60a8\u7684\u6218\u7565\u60c5\u62a5\u52a9\u624b\u3002',
+                'fr': "Bienvenue sur StratOS. Je suis votre assistant d'intelligence strat\u00e9gique.",
+                'ko': 'StratOS\uc5d0 \uc624\uc2e0 \uac83\uc744 \ud658\uc601\ud569\ub2c8\ub2e4. \uc800\ub294 \ub2f9\uc2e0\uc758 \uc804\ub7b5 \uc815\ubcf4 \ubcf4\uc870\uc785\ub2c8\ub2e4.',
+                'hi': 'StratOS \u092e\u0947\u0902 \u0906\u092a\u0915\u093e \u0938\u094d\u0935\u093e\u0917\u0924 \u0939\u0948\u0964 \u092e\u0948\u0902 \u0906\u092a\u0915\u093e \u0930\u0923\u0928\u0940\u0924\u093f\u0915 \u092c\u0941\u0926\u094d\u0927\u093f\u092e\u0924\u094d\u0924\u093e \u0938\u0939\u093e\u092f\u0915 \u0939\u0942\u0902\u0964',
+                'it': "Benvenuto su StratOS. Sono il tuo assistente di intelligence strategica.",
+                'pt': "Bem-vindo ao StratOS. Sou seu assistente de intelig\u00eancia estrat\u00e9gica.",
+            }
+
+            lang = 'en'
+            if voice in KOKORO_VOICES:
+                lang = KOKORO_VOICES[voice]['lang']
+            elif voice in XTTS_VOICES:
+                lang = XTTS_VOICES[voice]['lang']
+
+            preview_text = previews.get(lang, previews['en'])
+
+            result = TTSProcessor.synthesize(preview_text, voice=voice)
+
+            if 'error' in result:
+                _send_json(handler, result, 503)
+                return True
+
+            handler.send_response(200)
+            handler.send_header("Content-Type", "audio/wav")
+            handler.send_header("Content-Length", str(len(result['audio'])))
+            handler.send_header("Access-Control-Allow-Origin", "*")
+            handler.end_headers()
+            handler.wfile.write(result['audio'])
+        except Exception as e:
+            logger.error(f"TTS preview error: {e}")
+            _send_json(handler, {"error": "Preview failed"}, 500)
+        return True
+
+    # ── TTS Custom Voice Upload ──────────────────────
+    if path == "/api/tts/voices/custom":
+        try:
+            import re as _re
+            voice_name = handler.headers.get('X-Voice-Name', 'custom_voice')
+            voice_name = _re.sub(r'[^a-zA-Z0-9_]', '_', voice_name).lower()
+
+            content_length = int(handler.headers.get('Content-Length', 0))
+            if content_length == 0 or content_length > 10 * 1024 * 1024:
+                _send_json(handler, {"error": "Invalid audio size (max 10MB)"}, 400)
+                return True
+
+            audio_data = handler.rfile.read(content_length)
+
+            voices_dir = os.path.join(os.path.dirname(__file__), '..', 'data', 'tts_voices')
+            os.makedirs(voices_dir, exist_ok=True)
+
+            voice_path = os.path.join(voices_dir, f"{voice_name}.wav")
+            with open(voice_path, 'wb') as f:
+                f.write(audio_data)
+
+            _send_json(handler, {"ok": True, "voice_id": voice_name, "message": f"Custom voice '{voice_name}' saved."})
+        except Exception as e:
+            logger.error(f"Custom voice upload error: {e}")
+            _send_json(handler, {"error": "Upload failed"}, 500)
         return True
 
     # ── STT — Speech-to-Text via faster-whisper ──────
