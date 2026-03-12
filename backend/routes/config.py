@@ -140,6 +140,21 @@ def handle_config_save(handler, strat, auth_helpers):
                 if key in new_config["scoring"]:
                     config["scoring"][key] = new_config["scoring"][key]
 
+        # TTS config (persona voice overrides)
+        if "tts" in new_config:
+            if "tts" not in config:
+                config["tts"] = {}
+            if "persona_voices" in new_config["tts"]:
+                if "persona_voices" not in config["tts"]:
+                    config["tts"]["persona_voices"] = {}
+                config["tts"]["persona_voices"].update(new_config["tts"]["persona_voices"])
+                # Reload into TTS processor
+                try:
+                    from processors.tts import load_persona_voices_from_config
+                    load_persona_voices_from_config(config)
+                except Exception:
+                    pass
+
         # Dynamic categories — normalize field names (frontend may send label/items or name/keywords)
         if "dynamic_categories" in new_config:
             normalized = []

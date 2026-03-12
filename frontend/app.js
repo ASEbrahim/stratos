@@ -916,7 +916,7 @@ function _loadTTSVoices() {
                 var row = document.createElement('div');
                 row.className = 'flex items-center gap-2';
                 row.innerHTML = '<span class="text-[10px] text-slate-500 w-20 capitalize">' + pname + ':</span>' +
-                    '<select onchange="localStorage.setItem(\'stratos_tts_voice_' + pname + '\', this.value)" class="flex-1 bg-slate-900 border border-slate-700 rounded px-1.5 py-0.5 text-[10px] text-slate-300 focus:border-emerald-500 focus:outline-none">' +
+                    '<select onchange="_setPersonaTTSVoice(\'' + pname + '\', this.value)" class="flex-1 bg-slate-900 border border-slate-700 rounded px-1.5 py-0.5 text-[10px] text-slate-300 focus:border-emerald-500 focus:outline-none">' +
                     '<option value="">Default</option></select>';
                 var sel = row.querySelector('select');
                 // Copy options from main select
@@ -983,6 +983,21 @@ function _previewTTSVoice() {
     }).catch(function(e) {
         if (typeof showToast === 'function') showToast('Voice preview failed: ' + e.message, 'error');
     });
+}
+
+function _setPersonaTTSVoice(persona, voiceId) {
+    // Save to localStorage for immediate use
+    if (voiceId) {
+        localStorage.setItem('stratos_tts_voice_' + persona, voiceId);
+    } else {
+        localStorage.removeItem('stratos_tts_voice_' + persona);
+    }
+    // Also persist to config.yaml so it survives cache clears
+    var payload = { tts: { persona_voices: {} } };
+    payload.tts.persona_voices[persona] = voiceId || '';
+    var headers = { 'Content-Type': 'application/json' };
+    if (typeof getAuthToken === 'function') headers['X-Auth-Token'] = getAuthToken();
+    fetch('/api/config', { method: 'POST', headers: headers, body: JSON.stringify(payload) }).catch(function() {});
 }
 
 function _exportSignals(fmt) {
