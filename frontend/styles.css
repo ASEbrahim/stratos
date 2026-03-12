@@ -461,6 +461,8 @@ select:hover { border-color: var(--text-muted) !important; }
     flex: 1;
     display: flex;
     flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
     max-width: 860px;
     margin: 0 auto;
     width: 100%;
@@ -501,11 +503,15 @@ select:hover { border-color: var(--text-muted) !important; }
     flex: 1;
     display: flex !important;
     flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
 }
 .agent-fullscreen #agent-messages {
     flex: 1;
+    min-height: 0;
     max-height: none !important;
     height: auto !important;
+    overflow-y: auto !important;
     padding: 32px 28px;
 }
 /* Larger text in fullscreen — uses CSS vars for customizer */
@@ -2366,19 +2372,23 @@ body.density-comfortable .score-pill { min-height: 36px !important; padding: 6px
     padding: 10px 16px 14px;
 }
 .tour-skip {
-    background: none; border: none; cursor: pointer;
-    font-size: 12px; color: var(--text-muted, #64748b); opacity: 0.5;
-    transition: opacity 0.25s ease, color 0.25s ease;
+    background: none; border: 1px solid rgba(100,116,139,0.25); border-radius: 6px; cursor: pointer;
+    font-size: 12px; color: var(--text-secondary, #94a3b8); opacity: 0.7;
+    padding: 6px 14px;
+    transition: opacity 0.25s ease, color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+    text-shadow: 0 0 8px rgba(100,116,139,0.2);
 }
-.tour-skip:hover { opacity: 1; color: var(--text-primary, #e2e8f0); }
+.tour-skip:hover { opacity: 1; color: var(--text-primary, #e2e8f0); border-color: rgba(100,116,139,0.5); box-shadow: 0 0 10px rgba(100,116,139,0.15); }
 .tour-never {
-    display: block; width: 100%; text-align: center; margin-top: 2px; padding: 4px 0 2px;
+    display: block; width: 100%; text-align: center; margin-top: 4px; padding: 6px 0 4px;
     background: none; border: none; border-top: 1px solid rgba(100,116,139,0.15); cursor: pointer;
-    font-size: 10px; color: var(--text-muted, #64748b); opacity: 0.4;
-    transition: opacity 0.25s ease;
+    font-size: 10px; color: var(--text-muted, #64748b); opacity: 0.55;
+    transition: opacity 0.25s ease, color 0.25s ease, text-shadow 0.25s ease;
+    text-shadow: 0 0 6px rgba(100,116,139,0.15);
 }
-.tour-never:hover { opacity: 0.8; }
-.tour-welcome-never { margin-top: 10px; border-top: none; font-size: 11px; }
+.tour-never:hover { opacity: 0.9; color: var(--text-secondary, #94a3b8); text-shadow: 0 0 12px rgba(100,116,139,0.3); }
+.tour-welcome-never { margin-top: 10px; border-top: none; font-size: 11px; padding: 8px 16px; border-radius: 6px; border: 1px solid rgba(100,116,139,0.15); }
+.tour-welcome-never:hover { border-color: rgba(100,116,139,0.35); background: rgba(100,116,139,0.05); }
 .tour-next {
     padding: 8px 22px; border-radius: 8px; border: none; cursor: pointer;
     font-size: 13px; font-weight: 600;
