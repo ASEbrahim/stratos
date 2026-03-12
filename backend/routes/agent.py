@@ -44,18 +44,30 @@ def handle_agent_status(handler, strat):
 # SUGGESTION GENERATION
 # ═══════════════════════════════════════════════════════════
 
-def _generate_suggestions(handler, ollama_host, model, user_msg, agent_response, persona_name):
+def _generate_suggestions(handler, ollama_host, model, user_msg, agent_response,
+                          persona_name, rp_mode='', active_scenario='', active_npc=''):
     """Generate 3 contextual follow-up suggestions via a lightweight LLM call.
     Sends a 'suggestions' SSE event. Falls back silently on failure."""
     try:
+        context_hint = ''
+        if persona_name == 'gaming' and active_scenario:
+            if rp_mode == 'gm':
+                context_hint = (f"Mode: Game Master (third-person narration with choices). "
+                                f"Scenario: {active_scenario}. "
+                                f"Suggest in-world actions: explore, fight, talk to NPC, check inventory, rest, etc.")
+            elif rp_mode == 'immersive':
+                context_hint = (f"Mode: Immersive RP (first-person character dialogue). "
+                                f"Scenario: {active_scenario}. Talking to: {active_npc or 'no one'}. "
+                                f"Suggest things to say or do with the character: ask about, confess, challenge, explore together, etc.")
         prompt = (
             f"Based on this conversation, suggest 3 short follow-up actions (3-8 words each). "
             f"They should feel like natural continuations.\n\n"
             f"User: {user_msg[:200]}\n"
             f"Assistant: {agent_response[:500]}\n"
-            f"Persona: {persona_name}\n\n"
+            f"Persona: {persona_name}\n"
+            f"{context_hint}\n\n"
             f"Return ONLY a JSON array of 3 strings. No explanation.\n"
-            f'Example: ["Start the Misty Peaks quest", "Describe my character stats", "Tell me more about X"]'
+            f'Example: ["Explore the dark corridor", "Ask about the ancient relic", "Check my character stats"]'
         )
         r = req.post(
             f"{ollama_host}/api/chat",
@@ -171,7 +183,8 @@ Return ONLY a JSON object:
 def _post_response_tasks(handler, strat, ollama_host, model, user_msg, ai_response,
                          persona_name, profile_id, rp_mode='gm', active_npc='', scenario=''):
     """Run post-response tasks: suggestions + entity memory update."""
-    _generate_suggestions(handler, ollama_host, model, user_msg, ai_response, persona_name)
+    _generate_suggestions(handler, ollama_host, model, user_msg, ai_response,
+                          persona_name, rp_mode=rp_mode, active_scenario=scenario, active_npc=active_npc)
 
     # Background entity memory update for immersive RP mode
     if rp_mode == 'immersive' and active_npc and persona_name in ('gaming', 'scholarly'):
@@ -252,27 +265,46 @@ def handle_agent_chat(handler, strat, output_file, profile_id=0):
             if context_parts:
                 system_prompt += "\n\n" + "\n\n".join(context_parts)
         else:
-            # Load entity data from DB for immersive RP mode
-            if rp_mode == 'immersive' and active_npc and strat.db:
-                entity_name = active_npc.strip().lower().replace(' ', '_')
+            # Load entity data from DB
+            if persona_name in ('gaming', 'scholarly') and active_scenario and strat.db:
                 try:
                     cursor = strat.db.conn.cursor()
-                    cursor.execute(
-                        "SELECT * FROM persona_entities WHERE profile_id = ? AND persona = ? AND scenario_name = ? AND name = ?",
-                        (profile_id, persona_name, active_scenario, entity_name))
-                    row = cursor.fetchone()
-                    if row:
-                        e = dict(row)
-                        npc_personality = '\n'.join(filter(None, [
-                            f"## Identity\n{e['identity_md']}" if e.get('identity_md') else '',
-                            f"## Personality\n{e['personality_md']}" if e.get('personality_md') else '',
-                            f"## Speaking Style\n{e['speaking_style_md']}" if e.get('speaking_style_md') else '',
-                        ]))
-                        npc_memory = '\n'.join(filter(None, [
-                            f"## Relationship with Player\n{e['relationship_md']}" if e.get('relationship_md') else '',
-                            f"## Interaction Memory\n{e['memory_md']}" if e.get('memory_md') else '',
-                            f"## Knowledge\n{e['knowledge_md']}" if e.get('knowledge_md') else '',
-                        ]))
+                    if rp_mode == 'immersive' and active_npc:
+                        # Immersive: load single active NPC's full data
+                        entity_name = active_npc.strip().lower().replace(' ', '_')
+                        cursor.execute(
+                            "SELECT * FROM persona_entities WHERE profile_id = ? AND persona = ? AND scenario_name = ? AND name = ?",
+                            (profile_id, persona_name, active_scenario, entity_name))
+                        row = cursor.fetchone()
+                        if row:
+                            e = dict(row)
+                            npc_personality = '\n'.join(filter(None, [
+                                f"## Identity\n{e['identity_md']}" if e.get('identity_md') else '',
+                                f"## Personality\n{e['personality_md']}" if e.get('personality_md') else '',
+                                f"## Speaking Style\n{e['speaking_style_md']}" if e.get('speaking_style_md') else '',
+                            ]))
+                            npc_memory = '\n'.join(filter(None, [
+                                f"## Relationship with Player\n{e['relationship_md']}" if e.get('relationship_md') else '',
+                                f"## Interaction Memory\n{e['memory_md']}" if e.get('memory_md') else '',
+                                f"## Knowledge\n{e['knowledge_md']}" if e.get('knowledge_md') else '',
+                            ]))
+                    elif rp_mode == 'gm':
+                        # GM mode: load full entity roster so GM knows the cast
+                        cursor.execute(
+                            "SELECT display_name, identity_md, personality_md, speaking_style_md "
+                            "FROM persona_entities WHERE profile_id = ? AND persona = ? AND scenario_name = ?",
+                            (profile_id, persona_name, active_scenario))
+                        rows = [dict(r) for r in cursor.fetchall()]
+                        if rows:
+                            roster = ["## Character Roster"]
+                            for e in rows[:10]:
+                                name = e.get('display_name', '???')
+                                parts = []
+                                if e.get('identity_md'): parts.append(e['identity_md'][:150])
+                                if e.get('personality_md'): parts.append(e['personality_md'][:150])
+                                if e.get('speaking_style_md'): parts.append(f"Voice: {e['speaking_style_md'][:80]}")
+                                roster.append(f"**{name}**: {' | '.join(parts)}" if parts else f"**{name}**")
+                            npc_personality = '\n'.join(roster)
                 except Exception as ex:
                     logger.debug(f"Entity load failed: {ex}")
 

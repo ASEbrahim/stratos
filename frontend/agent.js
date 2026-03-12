@@ -453,11 +453,13 @@ const _PERSONA_SUGGESTIONS = {
         "What were the causes of WWI?",
     ],
     gaming: [
-        "What are the top gaming deals right now?",
-        "Any new game releases this week?",
-        "What's trending on Steam?",
-        "Best indie games of this year",
-        "Compare PS5 vs Xbox Series X specs",
+        "Start a new adventure",
+        "Describe the scene around me",
+        "What are my options right now?",
+        "Check my character stats",
+        "Talk to the nearest NPC",
+        "Set up a new scenario",
+        "Continue the story",
     ],
     anime: [
         "What anime is airing this season?",
@@ -478,6 +480,30 @@ function _buildDynamicSuggestions() {
     const personaSugs = _PERSONA_SUGGESTIONS[currentPersona] || _PERSONA_SUGGESTIONS.intelligence;
     const suggestions = [...personaSugs];
     try {
+        // Gaming-specific: scenario-aware suggestions
+        if (currentPersona === 'gaming' && typeof _gamesGetState === 'function') {
+            const gs = _gamesGetState();
+            if (gs.activeScenario) {
+                suggestions.push("Describe my surroundings");
+                suggestions.push("What happens next?");
+                if (gs.rpMode === 'gm') {
+                    suggestions.push("Roll for initiative");
+                    suggestions.push("Show my inventory");
+                    suggestions.push("What quests are available?");
+                    suggestions.push("Level up my character");
+                } else if (gs.rpMode === 'immersive') {
+                    if (gs.activeNpc) {
+                        suggestions.push(`Ask ${gs.activeNpc} about their past`);
+                        suggestions.push(`Challenge ${gs.activeNpc}`);
+                        suggestions.push(`Tell ${gs.activeNpc} a secret`);
+                    }
+                    suggestions.push("Express how I feel about this");
+                    suggestions.push("Look around the room");
+                }
+            }
+            return suggestions; // skip non-gaming suggestions
+        }
+
         // Ticker management hints
         suggestions.push("Show my tickers");
         suggestions.push("Add ticker TSLA to my watchlist");
