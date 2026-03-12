@@ -571,7 +571,7 @@ function appendAgentMessage(role, content) {
                     <button onclick="_copyAgentMessage(this)" class="p-0.5 rounded" title="Copy message">
                         <i data-lucide="copy" class="w-3 h-3" style="color:var(--text-muted);"></i>
                     </button>
-                    <button onclick="speakMessage(this.closest('.group\\/msg').querySelector('.agent-response').innerText, this)" class="speak-btn p-0.5 rounded" title="Read aloud">
+                    <button onclick="speakMessage(this.closest('.agent-msg-actions').parentElement.querySelector('.agent-response').innerText, this)" class="speak-btn p-0.5 rounded" title="Read aloud">
                         <i data-lucide="volume-2" class="w-3 h-3" style="color:var(--text-muted);"></i>
                     </button>
                 </div>
@@ -654,7 +654,7 @@ async function speakMessage(text, btn) {
 }
 
 function _copyAgentMessage(btn) {
-    const resp = btn.closest('.group\\/msg')?.querySelector('.agent-response');
+    const resp = btn.closest('.agent-msg-actions')?.parentElement?.querySelector('.agent-response');
     if (!resp) return;
     const text = resp.innerText || resp.textContent || '';
     const showCheck = () => {
