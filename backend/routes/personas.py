@@ -289,6 +289,13 @@ def _get_scenario_path(strat, profile_id: int) -> Optional[str]:
         scenario_name = row['name']
 
         scenario_path = os.path.join(base, scenario_name)
+        # Auto-migrate old format if needed
+        if os.path.isdir(scenario_path) and not os.path.isfile(os.path.join(scenario_path, '_index.json')):
+            try:
+                from processors.scenario_templates import migrate_old_scenario
+                migrate_old_scenario(scenario_path)
+            except Exception as e:
+                logger.debug(f"Migration failed: {e}")
         # Only use file-based loading if the new structure exists
         if os.path.isfile(os.path.join(scenario_path, '_index.json')):
             return scenario_path

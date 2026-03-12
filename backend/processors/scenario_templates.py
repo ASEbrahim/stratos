@@ -224,3 +224,110 @@ def create_item_file(scenario_path, item_data):
             json.dump(catalog, f, indent=2)
 
     return item_path
+
+
+def migrate_old_scenario(scenario_path):
+    """Convert old single-file scenario (state.md + world.md) to new multi-folder structure.
+
+    Detection: world.md exists at root AND world/ directory does NOT exist.
+    Called automatically when a scenario is loaded and old format is detected.
+    """
+    world_md_file = os.path.join(scenario_path, 'world.md')
+    world_dir = os.path.join(scenario_path, 'world')
+    if not os.path.exists(world_md_file) or os.path.isdir(world_dir):
+        return False  # Already migrated or not old format
+
+    logger.info(f"Migrating old scenario: {scenario_path}")
+
+    # 1. Read old content
+    old_world = ''
+    try:
+        with open(world_md_file, 'r') as f:
+            old_world = f.read()
+    except Exception:
+        pass
+
+    old_state = ''
+    state_md_file = os.path.join(scenario_path, 'state.md')
+    try:
+        with open(state_md_file, 'r') as f:
+            old_state = f.read()
+    except Exception:
+        pass
+
+    # 2. Create new folder structure in-place
+    scenario_name = os.path.basename(scenario_path)
+    for name, content in SCENARIO_STRUCTURE.items():
+        full_path = os.path.join(scenario_path, name)
+        if isinstance(content, dict):
+            if name.endswith('.json'):
+                if not os.path.exists(full_path):
+                    with open(full_path, 'w') as f:
+                        json.dump(content, f, indent=2)
+            else:
+                _create_structure_recursive(full_path, content)
+        elif isinstance(content, str) and not os.path.exists(full_path):
+            with open(full_path, 'w') as f:
+                f.write(content)
+
+    # 3. Move old content to new locations
+    if old_world:
+        setting_path = os.path.join(scenario_path, 'world', 'setting.md')
+        with open(setting_path, 'w') as f:
+            f.write(old_world)
+
+    if old_state:
+        scene_path = os.path.join(scenario_path, 'scenes', 'current.md')
+        with open(scene_path, 'w') as f:
+            f.write(old_state)
+
+    # 4. Create _index.json if missing
+    index_path = os.path.join(scenario_path, '_index.json')
+    if not os.path.exists(index_path):
+        index = {
+            "name": scenario_name,
+            "display_name": scenario_name.replace('_', ' '),
+            "genre": "",
+            "created": "",
+            "current_scene": "scenes/current.md",
+            "current_location": "",
+            "active_npcs_in_scene": [],
+            "rp_mode": "gm",
+            "active_npc": None,
+            "player_character": "characters/player/",
+            "session_count": 0,
+            "total_exchanges": 0,
+        }
+        with open(index_path, 'w') as f:
+            json.dump(index, f, indent=2)
+
+    # 5. Rename old files (don't delete — safety)
+    try:
+        os.rename(world_md_file, world_md_file + '.old')
+    except Exception:
+        pass
+    if os.path.exists(state_md_file):
+        try:
+            os.rename(state_md_file, state_md_file + '.old')
+        except Exception:
+            pass
+
+    logger.info(f"Migration complete: {scenario_path}")
+    return True
+
+
+def _create_structure_recursive(path, structure):
+    """Helper to create nested folder structure."""
+    os.makedirs(path, exist_ok=True)
+    for name, content in structure.items():
+        full_path = os.path.join(path, name)
+        if isinstance(content, dict):
+            if name.endswith('.json'):
+                if not os.path.exists(full_path):
+                    with open(full_path, 'w') as f:
+                        json.dump(content, f, indent=2)
+            else:
+                _create_structure_recursive(full_path, content)
+        elif isinstance(content, str) and not os.path.exists(full_path):
+            with open(full_path, 'w') as f:
+                f.write(content)
