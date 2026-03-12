@@ -1,5 +1,5 @@
 {
-  "total_count": 1293,
+  "total_count": 1296,
   "daily_counts": {
     "2026-02-24": 123,
     "2026-02-25": 1669,
@@ -10,37 +10,10 @@
     "2026-03-08": 582,
     "2026-03-09": 58,
     "2026-03-10": 184,
-    "2026-03-11": 88
+    "2026-03-11": 89,
+    "2026-03-12": 6
   },
   "last_queries": [
-    {
-      "query": "\"Kuwait tech startups\"  2026",
-      "time": "2026-03-10T14:08:12.964693"
-    },
-    {
-      "query": "\"Venture capital funding\" startup ecosystem 2026",
-      "time": "2026-03-10T14:08:12.973479"
-    },
-    {
-      "query": "\"Tech incubator programs\" startup ecosystem 2026",
-      "time": "2026-03-10T14:08:13.495135"
-    },
-    {
-      "query": "\"Digital transformation cases\" startup ecosystem 2026",
-      "time": "2026-03-10T14:08:14.155507"
-    },
-    {
-      "query": "\"Fintech innovations\" startup ecosystem 2026",
-      "time": "2026-03-10T14:08:15.368669"
-    },
-    {
-      "query": "\"Government digital initiatives\" startup ecosystem 2026",
-      "time": "2026-03-10T14:08:16.284328"
-    },
-    {
-      "query": "\"Kuwait Startup Hub initiatives\"  2026",
-      "time": "2026-03-10T14:08:16.809789"
-    },
     {
       "query": "\"Zain Venture Fund investments\" startup ecosystem 2026",
       "time": "2026-03-10T14:08:17.511401"
@@ -812,6 +785,34 @@
     {
       "query": "silver futures SL=F current price today March 11 2026",
       "time": "2026-03-11T22:00:44.210395"
+    },
+    {
+      "query": "NVDA TSLA stock performance comparison today price market cap",
+      "time": "2026-03-11T23:41:37.843423"
+    },
+    {
+      "query": "Equate hiring Kuwait jobs",
+      "time": "2026-03-12T03:19:34.137749"
+    },
+    {
+      "query": "Jujutsu Kaisen world map locations characters curses jujutsu sorcerers canon accurate",
+      "time": "2026-03-12T03:24:38.787118"
+    },
+    {
+      "query": "Jujutsu Kaisen Tokyo Jujutsu High locations Gojo Satoru Yuta Okkotsu canon settings",
+      "time": "2026-03-12T03:24:44.458532"
+    },
+    {
+      "query": "Jujutsu Kaisen characters Megumi Fushiguro Nobara Inosuke Nanami Gojo Satoru cursed techniques canon",
+      "time": "2026-03-12T03:24:49.622554"
+    },
+    {
+      "query": "Vivarium Release Special summary",
+      "time": "2026-03-12T03:52:49.279022"
+    },
+    {
+      "query": "ADO Vivarium Release Special LIVE",
+      "time": "2026-03-12T03:53:23.627094"
     }
   ]
 }

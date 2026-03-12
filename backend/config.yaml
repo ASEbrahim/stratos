@@ -40,7 +40,7 @@ search:
   provider: serper
   searxng_host: http://localhost:8888
   serper_api_key: bc26c29537b924cf7e8022eaaf83c50cfdeb51be
-  serper_credits: 1207
+  serper_credits: 1204
 system:
   database_file: strat_os.db
   frontend_port: 8080
@@ -332,11 +332,9 @@ custom_feeds:
   'on': true
 custom_tab_name: Custom
 tickers:
-- NVDA
-- TSLA
-- AMD
 - BTC-USD
 - ETH-USD
 - GC=F
 - CL=F
-- SI=F
+- EURUSD=X
+- ^GSPC
