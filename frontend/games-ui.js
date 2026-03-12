@@ -5,6 +5,12 @@
 let _gamesScenarios = [];
 let _gamesActiveScenario = null;
 
+function _refreshFileBrowserIfOpen() {
+    if (typeof _fbLoadDir === 'function' && typeof _fbOpen !== 'undefined' && _fbOpen) {
+        _fbLoadDir(typeof _fbPath !== 'undefined' ? _fbPath : '/');
+    }
+}
+
 function _gamesHeaders() {
     return {
         'Content-Type': 'application/json',
@@ -115,6 +121,7 @@ async function _gamesCreateScenario() {
         if (r.ok) {
             if (typeof showToast === 'function') showToast(`Created scenario "${name.trim()}"`, 'success');
             _loadScenarios();
+            _refreshFileBrowserIfOpen();
         } else {
             const d = await r.json().catch(() => ({}));
             if (typeof showToast === 'function') showToast(d.error || 'Failed to create scenario', 'error');
@@ -138,6 +145,7 @@ async function _gamesCreateScenarioWithGenre(genre) {
         if (r.ok) {
             if (typeof showToast === 'function') showToast(`Created "${name.trim()}"`, 'success');
             _loadScenarios();
+            _refreshFileBrowserIfOpen();
         } else {
             const d = await r.json().catch(() => ({}));
             if (typeof showToast === 'function') showToast(d.error || 'Failed to create', 'error');
@@ -159,6 +167,7 @@ async function _gamesActivateScenario(name) {
         });
         _gamesActiveScenario = name;
         _renderScenarioBar();
+        _refreshFileBrowserIfOpen();
         if (typeof showToast === 'function') showToast(`Switched to "${name}"`, 'success');
     } catch (e) {
         if (typeof showToast === 'function') showToast('Failed to activate scenario', 'error');
@@ -176,6 +185,7 @@ async function _gamesDeleteScenario(name) {
         });
         if (_gamesActiveScenario === name) _gamesActiveScenario = null;
         _loadScenarios();
+        _refreshFileBrowserIfOpen();
         if (typeof showToast === 'function') showToast(`Deleted "${name}"`, 'success');
     } catch (e) {
         if (typeof showToast === 'function') showToast('Failed to delete scenario', 'error');

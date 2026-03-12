@@ -279,6 +279,13 @@ function _onPersonaChanged(newPersona) {
         if (select) select.value = newPersona;
         _loadContextForPersona(newPersona);
     }
+    // Refresh file browser if open (persona switch changes root directory)
+    if (typeof _fbOpen !== 'undefined' && _fbOpen && typeof _fbLoadDir === 'function') {
+        window._fbPersona = newPersona;
+        const sel = document.getElementById('fb-persona-select');
+        if (sel) sel.value = newPersona;
+        _fbLoadDir('/');
+    }
     // Check if this persona has custom context (for indicator dot)
     _checkPersonaContext(newPersona);
 }
