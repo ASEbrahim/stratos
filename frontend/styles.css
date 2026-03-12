@@ -1191,13 +1191,6 @@ input::placeholder, textarea::placeholder {
 .sakura-btn.active .sakura-icon { filter: drop-shadow(0 0 3px currentColor); animation: sakura-spin 8s linear infinite; }
 @keyframes sakura-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
-/* Sakura petal customizer inline (below theme picker when sakura active) */
-#sakura-quick-controls { display: none; margin-top: 6px; padding: 8px 0 2px; border-top: 1px solid var(--border); }
-[data-theme="sakura"] #sakura-quick-controls { display: block; }
-.sakura-slider-row { display: flex; align-items: center; gap: 6px; margin-bottom: 4px; }
-.sakura-slider-label { font-size: 10px; color: var(--text-muted); width: 38px; flex-shrink: 0; }
-.sakura-slider-row input[type="range"] { flex: 1; height: 3px; accent-color: var(--accent); cursor: pointer; }
-.sakura-slider-val { font-size: 9px; color: var(--text-faint); font-family: monospace; width: 30px; text-align: right; }
 
 /* === THEME EDITOR PANEL === */
 #theme-editor-panel { display: none; }

@@ -566,6 +566,128 @@
         _wireSlider('#te-sakura-fall', '#te-sakura-fall-val', 'stratos-sakura-fall', v => v.toFixed(1) + 'x');
         _wireSlider('#te-sakura-wind', '#te-sakura-wind-val', 'stratos-sakura-wind', v => v.toFixed(1) + 'x');
         _wireSlider('#te-sakura-opacity', '#te-sakura-opacity-val', 'stratos-sakura-opacity', v => Math.round(v * 100) + '%');
+
+        // ── Sakura Tree controls ──
+        _buildSakuraTreeControls(body);
+    }
+
+    function _buildSakuraTreeControls(body) {
+        const old = document.getElementById('te-sakura-tree-section');
+        if (old) old.remove();
+
+        const theme = document.documentElement.getAttribute('data-theme');
+        if (theme !== 'sakura') return;
+
+        const section = document.createElement('div');
+        section.id = 'te-sakura-tree-section';
+        section.className = 'te-group';
+
+        const treeOn = localStorage.getItem('stratos-sakura-tree') !== 'false';
+        const cx = parseFloat(localStorage.getItem('stratos-sakura-tree-cx') || '0.5');
+        const cy = parseFloat(localStorage.getItem('stratos-sakura-tree-cy') || '0.55');
+        const scale = parseFloat(localStorage.getItem('stratos-sakura-tree-scale') || '0.75');
+        const treeOpacity = parseFloat(localStorage.getItem('stratos-sakura-tree-opacity') || '1');
+
+        section.innerHTML = `
+            <div class="te-group-label" style="display:flex;align-items:center;justify-content:space-between;">
+                Sakura Tree
+                <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:11px;color:var(--text-muted);">
+                    <input type="checkbox" id="te-sakura-tree-toggle" ${treeOn ? 'checked' : ''} style="accent-color:var(--accent);" />
+                    Show
+                </label>
+            </div>
+            <div id="te-sakura-tree-body" style="${treeOn ? '' : 'opacity:0.4;pointer-events:none;'}">
+                <div style="display:flex;gap:12px;align-items:flex-start;">
+                    <div style="flex:0 0 auto;">
+                        <label class="te-color-label" style="margin-bottom:4px;display:block;">Position</label>
+                        <div id="te-sktree-grid" style="
+                            width:110px;height:80px;border-radius:6px;position:relative;cursor:crosshair;
+                            background:var(--bg-primary);border:1px solid var(--border-strong);overflow:hidden;
+                        ">
+                            <div style="position:absolute;inset:0;opacity:0.06;
+                                background:repeating-linear-gradient(0deg,transparent,transparent 19px,var(--text-muted) 19px,var(--text-muted) 20px),
+                                repeating-linear-gradient(90deg,transparent,transparent 21px,var(--text-muted) 21px,var(--text-muted) 22px);
+                            "></div>
+                            <div id="te-sktree-dot" style="
+                                width:10px;height:10px;border-radius:50%;position:absolute;
+                                background:var(--accent);box-shadow:0 0 6px var(--accent);
+                                transform:translate(-50%,-50%);pointer-events:none;
+                                left:${cx * 100}%;top:${cy * 100}%;
+                            "></div>
+                        </div>
+                        <div style="display:flex;justify-content:space-between;margin-top:3px;">
+                            <span class="te-color-label" style="font-size:9px;opacity:0.5;" id="te-sktree-pos-label">${Math.round(cx*100)}%, ${Math.round(cy*100)}%</span>
+                            <button id="te-sktree-reset" style="font-size:9px;color:var(--accent);background:none;border:none;cursor:pointer;padding:0;">reset</button>
+                        </div>
+                    </div>
+                    <div style="flex:1;min-width:0;">
+                        <label class="te-color-label" style="margin-bottom:4px;display:block;">Scale</label>
+                        <div style="display:flex;align-items:center;gap:8px;">
+                            <input type="range" class="te-range-slider" id="te-sktree-scale" min="0.2" max="2" step="0.05" value="${scale}" style="flex:1;" />
+                            <span class="te-range-val" id="te-sktree-scale-val">${scale.toFixed(2)}x</span>
+                        </div>
+                        <label class="te-color-label" style="margin-bottom:2px;margin-top:6px;display:block;">Opacity</label>
+                        <div style="display:flex;align-items:center;gap:8px;">
+                            <input type="range" class="te-range-slider" id="te-sktree-opacity" min="0.05" max="1" step="0.05" value="${treeOpacity}" style="flex:1;" />
+                            <span class="te-range-val" id="te-sktree-opacity-val">${Math.round(treeOpacity*100)}%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        body.appendChild(section);
+
+        // Wire toggle
+        const toggle = section.querySelector('#te-sakura-tree-toggle');
+        const treeBody = section.querySelector('#te-sakura-tree-body');
+        toggle.addEventListener('change', () => {
+            localStorage.setItem('stratos-sakura-tree', toggle.checked ? 'true' : 'false');
+            treeBody.style.opacity = toggle.checked ? '' : '0.4';
+            treeBody.style.pointerEvents = toggle.checked ? '' : 'none';
+        });
+
+        // Wire position grid drag
+        const grid = section.querySelector('#te-sktree-grid');
+        const dot = section.querySelector('#te-sktree-dot');
+        const posLabel = section.querySelector('#te-sktree-pos-label');
+        let dragging = false;
+        function updatePos(e) {
+            const rect = grid.getBoundingClientRect();
+            const x = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+            const y = Math.max(0, Math.min(1, (e.clientY - rect.top) / rect.height));
+            dot.style.left = (x * 100) + '%'; dot.style.top = (y * 100) + '%';
+            localStorage.setItem('stratos-sakura-tree-cx', x.toFixed(3));
+            localStorage.setItem('stratos-sakura-tree-cy', y.toFixed(3));
+            posLabel.textContent = Math.round(x * 100) + '%, ' + Math.round(y * 100) + '%';
+        }
+        grid.addEventListener('mousedown', (e) => { dragging = true; updatePos(e); e.preventDefault(); });
+        document.addEventListener('mousemove', (e) => { if (dragging) updatePos(e); });
+        document.addEventListener('mouseup', () => { dragging = false; });
+        grid.addEventListener('touchstart', (e) => { dragging = true; updatePos(e.touches[0]); e.preventDefault(); }, { passive: false });
+        document.addEventListener('touchmove', (e) => { if (dragging) updatePos(e.touches[0]); }, { passive: false });
+        document.addEventListener('touchend', () => { dragging = false; });
+
+        // Reset button
+        section.querySelector('#te-sktree-reset').addEventListener('click', () => {
+            localStorage.setItem('stratos-sakura-tree-cx', '0.5');
+            localStorage.setItem('stratos-sakura-tree-cy', '0.55');
+            dot.style.left = '50%'; dot.style.top = '55%';
+            posLabel.textContent = '50%, 55%';
+        });
+
+        // Wire sliders
+        function _wireSlider(id, valId, key, fmt) {
+            const sl = section.querySelector(id);
+            const vl = section.querySelector(valId);
+            if (!sl) return;
+            sl.addEventListener('input', (e) => {
+                const v = parseFloat(e.target.value);
+                vl.textContent = fmt(v);
+                localStorage.setItem(key, v.toString());
+            });
+        }
+        _wireSlider('#te-sktree-scale', '#te-sktree-scale-val', 'stratos-sakura-tree-scale', v => v.toFixed(2) + 'x');
+        _wireSlider('#te-sktree-opacity', '#te-sktree-opacity-val', 'stratos-sakura-tree-opacity', v => Math.round(v * 100) + '%');
     }
 
     function _buildStarFieldControls(body) {

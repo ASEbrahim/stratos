@@ -399,6 +399,114 @@ function renderStars() {
         stars[i].baseY = stars[i].y;
     }
 
+    // ── Sakura tree (ported from auth.js) ──
+    const _skTree = { branches: [], blossoms: [], tips: [], lastW: 0, lastH: 0 };
+    if (isSakura) {
+        let _tSeed = 12345;
+        function _tRand() { _tSeed = (_tSeed * 16807 + 0) % 2147483647; return _tSeed / 2147483647; }
+        function _tRandR(a, b) { return a + _tRand() * (b - a); }
+
+        _skTree.genFn = function(w, h) {
+            _tSeed = 12345;
+            const br = [], bl = [], tips = [];
+            const sc = parseFloat(localStorage.getItem('stratos-sakura-tree-scale') || '0.75');
+            const cx = w * parseFloat(localStorage.getItem('stratos-sakura-tree-cx') || '0.5');
+            const baseY = h * parseFloat(localStorage.getItem('stratos-sakura-tree-cy') || '0.55');
+            const trunkTop = baseY - (h * 0.15) * sc;
+            const lean = w * 0.004 * sc;
+            br.push({ x0:cx-w*0.003*sc, y0:baseY, x1:cx+lean, y1:trunkTop, cpx:cx-w*0.001*sc, cpy:baseY-(baseY-trunkTop)*0.53, w0:w*0.005*sc, d:0 });
+            br.push({ x0:cx+w*0.003*sc, y0:baseY, x1:cx+lean, y1:trunkTop, cpx:cx+w*0.002*sc, cpy:baseY-(baseY-trunkTop)*0.53, w0:w*0.005*sc, d:0 });
+
+            function addBranch(sx, sy, angle, length, width, depth) {
+                if (depth > 3 || length < h * 0.012) return;
+                const curve = _tRandR(-0.3, 0.3);
+                const ex = sx + Math.cos(angle) * length, ey = sy + Math.sin(angle) * length;
+                const mid = 0.5 + _tRandR(-0.15, 0.15);
+                const cpx = sx + Math.cos(angle + curve) * length * mid;
+                const cpy = sy + Math.sin(angle + curve) * length * mid;
+                br.push({ x0:sx, y0:sy, cpx, cpy, x1:ex, y1:ey, w0:width, d:depth });
+                if (depth >= 1) { tips.push({ x:ex, y:ey }); bl.push({ x:ex, y:ey, r:_tRandR(6, 14-depth*2), phase:_tRand()*Math.PI*2 }); }
+                const forks = depth < 2 ? Math.floor(_tRandR(2, 4)) : Math.floor(_tRandR(1, 3));
+                for (let i = 0; i < forks; i++) {
+                    const spread = depth < 2 ? _tRandR(0.3, 0.9) : _tRandR(0.2, 0.7);
+                    const side = (i % 2 === 0 ? 1 : -1);
+                    addBranch(ex, ey, angle + side * spread + _tRandR(-0.15, 0.15), length * _tRandR(0.55, 0.78), width * _tRandR(0.45, 0.65), depth + 1);
+                }
+            }
+            const mainAngles = [-Math.PI*0.7+_tRandR(-0.1,0.1), -Math.PI*0.45+_tRandR(-0.08,0.08), -Math.PI*0.3+_tRandR(-0.05,0.05), -Math.PI*0.12+_tRandR(-0.1,0.1)];
+            for (let i = 0; i < mainAngles.length; i++) addBranch(cx+lean, trunkTop, mainAngles[i], _tRandR(h*0.06, h*0.11)*sc, w*_tRandR(0.0015, 0.003)*sc, 1);
+            addBranch(cx, baseY-(baseY-trunkTop)*0.53, -Math.PI*0.6+_tRandR(-0.1,0.1), h*0.04*sc, w*0.001*sc, 2);
+            for (const c of bl) {
+                c.dots = [];
+                const count = Math.floor(_tRandR(14, 28));
+                for (let i = 0; i < count; i++) {
+                    const ba = _tRand()*Math.PI*2, bd = _tRand()*c.r*1.2;
+                    c.dots.push({ ox:Math.cos(ba)*bd, oy:Math.sin(ba)*bd, r:_tRandR(0.6, 2.2), bright:_tRand(), ph:_tRand()*Math.PI*2 });
+                }
+            }
+            return { branches:br, blossoms:bl, tips };
+        };
+        const _stData = _skTree.genFn(canvas.width, canvas.height);
+        Object.assign(_skTree, _stData, { lastW: canvas.width, lastH: canvas.height });
+    }
+
+    function _drawSakuraTree(cw, ch, t) {
+        if (!isSakura || localStorage.getItem('stratos-sakura-tree') === 'false') return;
+        if (Math.abs(cw - _skTree.lastW) > 50 || Math.abs(ch - _skTree.lastH) > 50) {
+            const d = _skTree.genFn(cw, ch);
+            Object.assign(_skTree, d, { lastW: cw, lastH: ch });
+        }
+        ctx.save();
+        const treeOpacity = parseFloat(localStorage.getItem('stratos-sakura-tree-opacity') || '1');
+        ctx.globalAlpha = treeOpacity;
+        const windBase = Math.sin(t * 0.4) * 0.8 + Math.sin(t * 0.7) * 0.4;
+        const pulse = 0.85 + 0.15 * Math.sin(t * 0.6);
+
+        // Ambient glow
+        const gcx = cw * parseFloat(localStorage.getItem('stratos-sakura-tree-cx') || '0.5');
+        const gcy = ch * parseFloat(localStorage.getItem('stratos-sakura-tree-cy') || '0.55') - ch * 0.15;
+        const ambR = Math.min(cw, ch) * 0.18;
+        const amb = ctx.createRadialGradient(gcx, gcy, 0, gcx, gcy, ambR);
+        amb.addColorStop(0, `rgba(240,180,200,${0.035 * pulse})`);
+        amb.addColorStop(0.6, `rgba(220,160,185,${0.015 * pulse})`);
+        amb.addColorStop(1, 'transparent');
+        ctx.fillStyle = amb; ctx.beginPath(); ctx.arc(gcx, gcy, ambR, 0, Math.PI * 2); ctx.fill();
+
+        // Branches
+        const sorted = [..._skTree.branches].sort((a,b) => b.w0 - a.w0);
+        for (const b of sorted) {
+            const sway = windBase * b.d * 0.8;
+            ctx.beginPath();
+            ctx.moveTo(b.x0 + (b.d > 0 ? sway * 0.3 : 0), b.y0);
+            if (b.cpx !== undefined) ctx.quadraticCurveTo(b.cpx + sway * 0.5, b.cpy, b.x1 + sway, b.y1);
+            else ctx.lineTo(b.x1 + sway, b.y1);
+            const alpha = b.d === 0 ? 0.22 : b.d === 1 ? 0.16 : b.d === 2 ? 0.11 : 0.06;
+            ctx.strokeStyle = `rgba(60,30,45,${alpha})`;
+            ctx.lineWidth = b.w0; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.stroke();
+        }
+
+        // Blossom clusters
+        for (const cl of _skTree.blossoms) {
+            const clX = cl.x + windBase * 1.5, clY = cl.y;
+            const cg = ctx.createRadialGradient(clX, clY, 0, clX, clY, cl.r * 2.5);
+            cg.addColorStop(0, `rgba(255,190,215,${0.12 * pulse})`);
+            cg.addColorStop(0.5, `rgba(245,170,200,${0.05 * pulse})`);
+            cg.addColorStop(1, 'transparent');
+            ctx.fillStyle = cg; ctx.fillRect(clX - cl.r*2.5, clY - cl.r*2.5, cl.r*5, cl.r*5);
+            for (const dot of cl.dots) {
+                const dp = 0.7 + 0.3 * Math.sin(t * 1.5 + dot.ph);
+                const x = clX + dot.ox, y = clY + dot.oy, r = dot.r * (0.85 + 0.15 * dp);
+                const c = dot.bright > 0.6 ? [255,225,240] : dot.bright > 0.3 ? [255,200,220] : [245,175,200];
+                const dg = ctx.createRadialGradient(x, y, 0, x, y, r * 2);
+                dg.addColorStop(0, `rgba(${c[0]},${c[1]},${c[2]},${0.15 * dp})`); dg.addColorStop(1, 'transparent');
+                ctx.fillStyle = dg; ctx.fillRect(x-r*2, y-r*2, r*4, r*4);
+                ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(${c[0]},${c[1]},${c[2]},${0.3 + 0.3*dp})`; ctx.fill();
+            }
+        }
+        ctx.restore();
+    }
+
     // Shooting stars
     const shooters = [];
     let lastShooter = Date.now();
@@ -1000,6 +1108,7 @@ function renderStars() {
         if (isMidnight) _drawThemeElement('midnight', _midnightDrawMoon, t);
         if (isNebula) _drawThemeElement('nebula', _nebulaDrawBlackHole, t);
         if (isAurora) _drawThemeElement('aurora', _auroraDrawBinary, t);
+        if (isSakura) _drawSakuraTree(canvas.width, canvas.height, t);
 
         // Shooting stars (skip in perf mode)
         if (!_perfMode && now - lastShooter > SHOOT_INTERVAL + Math.random() * 3000) {
@@ -1197,32 +1306,6 @@ const savedPerfMode = localStorage.getItem('stratos-perf-mode') === 'true';
 updatePerfToggleUI(savedPerfMode);
 if (savedPerfMode) document.body.classList.add('perf-mode');
 updateCosmosPresetUI();
-_initSakuraQuickControls();
-
-// === SAKURA QUICK CONTROLS (inline petal customization) ===
-function _initSakuraQuickControls() {
-    const map = [
-        { id: 'sq-size',    key: 'stratos-sakura-size',    valId: 'sq-size-val',    fmt: v => v.toFixed(2) + 'x', def: '1' },
-        { id: 'sq-fall',    key: 'stratos-sakura-fall',    valId: 'sq-fall-val',    fmt: v => v.toFixed(1) + 'x', def: '1' },
-        { id: 'sq-wind',    key: 'stratos-sakura-wind',    valId: 'sq-wind-val',    fmt: v => v.toFixed(1) + 'x', def: '1' },
-        { id: 'sq-density', key: 'stratos-sakura-density', valId: 'sq-density-val', fmt: v => v.toFixed(1) + 'x', def: '1' },
-        { id: 'sq-opacity', key: 'stratos-sakura-opacity', valId: 'sq-opacity-val', fmt: v => Math.round(v * 100) + '%', def: '1' },
-    ];
-    map.forEach(({ id, key, valId, fmt, def }) => {
-        const sl = document.getElementById(id);
-        const vl = document.getElementById(valId);
-        if (!sl || !vl) return;
-        const saved = parseFloat(localStorage.getItem(key) || def);
-        sl.value = saved;
-        vl.textContent = fmt(saved);
-        sl.addEventListener('input', () => {
-            const v = parseFloat(sl.value);
-            vl.textContent = fmt(v);
-            localStorage.setItem(key, v.toString());
-            if (key === 'stratos-sakura-density' && typeof renderStars === 'function') renderStars();
-        });
-    });
-}
 
 // === UI STATE SYNC (cross-device theme/stars persistence) ===
 
