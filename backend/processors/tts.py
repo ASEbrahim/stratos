@@ -1,22 +1,14 @@
-"""Dual-engine TTS: Kokoro-82M (multi-language) + XTTS-v2 (Arabic).
+"""Dual-engine TTS: Kokoro-82M (8 languages, GPU) + Edge-TTS (Arabic, cloud).
 
-Both engines run on GPU by default, fall back to CPU if GPU unavailable.
-Piper kept as last-resort fallback if neither engine loads.
-
-VRAM budget:
-  Kokoro: ~500MB on GPU
-  XTTS-v2: ~1.8GB on GPU
-  Total: ~2.3GB (fits comfortably alongside Ollama's ~9.5GB on 24GB VRAM)
+Kokoro: 54 voices, en/ja/zh/fr/ko/hi/it/pt, GPU-accelerated (~500MB VRAM)
+Edge-TTS: 26 Arabic dialect voices via Microsoft Neural TTS (cloud, zero VRAM)
 """
 
 import os
 import io
 import time
-import tempfile
 import logging
-import subprocess
 import re
-import shutil
 import threading
 from collections import OrderedDict
 
@@ -81,16 +73,51 @@ KOKORO_VOICES = {
     "pm_alex": {"name": "Alex", "gender": "male", "accent": "portuguese", "lang": "pt"},
 }
 
-XTTS_VOICES = {
-    "ar_male": {"name": "Arabic Male", "gender": "male", "accent": "arabic", "lang": "ar"},
-    "ar_female": {"name": "Arabic Female", "gender": "female", "accent": "arabic", "lang": "ar"},
+# Edge-TTS voices (Microsoft Neural, cloud-based, all Arabic dialects)
+EDGE_TTS_VOICES = {
+    # Saudi
+    "ar-SA-HamedNeural": {"name": "Hamed (Saudi)", "gender": "male", "accent": "saudi", "lang": "ar"},
+    "ar-SA-ZariyahNeural": {"name": "Zariyah (Saudi)", "gender": "female", "accent": "saudi", "lang": "ar"},
+    # Kuwaiti
+    "ar-KW-FahedNeural": {"name": "Fahed (Kuwaiti)", "gender": "male", "accent": "kuwaiti", "lang": "ar"},
+    "ar-KW-NouraNeural": {"name": "Noura (Kuwaiti)", "gender": "female", "accent": "kuwaiti", "lang": "ar"},
+    # Egyptian
+    "ar-EG-ShakirNeural": {"name": "Shakir (Egyptian)", "gender": "male", "accent": "egyptian", "lang": "ar"},
+    "ar-EG-SalmaNeural": {"name": "Salma (Egyptian)", "gender": "female", "accent": "egyptian", "lang": "ar"},
+    # Emirati
+    "ar-AE-HamdanNeural": {"name": "Hamdan (Emirati)", "gender": "male", "accent": "emirati", "lang": "ar"},
+    "ar-AE-FatimaNeural": {"name": "Fatima (Emirati)", "gender": "female", "accent": "emirati", "lang": "ar"},
+    # Iraqi
+    "ar-IQ-BasselNeural": {"name": "Bassel (Iraqi)", "gender": "male", "accent": "iraqi", "lang": "ar"},
+    "ar-IQ-RanaNeural": {"name": "Rana (Iraqi)", "gender": "female", "accent": "iraqi", "lang": "ar"},
+    # Jordanian
+    "ar-JO-TaimNeural": {"name": "Taim (Jordanian)", "gender": "male", "accent": "jordanian", "lang": "ar"},
+    "ar-JO-SanaNeural": {"name": "Sana (Jordanian)", "gender": "female", "accent": "jordanian", "lang": "ar"},
+    # Lebanese
+    "ar-LB-RamiNeural": {"name": "Rami (Lebanese)", "gender": "male", "accent": "lebanese", "lang": "ar"},
+    "ar-LB-LaylaNeural": {"name": "Layla (Lebanese)", "gender": "female", "accent": "lebanese", "lang": "ar"},
+    # Syrian
+    "ar-SY-LaithNeural": {"name": "Laith (Syrian)", "gender": "male", "accent": "syrian", "lang": "ar"},
+    "ar-SY-AmanyNeural": {"name": "Amany (Syrian)", "gender": "female", "accent": "syrian", "lang": "ar"},
+    # Moroccan
+    "ar-MA-JamalNeural": {"name": "Jamal (Moroccan)", "gender": "male", "accent": "moroccan", "lang": "ar"},
+    "ar-MA-MounaNeural": {"name": "Mouna (Moroccan)", "gender": "female", "accent": "moroccan", "lang": "ar"},
+    # Bahraini
+    "ar-BH-AliNeural": {"name": "Ali (Bahraini)", "gender": "male", "accent": "bahraini", "lang": "ar"},
+    "ar-BH-LailaNeural": {"name": "Laila (Bahraini)", "gender": "female", "accent": "bahraini", "lang": "ar"},
+    # Qatari
+    "ar-QA-MoazNeural": {"name": "Moaz (Qatari)", "gender": "male", "accent": "qatari", "lang": "ar"},
+    "ar-QA-AmalNeural": {"name": "Amal (Qatari)", "gender": "female", "accent": "qatari", "lang": "ar"},
+    # Algerian
+    "ar-DZ-IsmaelNeural": {"name": "Ismael (Algerian)", "gender": "male", "accent": "algerian", "lang": "ar"},
+    "ar-DZ-AminaNeural": {"name": "Amina (Algerian)", "gender": "female", "accent": "algerian", "lang": "ar"},
 }
 
 # Language code → Kokoro lang_code mapping
 KOKORO_LANG_CODES = {
-    "en": "a",  # American English (default)
+    "en": "a",
     "en-us": "a",
-    "en-gb": "b",  # British English
+    "en-gb": "b",
     "ja": "j",
     "zh": "z",
     "fr": "f",
@@ -100,21 +127,19 @@ KOKORO_LANG_CODES = {
     "pt": "p",
 }
 
-# Languages supported by each engine
 KOKORO_LANGUAGES = {"en", "ja", "zh", "fr", "ko", "hi", "it", "pt"}
-XTTS_LANGUAGES = {"ar"}
+EDGE_LANGUAGES = {"ar"}
 
 # Default voices per persona (overridable via config.yaml tts.persona_voices)
 _DEFAULT_PERSONA_VOICES = {
     "intelligence": "af_heart",
     "market": "am_michael",
-    "scholarly": "ar_male",
+    "scholarly": "ar-KW-FahedNeural",
     "gaming": "am_fenrir",
     "anime": "jf_alpha",
     "tcg": "am_echo",
 }
 
-# Mutable — updated by load_persona_voices_from_config()
 PERSONA_DEFAULT_VOICES = dict(_DEFAULT_PERSONA_VOICES)
 
 
@@ -123,7 +148,7 @@ def load_persona_voices_from_config(config: dict):
     tts_cfg = config.get("tts", {})
     overrides = tts_cfg.get("persona_voices", {})
     for persona, voice_id in overrides.items():
-        if voice_id in KOKORO_VOICES or voice_id in XTTS_VOICES:
+        if voice_id in KOKORO_VOICES or voice_id in EDGE_TTS_VOICES or voice_id.startswith('ar-'):
             PERSONA_DEFAULT_VOICES[persona] = voice_id
             logger.info(f"TTS persona voice override: {persona} → {voice_id}")
 
@@ -159,11 +184,11 @@ def _run_with_timeout(fn, timeout_secs):
 # ═══════════════════════════════════════════════════════════
 
 class KokoroEngine:
-    """Kokoro-82M TTS engine — 54 voices, 8 languages, GPU-accelerated."""
+    """Kokoro-82M TTS engine — 54 voices, 8 languages, CPU (faster than ROCm for this model)."""
 
-    MAX_PIPELINES = 3  # LRU cap — evict oldest if exceeded
-    _pipelines = OrderedDict()  # lang_code → KPipeline (LRU order)
-    TIMEOUT = 15  # seconds
+    MAX_PIPELINES = 3
+    _pipelines = OrderedDict()
+    TIMEOUT = 15
 
     @classmethod
     def _get_pipeline(cls, lang_code='a'):
@@ -174,16 +199,15 @@ class KokoroEngine:
 
         try:
             from kokoro import KPipeline
-            logger.info(f"Loading Kokoro pipeline for lang_code='{lang_code}' (first use — downloads ~300MB)")
+            logger.info(f"Loading Kokoro pipeline for lang_code='{lang_code}'")
 
-            # Evict LRU pipeline if at capacity
             if len(cls._pipelines) >= cls.MAX_PIPELINES:
                 evicted_key, _ = cls._pipelines.popitem(last=False)
-                logger.info(f"Evicted Kokoro pipeline for lang_code='{evicted_key}' (LRU, max {cls.MAX_PIPELINES})")
+                logger.info(f"Evicted Kokoro pipeline '{evicted_key}' (LRU, max {cls.MAX_PIPELINES})")
 
-            pipeline = KPipeline(lang_code=lang_code)
+            pipeline = KPipeline(lang_code=lang_code, device='cpu')
             cls._pipelines[lang_code] = pipeline
-            logger.info(f"Kokoro pipeline loaded for lang_code='{lang_code}' ({len(cls._pipelines)}/{cls.MAX_PIPELINES} active)")
+            logger.info(f"Kokoro pipeline loaded on CPU: '{lang_code}' ({len(cls._pipelines)}/{cls.MAX_PIPELINES} active)")
             return pipeline
         except Exception as e:
             logger.error(f"Failed to load Kokoro pipeline: {e}")
@@ -191,10 +215,7 @@ class KokoroEngine:
 
     @classmethod
     def synthesize(cls, text, voice='af_heart', speed=1.0):
-        """Generate speech from text with timeout.
-
-        Returns: (audio_bytes, sample_rate) or (None, None) on failure
-        """
+        """Generate speech from text with timeout."""
         voice_info = KOKORO_VOICES.get(voice, {})
         lang = voice_info.get('lang', 'en')
 
@@ -213,8 +234,7 @@ class KokoroEngine:
 
             start = time.time()
             audio_segments = []
-            generator = pipeline(text, voice=voice, speed=speed)
-            for i, (gs, ps, audio) in enumerate(generator):
+            for i, (gs, ps, audio) in enumerate(pipeline(text, voice=voice, speed=speed)):
                 audio_segments.append(audio)
 
             if not audio_segments:
@@ -226,13 +246,13 @@ class KokoroEngine:
             buf.seek(0)
 
             elapsed = time.time() - start
-            logger.info(f"Kokoro synthesized {len(text)} chars → {len(full_audio)/24000:.1f}s audio in {elapsed:.2f}s (voice={voice})")
+            logger.info(f"Kokoro: {len(text)} chars → {len(full_audio)/24000:.1f}s audio in {elapsed:.2f}s (voice={voice})")
             return buf.read(), 24000
 
         try:
             return _run_with_timeout(_do_synthesis, cls.TIMEOUT)
         except TimeoutError:
-            logger.error(f"Kokoro synthesis timed out after {cls.TIMEOUT}s for {len(text)} chars")
+            logger.error(f"Kokoro timed out after {cls.TIMEOUT}s for {len(text)} chars")
             return None, None
         except Exception as e:
             logger.error(f"Kokoro synthesis failed: {e}", exc_info=True)
@@ -242,201 +262,65 @@ class KokoroEngine:
     def is_available(cls):
         try:
             from kokoro import KPipeline
-            return True, "Kokoro-82M available"
+            return True, "Kokoro-82M available (54 voices, 8 languages, CPU)"
         except ImportError:
             return False, "Kokoro not installed (pip install kokoro>=0.9.2)"
 
 
-class XTTSEngine:
-    """XTTS-v2 TTS engine — Arabic language support, GPU-accelerated."""
+class EdgeTTSEngine:
+    """Edge-TTS engine — Microsoft Neural voices for Arabic (cloud-based, zero VRAM)."""
 
-    _model = None
-    _loading = False
-    _gpu_failed = False  # Track GPU→CPU fallback
-    TIMEOUT = 30  # seconds
+    TIMEOUT = 15
 
     @classmethod
-    def _ensure_model(cls):
-        """Lazy-load the XTTS-v2 model."""
-        if cls._model is not None:
-            return cls._model
+    def synthesize(cls, text, voice='ar-KW-FahedNeural', speed=1.0):
+        """Generate Arabic speech via Microsoft Edge TTS. Returns MP3 bytes."""
+        import asyncio
 
-        if cls._loading:
-            for _ in range(120):
-                time.sleep(1)
-                if cls._model is not None:
-                    return cls._model
-            raise RuntimeError("XTTS model loading timed out")
-
-        cls._loading = True
-        try:
-            from TTS.api import TTS
-            import torch
-
-            device = "cuda" if torch.cuda.is_available() else "cpu"
-            logger.info(f"Loading XTTS-v2 on {device} (first use — downloads ~1.8GB)")
-
-            try:
-                cls._model = TTS("tts_models/multilingual/multi-dataset/xtts_v2").to(device)
-            except Exception as gpu_err:
-                if device == "cuda":
-                    logger.warning(f"XTTS-v2 GPU inference failed — falling back to CPU. Arabic TTS will be slower (~1-2s). Error: {gpu_err}")
-                    cls._gpu_failed = True
-                    cls._model = TTS("tts_models/multilingual/multi-dataset/xtts_v2").to("cpu")
-                else:
-                    raise
-
-            logger.info(f"XTTS-v2 loaded on {'CPU (GPU failed)' if cls._gpu_failed else device}")
-            cls._loading = False
-            return cls._model
-        except Exception as e:
-            cls._loading = False
-            logger.error(f"Failed to load XTTS-v2: {e}")
-            raise
-
-    @classmethod
-    def _get_speaker_wav(cls, voice_id):
-        """Get the reference audio file for a voice."""
-        voices_dir = os.path.join(os.path.dirname(__file__), '..', 'data', 'tts_voices')
-        os.makedirs(voices_dir, exist_ok=True)
-
-        voice_path = os.path.join(voices_dir, f"{voice_id}.wav")
-
-        if os.path.exists(voice_path):
-            return voice_path
-
-        try:
-            pitch = '70' if 'female' in voice_id else '40'
-            subprocess.run([
-                'espeak-ng', '-v', 'ar', '-s', '130', '-p', pitch,
-                '-w', voice_path,
-                '\u0628\u0633\u0645 \u0627\u0644\u0644\u0647 \u0627\u0644\u0631\u062d\u0645\u0646 \u0627\u0644\u0631\u062d\u064a\u0645'
-            ], capture_output=True, timeout=10)
-
-            if os.path.exists(voice_path):
-                return voice_path
-        except Exception as e:
-            logger.warning(f"Could not generate default speaker wav: {e}")
-
-        return None
-
-    @classmethod
-    def synthesize(cls, text, voice='ar_male', speed=1.0):
-        """Generate Arabic speech with timeout.
-
-        Returns: (audio_bytes, sample_rate) or (None, None) on failure
-        """
         def _do_synthesis():
-            model = cls._ensure_model()
+            import edge_tts
 
-            speaker_wav = cls._get_speaker_wav(voice)
-            if not speaker_wav:
-                logger.error(f"No speaker reference wav found for voice: {voice}")
-                return None, None
+            async def _generate():
+                rate_str = f"+{int((speed - 1) * 100)}%" if speed >= 1 else f"{int((speed - 1) * 100)}%"
+                comm = edge_tts.Communicate(text, voice, rate=rate_str)
+                buf = io.BytesIO()
+                async for chunk in comm.stream():
+                    if chunk['type'] == 'audio':
+                        buf.write(chunk['data'])
+                return buf.getvalue()
 
             start = time.time()
-
-            with tempfile.NamedTemporaryFile(suffix='.wav', delete=False) as tmp:
-                tmp_path = tmp.name
-
             try:
-                model.tts_to_file(
-                    text=text,
-                    file_path=tmp_path,
-                    speaker_wav=speaker_wav,
-                    language="ar",
-                    split_sentences=True,
-                )
+                loop = asyncio.new_event_loop()
+                mp3_data = loop.run_until_complete(_generate())
+                loop.close()
+            except Exception as e:
+                logger.error(f"Edge-TTS stream failed: {e}")
+                return None, None
 
-                with open(tmp_path, 'rb') as f:
-                    audio_bytes = f.read()
+            if not mp3_data:
+                return None, None
 
-                import wave
-                with wave.open(tmp_path, 'rb') as wf:
-                    sample_rate = wf.getframerate()
-
-                os.unlink(tmp_path)
-
-                elapsed = time.time() - start
-                logger.info(f"XTTS-v2 synthesized {len(text)} chars → audio in {elapsed:.2f}s (voice={voice}, lang=ar)")
-                return audio_bytes, sample_rate
-            except Exception:
-                try:
-                    os.unlink(tmp_path)
-                except Exception:
-                    pass
-                raise
+            elapsed = time.time() - start
+            logger.info(f"Edge-TTS: {len(text)} chars in {elapsed:.2f}s (voice={voice})")
+            return mp3_data, 24000
 
         try:
             return _run_with_timeout(_do_synthesis, cls.TIMEOUT)
         except TimeoutError:
-            logger.error(f"XTTS-v2 synthesis timed out after {cls.TIMEOUT}s for {len(text)} chars")
+            logger.error(f"Edge-TTS timed out after {cls.TIMEOUT}s for {len(text)} chars")
             return None, None
         except Exception as e:
-            logger.error(f"XTTS-v2 synthesis failed: {e}", exc_info=True)
+            logger.error(f"Edge-TTS synthesis failed: {e}", exc_info=True)
             return None, None
 
     @classmethod
     def is_available(cls):
         try:
-            from TTS.api import TTS
-            return True, "XTTS-v2 available"
+            import edge_tts
+            return True, "Edge-TTS available (26 Arabic voices)"
         except ImportError:
-            return False, "Coqui TTS not installed (pip install TTS) — requires Python <3.12"
-
-
-class PiperFallback:
-    """Piper TTS fallback — used only if both Kokoro and XTTS-v2 fail."""
-
-    PIPER_BIN = shutil.which("piper") or os.path.expanduser("~/.local/bin/piper")
-    VOICE_DIR = os.path.expanduser("~/.local/share/piper_voices")
-
-    @classmethod
-    def synthesize(cls, text, voice=None, speed=1.0):
-        """Fallback synthesis via Piper."""
-        if not os.path.exists(cls.PIPER_BIN):
-            return None, None
-
-        onnx_files = []
-        if os.path.isdir(cls.VOICE_DIR):
-            for f in os.listdir(cls.VOICE_DIR):
-                if f.endswith('.onnx'):
-                    onnx_files.append(os.path.join(cls.VOICE_DIR, f))
-
-        if not onnx_files:
-            return None, None
-
-        model_path = onnx_files[0]
-
-        try:
-            with tempfile.NamedTemporaryFile(suffix='.wav', delete=False) as tmp:
-                tmp_path = tmp.name
-
-            result = subprocess.run(
-                [cls.PIPER_BIN, '--model', model_path, '--output_file', tmp_path],
-                input=text.encode('utf-8'),
-                capture_output=True,
-                timeout=30,
-            )
-
-            if result.returncode == 0 and os.path.exists(tmp_path):
-                with open(tmp_path, 'rb') as f:
-                    audio_bytes = f.read()
-                os.unlink(tmp_path)
-                return audio_bytes, 22050
-
-            os.unlink(tmp_path)
-            return None, None
-
-        except Exception as e:
-            logger.warning(f"Piper fallback failed: {e}")
-            return None, None
-
-    @classmethod
-    def is_available(cls):
-        if os.path.exists(cls.PIPER_BIN):
-            return True, "Piper available (fallback)"
-        return False, "Piper not installed"
+            return False, "edge-tts not installed (pip install edge-tts)"
 
 
 # ═══════════════════════════════════════════════════════════
@@ -446,21 +330,17 @@ class PiperFallback:
 class TTSProcessor:
     """Unified TTS processor with automatic language-based engine routing.
 
-    Routing logic:
-      ar          → XTTS-v2 (only engine with Arabic)
-      en, ja, zh, fr, ko, hi, it, pt → Kokoro-82M (best quality + speed)
+    Routing:
+      ar → Edge-TTS (26 Arabic dialect voices)
+      en, ja, zh, fr, ko, hi, it, pt → Kokoro-82M (GPU)
       anything else → Kokoro with English fallback
-      all fail    → Piper (last resort)
     """
 
     MAX_TEXT_LENGTH = 5000
 
     @classmethod
     def synthesize(cls, text, voice=None, language=None, speed=1.0):
-        """Synthesize speech with automatic engine selection.
-
-        Returns dict with audio bytes and metadata, or error dict.
-        """
+        """Synthesize speech with automatic engine selection."""
         start_time = time.time()
 
         if len(text) > cls.MAX_TEXT_LENGTH:
@@ -471,34 +351,42 @@ class TTSProcessor:
         if not text.strip():
             return {"error": "Nothing to speak — message is only code/formatting"}
 
-        # Determine language
-        if not language:
-            if voice:
-                language = cls._language_from_voice(voice)
-            else:
-                language = cls._detect_language(text)
+        # Always detect the actual text language
+        detected_lang = cls._detect_language(text)
 
-        # Determine voice
+        if not language:
+            language = detected_lang
+
+        # If user selected a voice in a different language than the text,
+        # override with the correct language's default voice
+        if voice:
+            voice_lang = cls._language_from_voice(voice)
+            if voice_lang != language:
+                voice = cls._default_voice_for_language(language)
+                logger.info(f"TTS: voice language mismatch ({voice_lang} vs text {language}), using default {voice}")
+
         if not voice:
             voice = cls._default_voice_for_language(language)
 
-        # Route to engine
         engine_name = None
         audio_bytes = None
         sample_rate = None
 
-        if language == 'ar' or voice in XTTS_VOICES:
-            xtts_available, _ = XTTSEngine.is_available()
-            if xtts_available:
-                audio_bytes, sample_rate = XTTSEngine.synthesize(text, voice=voice, speed=speed)
-                engine_name = 'xtts'
+        # Arabic → Edge-TTS
+        if language == 'ar' or voice in EDGE_TTS_VOICES or voice.startswith('ar-'):
+            edge_available, _ = EdgeTTSEngine.is_available()
+            if edge_available:
+                audio_bytes, sample_rate = EdgeTTSEngine.synthesize(text, voice=voice, speed=speed)
+                engine_name = 'edge'
 
+        # Kokoro languages
         if audio_bytes is None and voice in KOKORO_VOICES:
             kokoro_available, _ = KokoroEngine.is_available()
             if kokoro_available:
                 audio_bytes, sample_rate = KokoroEngine.synthesize(text, voice=voice, speed=speed)
                 engine_name = 'kokoro'
 
+        # Fallback: Kokoro with default English voice
         if audio_bytes is None:
             kokoro_available, _ = KokoroEngine.is_available()
             if kokoro_available:
@@ -507,14 +395,7 @@ class TTSProcessor:
                 engine_name = 'kokoro'
 
         if audio_bytes is None:
-            piper_available, _ = PiperFallback.is_available()
-            if piper_available:
-                audio_bytes, sample_rate = PiperFallback.synthesize(text, speed=speed)
-                engine_name = 'piper'
-                voice = 'piper_default'
-
-        if audio_bytes is None:
-            return {"error": "No TTS engine available. Install Kokoro (pip install kokoro) or Coqui TTS (pip install TTS)."}
+            return {"error": "No TTS engine available. Install Kokoro (pip install kokoro) and/or edge-tts (pip install edge-tts)."}
 
         elapsed = time.time() - start_time
         duration = len(audio_bytes) / (sample_rate * 2) if sample_rate else 0
@@ -531,8 +412,8 @@ class TTSProcessor:
 
     @classmethod
     def get_available_voices(cls):
-        """Return all available voices grouped by language and engine."""
-        voices = {"kokoro": {}, "xtts": {}, "piper": {}}
+        """Return all available voices grouped by engine and language."""
+        voices = {"kokoro": {}, "edge": {}}
 
         kokoro_available, _ = KokoroEngine.is_available()
         if kokoro_available:
@@ -547,36 +428,18 @@ class TTSProcessor:
                     "accent": info['accent'],
                 })
 
-        xtts_available, _ = XTTSEngine.is_available()
-        if xtts_available:
-            for voice_id, info in XTTS_VOICES.items():
+        edge_available, _ = EdgeTTSEngine.is_available()
+        if edge_available:
+            for voice_id, info in EDGE_TTS_VOICES.items():
                 lang = info['lang']
-                if lang not in voices['xtts']:
-                    voices['xtts'][lang] = []
-                voices['xtts'][lang].append({
+                if lang not in voices['edge']:
+                    voices['edge'][lang] = []
+                voices['edge'][lang].append({
                     "id": voice_id,
                     "name": info['name'],
                     "gender": info['gender'],
                     "accent": info['accent'],
                 })
-
-            custom_dir = os.path.join(os.path.dirname(__file__), '..', 'data', 'tts_voices')
-            if os.path.isdir(custom_dir):
-                for f in os.listdir(custom_dir):
-                    if f.endswith('.wav') and f.replace('.wav', '') not in XTTS_VOICES:
-                        voice_id = f.replace('.wav', '')
-                        if 'ar' not in voices['xtts']:
-                            voices['xtts']['ar'] = []
-                        voices['xtts']['ar'].append({
-                            "id": voice_id,
-                            "name": voice_id.replace('_', ' ').title(),
-                            "gender": "unknown",
-                            "accent": "custom",
-                        })
-
-        piper_available, _ = PiperFallback.is_available()
-        if piper_available:
-            voices['piper']['en'] = [{"id": "piper_default", "name": "Piper Default", "gender": "neutral", "accent": "american"}]
 
         return voices
 
@@ -584,8 +447,7 @@ class TTSProcessor:
     def get_engine_status(cls):
         """Return status of all TTS engines."""
         kokoro_ok, kokoro_msg = KokoroEngine.is_available()
-        xtts_ok, xtts_msg = XTTSEngine.is_available()
-        piper_ok, piper_msg = PiperFallback.is_available()
+        edge_ok, edge_msg = EdgeTTSEngine.is_available()
 
         gpu_available = False
         gpu_name = None
@@ -596,18 +458,13 @@ class TTSProcessor:
         except ImportError:
             pass
 
-        xtts_info = {"available": xtts_ok, "message": xtts_msg, "gpu": gpu_available and not XTTSEngine._gpu_failed}
-        if XTTSEngine._gpu_failed:
-            xtts_info["note"] = "Running on CPU (GPU failed)"
-
         return {
             "kokoro": {"available": kokoro_ok, "message": kokoro_msg, "gpu": gpu_available},
-            "xtts": xtts_info,
-            "piper": {"available": piper_ok, "message": piper_msg, "gpu": False},
+            "edge": {"available": edge_ok, "message": edge_msg, "gpu": False},
             "gpu": {"available": gpu_available, "name": gpu_name},
             "supported_languages": {
                 "kokoro": sorted(KOKORO_LANGUAGES),
-                "xtts": sorted(XTTS_LANGUAGES),
+                "edge": sorted(EDGE_LANGUAGES),
             }
         }
 
@@ -628,7 +485,6 @@ class TTSProcessor:
         text = re.sub(r'^>\s*', '', text, flags=re.MULTILINE)
         text = re.sub(r'---+', '', text)
         text = re.sub(r'\|[^\n]+\|', '', text)
-        text = re.sub(r'[\U0001f5e1\ufe0f\U0001f4cd\U0001f3ad\U0001f4ac\u2694\ufe0f\U0001f4cb\U0001f52e\U0001f4dc\U0001f3c6\u26a1\U0001f3af\U0001f4bc\U0001f9e0\u26a0\ufe0f\U0001f30d\U0001f50a\U0001f465\U0001f3b2]\s*', '', text)
         text = re.sub(r'\n{3,}', '\n\n', text)
         text = re.sub(r'  +', ' ', text)
         text = text.strip()
@@ -639,8 +495,8 @@ class TTSProcessor:
         """Determine language from voice ID."""
         if voice in KOKORO_VOICES:
             return KOKORO_VOICES[voice]['lang']
-        if voice in XTTS_VOICES:
-            return XTTS_VOICES[voice]['lang']
+        if voice in EDGE_TTS_VOICES or voice.startswith('ar-'):
+            return 'ar'
         return 'en'
 
     @classmethod
@@ -663,7 +519,7 @@ class TTSProcessor:
         """Pick a default voice for a language."""
         defaults = {
             'en': 'af_heart',
-            'ar': 'ar_male',
+            'ar': 'ar-KW-FahedNeural',
             'ja': 'jf_alpha',
             'zh': 'zf_xiaobei',
             'fr': 'ff_siwis',

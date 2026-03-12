@@ -662,7 +662,9 @@ RULES:
 - Let the player drive major decisions. You advance the scene, they choose.
 - If no scenario is active, help set one up with genre, tone, and starting scene.
 - Never break character unless the user uses OOC: prefix.
-- If asked a factual/research question, suggest switching to Intelligence or Scholarly persona."""
+- If asked a factual/research question, suggest switching to Intelligence or Scholarly persona.
+- Keep responses moderate — 2-3 short paragraphs + choices. Don't over-narrate.
+- LANGUAGE: Respond ENTIRELY in the player's language. Narration, dialogue, choices, action descriptions — ALL of it. Zero English when they write in another language."""
 
 
 def _games_immersive_prompt(role, location, active_npc='', npc_personality='', npc_memory='', scene=''):
@@ -680,13 +682,14 @@ PLAYER: {role} in {location}
 
 RULES:
 - Respond in-character as whoever the player is speaking to
-- Use first-person dialogue with action descriptions in italics: *She leans forward, studying your face.* "Hey there."
-- Use **bold** for emphasis, dramatic moments, or important words: **"Stop right there."**
+- Put action descriptions on their own line in italics, separate from dialogue
+- Use **bold** for emphasis, dramatic moments, or important words
 - NO stat boxes, NO emoji headers, NO numbered option lists, NO game master narration
 - Show the character's personality through their speech patterns, word choices, and body language
 - Reference the character's memories and relationship with the player naturally
 - If the player does something that requires a scene change or GM intervention, briefly narrate it in italics then return to character dialogue
-- Keep responses natural length — a few paragraphs, not walls of text
+- Keep responses moderate — 2-3 short paragraphs. Don't over-describe or pad.
+- LANGUAGE: Respond ENTIRELY in the player's language. Action descriptions, italics, dialogue, narration — ALL of it. If they write in Japanese, write action descriptions in Japanese (*彼女は微笑む*), dialogue in Japanese, everything. Zero English. Same for Arabic or any other language.
 {npc_section}
 {('SCENE: ' + scene) if scene else ''}"""
 

@@ -843,8 +843,7 @@ function _loadTTSVoices() {
         if (!el) return;
         var parts = [];
         if (status.kokoro && status.kokoro.available) parts.push((status.kokoro.gpu ? 'GPU' : 'CPU') + ' Kokoro — 54 voices, 8 languages');
-        if (status.xtts && status.xtts.available) parts.push((status.xtts.gpu ? 'GPU' : 'CPU') + ' XTTS-v2 — Arabic' + (status.xtts.note ? ' (' + status.xtts.note + ')' : ''));
-        if (status.piper && status.piper.available) parts.push('Piper (fallback)');
+        if (status.edge && status.edge.available) parts.push('Edge-TTS — Arabic (26 dialect voices)');
         if (!parts.length) parts.push('No TTS engine available');
         el.innerHTML = parts.map(function(p) { return '<div>' + p + '</div>'; }).join('');
     }).catch(function() {});
@@ -877,12 +876,12 @@ function _loadTTSVoices() {
             });
         }
 
-        // XTTS voices
-        if (voices.xtts) {
-            Object.keys(voices.xtts).forEach(function(lang) {
+        // Edge-TTS voices (Arabic)
+        if (voices.edge) {
+            Object.keys(voices.edge).forEach(function(lang) {
                 var group = document.createElement('optgroup');
-                group.label = 'Arabic (XTTS-v2)';
-                voices.xtts[lang].forEach(function(v) {
+                group.label = 'Arabic (Edge-TTS)';
+                voices.edge[lang].forEach(function(v) {
                     var opt = document.createElement('option');
                     opt.value = v.id;
                     opt.textContent = v.name + ' (' + v.gender + ')';
@@ -893,19 +892,6 @@ function _loadTTSVoices() {
             });
         }
 
-        // Piper
-        if (voices.piper && voices.piper.en) {
-            var group = document.createElement('optgroup');
-            group.label = 'Piper (fallback)';
-            voices.piper.en.forEach(function(v) {
-                var opt = document.createElement('option');
-                opt.value = v.id;
-                opt.textContent = v.name;
-                if (v.id === currentVoice) opt.selected = true;
-                group.appendChild(opt);
-            });
-            select.appendChild(group);
-        }
 
         // Build persona voice dropdowns
         var container = document.getElementById('tts-persona-voices');
@@ -979,7 +965,9 @@ function _previewTTSVoice() {
         var url = URL.createObjectURL(blob);
         var audio = new Audio(url);
         audio.onended = function() { URL.revokeObjectURL(url); };
-        audio.play();
+        audio.preload = 'auto';
+        audio.oncanplaythrough = function() { audio.play(); };
+        audio.load();
     }).catch(function(e) {
         if (typeof showToast === 'function') showToast('Voice preview failed: ' + e.message, 'error');
     });

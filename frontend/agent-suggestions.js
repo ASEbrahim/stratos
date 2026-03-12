@@ -28,7 +28,7 @@ var _PERSONA_SUGGESTIONS = {
         "Explain the concept of dialectics",
         "What are the key schools of Islamic philosophy?",
         "Summarize Plato's Republic",
-        "Compare Sunni and Shia jurisprudence",
+        "What were the major achievements of the Islamic Golden Age?",
         "What were the causes of WWI?",
     ],
     gaming: [
@@ -83,6 +83,12 @@ function _buildDynamicSuggestions() {
             return suggestions; // skip non-gaming suggestions
         }
 
+        // Anime, TCG, scholarly — only their own base suggestions
+        if (currentPersona === 'anime' || currentPersona === 'tcg' || currentPersona === 'scholarly') {
+            return suggestions;
+        }
+
+        // Intelligence and market personas get enriched suggestions
         // Ticker management hints
         suggestions.push("Show my tickers");
         suggestions.push("Add ticker TSLA to my watchlist");

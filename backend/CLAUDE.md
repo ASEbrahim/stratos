@@ -138,7 +138,7 @@ Per-user profiles stored as YAML in `profiles/`. Each has: role, location, conte
 - **Deferred briefing**: Briefing generation runs in a background thread after scan completion. The output JSON is written immediately with scored articles (briefing = `{}`), then patched when the briefing finishes. SSE `briefing_ready` event notifies the frontend. The briefing thread checks `_scan_cancelled` to abandon work if a new scan starts.
 - **Incremental scanning**: `_reuse_snapshot_scores()` builds a URL→score lookup from the previous output snapshot. Articles already scored in the last scan skip LLM scoring entirely. Articles not re-fetched by the news fetcher are carried forward from the snapshot. Score reuse is skipped entirely if the context hash changed (different role/profile = rescore everything). Zero database changes — purely in-memory.
 - **Model routing for VRAM efficiency**: All inference uses `qwen3.5:9b` (~6.6GB). Scorer (9.5GB) + qwen3.5:9b coexist in 24GB VRAM without model swapping. Set `OLLAMA_MAX_LOADED_MODELS=2` to keep both loaded.
-- **TTS via Piper**: `POST /api/tts` in `routes/media.py`. Uses Piper CLI with `en_US-lessac-medium` voice model at `~/.local/share/piper_voices/`. `TTSProcessor` in `processors/tts.py` auto-discovers `.onnx` model files. Returns WAV audio (16-bit mono 22050 Hz). Max 5,000 characters. Requires `pathvalidate` pip package.
+- **TTS dual-engine**: `POST /api/tts` in `routes/media.py`. Kokoro-82M (GPU, WAV) for 8 languages, Edge-TTS (cloud, MP3) for Arabic. `TTSProcessor` in `processors/tts.py` manages both engines with LRU caching and 15s timeout. Max 5,000 characters.
 
 ## Secrets and API Keys
 
@@ -179,8 +179,12 @@ Essential animations preserved (spinners, progress bars). Persists via localStor
 To add exceptions for new animations, add them to the perf-mode preserve list in styles.css.
 
 ## TTS (Text-to-Speech)
+Dual-engine: **Kokoro-82M** (local GPU, 54 voices, 8 languages: en/ja/zh/fr/ko/hi/it/pt) + **Edge-TTS** (Microsoft cloud, 26 Arabic dialect voices).
+`processors/tts.py` — `TTSProcessor` with `KokoroEngine` and `EdgeTTSEngine`. LRU pipeline cache (max 3 Kokoro pipelines), 15s synthesis timeout.
+Language auto-detection via Unicode ranges routes Arabic→Edge-TTS, everything else→Kokoro.
 `speakMessage(text, btn)` in agent.js handles play/stop. Global `_currentTTSAudio` tracks active playback.
-Uses POST /api/tts endpoint. Fails gracefully if endpoint missing. Hidden in perf-mode.
+Endpoints: `POST /api/tts` (synthesize), `GET /api/tts/voices`, `GET /api/tts/status`, `POST /api/tts/preview`.
+Per-persona voice defaults in `PERSONA_DEFAULT_VOICES`, overridable via `config.yaml tts.persona_voices`.
 Toggle: `body.tts-disabled` class, localStorage `stratos_tts_enabled`.
 
 ## STT (Speech-to-Text)

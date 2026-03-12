@@ -198,8 +198,11 @@ def handle_post(handler, strat, auth, path):
                 _send_json(handler, result, 503)
                 return True
 
+            # Edge-TTS returns MP3, Kokoro returns WAV
+            content_type = "audio/mpeg" if result['engine'] == 'edge' else "audio/wav"
+
             handler.send_response(200)
-            handler.send_header("Content-Type", "audio/wav")
+            handler.send_header("Content-Type", content_type)
             handler.send_header("Content-Length", str(len(result['audio'])))
             handler.send_header("Access-Control-Allow-Origin", "*")
             handler.send_header("X-TTS-Engine", result['engine'])
@@ -217,7 +220,7 @@ def handle_post(handler, strat, auth, path):
     if path == "/api/tts/preview":
         try:
             body = json.loads(handler.rfile.read(int(handler.headers.get('Content-Length', 0))).decode()) if int(handler.headers.get('Content-Length', 0)) > 0 else {}
-            from processors.tts import TTSProcessor, KOKORO_VOICES, XTTS_VOICES
+            from processors.tts import TTSProcessor, KOKORO_VOICES, EDGE_TTS_VOICES
 
             voice = body.get('voice', 'af_heart')
 
@@ -236,8 +239,8 @@ def handle_post(handler, strat, auth, path):
             lang = 'en'
             if voice in KOKORO_VOICES:
                 lang = KOKORO_VOICES[voice]['lang']
-            elif voice in XTTS_VOICES:
-                lang = XTTS_VOICES[voice]['lang']
+            elif voice in EDGE_TTS_VOICES or voice.startswith('ar-'):
+                lang = 'ar'
 
             preview_text = previews.get(lang, previews['en'])
 
@@ -247,8 +250,9 @@ def handle_post(handler, strat, auth, path):
                 _send_json(handler, result, 503)
                 return True
 
+            content_type = "audio/mpeg" if result.get('engine') == 'edge' else "audio/wav"
             handler.send_response(200)
-            handler.send_header("Content-Type", "audio/wav")
+            handler.send_header("Content-Type", content_type)
             handler.send_header("Content-Length", str(len(result['audio'])))
             handler.send_header("Access-Control-Allow-Origin", "*")
             handler.end_headers()

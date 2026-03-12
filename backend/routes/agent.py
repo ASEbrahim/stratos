@@ -114,6 +114,7 @@ def _generate_gaming_suggestions(handler, ollama_host, model, user_msg, agent_re
             f'- "label": 3-6 words, shown on the button\n'
             f'- "prompt": 1-2 immersive sentences, first person as the player\n'
             f"- Vary types: exploration, social, combat, investigation\n"
+            f"- IMPORTANT: Write labels and prompts in the SAME language as the player's last message. If the player wrote in Japanese, suggestions must be in Japanese. If Arabic, in Arabic.\n"
             f"Return ONLY the JSON array."
         )
         r = req.post(

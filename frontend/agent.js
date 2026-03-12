@@ -341,6 +341,81 @@ function _closePersonaPicker() {
     if (dd) dd.classList.add('hidden');
 }
 
+function _showPersonaGuide() {
+    // Remove existing
+    const existing = document.getElementById('persona-guide-overlay');
+    if (existing) { existing.remove(); return; }
+
+    const overlay = document.createElement('div');
+    overlay.id = 'persona-guide-overlay';
+    overlay.style.cssText = 'position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.7);backdrop-filter:blur(6px);animation:fadeIn 0.15s ease;';
+
+    const modes = [
+        { key: 'intelligence', icon: 'radar', color: '#34d399', title: 'Intelligence',
+          desc: 'Your personal news analyst. Has access to your scored feed, category keywords, and web search. Monitors signals, summarizes trends, and alerts you to what matters.',
+          unique: 'Feed access, article scoring, category management, web search',
+          examples: ['"Top stories today"', '"Critical signals in Tech?"', '"Search NVIDIA news"'] },
+        { key: 'market', icon: 'trending-up', color: '#60a5fa', title: 'Market',
+          desc: 'Financial analyst with live access to your watchlist and market data. Compares assets, tracks movers, and analyzes sentiment across your tickers.',
+          unique: 'Live market data, watchlist management, asset comparison',
+          examples: ['"How is NVDA doing?"', '"Compare BTC and ETH"', '"Top movers today"'] },
+        { key: 'scholarly', icon: 'book-open', color: '#c084fc', title: 'Scholarly',
+          desc: 'Academic research companion. Draws from your YouTube knowledge base — channel transcripts, video notes, and insights you\'ve saved. Great for deep dives into history, philosophy, and languages.',
+          unique: 'YouTube knowledge base, video summaries, web research, file reading',
+          examples: ['"Summarize my video notes"', '"Explain dialectics"', '"Fall of the Ottoman Empire"'],
+          action: { label: 'Manage YouTube Channels', onclick: "document.getElementById('persona-guide-overlay').remove();switchSettingsTab('youtube');document.querySelector('[data-section=\"settings\"]')?.click();" } },
+        { key: 'gaming', icon: 'gamepad-2', color: '#f472b6', title: 'Gaming',
+          desc: 'Interactive RPG engine. <b>GM Mode</b>: third-person narration with stats, dice rolls, and numbered choices. <b>Immersive Mode</b>: first-person — the AI becomes NPCs and responds in-character. Supports custom scenarios, world-building, and uploaded lore documents.',
+          unique: 'Two RP modes (GM / Immersive), scenario system, NPC memory, file uploads',
+          examples: ['"Start an adventure"', '"Talk to the NPC"', '"Roll for stealth"'] },
+        { key: 'anime', icon: 'sparkles', color: '#fb923c', title: 'Anime',
+          desc: 'Anime and manga companion. Discuss seasonal shows, get recommendations based on your taste, and explore genres and studios.',
+          unique: 'Anime-specific knowledge, recommendation engine',
+          examples: ['"Airing this season?"', '"Like Vinland Saga"', '"Top manga this year"'] },
+        { key: 'tcg', icon: 'layers', color: '#fbbf24', title: 'TCG',
+          desc: 'Trading card game advisor covering Pokemon, Magic: The Gathering, Yu-Gi-Oh, and more. Track card values, meta decks, and set releases.',
+          unique: 'Multi-game TCG knowledge, meta analysis, card valuations',
+          examples: ['"Most valuable cards"', '"Latest Magic sets"', '"Yu-Gi-Oh meta"'] },
+    ];
+
+    const cards = modes.map(m => `
+        <div style="padding:12px 14px;border-radius:10px;background:rgba(255,255,255,0.025);border:1px solid ${m.color}20;transition:border-color 0.2s;" onmouseenter="this.style.borderColor='${m.color}50'" onmouseleave="this.style.borderColor='${m.color}20'">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;">
+                <i data-lucide="${m.icon}" style="width:16px;height:16px;color:${m.color};"></i>
+                <span style="font-weight:600;font-size:13px;color:${m.color};">${m.title}</span>
+            </div>
+            <p style="font-size:11.5px;color:var(--text-muted);line-height:1.5;margin:0 0 5px 0;">${m.desc}</p>
+            <div style="font-size:10px;color:${m.color};opacity:0.8;margin-bottom:6px;"><b>Unique:</b> ${m.unique}</div>
+            <div style="display:flex;flex-wrap:wrap;gap:4px;align-items:center;">
+                ${m.examples.map(e => `<span style="font-size:10px;padding:2px 7px;border-radius:6px;background:${m.color}10;color:${m.color};border:1px solid ${m.color}20;white-space:nowrap;">${e}</span>`).join('')}
+                ${m.action ? `<button onclick="${m.action.onclick}" style="font-size:10px;padding:2px 8px;border-radius:6px;background:${m.color}18;color:${m.color};border:1px solid ${m.color}30;cursor:pointer;font-weight:600;" onmouseenter="this.style.background='${m.color}30'" onmouseleave="this.style.background='${m.color}18'">${m.action.label} &rarr;</button>` : ''}
+            </div>
+        </div>
+    `).join('');
+
+    overlay.innerHTML = `
+        <div style="background:#0a0a1a;border:1px solid rgba(52,211,153,0.15);border-radius:16px;max-width:560px;width:92vw;max-height:85vh;overflow-y:auto;padding:24px;box-shadow:0 32px 80px rgba(0,0,0,0.8),0 0 60px rgba(52,211,153,0.05);position:relative;">
+            <button onclick="document.getElementById('persona-guide-overlay').remove()" style="position:absolute;top:12px;right:14px;background:none;border:none;color:var(--text-muted);font-size:18px;cursor:pointer;padding:4px 8px;line-height:1;" onmouseenter="this.style.color='#fff'" onmouseleave="this.style.color='var(--text-muted)'">&times;</button>
+            <h2 style="margin:0 0 4px 0;font-size:16px;color:#fff;font-weight:600;">Agent Personas</h2>
+            <p style="margin:0 0 14px 0;font-size:11.5px;color:var(--text-muted);">Each persona is a specialized AI mode with its own tools, data access, and conversation history.</p>
+            <div style="display:flex;flex-direction:column;gap:8px;">
+                ${cards}
+            </div>
+            <div style="margin-top:14px;padding:10px 12px;border-radius:10px;background:rgba(52,211,153,0.04);border:1px solid rgba(52,211,153,0.12);">
+                <div style="font-size:12px;font-weight:600;color:#34d399;margin-bottom:4px;">Combining Personas</div>
+                <p style="font-size:11px;color:var(--text-muted);line-height:1.5;margin:0;">Select up to 3 personas from the picker dropdown to combine their capabilities in one conversation. The agent gets access to all selected tools and context — e.g. <b style="color:#60a5fa">Market</b> + <b style="color:#34d399">Intelligence</b> gives you market data alongside your news feed for correlated analysis.</p>
+            </div>
+            <p style="margin:12px 0 0 0;font-size:10px;color:rgba(255,255,255,0.25);text-align:center;">Click the persona badge in the header to switch or combine modes</p>
+        </div>
+    `;
+
+    overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+    document.addEventListener('keydown', function esc(e) { if (e.key === 'Escape') { overlay.remove(); document.removeEventListener('keydown', esc); } });
+    document.body.appendChild(overlay);
+    lucide.createIcons({ attrs: { class: '' }, nameAttr: 'data-lucide' });
+}
+window._showPersonaGuide = _showPersonaGuide;
+
 function _renderPersonaPicker() {
     const dd = document.getElementById('persona-picker-dropdown');
     if (!dd) return;
@@ -657,6 +732,11 @@ async function speakMessage(text, btn) {
         if (origIcon) { origIcon.setAttribute('data-lucide', 'square'); lucide.createIcons(); }
         btn.disabled = false;
         btn.title = engine && processing ? `Playing · ${engine} · ${processing}s` : 'Playing...';
+        _currentTTSAudio.preload = 'auto';
+        await new Promise(resolve => {
+            _currentTTSAudio.oncanplaythrough = resolve;
+            _currentTTSAudio.load();
+        });
         _currentTTSAudio.play();
     } catch (e) {
         console.error('TTS error:', e);
@@ -1549,7 +1629,7 @@ function _renderCompactSidebar() {
 
     const html = `
         <div class="acs-section">
-            <div class="acs-heading">Persona</div>
+            <div class="acs-heading" style="display:flex;align-items:center;justify-content:space-between;">Persona <button onclick="_showPersonaGuide()" title="What are personas?" style="background:none;border:1px solid rgba(255,255,255,0.15);color:var(--text-muted);width:18px;height:18px;border-radius:50%;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;line-height:1;" onmouseenter="this.style.borderColor='var(--accent,#34d399)';this.style.color='var(--accent,#34d399)'" onmouseleave="this.style.borderColor='rgba(255,255,255,0.15)';this.style.color='var(--text-muted)'">?</button></div>
             <div class="acs-persona-list">${personaItems}</div>
         </div>
         <div class="acs-divider"></div>
