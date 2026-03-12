@@ -113,8 +113,10 @@ function _renderScenarioBar() {
             </div>` : ''}
             <button onclick="toggleFileBrowser('gaming')" class="text-[9px] px-2 py-1 rounded-md flex items-center gap-1 transition-all" style="color:var(--text-muted);border:1px solid var(--border-strong);" onmouseenter="this.style.color='${theme.color}';this.style.borderColor='${theme.color}40'" onmouseleave="this.style.color='var(--text-muted)';this.style.borderColor='var(--border-strong)'"><i data-lucide="folder-open" class="w-3 h-3"></i> Files</button>
             <button onclick="_gamesDeleteScenario('${_escForAttr(_gamesActiveScenario)}')" class="text-[9px] px-2 py-1 rounded-md flex items-center gap-1 transition-all" style="color:var(--text-muted);border:1px solid var(--border-strong);" onmouseenter="this.style.color='#f87171';this.style.borderColor='rgba(239,68,68,0.3)'" onmouseleave="this.style.color='var(--text-muted)';this.style.borderColor='var(--border-strong)'"><i data-lucide="trash-2" class="w-3 h-3"></i> Delete</button>
-        </div>` : ''}`;
+        </div>
+        <div id="games-entity-content"></div>` : ''}`;
     lucide.createIcons();
+    if (_gamesActiveScenario) _gamesLoadEntities();
 }
 
 function _escHtmlG(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
@@ -223,3 +225,111 @@ async function _gamesDeleteScenario(name) {
     }
 }
 window._gamesDeleteScenario = _gamesDeleteScenario;
+
+// ═══════════════════════════════════════════════════════════
+// ENTITY PERSISTENCE (Characters for gaming, Figures for scholarly)
+// ═══════════════════════════════════════════════════════════
+
+let _gamesEntities = [];
+
+async function _gamesLoadEntities() {
+    if (!_gamesActiveScenario) { _gamesEntities = []; return; }
+    try {
+        const persona = (typeof currentPersona !== 'undefined') ? currentPersona : 'gaming';
+        const r = await fetch(`/api/personas/${persona}/entities?scenario=${encodeURIComponent(_gamesActiveScenario)}`, {
+            headers: _gamesHeaders()
+        });
+        if (r.ok) {
+            const d = await r.json();
+            _gamesEntities = d.entities || [];
+        }
+    } catch (e) { _gamesEntities = []; }
+    _renderEntityBar();
+}
+
+function _renderEntityBar() {
+    const bar = document.getElementById('games-entity-content');
+    if (!bar) return;
+    if (!_gamesActiveScenario) { bar.innerHTML = ''; return; }
+    const theme = (typeof PERSONA_THEMES !== 'undefined') ? (PERSONA_THEMES.gaming || { color: '#f472b6', bg: 'rgba(244,114,182,0.1)' }) : { color: '#f472b6', bg: 'rgba(244,114,182,0.1)' };
+
+    const entityLabel = (typeof currentPersona !== 'undefined' && currentPersona === 'scholarly') ? 'Figure' : 'Character';
+
+    if (_gamesEntities.length === 0) {
+        bar.innerHTML = `<div class="flex items-center gap-2 py-1">
+            <span class="text-[9px]" style="color:var(--text-muted)">No ${entityLabel.toLowerCase()}s yet</span>
+            <button onclick="_gamesCreateEntity()" class="text-[9px] px-2 py-0.5 rounded-md transition-all" style="color:${theme.color};border:1px solid ${theme.color}30;" onmouseenter="this.style.background='${theme.bg}'" onmouseleave="this.style.background='transparent'">+ Add ${entityLabel}</button>
+        </div>`;
+        return;
+    }
+
+    const chips = _gamesEntities.map(e => {
+        const active = _gamesActiveNpc.toLowerCase().replace(/ /g, '_') === e.name;
+        const preview = (e.personality_md || '').slice(0, 40) || e.entity_type;
+        return `<button onclick="_gamesSelectEntity('${_escForAttr(e.display_name)}')" class="flex-shrink-0 px-2 py-1 rounded-md text-left transition-all" style="background:${active ? 'rgba(168,85,247,0.15)' : 'transparent'};border:1px solid ${active ? 'rgba(168,85,247,0.4)' : 'var(--border-strong)'};" title="${_escHtmlG(preview)}">
+            <span class="text-[9px] font-medium" style="color:${active ? '#c084fc' : 'var(--text-heading)'}">${_escHtmlG(e.display_name)}</span>
+        </button>`;
+    }).join('');
+
+    bar.innerHTML = `<div class="flex items-center gap-1.5 overflow-x-auto" style="scrollbar-width:none;">
+        <span class="text-[9px] flex-shrink-0" style="color:var(--text-muted)">${entityLabel}s:</span>
+        ${chips}
+        <button onclick="_gamesCreateEntity()" class="flex-shrink-0 text-[9px] px-1.5 py-0.5 rounded-md transition-all" style="color:var(--text-muted);border:1px dashed var(--border-strong);" title="Add ${entityLabel}" onmouseenter="this.style.color='${theme.color}'" onmouseleave="this.style.color='var(--text-muted)'">+</button>
+    </div>`;
+}
+
+function _gamesSelectEntity(displayName) {
+    _gamesActiveNpc = displayName;
+    const npcInput = document.getElementById('games-npc-input');
+    if (npcInput) npcInput.value = displayName;
+    _renderEntityBar();
+}
+window._gamesSelectEntity = _gamesSelectEntity;
+
+async function _gamesCreateEntity() {
+    const persona = (typeof currentPersona !== 'undefined') ? currentPersona : 'gaming';
+    const entityLabel = persona === 'scholarly' ? 'Figure' : 'Character';
+    const displayName = prompt(`${entityLabel} name:`);
+    if (!displayName || !displayName.trim()) return;
+    const personality = prompt(`${entityLabel} personality (optional):`) || '';
+    try {
+        const r = await fetch(`/api/personas/${persona}/entities`, {
+            method: 'POST',
+            headers: _gamesHeaders(),
+            body: JSON.stringify({
+                scenario: _gamesActiveScenario || '',
+                name: displayName.trim().toLowerCase().replace(/\s+/g, '_'),
+                display_name: displayName.trim(),
+                personality_md: personality,
+                entity_type: persona === 'scholarly' ? 'figure' : 'character'
+            })
+        });
+        if (r.ok) {
+            if (typeof showToast === 'function') showToast(`Created "${displayName.trim()}"`, 'success');
+            _gamesLoadEntities();
+        } else {
+            const d = await r.json().catch(() => ({}));
+            if (typeof showToast === 'function') showToast(d.error || 'Failed to create', 'error');
+        }
+    } catch (e) {
+        if (typeof showToast === 'function') showToast('Failed to create entity', 'error');
+    }
+}
+window._gamesCreateEntity = _gamesCreateEntity;
+
+async function _gamesDeleteEntity(name) {
+    const persona = (typeof currentPersona !== 'undefined') ? currentPersona : 'gaming';
+    if (!confirm(`Delete "${name}"?`)) return;
+    try {
+        await fetch(`/api/personas/${persona}/entities/${encodeURIComponent(name)}?scenario=${encodeURIComponent(_gamesActiveScenario || '')}`, {
+            method: 'DELETE',
+            headers: _gamesHeaders()
+        });
+        if (_gamesActiveNpc.toLowerCase().replace(/ /g, '_') === name) _gamesActiveNpc = '';
+        _gamesLoadEntities();
+        if (typeof showToast === 'function') showToast('Deleted', 'success');
+    } catch (e) {
+        if (typeof showToast === 'function') showToast('Failed to delete', 'error');
+    }
+}
+window._gamesDeleteEntity = _gamesDeleteEntity;

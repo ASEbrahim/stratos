@@ -133,6 +133,41 @@ def handle_get(handler, strat, auth, path):
             _send_json(handler, {"scenarios": scenarios})
         return True
 
+    # ── Persona Entities GET ─────────────────────────
+    if path.startswith("/api/personas/") and "/entities" in path:
+        # /api/personas/{persona}/entities?scenario={name}
+        # /api/personas/{persona}/entities/{entity_name}?scenario={name}
+        parts = path.split("/")  # ['', 'api', 'personas', '{persona}', 'entities', ...]
+        if len(parts) >= 5:
+            persona = parts[3]
+            params = parse_qs(urlparse(handler.path).query)
+            scenario = params.get('scenario', [''])[0]
+            entity_name = parts[5] if len(parts) > 5 else None
+
+            try:
+                cursor = strat.db.conn.cursor()
+                if entity_name:
+                    cursor.execute(
+                        "SELECT * FROM persona_entities WHERE profile_id = ? AND persona = ? AND scenario_name = ? AND name = ?",
+                        (handler._profile_id, persona, scenario, entity_name))
+                    row = cursor.fetchone()
+                    if row:
+                        _send_json(handler, dict(row))
+                    else:
+                        _send_json(handler, {"error": "Entity not found"}, 404)
+                else:
+                    cursor.execute(
+                        "SELECT id, name, display_name, entity_type, personality_md, relationship_md, updated_at "
+                        "FROM persona_entities WHERE profile_id = ? AND persona = ? AND scenario_name = ? ORDER BY display_name",
+                        (handler._profile_id, persona, scenario))
+                    entities = [dict(r) for r in cursor.fetchall()]
+                    _send_json(handler, {"entities": entities})
+            except Exception as e:
+                _send_json(handler, {"error": str(e)}, 500)
+            return True
+        _send_json(handler, {"error": "Invalid entity path"}, 400)
+        return True
+
     # ── Context compression GET ─────────────────────
     if path.startswith("/api/persona-state"):
         from processors.context_compression import ContextCompressor
@@ -342,6 +377,66 @@ def handle_post(handler, strat, auth, path):
         _send_json(handler, {"error": "Unknown scenario action"}, 400)
         return True
 
+    # ── Persona Entities POST ────────────────────────
+    if path.startswith("/api/personas/") and "/entities" in path:
+        parts = path.split("/")
+        if len(parts) >= 5:
+            persona = parts[3]
+            body = json.loads(handler.rfile.read(int(handler.headers.get('Content-Length', 0))).decode()) if int(handler.headers.get('Content-Length', 0)) > 0 else {}
+            scenario = body.get('scenario', '')
+            name = body.get('name', '').strip().lower().replace(' ', '_')
+            display_name = body.get('display_name', body.get('name', '')).strip()
+
+            if not name or not display_name:
+                _send_json(handler, {"error": "Name is required"}, 400)
+                return True
+
+            try:
+                cursor = strat.db.conn.cursor()
+                # Check if updating existing or creating new
+                action = 'update' if len(parts) > 5 else 'create'
+                if action == 'update':
+                    entity_name = parts[5]
+                    updates = []
+                    values = []
+                    for field in ['display_name', 'entity_type', 'identity_md', 'personality_md',
+                                  'speaking_style_md', 'relationship_md', 'memory_md', 'knowledge_md',
+                                  'extra_md', 'auto_save']:
+                        if field in body:
+                            updates.append(f"{field} = ?")
+                            values.append(body[field])
+                    if updates:
+                        updates.append("updated_at = ?")
+                        values.append(datetime.now().isoformat())
+                        values.extend([handler._profile_id, persona, scenario, entity_name])
+                        cursor.execute(
+                            f"UPDATE persona_entities SET {', '.join(updates)} "
+                            "WHERE profile_id = ? AND persona = ? AND scenario_name = ? AND name = ?",
+                            values)
+                        strat.db._commit()
+                    _send_json(handler, {"ok": cursor.rowcount > 0})
+                else:
+                    cursor.execute(
+                        "INSERT INTO persona_entities (profile_id, persona, scenario_name, name, display_name, "
+                        "entity_type, identity_md, personality_md, speaking_style_md, relationship_md, "
+                        "memory_md, knowledge_md, extra_md) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                        (handler._profile_id, persona, scenario, name, display_name,
+                         body.get('entity_type', 'character'),
+                         body.get('identity_md', ''), body.get('personality_md', ''),
+                         body.get('speaking_style_md', ''), body.get('relationship_md', ''),
+                         body.get('memory_md', ''), body.get('knowledge_md', ''),
+                         body.get('extra_md', '')))
+                    strat.db._commit()
+                    _send_json(handler, {"ok": True, "id": cursor.lastrowid, "name": name})
+            except Exception as e:
+                if 'UNIQUE constraint' in str(e):
+                    _send_json(handler, {"error": f"Entity '{name}' already exists"}, 409)
+                else:
+                    _send_json(handler, {"error": str(e)}, 500)
+            return True
+        _send_json(handler, {"error": "Invalid entity path"}, 400)
+        return True
+
     # ── Context compression POST ────────────────────
     if path == "/api/conversation-log":
         from processors.context_compression import ContextCompressor
@@ -473,6 +568,25 @@ def handle_delete(handler, strat, auth, path):
         except (ValueError, IndexError):
             _send_json(handler, {"error": "Invalid conversation ID"}, 400)
         return True
+
+    # ── Entity Delete ──
+    if path.startswith("/api/personas/") and "/entities/" in path:
+        parts = path.split("/")
+        if len(parts) >= 6:
+            persona = parts[3]
+            entity_name = parts[5]
+            params = parse_qs(urlparse(handler.path).query)
+            scenario = params.get('scenario', [''])[0]
+            try:
+                cursor = strat.db.conn.cursor()
+                cursor.execute(
+                    "DELETE FROM persona_entities WHERE profile_id = ? AND persona = ? AND scenario_name = ? AND name = ?",
+                    (handler._profile_id, persona, scenario, entity_name))
+                strat.db._commit()
+                _send_json(handler, {"ok": cursor.rowcount > 0})
+            except Exception as e:
+                _send_json(handler, {"error": str(e)}, 500)
+            return True
 
     # ── Scenario Delete ──
     if path.startswith("/api/scenarios"):

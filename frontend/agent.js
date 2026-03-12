@@ -1074,7 +1074,8 @@ async function sendAgentMessage() {
                 ...(selectedPersonas.length > 1 ? { personas: selectedPersonas } : {}),
                 ...(currentPersona === 'gaming' && typeof _gamesGetState === 'function' ? {
                     rp_mode: _gamesGetState().rpMode,
-                    active_npc: _gamesGetState().activeNpc
+                    active_npc: _gamesGetState().activeNpc,
+                    active_scenario: _gamesGetState().activeScenario || ''
                 } : {})
             })
         });

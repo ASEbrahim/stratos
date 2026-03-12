@@ -536,6 +536,35 @@ def migration_021(cursor):
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_scenarios_profile ON scenarios(profile_id, persona, is_active)")
 
 
+# -- Migration 022: persona entities table --
+@migration
+def migration_022(cursor):
+    """Create persona_entities table for persona-generic entity persistence (characters, figures, etc.)."""
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS persona_entities (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            profile_id INTEGER NOT NULL,
+            persona TEXT NOT NULL,
+            scenario_name TEXT DEFAULT '',
+            name TEXT NOT NULL,
+            display_name TEXT NOT NULL,
+            entity_type TEXT DEFAULT 'character',
+            identity_md TEXT DEFAULT '',
+            personality_md TEXT DEFAULT '',
+            speaking_style_md TEXT DEFAULT '',
+            relationship_md TEXT DEFAULT '',
+            memory_md TEXT DEFAULT '',
+            knowledge_md TEXT DEFAULT '',
+            extra_md TEXT DEFAULT '',
+            auto_save INTEGER DEFAULT 1,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE(profile_id, persona, scenario_name, name)
+        )
+    """)
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_entities_profile ON persona_entities(profile_id, persona, scenario_name)")
+
+
 # =========================================================================
 # Migration runner
 # =========================================================================

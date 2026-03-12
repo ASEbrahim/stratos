@@ -10,6 +10,7 @@ Uses Ollama /api/chat with tool definitions so the LLM can naturally invoke:
 import json
 import re
 import logging
+import threading
 import requests as req
 from pathlib import Path
 
@@ -85,6 +86,105 @@ def _generate_suggestions(handler, ollama_host, model, user_msg, agent_response,
 
 
 # ═══════════════════════════════════════════════════════════
+# ENTITY MEMORY AUTO-UPDATE (background, non-blocking)
+# ═══════════════════════════════════════════════════════════
+
+def _update_entity_memory(db, ollama_host, model, profile_id, persona, scenario, entity_name, user_msg, ai_response):
+    """Background LLM call to update an entity's memory after an interaction.
+    Called in a daemon thread — must not block the response stream."""
+    try:
+        cursor = db.conn.cursor()
+        cursor.execute(
+            "SELECT * FROM persona_entities WHERE profile_id = ? AND persona = ? AND scenario_name = ? AND name = ?",
+            (profile_id, persona, scenario, entity_name))
+        row = cursor.fetchone()
+        if not row:
+            return
+        entity = dict(row)
+        if not entity.get('auto_save', 1):
+            return
+
+        prompt = f"""Based on this roleplay exchange, update {entity['display_name']}'s memory.
+
+Player said: {user_msg[:500]}
+{entity['display_name']} responded: {ai_response[:800]}
+
+Current relationship: {entity.get('relationship_md', 'None')[:300]}
+Current knowledge: {entity.get('knowledge_md', 'None')[:300]}
+
+Return ONLY a JSON object:
+{{"interaction_summary": "One sentence summary of what happened",
+"relationship_change": "unchanged" or "description of change",
+"new_knowledge": ["list of new things they learned"] or []}}"""
+
+        r = req.post(
+            f"{ollama_host}/api/chat",
+            json={"model": model, "messages": [{"role": "user", "content": prompt}],
+                  "stream": False, "options": {"temperature": 0.3, "num_predict": 200}, "think": False},
+            timeout=15)
+
+        if r.status_code != 200:
+            return
+
+        raw = strip_think_blocks(r.json().get("message", {}).get("content", "").strip())
+        brace_start = raw.find("{")
+        brace_end = raw.rfind("}")
+        if brace_start < 0 or brace_end <= brace_start:
+            return
+
+        update = json.loads(raw[brace_start:brace_end + 1])
+        from datetime import datetime
+        now = datetime.now().strftime("%Y-%m-%d %H:%M")
+
+        # Append to memory
+        memory = entity.get('memory_md', '') or ''
+        summary = update.get('interaction_summary', '')
+        if summary:
+            memory += f"\n- [{now}] {summary}"
+
+        # Update relationship if changed
+        relationship = entity.get('relationship_md', '') or ''
+        rel_change = update.get('relationship_change', 'unchanged')
+        if rel_change and rel_change != 'unchanged':
+            relationship += f"\n- [{now}] {rel_change}"
+
+        # Update knowledge
+        knowledge = entity.get('knowledge_md', '') or ''
+        new_knowledge = update.get('new_knowledge', [])
+        if new_knowledge and isinstance(new_knowledge, list):
+            for item in new_knowledge:
+                if isinstance(item, str) and item.strip():
+                    knowledge += f"\n- {item.strip()}"
+
+        cursor.execute(
+            "UPDATE persona_entities SET memory_md = ?, relationship_md = ?, knowledge_md = ?, updated_at = ? "
+            "WHERE profile_id = ? AND persona = ? AND scenario_name = ? AND name = ?",
+            (memory.strip(), relationship.strip(), knowledge.strip(), datetime.now().isoformat(),
+             profile_id, persona, scenario, entity_name))
+        db._commit()
+        logger.info(f"Entity memory updated: {entity_name} ({persona}/{scenario})")
+
+    except Exception as e:
+        logger.debug(f"Entity memory update failed: {e}")
+
+
+def _post_response_tasks(handler, strat, ollama_host, model, user_msg, ai_response,
+                         persona_name, profile_id, rp_mode='gm', active_npc='', scenario=''):
+    """Run post-response tasks: suggestions + entity memory update."""
+    _generate_suggestions(handler, ollama_host, model, user_msg, ai_response, persona_name)
+
+    # Background entity memory update for immersive RP mode
+    if rp_mode == 'immersive' and active_npc and persona_name in ('gaming', 'scholarly'):
+        entity_name = active_npc.strip().lower().replace(' ', '_')
+        threading.Thread(
+            target=_update_entity_memory,
+            args=(strat.db, ollama_host, model, profile_id, persona_name,
+                  scenario, entity_name, user_msg, ai_response),
+            daemon=True
+        ).start()
+
+
+# ═══════════════════════════════════════════════════════════
 # MAIN AGENT CHAT HANDLER
 # ═══════════════════════════════════════════════════════════
 
@@ -101,6 +201,7 @@ def handle_agent_chat(handler, strat, output_file, profile_id=0):
         free_mode = body.get("mode") == "free"
         rp_mode = body.get("rp_mode", "gm")  # 'gm' or 'immersive'
         active_npc = body.get("active_npc", "")
+        active_scenario = body.get("active_scenario", "")
         npc_personality = body.get("npc_personality", "")
         npc_memory = body.get("npc_memory", "")
         # Support single persona or multi-persona querying
@@ -151,6 +252,30 @@ def handle_agent_chat(handler, strat, output_file, profile_id=0):
             if context_parts:
                 system_prompt += "\n\n" + "\n\n".join(context_parts)
         else:
+            # Load entity data from DB for immersive RP mode
+            if rp_mode == 'immersive' and active_npc and strat.db:
+                entity_name = active_npc.strip().lower().replace(' ', '_')
+                try:
+                    cursor = strat.db.conn.cursor()
+                    cursor.execute(
+                        "SELECT * FROM persona_entities WHERE profile_id = ? AND persona = ? AND scenario_name = ? AND name = ?",
+                        (profile_id, persona_name, active_scenario, entity_name))
+                    row = cursor.fetchone()
+                    if row:
+                        e = dict(row)
+                        npc_personality = '\n'.join(filter(None, [
+                            f"## Identity\n{e['identity_md']}" if e.get('identity_md') else '',
+                            f"## Personality\n{e['personality_md']}" if e.get('personality_md') else '',
+                            f"## Speaking Style\n{e['speaking_style_md']}" if e.get('speaking_style_md') else '',
+                        ]))
+                        npc_memory = '\n'.join(filter(None, [
+                            f"## Relationship with Player\n{e['relationship_md']}" if e.get('relationship_md') else '',
+                            f"## Interaction Memory\n{e['memory_md']}" if e.get('memory_md') else '',
+                            f"## Knowledge\n{e['knowledge_md']}" if e.get('knowledge_md') else '',
+                        ]))
+                except Exception as ex:
+                    logger.debug(f"Entity load failed: {ex}")
+
             base_prompt = build_persona_prompt(
                 persona_name, role, location, tickers, cat_summary, search_note,
                 rp_mode=rp_mode, active_npc=active_npc,
@@ -238,7 +363,8 @@ def handle_agent_chat(handler, strat, output_file, profile_id=0):
                         continue
                 full_text = strip_think_blocks(full_text)
                 full_text = strip_reasoning_preamble(full_text)
-                _generate_suggestions(handler, ollama_host, model, user_msg, full_text, persona_name)
+                _post_response_tasks(handler, strat, ollama_host, model, user_msg, full_text,
+                                     persona_name, profile_id, rp_mode, active_npc, active_scenario)
                 sse_event(handler, {"done": True})
             except Exception as e:
                 sse_event(handler, {"error": str(e)})
@@ -293,7 +419,8 @@ def handle_agent_chat(handler, strat, output_file, profile_id=0):
                     except json.JSONDecodeError:
                         continue
                 full_text = strip_think_blocks(full_text)
-                _generate_suggestions(handler, ollama_host, model, user_msg, full_text, persona_name)
+                _post_response_tasks(handler, strat, ollama_host, model, user_msg, full_text,
+                                     persona_name, profile_id, rp_mode, active_npc, active_scenario)
                 sse_event(handler, {"done": True})
             except Exception as e:
                 sse_event(handler, {"error": str(e)})
@@ -354,7 +481,8 @@ def handle_agent_chat(handler, strat, output_file, profile_id=0):
                     continue
                 for char in text:
                     sse_event(handler, {"token": char})
-                _generate_suggestions(handler, ollama_host, model, user_msg, text, persona_name)
+                _post_response_tasks(handler, strat, ollama_host, model, user_msg, text,
+                                     persona_name, profile_id, rp_mode, active_npc, active_scenario)
                 sse_event(handler, {"done": True})
                 return
 
@@ -390,7 +518,8 @@ def handle_agent_chat(handler, strat, output_file, profile_id=0):
                 if text:
                     for char in text:
                         sse_event(handler, {"token": char})
-                    _generate_suggestions(handler, ollama_host, model, user_msg, text, persona_name)
+                    _post_response_tasks(handler, strat, ollama_host, model, user_msg, text,
+                                         persona_name, profile_id, rp_mode, active_npc, active_scenario)
                     sse_event(handler, {"done": True})
                     return
         except Exception:
