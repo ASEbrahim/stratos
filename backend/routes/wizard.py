@@ -15,21 +15,53 @@ from routes.helpers import (json_response, error_response, read_json_body,
 logger = logging.getLogger("STRAT_OS")
 
 
-PRESELECT_SYSTEM = """You are a configuration assistant that personalizes a news dashboard.
-The user will give you their EXACT professional role and location. Based on THAT SPECIFIC role and location, pick which categories and sub-categories are most relevant.
-CRITICAL: Respond with ONLY valid JSON — no markdown, no explanation, no backticks, no reasoning.
+PRESELECT_SYSTEM = """You are a configuration assistant that personalizes a professional news dashboard.
+Given a user's EXACT role and location, select which categories and sub-categories they should track.
+CRITICAL: Respond with ONLY valid JSON — no markdown, no explanation, no backticks.
 Schema: {"selected_categories": ["id1","id2",...], "selected_subs": {"id1": ["sub1","sub2"], "id2": ["sub3"]}}
-Rules:
-- THINK about what this specific role does daily — a doctor has different needs than a software engineer
-- Select 2-4 categories that a person with this EXACT role + location would check daily
-- For each selected category, pick the most relevant sub-categories (1-3 each)
-- The user's ROLE is the primary signal — match categories to their professional domain
-- The user's LOCATION affects which sub-categories matter (e.g., local markets, local companies)
-- Career & Jobs is relevant for MOST professionals — it covers job market, hiring trends, and professional growth. Only skip for C-suite executives or retirees
-- Markets & Investing only if the role involves finance or the user mentioned investing
-- Deals & Offers is relevant for students and budget-conscious professionals
-- Interests & Trends (id: interests) has no subs — just include the id if relevant
-- Do NOT just pick the same defaults for everyone — personalize based on role"""
+IMPORTANT: selected_subs keys MUST be category IDs (career, industry, learning, markets, deals) — NOT sub-category IDs. Every selected category MUST have at least 1 sub listed.
+
+SELECTION STRATEGY:
+1. ROLE DOMAIN determines which categories and industry subs matter:
+   - Software/web/app developers → ind_tech, learning:courses,open_source
+   - DevOps/SRE/cloud → ind_tech, learning:certs,hands_on (cloud certs matter)
+   - Data/ML/AI roles → ind_tech, learning:academic,courses,competitions
+   - Cybersecurity → ind_tech, learning:certs,hands_on,competitions
+   - Finance roles → markets is essential with specific subs (stocks/bonds/forex)
+   - Healthcare (doctor/nurse) → ind_health, learning:certs,academic
+   - Pharma → ind_pharma, learning:certs,academic
+   - Creative (designer/artist) → career:creative_jobs, ind_media, learning:workshops
+   - Education (teacher/professor) → career:teaching_pos, ind_edu, learning:academic
+   - Non-software engineering → pick correct industry (ind_construct, ind_energy, ind_auto, ind_aero)
+   - Legal → ind_legal, learning:certs,confevents
+   - Journalism/media → ind_media, learning:workshops
+   - Product/project management → ind_tech + career:jobhunt + learning:workshops,confevents
+   - Architecture (buildings) → ind_construct, learning:certs,workshops
+
+2. SUB-CATEGORY PRECISION — differentiate similar roles:
+   - Frontend Dev → courses, open_source (visual/UX focus)
+   - Backend Engineer → courses, hands_on (system design)
+   - DevOps → certs, hands_on (AWS/GCP/K8s certs)
+   - Data Scientist → academic, courses, competitions
+   - ML Engineer → courses, open_source, competitions
+   - QA Engineer → certs, hands_on, courses
+   - Product Manager → workshops, confevents (NOT certs)
+   - UX Designer → workshops, courses (NOT academic)
+
+3. LOCATION influences subs:
+   - Gulf/Middle East → ind_oilgas ONLY if role is engineering, energy, or oil-related. Software devs in Kuwait do NOT need ind_oilgas
+   - Tech hubs (SF, Austin, Seattle) → career:startup_jobs
+   - Financial hubs (NYC, London, HK) → markets subs matter more
+   - Do NOT add industry subs just because of location — the ROLE is always the primary signal
+
+4. RULES:
+   - Select 2-4 categories, 1-3 subs each
+   - EVERY selected category MUST have subs listed (except interests which has none)
+   - career for most professionals (skip for C-suite/retirees)
+   - markets ONLY for finance/investing/real-estate roles
+   - deals for students (studisc) and early-career
+   - interests (no subs) for trend-following roles
+   - Each role must produce a UNIQUE sub combination"""
 
 
 TAB_SUGGEST_SYSTEM = """You are a keyword suggestion engine. Given a user's role, location, career stage, and category context, suggest 5-8 specific keywords or entities to track.
