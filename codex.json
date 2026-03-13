@@ -1,0 +1,1298 @@
+{
+  "version": "1.0",
+  "generated": "2026-03-13",
+  "categories": [
+    {
+      "name": "Architecture",
+      "icon": "\ud83c\udfd7\ufe0f",
+      "terms": [
+        {
+          "term": "Dispatch Dict",
+          "definition": "Sequential route dispatch in server.py. CORSHandler's do_GET/do_POST call handle_get()/handle_post() on each route module in order; the first module to return True wins. Replaced a 2,860-line if/elif chain in Sprint 5K.",
+          "files": ["backend/server.py"],
+          "related": ["Route Module", "CORSHandler"],
+          "added_in": "Sprint 5K",
+          "type": "concept"
+        },
+        {
+          "term": "Route Module",
+          "definition": "A Python file in backend/routes/ that exports handle_get(), handle_post(), and optionally handle_delete(). Each module owns a domain (feeds, media, controls, etc.) and returns True if it handled the request, False to pass to the next module.",
+          "files": ["backend/routes/"],
+          "related": ["Dispatch Dict", "CORSHandler"],
+          "added_in": "Sprint 5K",
+          "type": "pattern"
+        },
+        {
+          "term": "CORSHandler",
+          "definition": "The main HTTP request handler class created inside server.py's create_handler() closure. Inherits SimpleHTTPRequestHandler, adds CORS headers, auth enforcement, rate limiting, profile isolation, SSE streaming, and gzip compression. Binds to strat (StratOS instance) and auth (AuthManager) via closure.",
+          "files": ["backend/server.py"],
+          "related": ["ThreadedHTTPServer", "Route Module", "Auth Middleware"],
+          "added_in": "Sprint 4",
+          "type": "class"
+        },
+        {
+          "term": "ThreadedHTTPServer",
+          "definition": "ThreadingMixIn + HTTPServer with daemon_threads=True. Every incoming request gets its own thread, enabling concurrent SSE streams and long-running API calls without blocking.",
+          "files": ["backend/server.py"],
+          "related": ["CORSHandler"],
+          "added_in": "Sprint 4",
+          "type": "class"
+        },
+        {
+          "term": "StratOS Class",
+          "definition": "The central orchestrator in main.py. Manages config loading, scan pipeline, background scheduler, market fetcher, scorer, database, SSE broadcasting, profile caching, and output file writing. Instantiated once at startup.",
+          "files": ["backend/main.py"],
+          "related": ["Database", "AdaptiveScorer", "SSEManager"],
+          "added_in": "Sprint 1",
+          "type": "class"
+        },
+        {
+          "term": "SSE Event System",
+          "definition": "Server-Sent Events via /api/events. SSEManager tracks connected clients with optional profile_id scoping. Broadcasts scan progress, briefing_ready, youtube_processing, lens_extracted, extract_all_complete, and shutdown events in real-time.",
+          "files": ["backend/sse.py", "backend/server.py"],
+          "related": ["SSEManager", "Profile Isolation"],
+          "added_in": "Sprint 4",
+          "type": "concept"
+        },
+        {
+          "term": "SSEManager",
+          "definition": "Thread-safe SSE client registry in sse.py. register()/unregister() track (wfile, profile_id) tuples. broadcast() sends JSON events to matching clients, auto-removing dead connections.",
+          "files": ["backend/sse.py"],
+          "related": ["SSE Event System"],
+          "added_in": "Sprint 4",
+          "type": "class"
+        },
+        {
+          "term": "Auth Middleware",
+          "definition": "Inline auth enforcement in CORSHandler's do_GET/do_POST. Checks X-Auth-Token header against both file-based sessions (.sessions.json) and DB-backed sessions (sessions table). Resolves profile_id per-request for thread-safe data isolation.",
+          "files": ["backend/server.py", "backend/auth.py"],
+          "related": ["AuthManager", "Profile Isolation", "Session Token"],
+          "added_in": "Sprint 4",
+          "type": "concept"
+        },
+        {
+          "term": "Config Overlay",
+          "definition": "Per-profile configuration stored as JSON in profiles.config_overlay. Merged on top of the base config.yaml at login. Allows each user to have different tickers, categories, and feed toggles without modifying the shared config file.",
+          "files": ["backend/auth.py", "backend/routes/config.py"],
+          "related": ["Profile Isolation", "AuthManager"],
+          "added_in": "Sprint 8",
+          "type": "concept"
+        },
+        {
+          "term": "Gzip Cache",
+          "definition": "In-memory gzip cache for static file serving in server.py. Keyed by filepath, stores (mtime, compressed_bytes). Only compresses .js/.css/.html/.json/.svg/.txt/.xml files when the client sends Accept-Encoding: gzip.",
+          "files": ["backend/server.py"],
+          "related": ["CORSHandler"],
+          "added_in": "Sprint 5K",
+          "type": "optimization"
+        },
+        {
+          "term": "Graceful Shutdown",
+          "definition": "SIGINT/SIGTERM handler in start_server() that cancels in-progress scans, waits up to 10s for completion, checkpoints WAL, notifies SSE clients, and shuts down the HTTP server. Has a 15s watchdog timer to force exit if shutdown hangs.",
+          "files": ["backend/server.py"],
+          "related": ["WAL Mode", "SSE Event System"],
+          "added_in": "Sprint 5K",
+          "type": "concept"
+        }
+      ]
+    },
+    {
+      "name": "Personas",
+      "icon": "\ud83c\udfad",
+      "terms": [
+        {
+          "term": "Persona",
+          "definition": "A named agent mode (intelligence, market, scholarly, gaming, anime, tcg) that defines a system prompt, tool set, context builder, and greeting. Adding a persona requires only a config entry and context builder function in personas.py.",
+          "files": ["backend/routes/personas.py", "backend/routes/persona_prompts.py"],
+          "related": ["Context Packing", "Persona Tools", "Persona Prompt"],
+          "added_in": "Sprint 5K",
+          "type": "concept"
+        },
+        {
+          "term": "Intelligence Persona",
+          "definition": "Default persona. News-focused agent with tools: web_search, search_feed, manage_categories, search_files, read_document. Context includes scored news feed, briefing alerts, category stats, and scan history.",
+          "files": ["backend/routes/persona_prompts.py", "backend/routes/personas.py"],
+          "related": ["Persona", "Context Packing"],
+          "added_in": "Sprint 5K",
+          "type": "persona"
+        },
+        {
+          "term": "Market Persona",
+          "definition": "Finance-focused agent with tools: manage_watchlist, search_feed, web_search. Context includes full market data across all timeframes, finance-tagged news, and market briefing summary.",
+          "files": ["backend/routes/persona_prompts.py", "backend/routes/personas.py"],
+          "related": ["Persona", "Watchlist"],
+          "added_in": "Sprint 5K",
+          "type": "persona"
+        },
+        {
+          "term": "Scholarly Persona",
+          "definition": "Research assistant with YouTube lecture insights. Tools: search_insights, list_channels, get_video_summary, search_narrations, search_files, read_document, read_url, web_search. Context includes tracked channels, recent insights, and user context.",
+          "files": ["backend/routes/persona_prompts.py", "backend/routes/personas.py"],
+          "related": ["Persona", "YouTube Pipeline", "Narration Verification"],
+          "added_in": "Sprint 5K",
+          "type": "persona"
+        },
+        {
+          "term": "Gaming Persona",
+          "definition": "Game Master engine with GM mode (third-person narration, stat blocks, choices) and Immersive mode (in-character RP). Tools: search_files, read_document, import_canon_world. Uses selective file-based context loading.",
+          "files": ["backend/routes/persona_prompts.py", "backend/routes/personas.py"],
+          "related": ["Persona", "Selective Context Loading", "Scenario", "Canon Import", "Immersive RP Mode"],
+          "added_in": "Sprint 5K",
+          "type": "persona"
+        },
+        {
+          "term": "Context Packing",
+          "definition": "_pack_context() in personas.py builds per-persona context within a 16K token budget (word count x 1.3 estimation). Universal sections (profile, custom instructions, preferences) always included. Persona-specific sections fill remaining budget. Truncation at section boundaries.",
+          "files": ["backend/routes/personas.py"],
+          "related": ["Persona", "Token Budget"],
+          "added_in": "Sprint 5K Phase 4",
+          "type": "algorithm"
+        },
+        {
+          "term": "Persona Tools",
+          "definition": "PERSONA_TOOLS dict in personas.py maps each persona name to a list of allowed tool names. Only listed tools are sent to Ollama's tool definitions for that persona. E.g., gaming gets search_files + import_canon_world but not web_search.",
+          "files": ["backend/routes/personas.py"],
+          "related": ["Persona", "Agent Tools"],
+          "added_in": "Sprint 5K",
+          "type": "config"
+        },
+        {
+          "term": "Persona Context Manager",
+          "definition": "PersonaContextManager in processors/persona_context.py. Manages per-persona, per-profile context directory and database entries. Supports file CRUD, versioning, and system_context editing. Directory: data/users/{profile_id}/context/{persona_name}/",
+          "files": ["backend/processors/persona_context.py"],
+          "related": ["Persona", "File Browser"],
+          "added_in": "Sprint 6",
+          "type": "class"
+        },
+        {
+          "term": "Preference Signals",
+          "definition": "user_preference_signals table stores cross-persona feedback loops. Signal types include topic interests, language preferences, and content style. Auto-generated from user interactions or manually set. Injected into context packing.",
+          "files": ["backend/routes/persona_data.py", "backend/routes/personas.py"],
+          "related": ["Context Packing", "Persona"],
+          "added_in": "Sprint 6",
+          "type": "concept"
+        }
+      ]
+    },
+    {
+      "name": "Agent System",
+      "icon": "\ud83e\udd16",
+      "terms": [
+        {
+          "term": "Agent Chat",
+          "definition": "Streaming chat endpoint at POST /api/agent-chat. Sends messages to Ollama /api/chat with tool definitions, streams SSE response tokens, handles tool calls inline, and supports cancellation. Uses qwen3.5:9b inference model.",
+          "files": ["backend/routes/agent.py"],
+          "related": ["Agent Tools", "Persona", "Streaming SSE"],
+          "added_in": "Sprint 3",
+          "type": "endpoint"
+        },
+        {
+          "term": "Agent Tools",
+          "definition": "AGENT_TOOLS list in agent_tools.py defines 11 Ollama-format tool definitions. execute_tool() dispatches by name. Tools: web_search, search_feed, manage_watchlist, manage_categories, search_files, read_document, search_insights, list_channels, get_video_summary, search_narrations, read_url, import_canon_world.",
+          "files": ["backend/routes/agent_tools.py"],
+          "related": ["Agent Chat", "Persona Tools"],
+          "added_in": "Sprint 5K",
+          "type": "module"
+        },
+        {
+          "term": "execute_tool",
+          "definition": "Dispatcher function in agent_tools.py that receives a tool name, args dict, strat instance, profile_id, and persona. Routes to the appropriate implementation. Returns a string result that gets injected back into the LLM conversation as a tool response.",
+          "files": ["backend/routes/agent_tools.py"],
+          "related": ["Agent Tools"],
+          "added_in": "Sprint 5K",
+          "type": "function"
+        },
+        {
+          "term": "parse_text_tool_calls",
+          "definition": "Fallback parser in agent_tools.py that extracts tool calls from plain text when the LLM doesn't use the structured tool_calls format. Regex-based, handles various formatting styles.",
+          "files": ["backend/routes/agent_tools.py"],
+          "related": ["Agent Tools", "execute_tool"],
+          "added_in": "Sprint 5K",
+          "type": "function"
+        },
+        {
+          "term": "strip_think_blocks",
+          "definition": "Utility in helpers.py that removes <think>...</think> blocks from LLM output. Also handles the case where the opening tag is missing but </think> is present. Called as a safety net on all inference output.",
+          "files": ["backend/routes/helpers.py"],
+          "related": ["strip_reasoning_preamble"],
+          "added_in": "Sprint 5K",
+          "type": "function"
+        },
+        {
+          "term": "strip_reasoning_preamble",
+          "definition": "Aggressive reasoning detector in helpers.py. Identifies untagged internal reasoning (model narrating thought process as plain text) using regex patterns for reasoning starts, mid-response reasoning, and transition phrases. Returns cleaned content or empty string to trigger retry.",
+          "files": ["backend/routes/helpers.py"],
+          "related": ["strip_think_blocks"],
+          "added_in": "Sprint 9",
+          "type": "function"
+        },
+        {
+          "term": "Suggest Context",
+          "definition": "POST /api/suggest-context endpoint. Takes role + location, calls Ollama to generate a suggested tracking context string and tickers. Used by the onboarding wizard and autopilot.",
+          "files": ["backend/routes/agent.py"],
+          "related": ["Profile Generator"],
+          "added_in": "Sprint 3",
+          "type": "endpoint"
+        },
+        {
+          "term": "Agent Warmup",
+          "definition": "POST /api/agent-warmup sends a minimal prompt to Ollama to pre-load the inference model into VRAM. Rate limited to 2 calls per 60 seconds. Prevents cold-start latency on first real agent chat.",
+          "files": ["backend/routes/controls.py"],
+          "related": ["VRAM Budget"],
+          "added_in": "Sprint 8",
+          "type": "endpoint"
+        },
+        {
+          "term": "Dynamic Suggestions",
+          "definition": "Persona-aware suggestion chips generated by agent-suggestions.js. Each persona has context-appropriate starter prompts that adapt to available data. Displayed below the chat input area.",
+          "files": ["frontend/agent-suggestions.js"],
+          "related": ["Persona", "Agent Chat"],
+          "added_in": "Sprint 8",
+          "type": "feature"
+        },
+        {
+          "term": "Conversation Persistence",
+          "definition": "Chat history stored in conversations table. Each conversation has profile_id, persona, title, messages (JSON array), is_active flag. Max 10 per persona per profile; oldest auto-archived.",
+          "files": ["backend/routes/persona_data.py"],
+          "related": ["Agent Chat"],
+          "added_in": "Sprint 7",
+          "type": "feature"
+        }
+      ]
+    },
+    {
+      "name": "Gaming",
+      "icon": "\ud83c\udfae",
+      "terms": [
+        {
+          "term": "Scenario",
+          "definition": "A game world stored as both a DB row (scenarios table) and a file-system directory tree. Contains world/, characters/, scenes/ directories with markdown files for setting, rules, NPCs, player stats, and current scene.",
+          "files": ["backend/processors/scenarios.py", "backend/processors/scenario_templates.py"],
+          "related": ["Scenario Generator", "Selective Context Loading", "Gaming Persona"],
+          "added_in": "Sprint 7",
+          "type": "concept"
+        },
+        {
+          "term": "Scenario Generator",
+          "definition": "LLM-powered content generation in scenario_generator.py. Runs 4 passes against Ollama: setting + rules, NPCs, starting scene, then index generation. Runs in background thread with progress_callback for real-time status.",
+          "files": ["backend/processors/scenario_generator.py"],
+          "related": ["Scenario", "Scenario Templates"],
+          "added_in": "Sprint 7",
+          "type": "module"
+        },
+        {
+          "term": "Scenario Templates",
+          "definition": "Defines the canonical folder structure for scenarios: _index.json, world/setting.md, world/rules.md, characters/_roster.json, characters/player/stats.md, scenes/current.md, plus NPC subdirectories. create_scenario_skeleton() builds this tree.",
+          "files": ["backend/processors/scenario_templates.py"],
+          "related": ["Scenario", "Scenario Generator"],
+          "added_in": "Sprint 7",
+          "type": "module"
+        },
+        {
+          "term": "Scenario Updater",
+          "definition": "Auto-updates scenario files after each AI response. Runs in background thread after response streaming completes. Updates current.md scene state, player stats, NPC memory, inventory. Never blocks user's next message.",
+          "files": ["backend/processors/scenario_updater.py"],
+          "related": ["Scenario", "Agent Chat"],
+          "added_in": "Sprint 7",
+          "type": "module"
+        },
+        {
+          "term": "Selective Context Loading",
+          "definition": "_pack_gaming_context_selective() in personas.py. Instead of loading one massive world.md, scans the user's message for keywords and loads only relevant files (inventory, quests, combat rules, mentioned NPCs). Budget: 4000 tokens.",
+          "files": ["backend/routes/personas.py"],
+          "related": ["Context Packing", "Scenario"],
+          "added_in": "Sprint 7",
+          "type": "algorithm"
+        },
+        {
+          "term": "Canon Import",
+          "definition": "Fetches franchise data from Fandom wikis to auto-populate scenario files. Resolves franchise names to wiki subdomains (50+ aliases: SAO, Naruto, Witcher, etc.), scrapes characters, locations, lore, power systems.",
+          "files": ["backend/processors/canon_import.py"],
+          "related": ["Scenario", "Gaming Persona"],
+          "added_in": "Sprint 8",
+          "type": "module"
+        },
+        {
+          "term": "Immersive RP Mode",
+          "definition": "Alternative gaming mode where the AI responds AS characters rather than as a Game Master. No stat boxes or numbered choices. Uses character personality, memory, and relationship data. Active NPC set via agent UI.",
+          "files": ["backend/routes/persona_prompts.py", "backend/routes/personas.py"],
+          "related": ["Gaming Persona", "Persona Entities"],
+          "added_in": "Sprint 7",
+          "type": "mode"
+        },
+        {
+          "term": "Persona Entities",
+          "definition": "persona_entities table stores characters, NPCs, and figures per persona/scenario. Fields: identity_md, personality_md, speaking_style_md, relationship_md, memory_md, knowledge_md. Used for both gaming NPCs and scholarly figures.",
+          "files": ["backend/routes/persona_data.py"],
+          "related": ["Scenario", "Immersive RP Mode"],
+          "added_in": "Sprint 7",
+          "type": "table"
+        },
+        {
+          "term": "NPC Roster",
+          "definition": "characters/_roster.json in a scenario directory. Lists all NPCs with id, name, keywords (for mention detection), and active_in_scene flag. Used by selective context loading to auto-load NPC profiles when the user mentions their name.",
+          "files": ["backend/routes/personas.py", "backend/processors/scenario_templates.py"],
+          "related": ["Selective Context Loading", "Scenario"],
+          "added_in": "Sprint 7",
+          "type": "file"
+        },
+        {
+          "term": "Keyword-Triggered Loading",
+          "definition": "Part of selective context loading. A map of keywords to file paths: 'inventory'/'backpack' loads player/inventory.md, 'quest'/'mission' loads player/quests.md, 'fight'/'attack' loads mechanics/combat.md + player/equipment.md.",
+          "files": ["backend/routes/personas.py"],
+          "related": ["Selective Context Loading"],
+          "added_in": "Sprint 7",
+          "type": "algorithm"
+        }
+      ]
+    },
+    {
+      "name": "Scoring Pipeline",
+      "icon": "\ud83c\udfaf",
+      "terms": [
+        {
+          "term": "AdaptiveScorer",
+          "definition": "The sole scorer since B3.3. Profile-adaptive: dynamically builds relevance rules from user's categories, keywords, role, and context. Hybrid: rule-based noise filters first, then Ollama LLM scoring for items that pass. 1,482 lines.",
+          "files": ["backend/processors/scorer_adaptive.py"],
+          "related": ["ScorerBase", "Scoring Memory", "Forbidden 5.0"],
+          "added_in": "Sprint 2",
+          "type": "class"
+        },
+        {
+          "term": "ScorerBase",
+          "definition": "Base class with shared scoring infrastructure: Ollama client, calibration tables, noise pattern lists (500+ patterns), language filtering, ScoringMemory. 891 lines of shared constants and utilities.",
+          "files": ["backend/processors/scorer_base.py"],
+          "related": ["AdaptiveScorer"],
+          "added_in": "Sprint 2",
+          "type": "class"
+        },
+        {
+          "term": "Scoring Memory",
+          "definition": "ScoringMemory class in scorer_base.py. Stores high-scoring article examples as few-shot context for the scorer's prompt. Cleared between autopilot cycles to prevent cross-profile contamination.",
+          "files": ["backend/processors/scorer_base.py"],
+          "related": ["AdaptiveScorer", "Autopilot"],
+          "added_in": "Sprint 3",
+          "type": "class"
+        },
+        {
+          "term": "SCORE:X.X|REASON: Format",
+          "definition": "The mandatory output format for the scoring LLM. Every response must contain SCORE:X.X|REASON:text. Parsed by regex. Training data format must match inference format character-for-character.",
+          "files": ["backend/processors/scorer_adaptive.py", "backend/export_training.py"],
+          "related": ["Prompt Version Pinning"],
+          "added_in": "Sprint 2",
+          "type": "format"
+        },
+        {
+          "term": "Forbidden 5.0",
+          "definition": "Score of exactly 5.0 is forbidden in scoring. The scorer is trained to give binary signal: above 5 = relevant, below 5 = noise. A score of 5.0 is ambiguous and indicates the model failed to commit.",
+          "files": ["backend/processors/scorer_adaptive.py"],
+          "related": ["AdaptiveScorer"],
+          "added_in": "Sprint 3",
+          "type": "rule"
+        },
+        {
+          "term": "Shadow Scores",
+          "definition": "shadow_scores table stores side-by-side comparisons between the primary scorer and a shadow scorer. Used for validation: tracks delta between scorers, scan_id, title, category.",
+          "files": ["backend/database.py"],
+          "related": ["AdaptiveScorer"],
+          "added_in": "Sprint 3",
+          "type": "table"
+        },
+        {
+          "term": "Distillation",
+          "definition": "Teacher-student distillation using Claude Opus. Sends locally-scored items to Opus for re-scoring. Disagreements (delta >= 2.0) saved as corrections in user_feedback. Drives the self-improvement loop.",
+          "files": ["backend/distill.py"],
+          "related": ["Export Training", "LoRA Training"],
+          "added_in": "Sprint 2",
+          "type": "process"
+        },
+        {
+          "term": "Export Training",
+          "definition": "export_training.py converts corrections + user feedback into ChatML JSONL training data. Critical: format must be character-for-character identical to inference format in scorer_adaptive.py.",
+          "files": ["backend/export_training.py"],
+          "related": ["Distillation", "LoRA Training", "Prompt Version Pinning"],
+          "added_in": "Sprint 2",
+          "type": "script"
+        },
+        {
+          "term": "LoRA Training",
+          "definition": "train_lora.py implements LoRA/DoRA fine-tuning. Auto-selects model tier by VRAM. Supports Unsloth (CUDA) and PEFT (ROCm). Pipeline: train -> merge -> GGUF export -> Ollama register -> config update.",
+          "files": ["backend/train_lora.py"],
+          "related": ["Distillation", "Export Training", "Model Manager"],
+          "added_in": "Sprint 2",
+          "type": "script"
+        },
+        {
+          "term": "Prompt Version Pinning",
+          "definition": "prompt_version.py hashes the scoring prompt template at both training and inference time. Logs WARNING if they drift. The #1 recurring failure mode: misaligned prompts cause trained models to fail at parsing.",
+          "files": ["backend/prompt_version.py"],
+          "related": ["Export Training", "AdaptiveScorer"],
+          "added_in": "Sprint 3",
+          "type": "module"
+        },
+        {
+          "term": "Incremental Scanning",
+          "definition": "_reuse_snapshot_scores() builds URL->score lookup from previous output. Already-scored articles skip LLM scoring. Articles not re-fetched are carried forward. Skipped if context hash changed (different role = rescore all).",
+          "files": ["backend/main.py"],
+          "related": ["AdaptiveScorer", "Context Hash"],
+          "added_in": "Sprint 4",
+          "type": "optimization"
+        }
+      ]
+    },
+    {
+      "name": "YouTube Pipeline",
+      "icon": "\ud83c\udfa5",
+      "terms": [
+        {
+          "term": "YouTube Processor",
+          "definition": "YouTubeProcessor class in processors/youtube.py. Manages channel tracking, video discovery via RSS, transcript acquisition, and lens extraction orchestration. 859 lines.",
+          "files": ["backend/processors/youtube.py"],
+          "related": ["YouTube Worker", "Lens", "Three-Tier Transcript"],
+          "added_in": "Sprint 6",
+          "type": "class"
+        },
+        {
+          "term": "Lens",
+          "definition": "A focused analysis prompt that extracts specific insight types from transcripts. 7 lenses: summary, eloquence, narrations, history, spiritual, politics, transcript. Each runs individually against qwen3.5:9b.",
+          "files": ["backend/processors/lenses.py"],
+          "related": ["YouTube Processor", "Lens Extraction"],
+          "added_in": "Sprint 6",
+          "type": "concept"
+        },
+        {
+          "term": "Three-Tier Transcript",
+          "definition": "Transcript acquisition cascade: Tier 1: youtube-transcript-api (free, instant, captioned videos). Tier 2: Supadata API (paid, wider coverage). Tier 3: faster-whisper local transcription (CPU, any video).",
+          "files": ["backend/processors/youtube.py"],
+          "related": ["YouTube Processor"],
+          "added_in": "Sprint 6",
+          "type": "algorithm"
+        },
+        {
+          "term": "Bilingual Extraction",
+          "definition": "Migration 023 added language column to video_insights. Lenses can extract in the transcript's original language AND English. CJK support for Japanese, Chinese, Korean transcripts.",
+          "files": ["backend/processors/lenses.py", "backend/migrations.py"],
+          "related": ["Lens"],
+          "added_in": "Sprint 10",
+          "type": "feature"
+        },
+        {
+          "term": "YouTube Worker",
+          "definition": "Background daemon thread in youtube_worker.py. Processes video queue: transcription then lens extraction, one video at a time (Whisper CPU uses all cores). Started by start_server().",
+          "files": ["backend/processors/youtube_worker.py"],
+          "related": ["YouTube Processor"],
+          "added_in": "Sprint 6",
+          "type": "module"
+        },
+        {
+          "term": "Narration Source Resolution",
+          "definition": "Two-stage cascade in source_resolver.py. Stage A: regex pattern matching against known hadith API endpoints (sync, free). Stage B: Serper web search with authority domain scoring (async, ~$0.001/query).",
+          "files": ["backend/processors/source_resolver.py"],
+          "related": ["Narration Verification", "narration_sources Table"],
+          "added_in": "Sprint 10",
+          "type": "module"
+        },
+        {
+          "term": "Narration Verification",
+          "definition": "Anti-hallucination RAG in verification.py. Verifies hadith, historical narrations, and scholarly citations detected by the narrations lens against real databases. The LLM detects narrations; this module verifies them.",
+          "files": ["backend/processors/verification.py"],
+          "related": ["Narration Source Resolution", "Scholarly Persona"],
+          "added_in": "Sprint 8",
+          "type": "module"
+        },
+        {
+          "term": "Lens Merge",
+          "definition": "_merge_lens_content() in youtube_endpoints.py. When re-extracting a lens, deduplicates items by lens-specific keys: eloquence by term, narrations by narration_text, history by event. Summary lens always full-replaces.",
+          "files": ["backend/routes/youtube_endpoints.py"],
+          "related": ["Lens"],
+          "added_in": "Sprint 10",
+          "type": "function"
+        },
+        {
+          "term": "Extract All",
+          "definition": "POST /api/youtube/extract-all/:channel_id queues lens extraction for all transcribed videos in a channel. Runs in background, broadcasts extract_all_complete via SSE on completion.",
+          "files": ["backend/routes/youtube_endpoints.py"],
+          "related": ["Lens", "YouTube Worker"],
+          "added_in": "Sprint 10",
+          "type": "endpoint"
+        }
+      ]
+    },
+    {
+      "name": "Database",
+      "icon": "\ud83d\uddc4\ufe0f",
+      "terms": [
+        {
+          "term": "Database Class",
+          "definition": "SQLite manager in database.py. Per-thread connections via threading.local(). WAL mode, busy_timeout 10s, foreign keys ON. Singleton via get_database(). All table creation via migration framework.",
+          "files": ["backend/database.py"],
+          "related": ["WAL Mode", "Migration Framework"],
+          "added_in": "Sprint 1",
+          "type": "class"
+        },
+        {
+          "term": "WAL Mode",
+          "definition": "Write-Ahead Logging. Set via PRAGMA journal_mode=WAL. Enables concurrent reads during writes. Checkpointed on shutdown via PRAGMA wal_checkpoint(TRUNCATE).",
+          "files": ["backend/database.py", "backend/server.py"],
+          "related": ["Database Class"],
+          "added_in": "Sprint 1",
+          "type": "config"
+        },
+        {
+          "term": "Migration Framework",
+          "definition": "Numbered migrations in migrations.py. @migration decorator registers functions. schema_version table tracks progress. Safe to call on every startup. 25 migrations covering all tables.",
+          "files": ["backend/migrations.py"],
+          "related": ["Database Class", "schema_version"],
+          "added_in": "Sprint 4",
+          "type": "module"
+        },
+        {
+          "term": "news_items",
+          "definition": "Core table for scored news articles. Columns: id, title, url, summary, source, root, category, score, score_reason, timestamp, fetched_at, profile_id. UNIQUE(url, profile_id). Migration 001+008.",
+          "files": ["backend/migrations.py", "backend/database.py"],
+          "related": ["Profile Isolation"],
+          "added_in": "Migration 001",
+          "type": "table"
+        },
+        {
+          "term": "user_feedback",
+          "definition": "Training data table. Actions: click, dismiss, rate, save, thumbs_up, thumbs_down. Stores ai_score, user_score, profile provenance (role, location, context). Never cleaned -- permanent training data.",
+          "files": ["backend/migrations.py", "backend/database.py"],
+          "related": ["Distillation", "Export Training"],
+          "added_in": "Migration 002",
+          "type": "table"
+        },
+        {
+          "term": "youtube_channels",
+          "definition": "Tracked YouTube channels per profile. Columns: channel_id, channel_name, channel_url, lenses (JSON array), last_checked. UNIQUE(profile_id, channel_id). Migration 016.",
+          "files": ["backend/migrations.py"],
+          "related": ["YouTube Processor"],
+          "added_in": "Migration 016",
+          "type": "table"
+        },
+        {
+          "term": "youtube_videos",
+          "definition": "Processed videos. Columns: video_id, title, transcript_text, transcript_method, transcript_language, status (pending/transcribed/complete/failed). UNIQUE(profile_id, video_id). Migration 016+023.",
+          "files": ["backend/migrations.py"],
+          "related": ["YouTube Processor", "Three-Tier Transcript"],
+          "added_in": "Migration 016",
+          "type": "table"
+        },
+        {
+          "term": "video_insights",
+          "definition": "Extracted lens results per video. Columns: video_id, profile_id, lens_name, content (JSON), language. Indexed by (profile_id, lens_name) and (video_id, lens_name, language). Migration 016+023.",
+          "files": ["backend/migrations.py"],
+          "related": ["Lens", "Bilingual Extraction"],
+          "added_in": "Migration 016",
+          "type": "table"
+        },
+        {
+          "term": "conversations",
+          "definition": "DB-backed chat history. Columns: profile_id, persona, title, messages (JSON array), is_active, archived. Max 10 per persona per profile. Migration 020.",
+          "files": ["backend/migrations.py"],
+          "related": ["Agent Chat", "Conversation Persistence"],
+          "added_in": "Migration 020",
+          "type": "table"
+        },
+        {
+          "term": "scenarios",
+          "definition": "Game scenario storage. Columns: profile_id, name, description, state_md, world_md, characters_json, genre, is_active. UNIQUE(profile_id, name). Migration 021.",
+          "files": ["backend/migrations.py"],
+          "related": ["Scenario"],
+          "added_in": "Migration 021",
+          "type": "table"
+        },
+        {
+          "term": "persona_entities",
+          "definition": "Persona-generic entity persistence. 13 markdown fields: identity, personality, speaking_style, relationship, memory, knowledge, extra. UNIQUE(profile_id, persona, scenario_name, name). Migration 022.",
+          "files": ["backend/migrations.py"],
+          "related": ["Persona Entities", "Immersive RP Mode"],
+          "added_in": "Migration 022",
+          "type": "table"
+        },
+        {
+          "term": "narration_sources",
+          "definition": "Cache for resolved source URLs from narration verification. Columns: video_id, narration_hash, source_claimed, resolved_url, resolution_method, confidence. UNIQUE(video_id, profile_id, narration_hash). Migration 024.",
+          "files": ["backend/migrations.py"],
+          "related": ["Narration Source Resolution"],
+          "added_in": "Migration 024",
+          "type": "table"
+        },
+        {
+          "term": "sprint_log",
+          "definition": "Sprint Prompt Builder history. Columns: sprint_number, sprint_name, owner, generated_prompt, status. Migration 025.",
+          "files": ["backend/migrations.py"],
+          "related": ["Prompt Builder"],
+          "added_in": "Migration 025",
+          "type": "table"
+        },
+        {
+          "term": "prompt_templates",
+          "definition": "Saved prompt templates for the Sprint Prompt Builder. Columns: profile_id, name, template_json. UNIQUE(profile_id, name). Migration 025.",
+          "files": ["backend/migrations.py"],
+          "related": ["Prompt Builder"],
+          "added_in": "Migration 025",
+          "type": "table"
+        },
+        {
+          "term": "Profile Isolation",
+          "definition": "profile_id column on news_items, scan_log, user_feedback, shadow_scores, briefings (migration 008). Every query filters by profile_id. Sessions table links tokens to profile_id. Prevents data leakage between users.",
+          "files": ["backend/migrations.py", "backend/server.py"],
+          "related": ["Auth Middleware", "Config Overlay"],
+          "added_in": "Migration 008",
+          "type": "concept"
+        }
+      ]
+    },
+    {
+      "name": "Frontend Modules",
+      "icon": "\ud83d\udcbb",
+      "terms": [
+        {
+          "term": "app.js",
+          "definition": "Main application state and rendering. 2,137 lines. Manages data/marketData/newsData state, renders news feed cards, market widgets, sidebar navigation, SSE connection, settings integration. Entry point for dashboard.",
+          "files": ["frontend/app.js"],
+          "related": ["feed.js", "ui.js"],
+          "added_in": "Sprint 1",
+          "type": "module"
+        },
+        {
+          "term": "agent.js",
+          "definition": "AI chat interface. 1,877 lines. Manages agentHistory, streaming responses, tool call rendering, persona switching, conversation tabs, fullscreen mode, TTS playback via speakMessage(). Global _currentTTSAudio tracks playback.",
+          "files": ["frontend/agent.js"],
+          "related": ["agent-suggestions.js", "agent-tickers.js", "agent-customizer.js"],
+          "added_in": "Sprint 3",
+          "type": "module"
+        },
+        {
+          "term": "youtube.js",
+          "definition": "YouTube channel management and insights viewer. 1,327 lines. Channel list, video list, insights modal with lens tabs, narration badges, language selector, extract buttons, export functionality.",
+          "files": ["frontend/youtube.js"],
+          "related": ["YouTube Pipeline"],
+          "added_in": "Sprint 6",
+          "type": "module"
+        },
+        {
+          "term": "wizard.js",
+          "definition": "Onboarding wizard. 2,172 lines. 7-stage flow: welcome, role/location, context questionnaire, AI-powered category generation, ticker selection, feed configuration, summary. Theme-adaptive CSS.",
+          "files": ["frontend/wizard.js", "frontend/wizard-data.js"],
+          "related": ["wizard-data.js"],
+          "added_in": "Sprint 4",
+          "type": "module"
+        },
+        {
+          "term": "settings.js",
+          "definition": "Configuration management UI. 1,770 lines. Profile editing, category management, ticker setup, feed toggles, API key inputs, TTS settings, theme selection. Tracks unsaved changes via _settingsDirty flag.",
+          "files": ["frontend/settings.js"],
+          "related": ["settings-categories.js", "settings-sources.js", "settings-tickers.js"],
+          "added_in": "Sprint 2",
+          "type": "module"
+        },
+        {
+          "term": "ui.js",
+          "definition": "Theme system and UI utilities. 1,618 lines. 8 themes (midnight, noir, coffee, rose, cosmos, nebula, aurora, sakura), theme switching, performance mode, CSS variable management, nebula canvas.",
+          "files": ["frontend/ui.js"],
+          "related": ["theme-editor.js", "Performance Mode"],
+          "added_in": "Sprint 1",
+          "type": "module"
+        },
+        {
+          "term": "ui-sync.js",
+          "definition": "UI settings persistence to DB. 382 lines. Saves localStorage settings to /api/ui-state, reloads after login clears localStorage. Solves the profile-switch settings wipe problem.",
+          "files": ["frontend/ui-sync.js"],
+          "related": ["settings.js"],
+          "added_in": "Sprint 9",
+          "type": "module"
+        },
+        {
+          "term": "file-browser.js",
+          "definition": "Nautilus-style modal file browser and editor. 1,012 lines. Directory tree, file content viewing/editing, create file/folder, delete. Uses /api/persona-files endpoints.",
+          "files": ["frontend/file-browser.js"],
+          "related": ["Persona Context Manager"],
+          "added_in": "Sprint 7",
+          "type": "module"
+        },
+        {
+          "term": "games-ui.js",
+          "definition": "Scenario selector UI for Games persona. 440 lines. Lists scenarios, create/activate/delete, generation status polling, scenario detail display.",
+          "files": ["frontend/games-ui.js"],
+          "related": ["Scenario", "Gaming Persona"],
+          "added_in": "Sprint 7",
+          "type": "module"
+        },
+        {
+          "term": "prompt-builder.js",
+          "definition": "Sprint Prompt Builder UI. 559 lines. Form for configuring sprint parameters, phases, file ownership, rules. Calls /api/prompt-builder/generate, saves to sprint_log. Session B's module.",
+          "files": ["frontend/prompt-builder.js"],
+          "related": ["dev_endpoints.py", "sprint_log"],
+          "added_in": "Sprint 10",
+          "type": "module"
+        },
+        {
+          "term": "stt.js",
+          "definition": "Voice input via faster-whisper. 344 lines. Injects mic button into agent input via DOM. MediaRecorder captures audio, POSTs to /api/stt. Does NOT modify agent.js.",
+          "files": ["frontend/stt.js"],
+          "related": ["STT Processor"],
+          "added_in": "Sprint 8",
+          "type": "module"
+        },
+        {
+          "term": "tts-settings.js",
+          "definition": "Voice picker, speed control, persona voice overrides, preview. 173 lines. Renders voice list from /api/tts/voices, handles preview playback, stores preferences.",
+          "files": ["frontend/tts-settings.js"],
+          "related": ["TTS Processor"],
+          "added_in": "Sprint 8",
+          "type": "module"
+        },
+        {
+          "term": "theme-editor.js",
+          "definition": "Real-time CSS variable tweaker. 1,068 lines. Floating panel for customizing theme colors with live preview. Saves custom overrides to localStorage per base theme.",
+          "files": ["frontend/theme-editor.js"],
+          "related": ["ui.js"],
+          "added_in": "Sprint 9",
+          "type": "module"
+        },
+        {
+          "term": "fullscreen-chart.js",
+          "definition": "Fullscreen chart mode using TradingView Lightweight Charts. 2,432 lines. Works on all devices. Multiple timeframes, auto-refresh via /api/market-tick, technical indicators.",
+          "files": ["frontend/fullscreen-chart.js", "frontend/fullscreen-chart-utils.js"],
+          "related": ["market.js"],
+          "added_in": "Sprint 5",
+          "type": "module"
+        },
+        {
+          "term": "auth.js",
+          "definition": "Landing/login/register UI. 839 lines. Email-based auth with verification codes, OTP login, password reset. Color theme rotation on page load. Star canvas background.",
+          "files": ["frontend/auth.js", "frontend/auth-star-canvas.js", "frontend/auth-styles.js"],
+          "related": ["Auth Middleware"],
+          "added_in": "Sprint 4",
+          "type": "module"
+        },
+        {
+          "term": "tour.js",
+          "definition": "Guided tour system. 830 lines. Spotlight overlay with SVG mask cutout + positioned tooltip cards. Works across all 8 themes x 3 modes (24 combinations).",
+          "files": ["frontend/tour.js"],
+          "related": [],
+          "added_in": "Sprint 9",
+          "type": "module"
+        }
+      ]
+    },
+    {
+      "name": "API Endpoints",
+      "icon": "\ud83d\udd0c",
+      "terms": [
+        {
+          "term": "/api/agent-chat",
+          "definition": "POST. Streaming AI chat. Body: {message, persona, conversation_id, rp_mode, active_npc, use_all_scans}. SSE response: tokens, tool_call, tool_result, done events. Auth required.",
+          "files": ["backend/routes/agent.py"],
+          "related": ["Agent Chat"],
+          "added_in": "Sprint 3",
+          "type": "endpoint"
+        },
+        {
+          "term": "/api/data",
+          "definition": "GET. Full dashboard data (~2MB). Returns news, market, briefing, timestamps, scan status. Gzip compressed. Profile-scoped via auth token. The main data endpoint.",
+          "files": ["backend/routes/data_endpoints.py"],
+          "related": [],
+          "added_in": "Sprint 1",
+          "type": "endpoint"
+        },
+        {
+          "term": "/api/events",
+          "definition": "GET. SSE stream. Long-lived connection for real-time updates. Events: status (scan progress), briefing_ready, youtube_processing, lens_extracted, extract_all_complete, shutdown. Profile-scoped.",
+          "files": ["backend/server.py"],
+          "related": ["SSE Event System"],
+          "added_in": "Sprint 4",
+          "type": "endpoint"
+        },
+        {
+          "term": "/api/refresh",
+          "definition": "GET. Triggers full scan (news + market + scoring + briefing) in background thread. Returns immediately with {status: refresh_triggered}. Auth exempt but rate limited (2/60s).",
+          "files": ["backend/routes/controls.py"],
+          "related": [],
+          "added_in": "Sprint 1",
+          "type": "endpoint"
+        },
+        {
+          "term": "/api/tts",
+          "definition": "POST. Text-to-speech synthesis. Body: {text, voice, language, speed, persona}. Returns audio/wav (Kokoro) or audio/mpeg (Edge-TTS). Max 5,000 characters. Auto-routes Arabic to Edge-TTS.",
+          "files": ["backend/routes/media.py"],
+          "related": ["TTS Processor"],
+          "added_in": "Sprint 8",
+          "type": "endpoint"
+        },
+        {
+          "term": "/api/stt",
+          "definition": "POST. Speech-to-text. Raw audio body (WebM/WAV/OGG). Optional X-Language-Hint header. Returns {text, language, duration, processing_time}. Uses faster-whisper large-v3-turbo on CPU.",
+          "files": ["backend/routes/media.py"],
+          "related": ["STT Processor"],
+          "added_in": "Sprint 8",
+          "type": "endpoint"
+        },
+        {
+          "term": "/api/youtube/channels",
+          "definition": "GET: list tracked channels. POST: add channel (or single video). DELETE /api/youtube/channels/:id: remove channel. Handles both channel URLs and video URLs.",
+          "files": ["backend/routes/youtube_endpoints.py"],
+          "related": ["YouTube Processor"],
+          "added_in": "Sprint 6",
+          "type": "endpoint"
+        },
+        {
+          "term": "/api/youtube/extract-lens",
+          "definition": "POST. On-demand lens extraction for a single video. Body: {video_id, lens, language, mode}. Modes: new, replace, merge. Runs in background thread, broadcasts lens_extracted via SSE.",
+          "files": ["backend/routes/youtube_endpoints.py"],
+          "related": ["Lens"],
+          "added_in": "Sprint 10",
+          "type": "endpoint"
+        },
+        {
+          "term": "/api/dev/context",
+          "definition": "GET. Returns live project context for Sprint Prompt Builder: git log, file structure, DB tables, safety branches, pending items. Session B's endpoint.",
+          "files": ["backend/routes/dev_endpoints.py"],
+          "related": ["Prompt Builder"],
+          "added_in": "Sprint 10",
+          "type": "endpoint"
+        },
+        {
+          "term": "/api/prompt-builder/generate",
+          "definition": "POST. Assembles a sprint prompt from form data + live filesystem context. Returns {prompt: string}. Template engine is string assembly, no LLM involved.",
+          "files": ["backend/routes/dev_endpoints.py"],
+          "related": ["Prompt Builder"],
+          "added_in": "Sprint 10",
+          "type": "endpoint"
+        }
+      ]
+    },
+    {
+      "name": "Infrastructure",
+      "icon": "\u2699\ufe0f",
+      "terms": [
+        {
+          "term": "Ollama",
+          "definition": "Local LLM server. Hosts two models: scoring model (~9.5GB) + qwen3.5:9b (~6.6GB). Both fit in 24GB VRAM with OLLAMA_MAX_LOADED_MODELS=2. ROCm backend for AMD 7900 XTX.",
+          "files": ["backend/main.py"],
+          "related": ["qwen3.5:9b", "VRAM Budget"],
+          "added_in": "Sprint 1",
+          "type": "service"
+        },
+        {
+          "term": "qwen3.5:9b",
+          "definition": "The inference model used for agent chat, market analysis, wizard, briefings, profile generation, and lens extraction. ~6.6GB VRAM. Set via config.yaml scoring.inference_model.",
+          "files": ["backend/main.py"],
+          "related": ["Ollama", "VRAM Budget"],
+          "added_in": "Sprint 3",
+          "type": "model"
+        },
+        {
+          "term": "VRAM Budget",
+          "definition": "24GB total (AMD 7900 XTX). Scorer (~9.5GB) + qwen3.5:9b (~6.6GB) = ~16.1GB. Kokoro-82M TTS adds ~500MB on demand. OLLAMA_MAX_LOADED_MODELS=2 prevents model swapping.",
+          "files": [],
+          "related": ["Ollama", "qwen3.5:9b"],
+          "added_in": "Sprint 1",
+          "type": "constraint"
+        },
+        {
+          "term": "TTS Processor",
+          "definition": "Dual-engine TTS in processors/tts.py. KokoroEngine: 54 voices, 8 languages, GPU-accelerated, WAV output. EdgeTTSEngine: 26 Arabic dialect voices, Microsoft cloud, MP3 output. LRU pipeline cache (max 3), 15s timeout.",
+          "files": ["backend/processors/tts.py"],
+          "related": ["Kokoro", "Edge-TTS"],
+          "added_in": "Sprint 8",
+          "type": "class"
+        },
+        {
+          "term": "Kokoro",
+          "definition": "Kokoro-82M local TTS engine. 54 voices across en/ja/zh/fr/ko/hi/it/pt. ~500MB VRAM. WAV output. LRU pipeline cache keeps 3 most-recent language pipelines loaded.",
+          "files": ["backend/processors/tts.py"],
+          "related": ["TTS Processor"],
+          "added_in": "Sprint 8",
+          "type": "engine"
+        },
+        {
+          "term": "Edge-TTS",
+          "definition": "Microsoft Neural TTS cloud service. 26 Arabic dialect voices. Zero VRAM. MP3 output. Used automatically for Arabic text via Unicode range detection.",
+          "files": ["backend/processors/tts.py"],
+          "related": ["TTS Processor"],
+          "added_in": "Sprint 8",
+          "type": "engine"
+        },
+        {
+          "term": "STT Processor",
+          "definition": "Speech-to-text via faster-whisper large-v3-turbo on CPU (int8). ~1.6GB RAM. Lazy-loads on first request (~10s). Uses PyAV for audio decoding. Max 25MB audio.",
+          "files": ["backend/processors/stt.py"],
+          "related": [],
+          "added_in": "Sprint 8",
+          "type": "class"
+        },
+        {
+          "term": "SearXNG",
+          "definition": "Self-hosted metasearch engine. Optional search provider configured via config.yaml search.searxng_host. Alternative to Serper/Google for web search tool.",
+          "files": ["backend/fetchers/searxng_search.py"],
+          "related": ["Serper"],
+          "added_in": "Sprint 2",
+          "type": "service"
+        },
+        {
+          "term": "Serper",
+          "definition": "Google search API (serper.dev). Primary search provider for web_search tool and news fetching. Configured via config.yaml search.serper_api_key. ~$0.001 per query.",
+          "files": ["backend/fetchers/serper_search.py"],
+          "related": ["SearXNG"],
+          "added_in": "Sprint 2",
+          "type": "service"
+        },
+        {
+          "term": "PaddleOCR",
+          "definition": "PaddleOCR-VL 0.9B via Ollama for image text extraction. ~1GB VRAM, loaded on demand. Used by file upload to extract text from images and PDFs.",
+          "files": ["backend/processors/ocr.py"],
+          "related": [],
+          "added_in": "Sprint 7",
+          "type": "service"
+        },
+        {
+          "term": "Autopilot",
+          "definition": "Fully autonomous self-improvement loop. Picks diverse professional profiles, generates context via Opus, scans, distills, trains. Manages budget, persistent state, profile diversity guards. 17 profile templates.",
+          "files": ["backend/autopilot.py"],
+          "related": ["Distillation", "LoRA Training"],
+          "added_in": "Sprint 3",
+          "type": "script"
+        },
+        {
+          "term": "Model Manager",
+          "definition": "CLI tool for safe model switching with rollback. Commands: status, switch, rollback, history, validate, register. All changes logged to data/model_history.json.",
+          "files": ["backend/model_manager.py"],
+          "related": ["LoRA Training"],
+          "added_in": "Sprint 4",
+          "type": "script"
+        },
+        {
+          "term": "Email Service",
+          "definition": "SMTP-based email delivery for verification codes, OTP login codes, and password resets. Gracefully degrades when SMTP is not configured. HTML-formatted emails.",
+          "files": ["backend/email_service.py"],
+          "related": ["Auth Middleware"],
+          "added_in": "Sprint 8",
+          "type": "class"
+        }
+      ]
+    },
+    {
+      "name": "Config Keys",
+      "icon": "\ud83d\udd27",
+      "terms": [
+        {
+          "term": "scoring.model",
+          "definition": "Name of the Ollama scoring model. Default: stratos-scorer-v2.2. Changed by model_manager.py switch or train_lora.py after successful training.",
+          "files": ["backend/config.yaml"],
+          "related": ["AdaptiveScorer", "Model Manager"],
+          "added_in": "Sprint 1",
+          "type": "config"
+        },
+        {
+          "term": "scoring.inference_model",
+          "definition": "Model used for all non-scoring inference: agent chat, wizard, briefings, profile generation, lens extraction. Default: qwen3.5:9b.",
+          "files": ["backend/config.yaml"],
+          "related": ["qwen3.5:9b"],
+          "added_in": "Sprint 3",
+          "type": "config"
+        },
+        {
+          "term": "scoring.ollama_host",
+          "definition": "URL of the Ollama server. Default: http://localhost:11434. All LLM calls go through this host.",
+          "files": ["backend/config.yaml"],
+          "related": ["Ollama"],
+          "added_in": "Sprint 1",
+          "type": "config"
+        },
+        {
+          "term": "scoring.critical_min",
+          "definition": "Minimum score for 'critical' tier. Default: 9.0. Articles scoring >= this trigger critical alerts in briefings.",
+          "files": ["backend/config.yaml"],
+          "related": ["AdaptiveScorer"],
+          "added_in": "Sprint 1",
+          "type": "config"
+        },
+        {
+          "term": "scoring.filter_below",
+          "definition": "Articles scoring below this are filtered from the feed. Default: 5.0. The noise floor.",
+          "files": ["backend/config.yaml"],
+          "related": ["AdaptiveScorer", "Forbidden 5.0"],
+          "added_in": "Sprint 1",
+          "type": "config"
+        },
+        {
+          "term": "scoring.retain_high_scores",
+          "definition": "Whether to carry forward high-scoring articles from previous scans. Default: false. When true, articles above retention_threshold are preserved across scans.",
+          "files": ["backend/config.yaml"],
+          "related": ["Incremental Scanning"],
+          "added_in": "Sprint 4",
+          "type": "config"
+        },
+        {
+          "term": "search.provider",
+          "definition": "Search API provider. Values: 'serper', 'google', 'searxng'. Default: serper. Controls which backend web_search tool uses.",
+          "files": ["backend/config.yaml"],
+          "related": ["Serper", "SearXNG"],
+          "added_in": "Sprint 2",
+          "type": "config"
+        },
+        {
+          "term": "schedule.background_enabled",
+          "definition": "Enable automatic background scanning on an interval. Default: false. When true, runs scans every background_interval_minutes.",
+          "files": ["backend/config.yaml"],
+          "related": [],
+          "added_in": "Sprint 3",
+          "type": "config"
+        },
+        {
+          "term": "dynamic_categories",
+          "definition": "Array of user-defined news categories, each with id, label, icon, items (keywords), scorer_type, root. Generated by AI via /api/generate-profile or manually configured.",
+          "files": ["backend/config.yaml"],
+          "related": ["Profile Generator"],
+          "added_in": "Sprint 2",
+          "type": "config"
+        }
+      ]
+    },
+    {
+      "name": "Glossary",
+      "icon": "\ud83d\udcd6",
+      "terms": [
+        {
+          "term": "Scan",
+          "definition": "A complete intelligence cycle: fetch news from all sources, score each article via the scorer, generate a briefing, write output JSON, and broadcast completion via SSE. Triggered by /api/refresh or the background scheduler.",
+          "files": ["backend/main.py"],
+          "related": ["AdaptiveScorer", "Briefing Generator"],
+          "added_in": "Sprint 1",
+          "type": "concept"
+        },
+        {
+          "term": "Briefing",
+          "definition": "LLM-generated intelligence summary produced after each scan. Contains critical_alerts, high_priority items, market_summary, and trend analysis. Generated in background thread; SSE briefing_ready event notifies frontend.",
+          "files": ["backend/processors/briefing.py"],
+          "related": ["Scan"],
+          "added_in": "Sprint 2",
+          "type": "concept"
+        },
+        {
+          "term": "Root",
+          "definition": "Geographic scope of a news category: 'kuwait', 'regional', or 'global'. Affects which search queries and sources are used during news fetching.",
+          "files": ["backend/config.yaml", "backend/fetchers/news.py"],
+          "related": ["dynamic_categories"],
+          "added_in": "Sprint 1",
+          "type": "concept"
+        },
+        {
+          "term": "Performance Mode",
+          "definition": "body.perf-mode CSS class. Disables backdrop-filter, animations, transitions, box-shadow, cosmos canvas. Essential animations preserved (spinners, progress bars). Persists via localStorage stratos_perf_mode.",
+          "files": ["frontend/ui.js", "frontend/styles.css"],
+          "related": [],
+          "added_in": "Sprint 9",
+          "type": "feature"
+        },
+        {
+          "term": "Context Hash",
+          "definition": "SHA-256 hash of role|context|location used to tag retained articles. Switching roles produces a new hash, so retained articles don't bleed across contexts. Trivial edits normalized before hashing.",
+          "files": ["backend/main.py"],
+          "related": ["Incremental Scanning"],
+          "added_in": "Sprint 4",
+          "type": "concept"
+        },
+        {
+          "term": "Think Mode",
+          "definition": "Ollama parameter. For JSON-only endpoints (wizard, generate-profile), set think=False to skip reasoning -- all num_predict tokens go to output, 3-5x faster. For reasoning endpoints (agent chat), leave thinking enabled.",
+          "files": ["backend/routes/wizard.py", "backend/routes/generate.py"],
+          "related": ["strip_think_blocks"],
+          "added_in": "Sprint 5K",
+          "type": "concept"
+        },
+        {
+          "term": "Token Budget",
+          "definition": "16,000 tokens for context packing. Qwen3.5:9b has 32K context. Tool definitions ~2K + conversation history ~3K + response ~2K = 7K overhead. 16K for injected context is conservative and safe.",
+          "files": ["backend/routes/personas.py"],
+          "related": ["Context Packing"],
+          "added_in": "Sprint 5K",
+          "type": "constraint"
+        },
+        {
+          "term": "AuthManager",
+          "definition": "Profile-based auth in auth.py. Hashed PINs (SHA-256), session tokens (hex, 7-day TTL), rate limiting per endpoint, API key masking, blacklist-preserve profile switching.",
+          "files": ["backend/auth.py"],
+          "related": ["Auth Middleware", "Session Token"],
+          "added_in": "Sprint 4",
+          "type": "class"
+        },
+        {
+          "term": "Session Token",
+          "definition": "64-character hex string generated by secrets.token_hex(32). Stored in both .sessions.json (legacy PIN auth) and sessions table (email auth). 7-day TTL. Sent via X-Auth-Token header.",
+          "files": ["backend/auth.py"],
+          "related": ["AuthManager"],
+          "added_in": "Sprint 4",
+          "type": "concept"
+        },
+        {
+          "term": "Blacklist-Preserve",
+          "definition": "Profile switching strategy in auth.py. SYSTEM_KEYS (scoring, search, system, discovery, cache, email, schedule) are preserved across switches. Everything else is nuked and replaced with the new profile's config.",
+          "files": ["backend/auth.py"],
+          "related": ["AuthManager", "Config Overlay"],
+          "added_in": "Sprint 8",
+          "type": "pattern"
+        },
+        {
+          "term": "Briefing Generator",
+          "definition": "processors/briefing.py generates LLM-powered intelligence briefings. 573 lines. Runs in background thread after scan. Checks _scan_cancelled to abandon work if a new scan starts.",
+          "files": ["backend/processors/briefing.py"],
+          "related": ["Briefing", "Scan"],
+          "added_in": "Sprint 2",
+          "type": "class"
+        },
+        {
+          "term": "Profile Generator",
+          "definition": "processors/profile_generator.py. AI-powered category generation pipeline: LLM Generate -> Sanitize -> Enrichment -> Dedup -> Merge Tiny -> Career Opt-out. 421 lines.",
+          "files": ["backend/processors/profile_generator.py"],
+          "related": ["dynamic_categories"],
+          "added_in": "Sprint 3",
+          "type": "class"
+        },
+        {
+          "term": "Context Compression",
+          "definition": "processors/context_compression.py. Auto-generated state.md files per persona. Logs conversations to daily JSONL. Summarizes older conversations to save context budget.",
+          "files": ["backend/processors/context_compression.py"],
+          "related": ["Context Packing"],
+          "added_in": "Sprint 7",
+          "type": "module"
+        },
+        {
+          "term": "User Data",
+          "definition": "Per-user data directory management in user_data.py. Provides structured JSONL/JSON exports alongside SQLite: data/users/{user_id}/ with scan logs, feedback, briefings.",
+          "files": ["backend/user_data.py"],
+          "related": ["Database Class"],
+          "added_in": "Sprint 8",
+          "type": "module"
+        },
+        {
+          "term": "Prompt Builder",
+          "definition": "Sprint Prompt Builder in dev_endpoints.py + prompt-builder.js. Form UI that assembles sprint prompts from templates + live filesystem state. Template engine is pure string assembly, no LLM.",
+          "files": ["backend/routes/dev_endpoints.py", "frontend/prompt-builder.js"],
+          "related": ["sprint_log", "prompt_templates"],
+          "added_in": "Sprint 10",
+          "type": "feature"
+        },
+        {
+          "term": "Service Worker",
+          "definition": "sw.js implements network-first caching with offline shell. Cache name: stratos-v13. Pre-caches app shell assets for instant offline loading.",
+          "files": ["frontend/sw.js"],
+          "related": [],
+          "added_in": "Sprint 5",
+          "type": "module"
+        }
+      ]
+    },
+    {
+      "name": "Data Fetchers",
+      "icon": "\ud83d\udce1",
+      "terms": [
+        {
+          "term": "NewsFetcher",
+          "definition": "Multi-source news fetcher in fetchers/news.py. Sources: DuckDuckGo, Serper, RSS feeds. Uses ThreadPoolExecutor for parallel fetching. Deduplicates by URL.",
+          "files": ["backend/fetchers/news.py"],
+          "related": ["Scan", "Serper"],
+          "added_in": "Sprint 1",
+          "type": "class"
+        },
+        {
+          "term": "MarketFetcher",
+          "definition": "Yahoo Finance market data via yfinance in fetchers/market.py. Handles multiple intervals (1m, 5m, 1d, 1wk). fetch_single() for per-ticker live updates. Parallel batch fetching.",
+          "files": ["backend/fetchers/market.py"],
+          "related": ["Watchlist"],
+          "added_in": "Sprint 1",
+          "type": "class"
+        },
+        {
+          "term": "EntityDiscovery",
+          "definition": "Tracks keyword frequency changes to detect rising topics in fetchers/discovery.py. Compares mention counts against a 7-day baseline. Auto-tracks when rising_multiplier exceeded.",
+          "files": ["backend/fetchers/discovery.py"],
+          "related": [],
+          "added_in": "Sprint 2",
+          "type": "class"
+        },
+        {
+          "term": "Extra Feeds",
+          "definition": "RSS feed URL registry in fetchers/extra_feeds.py. Curated lists of finance, politics, and jobs RSS feeds. User-toggleable via config. get_catalog() returns the full feed list for the Settings UI.",
+          "files": ["backend/fetchers/extra_feeds.py"],
+          "related": [],
+          "added_in": "Sprint 3",
+          "type": "module"
+        },
+        {
+          "term": "Watchlist",
+          "definition": "User's tracked market tickers stored in config.yaml market.tickers. Each entry: {symbol, name}. Managed via manage_watchlist agent tool or Settings UI.",
+          "files": ["backend/config.yaml"],
+          "related": ["MarketFetcher", "Market Persona"],
+          "added_in": "Sprint 1",
+          "type": "concept"
+        }
+      ]
+    },
+    {
+      "name": "Training Pipeline",
+      "icon": "\ud83e\udde0",
+      "terms": [
+        {
+          "term": "Learn Cycle",
+          "definition": "Manual self-improvement: distill.py (Opus re-scores) -> export_training.py (JSONL) -> train_lora.py (fine-tune). Automated by learn_cycle.sh or autopilot.py.",
+          "files": ["backend/distill.py", "backend/export_training.py", "backend/train_lora.py"],
+          "related": ["Distillation", "Export Training", "LoRA Training"],
+          "added_in": "Sprint 2",
+          "type": "process"
+        },
+        {
+          "term": "DoRA",
+          "definition": "Weight-Decomposed Low-Rank Adaptation. Advanced LoRA variant used in V2 training pipeline. Combines decomposed weight matrices for better fine-tuning.",
+          "files": ["backend/train_lora.py"],
+          "related": ["LoRA Training"],
+          "added_in": "Sprint 4",
+          "type": "technique"
+        },
+        {
+          "term": "V2 Pipeline",
+          "definition": "data/v2_pipeline/ directory. 30 training profiles, 4-stage process: profile definitions -> article collection -> Opus batch scoring -> training data preparation with dual weighting.",
+          "files": ["backend/data/v2_pipeline/"],
+          "related": ["LoRA Training"],
+          "added_in": "Sprint 4",
+          "type": "module"
+        },
+        {
+          "term": "MAE",
+          "definition": "Mean Absolute Error between model predictions and ground truth (Opus) scores. Primary evaluation metric. MAE > 0.6 indicates the model needs retraining.",
+          "files": ["backend/evaluate_scorer.py", "backend/model_manager.py"],
+          "related": ["LoRA Training"],
+          "added_in": "Sprint 3",
+          "type": "metric"
+        },
+        {
+          "term": "Direction Accuracy",
+          "definition": "Percentage of items where the model's score and Opus agree on above/below 5.0 threshold. Below 95% triggers a review recommendation.",
+          "files": ["backend/evaluate_scorer.py", "backend/model_manager.py"],
+          "related": ["MAE"],
+          "added_in": "Sprint 3",
+          "type": "metric"
+        },
+        {
+          "term": "Diversity Guard",
+          "definition": "In autopilot.py, prevents catastrophic forgetting during incremental training. If training data covers fewer than 4 profiles, forces full retrain from base model instead of incremental update.",
+          "files": ["backend/autopilot.py"],
+          "related": ["Autopilot", "LoRA Training"],
+          "added_in": "Sprint 4",
+          "type": "safeguard"
+        },
+        {
+          "term": "CostTracker",
+          "definition": "Budget tracking for autopilot Opus API calls. Persists to data/cost_tracker.json. Tracks total_spent, budget, remaining. Stops autopilot when budget exhausted.",
+          "files": ["backend/autopilot.py"],
+          "related": ["Autopilot"],
+          "added_in": "Sprint 3",
+          "type": "class"
+        }
+      ]
+    }
+  ]
+}
