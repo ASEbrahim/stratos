@@ -302,9 +302,9 @@ def execute_tool(tool_name, args, strat, profile_id=0, persona=''):
         elif tool_name == "search_feed":
             return _tool_search_feed(args, strat, profile_id=profile_id)
         elif tool_name == "manage_watchlist":
-            return _tool_manage_watchlist(args, strat)
+            return _tool_manage_watchlist(args, strat, profile_id=profile_id)
         elif tool_name == "manage_categories":
-            return _tool_manage_categories(args, strat)
+            return _tool_manage_categories(args, strat, profile_id=profile_id)
         elif tool_name == "search_files":
             return _tool_search_files(args, strat, profile_id=profile_id, persona=persona)
         elif tool_name == "read_document":
@@ -487,7 +487,7 @@ def _tool_search_feed(args, strat, profile_id=0):
     return f"Unknown action: {action}"
 
 
-def _tool_manage_watchlist(args, strat):
+def _tool_manage_watchlist(args, strat, profile_id=0):
     action = args.get("action", "list")
     symbols = [s.strip().upper() for s in args.get("symbols", []) if s.strip()]
     tickers = [t.get("symbol", "") for t in strat.config.get("market", {}).get("tickers", [])]
@@ -501,7 +501,7 @@ def _tool_manage_watchlist(args, strat):
         adding = [s for s in symbols if s not in tickers]
         already = [s for s in symbols if s in tickers]
         tickers = tickers + adding
-        _save_tickers(strat, tickers)
+        _save_tickers(strat, tickers, profile_id)
         parts = []
         if adding: parts.append(f"Added: {', '.join(adding)}")
         if already: parts.append(f"Already there: {', '.join(already)}")
@@ -514,7 +514,7 @@ def _tool_manage_watchlist(args, strat):
         removing = [s for s in symbols if s in tickers]
         not_found = [s for s in symbols if s not in tickers]
         tickers = [t for t in tickers if t not in symbols]
-        _save_tickers(strat, tickers)
+        _save_tickers(strat, tickers, profile_id)
         parts = []
         if removing: parts.append(f"Removed: {', '.join(removing)}")
         if not_found: parts.append(f"Not found: {', '.join(not_found)}")
@@ -524,7 +524,7 @@ def _tool_manage_watchlist(args, strat):
     return f"Unknown action: {action}"
 
 
-def _tool_manage_categories(args, strat):
+def _tool_manage_categories(args, strat, profile_id=0):
     action = args.get("action", "list")
     cat_query = args.get("category", "").strip()
     keywords = [k.strip() for k in args.get("keywords", []) if k.strip()]
@@ -551,7 +551,7 @@ def _tool_manage_categories(args, strat):
         existing = [i.lower() for i in cat.get("items", [])]
         adding = [k for k in keywords if k.lower() not in existing]
         cat["items"] = cat.get("items", []) + adding
-        _save_categories(strat, categories)
+        _save_categories(strat, categories, profile_id)
         return f"Added to {cat['label']}: {', '.join(adding)}. Now {len(cat['items'])} keywords." if adding else "All keywords already exist."
 
     if action == "remove_keyword":
@@ -559,12 +559,12 @@ def _tool_manage_categories(args, strat):
             return "No keywords to remove."
         kw_lower = [k.lower() for k in keywords]
         cat["items"] = [i for i in cat.get("items", []) if i.lower() not in kw_lower]
-        _save_categories(strat, categories)
+        _save_categories(strat, categories, profile_id)
         return f"Removed from {cat['label']}. Now {len(cat['items'])} keywords."
 
     if action in ("enable", "disable"):
         cat["enabled"] = (action == "enable")
-        _save_categories(strat, categories)
+        _save_categories(strat, categories, profile_id)
         return f"{cat['label']} is now {'enabled' if cat['enabled'] else 'disabled'}."
 
     return f"Unknown action: {action}"
@@ -585,13 +585,13 @@ def _fuzzy_find_category(categories, query):
     return None
 
 
-def _save_tickers(strat, symbols):
+def _save_tickers(strat, symbols, profile_id=0):
     from routes.config import _parse_ticker_objects
     objs = _parse_ticker_objects(symbols)
     if "market" not in strat.config:
         strat.config["market"] = {}
     strat.config["market"]["tickers"] = objs
-    _write_config(strat)
+    _sync_profile_overlay(strat, profile_id)
     try:
         from fetchers.market import MarketFetcher
         strat.market_fetcher = MarketFetcher(strat.config.get("market", {}))
@@ -599,17 +599,55 @@ def _save_tickers(strat, symbols):
         pass
 
 
-def _save_categories(strat, categories):
+def _save_categories(strat, categories, profile_id=0):
     strat.config["dynamic_categories"] = categories
-    _write_config(strat)
+    _sync_profile_overlay(strat, profile_id)
 
 
-def _write_config(strat):
+def _sync_profile_overlay(strat, profile_id=0):
+    """Save profile-specific config to DB overlay instead of config.yaml.
+
+    This prevents cross-profile contamination: tickers, categories, and
+    other per-user settings stay scoped to the profile that changed them.
+    """
+    if not profile_id or not strat.db:
+        # Fallback: no profile context, write to config.yaml (legacy)
+        logger.warning("_sync_profile_overlay: no profile_id, falling back to config.yaml write")
+        try:
+            with open(strat.config_path, "w") as f:
+                yaml.dump(strat.config, f, default_flow_style=False, allow_unicode=True, sort_keys=False)
+        except Exception as e:
+            logger.error(f"Config write failed: {e}")
+        return
+
     try:
-        with open(strat.config_path, "w") as f:
-            yaml.dump(strat.config, f, default_flow_style=False, allow_unicode=True, sort_keys=False)
+        config = strat.config
+        overlay = {
+            "profile": config.get("profile", {}),
+            "market": {"tickers": config.get("market", {}).get("tickers", [])},
+            "news": {"timelimit": config.get("news", {}).get("timelimit", "w")},
+            "dynamic_categories": config.get("dynamic_categories", []),
+            "extra_feeds_finance": config.get("extra_feeds_finance", {}),
+            "extra_feeds_politics": config.get("extra_feeds_politics", {}),
+            "extra_feeds_jobs": config.get("extra_feeds_jobs", {}),
+            "custom_feeds": config.get("custom_feeds", []),
+            "custom_tab_name": config.get("custom_tab_name", ""),
+        }
+        cursor = strat.db.conn.cursor()
+        cursor.execute("UPDATE profiles SET config_overlay = ? WHERE id = ?",
+                       (json.dumps(overlay), profile_id))
+        strat.db._commit()
+        logger.info(f"Profile overlay synced for profile_id={profile_id}")
+
+        # Update profile cache so subsequent requests see the change
+        if hasattr(strat, 'cache_profile_config'):
+            # Find username for this profile_id
+            cursor.execute("SELECT username FROM profiles WHERE id = ?", (profile_id,))
+            row = cursor.fetchone()
+            if row:
+                strat.cache_profile_config(row[0] if isinstance(row, tuple) else row['username'])
     except Exception as e:
-        logger.error(f"Config write failed: {e}")
+        logger.error(f"Profile overlay sync failed: {e}")
 
 
 def _tool_search_files(args, strat, profile_id=0, persona=''):
