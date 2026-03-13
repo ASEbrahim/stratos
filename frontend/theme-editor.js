@@ -51,7 +51,7 @@
                 { key: '--te-panel-opacity',  label: 'Panel Opacity',  type: 'range', min: 0.1, max: 1, step: 0.05, default: 0.96 },
                 { key: '--te-border-radius',  label: 'Border Radius',  type: 'range', min: 0, max: 24, step: 1, default: 12, unit: 'px' },
                 { key: '--te-glow-intensity', label: 'Glow Intensity', type: 'range', min: 0, max: 1, step: 0.05, default: 0.15 },
-                { key: '--te-blur',           label: 'Glass Blur',     type: 'range', min: 0, max: 32, step: 1, default: 12, unit: 'px' },
+                { key: '--te-blur',           label: 'Glass Blur ⚡',  type: 'range', min: 0, max: 20, step: 1, default: 12, unit: 'px' },
             ]
         },
     ];
@@ -504,6 +504,9 @@
     function _buildSakuraControls(body) {
         const old = document.getElementById('te-sakura-section');
         if (old) old.remove();
+        // Always clean up tree section too (it's appended separately)
+        const oldTree = document.getElementById('te-sakura-tree-section');
+        if (oldTree) oldTree.remove();
 
         const theme = document.documentElement.getAttribute('data-theme');
         if (theme !== 'sakura') return;
