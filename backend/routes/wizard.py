@@ -399,9 +399,8 @@ Remember: every entity MUST be relevant to a "{role}" in "{location or 'anywhere
                         items = [i for i in items if isinstance(i, str)][:8]
                     else:
                         items = []
-                    # Validate entities exist via DDG search
-                    if items:
-                        items = _validate_entities_ddg(items)
+                    # DDG validation removed — LLM entities are contextual enough,
+                    # and validation added 10-30s latency for minimal benefit
                     label = sdata.get("label", "Tracking")
                     tags = sdata.get("tags", {})
                     if not isinstance(tags, dict):
