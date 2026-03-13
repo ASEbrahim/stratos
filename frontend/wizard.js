@@ -253,7 +253,7 @@ function _loadPresetState(preset) {
   // Clear transient caches
   _tabSuggestCache = {};
   clearTimeout(_suggestDebounceTimer); _suggestDebounceTimer = null;
-  if (_suggestAbortCtrl) { _suggestAbortCtrl.abort(); _suggestAbortCtrl = null; }
+  for (const c of Object.values(_tabSuggestCache)) { if (c._abort) c._abort.abort(); }
   _s2BannerDismissed = false;
   _viewAllPills = new Set();
   _collapsedSections = new Set();
@@ -387,7 +387,7 @@ function initState() {
   discoverAdded = new Set();
   _tabSuggestCache = {};
   clearTimeout(_suggestDebounceTimer); _suggestDebounceTimer = null;
-  if (_suggestAbortCtrl) { _suggestAbortCtrl.abort(); _suggestAbortCtrl = null; }
+  for (const c of Object.values(_tabSuggestCache)) { if (c._abort) c._abort.abort(); }
   _s2BannerDismissed = false;
   _rvItemsCache = null;
   _rvLoading = false;
@@ -741,11 +741,13 @@ function renderDetails() {
     }
   }
   // Kick off suggestion fetch for the first uncached tab only if none are in-flight
-  // (subsequent tabs are chained from fetchTabSuggestion completion)
-  const anyLoading = tabs.some(t => _tabSuggestCache[t.id]?.loading);
-  if (!anyLoading) {
+  // (subsequent tabs are chained from fetchTabSuggestion completion — NOT from here)
+  const anyInFlight = tabs.some(t => _tabSuggestCache[t.id]?.loading);
+  const anyCached = tabs.some(t => _tabSuggestCache[t.id]);
+  if (!anyInFlight && !anyCached) {
+    // First-time trigger only — chain handles the rest
     for (const tab of tabs) {
-      if (tab.id !== 'interests' && !_tabSuggestCache[tab.id]) { fetchTabSuggestion(tab.id); break; }
+      if (tab.id !== 'interests') { fetchTabSuggestion(tab.id); break; }
     }
   }
 
@@ -1226,7 +1228,7 @@ function clearAll() {
   _wizClearState();
   _tabSuggestCache = {};
   clearTimeout(_suggestDebounceTimer); _suggestDebounceTimer = null;
-  if (_suggestAbortCtrl) { _suggestAbortCtrl.abort(); _suggestAbortCtrl = null; }
+  for (const c of Object.values(_tabSuggestCache)) { if (c._abort) c._abort.abort(); }
   _s2BannerDismissed = false;
   renderAll();
   if (typeof showToast === 'function') showToast('All selections cleared', 'info');
@@ -1996,11 +1998,11 @@ async function fetchTabSuggestion(tabId, extraExclude, isRefresh) {
   }
 
   try {
-    if (_suggestAbortCtrl) _suggestAbortCtrl.abort();
-    _suggestAbortCtrl = new AbortController();
+    const abortCtrl = new AbortController();
+    _tabSuggestCache[tabId]._abort = abortCtrl;
     const resp = await fetch('/api/wizard-tab-suggest', {
       method: 'POST', headers: {'Content-Type': 'application/json'},
-      signal: AbortSignal.any([_suggestAbortCtrl.signal, AbortSignal.timeout(300000)]),
+      signal: AbortSignal.any([abortCtrl.signal, AbortSignal.timeout(300000)]),
       body: JSON.stringify({ role, location, category_id: tabId, category_label: cat.name,
         existing_items: existingItems, selections_context: selectionsContext, selections,
         exclude_selected: extraExclude ? [...extraExclude] : [] })

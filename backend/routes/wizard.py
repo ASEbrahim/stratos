@@ -37,6 +37,8 @@ SELECTION STRATEGY:
    - Journalism/media → ind_media, learning:workshops
    - Product/project management → ind_tech + career:jobhunt + learning:workshops,confevents
    - Architecture (buildings) → ind_construct, learning:certs,workshops
+   - Translator/interpreter/linguist → ind_edu, career:freelance,remote, learning:courses,workshops (NOT ind_legal, NOT ind_tech)
+   - Hospitality (chef/hotel) → career:jobhunt, ind_food, learning:workshops,certs
 
 2. SUB-CATEGORY PRECISION — differentiate similar roles:
    - Frontend Dev → courses, open_source (visual/UX focus)
@@ -47,6 +49,7 @@ SELECTION STRATEGY:
    - QA Engineer → certs, hands_on, courses
    - Product Manager → workshops, confevents (NOT certs)
    - UX Designer → workshops, courses (NOT academic)
+   - Translator → courses, workshops (language certs like JLPT/DELF, NOT IT certs)
 
 3. LOCATION influences subs:
    - Gulf/Middle East → ind_oilgas ONLY if role is engineering, energy, or oil-related. Software devs in Kuwait do NOT need ind_oilgas
