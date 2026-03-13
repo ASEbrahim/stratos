@@ -1232,7 +1232,8 @@ function restoreAtmosphere() {
     const a = localStorage.getItem('wiz-atmosphere') || 'arcane';
     const root = document.getElementById('wiz-root');
     if (root) {
-      if (a !== 'arcane') root.setAttribute('data-wiz-atmos', a);
+      if (a === 'clean') root.removeAttribute('data-wiz-atmos');
+      else root.setAttribute('data-wiz-atmos', a);
       root.querySelectorAll('.atmos-btn').forEach(b => {
         b.classList.toggle('active', b.getAttribute('data-atmos') === a);
       });

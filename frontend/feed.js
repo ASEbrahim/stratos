@@ -1235,6 +1235,7 @@ function _openMediaLightbox(index) {
     });
 
     document.body.appendChild(overlay);
+    document.removeEventListener('keydown', _lightboxKeyHandler); // prevent duplicates
     document.addEventListener('keydown', _lightboxKeyHandler);
 }
 

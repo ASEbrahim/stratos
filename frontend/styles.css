@@ -845,27 +845,31 @@ input::placeholder, textarea::placeholder {
     position: relative;
     cursor: help;
 }
+.strat-tip:hover {
+    z-index: 999999;
+}
 .strat-tip::after {
     content: attr(data-tip);
     position: absolute;
     bottom: calc(100% + 6px);
     left: 50%;
     transform: translateX(-50%);
-    background: rgba(15, 23, 42, 0.95);
+    background: rgba(15, 23, 42, 0.97);
     color: #cbd5e1;
     font-size: 11px;
     font-weight: 400;
     line-height: 1.4;
     padding: 6px 10px;
     border-radius: 6px;
-    border: 1px solid rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.1);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.6);
     white-space: normal;
     width: max-content;
     max-width: 220px;
     pointer-events: none;
     opacity: 0;
     transition: opacity 0.15s ease;
-    z-index: 9999;
+    z-index: 999999;
 }
 .strat-tip:hover::after {
     opacity: 1;
@@ -1636,7 +1640,7 @@ input::placeholder, textarea::placeholder {
 
 /* ── Tool Tooltips (desktop) ── */
 .cfs-tooltip {
-    position: absolute; z-index: 10;
+    position: absolute; z-index: 999999;
     background: var(--bg-panel-solid, #1E2329);
     border: 1px solid rgba(42,46,57,0.8);
     border-radius: 8px; padding: 8px 10px;

@@ -867,10 +867,9 @@ function addCompareChart(symbol) {
         lineWidth:1.5, crosshairMarkerVisible:false, lastValueVisible:false, priceLineVisible:false,
     });
 
-    _compareCharts[symbol] = { chart, series, wrapper };
-
-    // Resize observer
-    new ResizeObserver(() => chart.applyOptions({width:chartEl.clientWidth})).observe(chartEl);
+    const cmpRo = new ResizeObserver(() => chart.applyOptions({width:chartEl.clientWidth}));
+    cmpRo.observe(chartEl);
+    _compareCharts[symbol] = { chart, series, wrapper, ro: cmpRo };
 
     _updateCompareChart(symbol);
 }
@@ -913,6 +912,7 @@ function _updateCompareChart(symbol) {
 function removeCompareChart(symbol) {
     const cc = _compareCharts[symbol];
     if (!cc) return;
+    try { cc.ro.disconnect(); } catch(e) {}
     try { cc.chart.remove(); } catch(e) {}
     cc.wrapper.remove();
     delete _compareCharts[symbol];

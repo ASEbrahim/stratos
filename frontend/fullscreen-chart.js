@@ -2339,6 +2339,7 @@ function _openFullscreenChartInner(sourceEl, title) {
         bg.remove();
         window.removeEventListener('popstate', onPop);
         document.removeEventListener('keydown', onEsc);
+        if (_fsKeysHandler) document.removeEventListener('keydown', _fsKeysHandler);
         window._fs = null;
         _fs = null;
         /* Sync main chart with latest data from focus mode */
@@ -2374,8 +2375,9 @@ function _openFullscreenChartInner(sourceEl, title) {
     window.addEventListener('popstate', onPop);
 
     /* ── Desktop keyboard shortcuts in fullscreen ── */
+    var _fsKeysHandler = null;
     if (!isMobile) {
-        document.addEventListener('keydown', function _fsKeys(e) {
+        _fsKeysHandler = function _fsKeys(e) {
             if (!_fs) { document.removeEventListener('keydown', _fsKeys); return; }
             /* Ctrl+Z undo drawing */
             if (e.ctrlKey && e.key === 'z') {
@@ -2420,7 +2422,8 @@ function _openFullscreenChartInner(sourceEl, title) {
                     setTimeout(function() { flashBtn.classList.remove('cfs-tool-flash'); }, 250);
                 }
             }
-        });
+        };
+        document.addEventListener('keydown', _fsKeysHandler);
     }
 }
 
