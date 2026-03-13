@@ -959,6 +959,24 @@ function formatAgentText(text) {
         }
     );
 
+    // Extract URLs before escaping (markdown links + bare URLs)
+    const urlPlaceholders = [];
+    // Markdown links: [text](url)
+    processed = processed.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, (_, label, url) => {
+        const idx = urlPlaceholders.length;
+        urlPlaceholders.push({ label, url });
+        return `\x00URL_${idx}\x00`;
+    });
+    // Bare URLs: https://... or http://...
+    processed = processed.replace(/(https?:\/\/[^\s<>\[\]()]+)/g, (_, url) => {
+        // Clean trailing punctuation that's likely not part of URL
+        let clean = url.replace(/[.,;:!?)]+$/, '');
+        const trailing = url.slice(clean.length);
+        const idx = urlPlaceholders.length;
+        urlPlaceholders.push({ label: '', url: clean });
+        return `\x00URL_${idx}\x00` + trailing;
+    });
+
     let html = processed
         .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
         // Bold
@@ -1026,6 +1044,14 @@ function formatAgentText(text) {
         // Only replace if not already inside an HTML tag
         const re = new RegExp(`(?<!<[^>]*)\\b(${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})\\b(?![^<]*>)`, 'g');
         html = html.replace(re, '<span class="text-slate-100">$1</span>');
+    });
+
+    // Re-inject URL links
+    urlPlaceholders.forEach((link, i) => {
+        const display = link.label || link.url.replace(/^https?:\/\/(?:www\.)?/, '').slice(0, 50) + (link.url.length > 60 ? '...' : '');
+        const safeUrl = link.url.replace(/"/g, '&quot;');
+        html = html.replace(`\x00URL_${i}\x00`,
+            `<a href="${safeUrl}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-0.5" style="color:#60a5fa;text-decoration:underline;text-decoration-color:rgba(96,165,250,0.3);text-underline-offset:2px;" onmouseenter="this.style.color='#93bbfc';this.style.textDecorationColor='rgba(96,165,250,0.6)'" onmouseleave="this.style.color='#60a5fa';this.style.textDecorationColor='rgba(96,165,250,0.3)'">${escAgent(display)}</a>`);
     });
 
     // Re-inject fenced code blocks
