@@ -72,10 +72,10 @@
 
 ## Summary by Priority
 
-**Critical:** B1
+**Critical:** ~~B1~~ ✅
 
-**High:** B2, B3, B4, B6, B9, F3, F9, F14
+**High:** B2, B3, ~~B4~~ ✅, ~~B6~~ ✅, B9, ~~F3~~ ✅, F9, ~~F14~~ ✅
 
-**Medium:** B5, B7, B8, B11, F1, F2, F7, F8, F10, F12, F13, F15, F16
+**Medium:** ~~B5~~ ✅, B7, ~~B8~~ NOT A BUG, B11, F1, F2, ~~F7~~ ALREADY REMOVED, ~~F8~~ ✅, F10, F12, F13, F15, F16
 
-**Low:** B10, B12, F4, F5, F6, F11, U1
+**Low:** ~~B10~~ NOT A BUG, ~~B12~~ ✅, F4, F5, ~~F6~~ ✅, F11, U1

@@ -1,7 +1,25 @@
 {
   "version": "1.0",
-  "last_updated": "2026-03-11T01:41:42.058304",
+  "last_updated": "2026-03-13T09:16:20.181953",
   "examples": [
+    {
+      "title": "AMD's Radeon and FSR Redstone were a no-show at GDC 2026, and that's troubling",
+      "content_preview": "AMD's Radeon brand and PC gaming technologies like FSR Redstone for its latest RDNA 4 generation of...",
+      "score": 8.5,
+      "reason": "LLM: Highly relevant technical intelligence regarding AMD and FSR Redstone at GDC 2026 provides cruc",
+      "url": "https://www.tweaktown.com/news/110454/amds-radeon-and-fsr-redstone-were-a-no-show-at-gdc-2026-and-thats-troubling/index.html",
+      "category": "tech",
+      "added_at": "2026-03-13T09:16:20.181944"
+    },
+    {
+      "title": "Zexin D., 普通话一级的北京人·会英语日语·你的难处我都懂 - Preply",
+      "content_preview": "Zexin D. Chinese tutor · From China A native Beijinger fluent in Mandarin, English, and Japanese – I understand your struggles Teaches Chinese lessons About me Translated Show original Hello! I'm Zexi",
+      "score": 8.5,
+      "reason": "LLM: Directly matches the user's target language skills, location (Beijing), and specific need for t",
+      "url": "https://preply.com/en/tutor/7592516",
+      "category": "tech",
+      "added_at": "2026-03-13T09:06:44.195297"
+    },
     {
       "title": "AI at the Edge: Why On-Device Intelligence Changes the Game for Supply Chains",
       "content_preview": "Share this: Artificial intelligence is entering a new phase of deployment. For most of the past decade, enterprise AI systems have relied heavily on centralized cloud infrastructure. Data collected at",
@@ -73,24 +91,6 @@
       "url": "https://www.darkreading.com/cybersecurity-operations/white-house-cyber-strategy-prioritizes-offense",
       "category": "tech",
       "added_at": "2026-03-10T14:08:53.839309"
-    },
-    {
-      "title": "– Job Board in Kuwait, Kuwait | SeriousTeachers",
-      "content_preview": "(Job Board) in Kuwait, Kuwait. IINIZIO specializes in overseas recruitment ... Kuwait Institute for Scientific Research. Kuwait City, Kuwait. British School ...",
-      "score": 9.0,
-      "reason": "Relevant hiring in target location: kuwait institute for scientific research, kuwait",
-      "url": "https://www.seriousteachers.com/GlobalLinks/2255/school",
-      "category": "career",
-      "added_at": "2026-03-10T14:08:53.835417"
-    },
-    {
-      "title": "Graduate Software Engineer, Open Source and Linux, Canonical ...",
-      "content_preview": "Canonical is a leading provider of open source software and operating systems to the global enterprise and technology markets. Our platform, Ubuntu, is very widely used in breakthrough enterprise init",
-      "score": 9.0,
-      "reason": "Breakthrough in tracked area: industry, open, source",
-      "url": "https://www.realworkfromanywhere.com/jobs/graduate-software-engineer-open-source-and-linux-canonical-ubuntu-canonical-2059",
-      "category": "tech",
-      "added_at": "2026-03-10T14:08:53.835167"
     }
   ]
 }

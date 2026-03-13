@@ -40,7 +40,7 @@ search:
   provider: serper
   searxng_host: http://localhost:8888
   serper_api_key: bc26c29537b924cf7e8022eaaf83c50cfdeb51be
-  serper_credits: 1204
+  serper_credits: 975
 system:
   database_file: strat_os.db
   frontend_port: 8080
@@ -53,34 +53,13 @@ email:
   smtp_user: StratintOS@gmail.com
   smtp_password: ctko nnjl skkl kxxj
 profile:
-  role: Computer Engineer
-  location: Kuwait
-  context: Computer Engineer in Kuwait seeking entry-level and research positions,
-    tracking telecom industry developments, software trends, and professional certifications
-    to advance career prospects.
+  role: Japanese language translator
+  location: Japan
+  context: Japanese language translator based in Japan focusing on freelance contracts,
+    remote work opportunities, and EdTech industry developments.
   interests: []
 market:
   tickers:
-  - symbol: AAPL
-    name: Apple
-  - symbol: MSFT
-    name: Microsoft
-  - symbol: NVDA
-    name: NVIDIA
-  - symbol: GOOGL
-    name: Google
-  - symbol: AMZN
-    name: Amazon
-  - symbol: META
-    name: Meta
-  - symbol: TSLA
-    name: Tesla
-  - symbol: AMD
-    name: AMD
-  - symbol: INTC
-    name: Intel
-  - symbol: IBM
-    name: IBM
   - symbol: BTC-USD
     name: Bitcoin
   - symbol: ETH-USD
@@ -93,145 +72,134 @@ market:
     name: EURUSD=X
   - symbol: ^GSPC
     name: S&P 500
-  - symbol: CE
-    name: CE
 news:
   timelimit: d
 dynamic_categories:
-- id: research-opportunities
-  label: Research Opportunities
-  icon: flask-conical
+- id: japan-edtech-industry
+  label: Japanese EdTech & Education
+  icon: cpu
   items:
-  - University lab openings
-  - Government research grants
-  - Industry R&D projects
-  - Academic publications
-  - Tech conference papers
-  - Open source contributions
-  - Collaborative research initiatives
-  - Kuwait Foundation for Advanced Scientific Research
-  - Arab Academy for Science
-  - Technology and Maritime Transport collaborations
-  - National Center for Physics research grants
-  - Smart city pilot program studies
-  - Renewable energy grid optimization papers
+  - Duolingo Japan
+  - Bunpro language learning
+  - EdTech startups Tokyo
+  - Language learning apps
+  - Online tutoring platforms
+  - AI translation tools
+  - Japanese curriculum standards
+  - E-learning certification
+  - WaniKani
+  - Bunpro
+  - Tae Kim's Guide to Learning Japanese
   enabled: true
   scorer_type: tech
   root: global
-- id: kuwait-tech-employers
-  label: Kuwait Tech Employers
+- id: japan-remote-work-trends
+  label: Remote Work & Freelancing
+  icon: zap
+  items:
+  - Freelance platforms Japan
+  - Remote work laws Japan
+  - Digital nomad visas
+  - Gig economy trends
+  - Contractor tax guides
+  - Virtual collaboration tools
+  - Side hustle opportunities
+  - Global remote jobs
+  - Upwork Japan
+  - Fiverr Japan
+  - Freelancers Union Japan
+  enabled: true
+  scorer_type: auto
+  root: regional
+- id: japan-language-learning
+  label: Language Learning & Courses
+  icon: book-open
+  items:
+  - JLPT exam updates
+  - Online Japanese courses
+  - Workshop schedules Tokyo
+  - Seminars for translators
+  - Certification programs
+  - Immersion programs Japan
+  - Podcast language learning
+  - Translation software training
+  - JLPT Nihongo Kyoiku Center
+  - Nihon University Language Center
+  - Tokyo Metropolitan University Japanese Course
+  enabled: true
+  scorer_type: tech
+  root: global
+- id: japan-cultural-content
+  label: Japanese Culture & Content
+  icon: landmark
+  items:
+  - Anime localization news
+  - Manga publishing trends
+  - J-Pop translation rights
+  - Cultural event coverage
+  - Tourism language guides
+  - Subtitling industry updates
+  - Localization best practices
+  - Regional dialects Japan
+  - Kadokawa Corporation
+  - Shueisha Localization Team
+  - Aniplex Dubbing Department
+  enabled: true
+  scorer_type: auto
+  root: regional
+- id: japan-translation-tech
+  label: Translation Technology Tools
+  icon: cpu
+  items:
+  - CAT tools updates
+  - Neural machine translation
+  - Glossary management systems
+  - Termbase software
+  - AI proofreading tools
+  - Cloud translation platforms
+  - Quality assurance metrics
+  - Project management apps
+  - MemoQ
+  - Trados Studio
+  - Smartcat
+  enabled: true
+  scorer_type: tech
+  root: global
+- id: japan-freelance-markets
+  label: Freelance Market Insights
+  icon: bar-chart-3
+  items:
+  - Translation rate trends
+  - Client acquisition tips
+  - Portfolio building advice
+  - Bidding strategies
+  - Industry salary surveys
+  - Networking events Tokyo
+  - Contract negotiation guides
+  - Client retention tactics
+  - Japan Translation Association Salary Survey
+  - Tokyo Freelancer Network
+  - Kanto Translation Industry Report
+  enabled: true
+  scorer_type: auto
+  root: regional
+- id: japan-japanese-translators
+  label: Japanese Translation Employers
   icon: briefcase
   items:
-  - Zain Kuwait
-  - Ooredoo Kuwait
-  - Etisalat Misr
-  - Mawakeel IT
-  - KIPIC Research Labs
-  - Kuwait Institute for Scientific Research
-  - National Telecom Company
-  - Al-Futtaim Technology Solutions
-  - QatarEnergy Digital
-  - Boubyan Bank IT Department
-  - NBD Kuwait IT Division
-  - Gulf Energy Company IT
+  - Yamato Translations
+  - Gengo Japan
+  - TransPerfect Tokyo
+  - Lionbridge Japan
+  - Freelance translators union
+  - Japan Association of Translators
+  - Kanto translation jobs
+  - Kyoto language services
+  - RWS Japan
+  - Unbabel Japan
   enabled: true
   scorer_type: career
   root: kuwait
-- id: global-tech-trends
-  label: Global Tech Trends
-  icon: cpu
-  items:
-  - AI in software engineering
-  - Cloud computing platforms
-  - Cybersecurity threats
-  - Edge computing
-  - IoT protocols
-  - 5G network architecture
-  - Quantum computing basics
-  - Generative AI for code generation
-  - Serverless computing architectures
-  - Zero-trust security models
-  - Digital twin technologies
-  - Blockchain interoperability standards
-  enabled: true
-  scorer_type: tech
-  root: global
-- id: telecom-industry-news
-  label: Telecom Industry News
-  icon: bar-chart-3
-  items:
-  - 5G deployment updates
-  - Spectrum licensing auctions
-  - Mobile network optimization
-  - Telecom regulatory changes
-  - Network infrastructure costs
-  - Satellite internet services
-  - Data privacy regulations
-  - Kuwait Communications Regulatory Authority (KCRA) updates
-  - Fiber optic network expansion plans
-  - Cross-border data transfer protocols
-  - Network slicing for enterprise clients
-  - E-waste recycling regulations
-  enabled: true
-  scorer_type: auto
-  root: regional
-- id: career-development
-  label: Career Development
-  icon: book-open
-  items:
-  - Entry-level certifications
-  - Online coding courses
-  - Professional networking events
-  - Software development bootcamps
-  - Technical interview prep
-  - Resume building tips
-  - Freelance platform trends
-  - Microsoft Learn Kuwait paths
-  - AWS Certified Cloud Practitioner
-  - Certified Ethical Hacker (CEH) training
-  - PMP certification for IT project managers
-  - Local tech meetups in Kuwait City
-  enabled: true
-  scorer_type: career
-  root: global
-- id: software-tools-news
-  label: Software Tools News
-  icon: zap
-  items:
-  - IDE updates and features
-  - Containerization tools
-  - DevOps pipeline changes
-  - API management platforms
-  - Version control best practices
-  - Testing frameworks releases
-  - Low-code development trends
-  - GitHub Copilot integration updates
-  - Kubernetes cluster management tools
-  - Jenkins CI/CD pipeline plugins
-  - PostgreSQL database optimization features
-  - Docker Desktop security patches
-  enabled: true
-  scorer_type: tech
-  root: global
-- id: startup-ecosystem
-  label: Startup Ecosystem
-  icon: building-2
-  items:
-  - Kuwait tech startups
-  - Venture capital funding
-  - Tech incubator programs
-  - Digital transformation cases
-  - Fintech innovations
-  - E-commerce growth sectors
-  - Government digital initiatives
-  - Kuwait Startup Hub initiatives
-  - Zain Venture Fund investments
-  - Ooredoo Digital Innovation Lab programs
-  - Kuwait Investment Authority (KIA) tech grants
-  - Local e-commerce logistics startups
-  enabled: true
-  scorer_type: auto
-  root: regional
 extra_feeds_finance:
   cnbc_top: false
   cnbc_finance: false
@@ -302,10 +270,10 @@ extra_feeds_jobs:
 custom_feeds:
 - url: https://remoteok.com/remote-jobs.rss
   name: RemoteOK
-  'on': false
+  'on': true
 - url: https://www.linkedin.com/jobs/search/feed?keywords=&location=Kuwait&sortBy=DD
   name: LinkedIn Kuwait
-  'on': false
+  'on': true
 - url: https://news.google.com/rss/search?q=indeed+jobs+Kuwait&hl=en
   name: Indeed Kuwait (Google)
   'on': false
@@ -327,14 +295,11 @@ custom_feeds:
 - url: https://safebooru.org/index.php?page=atom&s=post&tags=scenery
   name: saf
   'on': false
-- url: https://www.youtube.com/feeds/videos.xml?channel_id=UCI1BdAoa8DK8jt03jBRhw1w
-  name: Baha
+- url: https://www.youtube.com/feeds/videos.xml?channel_id=UCkpe73RMmmzcZHllWPw0sdw
+  name: Yasin
+  'on': true
+- url: https://www.youtube.com/feeds/videos.xml?channel_id=UCJtfma0mE_XrBAD9uakcjfA
+  name: fe
   'on': true
 custom_tab_name: Custom
-tickers:
-- BTC-USD
-- ETH-USD
-- GC=F
-- CL=F
-- EURUSD=X
-- ^GSPC
+tickers: []
