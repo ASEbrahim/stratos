@@ -903,16 +903,23 @@ function renderStars() {
         ctx.globalAlpha = 1;
     }
 
-    // ── Nebula: Black hole ──
+    // ── Nebula: Black hole (offscreen-cached, redrawn every 3rd frame) ──
     const _BH_TILT = 0.30, _BH_ROT = -0.12;
     const _bhTierColors = [[200,190,255],[167,139,250],[56,189,248]];
-    const _bhParticles = [];
+    const _bhParticles = [], _bhBack = [], _bhFront = [];
+    let _bhOffscreen = null, _bhOctx = null, _bhFrameCount = 0;
+    const _BH_SKIP = _perfMode ? 4 : 3; // redraw every Nth frame
     if (isNebula) {
-        const _bhCount = _perfMode ? 120 : 250;
+        _bhOffscreen = document.createElement('canvas');
+        _bhOctx = _bhOffscreen.getContext('2d');
+        const _bhCount = _perfMode ? 100 : 200;
         for (let i = 0; i < _bhCount; i++) {
             const band = Math.random(), dist = 50 + band * 260;
             const tier = band < 0.2 ? 0 : band < 0.55 ? 1 : 2;
-            _bhParticles.push({ angle: Math.random() * Math.PI * 2, dist, speed: (0.06 + Math.random() * 0.14) * (180 / (dist + 30)), r: tier === 0 ? Math.random() * 2.2 + 0.8 : Math.random() * 1.6 + 0.4, a: tier === 0 ? Math.random() * 0.7 + 0.4 : Math.random() * 0.55 + 0.15, yOff: (Math.random() - 0.5) * 5, tier });
+            const p = { angle: Math.random() * Math.PI * 2, dist, speed: (0.06 + Math.random() * 0.14) * (180 / (dist + 30)), r: tier === 0 ? Math.random() * 2.2 + 0.8 : Math.random() * 1.6 + 0.4, a: tier === 0 ? Math.random() * 0.7 + 0.4 : Math.random() * 0.55 + 0.15, yOff: (Math.random() - 0.5) * 5, tier };
+            _bhParticles.push(p);
+            // Pre-split into back/front by initial depth to avoid sorting every frame
+            if (Math.sin(p.angle) <= 0.1) _bhBack.push(p); else _bhFront.push(p);
         }
     }
     function _bhProject(cx, cy, dist, angle) {
@@ -920,60 +927,76 @@ function renderStars() {
         const cr = Math.cos(_BH_ROT), sr = Math.sin(_BH_ROT);
         return { x: cx + x3 * cr - y3 * sr, y: cy + (x3 * sr + y3 * cr) * _BH_TILT, depth: Math.sin(angle) };
     }
-    function _bhDrawDisk(cx, cy) {
-        ctx.save(); ctx.translate(cx, cy); ctx.rotate(_BH_ROT); ctx.scale(1, _BH_TILT);
+    function _bhDrawDisk(c, cx, cy) {
+        c.save(); c.translate(cx, cy); c.rotate(_BH_ROT); c.scale(1, _BH_TILT);
         for (let ring = 0; ring < 3; ring++) {
             const rd = 80 + ring * 70, alpha = [0.10, 0.06, 0.035][ring];
-            ctx.beginPath(); ctx.arc(0, 0, rd, 0, Math.PI * 2);
-            ctx.strokeStyle = `rgba(167,139,250,${alpha})`; ctx.lineWidth = 18 + ring * 8; ctx.stroke();
+            c.beginPath(); c.arc(0, 0, rd, 0, Math.PI * 2);
+            c.strokeStyle = `rgba(167,139,250,${alpha})`; c.lineWidth = 18 + ring * 8; c.stroke();
         }
-        const haze = ctx.createRadialGradient(0, 0, 80, 0, 0, 320);
+        const haze = c.createRadialGradient(0, 0, 80, 0, 0, 320);
         haze.addColorStop(0, 'rgba(100,80,200,0.0)'); haze.addColorStop(0.4, 'rgba(80,60,180,0.04)');
         haze.addColorStop(0.7, 'rgba(56,130,220,0.025)'); haze.addColorStop(1, 'rgba(56,189,248,0)');
-        ctx.fillStyle = haze; ctx.beginPath(); ctx.arc(0, 0, 320, 0, Math.PI * 2); ctx.fill();
-        ctx.restore();
+        c.fillStyle = haze; c.beginPath(); c.arc(0, 0, 320, 0, Math.PI * 2); c.fill();
+        c.restore();
     }
-    function _bhDrawVoid(cx, cy, t) {
+    function _bhDrawVoid(c, cx, cy, t) {
         const pulse = 1 + Math.sin(t * 0.4) * 0.03, eventR = 30 * pulse;
-        const lens = ctx.createRadialGradient(cx, cy, eventR, cx, cy, eventR * 5);
+        const lens = c.createRadialGradient(cx, cy, eventR, cx, cy, eventR * 5);
         lens.addColorStop(0, 'rgba(167,139,250,0.22)'); lens.addColorStop(0.25, 'rgba(120,100,220,0.10)');
         lens.addColorStop(0.5, 'rgba(56,189,248,0.04)'); lens.addColorStop(1, 'rgba(56,189,248,0)');
-        ctx.fillStyle = lens; ctx.beginPath(); ctx.arc(cx, cy, eventR * 5, 0, Math.PI * 2); ctx.fill();
-        const photon = ctx.createRadialGradient(cx, cy, eventR - 3, cx, cy, eventR + 14);
+        c.fillStyle = lens; c.beginPath(); c.arc(cx, cy, eventR * 5, 0, Math.PI * 2); c.fill();
+        const photon = c.createRadialGradient(cx, cy, eventR - 3, cx, cy, eventR + 14);
         photon.addColorStop(0, 'rgba(167,139,250,0)'); photon.addColorStop(0.25, 'rgba(167,139,250,0.55)');
         photon.addColorStop(0.45, 'rgba(220,210,255,0.7)'); photon.addColorStop(0.65, 'rgba(125,211,252,0.45)'); photon.addColorStop(1, 'rgba(56,189,248,0)');
-        ctx.fillStyle = photon; ctx.beginPath(); ctx.arc(cx, cy, eventR + 14, 0, Math.PI * 2); ctx.fill();
-        const voidG = ctx.createRadialGradient(cx, cy, 0, cx, cy, eventR);
+        c.fillStyle = photon; c.beginPath(); c.arc(cx, cy, eventR + 14, 0, Math.PI * 2); c.fill();
+        const voidG = c.createRadialGradient(cx, cy, 0, cx, cy, eventR);
         voidG.addColorStop(0, 'rgba(0,0,0,1)'); voidG.addColorStop(0.8, 'rgba(0,0,0,1)'); voidG.addColorStop(1, 'rgba(0,0,0,0.6)');
-        ctx.fillStyle = voidG; ctx.beginPath(); ctx.arc(cx, cy, eventR, 0, Math.PI * 2); ctx.fill();
+        c.fillStyle = voidG; c.beginPath(); c.arc(cx, cy, eventR, 0, Math.PI * 2); c.fill();
     }
     function _nebulaDrawBlackHole(cx, cy, t) {
-        _bhDrawDisk(cx, cy);
-        const _bp = [];
-        for (const p of _bhParticles) {
-            const ang = p.angle + t * p.speed;
-            const pr = _bhProject(cx, cy, p.dist, ang);
-            _bp.push({ x: pr.x, y: pr.y + p.yOff, d: pr.depth, r: p.r, a: p.a, tier: p.tier });
+        // Resize offscreen canvas if needed
+        if (_bhOffscreen.width !== canvas.width || _bhOffscreen.height !== canvas.height) {
+            _bhOffscreen.width = canvas.width; _bhOffscreen.height = canvas.height;
+            _bhFrameCount = 0; // force redraw on resize
         }
-        _bp.sort((a, b) => a.d - b.d);
-        for (const p of _bp) {
-            if (p.d > 0.1) continue;
-            const c = _bhTierColors[p.tier];
-            ctx.globalAlpha = p.a * (0.65 + p.d * 0.35);
-            ctx.fillStyle = `rgb(${c[0]},${c[1]},${c[2]})`; ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctx.fill();
-        }
-        _bhDrawVoid(cx, cy, t);
-        for (const p of _bp) {
-            if (p.d <= 0.1) continue;
-            const c = _bhTierColors[p.tier];
-            ctx.globalAlpha = p.a * (0.6 + p.d * 0.4);
-            if (p.tier === 0) {
-                ctx.fillStyle = `rgba(${c[0]},${c[1]},${c[2]},${p.a * 0.15})`;
-                ctx.beginPath(); ctx.arc(p.x, p.y, p.r * 4, 0, Math.PI * 2); ctx.fill();
+        // Only redraw every Nth frame — blit cached image otherwise
+        if (_bhFrameCount % _BH_SKIP === 0) {
+            const c = _bhOctx;
+            c.clearRect(0, 0, _bhOffscreen.width, _bhOffscreen.height);
+            _bhDrawDisk(c, cx, cy);
+            // Draw back particles (depth <= 0.1)
+            for (const p of _bhParticles) {
+                const ang = p.angle + t * p.speed;
+                const pr = _bhProject(cx, cy, p.dist, ang);
+                const d = pr.depth;
+                if (d > 0.1) continue;
+                const col = _bhTierColors[p.tier];
+                c.globalAlpha = p.a * (0.65 + d * 0.35);
+                c.fillStyle = `rgb(${col[0]},${col[1]},${col[2]})`;
+                c.beginPath(); c.arc(pr.x, pr.y + p.yOff, p.r, 0, Math.PI * 2); c.fill();
             }
-            ctx.fillStyle = `rgb(${c[0]},${c[1]},${c[2]})`; ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctx.fill();
+            _bhDrawVoid(c, cx, cy, t);
+            // Draw front particles (depth > 0.1)
+            for (const p of _bhParticles) {
+                const ang = p.angle + t * p.speed;
+                const pr = _bhProject(cx, cy, p.dist, ang);
+                const d = pr.depth;
+                if (d <= 0.1) continue;
+                const col = _bhTierColors[p.tier];
+                c.globalAlpha = p.a * (0.6 + d * 0.4);
+                if (p.tier === 0) {
+                    c.fillStyle = `rgba(${col[0]},${col[1]},${col[2]},${p.a * 0.15})`;
+                    c.beginPath(); c.arc(pr.x, pr.y + p.yOff, p.r * 4, 0, Math.PI * 2); c.fill();
+                }
+                c.fillStyle = `rgb(${col[0]},${col[1]},${col[2]})`;
+                c.beginPath(); c.arc(pr.x, pr.y + p.yOff, p.r, 0, Math.PI * 2); c.fill();
+            }
+            c.globalAlpha = 1;
         }
-        ctx.globalAlpha = 1;
+        _bhFrameCount++;
+        // Blit cached offscreen canvas (single GPU texture copy)
+        ctx.drawImage(_bhOffscreen, 0, 0);
     }
 
     // ── Aurora: Binary star system ──
