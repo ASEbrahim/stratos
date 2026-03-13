@@ -152,72 +152,63 @@ class FandomFetcher:
             return ""
 
     def get_page_extract(self, title, max_chars=1500):
-        """Fetch a plain-text extract of a page (intro section). Follows redirects."""
-        try:
-            data = self._get({
-                "action": "query", "titles": title, "prop": "extracts",
-                "exchars": max_chars, "explaintext": True, "exintro": True,
-                "redirects": True
-            })
-            pages = data.get("query", {}).get("pages", {})
-            for page in pages.values():
-                extract = page.get("extract", "")
-                if extract:
-                    return extract
-            return ""
-        except Exception:
-            return ""
+        """Fetch wikitext for a single page, parse to clean text, truncate."""
+        raw = self.get_page_wikitext(title)
+        if raw:
+            return _parse_wikitext(raw)[:max_chars]
+        return ""
 
-    def get_batch_extracts(self, titles, max_chars=1500):
-        """Fetch plain-text extracts for multiple pages in ONE API call.
+    def get_batch_wikitext(self, titles, max_chars=2000):
+        """Fetch raw wikitext for multiple pages in ONE API call via revisions API.
 
-        MediaWiki supports titles=A|B|C for up to 50 pages per request.
-        Returns: dict mapping title -> extract text
+        Uses action=query + prop=revisions (always available on Fandom wikis).
+        Returns: dict mapping original title -> cleaned text (parsed wikitext).
         """
         if not titles:
             return {}
         results = {}
-        # Process in chunks of 20 (safe for URL length)
-        for chunk_start in range(0, len(titles), 20):
-            chunk = titles[chunk_start:chunk_start + 20]
+        # Process in chunks of 10 (revisions can be large)
+        for chunk_start in range(0, len(titles), 10):
+            chunk = titles[chunk_start:chunk_start + 10]
             try:
                 data = self._get({
                     "action": "query",
                     "titles": "|".join(chunk),
-                    "prop": "extracts",
-                    "exchars": max_chars,
-                    "explaintext": True,
-                    "exintro": True,
+                    "prop": "revisions",
+                    "rvprop": "content",
+                    "rvslots": "main",
                     "redirects": True,
                 })
-                # Build redirect map: from -> to
+                # Build redirect map for title resolution
                 redirects_map = {}
                 for redir in data.get("query", {}).get("redirects", []):
                     redirects_map[redir.get("from", "")] = redir.get("to", "")
-                # Build normalized map: from -> to
                 norm_map = {}
                 for norm in data.get("query", {}).get("normalized", []):
                     norm_map[norm.get("from", "")] = norm.get("to", "")
 
-                pages = data.get("query", {}).get("pages", {})
-                # Map page titles back to original requested titles
-                page_title_to_extract = {}
-                for page in pages.values():
+                # Extract wikitext from each page's revision
+                page_title_to_text = {}
+                for page in data.get("query", {}).get("pages", {}).values():
                     title_key = page.get("title", "")
-                    extract = page.get("extract", "")
-                    if extract:
-                        page_title_to_extract[title_key] = extract
+                    revs = page.get("revisions", [])
+                    if revs:
+                        raw = revs[0].get("slots", {}).get("main", {}).get("*", "")
+                        if raw:
+                            clean = _parse_wikitext(raw)[:max_chars]
+                            if len(clean) >= 50:
+                                page_title_to_text[title_key] = clean
 
+                # Map resolved titles back to original requested titles
                 for orig_title in chunk:
-                    # Follow normalization + redirect chain
                     resolved = norm_map.get(orig_title, orig_title)
                     resolved = redirects_map.get(resolved, resolved)
-                    if resolved in page_title_to_extract:
-                        results[orig_title] = page_title_to_extract[resolved]
-                    elif orig_title in page_title_to_extract:
-                        results[orig_title] = page_title_to_extract[orig_title]
+                    if resolved in page_title_to_text:
+                        results[orig_title] = page_title_to_text[resolved]
+                    elif orig_title in page_title_to_text:
+                        results[orig_title] = page_title_to_text[orig_title]
             except Exception as e:
-                logger.warning(f"Batch extract failed for chunk: {e}")
+                logger.warning(f"Batch wikitext failed for chunk: {e}")
         return results
 
 
@@ -481,23 +472,12 @@ def run_canon_import(ollama_host, model, scenario_path, franchise_info, progress
     locs_to_fetch = location_titles[:loc_limit]
 
     # Batch-fetch character extracts (1 API call per 20 titles instead of 12 separate calls)
-    char_extracts = fetcher.get_batch_extracts(chars_to_fetch, max_chars=2000)
+    char_extracts = fetcher.get_batch_wikitext(chars_to_fetch, max_chars=2000)
     logger.info(f"Batch-fetched {len(char_extracts)}/{len(chars_to_fetch)} character extracts")
 
     # Batch-fetch location extracts
-    loc_extracts = fetcher.get_batch_extracts(locs_to_fetch, max_chars=1500)
+    loc_extracts = fetcher.get_batch_wikitext(locs_to_fetch, max_chars=1500)
     logger.info(f"Batch-fetched {len(loc_extracts)}/{len(locs_to_fetch)} location extracts")
-
-    # For characters without extracts, try wikitext individually (but only a few)
-    chars_needing_wikitext = [t for t in chars_to_fetch if t not in char_extracts or len(char_extracts.get(t, '')) < 100]
-    for title in chars_needing_wikitext[:4]:  # cap at 4 individual fallbacks
-        if fetcher.fetch_count >= MAX_FETCHES - 2:
-            break
-        raw = fetcher.get_page_wikitext(title)
-        if raw:
-            clean = _parse_wikitext(raw)[:2000]
-            if len(clean) >= 50:
-                char_extracts[title] = clean
 
     # Cache all fetched content
     for title, text in char_extracts.items():
@@ -712,6 +692,24 @@ Return ONLY valid JSON."""
         if isinstance(batch_locs, dict):
             batch_locs = [batch_locs]
 
+        if not batch_locs:
+            # Fallback: process locations individually
+            logger.warning("Batch location LLM failed, falling back to individual calls")
+            batch_locs = []
+            for title, text in loc_texts:
+                single_prompt = f"""Convert this {franchise} location wiki article to game-ready JSON.
+
+Location: {title}
+{text[:1200]}
+
+Return a single JSON object:
+{{"id": "lowercase_id", "name": "Name", "description": "100-150 words vivid prose", "keywords": ["k1","k2"]}}
+
+Return ONLY valid JSON."""
+                loc_data = _llm_json_call(ollama_host, single_prompt, model, num_predict=1024)
+                if loc_data:
+                    batch_locs.append(loc_data)
+
         if batch_locs:
             for loc_data in batch_locs:
                 if not isinstance(loc_data, dict):
@@ -847,7 +845,10 @@ def _llm_json_call(ollama_host, prompt, model, max_retries=2, num_predict=2048, 
         except json.JSONDecodeError as e:
             logger.warning(f"JSON parse failed (attempt {attempt + 1}): {e}")
             if attempt < max_retries:
-                prompt += "\n\nPrevious response had invalid JSON. Return ONLY a valid JSON object."
+                if expect_array:
+                    prompt += "\n\nPrevious response had invalid JSON. Return ONLY a valid JSON array of objects."
+                else:
+                    prompt += "\n\nPrevious response had invalid JSON. Return ONLY a valid JSON object."
             else:
                 return None
         except Exception as e:
