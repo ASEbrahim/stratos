@@ -791,13 +791,14 @@ def _tool_import_canon_world(args, strat, profile_id=0):
     base_path = get_scenario_base_path(data_dir, profile_id)
     scenario_path = create_scenario_skeleton(base_path, scenario_name)
 
-    # Save to DB
+    # Save to DB and activate
     sm = None
     try:
         from processors.scenarios import ScenarioManager
         sm = ScenarioManager(strat.config, db=strat.db)
         sm.create_scenario(profile_id, scenario_name,
                            world_md=f"Canon import: {info['full_name']}")
+        sm.set_active_scenario(profile_id, scenario_name)
     except Exception as e:
         logger.warning(f"DB save failed: {e}")
 

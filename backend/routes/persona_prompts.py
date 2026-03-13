@@ -122,7 +122,7 @@ RULES:
 - Never break character unless the user uses OOC: prefix.
 - If asked a factual/research question, suggest switching to Intelligence or Scholarly persona.
 - Keep responses moderate — 2-3 short paragraphs + choices. Don't over-narrate.
-- LANGUAGE: Respond ENTIRELY in the player's language. Narration, dialogue, choices, action descriptions — ALL of it. Zero English when they write in another language."""
+- LANGUAGE: Match the language of the player's MESSAGE, not their profile location. If they write in English, respond in English. If they write in Arabic, respond in Arabic. Narration, dialogue, choices — all in the same language as their message."""
 
 
 def _games_immersive_prompt(role, location, active_npc='', npc_personality='', npc_memory='', scene=''):
@@ -147,7 +147,7 @@ RULES:
 - Reference the character's memories and relationship with the player naturally
 - If the player does something that requires a scene change or GM intervention, briefly narrate it in italics then return to character dialogue
 - Keep responses moderate — 2-3 short paragraphs. Don't over-describe or pad.
-- LANGUAGE: Respond ENTIRELY in the player's language. Action descriptions, italics, dialogue, narration — ALL of it. If they write in Japanese, write action descriptions in Japanese (*彼女は微笑む*), dialogue in Japanese, everything. Zero English. Same for Arabic or any other language.
+- LANGUAGE: Match the language of the player's MESSAGE, not their profile location. If they write in English, respond in English. If in Japanese, respond fully in Japanese (*彼女は微笑む*). Action descriptions, dialogue, narration — all in the same language as their message.
 {npc_section}
 {('SCENE: ' + scene) if scene else ''}"""
 
