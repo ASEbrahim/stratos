@@ -110,7 +110,7 @@ function _ytRenderChannels() {
         const lenses = lensArr.join(', ') || 'all';
         const channelName = ch.channel_name || ch.name || ch.channel_id;
         const videoCount = ch.video_count || 0;
-        return `<div class="yt-channel-card" data-channel-id="${ch.id}">
+        return `<div class="yt-channel-card" data-channel-id="${ch.id}" onclick="_ytToggleVideos(${ch.id})" style="cursor:pointer">
             <div class="flex items-center justify-between">
                 <div class="flex items-center gap-2 min-w-0">
                     <div class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);">
@@ -122,13 +122,13 @@ function _ytRenderChannels() {
                     </div>
                 </div>
                 <div class="flex items-center gap-1 flex-shrink-0">
-                    <button onclick="_ytProcessChannel(${ch.id})" class="fb-tool-btn" title="Process new videos">
+                    <button onclick="event.stopPropagation();_ytProcessChannel(${ch.id})" class="fb-tool-btn" title="Process new videos">
                         <i data-lucide="play" class="w-3 h-3"></i>
                     </button>
-                    <button onclick="_ytToggleVideos(${ch.id})" class="fb-tool-btn" title="Show videos">
+                    <button onclick="event.stopPropagation();_ytToggleVideos(${ch.id})" class="fb-tool-btn" title="Show videos">
                         <i data-lucide="list" class="w-3 h-3"></i>
                     </button>
-                    <button onclick="_ytDeleteChannel(${ch.id}, '${_escAttr(channelName)}')" class="fb-tool-btn" title="Remove channel" onmouseenter="this.style.color='#f87171';this.style.borderColor='rgba(239,68,68,0.3)'" onmouseleave="this.style.color='var(--text-muted)';this.style.borderColor='var(--border-strong)'">
+                    <button onclick="event.stopPropagation();_ytDeleteChannel(${ch.id}, '${_escAttr(channelName)}')" class="fb-tool-btn" title="Remove channel" onmouseenter="this.style.color='#f87171';this.style.borderColor='rgba(239,68,68,0.3)'" onmouseleave="this.style.color='var(--text-muted)';this.style.borderColor='var(--border-strong)'">
                         <i data-lucide="trash-2" class="w-3 h-3"></i>
                     </button>
                 </div>
