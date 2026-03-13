@@ -1056,6 +1056,17 @@
                         </div>
                     </div>
 
+                    <!-- Developer Tools -->
+                    <div class="glass-panel rounded-xl p-6" data-stab="system">
+                        <h3 class="text-sm font-bold text-slate-200 mb-1 flex items-center gap-2">
+                            <i data-lucide="wrench" class="w-4 h-4" style="color:var(--accent)"></i> Developer Tools
+                        </h3>
+                        <p class="text-xs text-slate-500 mb-3">Build sprint prompts with auto-populated project context.</p>
+                        <button onclick="typeof openPromptBuilder==='function'&&openPromptBuilder()" class="px-3 py-2 rounded-lg text-xs font-medium transition-all bg-slate-800/60 border border-slate-700/50 text-slate-300 hover:border-emerald-500/50 hover:text-emerald-300 flex items-center gap-1.5">
+                            <i data-lucide="clipboard-list" class="w-3.5 h-3.5"></i> Sprint Prompt Builder
+                        </button>
+                    </div>
+
                     <!-- About -->
                     <div class="glass-panel rounded-xl p-6" id="about-panel" data-stab="system">
                         <div class="flex items-center justify-between">
@@ -1561,6 +1572,7 @@
     <script defer src="stt.js"></script>
     <script defer src="agent.js"></script>
     <script defer src="ui.js"></script>
+    <script defer src="prompt-builder.js"></script>
     <script defer src="scan-history.js"></script>
     <script defer src="theme-editor.js"></script>
     <script defer src="tour.js"></script>
