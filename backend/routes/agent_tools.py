@@ -9,6 +9,7 @@ Exports:
 """
 
 import json
+import os
 import re
 import logging
 import yaml
@@ -758,6 +759,60 @@ def _tool_read_url(args, strat):
         return f"Error reading URL: {e}"
 
 
+def _register_canon_npcs_in_db(strat, profile_id, scenario_name, scenario_path):
+    """After canon import, register file-based NPCs into persona_entities DB table."""
+    import json as _json
+    roster_path = os.path.join(scenario_path, 'characters', '_roster.json')
+    if not os.path.exists(roster_path) or not strat.db:
+        return
+    try:
+        with open(roster_path) as f:
+            roster = _json.load(f)
+        npcs = roster.get('npcs', [])
+        cursor = strat.db.conn.cursor()
+        for npc in npcs:
+            npc_id = npc.get('id', '')
+            display_name = npc.get('name', npc_id)
+            if not npc_id:
+                continue
+            # Read profile.md for personality content
+            profile_path = os.path.join(scenario_path, 'characters', 'npcs', npc_id, 'profile.md')
+            personality = ''
+            if os.path.exists(profile_path):
+                with open(profile_path) as f:
+                    personality = f.read()[:4000]
+            # Read knowledge.md
+            knowledge_path = os.path.join(scenario_path, 'characters', 'npcs', npc_id, 'knowledge.md')
+            knowledge = ''
+            if os.path.exists(knowledge_path):
+                with open(knowledge_path) as f:
+                    knowledge = f.read()[:4000]
+            # Read dialogue.md for speaking style
+            dialogue_path = os.path.join(scenario_path, 'characters', 'npcs', npc_id, 'dialogue.md')
+            speaking_style = ''
+            if os.path.exists(dialogue_path):
+                with open(dialogue_path) as f:
+                    speaking_style = f.read()[:2000]
+            # Upsert: insert or update if already exists
+            cursor.execute(
+                """INSERT INTO persona_entities (profile_id, persona, scenario_name, name, display_name,
+                   entity_type, personality_md, speaking_style_md, knowledge_md, identity_md)
+                   VALUES (?, 'gaming', ?, ?, ?, 'character', ?, ?, ?, ?)
+                   ON CONFLICT(profile_id, persona, scenario_name, name)
+                   DO UPDATE SET display_name=excluded.display_name,
+                     personality_md=excluded.personality_md,
+                     speaking_style_md=excluded.speaking_style_md,
+                     knowledge_md=excluded.knowledge_md,
+                     identity_md=excluded.identity_md""",
+                (profile_id, scenario_name, npc_id, display_name,
+                 personality, speaking_style, knowledge,
+                 npc.get('short', '')))
+        strat.db._commit()
+        logger.info(f"Registered {len(npcs)} canon NPCs in persona_entities for scenario '{scenario_name}'")
+    except Exception as e:
+        logger.error(f"Failed to register canon NPCs in DB: {e}")
+
+
 def _tool_import_canon_world(args, strat, profile_id=0):
     """Import a canon world from a franchise via Fandom wikis."""
     import threading
@@ -854,6 +909,8 @@ def _tool_import_canon_world(args, strat, profile_id=0):
         try:
             from processors.canon_import import run_canon_import
             run_canon_import(ollama_host, model, scenario_path, info, progress_callback=_progress_cb)
+            # Register imported NPCs in persona_entities DB so they appear in immersive mode dropdown
+            _register_canon_npcs_in_db(strat, profile_id, scenario_name, scenario_path)
         except Exception as e:
             logger.error(f"Canon import failed: {e}")
             strat._scenario_gen_status[status_key]["status"] = "failed"

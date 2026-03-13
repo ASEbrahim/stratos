@@ -434,10 +434,12 @@ def handle_agent_chat(handler, strat, output_file, profile_id=0):
                     if lines:
                         system_prompt += f"\n\nDB SEARCH '{' '.join(keywords[:3])}':\n" + "\n".join(lines)
 
-        # ── Free length mode: increase token budget and add structuring instructions ──
-        _num_predict = 8000 if free_length else 3000
+        # ── Response length mode ──
+        _num_predict = 8000 if free_length else 1500
         if free_length:
             system_prompt += "\n\nLENGTH MODE: The user has enabled extended responses. You may produce longer, more detailed output. Structure long responses with **headers**, bullet points, and clear sections. Use markdown formatting for readability."
+        else:
+            system_prompt += "\n\nBREVITY: Keep responses short and conversational — 2-4 sentences max unless the user asks for detail. No headers, no bullet lists, no markdown formatting unless specifically asked. Reply like a knowledgeable friend in a chat app."
 
         # ── Free chat mode: no tools, simple system prompt ──
         if free_mode:

@@ -84,24 +84,26 @@ window._switchConversation = _switchConversation;
 
 function _toggleFreeLength() {
     _agentFreeLength = !_agentFreeLength;
+    window._agentFreeLength = _agentFreeLength;
     const btn = document.getElementById('agent-free-length-btn');
     if (btn) {
         btn.textContent = _agentFreeLength ? 'Long' : 'Short';
         btn.style.background = _agentFreeLength ? 'rgba(52,211,153,0.12)' : 'rgba(255,255,255,0.03)';
         btn.style.color = _agentFreeLength ? 'var(--accent,#34d399)' : 'var(--text-muted)';
-        btn.style.borderColor = _agentFreeLength ? 'rgba(52,211,153,0.3)' : 'rgba(255,255,255,0.08)';
+        btn.style.borderColor = _agentFreeLength ? 'rgba(52,211,153,0.3)' : 'rgba(255,255,255,0.1)';
     }
 }
 window._toggleFreeLength = _toggleFreeLength;
 
 function _toggleAllScans() {
     _agentAllScans = !_agentAllScans;
+    window._agentAllScans = _agentAllScans;
     const btn = document.getElementById('agent-all-scans-btn');
     if (btn) {
         btn.textContent = _agentAllScans ? 'All Scans' : 'Current';
         btn.style.background = _agentAllScans ? 'rgba(96,165,250,0.12)' : 'rgba(255,255,255,0.03)';
         btn.style.color = _agentAllScans ? '#60a5fa' : 'var(--text-muted)';
-        btn.style.borderColor = _agentAllScans ? 'rgba(96,165,250,0.3)' : 'rgba(255,255,255,0.08)';
+        btn.style.borderColor = _agentAllScans ? 'rgba(96,165,250,0.3)' : 'rgba(255,255,255,0.1)';
     }
 }
 window._toggleAllScans = _toggleAllScans;
@@ -1457,7 +1459,6 @@ var _agentFsSidebarOpen = true;
 
 function _buildFsSidebar() {
     const theme = PERSONA_THEMES[currentPersona] || PERSONA_THEMES.intelligence;
-    const modelName = document.getElementById('agent-model-badge')?.textContent || 'qwen3.5:9b';
     // Build conversation list
     const convItems = _agentConvList.map(c => {
         const active = c.id === _agentActiveConvId;
@@ -1511,29 +1512,19 @@ function _buildFsSidebar() {
                 </button>
             </div>
             <div class="flex items-center gap-1.5">
-                <button onclick="toggleContextEditor()" class="flex-1 flex items-center gap-2 px-3 py-2.5 rounded-lg text-[13px] transition-all" style="color:var(--text-muted);" title="Edit context" onmouseenter="this.style.background='rgba(255,255,255,0.04)'" onmouseleave="this.style.background='transparent'">
+                <button onclick="toggleContextEditor()" class="flex-1 flex items-center gap-2 px-3 py-2.5 rounded-lg text-[13px] font-medium transition-all" style="color:var(--text-heading);border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.03);" title="Edit persona context — custom instructions" onmouseenter="this.style.background='rgba(16,185,129,0.08)';this.style.borderColor='rgba(52,211,153,0.3)';this.style.color='var(--accent)'" onmouseleave="this.style.background='rgba(255,255,255,0.03)';this.style.borderColor='rgba(255,255,255,0.1)';this.style.color='var(--text-heading)'">
                     <i data-lucide="file-cog" class="w-4.5 h-4.5"></i> Context
                 </button>
-                <button onclick="toggleFileBrowser()" class="flex-1 flex items-center gap-2 px-3 py-2.5 rounded-lg text-[13px] transition-all" style="color:var(--text-muted);" title="Browse files" onmouseenter="this.style.background='rgba(255,255,255,0.04)'" onmouseleave="this.style.background='transparent'">
+                <button onclick="toggleFileBrowser()" class="flex-1 flex items-center gap-2 px-3 py-2.5 rounded-lg text-[13px] font-medium transition-all" style="color:var(--text-heading);border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.03);" title="Browse persona files — uploads, notes" onmouseenter="this.style.background='rgba(16,185,129,0.08)';this.style.borderColor='rgba(52,211,153,0.3)';this.style.color='var(--accent)'" onmouseleave="this.style.background='rgba(255,255,255,0.03)';this.style.borderColor='rgba(255,255,255,0.1)';this.style.color='var(--text-heading)'">
                     <i data-lucide="folder-open" class="w-4.5 h-4.5"></i> Files
                 </button>
             </div>
-            <div class="flex items-center gap-1.5">
-                <button onclick="clearAgentChat()" class="flex-1 flex items-center gap-2 px-3 py-2.5 rounded-lg text-[13px] transition-all" style="color:var(--text-muted);" title="Clear current chat" onmouseenter="this.style.color='#f87171';this.style.background='rgba(239,68,68,0.06)'" onmouseleave="this.style.color='var(--text-muted)';this.style.background='transparent'">
-                    <i data-lucide="trash-2" class="w-4.5 h-4.5"></i> Clear Chat
-                </button>
-                <button onclick="toggleAgentFullscreen()" class="flex-1 flex items-center gap-2 px-3 py-2.5 rounded-lg text-[13px] transition-all" style="color:var(--text-muted);" title="Exit fullscreen" onmouseenter="this.style.background='rgba(255,255,255,0.04)'" onmouseleave="this.style.background='transparent'">
-                    <i data-lucide="minimize-2" class="w-4.5 h-4.5"></i> Collapse
-                </button>
-            </div>
+            <button onclick="clearAgentChat()" class="w-full flex items-center gap-2 px-3 py-2.5 rounded-lg text-[13px] transition-all" style="color:var(--text-muted);" title="Clear current chat" onmouseenter="this.style.color='#f87171';this.style.background='rgba(239,68,68,0.06)'" onmouseleave="this.style.color='var(--text-muted)';this.style.background='transparent'">
+                <i data-lucide="trash-2" class="w-4.5 h-4.5"></i> Clear Chat
+            </button>
             <button onclick="_toggleFsCustomizer()" class="w-full flex items-center gap-2 px-3 py-2.5 rounded-lg text-[13px] transition-all" style="color:var(--accent);" title="Customize fullscreen appearance" onmouseenter="this.style.background='rgba(255,255,255,0.04)'" onmouseleave="this.style.background='transparent'">
                 <i data-lucide="palette" class="w-4.5 h-4.5"></i> Customize
             </button>
-            <!-- Model badge -->
-            <div class="flex items-center gap-2 px-3 py-2.5 mt-1">
-                <i data-lucide="cpu" class="w-4 h-4" style="color:${theme.color};"></i>
-                <span class="text-[12px] font-mono" style="color:var(--text-muted);">${escAgent(modelName)}</span>
-            </div>
         </div>
     </div>`;
 }
@@ -1764,7 +1755,7 @@ function _renderCompactSidebar() {
 
     const html = `
         <div class="acs-section">
-            <div class="acs-heading" style="display:flex;align-items:center;justify-content:space-between;">Persona <button onclick="_showPersonaGuide()" title="What are personas?" style="background:none;border:1px solid rgba(255,255,255,0.15);color:var(--text-muted);width:18px;height:18px;border-radius:50%;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;line-height:1;" onmouseenter="this.style.borderColor='var(--accent,#34d399)';this.style.color='var(--accent,#34d399)'" onmouseleave="this.style.borderColor='rgba(255,255,255,0.15)';this.style.color='var(--text-muted)'">?</button></div>
+            <div class="acs-heading" style="display:flex;align-items:center;justify-content:space-between;">Persona <button onclick="_showPersonaGuide()" title="Learn about personas" style="background:rgba(52,211,153,0.06);border:1px solid rgba(52,211,153,0.25);color:var(--accent,#34d399);border-radius:4px;font-size:10px;cursor:pointer;display:flex;align-items:center;gap:3px;padding:2px 6px;line-height:1;" onmouseenter="this.style.borderColor='rgba(52,211,153,0.5)';this.style.boxShadow='0 0 8px rgba(52,211,153,0.2)'" onmouseleave="this.style.borderColor='rgba(52,211,153,0.25)';this.style.boxShadow='none'">Guide</button></div>
             <div class="acs-persona-list">${personaItems}</div>
         </div>
         <div class="acs-divider"></div>

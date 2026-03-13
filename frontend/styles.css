@@ -201,6 +201,8 @@ select:hover { border-color: var(--text-muted) !important; }
 .agent-fullscreen #agent-welcome .text-\\[11px\\] { font-size: calc(var(--fs-font-size, 15px) - 2px) !important; }
 .agent-fullscreen #agent-welcome .w-12 { width: 56px !important; height: 56px !important; }
 .agent-fullscreen .agent-chips button { font-size: calc(var(--fs-font-size, 15px) - 3px) !important; padding: 8px 14px !important; }
+/* Hide compact sidebar toggle in fullscreen — fullscreen has its own sidebar */
+.agent-fullscreen #agent-sidebar-btn { display: none !important; }
 .agent-fullscreen .agent-option-btn { font-size: calc(var(--fs-font-size, 15px) - 2px) !important; padding: 10px 14px !important; }
 /* Global UI scale for fullscreen — applied to sidebar + chat individually, not customizer */
 .agent-fullscreen .agent-fs-sidebar {
