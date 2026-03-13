@@ -242,6 +242,27 @@ AGENT_TOOLS = [
                 "required": ["url"]
             }
         }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "import_canon_world",
+            "description": "Import a canon world from an anime, game, show, or franchise into the active scenario. Fetches characters, locations, lore, and power systems from Fandom wikis and populates all scenario files. Use when the user says 'build the SAO world', 'import Witcher', 'create a Naruto scenario', 'implement the Attack on Titan universe', or any variant asking to build/import/create a world based on an existing franchise.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "franchise": {
+                        "type": "string",
+                        "description": "The franchise name (e.g., 'Sword Art Online', 'The Witcher', 'Naruto', 'Avatar')"
+                    },
+                    "scenario_name": {
+                        "type": "string",
+                        "description": "Name for the scenario. If not specified, derived from franchise name."
+                    }
+                },
+                "required": ["franchise"]
+            }
+        }
     }
 ]
 
@@ -275,6 +296,8 @@ def execute_tool(tool_name, args, strat, profile_id=0, persona=''):
             return _tool_search_narrations(args, strat, profile_id=profile_id)
         elif tool_name == "read_url":
             return _tool_read_url(args, strat)
+        elif tool_name == "import_canon_world":
+            return _tool_import_canon_world(args, strat, profile_id=profile_id)
         else:
             return f"Unknown tool: {tool_name}"
     except Exception as e:
@@ -347,7 +370,7 @@ def _try_parse_tool_json(text: str) -> dict:
         data = json.loads(text)
         name = data.get("name", "")
         arguments = data.get("arguments", data.get("parameters", {}))
-        if name and name in ("web_search", "search_feed", "manage_watchlist", "manage_categories"):
+        if name and name in ("web_search", "search_feed", "manage_watchlist", "manage_categories", "import_canon_world"):
             if isinstance(arguments, str):
                 try:
                     arguments = json.loads(arguments)
@@ -733,3 +756,94 @@ def _tool_read_url(args, strat):
         return f"Content from {url}:\n\n{text}"
     except Exception as e:
         return f"Error reading URL: {e}"
+
+
+def _tool_import_canon_world(args, strat, profile_id=0):
+    """Import a canon world from a franchise via Fandom wikis."""
+    import threading
+    import re as _re
+    franchise_name = args.get("franchise", "").strip()
+    if not franchise_name:
+        return "Error: No franchise name provided."
+
+    # Resolve franchise
+    serper_fn = None
+    try:
+        from fetchers.serper_search import get_serper_client
+        client = get_serper_client(strat.config)
+        if client:
+            serper_fn = lambda q, **kw: client.search(q, num_results=kw.get('num_results', 3))
+    except Exception:
+        pass
+
+    from processors.canon_import import resolve_franchise
+    info = resolve_franchise(franchise_name, serper_search_fn=serper_fn)
+    if not info:
+        return f"Could not find a Fandom wiki for '{franchise_name}'. Try the exact franchise name (e.g., 'Sword Art Online' instead of 'SAO') or create the scenario manually."
+
+    # Create scenario
+    scenario_name = args.get("scenario_name", "").strip()
+    if not scenario_name:
+        scenario_name = _re.sub(r'[^a-z0-9_]', '_', info['full_name'].lower())[:40]
+
+    from processors.scenario_templates import get_scenario_base_path, create_scenario_skeleton
+    data_dir = strat.config.get("system", {}).get("data_dir", "data")
+    base_path = get_scenario_base_path(data_dir, profile_id)
+    scenario_path = create_scenario_skeleton(base_path, scenario_name)
+
+    # Save to DB
+    sm = None
+    try:
+        from processors.scenarios import ScenarioManager
+        sm = ScenarioManager(strat.config, db=strat.db)
+        sm.create_scenario(profile_id, scenario_name,
+                           world_md=f"Canon import: {info['full_name']}")
+    except Exception as e:
+        logger.warning(f"DB save failed: {e}")
+
+    # Track generation status (same mechanism as regular scenario generation)
+    if not hasattr(strat, '_scenario_gen_status'):
+        strat._scenario_gen_status = {}
+    status_key = f"{profile_id}:{scenario_name}"
+    strat._scenario_gen_status[status_key] = {
+        "status": "generating",
+        "source": "canon_import",
+        "franchise": info['full_name'],
+        "passes": {}
+    }
+
+    scoring_cfg = strat.config.get("scoring", {})
+    ollama_host = scoring_cfg.get("ollama_host", "http://localhost:11434")
+    model = scoring_cfg.get("inference_model", "qwen3.5:9b")
+
+    def _progress_cb(pass_num, pass_name, status):
+        strat._scenario_gen_status[status_key]["passes"][str(pass_num)] = {
+            "name": pass_name, "status": status
+        }
+        if pass_num == 4 and status == "done":
+            strat._scenario_gen_status[status_key]["status"] = "complete"
+            # Update DB with generated setting
+            try:
+                import os
+                setting_path = os.path.join(scenario_path, 'world', 'setting.md')
+                if sm and os.path.exists(setting_path):
+                    with open(setting_path) as f:
+                        setting = f.read()
+                    sm.save_scenario(profile_id, scenario_name, world_md=setting)
+            except Exception:
+                pass
+
+    def _import_in_background():
+        try:
+            from processors.canon_import import run_canon_import
+            run_canon_import(ollama_host, model, scenario_path, info, progress_callback=_progress_cb)
+        except Exception as e:
+            logger.error(f"Canon import failed: {e}")
+            strat._scenario_gen_status[status_key]["status"] = "failed"
+
+    threading.Thread(target=_import_in_background, daemon=True).start()
+
+    return (f"Importing **{info['full_name']}** from {info['wiki']}.fandom.com into scenario '{scenario_name}'.\n\n"
+            f"This will fetch characters, locations, world lore, and power systems from the wiki.\n"
+            f"Check the scenario panel for progress. Genre: {info.get('genre', 'RPG')}.\n\n"
+            f"The import runs in the background — you can continue chatting while it works.")

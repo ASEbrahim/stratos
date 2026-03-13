@@ -237,10 +237,11 @@ function _pollGenerationStatus(scenarioName) {
             bar.appendChild(progressEl);
         }
         progressEl.innerHTML = '<div class="flex items-center gap-1"><span class="animate-pulse">Generating scenario...</span></div>';
+        progressEl._scenarioName = scenarioName;
     }
 
     let pollCount = 0;
-    const maxPolls = 60; // 2 minutes max
+    const maxPolls = 150; // 5 minutes max (canon imports take longer)
     if (_genPollTimer) clearInterval(_genPollTimer);
     _genPollTimer = setInterval(async () => {
         pollCount++;
@@ -263,11 +264,15 @@ function _pollGenerationStatus(scenarioName) {
             if (!el) { clearInterval(_genPollTimer); _genPollTimer = null; return; }
 
             if (status.passes) {
+                const isCanon = status.source === 'canon_import';
+                const header = isCanon
+                    ? `<div class="flex items-center gap-1 mb-1 font-semibold"><span>&#127759;</span> Importing ${status.franchise || 'world'} from wiki...</div>`
+                    : '';
                 const lines = Object.entries(status.passes).map(([num, p]) => {
                     const icon = p.status === 'done' ? '&#10003;' : p.status === 'failed' ? '&#10007;' : '<span class="animate-pulse">&#9679;</span>';
                     return `<div class="flex items-center gap-1"><span>${icon}</span> ${p.name}</div>`;
                 }).join('');
-                el.innerHTML = lines;
+                el.innerHTML = header + lines;
             }
 
             if (status.status === 'complete' || status.status === 'failed') {

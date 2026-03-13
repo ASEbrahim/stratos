@@ -368,77 +368,184 @@ function _closePersonaPicker() {
 }
 
 function _showPersonaGuide() {
-    // Remove existing
     const existing = document.getElementById('persona-guide-overlay');
     if (existing) { existing.remove(); return; }
 
     const overlay = document.createElement('div');
     overlay.id = 'persona-guide-overlay';
-    overlay.style.cssText = 'position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.7);backdrop-filter:blur(6px);animation:fadeIn 0.15s ease;';
+    overlay.className = 'pg-overlay';
 
     const modes = [
-        { key: 'intelligence', icon: 'radar', color: '#34d399', title: 'Intelligence',
-          desc: 'Your personal news analyst. Has access to your scored feed, category keywords, and web search. Monitors signals, summarizes trends, and alerts you to what matters.',
-          unique: 'Feed access, article scoring, category management, web search',
-          examples: ['"Top stories today"', '"Critical signals in Tech?"', '"Search NVIDIA news"'] },
-        { key: 'market', icon: 'trending-up', color: '#60a5fa', title: 'Market',
-          desc: 'Financial analyst with live access to your watchlist and market data. Compares assets, tracks movers, and analyzes sentiment across your tickers.',
-          unique: 'Live market data, watchlist management, asset comparison',
-          examples: ['"How is NVDA doing?"', '"Compare BTC and ETH"', '"Top movers today"'] },
-        { key: 'scholarly', icon: 'book-open', color: '#c084fc', title: 'Scholarly',
-          desc: 'Academic research companion. Draws from your YouTube knowledge base — channel transcripts, video notes, and insights you\'ve saved. Great for deep dives into history, philosophy, and languages.',
-          unique: 'YouTube knowledge base, video summaries, web research, file reading',
-          examples: ['"Summarize my video notes"', '"Explain dialectics"', '"Fall of the Ottoman Empire"'],
-          action: { label: 'Manage YouTube Channels', onclick: "document.getElementById('persona-guide-overlay').remove();switchSettingsTab('youtube');document.querySelector('[data-section=\"settings\"]')?.click();" } },
-        { key: 'gaming', icon: 'gamepad-2', color: '#f472b6', title: 'Gaming',
-          desc: 'Interactive RPG engine. <b>GM Mode</b>: third-person narration with stats, dice rolls, and numbered choices. <b>Immersive Mode</b>: first-person — the AI becomes NPCs and responds in-character. Supports custom scenarios, world-building, and uploaded lore documents.',
-          unique: 'Two RP modes (GM / Immersive), scenario system, NPC memory, file uploads',
-          examples: ['"Start an adventure"', '"Talk to the NPC"', '"Roll for stealth"'] },
-        { key: 'anime', icon: 'sparkles', color: '#fb923c', title: 'Anime',
-          desc: 'Anime and manga companion. Discuss seasonal shows, get recommendations based on your taste, and explore genres and studios.',
-          unique: 'Anime-specific knowledge, recommendation engine',
-          examples: ['"Airing this season?"', '"Like Vinland Saga"', '"Top manga this year"'] },
-        { key: 'tcg', icon: 'layers', color: '#fbbf24', title: 'TCG',
-          desc: 'Trading card game advisor covering Pokemon, Magic: The Gathering, Yu-Gi-Oh, and more. Track card values, meta decks, and set releases.',
-          unique: 'Multi-game TCG knowledge, meta analysis, card valuations',
-          examples: ['"Most valuable cards"', '"Latest Magic sets"', '"Yu-Gi-Oh meta"'] },
+        { key: 'intelligence', color: '#34d399', rgb: '52,211,153', title: 'Intelligence',
+          sub: 'News analysis & signal detection', badge: 'Core', badgeBg: 'rgba(52,211,153,0.1)',
+          desc: 'Your personal news analyst. Monitors your scored feed for critical signals, summarizes trends, and alerts when high-relevance stories break.',
+          pills: ['Web Search','Feed Scoring','Categories','Trends'],
+          examples: ['"What\'s critical today?"','"Search NVIDIA earnings"'] },
+        { key: 'market', color: '#60a5fa', rgb: '96,165,250', title: 'Market',
+          sub: 'Live financial data & watchlist', badge: 'Live', badgeBg: 'rgba(96,165,250,0.1)',
+          desc: 'Financial analyst with live market feeds. Pulls real-time prices, compares assets side-by-side, and identifies top movers with sentiment context.',
+          pills: ['Live Prices','Watchlist','Compare','Movers'],
+          examples: ['"How\'s NVDA doing?"','"Compare BTC vs ETH"'] },
+        { key: 'scholarly', color: '#c084fc', rgb: '192,132,252', title: 'Scholarly',
+          sub: 'Research & knowledge base', badge: 'Research', badgeBg: 'rgba(192,132,252,0.1)',
+          desc: 'Academic companion with deep knowledge base access. Draws from YouTube transcripts, video insights, and documents for thorough, sourced research.',
+          pills: ['Knowledge Base','Videos','Web','Files'],
+          examples: ['"Ottoman Empire fall"','"Hegel\'s dialectics"'] },
+        { key: 'gaming', color: '#f472b6', rgb: '244,114,182', title: 'Gaming',
+          sub: 'Interactive RPG & world builder', badge: 'Interactive', badgeBg: 'rgba(244,114,182,0.1)',
+          desc: 'Full RPG engine. <b style="color:#f472b6">GM Mode</b>: narration, stats, dice. <b style="color:#f472b6">Immersive</b>: NPCs respond in-character. Build or import entire fictional universes.',
+          pills: ['GM & Immersive RP','Scenarios','NPCs','Files'],
+          examples: ['"Start an adventure"','"Talk to the merchant"'] },
+        { key: 'anime', color: '#fb923c', rgb: '251,146,60', title: 'Anime',
+          sub: 'Seasonal tracking & taste-based picks', badge: null,
+          desc: 'Your otaku companion. Tracks seasonal anime, curates manga picks based on your taste, and dives into studio histories, voice actors, and genre evolution.',
+          pills: ['Seasonal','Recommendations','Genres'],
+          examples: ['"Airing this season?"','"Like Vinland Saga"'] },
+        { key: 'tcg', color: '#fbbf24', rgb: '251,191,36', title: 'TCG',
+          sub: 'Card values, meta & set releases', badge: null,
+          desc: 'Covers Pokémon, Magic: The Gathering, Yu-Gi-Oh!, and more. Tracks card values, analyzes competitive meta shifts, and keeps you current on new sets and chase cards.',
+          pills: ['Values','Meta','Releases'],
+          examples: ['"Best Pokémon cards"','"MTG standard meta"'] },
     ];
 
-    const cards = modes.map(m => `
-        <div style="padding:12px 14px;border-radius:10px;background:rgba(255,255,255,0.025);border:1px solid ${m.color}20;transition:border-color 0.2s;" onmouseenter="this.style.borderColor='${m.color}50'" onmouseleave="this.style.borderColor='${m.color}20'">
-            <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;">
-                <i data-lucide="${m.icon}" style="width:16px;height:16px;color:${m.color};"></i>
-                <span style="font-weight:600;font-size:13px;color:${m.color};">${m.title}</span>
+    const svgIcons = {
+        intelligence: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>',
+        market: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>',
+        scholarly: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c084fc" stroke-width="2"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>',
+        gaming: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f472b6" stroke-width="2"><line x1="6" y1="11" x2="10" y2="11"/><line x1="8" y1="9" x2="8" y2="13"/><path d="M17.32 5H6.68a4 4 0 0 0-3.978 3.59C2.604 9.416 2 14.456 2 16a3 3 0 0 0 3 3c1 0 1.5-.5 2-1l1.414-1.414A2 2 0 0 1 9.828 16h4.344a2 2 0 0 1 1.414.586L17 18c.5.5 1 1 2 1a3 3 0 0 0 3-3c0-1.545-.604-6.584-.685-7.258A4 4 0 0 0 17.32 5z"/></svg>',
+        anime: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fb923c" stroke-width="2"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>',
+        tcg: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><rect x="4" y="3" width="16" height="14" rx="2" opacity="0.5"/></svg>',
+    };
+
+    function buildCard(m) {
+        const badgeHtml = m.badge ? `<span class="pg-card-badge" style="background:${m.badgeBg};color:${m.color};border:1px solid ${m.color}33;">${m.badge}</span>` : '';
+        const pillsHtml = m.pills.map(p =>
+            `<span class="pg-pill" style="background:${m.color}14;color:${m.color};border:1px solid ${m.color}1f;">${p}</span>`
+        ).join('');
+        const exHtml = m.examples.map(e =>
+            `<span class="pg-ex" data-persona="${m.key}" data-prompt="${e.replace(/"/g,'&quot;')}">${e}</span>`
+        ).join('');
+        return `<div class="pg-card" style="--card-color:${m.color}4d;--card-rgb:${m.rgb};" data-persona-key="${m.key}">
+            <div class="pg-card-top">
+                <div class="pg-card-icon" style="background:${m.color}1a;">${svgIcons[m.key]}</div>
+                <div class="pg-card-meta">
+                    <div class="pg-card-title" style="color:${m.color};">${m.title}</div>
+                    <div class="pg-card-sub">${m.sub}</div>
+                </div>
+                ${badgeHtml}
             </div>
-            <p style="font-size:11.5px;color:var(--text-muted);line-height:1.5;margin:0 0 5px 0;">${m.desc}</p>
-            <div style="font-size:10px;color:${m.color};opacity:0.8;margin-bottom:6px;"><b>Unique:</b> ${m.unique}</div>
-            <div style="display:flex;flex-wrap:wrap;gap:4px;align-items:center;">
-                ${m.examples.map(e => `<span style="font-size:10px;padding:2px 7px;border-radius:6px;background:${m.color}10;color:${m.color};border:1px solid ${m.color}20;white-space:nowrap;">${e}</span>`).join('')}
-                ${m.action ? `<button onclick="${m.action.onclick}" style="font-size:10px;padding:2px 8px;border-radius:6px;background:${m.color}18;color:${m.color};border:1px solid ${m.color}30;cursor:pointer;font-weight:600;" onmouseenter="this.style.background='${m.color}30'" onmouseleave="this.style.background='${m.color}18'">${m.action.label} &rarr;</button>` : ''}
+            <div class="pg-card-desc">${m.desc}</div>
+            <div class="pg-card-row">${pillsHtml}</div>
+            <div class="pg-card-row">${exHtml}</div>
+        </div>`;
+    }
+
+    // Row pairs: [0,1], [2,3], world-import, [4,5]
+    const row1 = `<div class="pg-row">${buildCard(modes[0])}${buildCard(modes[1])}</div>`;
+    const row2 = `<div class="pg-row">${buildCard(modes[2])}${buildCard(modes[3])}</div>`;
+    const worldImport = `<div class="pg-row"><div class="pg-highlight">
+        <div class="pg-hl-icon">&#127759;</div>
+        <div class="pg-hl-content">
+            <div class="pg-hl-title">World Import <span class="pg-hl-new">New</span></div>
+            <div class="pg-hl-desc">Name any anime, game, show, or book and the <em>Gaming</em> persona fetches canon details from the web — then auto-populates your scenario with world lore, characters, locations, and items.</div>
+            <div class="pg-hl-examples">
+                <span class="pg-hl-ex" data-prompt="Implement the SAO world into this scenario">"Implement the SAO world"</span>
+                <span class="pg-hl-ex" data-prompt="Build a Witcher scenario with all canon details">"Build a Witcher scenario"</span>
+                <span class="pg-hl-ex" data-prompt="Set up the Avatar universe">"Set up the Avatar universe"</span>
+                <span class="pg-hl-ex" data-prompt="Create a Naruto world with all characters">"Create a Naruto world"</span>
             </div>
         </div>
-    `).join('');
+    </div></div>`;
+    const row3 = `<div class="pg-row">${buildCard(modes[4])}${buildCard(modes[5])}</div>`;
 
-    overlay.innerHTML = `
-        <div style="background:#0a0a1a;border:1px solid rgba(52,211,153,0.15);border-radius:16px;max-width:560px;width:92vw;max-height:85vh;overflow-y:auto;padding:24px;box-shadow:0 32px 80px rgba(0,0,0,0.8),0 0 60px rgba(52,211,153,0.05);position:relative;">
-            <button onclick="document.getElementById('persona-guide-overlay').remove()" style="position:absolute;top:12px;right:14px;background:none;border:none;color:var(--text-muted);font-size:18px;cursor:pointer;padding:4px 8px;line-height:1;" onmouseenter="this.style.color='#fff'" onmouseleave="this.style.color='var(--text-muted)'">&times;</button>
-            <h2 style="margin:0 0 4px 0;font-size:16px;color:#fff;font-weight:600;">Agent Personas</h2>
-            <p style="margin:0 0 14px 0;font-size:11.5px;color:var(--text-muted);">Each persona is a specialized AI mode with its own tools, data access, and conversation history.</p>
-            <div style="display:flex;flex-direction:column;gap:8px;">
-                ${cards}
-            </div>
-            <div style="margin-top:14px;padding:10px 12px;border-radius:10px;background:rgba(52,211,153,0.04);border:1px solid rgba(52,211,153,0.12);">
-                <div style="font-size:12px;font-weight:600;color:#34d399;margin-bottom:4px;">Combining Personas</div>
-                <p style="font-size:11px;color:var(--text-muted);line-height:1.5;margin:0;">Select up to 3 personas from the picker dropdown to combine their capabilities in one conversation. The agent gets access to all selected tools and context — e.g. <b style="color:#60a5fa">Market</b> + <b style="color:#34d399">Intelligence</b> gives you market data alongside your news feed for correlated analysis.</p>
-            </div>
-            <p style="margin:12px 0 0 0;font-size:10px;color:rgba(255,255,255,0.25);text-align:center;">Click the persona badge in the header to switch or combine modes</p>
+    overlay.innerHTML = `<div class="pg-container">
+        <canvas class="pg-stars" id="pg-stars-canvas"></canvas>
+        <div class="pg-titlebar">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent,#34d399)" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
+            <span class="pg-title">Agent Personas</span>
+            <span class="pg-subtitle">Each persona is a specialized AI mode with its own tools, memory, and data access.</span>
+            <button class="pg-close" id="pg-close-btn">&times;</button>
         </div>
-    `;
+        <div class="pg-body">${row1}${row2}${worldImport}${row3}</div>
+        <div class="pg-footer"><b>Combine up to 3 personas</b> from the picker to merge tools in one conversation.</div>
+    </div>`;
 
-    overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
-    document.addEventListener('keydown', function esc(e) { if (e.key === 'Escape') { overlay.remove(); document.removeEventListener('keydown', esc); } });
+    function closeGuide() { overlay.remove(); _pgStarRaf && cancelAnimationFrame(_pgStarRaf); _pgStarRaf = null; }
+    overlay.addEventListener('click', e => { if (e.target === overlay) closeGuide(); });
+    overlay.querySelector('#pg-close-btn').addEventListener('click', closeGuide);
+    document.addEventListener('keydown', function esc(e) { if (e.key === 'Escape') { closeGuide(); document.removeEventListener('keydown', esc); } });
+
+    // Click card → switch persona
+    overlay.querySelectorAll('.pg-card[data-persona-key]').forEach(card => {
+        card.addEventListener('click', e => {
+            if (e.target.closest('.pg-ex')) return; // let example clicks handle themselves
+            const key = card.dataset.personaKey;
+            if (key && typeof _onPersonaCheckChange === 'function') {
+                selectedPersonas = [key];
+                currentPersona = key;
+                _updatePersonaPickerLabel();
+                _renderPersonaPicker();
+                _updatePersonaWelcome();
+                if (typeof renderAgentSuggestions === 'function') renderAgentSuggestions();
+                if (typeof _onPersonaChanged === 'function') _onPersonaChanged(currentPersona);
+                if (typeof updateScenarioBar === 'function') updateScenarioBar();
+            }
+            closeGuide();
+        });
+    });
+
+    // Click example → send as prompt
+    overlay.querySelectorAll('.pg-ex[data-prompt], .pg-hl-ex[data-prompt]').forEach(el => {
+        el.addEventListener('click', e => {
+            e.stopPropagation();
+            const prompt = el.dataset.prompt.replace(/^"|"$/g, '');
+            const personaKey = el.dataset.persona || 'gaming';
+            if (personaKey && !selectedPersonas.includes(personaKey)) {
+                selectedPersonas = [personaKey];
+                currentPersona = personaKey;
+                _updatePersonaPickerLabel();
+                _renderPersonaPicker();
+                _updatePersonaWelcome();
+                if (typeof _onPersonaChanged === 'function') _onPersonaChanged(currentPersona);
+                if (typeof updateScenarioBar === 'function') updateScenarioBar();
+            }
+            closeGuide();
+            const input = document.getElementById('agent-input');
+            if (input) { input.value = prompt; input.focus(); }
+        });
+    });
+
     document.body.appendChild(overlay);
-    lucide.createIcons({ attrs: { class: '' }, nameAttr: 'data-lucide' });
+
+    // Star parallax engine
+    let _pgStarRaf = null;
+    const canvas = document.getElementById('pg-stars-canvas');
+    if (canvas) {
+        const container = canvas.parentElement;
+        const ctx = canvas.getContext('2d');
+        canvas.width = container.offsetWidth; canvas.height = container.offsetHeight;
+        const ar = 52, ag = 211, ab = 153, COUNT = 100;
+        const stars = [];
+        for (let i = 0; i < COUNT; i++) {
+            stars.push({ x: Math.random()*canvas.width, y: Math.random()*canvas.height, r: Math.random()*1.4+0.3, a: Math.random()*0.4+0.08, speed: Math.random()*0.06+0.01, phase: Math.random()*Math.PI*2, cr: Math.random()<0.3?ar:255, cg: Math.random()<0.3?ag:255, cb: Math.random()<0.3?ab:255 });
+        }
+        const shooters = []; let lastShoot = Date.now();
+        function drawStars() {
+            ctx.clearRect(0,0,canvas.width,canvas.height);
+            const t = Date.now()*0.001;
+            for (const s of stars) {
+                s.y -= s.speed; if (s.y < -2) { s.y = canvas.height+2; s.x = Math.random()*canvas.width; }
+                const f = 0.6+0.4*Math.sin(t*2+s.phase), alpha = s.a*f;
+                ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,Math.PI*2); ctx.fillStyle=`rgba(${s.cr},${s.cg},${s.cb},${alpha})`; ctx.fill();
+                if(s.r>1){ctx.beginPath();ctx.arc(s.x,s.y,s.r*3,0,Math.PI*2);ctx.fillStyle=`rgba(${s.cr},${s.cg},${s.cb},${alpha*0.15})`;ctx.fill();}
+            }
+            for(let i=0;i<stars.length;i++){for(let j=i+1;j<stars.length;j++){const dx=stars[i].x-stars[j].x,dy=stars[i].y-stars[j].y,dist=Math.sqrt(dx*dx+dy*dy);if(dist<90){ctx.beginPath();ctx.moveTo(stars[i].x,stars[i].y);ctx.lineTo(stars[j].x,stars[j].y);ctx.strokeStyle=`rgba(${ar},${ag},${ab},${0.05*(1-dist/90)})`;ctx.lineWidth=0.5;ctx.stroke();}}}
+            if(Date.now()-lastShoot>5000+Math.random()*4000){lastShoot=Date.now();shooters.push({x:Math.random()*canvas.width*0.6,y:Math.random()*canvas.height*0.3,vx:Math.cos(0.35)*4,vy:Math.sin(0.35)*4,life:1,len:Math.random()*30+20});}
+            for(let i=shooters.length-1;i>=0;i--){const sh=shooters[i];sh.x+=sh.vx;sh.y+=sh.vy;sh.life-=0.015;if(sh.life<=0){shooters.splice(i,1);continue;}const g=ctx.createLinearGradient(sh.x,sh.y,sh.x-sh.vx*sh.len/5,sh.y-sh.vy*sh.len/5);g.addColorStop(0,`rgba(255,255,255,${sh.life*0.7})`);g.addColorStop(1,'rgba(255,255,255,0)');ctx.beginPath();ctx.moveTo(sh.x,sh.y);ctx.lineTo(sh.x-sh.vx*sh.len/5,sh.y-sh.vy*sh.len/5);ctx.strokeStyle=g;ctx.lineWidth=1.5;ctx.stroke();}
+            _pgStarRaf = requestAnimationFrame(drawStars);
+        }
+        _pgStarRaf = requestAnimationFrame(drawStars);
+    }
 }
 window._showPersonaGuide = _showPersonaGuide;
 

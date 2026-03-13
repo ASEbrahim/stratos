@@ -12,6 +12,7 @@ logger = logging.getLogger(__name__)
 
 # The canonical folder structure for every scenario
 SCENARIO_STRUCTURE = {
+    "_sources": {},  # Raw wiki/API responses cached here (for Canon Import)
     "world": {
         "setting.md": None,        # Generated from LLM
         "rules.md": None,          # Generated from LLM

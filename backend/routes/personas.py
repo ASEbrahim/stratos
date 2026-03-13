@@ -564,7 +564,7 @@ PERSONA_TOOLS = {
     'intelligence': ['web_search', 'search_feed', 'manage_categories', 'search_files', 'read_document'],
     'market': ['manage_watchlist', 'search_feed', 'web_search'],
     'scholarly': ['search_insights', 'list_channels', 'get_video_summary', 'search_narrations', 'search_files', 'read_document', 'web_search', 'read_url'],
-    'gaming': ['search_files', 'read_document'],
+    'gaming': ['search_files', 'read_document', 'import_canon_world'],
     'anime': [],
     'tcg': [],
 }
