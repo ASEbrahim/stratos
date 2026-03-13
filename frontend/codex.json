@@ -613,14 +613,14 @@
           "type": "class"
         },
         {
-          "term": "SCORE:X.X|REASON: Format",
+          "term": "Score-Reason Format",
           "definition": "The strict output format required from the scoring model. The first line of every score response must be exactly: SCORE:X.X|REASON:brief explanation (e.g., 'SCORE:8.5|REASON:Directly relevant to user's cybersecurity role'). Parsed by _parse_score() in ScorerBase which extracts the numeric score and reason string.\n\nCritically, this format must be character-for-character identical between training data (export_training.py) and inference (scorer_adaptive.py). Any misalignment — even whitespace differences — causes the fine-tuned model to fail at parsing. This is the #1 cause of scoring failures after training runs.",
           "files": [
             "backend/processors/scorer_base.py",
             "backend/export_training.py"
           ],
           "related": [
-            "Training/Inference Alignment"
+            "Training-Inference Alignment"
           ],
           "added_in": "Sprint 1",
           "type": "concept"
@@ -1203,8 +1203,8 @@
       "icon": "🔌",
       "terms": [
         {
-          "term": "POST /api/agent-chat",
-          "definition": "Stream chat response from Ollama. SSE format. Tool calls, persona switching, conversation persistence.",
+          "term": "Agent Chat Endpoint",
+          "definition": "**`POST /api/agent-chat`** — Stream chat response from Ollama. SSE format. Tool calls, persona switching, conversation persistence.",
           "files": [
             "backend/routes/agent.py"
           ],
@@ -1215,8 +1215,8 @@
           "type": "endpoint"
         },
         {
-          "term": "GET /api/events",
-          "definition": "SSE stream. Events: scan_progress, scan_complete, briefing_ready, lens_extracted, youtube_status. Profile-scoped.",
+          "term": "SSE Events Endpoint",
+          "definition": "**`GET /api/events`** — SSE stream. Events: scan_progress, scan_complete, briefing_ready, lens_extracted, youtube_status. Profile-scoped.",
           "files": [
             "backend/server.py",
             "backend/sse.py"
@@ -1228,8 +1228,8 @@
           "type": "endpoint"
         },
         {
-          "term": "GET /api/health",
-          "definition": "Server health. Returns uptime, ollama_status, scorer_model, db_size, last_scan, memory_usage.",
+          "term": "Health Check Endpoint",
+          "definition": "**`GET /api/health`** — Server health. Returns uptime, ollama_status, scorer_model, db_size, last_scan, memory_usage.",
           "files": [
             "backend/routes/data_endpoints.py"
           ],
@@ -1238,8 +1238,8 @@
           "type": "endpoint"
         },
         {
-          "term": "POST /api/tts",
-          "definition": "Text-to-speech. Kokoro for 8 langs, Edge-TTS for Arabic. Returns WAV/MP3. Max 5,000 chars.",
+          "term": "TTS Endpoint",
+          "definition": "**`POST /api/tts`** — Text-to-speech. Kokoro for 8 langs, Edge-TTS for Arabic. Returns WAV/MP3. Max 5,000 chars.",
           "files": [
             "backend/routes/media.py"
           ],
@@ -1250,8 +1250,8 @@
           "type": "endpoint"
         },
         {
-          "term": "POST /api/stt",
-          "definition": "Speech-to-text. Raw audio body. Returns {text, language}. faster-whisper CPU int8.",
+          "term": "STT Endpoint",
+          "definition": "**`POST /api/stt`** — Speech-to-text. Raw audio body. Returns {text, language}. faster-whisper CPU int8.",
           "files": [
             "backend/routes/media.py"
           ],
@@ -1262,8 +1262,8 @@
           "type": "endpoint"
         },
         {
-          "term": "GET /api/dev/context",
-          "definition": "Live project state for Sprint Prompt Builder. Git log, file structure, DB tables, safety branches.",
+          "term": "Dev Context Endpoint",
+          "definition": "**`GET /api/dev/context`** — Live project state for Sprint Prompt Builder. Git log, file structure, DB tables, safety branches.",
           "files": [
             "backend/routes/dev_endpoints.py"
           ],
@@ -1274,8 +1274,8 @@
           "type": "endpoint"
         },
         {
-          "term": "POST /api/prompt-builder/generate",
-          "definition": "Assemble sprint prompt from form data + live context. Template engine with 9 section builders.",
+          "term": "Prompt Generate Endpoint",
+          "definition": "**`POST /api/prompt-builder/generate`** — Assemble sprint prompt from form data + live context. Template engine with 9 section builders.",
           "files": [
             "backend/routes/dev_endpoints.py"
           ],
@@ -1286,8 +1286,8 @@
           "type": "endpoint"
         },
         {
-          "term": "POST /api/youtube/extract-lens",
-          "definition": "Async lens extraction. Daemon thread, polling 3s + SSE lens_extracted.",
+          "term": "Extract Lens Endpoint",
+          "definition": "**`POST /api/youtube/extract-lens`** — Async lens extraction. Daemon thread, polling 3s + SSE lens_extracted.",
           "files": [
             "backend/routes/youtube_endpoints.py"
           ],
@@ -1298,8 +1298,8 @@
           "type": "endpoint"
         },
         {
-          "term": "POST /api/generate-profile",
-          "definition": "AI generates categories + tickers from role/location. Ollama think=False for speed.",
+          "term": "Generate Profile Endpoint",
+          "definition": "**`POST /api/generate-profile`** — AI generates categories + tickers from role/location. Ollama think=False for speed.",
           "files": [
             "backend/routes/generate.py"
           ],
@@ -1320,14 +1320,14 @@
             "backend/main.py"
           ],
           "related": [
-            "qwen3.5:9b",
+            "Qwen 3.5 9B",
             "VRAM Budget"
           ],
           "added_in": "Sprint 1",
           "type": "infrastructure"
         },
         {
-          "term": "qwen3.5:9b",
+          "term": "Qwen 3.5 9B",
           "definition": "Primary inference model (~6.6GB). Agent chat, wizard, briefings, profile gen. All non-scoring tasks.",
           "files": [
             "backend/main.py"
@@ -1509,7 +1509,7 @@
           "type": "config"
         },
         {
-          "term": "scoring.critical_min / high_min / medium_min",
+          "term": "Score Thresholds",
           "definition": "Score thresholds: critical ≥9.0, high ≥7.0, medium ≥5.0. Below = noise.",
           "files": [
             "backend/processors/scorer_base.py"
@@ -1763,14 +1763,14 @@
           "type": "concept"
         },
         {
-          "term": "Training/Inference Alignment",
+          "term": "Training-Inference Alignment",
           "definition": "Critical: export_training.py must exactly match scorer_adaptive.py format. Misalignment = model failure.",
           "files": [
             "backend/export_training.py",
             "backend/processors/scorer_adaptive.py"
           ],
           "related": [
-            "SCORE:X.X|REASON: Format"
+            "Score-Reason Format"
           ],
           "added_in": "Sprint 1",
           "type": "concept"
