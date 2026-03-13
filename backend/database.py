@@ -598,7 +598,7 @@ class Database:
         return {}
 
     def save_ui_state(self, profile_id: int, partial_state: dict):
-        """Atomic merge-update: reads existing ui_state, merges new keys, writes back."""
+        """Atomic merge-update: reads existing ui_state, deep-merges new keys, writes back."""
         try:
             with self.conn:
                 cursor = self.conn.cursor()
@@ -610,7 +610,12 @@ class Database:
                         existing = json.loads(row[0])
                     except json.JSONDecodeError:
                         pass
-                existing.update(partial_state)
+                # Deep merge: for dict-valued keys (like ui_settings), merge nested dicts
+                for k, v in partial_state.items():
+                    if isinstance(v, dict) and isinstance(existing.get(k), dict):
+                        existing[k].update(v)
+                    else:
+                        existing[k] = v
                 cursor.execute("UPDATE profiles SET ui_state = ? WHERE id = ?",
                                (json.dumps(existing), profile_id))
         except Exception as e:

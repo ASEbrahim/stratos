@@ -120,6 +120,7 @@ async function checkAuthAndInit() {
                 if (d.authenticated) {
                     setActiveProfile(d.display_name || '');
                     if (d.ui_state && typeof _applyUiStateFromServer === 'function') _applyUiStateFromServer(d.ui_state);
+                    if (typeof loadUiSettingsFromServer === 'function') await loadUiSettingsFromServer();
                     init(); return;
                 }
             }
@@ -281,7 +282,7 @@ async function _doRegister() {
             body: JSON.stringify({ name, pin, device_id: getDeviceId() })
         });
         const d = await r.json();
-        if (r.ok && d.token) { setAuthToken(d.token); setActiveProfile(d.profile); _clearProfileLocalStorage(); if (d.ui_state && typeof _applyUiStateFromServer === 'function') _applyUiStateFromServer(d.ui_state); _dismiss(); }
+        if (r.ok && d.token) { setAuthToken(d.token); setActiveProfile(d.profile); _clearProfileLocalStorage(); if (d.ui_state && typeof _applyUiStateFromServer === 'function') _applyUiStateFromServer(d.ui_state); if (typeof loadUiSettingsFromServer === 'function') await loadUiSettingsFromServer(); _dismiss(); }
         else { err.textContent = d.error || 'Registration failed'; btn.disabled = false; btn.textContent = 'Create Profile'; }
     } catch (e) { err.textContent = 'Connection error'; btn.disabled = false; btn.textContent = 'Create Profile'; }
 }
@@ -380,7 +381,7 @@ async function _doLogin() {
             body: JSON.stringify({ profile: _loginProfile, pin })
         });
         const d = await r.json();
-        if (r.ok && d.token) { setAuthToken(d.token); setActiveProfile(d.profile); _clearProfileLocalStorage(); if (d.ui_state && typeof _applyUiStateFromServer === 'function') _applyUiStateFromServer(d.ui_state); _dismiss(); }
+        if (r.ok && d.token) { setAuthToken(d.token); setActiveProfile(d.profile); _clearProfileLocalStorage(); if (d.ui_state && typeof _applyUiStateFromServer === 'function') _applyUiStateFromServer(d.ui_state); if (typeof loadUiSettingsFromServer === 'function') await loadUiSettingsFromServer(); _dismiss(); }
         else { err.textContent = d.error || 'Login failed'; const inp = document.getElementById('login-pin'); inp.value = ''; _shake(inp); inp.focus(); }
     } catch (e) { err.textContent = 'Connection error'; }
     btn.disabled = false; btn.textContent = 'Login';
@@ -547,6 +548,7 @@ async function _doEmailLogin() {
             setAuthToken(d.token); setActiveProfile(d.display_name || '');
             _clearProfileLocalStorage();
             if (d.ui_state && typeof _applyUiStateFromServer === 'function') _applyUiStateFromServer(d.ui_state);
+            if (typeof loadUiSettingsFromServer === 'function') await loadUiSettingsFromServer();
             _dismiss();
         } else {
             err.textContent = d.error || 'Login failed';
@@ -590,6 +592,7 @@ async function _doVerify() {
             setActiveProfile(d.display_name || _pendingVerifyName || '');
             _clearProfileLocalStorage();
             if (d.ui_state && typeof _applyUiStateFromServer === 'function') _applyUiStateFromServer(d.ui_state);
+            if (typeof loadUiSettingsFromServer === 'function') await loadUiSettingsFromServer();
             _dismiss();
         } else {
             err.textContent = d.error || 'Verification failed';
@@ -762,6 +765,7 @@ async function _doOtpVerify() {
             setAuthToken(d.token); setActiveProfile(d.display_name || '');
             _clearProfileLocalStorage();
             if (d.ui_state && typeof _applyUiStateFromServer === 'function') _applyUiStateFromServer(d.ui_state);
+            if (typeof loadUiSettingsFromServer === 'function') await loadUiSettingsFromServer();
             _dismiss();
         } else {
             err.textContent = d.error || 'Invalid code';

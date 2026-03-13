@@ -518,9 +518,9 @@ document.addEventListener('visibilitychange', function() {
         }
         if (_savedAutoRefreshTimer) {
             _savedAutoRefreshTimer = null;
-            // Re-read the auto-refresh interval from config
-            var secs = parseInt(document.getElementById('auto-refresh-interval')?.value || '0');
-            if (secs > 0 && typeof setAutoRefresh === 'function') setAutoRefresh(secs);
+            // Re-read the auto-refresh interval from the select element
+            var secs = parseInt(document.getElementById('cfg-auto-refresh')?.value || '0');
+            if (secs > 0 && typeof _setAutoRefresh === 'function') _setAutoRefresh(secs);
         }
         // Immediate status check on return — but only if authenticated
         if (typeof checkStatus === 'function' && typeof getAuthToken === 'function' && getAuthToken()) checkStatus();
@@ -874,7 +874,7 @@ function _restoreDisplaySettings() {
     if (chartType) { var el3 = document.getElementById('cfg-chart-type'); if (el3) el3.value = chartType; }
     var autoRefresh = localStorage.getItem('stratos_auto_refresh');
     if (autoRefresh) { _setAutoRefresh(autoRefresh); var el4 = document.getElementById('cfg-auto-refresh'); if (el4) el4.value = autoRefresh; }
-    else { _setAutoRefresh('300'); } // Default 5 min
+    else { _setAutoRefresh('0'); } // Default off — DB sync restores user's preference
     // Retention toggle — read from server config
     var retainEl = document.getElementById('cfg-retain-high');
     if (retainEl && typeof configData !== 'undefined' && configData) {
