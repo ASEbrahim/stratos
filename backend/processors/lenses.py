@@ -116,7 +116,7 @@ JSON array only. If no narrations found, output [].""",
     },
 }
 
-AVAILABLE_LENSES = list(LENS_PROMPTS.keys())
+AVAILABLE_LENSES = list(LENS_PROMPTS.keys()) + ['transcript']
 
 # Language display names for prompts
 LANGUAGE_NAMES = {

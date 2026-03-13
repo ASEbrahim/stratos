@@ -135,6 +135,31 @@ def _worker_loop(strat, sse_manager):
             lenses = json.loads(video.get('lenses', '["summary"]'))
             insights_count = 0
 
+            # Special lens: 'transcript' — store raw transcript, no LLM call
+            if 'transcript' in lenses:
+                lenses = [l for l in lenses if l != 'transcript']
+                cursor.execute(
+                    """INSERT INTO video_insights
+                       (video_id, profile_id, lens_name, content, language)
+                       VALUES (?, ?, 'transcript', ?, ?)""",
+                    (video_db_id, profile_id,
+                     json.dumps({"transcript": transcript}, ensure_ascii=False),
+                     detected_lang)
+                )
+                insights_count += 1
+                logger.info(f"YouTube worker: transcript lens stored for {video_id} [{detected_lang}]")
+                # If non-English, also store under 'en' (same text, noted as original lang)
+                if detected_lang and detected_lang != 'en':
+                    cursor.execute(
+                        """INSERT INTO video_insights
+                           (video_id, profile_id, lens_name, content, language)
+                           VALUES (?, ?, 'transcript', ?, 'en')""",
+                        (video_db_id, profile_id,
+                         json.dumps({"transcript": transcript, "note": f"Original language: {detected_lang}"}, ensure_ascii=False))
+                    )
+                    insights_count += 1
+                db._commit()
+
             for lens_name in lenses:
                 if _stop_flag.is_set():
                     break

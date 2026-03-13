@@ -211,24 +211,33 @@ def _tier1_youtube_api(video_id: str, preferred_lang: str = 'ar') -> Tuple[Optio
         api = YouTubeTranscriptApi()
 
         # Try fetching transcript with language fallback chain
+        # Each entry: (lang_codes, detected_lang_if_matched)
+        _LANG_CHAIN = [
+            (['en'], 'en'),
+            (['en-US', 'en-GB'], 'en'),
+            (['ar'], 'ar'),
+            (['ja'], 'ja'),
+            (['zh-CN', 'zh-Hans'], 'zh'),
+            (['zh-TW', 'zh-Hant', 'zh-HK'], 'zh'),
+            (['ko'], 'ko'),
+            (['fr'], 'fr'),
+            (['de'], 'de'),
+            (['es'], 'es'),
+            (['ru'], 'ru'),
+            ([], None),  # Any available
+        ]
         transcript = None
         detected_lang = 'en'
-        for lang_list in [['en'], ['en-US', 'en-GB'], ['ar'], ['ja'], []]:
+        for lang_list, lang_tag in _LANG_CHAIN:
             try:
                 if lang_list:
                     transcript = api.fetch(video_id, languages=lang_list)
                 else:
                     transcript = api.fetch(video_id)
                 if transcript:
-                    # Detect language from which list succeeded
-                    if lang_list and lang_list[0].startswith('ar'):
-                        detected_lang = 'ar'
-                    elif lang_list and lang_list[0] == 'ja':
-                        detected_lang = 'ja'
-                    elif lang_list and lang_list[0].startswith('en'):
-                        detected_lang = 'en'
+                    if lang_tag:
+                        detected_lang = lang_tag
                     else:
-                        # Unknown/any — try to detect from transcript language attr
                         detected_lang = getattr(transcript, 'language', None) or 'en'
                     break
             except Exception:
@@ -264,7 +273,7 @@ def _tier2_supadata(video_id: str, api_key: str, preferred_lang: str = 'en') -> 
     try:
         detected_lang = 'en'
         # Try preferred lang first, then fallback to no lang preference
-        for lang in [preferred_lang, 'en', 'ja', None]:
+        for lang in [preferred_lang, 'en', 'ja', 'zh', 'ko', None]:
             params = {'url': f'https://youtube.com/watch?v={video_id}'}
             if lang:
                 params['lang'] = lang
@@ -686,6 +695,30 @@ class YouTubeProcessor:
         # Step 2: Run lenses (bilingual — original language + English)
         self._update_status(video_db_id, 'extracting')
         lenses = json.loads(video.get('lenses', '["summary"]'))
+
+        # Special lens: 'transcript' — store raw transcript text, no LLM call
+        if 'transcript' in lenses:
+            lenses = [l for l in lenses if l != 'transcript']
+            # Store transcript as-is in the detected language
+            cursor.execute(
+                """INSERT INTO video_insights
+                   (video_id, profile_id, lens_name, content, language)
+                   VALUES (?, ?, 'transcript', ?, ?)""",
+                (video_db_id, profile_id,
+                 json.dumps({"transcript": transcript}, ensure_ascii=False),
+                 detected_lang)
+            )
+            # If non-English, also store under 'en' key (same text — user can read original)
+            if detected_lang and detected_lang != 'en':
+                cursor.execute(
+                    """INSERT INTO video_insights
+                       (video_id, profile_id, lens_name, content, language)
+                       VALUES (?, ?, 'transcript', ?, 'en')""",
+                    (video_db_id, profile_id,
+                     json.dumps({"transcript": transcript, "note": f"Original language: {detected_lang}"}, ensure_ascii=False))
+                )
+            self.db._commit()
+
         for lens_name in lenses:
             try:
                 from processors.lenses import extract_lens

@@ -368,7 +368,7 @@ async function _ytShowInsights(videoId) {
                 return;
             }
 
-            const lensIcons = { summary: 'file-text', eloquence: 'pen-tool', narrations: 'book-open', history: 'landmark', spiritual: 'heart', politics: 'flag' };
+            const lensIcons = { summary: 'file-text', eloquence: 'pen-tool', narrations: 'book-open', history: 'landmark', spiritual: 'heart', politics: 'flag', transcript: 'scroll-text' };
             if (tabs) {
                 tabs.innerHTML = uniqueInsights.map((ins, i) => {
                     const lens = ins.lens_name || 'unknown';
@@ -434,6 +434,8 @@ function _ytRenderLens(index) {
         content.innerHTML = _ytRenderEloquence(data);
     } else if (lens === 'narrations') {
         content.innerHTML = _ytRenderNarrations(data);
+    } else if (lens === 'transcript') {
+        content.innerHTML = _ytRenderTranscript(data);
     } else {
         content.innerHTML = _ytRenderGeneric(data, lens);
     }
@@ -456,6 +458,21 @@ function _ytSwitchLang(lang) {
     }
 }
 window._ytSwitchLang = _ytSwitchLang;
+
+function _ytRenderTranscript(data) {
+    if (!data) return '<div class="text-[10px]" style="color:var(--text-muted)">No transcript data</div>';
+    const text = typeof data === 'string' ? data : (data.transcript || JSON.stringify(data));
+    const note = data.note ? `<div class="text-[9px] mb-2" style="color:var(--text-muted)">${_escHtml(data.note)}</div>` : '';
+    // Split into paragraphs at sentence boundaries (roughly every 3-4 sentences)
+    const sentences = text.split(/(?<=[.!?。！？])\s+/);
+    const paragraphs = [];
+    for (let i = 0; i < sentences.length; i += 4) {
+        paragraphs.push(sentences.slice(i, i + 4).join(' '));
+    }
+    return `${note}<div class="px-3 py-3 rounded-lg" style="background:var(--bg-hover);border:1px solid var(--border);">
+        ${paragraphs.map(p => `<p class="text-[11px] leading-relaxed mb-3" style="color:var(--text-secondary)">${_escHtml(p)}</p>`).join('')}
+    </div>`;
+}
 
 function _ytRenderSummary(data) {
     if (!data) return '<div class="text-[10px]" style="color:var(--text-muted)">No summary data</div>';
