@@ -220,15 +220,13 @@ def export_vault(codex_path: str, vault_path: str) -> dict:
     home = _build_home_note(data)
     _write_note('StratOS Codex.md', home)
 
-    # Category index notes
-    for cat in data['categories']:
-        cat_note = _build_category_index(cat, all_terms)
-        filename = _safe_filename(cat['name']) + '.md'
-        _write_note(filename, cat_note)
-
-    # Individual term notes
+    # Category index notes + term notes (index lives inside the category folder)
     for cat in data['categories']:
         cat_dir = _safe_filename(cat['name'])
+        # Category index as _index.md inside the folder
+        cat_note = _build_category_index(cat, all_terms)
+        _write_note(f'{cat_dir}/_index.md', cat_note)
+        # Individual term notes
         for term in cat['terms']:
             note = _build_note(term, cat['name'], all_terms)
             filename = _safe_filename(term['term']) + '.md'
