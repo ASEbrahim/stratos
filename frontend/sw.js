@@ -1,5 +1,5 @@
 // STRAT_OS Service Worker — network-first with offline shell caching
-const CACHE_NAME = 'stratos-v12';
+const CACHE_NAME = 'stratos-v13';
 
 // App shell — pre-cache these for instant offline loading
 const SHELL_ASSETS = [
@@ -16,6 +16,7 @@ const SHELL_ASSETS = [
     '/markets-panel.js',
     '/agent.js',
     '/settings.js',
+    '/wizard-data.js',
     '/wizard.js',
     '/scan-history.js',
     '/theme-editor.js',

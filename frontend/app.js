@@ -52,13 +52,8 @@ function buildNavSections(dynamicCats) {
             keywords: cat.items || cat.keywords || []
         }));
     } else {
-        // Fallback defaults when no dynamic categories
-        intelItems = [
-            { id: 'kuwait', label: 'Kuwait Radar', icon: 'target', subtitle: 'Local Career Intelligence' },
-            { id: 'banks', label: 'Banks & Deals', icon: 'landmark', subtitle: 'Banking, Skills & Student Offers' },
-            { id: 'regional', label: 'Regional', icon: 'globe', subtitle: 'GCC & Middle East Intelligence' },
-            { id: 'global', label: 'Global Markets', icon: 'trending-up', subtitle: 'Chip Market Intelligence' },
-        ];
+        // No fallback tabs — user must run the wizard to configure categories
+        intelItems = [];
     }
     
     // Overview section: AI & Tech only shown when no dynamic categories
@@ -68,9 +63,8 @@ function buildNavSections(dynamicCats) {
         { id: 'markets_view', label: 'Markets', icon: 'trending-up', subtitle: 'Expanded Charts & Analysis' },
         { id: 'saved', label: 'Saved', icon: 'bookmark', subtitle: 'Your Saved Signals' },
     ];
-    if (!hasDynamic) {
-        overviewItems.push({ id: 'ai', label: 'AI & Tech', icon: 'cpu', subtitle: 'Future Tech Intelligence' });
-    }
+    // AI & Tech tab only useful with dynamic categories covering tech topics
+    // Removed: no longer added as fallback
 
     // Check if profile is empty (no role, no categories configured)
     const _cfgCheck = typeof configData !== 'undefined' ? configData : null;
