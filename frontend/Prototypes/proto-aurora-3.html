@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Aurora — P3: Moonlit Hollow</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:#030907; overflow:hidden; }
+  canvas { display:block; width:100vw; height:100vh; }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<script>
+const canvas = document.getElementById('c');
+const ctx = canvas.getContext('2d');
+function resize() { canvas.width = innerWidth; canvas.height = innerHeight; }
+resize();
+window.addEventListener('resize', resize);
+
+// Moonlit Hollow — a still pond reflecting a large green moon,
+// willow-like trees framing the edges, fireflies over the water,
+// lily pads with faint glow, gentle ripples
+
+// Moon
+const MOON_X = 0.45, MOON_Y = 0.15, MOON_R = 35;
+
+// Trees — tall willows on the sides
+const trees = [];
+function makeWillow(x, layer) {
+    const scale = [0.6, 0.8, 1.0][layer];
+    const h = (0.3 + Math.random() * 0.2) * scale;
+    const drapes = [];
+    const dCount = 5 + Math.floor(Math.random() * 5);
+    for (let i = 0; i < dCount; i++) {
+        const side = (i / (dCount - 1)) * 2 - 1; // -1 to 1
+        drapes.push({
+            startY: 0.25 + Math.random() * 0.3,
+            xOff: side * (15 + Math.random() * 25) * scale,
+            len: (0.1 + Math.random() * 0.2) * scale,
+            sway: (0.5 + Math.random()) * scale,
+            phase: Math.random() * Math.PI * 2,
+        });
+    }
+    return { x, layer, h, trunkW: (3 + Math.random() * 4) * scale, drapes, scale };
+}
+// Place trees on the sides, leaving center open for the pond/moon view
+for (let i = 0; i < 3; i++) trees.push(makeWillow(0.03 + Math.random() * 0.18, 0));
+for (let i = 0; i < 3; i++) trees.push(makeWillow(0.78 + Math.random() * 0.19, 0));
+for (let i = 0; i < 2; i++) trees.push(makeWillow(0.01 + Math.random() * 0.22, 1));
+for (let i = 0; i < 2; i++) trees.push(makeWillow(0.76 + Math.random() * 0.22, 1));
+for (let i = 0; i < 2; i++) trees.push(makeWillow(-0.02 + Math.random() * 0.15, 2));
+for (let i = 0; i < 2; i++) trees.push(makeWillow(0.85 + Math.random() * 0.15, 2));
+trees.sort((a, b) => a.layer - b.layer);
+
+// Fireflies — concentrated over the water area (center)
+const fireflies = [];
+for (let i = 0; i < 45; i++) {
+    fireflies.push({
+        x: 0.2 + Math.random() * 0.6, y: 0.35 + Math.random() * 0.35,
+        baseX: 0, baseY: 0,
+        r: 0.8 + Math.random() * 1.3,
+        phase: Math.random() * Math.PI * 2,
+        glowSpeed: 0.3 + Math.random() * 0.6,
+        wanderRx: 0.006 + Math.random() * 0.015,
+        wanderRy: 0.003 + Math.random() * 0.01,
+        wanderSpeed: 0.05 + Math.random() * 0.08,
+        wanderPhase: Math.random() * Math.PI * 2,
+    });
+    fireflies[i].baseX = fireflies[i].x;
+    fireflies[i].baseY = fireflies[i].y;
+}
+
+// Lily pads on the water surface
+const lilyPads = [];
+for (let i = 0; i < 8; i++) {
+    lilyPads.push({
+        x: 0.2 + Math.random() * 0.6,
+        y: 0.68 + Math.random() * 0.08,
+        size: 4 + Math.random() * 8,
+        phase: Math.random() * Math.PI * 2,
+        hasFlower: Math.random() < 0.35,
+        glowPhase: Math.random() * Math.PI * 2,
+    });
+}
+
+// Stars
+const stars = [];
+for (let i = 0; i < 70; i++) {
+    stars.push({
+        x: Math.random(), y: Math.random() * 0.32,
+        r: Math.random() * 0.6 + 0.2, a: Math.random() * 0.12 + 0.03,
+        phase: Math.random() * Math.PI * 2,
+    });
+}
+
+// Water ripple rings
+const ripples = [];
+for (let i = 0; i < 4; i++) {
+    ripples.push({
+        x: 0.25 + Math.random() * 0.5,
+        y: 0.68 + Math.random() * 0.06,
+        phase: Math.random() * Math.PI * 2,
+        speed: 0.3 + Math.random() * 0.3,
+        maxR: 15 + Math.random() * 25,
+    });
+}
+
+function drawTree(tree, t, h_, w_) {
+    const x = tree.x * w_;
+    const baseY = h_ * (0.72 - tree.layer * 0.02);
+    const treeH = tree.h * h_;
+    const topY = baseY - treeH;
+    const darkness = 0.85 + tree.layer * 0.05;
+
+    // Trunk
+    ctx.strokeStyle = `rgba(2,12,6,${darkness})`;
+    ctx.lineCap = 'round';
+    ctx.lineWidth = tree.trunkW;
+    ctx.beginPath();
+    ctx.moveTo(x, baseY);
+    ctx.quadraticCurveTo(x + Math.sin(tree.x * 8) * 4, baseY - treeH * 0.5, x, topY);
+    ctx.stroke();
+
+    // Drooping branches (willow style)
+    for (const d of tree.drapes) {
+        const sy = baseY - treeH * d.startY;
+        const sway = Math.sin(t * 0.3 + d.phase) * d.sway * 3;
+        const endX = x + d.xOff + sway;
+        const endY = sy + d.len * h_;
+        const cpX = x + d.xOff * 0.5 + sway * 0.5;
+        const cpY = sy + d.len * h_ * 0.3;
+
+        ctx.lineWidth = tree.trunkW * 0.3;
+        ctx.strokeStyle = `rgba(2,12,6,${darkness * 0.8})`;
+        ctx.beginPath();
+        ctx.moveTo(x, sy);
+        ctx.quadraticCurveTo(cpX, cpY, endX, endY);
+        ctx.stroke();
+    }
+}
+
+function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const t = performance.now() * 0.001;
+    const w = canvas.width, h = canvas.height;
+
+    // Sky
+    const sky = ctx.createLinearGradient(0, 0, 0, h * 0.7);
+    sky.addColorStop(0, '#040c08');
+    sky.addColorStop(0.4, '#030a06');
+    sky.addColorStop(1, '#030907');
+    ctx.fillStyle = sky; ctx.fillRect(0, 0, w, h * 0.7);
+
+    // Stars
+    for (const s of stars) {
+        ctx.globalAlpha = s.a * (0.5 + 0.5 * Math.sin(t * 0.06 + s.phase));
+        ctx.fillStyle = '#90c8a8';
+        ctx.beginPath(); ctx.arc(s.x * w, s.y * h, s.r, 0, Math.PI * 2); ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+
+    // Moon
+    const moonX = MOON_X * w, moonY = MOON_Y * h;
+    // Wide glow
+    const moonGlow = ctx.createRadialGradient(moonX, moonY, MOON_R, moonX, moonY, MOON_R * 10);
+    moonGlow.addColorStop(0, 'rgba(52,211,153,0.06)');
+    moonGlow.addColorStop(0.3, 'rgba(52,211,153,0.02)');
+    moonGlow.addColorStop(0.6, 'rgba(40,180,140,0.006)');
+    moonGlow.addColorStop(1, 'transparent');
+    ctx.fillStyle = moonGlow; ctx.beginPath(); ctx.arc(moonX, moonY, MOON_R * 10, 0, Math.PI * 2); ctx.fill();
+    // Body
+    const moonBody = ctx.createRadialGradient(moonX - 4, moonY - 4, 0, moonX, moonY, MOON_R);
+    moonBody.addColorStop(0, 'rgba(200,245,220,0.3)');
+    moonBody.addColorStop(0.5, 'rgba(110,231,183,0.18)');
+    moonBody.addColorStop(1, 'rgba(52,211,153,0.05)');
+    ctx.fillStyle = moonBody; ctx.beginPath(); ctx.arc(moonX, moonY, MOON_R, 0, Math.PI * 2); ctx.fill();
+
+    // Trees (back layers)
+    for (const tree of trees) {
+        if (tree.layer < 2) drawTree(tree, t, h, w);
+    }
+
+    // Water surface
+    const waterY = h * 0.66;
+    const waterGrad = ctx.createLinearGradient(0, waterY, 0, h);
+    waterGrad.addColorStop(0, 'rgba(3,12,8,0.3)');
+    waterGrad.addColorStop(0.15, 'rgba(3,15,10,0.7)');
+    waterGrad.addColorStop(0.5, 'rgba(2,10,6,0.9)');
+    waterGrad.addColorStop(1, 'rgba(2,8,4,0.97)');
+    ctx.fillStyle = waterGrad; ctx.fillRect(0, waterY, w, h - waterY);
+
+    // Moon reflection in water — elongated, shimmering
+    const refY = waterY + (waterY - moonY) * 0.15;
+    const shimmer = Math.sin(t * 0.5) * 3;
+    for (let i = 0; i < 6; i++) {
+        const ry = refY + i * 12 + shimmer * Math.sin(t * 0.3 + i);
+        const rw = MOON_R * (1.2 - i * 0.08);
+        const ra = 0.04 - i * 0.005;
+        const rg = ctx.createRadialGradient(moonX + Math.sin(t * 0.4 + i) * 2, ry, 0,
+                                              moonX, ry, rw * 2);
+        rg.addColorStop(0, `rgba(110,231,183,${ra})`);
+        rg.addColorStop(0.5, `rgba(52,211,153,${ra * 0.4})`);
+        rg.addColorStop(1, 'transparent');
+        ctx.fillStyle = rg;
+        ctx.fillRect(moonX - rw * 2, ry - 6, rw * 4, 12);
+    }
+
+    // Water ripples
+    for (const rp of ripples) {
+        const cycle = (t * rp.speed + rp.phase) % (Math.PI * 2);
+        const progress = cycle / (Math.PI * 2);
+        const rr = progress * rp.maxR;
+        const alpha = (1 - progress) * 0.04;
+        if (alpha < 0.002) continue;
+
+        ctx.save();
+        ctx.translate(rp.x * w, rp.y * h);
+        ctx.scale(1, 0.3);
+        ctx.beginPath(); ctx.arc(0, 0, rr, 0, Math.PI * 2);
+        ctx.strokeStyle = `rgba(52,211,153,${alpha})`;
+        ctx.lineWidth = 0.8;
+        ctx.stroke();
+        ctx.restore();
+    }
+
+    // Lily pads
+    for (const lp of lilyPads) {
+        const lx = lp.x * w + Math.sin(t * 0.2 + lp.phase) * 2;
+        const ly = lp.y * h;
+        const bob = Math.sin(t * 0.3 + lp.phase) * 1.5;
+
+        // Pad
+        ctx.save();
+        ctx.translate(lx, ly + bob);
+        ctx.scale(1, 0.4);
+        ctx.beginPath();
+        ctx.arc(0, 0, lp.size, 0.1, Math.PI * 2 - 0.1);
+        ctx.lineTo(0, 0);
+        ctx.closePath();
+        ctx.fillStyle = 'rgba(20,60,35,0.4)';
+        ctx.fill();
+        ctx.restore();
+
+        // Glow from pad
+        if (lp.hasFlower) {
+            const fg = 0.5 + 0.5 * Math.sin(t * 0.4 + lp.glowPhase);
+            const flGrad = ctx.createRadialGradient(lx, ly + bob, 0, lx, ly + bob, lp.size * 3);
+            flGrad.addColorStop(0, `rgba(110,231,183,${0.06 * fg})`);
+            flGrad.addColorStop(0.5, `rgba(52,211,153,${0.02 * fg})`);
+            flGrad.addColorStop(1, 'transparent');
+            ctx.fillStyle = flGrad;
+            ctx.beginPath(); ctx.arc(lx, ly + bob, lp.size * 3, 0, Math.PI * 2); ctx.fill();
+
+            // Small bright dot (flower)
+            ctx.fillStyle = `rgba(180,255,220,${0.3 * fg})`;
+            ctx.beginPath(); ctx.arc(lx, ly + bob - lp.size * 0.3, 1.5, 0, Math.PI * 2); ctx.fill();
+        }
+    }
+
+    // Front trees
+    for (const tree of trees) {
+        if (tree.layer >= 2) drawTree(tree, t, h, w);
+    }
+
+    // Soft mist over water edges
+    const mistLeft = ctx.createRadialGradient(w * 0.1, h * 0.72, 0, w * 0.1, h * 0.72, w * 0.2);
+    mistLeft.addColorStop(0, `rgba(52,211,153,${0.015 + 0.008 * Math.sin(t * 0.1)})`);
+    mistLeft.addColorStop(0.5, `rgba(40,180,140,${0.006})`);
+    mistLeft.addColorStop(1, 'transparent');
+    ctx.fillStyle = mistLeft; ctx.fillRect(0, h * 0.6, w * 0.4, h * 0.2);
+
+    const mistRight = ctx.createRadialGradient(w * 0.9, h * 0.72, 0, w * 0.9, h * 0.72, w * 0.2);
+    mistRight.addColorStop(0, `rgba(52,211,153,${0.015 + 0.008 * Math.sin(t * 0.12 + 1)})`);
+    mistRight.addColorStop(0.5, `rgba(40,180,140,${0.006})`);
+    mistRight.addColorStop(1, 'transparent');
+    ctx.fillStyle = mistRight; ctx.fillRect(w * 0.6, h * 0.6, w * 0.4, h * 0.2);
+
+    // Fireflies
+    for (const f of fireflies) {
+        const wp = t * f.wanderSpeed + f.wanderPhase;
+        f.x = f.baseX + Math.sin(wp) * f.wanderRx;
+        f.y = f.baseY + Math.sin(wp * 2) * f.wanderRy;
+
+        const rawGlow = Math.sin(t * f.glowSpeed + f.phase);
+        const glow = Math.pow(Math.max(0, rawGlow), 1.5);
+        if (glow < 0.03) continue;
+
+        const fx = f.x * w, fy = f.y * h;
+
+        ctx.globalAlpha = glow;
+        const halo = ctx.createRadialGradient(fx, fy, 0, fx, fy, f.r * 14);
+        halo.addColorStop(0, 'rgba(110,231,183,0.10)');
+        halo.addColorStop(0.3, 'rgba(52,211,153,0.03)');
+        halo.addColorStop(1, 'transparent');
+        ctx.fillStyle = halo;
+        ctx.beginPath(); ctx.arc(fx, fy, f.r * 14, 0, Math.PI * 2); ctx.fill();
+
+        const core = ctx.createRadialGradient(fx, fy, 0, fx, fy, f.r * 2);
+        core.addColorStop(0, `rgba(230,255,240,${glow * 0.85})`);
+        core.addColorStop(0.4, `rgba(110,231,183,${glow * 0.5})`);
+        core.addColorStop(1, 'transparent');
+        ctx.fillStyle = core;
+        ctx.beginPath(); ctx.arc(fx, fy, f.r * 2, 0, Math.PI * 2); ctx.fill();
+
+        // Reflection in water
+        if (fy < h * 0.66) {
+            const refFy = h * 0.66 + (h * 0.66 - fy) * 0.2;
+            const refGlow = glow * 0.25;
+            ctx.globalAlpha = refGlow;
+            const refCore = ctx.createRadialGradient(fx, refFy, 0, fx, refFy, f.r * 3);
+            refCore.addColorStop(0, `rgba(110,231,183,${refGlow * 0.5})`);
+            refCore.addColorStop(1, 'transparent');
+            ctx.fillStyle = refCore;
+            ctx.beginPath(); ctx.arc(fx, refFy, f.r * 3, 0, Math.PI * 2); ctx.fill();
+        }
+    }
+
+    ctx.globalAlpha = 1;
+    requestAnimationFrame(draw);
+}
+requestAnimationFrame(draw);
+</script>
+</body>
+</html>

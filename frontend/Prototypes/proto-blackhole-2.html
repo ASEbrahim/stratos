@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Black Hole — P2: Interstellar Style (Doppler Shift)</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:#06040c; overflow:hidden; }
+  canvas { display:block; width:100vw; height:100vh; }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<script>
+const canvas = document.getElementById('c');
+const ctx = canvas.getContext('2d');
+
+function resize() { canvas.width = innerWidth; canvas.height = innerHeight; }
+resize();
+window.addEventListener('resize', resize);
+
+// Interstellar-style: thin bright accretion ring with doppler color shift
+// Approaching side = blue-shifted (brighter cyan), receding = red-shifted (dim purple)
+
+const TILT = 0.22, ROT = 0.05;
+const EVENT_R = 24;
+
+// Ring particles — concentrated in a thin band
+const RING_COUNT = 600;
+const ringParticles = [];
+for (let i = 0; i < RING_COUNT; i++) {
+    const spread = (Math.random() - 0.5); // -0.5 to 0.5
+    const baseDist = 85 + Math.abs(spread) * 180;
+    const thickness = Math.exp(-Math.abs(spread) * 4); // gaussian-ish concentration
+    ringParticles.push({
+        angle: Math.random() * Math.PI * 2,
+        dist: baseDist + (Math.random() - 0.5) * 20,
+        speed: (0.1 + Math.random() * 0.08) * (150 / (baseDist + 20)),
+        r: thickness * (Math.random() * 2.0 + 0.6),
+        baseAlpha: thickness * (Math.random() * 0.6 + 0.3),
+        yOff: (Math.random() - 0.5) * 3 * (1 - thickness),
+    });
+}
+
+// Lensed light arc — the bent light above/below the hole
+const WARP_PARTICLES = 200;
+const warpParticles = [];
+for (let i = 0; i < WARP_PARTICLES; i++) {
+    const a = Math.random() * Math.PI * 2;
+    const dist = 55 + Math.random() * 30;
+    warpParticles.push({
+        angle: a,
+        dist,
+        speed: (0.15 + Math.random() * 0.1) * (100 / dist),
+        r: Math.random() * 0.8 + 0.2,
+        a: Math.random() * 0.3 + 0.1,
+    });
+}
+
+// Stars
+const stars = [];
+for (let i = 0; i < 300; i++) {
+    stars.push({
+        x: Math.random() * 3000, y: Math.random() * 2000,
+        r: Math.random() * 1.4 + 0.2, a: Math.random() * 0.35 + 0.05,
+        speed: Math.random() * 0.08 + 0.02, phase: Math.random() * Math.PI * 2,
+    });
+}
+
+function project(cx, cy, dist, angle) {
+    const x3 = Math.cos(angle) * dist, y3 = Math.sin(angle) * dist;
+    const cr = Math.cos(ROT), sr = Math.sin(ROT);
+    return { x: cx + x3 * cr - y3 * sr, y: cy + (x3 * sr + y3 * cr) * TILT, depth: Math.sin(angle) };
+}
+
+// Doppler color: approaching (angle near PI) = bright cyan, receding = dim purple
+function dopplerColor(angle, t) {
+    const phase = (angle + t) % (Math.PI * 2);
+    const approach = Math.cos(phase); // -1 = approaching, +1 = receding
+    const rFactor = (1 - approach) * 0.5; // 0 = receding, 1 = approaching
+    const r = Math.round(56 + rFactor * 144);   // 56 → 200
+    const g = Math.round(100 + rFactor * 110);   // 100 → 210
+    const b = Math.round(200 + rFactor * 55);    // 200 → 255
+    const boost = 0.6 + rFactor * 0.4;
+    return { r, g, b, boost };
+}
+
+function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const t = performance.now() * 0.001;
+    const cx = canvas.width * 0.5, cy = canvas.height * 0.45;
+
+    // Stars — slightly warped near the hole
+    for (const s of stars) {
+        const sx = s.x % canvas.width, sy = s.y % canvas.height;
+        const dx = sx - cx, dy = sy - cy;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        let warpX = sx, warpY = sy;
+        // Gravitational lensing warp
+        if (dist < 300 && dist > 50) {
+            const warpStrength = (1 - dist / 300) * 18;
+            warpX += (dx / dist) * warpStrength;
+            warpY += (dy / dist) * warpStrength;
+        }
+        const flicker = 0.6 + 0.4 * Math.sin(t * s.speed * 3 + s.phase);
+        ctx.globalAlpha = s.a * flicker;
+        ctx.fillStyle = '#c8c0e8';
+        ctx.beginPath(); ctx.arc(warpX, warpY, s.r, 0, Math.PI * 2); ctx.fill();
+    }
+
+    // Accretion ring — tilted thin disk
+    ctx.save(); ctx.translate(cx, cy); ctx.rotate(ROT); ctx.scale(1, TILT);
+    // Soft glow bands
+    for (let i = 0; i < 3; i++) {
+        const rd = 90 + i * 40;
+        const g = ctx.createRadialGradient(0, 0, rd - 15, 0, 0, rd + 15);
+        g.addColorStop(0, `rgba(140,120,250,0)`);
+        g.addColorStop(0.5, `rgba(140,120,250,${0.07 - i * 0.015})`);
+        g.addColorStop(1, `rgba(140,120,250,0)`);
+        ctx.fillStyle = g; ctx.beginPath(); ctx.arc(0, 0, rd + 15, 0, Math.PI * 2); ctx.fill();
+    }
+    ctx.restore();
+
+    // Project and sort ring particles
+    const allP = [];
+    for (const p of ringParticles) {
+        const ang = p.angle + t * p.speed;
+        const pr = project(cx, cy, p.dist, ang);
+        const dc = dopplerColor(ang, 0);
+        allP.push({ x: pr.x, y: pr.y + p.yOff, d: pr.depth, r: p.r, a: p.baseAlpha * dc.boost, c: dc, type: 'ring' });
+    }
+    // Warp ring (lensed light around event horizon — the "Einstein ring")
+    for (const p of warpParticles) {
+        const ang = p.angle + t * p.speed * 1.5;
+        // This ring is seen edge-on above and below, so use higher tilt
+        const x3 = Math.cos(ang) * p.dist, y3 = Math.sin(ang) * p.dist;
+        const vertTilt = 0.85; // nearly vertical ring
+        const px = cx + x3 * 0.3, py = cy + y3 * vertTilt;
+        allP.push({ x: px, y: py, d: Math.sin(ang) * 0.5, r: p.r, a: p.a * 0.7, c: { r: 180, g: 170, b: 255, boost: 1 }, type: 'warp' });
+    }
+
+    allP.sort((a, b) => a.d - b.d);
+
+    // Back half
+    for (const p of allP) {
+        if (p.d > 0.05) continue;
+        ctx.globalAlpha = p.a * 0.7;
+        ctx.fillStyle = `rgb(${p.c.r},${p.c.g},${p.c.b})`;
+        ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctx.fill();
+    }
+
+    // Lensing halo
+    const lensG = ctx.createRadialGradient(cx, cy, EVENT_R, cx, cy, EVENT_R * 4.5);
+    lensG.addColorStop(0, 'rgba(180,170,255,0.18)');
+    lensG.addColorStop(0.2, 'rgba(140,120,250,0.08)');
+    lensG.addColorStop(0.5, 'rgba(56,189,248,0.03)');
+    lensG.addColorStop(1, 'transparent');
+    ctx.globalAlpha = 1;
+    ctx.fillStyle = lensG; ctx.beginPath(); ctx.arc(cx, cy, EVENT_R * 4.5, 0, Math.PI * 2); ctx.fill();
+
+    // Photon sphere — sharp bright ring
+    const pulse = 1 + Math.sin(t * 0.35) * 0.02;
+    const pr = EVENT_R * pulse;
+    ctx.lineWidth = 2.5;
+    const ringGrad = ctx.createRadialGradient(cx, cy, pr - 1, cx, cy, pr + 8);
+    ringGrad.addColorStop(0, 'rgba(200,190,255,0)');
+    ringGrad.addColorStop(0.3, 'rgba(200,190,255,0.65)');
+    ringGrad.addColorStop(0.5, 'rgba(255,250,255,0.8)');
+    ringGrad.addColorStop(0.7, 'rgba(125,211,252,0.5)');
+    ringGrad.addColorStop(1, 'rgba(56,189,248,0)');
+    ctx.fillStyle = ringGrad; ctx.beginPath(); ctx.arc(cx, cy, pr + 8, 0, Math.PI * 2); ctx.fill();
+
+    // Void
+    ctx.fillStyle = '#000';
+    ctx.beginPath(); ctx.arc(cx, cy, pr - 1, 0, Math.PI * 2); ctx.fill();
+    // Soft edge
+    const edgeG = ctx.createRadialGradient(cx, cy, pr - 4, cx, cy, pr + 2);
+    edgeG.addColorStop(0, 'rgba(0,0,0,1)');
+    edgeG.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = edgeG; ctx.beginPath(); ctx.arc(cx, cy, pr + 2, 0, Math.PI * 2); ctx.fill();
+
+    // Front half
+    for (const p of allP) {
+        if (p.d <= 0.05) continue;
+        ctx.globalAlpha = p.a;
+        if (p.type === 'ring' && p.a > 0.3) {
+            const glow = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r * 5);
+            glow.addColorStop(0, `rgba(${p.c.r},${p.c.g},${p.c.b},${p.a * 0.25})`);
+            glow.addColorStop(1, 'transparent');
+            ctx.fillStyle = glow; ctx.beginPath(); ctx.arc(p.x, p.y, p.r * 5, 0, Math.PI * 2); ctx.fill();
+        }
+        ctx.fillStyle = `rgb(${p.c.r},${p.c.g},${p.c.b})`;
+        ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctx.fill();
+    }
+
+    ctx.globalAlpha = 1;
+    requestAnimationFrame(draw);
+}
+requestAnimationFrame(draw);
+</script>
+</body>
+</html>

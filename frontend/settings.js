@@ -25,22 +25,25 @@ async function loadConfig() {
         if (!response.ok) { console.error('/api/config GET failed:', response.status); return; }
         configData = await response.json();
 
-        // Populate form fields
+        // Populate form fields (defensive — elements may not exist yet)
         // Search provider
         const provider = configData.search?.provider || 'duckduckgo';
-        document.getElementById('cfg-search-provider').value = provider;
-        document.getElementById('cfg-serper-api-key').value = configData.search?.serper_api_key || '';
+        const provEl = document.getElementById('cfg-search-provider');
+        if (provEl) provEl.value = provider;
+        const serperEl = document.getElementById('cfg-serper-api-key');
+        if (serperEl) serperEl.value = configData.search?.serper_api_key || '';
         // Re-lock API key field
         const apiKeyInput = document.getElementById('cfg-serper-api-key');
         if (apiKeyInput) { apiKeyInput.readOnly = true; apiKeyInput.type = 'password'; }
         _serperKeyUnlocked = false;
-        toggleSearchProviderSettings();
+        if (typeof toggleSearchProviderSettings === 'function') toggleSearchProviderSettings();
 
         // Load search status (will also populate credits field)
-        loadSearchStatus();
+        if (typeof loadSearchStatus === 'function') loadSearchStatus();
 
         // Timelimit
-        document.getElementById('cfg-timelimit').value = configData.news?.timelimit || 'w';
+        const tlEl = document.getElementById('cfg-timelimit');
+        if (tlEl) tlEl.value = configData.news?.timelimit || 'w';
 
         // Tickers — populate shared bubble system
         const tickerSymbols = (configData.market?.tickers || []).map(t => t.symbol);
@@ -56,8 +59,10 @@ async function loadConfig() {
         // (fields removed from Advanced; data preserved in backend config)
 
         // Profile
-        document.getElementById('cfg-profile-role').value = configData.profile?.role || '';
-        document.getElementById('cfg-profile-location').value = configData.profile?.location || '';
+        const roleEl = document.getElementById('cfg-profile-role');
+        const locEl = document.getElementById('cfg-profile-location');
+        if (roleEl) roleEl.value = configData.profile?.role || '';
+        if (locEl) locEl.value = configData.profile?.location || '';
         
         // Build context string from rich profile if no simple context field exists
         let context = configData.profile?.context || '';
@@ -73,7 +78,8 @@ async function loadConfig() {
             if (p.goals?.investment) parts.push(`Investment: ${p.goals.investment}`);
             context = parts.join('\n');
         }
-        document.getElementById('cfg-profile-context').value = context;
+        const ctxEl = document.getElementById('cfg-profile-context');
+        if (ctxEl) ctxEl.value = context;
 
         lucide.createIcons();
         
@@ -555,15 +561,13 @@ function setSettingsMode(mode) {
     const advPanel = document.getElementById('settings-advanced');
     const simpleBtn = document.getElementById('settings-mode-simple');
     const advBtn = document.getElementById('settings-mode-advanced');
-    
+    if (!simplePanel || !advPanel) return; // Settings panel not in DOM yet
+
     if (mode === 'simple') {
         simplePanel.classList.remove('hidden');
         advPanel.classList.add('hidden');
-        simpleBtn.style.background = 'var(--accent)';
-        simpleBtn.style.color = 'white';
-        advBtn.style.background = 'transparent';
-        advBtn.style.color = '';
-        advBtn.className = advBtn.className.replace('text-white', 'text-slate-400');
+        if (simpleBtn) { simpleBtn.style.background = 'var(--accent)'; simpleBtn.style.color = 'white'; }
+        if (advBtn) { advBtn.style.background = 'transparent'; advBtn.style.color = ''; advBtn.className = advBtn.className.replace('text-white', 'text-slate-400'); }
         // Show quick-save and clear buttons (they work in Simple mode)
         const qsBtn = document.getElementById('quick-save-btn');
         const qsStatus = document.getElementById('quick-save-status');
@@ -577,10 +581,8 @@ function setSettingsMode(mode) {
     } else {
         simplePanel.classList.add('hidden');
         advPanel.classList.remove('hidden');
-        advBtn.style.background = 'var(--accent)';
-        advBtn.style.color = 'white';
-        simpleBtn.style.background = 'transparent';
-        simpleBtn.style.color = '';
+        if (advBtn) { advBtn.style.background = 'var(--accent)'; advBtn.style.color = 'white'; }
+        if (simpleBtn) { simpleBtn.style.background = 'transparent'; simpleBtn.style.color = ''; }
         // Hide quick-save and clear buttons (Advanced has its own Save card)
         const qsBtn = document.getElementById('quick-save-btn');
         const qsStatus = document.getElementById('quick-save-status');

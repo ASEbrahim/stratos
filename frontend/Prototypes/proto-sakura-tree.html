@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sakura Tree</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #08050c; overflow: hidden; }
+  canvas { display: block; width: 100vw; height: 100vh; }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<script>
+const canvas = document.getElementById('c');
+const ctx = canvas.getContext('2d');
+
+let W, H;
+function resize() {
+  W = canvas.width = window.innerWidth * devicePixelRatio;
+  H = canvas.height = window.innerHeight * devicePixelRatio;
+  canvas.style.width = window.innerWidth + 'px';
+  canvas.style.height = window.innerHeight + 'px';
+}
+window.addEventListener('resize', () => { resize(); generateTree(); });
+resize();
+
+// Mouse tracking
+let mouseX = -1000, mouseY = -1000;
+let smoothMX = -1000, smoothMY = -1000;
+document.addEventListener('mousemove', e => { mouseX = e.clientX * devicePixelRatio; mouseY = e.clientY * devicePixelRatio; });
+document.addEventListener('mouseleave', () => { mouseX = -1000; mouseY = -1000; });
+
+// --- Seeded random ---
+function mulberry32(a) {
+  return function() {
+    a |= 0; a = a + 0x6D2B79F5 | 0;
+    let t = Math.imul(a ^ a >>> 15, 1 | a);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+}
+const rng = mulberry32(12345);
+function srand() { return rng(); }
+function srandRange(a, b) { return a + srand() * (b - a); }
+
+// --- Colors ---
+const COL = {
+  primary:   [240, 160, 184],
+  secondary: [255, 184, 204],
+  tertiary:  [200, 136, 168],
+  bright:    [255, 220, 232],
+  dark:      [160, 96, 128],
+};
+
+// --- Tree structure ---
+let branches = [];
+let blossomClusters = [];
+
+function generateTree() {
+  branches = [];
+  blossomClusters = [];
+
+  const baseX = W * 0.5;
+  const baseY = H * 0.65;
+
+  // Main trunk
+  const trunkTopX = baseX + srandRange(-W * 0.01, W * 0.01);
+  const trunkTopY = H * 0.42;
+  const trunkCpX = baseX + srandRange(-W * 0.02, W * 0.02);
+  const trunkCpY = H * 0.54;
+
+  branches.push({
+    x0: baseX, y0: baseY,
+    cpx: trunkCpX, cpy: trunkCpY,
+    x1: trunkTopX, y1: trunkTopY,
+    width0: W * 0.022, width1: W * 0.012,
+    depth: 0
+  });
+
+  // Major branches from trunk top
+  const majorCount = 3 + Math.floor(srand() * 3); // 3-5
+  for (let i = 0; i < majorCount; i++) {
+    const angle = -Math.PI / 2 + srandRange(-1.1, 1.1);
+    const len = srandRange(H * 0.12, H * 0.22);
+    const endX = trunkTopX + Math.cos(angle) * len;
+    const endY = trunkTopY + Math.sin(angle) * len;
+    const cpOff = srandRange(0.3, 0.7);
+    const cpPerpAngle = angle + srandRange(-0.5, 0.5);
+    const cpx = trunkTopX + Math.cos(angle) * len * cpOff + Math.cos(cpPerpAngle + Math.PI/2) * srandRange(-W*0.03, W*0.03);
+    const cpy = trunkTopY + Math.sin(angle) * len * cpOff + Math.sin(cpPerpAngle + Math.PI/2) * srandRange(-H*0.02, H*0.02);
+
+    branches.push({
+      x0: trunkTopX, y0: trunkTopY,
+      cpx, cpy,
+      x1: endX, y1: endY,
+      width0: W * 0.009, width1: W * 0.004,
+      depth: 1
+    });
+
+    // Add blossom cluster at endpoint
+    blossomClusters.push({ x: endX, y: endY, size: srandRange(12, 22), count: Math.floor(srandRange(6, 14)) });
+
+    // Mid-branch blossoms
+    const midT = srandRange(0.4, 0.7);
+    const mx = (1-midT)*(1-midT)*trunkTopX + 2*(1-midT)*midT*cpx + midT*midT*endX;
+    const my = (1-midT)*(1-midT)*trunkTopY + 2*(1-midT)*midT*cpy + midT*midT*endY;
+    blossomClusters.push({ x: mx, y: my, size: srandRange(8, 14), count: Math.floor(srandRange(3, 8)) });
+
+    // Sub-branches
+    const subCount = 2 + Math.floor(srand() * 3); // 2-4
+    for (let j = 0; j < subCount; j++) {
+      const t = srandRange(0.35, 0.9);
+      const bx = (1-t)*(1-t)*trunkTopX + 2*(1-t)*t*cpx + t*t*endX;
+      const by = (1-t)*(1-t)*trunkTopY + 2*(1-t)*t*cpy + t*t*endY;
+
+      const subAngle = angle + srandRange(-0.8, 0.8);
+      const subLen = srandRange(H * 0.05, H * 0.13);
+      const subEndX = bx + Math.cos(subAngle) * subLen;
+      const subEndY = by + Math.sin(subAngle) * subLen;
+      const subCpx = bx + Math.cos(subAngle) * subLen * 0.5 + srandRange(-W*0.015, W*0.015);
+      const subCpy = by + Math.sin(subAngle) * subLen * 0.5 + srandRange(-H*0.01, H*0.01);
+
+      branches.push({
+        x0: bx, y0: by,
+        cpx: subCpx, cpy: subCpy,
+        x1: subEndX, y1: subEndY,
+        width0: W * 0.004, width1: W * 0.0015,
+        depth: 2
+      });
+
+      blossomClusters.push({ x: subEndX, y: subEndY, size: srandRange(8, 16), count: Math.floor(srandRange(4, 10)) });
+
+      // Tiny twigs from sub-branches
+      if (srand() > 0.3) {
+        const tt = srandRange(0.5, 0.85);
+        const twigBx = (1-tt)*(1-tt)*bx + 2*(1-tt)*tt*subCpx + tt*tt*subEndX;
+        const twigBy = (1-tt)*(1-tt)*by + 2*(1-tt)*tt*subCpy + tt*tt*subEndY;
+        const twigAngle = subAngle + srandRange(-0.7, 0.7);
+        const twigLen = srandRange(H * 0.02, H * 0.06);
+        const twigEndX = twigBx + Math.cos(twigAngle) * twigLen;
+        const twigEndY = twigBy + Math.sin(twigAngle) * twigLen;
+
+        branches.push({
+          x0: twigBx, y0: twigBy,
+          cpx: (twigBx + twigEndX) / 2 + srandRange(-W*0.005, W*0.005),
+          cpy: (twigBy + twigEndY) / 2 + srandRange(-H*0.005, H*0.005),
+          x1: twigEndX, y1: twigEndY,
+          width0: W * 0.002, width1: W * 0.0008,
+          depth: 3
+        });
+        blossomClusters.push({ x: twigEndX, y: twigEndY, size: srandRange(5, 10), count: Math.floor(srandRange(3, 7)) });
+      }
+    }
+  }
+
+  // Generate deterministic blossom positions within each cluster
+  for (const cl of blossomClusters) {
+    cl.blossoms = [];
+    for (let i = 0; i < cl.count; i++) {
+      const angle = srand() * Math.PI * 2;
+      const dist = srand() * cl.size;
+      cl.blossoms.push({
+        ox: Math.cos(angle) * dist,
+        oy: Math.sin(angle) * dist,
+        r: srandRange(1.5, 4.5),
+        brightness: srand(),
+        phase: srand() * Math.PI * 2
+      });
+    }
+  }
+
+  // Generate stars
+  generateStars();
+
+  // Re-init petals
+  initPetals();
+}
+
+// --- Stars ---
+let stars = [];
+function generateStars() {
+  stars = [];
+  for (let i = 0; i < 120; i++) {
+    stars.push({
+      x: srand() * W,
+      y: srand() * H * 0.75,
+      r: srandRange(0.4, 1.5),
+      brightness: srand(),
+      phase: srand() * Math.PI * 2,
+      speed: srandRange(0.3, 1.2)
+    });
+  }
+}
+
+// --- Falling petals ---
+let petals = [];
+function makePetal(startFromTree) {
+  let x, y;
+  if (startFromTree && blossomClusters.length > 0) {
+    const cl = blossomClusters[Math.floor(Math.random() * blossomClusters.length)];
+    x = cl.x + (Math.random() - 0.5) * cl.size * 2;
+    y = cl.y + (Math.random() - 0.5) * cl.size;
+  } else {
+    x = W * 0.2 + Math.random() * W * 0.6;
+    y = -10 - Math.random() * H * 0.3;
+  }
+  return {
+    x, y,
+    vx: (Math.random() - 0.5) * 0.3,
+    vy: Math.random() * 0.5 + 0.3,
+    size: 2 + Math.random() * 3,
+    rotation: Math.random() * Math.PI * 2,
+    rotSpeed: (Math.random() - 0.5) * 0.03,
+    swayPhase: Math.random() * Math.PI * 2,
+    swayAmp: 0.3 + Math.random() * 0.6,
+    swaySpeed: 0.005 + Math.random() * 0.01,
+    alpha: 0.3 + Math.random() * 0.5,
+    colorIdx: Math.floor(Math.random() * 3) // 0=primary, 1=secondary, 2=bright
+  };
+}
+
+function initPetals() {
+  petals = [];
+  for (let i = 0; i < 50; i++) {
+    const p = makePetal(false);
+    p.y = Math.random() * H; // spread them out initially
+    petals.push(p);
+  }
+}
+
+// --- Drawing ---
+function drawBackground(time) {
+  // Gradient background
+  const grad = ctx.createLinearGradient(0, 0, 0, H);
+  grad.addColorStop(0, '#08050c');
+  grad.addColorStop(1, '#120a1a');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, W, H);
+}
+
+function drawStars(time) {
+  const starPositions = [];
+  for (const s of stars) {
+    let sx = s.x, sy = s.y;
+    const dxm = sx - smoothMX, dym = sy - smoothMY;
+    const distM = Math.sqrt(dxm * dxm + dym * dym);
+    let alphaBoost = 0;
+    const repulseR = 150 * devicePixelRatio;
+    if (distM < repulseR) {
+      const push = (repulseR - distM) * 0.15;
+      const angle = Math.atan2(dym, dxm);
+      sx += Math.cos(angle) * push;
+      sy += Math.sin(angle) * push;
+      alphaBoost = (repulseR - distM) / repulseR * 0.3;
+    }
+    const twinkle = 0.3 + 0.7 * (0.5 + 0.5 * Math.sin(time * s.speed * 0.001 + s.phase));
+    const alpha = Math.min(1, s.brightness * twinkle * 0.6 + alphaBoost);
+    const colIdx = Math.floor(s.phase * 3) % 3;
+    const cols = [COL.primary, COL.secondary, COL.bright];
+    const c = cols[colIdx];
+    ctx.beginPath();
+    ctx.arc(sx, sy, s.r, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(${c[0]},${c[1]},${c[2]},${alpha})`;
+    ctx.fill();
+    starPositions.push({ x: sx, y: sy });
+  }
+  // Constellation lines
+  if (smoothMX > -500) {
+    const conR = 120 * devicePixelRatio;
+    const lineR = 100 * devicePixelRatio;
+    ctx.strokeStyle = `rgba(${COL.primary[0]},${COL.primary[1]},${COL.primary[2]},0.1)`;
+    ctx.lineWidth = 0.5 * devicePixelRatio;
+    for (let i = 0; i < starPositions.length; i++) {
+      const si = starPositions[i];
+      const dxi = si.x - smoothMX, dyi = si.y - smoothMY;
+      if (dxi * dxi + dyi * dyi > conR * conR) continue;
+      for (let j = i + 1; j < starPositions.length; j++) {
+        const sj = starPositions[j];
+        const dxj = sj.x - smoothMX, dyj = sj.y - smoothMY;
+        if (dxj * dxj + dyj * dyj > conR * conR) continue;
+        const ddx = si.x - sj.x, ddy = si.y - sj.y;
+        if (ddx * ddx + ddy * ddy < lineR * lineR) {
+          ctx.beginPath();
+          ctx.moveTo(si.x, si.y);
+          ctx.lineTo(sj.x, sj.y);
+          ctx.stroke();
+        }
+      }
+    }
+  }
+}
+
+function drawAmbientGlow(time) {
+  // Canopy glow
+  const cx = W * 0.5;
+  const cy = H * 0.32;
+  const pulse = 0.85 + 0.15 * Math.sin(time * 0.0008);
+  const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, H * 0.3);
+  grad.addColorStop(0, `rgba(240,160,184,${0.06 * pulse})`);
+  grad.addColorStop(0.5, `rgba(200,136,168,${0.03 * pulse})`);
+  grad.addColorStop(1, 'rgba(200,136,168,0)');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, W, H);
+}
+
+function drawLogo() {
+  // Simple placeholder "logo" at (0.5, 0.35)
+  const lx = W * 0.5;
+  const ly = H * 0.35;
+  ctx.save();
+  ctx.globalAlpha = 0.12;
+  ctx.beginPath();
+  ctx.arc(lx, ly, W * 0.04, 0, Math.PI * 2);
+  ctx.fillStyle = '#a06080';
+  ctx.fill();
+  ctx.restore();
+}
+
+function drawBranches() {
+  // Sort by depth so trunk is drawn first
+  const sorted = [...branches].sort((a, b) => a.depth - b.depth);
+  for (const b of sorted) {
+    ctx.beginPath();
+    ctx.moveTo(b.x0, b.y0);
+    ctx.quadraticCurveTo(b.cpx, b.cpy, b.x1, b.y1);
+    ctx.strokeStyle = 'rgba(20,8,16,0.85)';
+    ctx.lineWidth = b.width0;
+    ctx.lineCap = 'round';
+    ctx.stroke();
+
+    // Thinner pass for tapering effect
+    if (b.width0 > 2) {
+      ctx.beginPath();
+      ctx.moveTo(b.x0, b.y0);
+      ctx.quadraticCurveTo(b.cpx, b.cpy, b.x1, b.y1);
+      ctx.strokeStyle = 'rgba(30,12,24,0.6)';
+      ctx.lineWidth = b.width1;
+      ctx.stroke();
+    }
+  }
+}
+
+function drawBlossoms(time) {
+  for (const cl of blossomClusters) {
+    for (const bl of cl.blossoms) {
+      const pulse = 0.7 + 0.3 * Math.sin(time * 0.002 + bl.phase);
+      const x = cl.x + bl.ox;
+      const y = cl.y + bl.oy;
+      const r = bl.r * (0.8 + 0.2 * pulse);
+
+      // Outer glow
+      const glowR = r * 3;
+      const c = bl.brightness > 0.6 ? COL.bright : (bl.brightness > 0.3 ? COL.secondary : COL.primary);
+      const grad = ctx.createRadialGradient(x, y, 0, x, y, glowR);
+      grad.addColorStop(0, `rgba(${c[0]},${c[1]},${c[2]},${0.35 * pulse})`);
+      grad.addColorStop(1, `rgba(${c[0]},${c[1]},${c[2]},0)`);
+      ctx.fillStyle = grad;
+      ctx.fillRect(x - glowR, y - glowR, glowR * 2, glowR * 2);
+
+      // Core blossom
+      ctx.beginPath();
+      ctx.arc(x, y, r, 0, Math.PI * 2);
+      const coreAlpha = 0.5 + 0.5 * pulse;
+      if (bl.brightness > 0.6) {
+        ctx.fillStyle = `rgba(255,235,245,${coreAlpha})`;
+      } else if (bl.brightness > 0.3) {
+        ctx.fillStyle = `rgba(${COL.secondary[0]},${COL.secondary[1]},${COL.secondary[2]},${coreAlpha * 0.9})`;
+      } else {
+        ctx.fillStyle = `rgba(${COL.dark[0]},${COL.dark[1]},${COL.dark[2]},${coreAlpha * 0.8})`;
+      }
+      ctx.fill();
+    }
+  }
+}
+
+function drawPetal(p) {
+  ctx.save();
+  ctx.translate(p.x, p.y);
+  ctx.rotate(p.rotation);
+  ctx.globalAlpha = p.alpha;
+
+  const cols = [COL.primary, COL.secondary, COL.bright];
+  const c = cols[p.colorIdx];
+  ctx.fillStyle = `rgb(${c[0]},${c[1]},${c[2]})`;
+
+  // Petal shape using bezier curves
+  const s = p.size;
+  ctx.beginPath();
+  ctx.moveTo(0, -s);
+  ctx.bezierCurveTo(s * 0.8, -s * 0.6, s * 0.6, s * 0.3, 0, s);
+  ctx.bezierCurveTo(-s * 0.6, s * 0.3, -s * 0.8, -s * 0.6, 0, -s);
+  ctx.fill();
+
+  ctx.restore();
+}
+
+function updatePetals(time) {
+  for (let i = 0; i < petals.length; i++) {
+    const p = petals[i];
+    p.x += p.vx + Math.sin(time * p.swaySpeed + p.swayPhase) * p.swayAmp;
+    p.y += p.vy;
+    p.rotation += p.rotSpeed;
+
+    // Recycle when off screen
+    if (p.y > H + 20 || p.x < -50 || p.x > W + 50) {
+      petals[i] = makePetal(true);
+    }
+  }
+}
+
+// --- Animation loop ---
+generateTree();
+
+function drawMouseGlow() {
+  if (smoothMX > -500) {
+    const gr = 30 * devicePixelRatio;
+    const glow = ctx.createRadialGradient(smoothMX, smoothMY, 0, smoothMX, smoothMY, gr);
+    glow.addColorStop(0, `rgba(${COL.primary[0]},${COL.primary[1]},${COL.primary[2]},0.05)`);
+    glow.addColorStop(1, `rgba(${COL.primary[0]},${COL.primary[1]},${COL.primary[2]},0)`);
+    ctx.beginPath();
+    ctx.arc(smoothMX, smoothMY, gr, 0, Math.PI * 2);
+    ctx.fillStyle = glow;
+    ctx.fill();
+  }
+}
+
+function frame(time) {
+  smoothMX += (mouseX - smoothMX) * 0.05;
+  smoothMY += (mouseY - smoothMY) * 0.05;
+  drawBackground(time);
+  drawStars(time);
+  drawAmbientGlow(time);
+  drawLogo();
+  // Tree with parallax
+  const ppx = smoothMX > -500 ? (smoothMX / W - 0.5) * 15 * devicePixelRatio : 0;
+  const ppy = smoothMX > -500 ? (smoothMY / H - 0.5) * 10 * devicePixelRatio : 0;
+  ctx.save();
+  ctx.translate(ppx, ppy);
+  drawBranches();
+  drawBlossoms(time);
+  ctx.restore();
+  updatePetals(time);
+  for (const p of petals) drawPetal(p);
+  drawMouseGlow();
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>
