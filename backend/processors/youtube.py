@@ -254,7 +254,8 @@ def _tier1_youtube_api(video_id: str, preferred_lang: str = 'ar') -> Tuple[Optio
                 parts.append(text)
 
         full_text = ' '.join(parts)
-        if len(full_text.strip()) < 50:
+        if len(full_text.strip()) < 500:
+            logger.debug(f"Tier 1 (youtube-api): too short ({len(full_text)} chars) for {video_id} — likely bad data")
             return None, '', ''
 
         logger.info(f"Tier 1 (youtube-api): got {len(full_text)} chars for {video_id} [lang={detected_lang}]")
@@ -306,7 +307,8 @@ def _tier2_supadata(video_id: str, api_key: str, preferred_lang: str = 'en') -> 
         else:
             return None, '', ''
 
-        if len(full_text.strip()) < 50:
+        if len(full_text.strip()) < 500:
+            logger.debug(f"Tier 2 (Supadata): too short ({len(full_text)} chars) for {video_id} — likely bad data")
             return None, '', ''
 
         logger.info(f"Tier 2 (Supadata): got {len(full_text)} chars for {video_id} [lang={detected_lang}]")
@@ -325,22 +327,22 @@ def _tier3_whisper(video_id: str, model_name: str = 'large-v3-turbo') -> Tuple[O
         logger.warning("faster-whisper not installed — skipping Tier 3")
         return None, '', ''
 
-    # Download audio via yt-dlp
+    # Download audio via yt-dlp (no ffmpeg conversion — faster-whisper reads webm/opus natively)
     audio_path = None
     try:
         with tempfile.TemporaryDirectory() as tmpdir:
-            audio_path = os.path.join(tmpdir, f'{video_id}.wav')
+            audio_path = os.path.join(tmpdir, f'{video_id}.%(ext)s')
             result = subprocess.run(
                 [
-                    'yt-dlp', '-x', '--audio-format', 'wav',
-                    '--audio-quality', '0',
+                    'yt-dlp', '-f', 'bestaudio',
+                    '--no-playlist',
                     '-o', audio_path,
                     f'https://www.youtube.com/watch?v={video_id}',
                 ],
                 capture_output=True, timeout=300,
             )
             if result.returncode != 0:
-                logger.error(f"yt-dlp failed: {result.stderr.decode()[:200]}")
+                logger.error(f"yt-dlp failed: {result.stderr.decode()[:300]}")
                 return None, '', ''
 
             # Find the actual output file (yt-dlp may add extension)

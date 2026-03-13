@@ -469,6 +469,8 @@ body:has(.agent-fullscreen) > .flex > main {
 .yt-action-videos:hover { color: var(--accent-light, var(--accent)); background: color-mix(in srgb, var(--accent) 8%, transparent); border-color: var(--accent); }
 .yt-action-extract { color: #a78bfa; }
 .yt-action-extract:hover { background: rgba(167,139,250,0.1); border-color: #a78bfa; }
+.yt-action-export { color: #34d399; }
+.yt-action-export:hover { background: rgba(52,211,153,0.1); border-color: #34d399; }
 .yt-action-remove { color: var(--text-muted); }
 .yt-action-remove:hover { color: #f87171; border-color: rgba(239,68,68,0.4); background: rgba(239,68,68,0.08); }
 

@@ -32,13 +32,14 @@ function _handleYouTubeSSE(event) {
             'transcribing': 'mic', 'extracting': 'sparkles',
             'failed': 'alert-circle', 'started': 'loader-2'
         }[status] || 'clock';
+        const isActive = status === 'started' || status === 'transcribing' || status === 'extracting';
         const iconEl = statusEl.querySelector('[data-lucide]');
         const textEl = statusEl.querySelector('.yt-video-status');
         if (iconEl) {
             iconEl.setAttribute('data-lucide', statusIcon);
-            iconEl.className = `w-3 h-3 ${statusColor} flex-shrink-0${status === 'started' || status === 'transcribing' || status === 'extracting' ? ' animate-spin' : ''}`;
+            iconEl.className = `w-3 h-3 ${statusColor} flex-shrink-0${isActive ? ' animate-pulse' : ''}`;
         }
-        if (textEl) textEl.textContent = status;
+        if (textEl) { textEl.textContent = status; textEl.className = `text-[10px] yt-video-status ${statusColor}`; }
         // Make clickable when complete or transcribed
         if (status === 'complete' || status === 'transcribed') {
             const dbId = statusEl.dataset.ytDbId;
@@ -48,6 +49,12 @@ function _handleYouTubeSSE(event) {
             }
         }
         lucide.createIcons();
+    } else {
+        // Video DOM not found — refresh any visible video lists so new videos appear
+        document.querySelectorAll('[id^="yt-videos-"]:not(.hidden)').forEach(el => {
+            const chId = el.id.replace('yt-videos-', '');
+            if (chId) _ytRefreshVideos(parseInt(chId));
+        });
     }
 
     // Show toast for key transitions
@@ -128,6 +135,9 @@ function _ytRenderChannels() {
                     <button onclick="event.stopPropagation();_ytExtractAllChannel(${ch.id})" class="yt-action-btn yt-action-extract" title="Extract all lenses for all videos" id="yt-extract-all-${ch.id}">
                         <i data-lucide="sparkles" style="width:14px;height:14px;"></i> Extract All
                     </button>
+                    <button onclick="event.stopPropagation();_ytExportChannel(${ch.id})" class="yt-action-btn yt-action-export" title="Export all data as JSON or Markdown">
+                        <i data-lucide="download" style="width:14px;height:14px;"></i> Export
+                    </button>
                     <button onclick="event.stopPropagation();_ytToggleVideos(${ch.id})" class="yt-action-btn yt-action-videos" title="Show/hide video list">
                         <i data-lucide="list" style="width:14px;height:14px;"></i> Videos
                     </button>
@@ -203,6 +213,11 @@ async function _ytProcessChannel(channelId) {
         });
         if (r.ok) {
             if (typeof showToast === 'function') showToast('Processing queued', 'success');
+            // Ensure video list is visible and start polling for status updates
+            const vidEl = document.getElementById(`yt-videos-${channelId}`);
+            if (vidEl && vidEl.classList.contains('hidden')) _ytToggleVideos(channelId);
+            else if (vidEl) _ytRefreshVideos(channelId);
+            _ytPollVideoStatus(channelId);
         } else {
             if (typeof showToast === 'function') showToast('Failed to queue processing', 'error');
         }
@@ -211,10 +226,52 @@ async function _ytProcessChannel(channelId) {
     }
 }
 
+let _ytVideoStatusPolls = {};
+function _ytPollVideoStatus(channelId) {
+    if (_ytVideoStatusPolls[channelId]) return; // already polling
+    const startTime = Date.now();
+    const maxWait = 300000; // 5 min max
+    const poll = async () => {
+        if (Date.now() - startTime > maxWait) { delete _ytVideoStatusPolls[channelId]; return; }
+        try {
+            const r = await fetch(`/api/youtube/videos/${channelId}`, { headers: _ytHeaders() });
+            if (!r.ok) { delete _ytVideoStatusPolls[channelId]; return; }
+            const d = await r.json();
+            const videos = d.videos || [];
+            // Update each video's status in-place if DOM exists
+            let allDone = true;
+            for (const v of videos) {
+                const el = document.querySelector(`[data-yt-video="${v.video_id}"]`);
+                if (el) {
+                    const iconEl = el.querySelector('[data-lucide]');
+                    const textEl = el.querySelector('.yt-video-status');
+                    const statusIcon = { 'complete': 'check-circle', 'transcribed': 'file-check', 'processing': 'loader-2', 'pending': 'clock', 'failed': 'alert-circle', 'transcribing': 'mic', 'extracting': 'sparkles' }[v.status] || 'clock';
+                    const statusColor = { 'complete': 'text-emerald-400', 'transcribed': 'text-cyan-400', 'processing': 'text-amber-400', 'pending': 'text-slate-500', 'failed': 'text-red-400', 'transcribing': 'text-blue-400', 'extracting': 'text-purple-400' }[v.status] || 'text-slate-500';
+                    const isActive = v.status === 'processing' || v.status === 'transcribing' || v.status === 'extracting' || v.status === 'started';
+                    if (iconEl) {
+                        iconEl.setAttribute('data-lucide', statusIcon);
+                        iconEl.className = `w-4 h-4 ${statusColor} flex-shrink-0${isActive ? ' animate-pulse' : ''}`;
+                    }
+                    if (textEl) { textEl.textContent = v.status; textEl.className = `text-[10px] yt-video-status ${statusColor}`; }
+                    if (v.status === 'complete' || v.status === 'transcribed') {
+                        el.style.cursor = 'pointer';
+                        el.onclick = (e) => { e.stopPropagation(); _ytShowInsights(v.id); };
+                    }
+                }
+                if (v.status !== 'complete' && v.status !== 'transcribed' && v.status !== 'failed') allDone = false;
+            }
+            lucide.createIcons();
+            if (allDone) { delete _ytVideoStatusPolls[channelId]; return; }
+        } catch(e) { /* ignore */ }
+        _ytVideoStatusPolls[channelId] = setTimeout(poll, 3000);
+    };
+    _ytVideoStatusPolls[channelId] = setTimeout(poll, 2000);
+}
+
 // ── Extract all lenses for all videos in a channel ──
 async function _ytExtractAllChannel(channelId) {
     const btn = document.getElementById(`yt-extract-all-${channelId}`);
-    if (btn) { btn.style.opacity = '0.5'; btn.style.pointerEvents = 'none'; btn.innerHTML = '<i data-lucide="loader-2" style="width:14px;height:14px;" class="animate-spin"></i> Extracting...'; lucide.createIcons(); }
+    if (btn) { btn.style.opacity = '0.5'; btn.style.pointerEvents = 'none'; btn.innerHTML = '<i data-lucide="loader-2" style="width:14px;height:14px;" class="animate-pulse"></i> Extracting...'; lucide.createIcons(); }
     try {
         const r = await fetch(`/api/youtube/extract-all/${channelId}`, {
             method: 'POST',
@@ -234,19 +291,59 @@ async function _ytExtractAllChannel(channelId) {
 }
 window._ytExtractAllChannel = _ytExtractAllChannel;
 
-// ── Toggle video list for a channel ──
-async function _ytToggleVideos(channelId) {
-    const el = document.getElementById(`yt-videos-${channelId}`);
-    if (!el) return;
+// ── Export channel data ──
+function _ytExportChannel(channelId) {
+    // Show a small format picker dropdown
+    const existing = document.getElementById('yt-export-picker');
+    if (existing) { existing.remove(); return; }
 
-    if (!el.classList.contains('hidden')) {
-        el.classList.add('hidden');
-        return;
-    }
+    const btn = document.querySelector(`[onclick*="_ytExportChannel(${channelId})"]`);
+    if (!btn) return;
 
-    el.classList.remove('hidden');
-    el.innerHTML = '<div class="text-[11px] py-2" style="color:var(--text-muted)">Loading videos...</div>';
+    const picker = document.createElement('div');
+    picker.id = 'yt-export-picker';
+    picker.style.cssText = 'position:absolute;z-index:9999;background:var(--bg-card,#1a1a2e);border:1px solid var(--border-color,rgba(255,255,255,0.1));border-radius:8px;padding:6px;display:flex;flex-direction:column;gap:2px;box-shadow:0 8px 24px rgba(0,0,0,0.4);';
 
+    const makeBtn = (label, icon, fmt) => {
+        const b = document.createElement('button');
+        b.className = 'yt-action-btn';
+        b.style.cssText = 'justify-content:flex-start;width:100%;padding:8px 14px;font-size:12px;color:var(--text-secondary);';
+        b.innerHTML = `<i data-lucide="${icon}" style="width:14px;height:14px;"></i> ${label}`;
+        b.onclick = (e) => {
+            e.stopPropagation();
+            picker.remove();
+            const token = typeof getAuthToken === 'function' ? getAuthToken() : '';
+            const url = `/api/youtube/export/${channelId}?format=${fmt}&token=${encodeURIComponent(token)}`;
+            // Use a hidden link to trigger download
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = '';
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            if (typeof showToast === 'function') showToast(`Exporting as ${fmt.toUpperCase()}...`, 'info');
+        };
+        return b;
+    };
+
+    picker.appendChild(makeBtn('Export as JSON', 'file-json', 'json'));
+    picker.appendChild(makeBtn('Export as Markdown', 'file-text', 'md'));
+
+    // Position below the button
+    const rect = btn.getBoundingClientRect();
+    picker.style.top = (rect.bottom + 4) + 'px';
+    picker.style.left = rect.left + 'px';
+    document.body.appendChild(picker);
+    lucide.createIcons();
+
+    // Close on outside click
+    const close = (e) => { if (!picker.contains(e.target) && e.target !== btn) { picker.remove(); document.removeEventListener('click', close); } };
+    setTimeout(() => document.addEventListener('click', close), 0);
+}
+window._ytExportChannel = _ytExportChannel;
+
+// ── Fetch and render video list into a container ──
+async function _ytLoadVideoList(channelId, el) {
     try {
         const r = await fetch(`/api/youtube/videos/${channelId}`, { headers: _ytHeaders() });
         if (r.ok) {
@@ -269,10 +366,11 @@ async function _ytToggleVideos(channelId) {
                     'failed': 'alert-circle', 'transcribing': 'mic',
                     'extracting': 'sparkles'
                 }[v.status] || 'clock';
+                const isActive = v.status === 'processing' || v.status === 'transcribing' || v.status === 'extracting';
                 const clickable = (v.status === 'complete' || v.status === 'transcribed') ? `onclick="event.stopPropagation();_ytShowInsights(${v.id})" class="cursor-pointer"` : '';
 
                 return `<div data-yt-video="${v.video_id}" data-yt-db-id="${v.id}" ${clickable} class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors" onmouseenter="this.style.background='var(--bg-hover)'" onmouseleave="this.style.background='transparent'">
-                    <i data-lucide="${statusIcon}" class="w-4 h-4 ${statusColor} flex-shrink-0${v.status === 'transcribing' || v.status === 'extracting' ? ' animate-spin' : ''}"></i>
+                    <i data-lucide="${statusIcon}" class="w-4 h-4 ${statusColor} flex-shrink-0${isActive ? ' animate-pulse' : ''}"></i>
                     <span class="text-[13px] flex-1 truncate" style="color:var(--text-secondary)">${_escHtml(v.title || v.video_id)}</span>
                     <span class="text-[10px] yt-video-status ${statusColor}" style="font-weight:600;">${v.status}</span>
                 </div>`;
@@ -284,11 +382,34 @@ async function _ytToggleVideos(channelId) {
     }
 }
 
+// ── Refresh video list without toggling ──
+async function _ytRefreshVideos(channelId) {
+    const el = document.getElementById(`yt-videos-${channelId}`);
+    if (!el || el.classList.contains('hidden')) return;
+    return _ytLoadVideoList(channelId, el);
+}
+
+// ── Toggle video list for a channel ──
+async function _ytToggleVideos(channelId) {
+    const el = document.getElementById(`yt-videos-${channelId}`);
+    if (!el) return;
+
+    if (!el.classList.contains('hidden')) {
+        el.classList.add('hidden');
+        return;
+    }
+
+    el.classList.remove('hidden');
+    el.innerHTML = '<div class="text-[11px] py-2" style="color:var(--text-muted)">Loading videos...</div>';
+    return _ytLoadVideoList(channelId, el);
+}
+
 // ═══════════════════════════════════════════════════════════
 // YOUTUBE INSIGHTS VIEWER — Arcane Modal with Star Parallax
 // ═══════════════════════════════════════════════════════════
 
 let _ytCurrentVideoId = null;
+let _ytCurrentYtVideoId = null;
 let _ytStarRAF = null;
 let _ytShowingGuide = false;
 let _ytEloquenceFilter = 'all';
@@ -339,6 +460,7 @@ async function _ytShowInsights(videoId) {
                         <div class="yi-subtitle" id="yi-subtitle"></div>
                     </div>
                     <div class="yi-lang-area" id="yi-lang-area"></div>
+                    <a id="yi-yt-link" href="#" target="_blank" rel="noopener" class="yi-header-btn" style="display:none;text-decoration:none;color:var(--text-secondary);" title="Watch on YouTube"><i data-lucide="play" style="width:14px;height:14px;"></i> YouTube</a>
                     <button class="yi-header-btn" onclick="_ytToggleSize()" id="yi-size-btn" title="Toggle text size"><i data-lucide="${{sm:'a-large-small',normal:'type',lg:'move-diagonal'}[_ytSizeMode]||'type'}" style="width:14px;height:14px;"></i> ${{sm:'Small',normal:'Normal',lg:'Large'}[_ytSizeMode]||'Normal'}</button>
                     <button class="yi-header-btn" onclick="_ytShowLensGuide()" title="Lens Guide"><i data-lucide="book-open" style="width:14px;height:14px;"></i> Guide</button>
                     <button class="yi-header-btn" onclick="_ytAskAgent()" title="Ask Strat Agent"><i data-lucide="bot" style="width:14px;height:14px;"></i> Ask Agent</button>
@@ -397,6 +519,14 @@ async function _ytShowInsights(videoId) {
         const subEl = document.getElementById('yi-subtitle');
         if (titleEl && videoTitle) titleEl.textContent = videoTitle;
         if (subEl) subEl.textContent = `${extractedCount} lens${extractedCount !== 1 ? 'es' : ''} extracted`;
+
+        // Show YouTube link button if we have a video ID
+        _ytCurrentYtVideoId = d.yt_video_id || '';
+        const ytLinkEl = document.getElementById('yi-yt-link');
+        if (ytLinkEl && _ytCurrentYtVideoId) {
+            ytLinkEl.href = `https://www.youtube.com/watch?v=${encodeURIComponent(_ytCurrentYtVideoId)}`;
+            ytLinkEl.style.display = '';
+        }
 
         _ytRenderLangToggle();
 
@@ -491,7 +621,7 @@ function _ytRenderLensByName(lensName) {
                 <div style="display:flex;align-items:center;gap:8px;justify-content:center;">
                     ${_ytLangSelect('yi-extract-lang-'+lensName)}
                     <button onclick="_ytExtractLens('${lensName}')" class="yi-header-btn" style="padding:8px 20px;font-size:12px;${isExtracting ? 'opacity:0.5;pointer-events:none;' : ''}" id="yi-extract-btn-${lensName}">
-                        ${isExtracting ? '<i data-lucide="loader-2" style="width:14px;height:14px;" class="animate-spin"></i> Extracting...' : `<i data-lucide="sparkles" style="width:14px;height:14px;"></i> Extract ${lensLabel}`}
+                        ${isExtracting ? '<i data-lucide="loader-2" style="width:14px;height:14px;" class="animate-pulse"></i> Extracting...' : `<i data-lucide="sparkles" style="width:14px;height:14px;"></i> Extract ${lensLabel}`}
                     </button>
                 </div>
             </div>`;
@@ -523,7 +653,7 @@ function _ytRenderLensByName(lensName) {
         body.innerHTML = `<div style="display:flex;justify-content:flex-end;align-items:center;gap:8px;margin-bottom:8px;">
             ${_ytLangSelect('yi-refresh-lang-'+lensName)}
             <button onclick="_ytRefreshLens('${lensName}','${mode}')" class="yi-header-btn" style="padding:4px 10px;font-size:11px;gap:4px;${isRefreshing ? 'opacity:0.5;pointer-events:none;' : ''}" title="${tooltip}">
-                <i data-lucide="${isRefreshing ? 'loader-2' : 'refresh-cw'}" style="width:12px;height:12px;" ${isRefreshing ? 'class="animate-spin"' : ''}></i> ${isRefreshing ? 'Refreshing...' : tooltip}
+                <i data-lucide="${isRefreshing ? 'loader-2' : 'refresh-cw'}" style="width:12px;height:12px;" ${isRefreshing ? 'class="animate-pulse"' : ''}></i> ${isRefreshing ? 'Refreshing...' : tooltip}
             </button>
         </div>` + content;
     } else {
@@ -571,7 +701,64 @@ function _ytRenderTranscript(data) {
     const text = typeof data === 'string' ? data : (data.transcript || JSON.stringify(data));
     const note = data.note ? `<div class="yi-note">${_escHtml(data.note)}</div>` : '';
     const paragraphs = _ytParagraphize(text, 3);
-    return `${note}<div class="yi-transcript">${paragraphs.map(p => `<p>${_escHtml(p)}</p>`).join('')}</div>`;
+    // Show re-transcribe warning if transcript is suspiciously short
+    const shortWarning = text.length < 500
+        ? `<div style="display:flex;align-items:center;gap:10px;padding:10px 14px;margin-bottom:12px;border-radius:8px;background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.2);">
+            <i data-lucide="alert-triangle" style="width:16px;height:16px;color:#fbbf24;flex-shrink:0;"></i>
+            <span style="font-size:12px;color:var(--text-secondary);flex:1;">This transcript looks incomplete (${text.length} chars). It may have been fetched incorrectly.</span>
+            <button onclick="_ytRetranscribe()" class="yi-header-btn" style="padding:6px 14px;font-size:11px;white-space:nowrap;" id="yi-retranscribe-btn">
+                <i data-lucide="refresh-cw" style="width:12px;height:12px;"></i> Re-transcribe
+            </button>
+        </div>` : '';
+    return `${shortWarning}${note}<div class="yi-transcript">${paragraphs.map(p => `<p>${_escHtml(p)}</p>`).join('')}</div>`;
+}
+
+async function _ytRetranscribe() {
+    if (!_ytCurrentVideoId) return;
+    const btn = document.getElementById('yi-retranscribe-btn');
+    if (btn) { btn.style.opacity = '0.5'; btn.style.pointerEvents = 'none'; btn.innerHTML = '<i data-lucide="loader-2" style="width:12px;height:12px;" class="animate-pulse"></i> Re-transcribing...'; lucide.createIcons(); }
+    try {
+        const r = await fetch('/api/youtube/retranscribe', {
+            method: 'POST',
+            headers: _ytHeaders(),
+            body: JSON.stringify({ video_id: _ytCurrentVideoId }),
+        });
+        if (r.ok) {
+            if (typeof showToast === 'function') showToast('Re-transcribing video (this may take a few minutes)...', 'info');
+            // Poll for completion
+            _ytPollForRetranscribe(_ytCurrentVideoId);
+        } else {
+            const d = await r.json().catch(() => ({}));
+            if (typeof showToast === 'function') showToast(d.error || 'Re-transcribe failed', 'error');
+            if (btn) { btn.style.opacity = ''; btn.style.pointerEvents = ''; }
+        }
+    } catch(e) {
+        if (typeof showToast === 'function') showToast('Re-transcribe failed', 'error');
+        if (btn) { btn.style.opacity = ''; btn.style.pointerEvents = ''; }
+    }
+}
+window._ytRetranscribe = _ytRetranscribe;
+
+function _ytPollForRetranscribe(videoId) {
+    const startTime = Date.now();
+    const poll = async () => {
+        if (_ytCurrentVideoId != videoId) return;
+        if (Date.now() - startTime > 600000) return; // 10 min max
+        try {
+            const r = await fetch(`/api/youtube/insights/${videoId}?language=all`, { headers: _ytHeaders() });
+            if (!r.ok) return;
+            const d = await r.json();
+            const newTranscript = d.transcript_text || '';
+            if (newTranscript.length > 500) {
+                // Good transcript — refresh the modal
+                if (typeof showToast === 'function') showToast('Transcript updated successfully!', 'success');
+                _ytShowInsights(videoId);
+                return;
+            }
+        } catch(e) { /* ignore */ }
+        setTimeout(poll, 5000);
+    };
+    setTimeout(poll, 5000);
 }
 
 function _ytRenderSummary(data) {

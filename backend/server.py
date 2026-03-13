@@ -142,6 +142,10 @@ def create_handler(strat, auth, frontend_dir, output_dir):
             _auth_path = self.path.split('?')[0]
             if _auth_path.startswith('/api/') and not _auth_path.startswith('/api/proxy') and _auth_path not in auth.AUTH_EXEMPT:
                 token = self.headers.get('X-Auth-Token', '')
+                # Fallback: accept token as query param for file downloads (e.g. export)
+                if not token:
+                    _qs = parse_qs(urlparse(self.path).query)
+                    token = _qs.get('token', [''])[0]
                 if not auth.validate_session(token):
                     self.send_response(401)
                     self.send_header("Content-type", "application/json")

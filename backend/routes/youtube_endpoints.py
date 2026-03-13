@@ -122,11 +122,12 @@ def handle_get(handler, strat, auth, path):
             )
             available_langs = [row['language'] for row in cursor.fetchall()]
             cursor.execute(
-                "SELECT title, transcript_language, transcript_text FROM youtube_videos WHERE id = ? AND profile_id = ?",
+                "SELECT title, video_id, transcript_language, transcript_text FROM youtube_videos WHERE id = ? AND profile_id = ?",
                 (vid_id, handler._profile_id)
             )
             vrow = cursor.fetchone()
             video_title = vrow['title'] if vrow else ''
+            yt_video_id = vrow['video_id'] if vrow else ''
             transcript_lang = (vrow['transcript_language'] if vrow else 'en') or 'en'
             transcript_text = vrow['transcript_text'] if vrow else None
 
@@ -166,6 +167,7 @@ def handle_get(handler, strat, auth, path):
             _send_json(handler, {
                 "insights": insights,
                 "video_title": video_title,
+                "yt_video_id": yt_video_id,
                 "available_languages": available_langs,
                 "transcript_language": transcript_lang,
                 "transcript_text": transcript_text,
@@ -173,6 +175,128 @@ def handle_get(handler, strat, auth, path):
             })
         except (ValueError, IndexError):
             _send_json(handler, {"error": "Invalid video ID"}, 400)
+        return True
+
+    elif len(path_parts) == 4 and path_parts[2] == 'export':
+        # GET /api/youtube/export/:channel_db_id?format=json|md
+        try:
+            ch_id = int(path_parts[3])
+            qs = parse_qs(parsed.query)
+            fmt = qs.get('format', ['json'])[0]
+            cursor = strat.db.conn.cursor()
+
+            # Get channel info
+            cursor.execute(
+                "SELECT * FROM youtube_channels WHERE id = ? AND profile_id = ?",
+                (ch_id, handler._profile_id)
+            )
+            ch_row = cursor.fetchone()
+            if not ch_row:
+                _send_json(handler, {"error": "Channel not found"}, 404)
+                return True
+            channel = dict(ch_row)
+
+            # Get all videos
+            cursor.execute(
+                "SELECT id, video_id, title, status, transcript_text, transcript_language, published_at "
+                "FROM youtube_videos WHERE channel_id = ? AND profile_id = ? ORDER BY published_at DESC",
+                (ch_id, handler._profile_id)
+            )
+            videos = [dict(r) for r in cursor.fetchall()]
+
+            # Get all insights for each video
+            for video in videos:
+                cursor.execute(
+                    "SELECT lens_name, content, language FROM video_insights "
+                    "WHERE video_id = ? AND profile_id = ? ORDER BY lens_name, language",
+                    (video['id'], handler._profile_id)
+                )
+                video['insights'] = {}
+                for row in cursor.fetchall():
+                    key = f"{row['lens_name']}_{row['language']}" if row['language'] else row['lens_name']
+                    try:
+                        video['insights'][key] = json.loads(row['content'])
+                    except (json.JSONDecodeError, TypeError):
+                        video['insights'][key] = row['content']
+
+            channel_name = channel.get('channel_name', 'channel')
+
+            if fmt == 'md':
+                # Markdown export
+                lines = [f"# {channel_name}\n"]
+                for v in videos:
+                    yt_url = f"https://www.youtube.com/watch?v={v['video_id']}"
+                    lines.append(f"\n## {v['title']}\n")
+                    lines.append(f"- **URL**: {yt_url}")
+                    lines.append(f"- **Status**: {v['status']}")
+                    if v.get('published_at'):
+                        lines.append(f"- **Published**: {v['published_at']}")
+                    lines.append(f"- **Language**: {v.get('transcript_language', 'en')}\n")
+
+                    if v.get('transcript_text'):
+                        lines.append("### Transcript\n")
+                        lines.append(v['transcript_text'][:50000] + "\n")
+
+                    for lens_key, content in v.get('insights', {}).items():
+                        lens_label = lens_key.replace('_', ' — ', 1).title()
+                        lines.append(f"### {lens_label}\n")
+                        if isinstance(content, dict):
+                            if content.get('summary'):
+                                lines.append(content['summary'] + "\n")
+                            if content.get('key_takeaways'):
+                                for i, t in enumerate(content['key_takeaways'], 1):
+                                    text = t if isinstance(t, str) else (t.get('text', '') or t.get('point', ''))
+                                    lines.append(f"{i}. {text}")
+                                lines.append("")
+                        elif isinstance(content, list):
+                            for item in content:
+                                if isinstance(item, dict):
+                                    primary = (item.get('narration_text') or item.get('term') or
+                                               item.get('event') or item.get('lesson') or
+                                               item.get('topic') or item.get('text') or '')
+                                    lines.append(f"- {primary}")
+                                else:
+                                    lines.append(f"- {item}")
+                            lines.append("")
+                        elif isinstance(content, str):
+                            lines.append(content + "\n")
+
+                body = '\n'.join(lines).encode('utf-8')
+                handler.send_response(200)
+                handler.send_header("Content-type", "text/markdown; charset=utf-8")
+                handler.send_header("Content-Disposition",
+                                    f'attachment; filename="{channel_name.replace(" ", "_")}_export.md"')
+                handler.send_header("Access-Control-Allow-Origin", "*")
+                handler.end_headers()
+                handler.wfile.write(body)
+            else:
+                # JSON export
+                export = {
+                    "channel": channel_name,
+                    "channel_id": channel.get('channel_id', ''),
+                    "exported_at": __import__('datetime').datetime.now().isoformat(),
+                    "video_count": len(videos),
+                    "videos": [{
+                        "title": v['title'],
+                        "youtube_url": f"https://www.youtube.com/watch?v={v['video_id']}",
+                        "youtube_id": v['video_id'],
+                        "status": v['status'],
+                        "published_at": v.get('published_at'),
+                        "language": v.get('transcript_language', 'en'),
+                        "transcript": v.get('transcript_text', ''),
+                        "insights": v.get('insights', {}),
+                    } for v in videos],
+                }
+                body = json.dumps(export, ensure_ascii=False, indent=2).encode('utf-8')
+                handler.send_response(200)
+                handler.send_header("Content-type", "application/json; charset=utf-8")
+                handler.send_header("Content-Disposition",
+                                    f'attachment; filename="{channel_name.replace(" ", "_")}_export.json"')
+                handler.send_header("Access-Control-Allow-Origin", "*")
+                handler.end_headers()
+                handler.wfile.write(body)
+        except (ValueError, IndexError):
+            _send_json(handler, {"error": "Invalid channel ID"}, 400)
         return True
 
     return False
@@ -426,6 +550,72 @@ def handle_post(handler, strat, auth, path):
                 logger.error(f"On-demand lens extraction failed: {e}")
 
         threading.Thread(target=_extract_in_background, daemon=True).start()
+        return True
+
+    if path == "/api/youtube/retranscribe":
+        video_id = body.get('video_id')
+        if not video_id:
+            _send_json(handler, {"error": "video_id required"}, 400)
+            return True
+        cursor = strat.db.conn.cursor()
+        cursor.execute(
+            "SELECT id, video_id, title, profile_id FROM youtube_videos WHERE id = ? AND profile_id = ?",
+            (int(video_id), handler._profile_id)
+        )
+        vrow = cursor.fetchone()
+        if not vrow:
+            _send_json(handler, {"error": "Video not found"}, 404)
+            return True
+        video = dict(vrow)
+
+        # Reset status and clear bad transcript
+        cursor.execute(
+            "UPDATE youtube_videos SET status = 'pending', transcript_text = NULL WHERE id = ?",
+            (video['id'],)
+        )
+        # Also clear any insights derived from the bad transcript
+        cursor.execute(
+            "DELETE FROM video_insights WHERE video_id = ? AND profile_id = ?",
+            (video['id'], handler._profile_id)
+        )
+        strat.db._commit()
+        _send_json(handler, {"ok": True, "status": "queued"})
+
+        def _retranscribe():
+            try:
+                from processors.youtube import get_transcript
+                text, method, lang = get_transcript(
+                    video['video_id'],
+                    preferred_lang='en',
+                    supadata_key=strat.config.get('search', {}).get('supadata_api_key', ''),
+                )
+                cur = strat.db.conn.cursor()
+                cur.execute(
+                    "UPDATE youtube_videos SET transcript_text = ?, transcript_language = ?, status = 'transcribed' WHERE id = ?",
+                    (text, lang, video['id'])
+                )
+                strat.db._commit()
+                logger.info(f"Re-transcribed video {video['id']} ({video['title'][:40]}) via {method}: {len(text)} chars")
+                if hasattr(strat, 'sse_manager') and strat.sse_manager:
+                    strat.sse_manager.broadcast('youtube_processing', {
+                        'video_id': video['video_id'],
+                        'title': video['title'],
+                        'status': 'transcribed',
+                    })
+            except Exception as e:
+                logger.error(f"Re-transcribe failed for video {video['id']}: {e}")
+                cur = strat.db.conn.cursor()
+                cur.execute("UPDATE youtube_videos SET status = 'failed' WHERE id = ?", (video['id'],))
+                strat.db._commit()
+                if hasattr(strat, 'sse_manager') and strat.sse_manager:
+                    strat.sse_manager.broadcast('youtube_processing', {
+                        'video_id': video['video_id'],
+                        'title': video['title'],
+                        'status': 'failed',
+                        'error': str(e)[:100],
+                    })
+
+        threading.Thread(target=_retranscribe, daemon=True).start()
         return True
 
     if len(path_parts) == 5 and path_parts[2] == 'channels' and path_parts[4] == 'lenses':
