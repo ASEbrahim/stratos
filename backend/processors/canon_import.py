@@ -6,6 +6,9 @@ When the user says "Build the SAO world" or "Import Naruto", this module:
 2. Fetches key pages (characters, locations, lore) via MediaWiki API
 3. Normalizes raw wikitext into game-ready JSON via LLM
 4. Writes everything into the scenario file structure
+
+Optimized: batch wiki extracts (multi-title API), batch LLM calls (3-4 chars per call),
+reduced rate-limit delay, right-sized num_predict per task.
 """
 
 import json
@@ -40,7 +43,7 @@ FRANCHISE_ALIASES = {
     "my hero academia": {"wiki": "myheroacademia", "full_name": "My Hero Academia", "genre": "superhero academy RPG"},
     "mha": {"wiki": "myheroacademia", "full_name": "My Hero Academia", "genre": "superhero academy RPG"},
     "hunter x hunter": {"wiki": "hunterxhunter", "full_name": "Hunter x Hunter", "genre": "adventure RPG"},
-    "hxh": {"wiki": "hunterxhunter", "full_name": "Hunter x Hunter", "genre": "adventure RPG"},
+    "hxh": {"wiki": "hunterxhunner", "full_name": "Hunter x Hunter", "genre": "adventure RPG"},
     "fullmetal alchemist": {"wiki": "fma", "full_name": "Fullmetal Alchemist", "genre": "steampunk fantasy RPG"},
     "fma": {"wiki": "fma", "full_name": "Fullmetal Alchemist", "genre": "steampunk fantasy RPG"},
     "death note": {"wiki": "deathnote", "full_name": "Death Note", "genre": "psychological thriller"},
@@ -84,8 +87,8 @@ FRANCHISE_ALIASES = {
 # ═══════════════════════════════════════════════════════════
 
 FANDOM_API_TEMPLATE = "https://{wiki}.fandom.com/api.php"
-FETCH_DELAY = 0.5  # seconds between requests
-MAX_FETCHES = 15   # hard cap per import
+FETCH_DELAY = 0.2   # seconds between requests (Fandom rate limit is generous)
+MAX_FETCHES = 20     # raised — batch extracts count as 1 fetch each
 
 
 class FandomFetcher:
@@ -164,6 +167,58 @@ class FandomFetcher:
             return ""
         except Exception:
             return ""
+
+    def get_batch_extracts(self, titles, max_chars=1500):
+        """Fetch plain-text extracts for multiple pages in ONE API call.
+
+        MediaWiki supports titles=A|B|C for up to 50 pages per request.
+        Returns: dict mapping title -> extract text
+        """
+        if not titles:
+            return {}
+        results = {}
+        # Process in chunks of 20 (safe for URL length)
+        for chunk_start in range(0, len(titles), 20):
+            chunk = titles[chunk_start:chunk_start + 20]
+            try:
+                data = self._get({
+                    "action": "query",
+                    "titles": "|".join(chunk),
+                    "prop": "extracts",
+                    "exchars": max_chars,
+                    "explaintext": True,
+                    "exintro": True,
+                    "redirects": True,
+                })
+                # Build redirect map: from -> to
+                redirects_map = {}
+                for redir in data.get("query", {}).get("redirects", []):
+                    redirects_map[redir.get("from", "")] = redir.get("to", "")
+                # Build normalized map: from -> to
+                norm_map = {}
+                for norm in data.get("query", {}).get("normalized", []):
+                    norm_map[norm.get("from", "")] = norm.get("to", "")
+
+                pages = data.get("query", {}).get("pages", {})
+                # Map page titles back to original requested titles
+                page_title_to_extract = {}
+                for page in pages.values():
+                    title_key = page.get("title", "")
+                    extract = page.get("extract", "")
+                    if extract:
+                        page_title_to_extract[title_key] = extract
+
+                for orig_title in chunk:
+                    # Follow normalization + redirect chain
+                    resolved = norm_map.get(orig_title, orig_title)
+                    resolved = redirects_map.get(resolved, resolved)
+                    if resolved in page_title_to_extract:
+                        results[orig_title] = page_title_to_extract[resolved]
+                    elif orig_title in page_title_to_extract:
+                        results[orig_title] = page_title_to_extract[orig_title]
+            except Exception as e:
+                logger.warning(f"Batch extract failed for chunk: {e}")
+        return results
 
 
 def _parse_wikitext(raw):
@@ -263,43 +318,45 @@ def resolve_franchise(name, serper_search_fn=None):
 # LLM NORMALIZATION PROMPTS
 # ═══════════════════════════════════════════════════════════
 
-NORMALIZE_CHARACTER = """You are converting a wiki article about a character from {franchise} into game-ready data.
+NORMALIZE_BATCH_CHARACTERS = """You are converting wiki articles about characters from {franchise} into game-ready data.
 
-Raw wiki content:
-{wiki_text}
+{characters_block}
 
-Convert to this exact JSON structure:
-{{
-  "id": "filesystem_safe_name_lowercase",
-  "name": "Display Name",
-  "short": "One-line role description (max 10 words)",
-  "location": "where they're typically found",
-  "keywords": ["keyword1", "keyword2", "keyword3"],
-  "can_fight": true,
-  "can_trade": false,
-  "profile": "80-100 words: appearance, personality, role in the story. Written as character profile prose.",
-  "speaking_style": "How they talk: verbal tics, sentence patterns, tone. 2-3 sentences.",
-  "dialogue_samples": "3 example lines this character would say, canon-accurate. In quotes.",
-  "knowledge": "What this character knows about the world, other characters, secrets. 2-4 sentences.",
-  "stats": "Power level, combat abilities, special techniques. 2-3 sentences."
-}}
+Convert EACH character to a JSON object with this structure, and return a JSON array of all characters:
+[
+  {{
+    "id": "filesystem_safe_name_lowercase",
+    "name": "Display Name",
+    "short": "One-line role description (max 10 words)",
+    "location": "where they're typically found",
+    "keywords": ["keyword1", "keyword2", "keyword3"],
+    "can_fight": true,
+    "can_trade": false,
+    "profile": "80-100 words: appearance, personality, role in the story.",
+    "speaking_style": "How they talk: verbal tics, sentence patterns, tone. 2-3 sentences.",
+    "dialogue_samples": "3 example lines this character would say, canon-accurate.",
+    "knowledge": "What this character knows about the world. 2-4 sentences.",
+    "stats": "Power level, combat abilities, special techniques. 2-3 sentences."
+  }}
+]
 
-CRITICAL: Return ONLY valid JSON. No markdown fences. No text before or after."""
+CRITICAL: Return ONLY a valid JSON array. No markdown fences. No text before or after."""
 
-NORMALIZE_LOCATION = """You are converting a wiki article about a location from {franchise} into game-ready data.
+NORMALIZE_BATCH_LOCATIONS = """You are converting wiki articles about locations from {franchise} into game-ready data.
 
-Raw wiki content:
-{wiki_text}
+{locations_block}
 
-Convert to this exact JSON structure:
-{{
-  "id": "filesystem_safe_id_lowercase",
-  "name": "Location Name",
-  "description": "100-150 words: what the place looks like, atmosphere, key landmarks, who can be found here, what activities are available. Vivid prose suitable for a game master to read aloud.",
-  "keywords": ["keyword1", "keyword2"]
-}}
+Convert EACH location to a JSON object, return a JSON array:
+[
+  {{
+    "id": "filesystem_safe_id_lowercase",
+    "name": "Location Name",
+    "description": "100-150 words: what the place looks like, atmosphere, key landmarks, who can be found here.",
+    "keywords": ["keyword1", "keyword2"]
+  }}
+]
 
-CRITICAL: Return ONLY valid JSON. No markdown fences."""
+CRITICAL: Return ONLY a valid JSON array. No markdown fences."""
 
 NORMALIZE_WORLD = """You are creating a game world overview from wiki lore about {franchise}.
 
@@ -322,7 +379,7 @@ CRITICAL: Return ONLY valid JSON. No markdown fences."""
 
 
 # ═══════════════════════════════════════════════════════════
-# IMPORT PIPELINE
+# IMPORT PIPELINE (optimized: batch wiki + batch LLM)
 # ═══════════════════════════════════════════════════════════
 
 def run_canon_import(ollama_host, model, scenario_path, franchise_info, progress_callback=None):
@@ -394,9 +451,7 @@ def run_canon_import(ollama_host, model, scenario_path, franchise_info, progress
             break
 
     if not character_titles:
-        # Fallback: search for "characters"
         character_titles = fetcher.search_pages("characters", limit=12)
-        # Filter out category/list pages
         character_titles = [t for t in character_titles if not t.lower().startswith(("category:", "list of"))]
 
     # Discover locations
@@ -417,19 +472,53 @@ def run_canon_import(ollama_host, model, scenario_path, franchise_info, progress
     _report(0, f"Found {len(character_titles)} characters, {len(location_titles)} locations", "done")
     logger.info(f"Discovery: {len(character_titles)} chars, {len(location_titles)} locs, {len(power_titles)} power pages")
 
+    # ─── PASS 0.5: Bulk-fetch all extracts in batched API calls ───
+    _report(0, "Fetching wiki pages...", "generating")
+
+    char_limit = min(12, len(character_titles))
+    loc_limit = min(5, len(location_titles))
+    chars_to_fetch = character_titles[:char_limit]
+    locs_to_fetch = location_titles[:loc_limit]
+
+    # Batch-fetch character extracts (1 API call per 20 titles instead of 12 separate calls)
+    char_extracts = fetcher.get_batch_extracts(chars_to_fetch, max_chars=2000)
+    logger.info(f"Batch-fetched {len(char_extracts)}/{len(chars_to_fetch)} character extracts")
+
+    # Batch-fetch location extracts
+    loc_extracts = fetcher.get_batch_extracts(locs_to_fetch, max_chars=1500)
+    logger.info(f"Batch-fetched {len(loc_extracts)}/{len(locs_to_fetch)} location extracts")
+
+    # For characters without extracts, try wikitext individually (but only a few)
+    chars_needing_wikitext = [t for t in chars_to_fetch if t not in char_extracts or len(char_extracts.get(t, '')) < 100]
+    for title in chars_needing_wikitext[:4]:  # cap at 4 individual fallbacks
+        if fetcher.fetch_count >= MAX_FETCHES - 2:
+            break
+        raw = fetcher.get_page_wikitext(title)
+        if raw:
+            clean = _parse_wikitext(raw)[:2000]
+            if len(clean) >= 50:
+                char_extracts[title] = clean
+
+    # Cache all fetched content
+    for title, text in char_extracts.items():
+        _cache_source(title, text)
+    for title, text in loc_extracts.items():
+        _cache_source(title, text)
+
+    _report(0, f"Fetched {len(char_extracts)} character + {len(loc_extracts)} location pages", "done")
+
     # ─── PASS 1: World Lore ───
     logger.info(f"Canon import pass 1: World lore for {franchise}")
     _report(1, "World lore & power system", "generating")
 
-    # Gather world source material
     world_source_parts = []
     if main_text:
         world_source_parts.append(f"Main article:\n{main_text}")
 
     # Fetch power system page if found
     for pt in power_titles[:2]:
-        if fetcher.fetch_count >= MAX_FETCHES - 5:
-            break  # Reserve fetches for characters
+        if fetcher.fetch_count >= MAX_FETCHES - 2:
+            break
         raw = fetcher.get_page_wikitext(pt)
         if raw:
             clean = _parse_wikitext(raw)[:1500]
@@ -441,7 +530,7 @@ def run_canon_import(ollama_host, model, scenario_path, franchise_info, progress
 
     world_data = _llm_json_call(ollama_host, NORMALIZE_WORLD.format(
         franchise=franchise, wiki_text=world_text[:4000]
-    ), model)
+    ), model, num_predict=2048)
 
     if world_data:
         from processors.scenario_generator import _write_file, _write_json, _update_index
@@ -455,13 +544,11 @@ def run_canon_import(ollama_host, model, scenario_path, franchise_info, progress
         _write_file(scenario_path, 'world/mechanics/skills.md',
                     f"# Skills & Abilities\n\n{world_data.get('skills', '')}")
 
-        # Power system
         power_system = world_data.get('power_system', '')
         if power_system:
             _write_file(scenario_path, 'world/mechanics/power_system.md',
                         f"# Power System\n\n{power_system}")
 
-        # Factions
         factions = world_data.get('factions', [])
         factions_index = {"factions": []}
         for fac in factions:
@@ -486,109 +573,161 @@ def run_canon_import(ollama_host, model, scenario_path, franchise_info, progress
     else:
         _report(1, "World lore & power system", "failed")
 
-    # ─── PASS 2: Characters ───
+    # ─── PASS 2: Characters (BATCHED — 3-4 per LLM call) ───
     logger.info(f"Canon import pass 2: Characters for {franchise}")
-    char_limit = min(12, len(character_titles))
     _report(2, f"Characters (0/{char_limit})", "generating")
 
     from processors.scenario_templates import create_npc_folder
-    from processors.scenario_generator import _write_file as write_f
 
     starting_npcs = []
     npc_count = 0
 
-    for i, title in enumerate(character_titles[:char_limit]):
-        if fetcher.fetch_count >= MAX_FETCHES:
-            logger.warning("Fetch limit reached during character import")
-            break
+    # Build list of characters that have usable text
+    char_texts = []
+    for title in chars_to_fetch:
+        text = char_extracts.get(title, '')
+        if text and len(text) >= 50:
+            char_texts.append((title, text[:1500]))  # trim for batch prompt
 
-        # Use extracts (lighter) first, fallback to wikitext
-        raw = fetcher.get_page_extract(title, max_chars=2000)
-        if not raw or len(raw) < 100:
-            raw = fetcher.get_page_wikitext(title)
-            raw = _parse_wikitext(raw)[:2000]
+    # Process in batches of 4
+    BATCH_SIZE = 4
+    for batch_start in range(0, len(char_texts), BATCH_SIZE):
+        batch = char_texts[batch_start:batch_start + BATCH_SIZE]
+        batch_num = batch_start // BATCH_SIZE + 1
+        total_batches = (len(char_texts) + BATCH_SIZE - 1) // BATCH_SIZE
 
-        if not raw or len(raw) < 50:
-            continue
+        _report(2, f"Characters batch {batch_num}/{total_batches} ({npc_count} done)", "generating")
 
-        _cache_source(title, raw)
-        _report(2, f"Characters ({i+1}/{char_limit}): {title}", "generating")
+        # Build combined prompt with all characters in this batch
+        chars_block_parts = []
+        for i, (title, text) in enumerate(batch):
+            chars_block_parts.append(f"--- CHARACTER {i+1}: {title} ---\n{text}")
+        characters_block = "\n\n".join(chars_block_parts)
 
-        char_data = _llm_json_call(ollama_host, NORMALIZE_CHARACTER.format(
-            franchise=franchise, wiki_text=raw[:2000]
-        ), model)
+        # Single LLM call for the whole batch
+        batch_result = _llm_json_call(
+            ollama_host,
+            NORMALIZE_BATCH_CHARACTERS.format(
+                franchise=franchise,
+                characters_block=characters_block
+            ),
+            model,
+            num_predict=4096,  # more tokens for batch output
+            expect_array=True,
+        )
 
-        if not char_data:
-            continue
+        if not batch_result:
+            logger.warning(f"Batch {batch_num} LLM call failed, falling back to individual")
+            # Fallback: try each character individually
+            for title, text in batch:
+                single_prompt = f"""Convert this {franchise} character wiki article to game-ready JSON.
 
-        npc_id = char_data.get('id', re.sub(r'[^a-z0-9_]', '_', title.lower())[:30])
+Raw wiki content for {title}:
+{text[:1500]}
 
-        profile_content = f"# {char_data.get('name', title)}\n\n{char_data.get('profile', '')}\n\n## Speaking Style\n{char_data.get('speaking_style', '')}"
-        dialogue_content = f"# {char_data.get('name', title)} — Dialogue\n\n{char_data.get('dialogue_samples', '')}"
-        knowledge_content = f"# {char_data.get('name', title)} — Knowledge\n\n{char_data.get('knowledge', '')}"
-        stats_content = char_data.get('stats', '')
+Return a single JSON object:
+{{"id": "lowercase_id", "name": "Name", "short": "role (max 10 words)", "location": "where found", "keywords": ["k1","k2"], "can_fight": true, "can_trade": false, "profile": "80-100 words", "speaking_style": "2-3 sentences", "dialogue_samples": "3 lines", "knowledge": "2-4 sentences", "stats": "2-3 sentences"}}
 
-        create_npc_folder(scenario_path, npc_id, {
-            'name': char_data.get('name', title),
-            'short': char_data.get('short', ''),
-            'location': char_data.get('location', ''),
-            'keywords': char_data.get('keywords', [npc_id]),
-            'can_fight': char_data.get('can_fight', True),
-            'can_trade': char_data.get('can_trade', False),
-            'profile': profile_content,
-            'stats': stats_content,
-            'dialogue': dialogue_content,
-            'knowledge': knowledge_content,
-        })
+Return ONLY valid JSON."""
+                char_data = _llm_json_call(ollama_host, single_prompt, model, num_predict=1536)
+                if char_data:
+                    batch_result = [char_data] if not isinstance(batch_result, list) else batch_result
+                    if isinstance(batch_result, list):
+                        batch_result.append(char_data)
+                    else:
+                        batch_result = [char_data]
+            if not batch_result:
+                continue
 
-        starting_npcs.append(npc_id)
-        npc_count += 1
+        # Handle case where LLM returns a single object instead of array
+        if isinstance(batch_result, dict):
+            batch_result = [batch_result]
+
+        for char_data in batch_result:
+            if not isinstance(char_data, dict):
+                continue
+            title_guess = char_data.get('name', f'char_{npc_count}')
+            npc_id = char_data.get('id', re.sub(r'[^a-z0-9_]', '_', title_guess.lower())[:30])
+
+            profile_content = f"# {char_data.get('name', title_guess)}\n\n{char_data.get('profile', '')}\n\n## Speaking Style\n{char_data.get('speaking_style', '')}"
+            dialogue_content = f"# {char_data.get('name', title_guess)} — Dialogue\n\n{char_data.get('dialogue_samples', '')}"
+            knowledge_content = f"# {char_data.get('name', title_guess)} — Knowledge\n\n{char_data.get('knowledge', '')}"
+            stats_content = char_data.get('stats', '')
+
+            create_npc_folder(scenario_path, npc_id, {
+                'name': char_data.get('name', title_guess),
+                'short': char_data.get('short', ''),
+                'location': char_data.get('location', ''),
+                'keywords': char_data.get('keywords', [npc_id]),
+                'can_fight': char_data.get('can_fight', True),
+                'can_trade': char_data.get('can_trade', False),
+                'profile': profile_content,
+                'stats': stats_content,
+                'dialogue': dialogue_content,
+                'knowledge': knowledge_content,
+            })
+
+            starting_npcs.append(npc_id)
+            npc_count += 1
 
     _report(2, f"Characters ({npc_count} imported)", "done")
 
-    # ─── PASS 3: Locations ───
+    # ─── PASS 3: Locations (BATCHED — all in 1 LLM call) ───
     logger.info(f"Canon import pass 3: Locations for {franchise}")
-    loc_limit = min(5, len(location_titles))
     _report(3, f"Locations (0/{loc_limit})", "generating")
+
+    from processors.scenario_generator import _write_file, _write_json, _update_index
 
     locations_index = {"locations": []}
     loc_count = 0
     first_loc_id = ""
 
-    for i, title in enumerate(location_titles[:loc_limit]):
-        if fetcher.fetch_count >= MAX_FETCHES:
-            break
+    # Build location texts
+    loc_texts = []
+    for title in locs_to_fetch:
+        text = loc_extracts.get(title, '')
+        if text and len(text) >= 30:
+            loc_texts.append((title, text[:1200]))
 
-        raw = fetcher.get_page_extract(title, max_chars=1500)
-        if not raw or len(raw) < 50:
-            raw = fetcher.get_page_wikitext(title)
-            raw = _parse_wikitext(raw)[:1500]
+    if loc_texts:
+        # Build combined prompt for ALL locations in one call
+        locs_block_parts = []
+        for i, (title, text) in enumerate(loc_texts):
+            locs_block_parts.append(f"--- LOCATION {i+1}: {title} ---\n{text}")
+        locations_block = "\n\n".join(locs_block_parts)
 
-        if not raw or len(raw) < 30:
-            continue
+        _report(3, f"Locations ({len(loc_texts)} in batch)", "generating")
 
-        _cache_source(title, raw)
-        _report(3, f"Locations ({i+1}/{loc_limit}): {title}", "generating")
+        batch_locs = _llm_json_call(
+            ollama_host,
+            NORMALIZE_BATCH_LOCATIONS.format(
+                franchise=franchise,
+                locations_block=locations_block
+            ),
+            model,
+            num_predict=2048,
+            expect_array=True,
+        )
 
-        loc_data = _llm_json_call(ollama_host, NORMALIZE_LOCATION.format(
-            franchise=franchise, wiki_text=raw[:1500]
-        ), model)
+        if isinstance(batch_locs, dict):
+            batch_locs = [batch_locs]
 
-        if not loc_data:
-            continue
+        if batch_locs:
+            for loc_data in batch_locs:
+                if not isinstance(loc_data, dict):
+                    continue
+                loc_id = loc_data.get('id', re.sub(r'[^a-z0-9_]', '_', loc_data.get('name', 'loc').lower())[:30])
+                if not first_loc_id:
+                    first_loc_id = loc_id
 
-        loc_id = loc_data.get('id', re.sub(r'[^a-z0-9_]', '_', title.lower())[:30])
-        if not first_loc_id:
-            first_loc_id = loc_id
-
-        _write_file(scenario_path, f'world/locations/{loc_id}.md',
-                    f"# {loc_data.get('name', title)}\n\n{loc_data.get('description', '')}")
-        locations_index["locations"].append({
-            "id": loc_id,
-            "name": loc_data.get('name', title),
-            "keywords": loc_data.get('keywords', [loc_id]),
-        })
-        loc_count += 1
+                _write_file(scenario_path, f'world/locations/{loc_id}.md',
+                            f"# {loc_data.get('name', loc_id)}\n\n{loc_data.get('description', '')}")
+                locations_index["locations"].append({
+                    "id": loc_id,
+                    "name": loc_data.get('name', loc_id),
+                    "keywords": loc_data.get('keywords', [loc_id]),
+                })
+                loc_count += 1
 
     if locations_index["locations"]:
         _write_json(scenario_path, 'world/locations/_index.json', locations_index)
@@ -623,7 +762,7 @@ Generate the opening as JSON:
 Use canon-appropriate quest hooks and NPCs from {franchise}.
 Return ONLY valid JSON."""
 
-    opening_data = _llm_json_call(ollama_host, opening_prompt, model)
+    opening_data = _llm_json_call(ollama_host, opening_prompt, model, num_predict=1024)
 
     if opening_data:
         scene_npcs = opening_data.get('active_npcs_in_scene', starting_npcs[:3])
@@ -655,7 +794,7 @@ Return ONLY valid JSON."""
 # LLM HELPER (reuses pattern from scenario_generator.py)
 # ═══════════════════════════════════════════════════════════
 
-def _llm_json_call(ollama_host, prompt, model, max_retries=2):
+def _llm_json_call(ollama_host, prompt, model, max_retries=2, num_predict=2048, expect_array=False):
     """Call LLM and parse JSON response with retries."""
     from routes.helpers import strip_think_blocks
 
@@ -667,7 +806,7 @@ def _llm_json_call(ollama_host, prompt, model, max_retries=2):
                     "model": model,
                     "prompt": prompt,
                     "stream": False,
-                    "options": {"temperature": 0.3, "num_predict": 2048},
+                    "options": {"temperature": 0.3, "num_predict": num_predict},
                     "think": False,
                 },
                 timeout=240,
@@ -683,11 +822,26 @@ def _llm_json_call(ollama_host, prompt, model, max_retries=2):
             text = re.sub(r'^```(?:json)?\s*', '', text)
             text = re.sub(r'\s*```$', '', text)
 
-            # Find JSON boundaries
-            brace_start = text.find('{')
-            brace_end = text.rfind('}')
-            if brace_start >= 0 and brace_end > brace_start:
-                text = text[brace_start:brace_end + 1]
+            if expect_array:
+                # Find array boundaries
+                arr_start = text.find('[')
+                arr_end = text.rfind(']')
+                if arr_start >= 0 and arr_end > arr_start:
+                    text = text[arr_start:arr_end + 1]
+                    return json.loads(text)
+                # Maybe LLM returned a single object — try that
+                brace_start = text.find('{')
+                brace_end = text.rfind('}')
+                if brace_start >= 0 and brace_end > brace_start:
+                    text = text[brace_start:brace_end + 1]
+                    obj = json.loads(text)
+                    return [obj]  # wrap in array
+            else:
+                # Find JSON object boundaries
+                brace_start = text.find('{')
+                brace_end = text.rfind('}')
+                if brace_start >= 0 and brace_end > brace_start:
+                    text = text[brace_start:brace_end + 1]
 
             return json.loads(text)
         except json.JSONDecodeError as e:
