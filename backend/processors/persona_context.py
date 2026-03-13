@@ -251,19 +251,23 @@ class PersonaContextManager:
 
     def delete_file(self, profile_id: int, persona_name: str,
                     filepath: str) -> bool:
-        """Delete a file from persona's context directory."""
+        """Delete a file or directory from persona's context directory."""
+        import shutil
         ctx_dir = self._context_dir(profile_id, persona_name)
         target = (ctx_dir / filepath.lstrip('/')).resolve()
 
         if not str(target).startswith(str(ctx_dir.resolve())):
+            return False
+        # Never delete the context root itself
+        if target == ctx_dir.resolve():
             return False
 
         try:
             if target.is_file():
                 target.unlink()
                 return True
-            elif target.is_dir() and not any(target.iterdir()):
-                target.rmdir()
+            elif target.is_dir():
+                shutil.rmtree(target)
                 return True
         except Exception as e:
             logger.error(f"Delete file error: {e}")

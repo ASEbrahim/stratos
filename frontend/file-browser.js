@@ -719,11 +719,16 @@ async function _fbCreateFolder() {
 async function _fbDelete(path, name) {
     if (!(await stratosConfirm(`Delete "${name}"? This cannot be undone.`, { title: 'Delete File', okText: 'Delete', cancelText: 'Cancel' }))) return;
     try {
-        await fetch(`/api/persona-files?persona=${encodeURIComponent(_fbPersona)}&path=${encodeURIComponent(path)}`, {
+        const r = await fetch(`/api/persona-files?persona=${encodeURIComponent(_fbPersona)}&path=${encodeURIComponent(path)}`, {
             method: 'DELETE', headers: _fbHeaders()
         });
-        _fbLoadDir(_fbPath);
-        if (typeof showToast === 'function') showToast(`Deleted ${name}`, 'success');
+        const d = await r.json().catch(() => ({}));
+        if (r.ok && d.ok) {
+            _fbLoadDir(_fbPath);
+            if (typeof showToast === 'function') showToast(`Deleted ${name}`, 'success');
+        } else {
+            if (typeof showToast === 'function') showToast(d.error || 'Delete failed', 'error');
+        }
     } catch (e) { if (typeof showToast === 'function') showToast('Failed', 'error'); }
 }
 
