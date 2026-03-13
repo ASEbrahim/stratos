@@ -40,7 +40,7 @@ class Database:
         c.row_factory = sqlite3.Row
         c.execute("PRAGMA foreign_keys = ON")
         c.execute("PRAGMA journal_mode = WAL")
-        c.execute("PRAGMA busy_timeout = 5000")
+        c.execute("PRAGMA busy_timeout = 10000")
         c.execute("PRAGMA synchronous = NORMAL")
         c.execute("PRAGMA cache_size = -8000")
         c.execute("PRAGMA temp_store = MEMORY")
@@ -65,10 +65,11 @@ class Database:
         """Commit the current thread's transaction.
 
         WAL mode + busy_timeout handle cross-thread write serialization
-        at the SQLite level. The Python lock is kept as a safety net for
-        any remaining single-connection callers during migration.
+        at the SQLite level. The Python lock serializes commits from the
+        application side to prevent concurrent write contention.
         """
-        self.conn.commit()
+        with self.lock:
+            self.conn.commit()
     
     def _create_tables(self):
         """Run the migration framework to create/update all tables."""

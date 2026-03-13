@@ -159,7 +159,10 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                     _pid_row = cursor.fetchone()
                     if _pid_row and _pid_row[0]:
                         self._profile_id = _pid_row[0]
-                        strat.active_profile_id = _pid_row[0]
+                        # Note: do NOT set strat.active_profile_id here — it's global
+                        # mutable state that causes cross-profile bleed when concurrent
+                        # requests from different profiles race. Each handler uses
+                        # self._profile_id (per-request, thread-safe) instead.
                 except Exception:
                     pass
                 self._session_profile = _session_profile
@@ -463,7 +466,7 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                     _pid_row = cursor.fetchone()
                     if _pid_row and _pid_row[0]:
                         self._profile_id = _pid_row[0]
-                        strat.active_profile_id = _pid_row[0]
+                        # Note: do NOT set strat.active_profile_id here (see GET handler comment)
                 except Exception:
                     pass
                 self._session_profile = _session_profile
