@@ -670,7 +670,7 @@ def _llm_json_call(ollama_host, prompt, model, max_retries=2):
                     "options": {"temperature": 0.3, "num_predict": 2048},
                     "think": False,
                 },
-                timeout=120,
+                timeout=240,
             )
             if r.status_code != 200:
                 logger.warning(f"Ollama returned {r.status_code}")
