@@ -23,6 +23,32 @@ const { CATS, INTEREST_SUGGESTIONS, DEF_CATS, DEF_SUBS, PANELS, WIZ_TICKER_MAP,
 
 /* PANELS, WIZ_TICKER_MAP, ROLE_KEYWORDS, DOMAIN_PILLS — now in wizard-data.js */
 
+/* ═══════════════════════════════════════
+   ROLE CLASSIFICATION & ADAPTIVE PILLS
+   ═══════════════════════════════════════ */
+
+function classifyRole(role) {
+  if (!role) return 'default';
+  const r = role.toLowerCase();
+  let best = 'default', bestScore = 0;
+  for (const [domain, keywords] of Object.entries(ROLE_KEYWORDS)) {
+    let score = 0;
+    for (const kw of keywords) {
+      if (new RegExp(kw, 'i').test(r)) score++;
+    }
+    if (score > bestScore) { bestScore = score; best = domain; }
+  }
+  return best;
+}
+
+function inferStage(role) {
+  const r = role.toLowerCase();
+  if (/student|undergrad|freshman|sophomore|junior(?! dev)|senior year|phd candidate|master.*student/.test(r)) return 'Student';
+  if (/fresh.*grad|new grad|entry.?level|junior|associate|trainee|apprentice|graduate/.test(r)) return 'Fresh Graduate';
+  if (/senior|lead|principal|staff|director|vp|vice.?president|chief|head of|c-level|executive|partner|managing/.test(r)) return 'Senior';
+  return 'Mid-Career';
+}
+
 let _currentDomain = 'default';
 
 function getEffectivePills(qId, originalPills) {
