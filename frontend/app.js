@@ -1165,6 +1165,13 @@ function _connectSSE() {
             } catch(err) { console.warn('[SSE] lens_extracted parse error:', err); }
         });
 
+        _sseSource.addEventListener('narration_resolved', (e) => {
+            try {
+                const d = JSON.parse(e.data);
+                if (typeof _handleNarrationResolved === 'function') _handleNarrationResolved(d);
+            } catch(err) { console.warn('[SSE] narration_resolved parse error:', err); }
+        });
+
         _sseSource.onerror = () => {
             // SSE disconnected — fall back to polling
             if (_sseConnected) {

@@ -588,6 +588,30 @@ def migration_023(cursor):
     )
 
 
+@migration
+def migration_024(cursor):
+    """Add narration_sources table for caching resolved source URLs."""
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS narration_sources (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            video_id INTEGER NOT NULL,
+            profile_id INTEGER NOT NULL,
+            narration_hash TEXT NOT NULL,
+            source_claimed TEXT,
+            source_reference TEXT,
+            resolved_url TEXT,
+            resolution_method TEXT,
+            confidence REAL DEFAULT 0.0,
+            resolved_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE(video_id, profile_id, narration_hash)
+        )
+    """)
+    cursor.execute(
+        "CREATE INDEX IF NOT EXISTS idx_narr_src_video "
+        "ON narration_sources(video_id, profile_id)"
+    )
+
+
 # =========================================================================
 # Migration runner
 # =========================================================================

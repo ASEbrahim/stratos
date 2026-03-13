@@ -634,14 +634,21 @@ function _ytSetEloquenceFilter(filter) {
 window._ytSetEloquenceFilter = _ytSetEloquenceFilter;
 
 function _ytNarrationSourceUrl(source, sourceRef, text) {
-    // Build the best Google search query from available info
+    // Fallback: Google search from available info (Strategy C)
     const parts = [];
     if (source) parts.push(source);
     if (sourceRef) parts.push(sourceRef);
-    // If we have neither source nor ref, use a snippet of the narration text
     if (parts.length === 0 && text) parts.push(text.slice(0, 60));
     if (parts.length === 0) return null;
     return `https://www.google.com/search?q=${encodeURIComponent(parts.join(' '))}`;
+}
+
+function _ytConfidenceBadge(confidence, method) {
+    // Confidence-based badge for resolved sources
+    if (confidence >= 0.85) return { cls: 'yi-badge-verified', text: 'High Confidence', icon: 'check-circle' };
+    if (confidence >= 0.65) return { cls: 'yi-badge-unverified', text: 'Moderate', icon: 'circle-dot' };
+    if (confidence >= 0.50) return { cls: 'yi-badge-needs-check', text: 'Low Confidence', icon: 'help-circle' };
+    return { cls: 'yi-badge-needs-check', text: 'Needs Verification', icon: 'search' };
 }
 
 function _ytRenderNarrations(data) {
@@ -652,24 +659,34 @@ function _ytRenderNarrations(data) {
         const text = n.narration_text || n.text || n.narration || '';
         const attribution = n.speaker_attribution || n.attribution || '';
         const source = n.source_claimed || n.source || n.reference || '';
-        const needsVerify = n.needs_verification !== false;
-        const verified = n.verified || n.status === 'verified';
-        let badgeClass = 'yi-badge-needs-check';
-        let badgeText = 'Needs Verification';
-        if (verified) { badgeClass = 'yi-badge-verified'; badgeText = 'Verified'; }
-        else if (!needsVerify) { badgeClass = 'yi-badge-unverified'; badgeText = 'Unverified'; }
-        // Build source link — Google search for any source type
         const sourceRef = n.source_reference || '';
-        let sourceHtml = '';
-        if (source || sourceRef) {
-            const searchUrl = _ytNarrationSourceUrl(source, sourceRef, text);
-            const displayText = sourceRef ? `${source} (${sourceRef})` : source;
-            sourceHtml = `<div class="yi-field"><div class="yi-field-label">Source</div><div class="yi-field-value"><a href="${searchUrl}" target="_blank" rel="noopener" style="color:var(--accent-light,var(--accent));text-decoration:underline;text-underline-offset:2px;">${_escHtml(displayText)}</a>${needsVerify ? ' <span style="font-size:10px;opacity:0.5;margin-left:4px;">· Needs verification</span>' : ''}</div></div>`;
+        const resolved = n._resolved || null;
+
+        // Determine source URL and confidence badge
+        let sourceUrl, badge;
+        if (resolved && resolved.url) {
+            sourceUrl = resolved.url;
+            badge = _ytConfidenceBadge(resolved.confidence || 0, resolved.method || '');
+        } else {
+            sourceUrl = _ytNarrationSourceUrl(source, sourceRef, text);
+            badge = { cls: 'yi-badge-needs-check', text: 'Needs Verification', icon: 'search' };
         }
+
+        const displayText = sourceRef ? `${source} (${sourceRef})` : source;
+        const methodLabel = resolved?.method ? ` · ${resolved.method.replace('pattern:', '').replace('search_', 'web ')}` : '';
+
+        let sourceHtml = '';
+        if (source || sourceRef || resolved) {
+            sourceHtml = `<div class="yi-field"><div class="yi-field-label">Source</div><div class="yi-field-value">
+                <a href="${sourceUrl}" target="_blank" rel="noopener" style="color:var(--accent-light,var(--accent));text-decoration:underline;text-underline-offset:2px;">${_escHtml(displayText || 'Look up source')}</a>
+                ${!resolved ? ' <span style="font-size:10px;opacity:0.5;margin-left:4px;">· Google Search</span>' : `<span style="font-size:10px;opacity:0.5;margin-left:4px;">${methodLabel}</span>`}
+            </div></div>`;
+        }
+
         return `<div class="yi-narration">
             <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:8px;">
                 <div class="yi-narration-text" style="margin-bottom:0;">${_escHtml(text)}</div>
-                <span class="yi-badge ${badgeClass}">${badgeText}</span>
+                <span class="yi-badge ${badge.cls}" title="${badge.text}">${badge.text}</span>
             </div>
             ${attribution ? `<div class="yi-field"><div class="yi-field-label">Attribution</div><div class="yi-field-value">${_escHtml(attribution)}</div></div>` : ''}
             ${sourceHtml}
@@ -1076,6 +1093,18 @@ function _handleLensExtracted(event) {
     }
 }
 window._handleLensExtracted = _handleLensExtracted;
+
+function _handleNarrationResolved(event) {
+    const { video_id } = event;
+    // If narrations modal is open for this video, re-fetch to get resolved URLs
+    if (_ytCurrentVideoId && _ytCurrentVideoId == video_id) {
+        fetch(`/api/youtube/insights/${video_id}?language=all`, { headers: _ytHeaders() })
+            .then(r => r.json())
+            .then(d => _ytRefreshInsightsFromData(d, 'narrations', _ytCurrentLang))
+            .catch(() => {});
+    }
+}
+window._handleNarrationResolved = _handleNarrationResolved;
 
 function _ytCloseInsights() {
     const modal = document.getElementById('yt-insights-modal');

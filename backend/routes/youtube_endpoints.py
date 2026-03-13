@@ -130,6 +130,39 @@ def handle_get(handler, strat, auth, path):
             transcript_lang = (vrow['transcript_language'] if vrow else 'en') or 'en'
             transcript_text = vrow['transcript_text'] if vrow else None
 
+            # Enrich narration insights with resolved source URLs
+            resolved_sources = {}
+            try:
+                cursor.execute(
+                    "SELECT narration_hash, resolved_url, resolution_method, confidence "
+                    "FROM narration_sources WHERE video_id = ? AND profile_id = ?",
+                    (vid_id, handler._profile_id)
+                )
+                for srow in cursor.fetchall():
+                    resolved_sources[srow['narration_hash']] = {
+                        'url': srow['resolved_url'],
+                        'method': srow['resolution_method'],
+                        'confidence': srow['confidence'],
+                    }
+            except Exception:
+                pass  # Table may not exist yet (pre-migration)
+
+            # Attach resolved URLs to narration items
+            if resolved_sources:
+                import hashlib
+                for ins in insights:
+                    if ins.get('lens_name') != 'narrations':
+                        continue
+                    content = ins.get('content')
+                    items = content if isinstance(content, list) else []
+                    for item in items:
+                        text = item.get('narration_text', '') or item.get('text', '') or item.get('narration', '')
+                        if not text:
+                            continue
+                        nar_hash = hashlib.sha256(text.strip().lower().encode()).hexdigest()[:32]
+                        if nar_hash in resolved_sources:
+                            item['_resolved'] = resolved_sources[nar_hash]
+
             _send_json(handler, {
                 "insights": insights,
                 "video_title": video_title,
@@ -260,6 +293,19 @@ def handle_post(handler, strat, auth, path):
                                 )
                                 strat.db._commit()
                                 logger.info(f"Extract-all: '{lens_name}' for video {vid_id} ({title[:40]})")
+                                # Trigger source resolution for narrations
+                                if lens_name == 'narrations':
+                                    try:
+                                        from processors.source_resolver import resolve_sources_async
+                                        narration_list = result if isinstance(result, list) else []
+                                        if narration_list:
+                                            resolve_sources_async(
+                                                vid_id, handler._profile_id,
+                                                narration_list, strat.db, strat.config,
+                                                sse_manager=strat.sse_manager if hasattr(strat, 'sse_manager') else None,
+                                            )
+                                    except Exception as e:
+                                        logger.debug(f"Extract-all source resolution failed: {e}")
                         except Exception as e:
                             logger.error(f"Extract-all: lens '{lens_name}' failed for video {vid_id}: {e}")
                 # Broadcast completion
@@ -362,6 +408,20 @@ def handle_post(handler, strat, auth, path):
                             'language': language,
                         })
                     logger.info(f"On-demand lens '{lens_name}' [{language}] {mode} for video {video['id']}")
+
+                    # Trigger narration source resolution after narrations extraction
+                    if lens_name == 'narrations' and final:
+                        try:
+                            from processors.source_resolver import resolve_sources_async
+                            narration_list = final if isinstance(final, list) else []
+                            if narration_list:
+                                resolve_sources_async(
+                                    video['id'], video['profile_id'],
+                                    narration_list, strat.db, strat.config,
+                                    sse_manager=strat.sse_manager if hasattr(strat, 'sse_manager') else None,
+                                )
+                        except Exception as e:
+                            logger.debug(f"Narration source resolution trigger failed: {e}")
             except Exception as e:
                 logger.error(f"On-demand lens extraction failed: {e}")
 
