@@ -1133,6 +1133,60 @@ function wrapWithShowMore(rawText, formattedHtml) {
         + '</div>';
 }
 
+// ── File upload for agent analysis ──
+async function _agentFileSelected(fileInput) {
+    const file = fileInput.files?.[0];
+    if (!file) return;
+    fileInput.value = ''; // Reset for re-upload
+
+    const maxSize = 10 * 1024 * 1024; // 10MB
+    if (file.size > maxSize) {
+        if (typeof showToast === 'function') showToast('File too large (max 10MB)', 'error');
+        return;
+    }
+
+    const uploadBtn = document.getElementById('agent-upload-btn');
+    if (uploadBtn) { uploadBtn.style.opacity = '0.5'; uploadBtn.style.pointerEvents = 'none'; }
+
+    try {
+        const token = localStorage.getItem('stratos_session_token') || '';
+        const r = await fetch('/api/files/upload', {
+            method: 'POST',
+            headers: {
+                'X-Auth-Token': token,
+                'X-Filename': file.name,
+                'X-Persona': currentPersona || 'intelligence',
+                'Content-Type': 'application/octet-stream',
+            },
+            body: file,
+        });
+        const d = await r.json().catch(() => ({}));
+        if (r.ok && d.file_id) {
+            // Pre-fill agent input with analysis request
+            const input = document.getElementById('agent-input');
+            const isImage = /\.(png|jpg|jpeg|bmp|webp|gif)$/i.test(file.name);
+            const isPdf = /\.pdf$/i.test(file.name);
+            if (input) {
+                if (isImage) {
+                    input.value = `Analyze the image I just uploaded: "${file.name}" (file ID: ${d.file_id})`;
+                } else if (isPdf) {
+                    input.value = `Summarize the PDF I just uploaded: "${file.name}" (file ID: ${d.file_id})`;
+                } else {
+                    input.value = `Read the file I just uploaded: "${file.name}" (file ID: ${d.file_id})`;
+                }
+                sendAgentMessage();
+            }
+        } else {
+            if (typeof showToast === 'function') showToast(d.error || 'Upload failed', 'error');
+        }
+    } catch (e) {
+        if (typeof showToast === 'function') showToast('Upload failed', 'error');
+    } finally {
+        if (uploadBtn) { uploadBtn.style.opacity = '1'; uploadBtn.style.pointerEvents = 'auto'; }
+    }
+}
+window._agentFileSelected = _agentFileSelected;
+
 async function sendAgentMessage() {
     if (agentStreaming) return;
     const input = document.getElementById('agent-input');

@@ -264,6 +264,28 @@ AGENT_TOOLS = [
                 "required": ["franchise"]
             }
         }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "analyze_image",
+            "description": "Analyze an uploaded image or PDF using OCR/vision. Extracts text from the image and provides analysis. Use when the user asks to read, analyze, extract text from, or describe an uploaded image or document. The user must have uploaded the file first via the file manager.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "file_id": {
+                        "type": "integer",
+                        "description": "The file ID from the user's uploaded files. Use search_files first to find the file if needed."
+                    },
+                    "task": {
+                        "type": "string",
+                        "description": "What to do with the image: 'extract_text' for OCR, 'analyze' for general analysis, 'summarize' for document summary",
+                        "enum": ["extract_text", "analyze", "summarize"]
+                    }
+                },
+                "required": ["file_id"]
+            }
+        }
     }
 ]
 
@@ -299,6 +321,8 @@ def execute_tool(tool_name, args, strat, profile_id=0, persona=''):
             return _tool_read_url(args, strat)
         elif tool_name == "import_canon_world":
             return _tool_import_canon_world(args, strat, profile_id=profile_id)
+        elif tool_name == "analyze_image":
+            return _tool_analyze_image(args, strat, profile_id=profile_id, persona=persona)
         else:
             return f"Unknown tool: {tool_name}"
     except Exception as e:
@@ -757,6 +781,88 @@ def _tool_read_url(args, strat):
         return f"Content from {url}:\n\n{text}"
     except Exception as e:
         return f"Error reading URL: {e}"
+
+
+def _tool_analyze_image(args, strat, profile_id=0, persona=''):
+    """Analyze an uploaded image/PDF using OCR vision model."""
+    file_id = args.get("file_id")
+    task = args.get("task", "analyze")
+    if not file_id:
+        return "Error: No file_id provided. Use search_files to find the file first."
+
+    try:
+        from processors.file_handler import FileHandler
+        fh = FileHandler(strat.config, db=strat.db)
+
+        # Get file metadata
+        cursor = strat.db.conn.cursor()
+        cursor.execute(
+            "SELECT filename, file_type, file_path, content_text FROM user_files WHERE id = ? AND profile_id = ?",
+            (file_id, profile_id)
+        )
+        row = cursor.fetchone()
+        if not row:
+            return f"File ID {file_id} not found. Use search_files to find available files."
+
+        file_info = dict(row)
+        filename = file_info['filename']
+        file_path = file_info['file_path']
+        file_type = file_info.get('file_type', '')
+        existing_text = file_info.get('content_text', '')
+
+        # For text/md/csv/json files, just return the content
+        if file_type in ('text', 'csv', 'json'):
+            if existing_text:
+                return f"**{filename}** (text file):\n\n{existing_text[:6000]}"
+            return f"File {filename} has no extractable text content."
+
+        # For images, use OCR
+        if file_type == 'image' or filename.lower().endswith(('.png', '.jpg', '.jpeg', '.bmp', '.webp', '.gif')):
+            # Check if text was already extracted at upload time
+            if existing_text and task == 'extract_text':
+                return f"**OCR text from {filename}:**\n\n{existing_text[:6000]}"
+
+            # Run OCR on the image
+            try:
+                from processors.ocr import OCRProcessor
+                ocr = OCRProcessor(strat.config)
+                if not ocr.is_available():
+                    # Fallback: return any previously extracted text
+                    if existing_text:
+                        return f"**Previously extracted text from {filename}:**\n\n{existing_text[:6000]}"
+                    return f"OCR model not available. Pull it with: `ollama pull MedAIBase/PaddleOCR-VL:0.9b`"
+
+                text = ocr.extract_text(file_path)
+                if text:
+                    # Save extracted text back to DB for future use
+                    cursor.execute(
+                        "UPDATE user_files SET content_text = ? WHERE id = ?",
+                        (text, file_id)
+                    )
+                    strat.db._commit()
+
+                    if task == 'extract_text':
+                        return f"**OCR text from {filename}:**\n\n{text[:6000]}"
+                    else:
+                        return f"**Image: {filename}**\n\nExtracted text:\n{text[:4000]}\n\n(Analyze the above text to answer the user's question.)"
+                else:
+                    return f"Could not extract text from {filename}. The image may not contain readable text."
+            except ImportError:
+                if existing_text:
+                    return f"**Previously extracted text from {filename}:**\n\n{existing_text[:6000]}"
+                return "OCR processor not available."
+
+        # For PDFs
+        if file_type == 'pdf' or filename.lower().endswith('.pdf'):
+            if existing_text:
+                return f"**PDF: {filename}**\n\n{existing_text[:6000]}"
+            return f"Could not extract text from PDF {filename}."
+
+        return f"Unsupported file type: {file_type} ({filename})"
+
+    except Exception as e:
+        logger.error(f"analyze_image error: {e}")
+        return f"Error analyzing file: {e}"
 
 
 def _register_canon_npcs_in_db(strat, profile_id, scenario_name, scenario_path):
