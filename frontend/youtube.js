@@ -371,7 +371,11 @@ function _ytAskAgent() {
     const titleEl = document.getElementById('yi-title');
     const title = titleEl?.textContent || 'this video';
     _ytCloseInsights();
-    if (typeof _openAgentPanel === 'function') _openAgentPanel();
+    if (typeof _agentFullscreen !== 'undefined' && !_agentFullscreen && typeof toggleAgentFullscreen === 'function') {
+        toggleAgentFullscreen();
+    } else if (typeof _openAgentPanel === 'function') {
+        _openAgentPanel();
+    }
     const input = document.getElementById('agent-input');
     if (input) { input.value = `Tell me about the video "${title}" — summarize the key insights`; input.focus(); }
 }
