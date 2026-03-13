@@ -256,168 +256,140 @@ async function _ytToggleVideos(channelId) {
     }
 }
 
-// ── Show insights for a video ──
+// ═══════════════════════════════════════════════════════════
+// YOUTUBE INSIGHTS VIEWER — Arcane Modal with Star Parallax
+// ═══════════════════════════════════════════════════════════
+
 let _ytCurrentVideoId = null;
+let _ytStarRAF = null;
+let _ytShowingGuide = false;
+
+const _ytLensIcons = { summary: 'file-text', eloquence: 'pen-tool', narrations: 'book-open', history: 'landmark', spiritual: 'heart', politics: 'flag', transcript: 'scroll-text' };
 
 async function _ytShowInsights(videoId) {
     _ytCurrentVideoId = videoId;
+    _ytShowingGuide = false;
     let modal = document.getElementById('yt-insights-modal');
-    if (!modal) {
-        modal = document.createElement('div');
-        modal.id = 'yt-insights-modal';
-        modal.className = 'hidden';
-        modal.innerHTML = `
-            <div class="ctx-editor-backdrop" onclick="_ytCloseInsights()"></div>
-            <div class="ctx-editor-sidebar" style="width:min(580px,92vw);display:flex;flex-direction:column;">
-                <div class="px-4 py-3" style="border-bottom:1px solid var(--border-strong);">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-2.5 min-w-0">
-                            <div class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style="background:rgba(192,132,252,0.1);border:1px solid rgba(192,132,252,0.2);">
-                                <i data-lucide="sparkles" class="w-4 h-4 text-purple-400"></i>
-                            </div>
-                            <div class="min-w-0">
-                                <div id="yt-insights-title" class="text-[12px] font-bold truncate" style="color:var(--text-heading)">Video Insights</div>
-                                <div id="yt-insights-meta" class="text-[9px]" style="color:var(--text-muted)"></div>
-                            </div>
-                        </div>
-                        <div class="flex items-center gap-1 flex-shrink-0">
-                            <button onclick="_ytAskAgent()" class="p-1.5 rounded-md transition-all" style="color:var(--text-muted);" title="Ask Strat Agent about this video" onmouseenter="this.style.color='var(--accent)';this.style.background='rgba(16,185,129,0.08)'" onmouseleave="this.style.color='var(--text-muted)';this.style.background='transparent'">
-                                <i data-lucide="bot" class="w-4 h-4"></i>
-                            </button>
-                            <button onclick="_ytCloseInsights()" class="p-1.5 rounded-md transition-all" style="color:var(--text-muted)" title="Close" onmouseenter="this.style.color='var(--text-heading)'" onmouseleave="this.style.color='var(--text-muted)'">
-                                <i data-lucide="x" class="w-4 h-4"></i>
-                            </button>
-                        </div>
+    if (modal) modal.remove();
+
+    modal = document.createElement('div');
+    modal.id = 'yt-insights-modal';
+    modal.innerHTML = `
+        <div class="yi-overlay" onclick="if(event.target===this)_ytCloseInsights()">
+            <div class="yi-container">
+                <canvas class="yi-stars" id="yi-star-canvas"></canvas>
+                <div class="yi-titlebar">
+                    <div style="width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:rgba(192,132,252,0.1);border:1px solid rgba(192,132,252,0.2);">
+                        <i data-lucide="sparkles" style="width:18px;height:18px;color:#c084fc;"></i>
                     </div>
+                    <div style="flex:1;min-width:0;">
+                        <div class="yi-title" id="yi-title">Video Insights</div>
+                        <div class="yi-subtitle" id="yi-subtitle"></div>
+                    </div>
+                    <div class="yi-lang-area" id="yi-lang-area"></div>
+                    <button class="yi-header-btn" onclick="_ytShowLensGuide()" title="Lens Guide"><i data-lucide="book-open" style="width:14px;height:14px;"></i> Guide</button>
+                    <button class="yi-header-btn" onclick="_ytAskAgent()" title="Ask Strat Agent"><i data-lucide="bot" style="width:14px;height:14px;"></i> Ask Agent</button>
+                    <button class="yi-close" onclick="_ytCloseInsights()" title="Close">&times;</button>
                 </div>
-                <div id="yt-insights-tabs" class="flex items-center gap-1 px-4 py-2" style="border-bottom:1px solid var(--border-strong);overflow-x:auto;scrollbar-width:none;"></div>
-                <div id="yt-insights-content" class="flex-1 overflow-y-auto px-4 py-4" style="min-height:0;"></div>
-            </div>`;
-        document.body.appendChild(modal);
-        lucide.createIcons();
-    }
-
-    modal.classList.remove('hidden');
-    modal.classList.add('ctx-slide-in');
-
-    const titleEl = document.getElementById('yt-insights-title');
-    const metaEl = document.getElementById('yt-insights-meta');
-    const tabs = document.getElementById('yt-insights-tabs');
-    const content = document.getElementById('yt-insights-content');
-    if (tabs) tabs.innerHTML = '';
-    if (content) content.innerHTML = '<div class="flex items-center justify-center py-12"><div class="flex gap-1"><span class="w-2 h-2 rounded-full animate-bounce" style="background:#c084fc;animation-delay:0ms;"></span><span class="w-2 h-2 rounded-full animate-bounce" style="background:#c084fc;animation-delay:150ms;"></span><span class="w-2 h-2 rounded-full animate-bounce" style="background:#c084fc;animation-delay:300ms;"></span></div></div>';
+                <div class="yi-tabs" id="yi-tabs"></div>
+                <div class="yi-body" id="yi-body">
+                    <div class="yi-loading"><div style="display:flex;gap:6px;"><span class="w-2.5 h-2.5 rounded-full animate-bounce" style="background:#c084fc;animation-delay:0ms;"></span><span class="w-2.5 h-2.5 rounded-full animate-bounce" style="background:#c084fc;animation-delay:150ms;"></span><span class="w-2.5 h-2.5 rounded-full animate-bounce" style="background:#c084fc;animation-delay:300ms;"></span></div></div>
+                </div>
+            </div>
+        </div>`;
+    document.body.appendChild(modal);
+    lucide.createIcons();
+    _ytInitStars();
 
     try {
-        // Fetch ALL languages at once for instant toggle
         const r = await fetch(`/api/youtube/insights/${videoId}?language=all`, { headers: _ytHeaders() });
-        if (r.ok) {
-            const d = await r.json();
-            const allInsights = d.insights || [];
-            const videoTitle = d.video_title || d.title || '';
-            _ytAvailableLangs = d.available_languages || ['en'];
-            const hasMultipleLangs = _ytAvailableLangs.length > 1;
+        if (!r.ok) throw new Error('Failed to fetch');
+        const d = await r.json();
+        const allInsights = d.insights || [];
+        const videoTitle = d.video_title || d.title || '';
+        _ytAvailableLangs = d.available_languages || ['en'];
 
-            // Build lookup: `${lens_name}_${language}` → insight
-            _ytInsightsAll = {};
-            for (const ins of allInsights) {
-                const key = `${ins.lens_name}_${ins.language || 'en'}`;
-                _ytInsightsAll[key] = ins;
-            }
-
-            // If current preferred lang isn't available, fall back to 'en'
-            if (!_ytAvailableLangs.includes(_ytCurrentLang)) _ytCurrentLang = 'en';
-
-            // Filter insights for current language
-            const insights = allInsights.filter(ins => (ins.language || 'en') === _ytCurrentLang);
-            // Deduplicate lens names (show each lens once)
-            const seenLenses = new Set();
-            const uniqueInsights = [];
-            for (const ins of insights) {
-                if (!seenLenses.has(ins.lens_name)) {
-                    seenLenses.add(ins.lens_name);
-                    uniqueInsights.push(ins);
-                }
-            }
-
-            if (titleEl && videoTitle) titleEl.textContent = videoTitle;
-            if (metaEl) metaEl.textContent = `${uniqueInsights.length} lens${uniqueInsights.length !== 1 ? 'es' : ''} extracted`;
-
-            // Render language toggle in header (next to close button)
-            const toggleContainer = document.getElementById('yt-lang-toggle-container');
-            if (toggleContainer) toggleContainer.remove();
-            if (hasMultipleLangs) {
-                const headerBtns = modal.querySelector('.flex.items-center.gap-1.flex-shrink-0');
-                if (headerBtns) {
-                    const origLang = _ytAvailableLangs.find(l => l !== 'en') || 'en';
-                    const origLabel = _ytLangLabels[origLang] || origLang.toUpperCase();
-                    const toggleDiv = document.createElement('div');
-                    toggleDiv.id = 'yt-lang-toggle-container';
-                    toggleDiv.className = 'flex items-center mr-1';
-                    toggleDiv.innerHTML = `<div class="yt-lang-toggle">
-                        <button class="yt-lang-btn${_ytCurrentLang === 'en' ? ' active' : ''}" data-lang="en" onclick="_ytSwitchLang('en')">EN</button>
-                        <button class="yt-lang-btn${_ytCurrentLang === origLang ? ' active' : ''}" data-lang="${origLang}" onclick="_ytSwitchLang('${origLang}')">${_escHtml(origLabel)}</button>
-                    </div>`;
-                    headerBtns.insertBefore(toggleDiv, headerBtns.firstChild);
-                }
-            }
-
-            if (uniqueInsights.length === 0) {
-                if (tabs) tabs.innerHTML = '';
-                if (content) content.innerHTML = '<div class="flex flex-col items-center py-12"><i data-lucide="search-x" class="w-8 h-8 mb-2" style="color:var(--text-muted);opacity:0.3;"></i><div class="text-[11px]" style="color:var(--text-muted)">No insights extracted yet</div><div class="text-[9px] mt-1" style="color:var(--text-muted);opacity:0.6">Video may still be processing</div></div>';
-                lucide.createIcons();
-                return;
-            }
-
-            const lensIcons = { summary: 'file-text', eloquence: 'pen-tool', narrations: 'book-open', history: 'landmark', spiritual: 'heart', politics: 'flag', transcript: 'scroll-text' };
-            if (tabs) {
-                tabs.innerHTML = uniqueInsights.map((ins, i) => {
-                    const lens = ins.lens_name || 'unknown';
-                    const lensName = lens.charAt(0).toUpperCase() + lens.slice(1);
-                    const icon = lensIcons[lens] || 'sparkles';
-                    return `<button onclick="_ytShowLens(${i})" data-lens="${lens}" class="yt-lens-tab flex items-center gap-1.5 text-[10px] px-3 py-1.5 rounded-lg font-medium transition-all whitespace-nowrap ${i === 0 ? 'yt-lens-active' : ''}" style="color:${i === 0 ? '#c084fc' : 'var(--text-muted)'};background:${i === 0 ? 'rgba(192,132,252,0.1)' : 'transparent'};border:1px solid ${i === 0 ? 'rgba(192,132,252,0.3)' : 'var(--border-strong)'};" onmouseenter="if(!this.classList.contains('yt-lens-active')){this.style.background='rgba(255,255,255,0.03)';this.style.borderColor='rgba(192,132,252,0.2)'}" onmouseleave="if(!this.classList.contains('yt-lens-active')){this.style.background='transparent';this.style.borderColor='var(--border-strong)'}"><i data-lucide="${icon}" class="w-3 h-3"></i>${lensName}</button>`;
-                }).join('');
-                lucide.createIcons();
-            }
-
-            _ytInsights = uniqueInsights;
-            _ytRenderLens(0);
+        _ytInsightsAll = {};
+        for (const ins of allInsights) {
+            _ytInsightsAll[`${ins.lens_name}_${ins.language || 'en'}`] = ins;
         }
+
+        if (!_ytAvailableLangs.includes(_ytCurrentLang)) _ytCurrentLang = 'en';
+
+        const insights = allInsights.filter(ins => (ins.language || 'en') === _ytCurrentLang);
+        const seenLenses = new Set();
+        const uniqueInsights = [];
+        for (const ins of insights) {
+            if (!seenLenses.has(ins.lens_name)) { seenLenses.add(ins.lens_name); uniqueInsights.push(ins); }
+        }
+
+        const titleEl = document.getElementById('yi-title');
+        const subEl = document.getElementById('yi-subtitle');
+        if (titleEl && videoTitle) titleEl.textContent = videoTitle;
+        if (subEl) subEl.textContent = `${uniqueInsights.length} lens${uniqueInsights.length !== 1 ? 'es' : ''} extracted`;
+
+        // Language toggle
+        _ytRenderLangToggle();
+
+        if (uniqueInsights.length === 0) {
+            const body = document.getElementById('yi-body');
+            if (body) body.innerHTML = `<div class="yi-empty"><div class="yi-empty-icon"><i data-lucide="search-x" style="width:48px;height:48px;color:var(--text-muted);opacity:0.3;"></i></div><div style="font-size:13px;margin-bottom:4px;">No insights extracted yet</div><div style="font-size:11px;opacity:0.6;">Video may still be processing</div></div>`;
+            lucide.createIcons();
+            return;
+        }
+
+        const tabs = document.getElementById('yi-tabs');
+        if (tabs) {
+            tabs.innerHTML = uniqueInsights.map((ins, i) => {
+                const lens = ins.lens_name || 'unknown';
+                const lensName = lens.charAt(0).toUpperCase() + lens.slice(1);
+                const icon = _ytLensIcons[lens] || 'sparkles';
+                return `<button onclick="_ytShowLens(${i})" data-lens="${lens}" class="yi-tab${i === 0 ? ' yi-tab-active' : ''}"><i data-lucide="${icon}" style="width:14px;height:14px;"></i>${lensName}</button>`;
+            }).join('');
+            lucide.createIcons();
+        }
+
+        _ytInsights = uniqueInsights;
+        _ytRenderLens(0);
     } catch (e) {
-        if (content) content.innerHTML = '<div class="text-center py-8 text-red-400 text-[11px]">Failed to load insights</div>';
+        const body = document.getElementById('yi-body');
+        if (body) body.innerHTML = '<div class="yi-empty" style="color:#f87171;">Failed to load insights</div>';
     }
 }
 
+function _ytRenderLangToggle() {
+    const area = document.getElementById('yi-lang-area');
+    if (!area) return;
+    if (_ytAvailableLangs.length <= 1) { area.innerHTML = ''; return; }
+    area.innerHTML = `<div class="yt-lang-toggle">${_ytAvailableLangs.map(lang => {
+        const label = lang === 'en' ? 'EN' : (_ytLangLabels[lang] || lang.toUpperCase());
+        return `<button class="yt-lang-btn${_ytCurrentLang === lang ? ' active' : ''}" data-lang="${lang}" onclick="_ytSwitchLang('${lang}')">${_escHtml(label)}</button>`;
+    }).join('')}</div>`;
+}
+
 function _ytAskAgent() {
-    // Open agent with a question about the current video
-    const titleEl = document.getElementById('yt-insights-title');
+    const titleEl = document.getElementById('yi-title');
     const title = titleEl?.textContent || 'this video';
     _ytCloseInsights();
     if (typeof _openAgentPanel === 'function') _openAgentPanel();
     const input = document.getElementById('agent-input');
-    if (input) {
-        input.value = `Tell me about the video "${title}" — summarize the key insights`;
-        input.focus();
-    }
+    if (input) { input.value = `Tell me about the video "${title}" — summarize the key insights`; input.focus(); }
 }
 window._ytAskAgent = _ytAskAgent;
 
 function _ytShowLens(index) {
-    document.querySelectorAll('.yt-lens-tab').forEach((tab, i) => {
-        const active = i === index;
-        tab.style.color = active ? '#c084fc' : 'var(--text-muted)';
-        tab.style.background = active ? 'rgba(192,132,252,0.1)' : 'transparent';
-        tab.style.borderColor = active ? 'rgba(192,132,252,0.3)' : 'var(--border-strong)';
-        tab.classList.toggle('yt-lens-active', active);
+    _ytShowingGuide = false;
+    document.querySelectorAll('.yi-tab').forEach((tab, i) => {
+        tab.classList.toggle('yi-tab-active', i === index);
     });
     _ytRenderLens(index);
 }
 
 function _ytRenderLens(index) {
-    const content = document.getElementById('yt-insights-content');
-    if (!content || !_ytInsights[index]) return;
+    const body = document.getElementById('yi-body');
+    if (!body || !_ytInsights[index]) return;
 
     const baseLens = _ytInsights[index].lens_name || 'unknown';
-    // Look up the insight for the current language, fall back to base
     const langKey = `${baseLens}_${_ytCurrentLang}`;
     const fallbackKey = `${baseLens}_en`;
     const ins = _ytInsightsAll[langKey] || _ytInsightsAll[fallbackKey] || _ytInsights[index];
@@ -425,121 +397,347 @@ function _ytRenderLens(index) {
     const lens = ins.lens_name || 'unknown';
     let data;
     const raw = ins.content || ins.data;
-    try { data = typeof raw === 'string' ? JSON.parse(raw) : raw; }
-    catch (e) { data = raw; }
+    try { data = typeof raw === 'string' ? JSON.parse(raw) : raw; } catch (e) { data = raw; }
 
-    if (lens === 'summary') {
-        content.innerHTML = _ytRenderSummary(data);
-    } else if (lens === 'eloquence') {
-        content.innerHTML = _ytRenderEloquence(data);
-    } else if (lens === 'narrations') {
-        content.innerHTML = _ytRenderNarrations(data);
-    } else if (lens === 'transcript') {
-        content.innerHTML = _ytRenderTranscript(data);
-    } else {
-        content.innerHTML = _ytRenderGeneric(data, lens);
-    }
+    if (lens === 'summary') body.innerHTML = _ytRenderSummary(data);
+    else if (lens === 'eloquence') body.innerHTML = _ytRenderEloquence(data);
+    else if (lens === 'narrations') body.innerHTML = _ytRenderNarrations(data);
+    else if (lens === 'transcript') body.innerHTML = _ytRenderTranscript(data);
+    else if (lens === 'history') body.innerHTML = _ytRenderHistory(data);
+    else if (lens === 'spiritual') body.innerHTML = _ytRenderSpiritual(data);
+    else if (lens === 'politics') body.innerHTML = _ytRenderPolitics(data);
+    else body.innerHTML = _ytRenderGeneric(data, lens);
+
+    lucide.createIcons();
 }
 
 function _ytSwitchLang(lang) {
     _ytCurrentLang = lang;
     localStorage.setItem('stratos_insight_lang', lang);
-
-    // Update toggle button states
     document.querySelectorAll('.yt-lang-btn').forEach(btn => {
         btn.classList.toggle('active', btn.dataset.lang === lang);
     });
-
-    // Re-render the currently active lens
-    const activeTab = document.querySelector('.yt-lens-tab.yt-lens-active');
+    if (_ytShowingGuide) return; // Don't re-render if on guide page
+    const activeTab = document.querySelector('.yi-tab.yi-tab-active');
     if (activeTab) {
-        const idx = Array.from(document.querySelectorAll('.yt-lens-tab')).indexOf(activeTab);
+        const idx = Array.from(document.querySelectorAll('.yi-tab')).indexOf(activeTab);
         if (idx >= 0) _ytRenderLens(idx);
     }
 }
 window._ytSwitchLang = _ytSwitchLang;
 
+// ── Renderers ──
+
 function _ytRenderTranscript(data) {
-    if (!data) return '<div class="text-[10px]" style="color:var(--text-muted)">No transcript data</div>';
+    if (!data) return '<div class="yi-empty">No transcript data</div>';
     const text = typeof data === 'string' ? data : (data.transcript || JSON.stringify(data));
-    const note = data.note ? `<div class="text-[9px] mb-2" style="color:var(--text-muted)">${_escHtml(data.note)}</div>` : '';
-    // Split into paragraphs at sentence boundaries (roughly every 3-4 sentences)
+    const note = data.note ? `<div class="yi-note">${_escHtml(data.note)}</div>` : '';
     const sentences = text.split(/(?<=[.!?。！？])\s+/);
     const paragraphs = [];
-    for (let i = 0; i < sentences.length; i += 4) {
-        paragraphs.push(sentences.slice(i, i + 4).join(' '));
-    }
-    return `${note}<div class="px-3 py-3 rounded-lg" style="background:var(--bg-hover);border:1px solid var(--border);">
-        ${paragraphs.map(p => `<p class="text-[11px] leading-relaxed mb-3" style="color:var(--text-secondary)">${_escHtml(p)}</p>`).join('')}
-    </div>`;
+    for (let i = 0; i < sentences.length; i += 4) paragraphs.push(sentences.slice(i, i + 4).join(' '));
+    return `${note}<div class="yi-transcript">${paragraphs.map(p => `<p>${_escHtml(p)}</p>`).join('')}</div>`;
 }
 
 function _ytRenderSummary(data) {
-    if (!data) return '<div class="text-[10px]" style="color:var(--text-muted)">No summary data</div>';
-    const items = Array.isArray(data) ? data : (data.takeaways || data.points || [data]);
+    if (!data) return '<div class="yi-empty">No summary data</div>';
+    // Handle {summary, key_takeaways} format
+    if (data.summary || data.key_takeaways) {
+        let html = '';
+        if (data.summary) {
+            html += `<div class="yi-card"><div class="yi-summary-text">${_escHtml(data.summary)}</div></div>`;
+        }
+        const takeaways = data.key_takeaways || data.takeaways || [];
+        if (takeaways.length > 0) {
+            html += `<div class="yi-takeaways-label"><i data-lucide="list-checks" style="width:14px;height:14px;"></i> Key Takeaways</div>`;
+            html += takeaways.map((t, i) => `<div class="yi-takeaway"><div class="yi-takeaway-num">${i + 1}</div><div class="yi-takeaway-text">${_escHtml(typeof t === 'string' ? t : (t.text || t.point || JSON.stringify(t)))}</div></div>`).join('');
+        }
+        return html || '<div class="yi-empty">No summary content</div>';
+    }
+    // Fallback: array of items
+    const items = Array.isArray(data) ? data : [data];
     return items.map(item => {
         const text = typeof item === 'string' ? item : (item.takeaway || item.point || item.text || Object.values(item).filter(v => typeof v === 'string').join(' — ') || 'No content');
-        return `<div class="mb-3 px-3 py-2 rounded-lg" style="background:var(--bg-hover);border:1px solid var(--border);">
-            <div class="text-[11px] leading-relaxed" style="color:var(--text-secondary)">${_escHtml(text)}</div>
-        </div>`;
+        return `<div class="yi-card"><div class="yi-summary-text">${_escHtml(text)}</div></div>`;
     }).join('');
 }
 
-function _ytRenderGeneric(data, lens) {
-    if (!data) return `<div class="text-[10px]" style="color:var(--text-muted)">No data for ${_escHtml(lens)} lens</div>`;
-    const lensLabel = lens.charAt(0).toUpperCase() + lens.slice(1);
-    const items = Array.isArray(data) ? data : (typeof data === 'object' ? Object.entries(data) : [data]);
-    let html = `<div class="text-[10px] font-semibold mb-2" style="color:var(--text-heading);">${_escHtml(lensLabel)} Analysis</div>`;
-    for (const item of items) {
-        let text;
-        if (typeof item === 'string') text = item;
-        else if (Array.isArray(item) && item.length === 2) text = `<strong>${_escHtml(String(item[0]))}</strong>: ${_escHtml(String(item[1]))}`;
-        else if (typeof item === 'object' && item !== null) text = Object.entries(item).map(([k,v]) => `<strong>${_escHtml(k)}</strong>: ${_escHtml(String(v))}`).join('<br>');
-        else text = String(item);
-        html += `<div class="mb-2 px-3 py-2 rounded-lg text-[11px] leading-relaxed" style="background:var(--bg-hover);border:1px solid var(--border);color:var(--text-secondary);">${text}</div>`;
-    }
-    return html;
-}
-
 function _ytRenderEloquence(data) {
-    if (!data) return '<div class="text-[10px]" style="color:var(--text-muted)">No eloquence data</div>';
+    if (!data) return '<div class="yi-empty">No eloquence data</div>';
     const terms = Array.isArray(data) ? data : (data.terms || []);
-    return `<div class="grid grid-cols-1 gap-2">${terms.map(t => {
+    if (terms.length === 0) return '<div class="yi-empty">No vocabulary extracted</div>';
+    return `<div class="yi-grid">${terms.map(t => {
         const term = t.term || t.word || '';
         const def = t.definition || t.meaning || '';
-        return `<div class="px-3 py-2 rounded-lg" style="background:var(--bg-hover);border:1px solid var(--border);">
-            <div class="text-[12px] font-bold mb-0.5" style="color:var(--accent)">${_escHtml(term)}</div>
-            <div class="text-[10px]" style="color:var(--text-secondary)">${_escHtml(def)}</div>
+        const ctx = t.context_quote || t.context || '';
+        return `<div class="yi-vocab-card">
+            <div class="yi-vocab-term">${_escHtml(term)}</div>
+            <div class="yi-vocab-def">${_escHtml(def)}</div>
+            ${ctx ? `<div class="yi-vocab-ctx">"${_escHtml(ctx)}"</div>` : ''}
         </div>`;
     }).join('')}</div>`;
 }
 
 function _ytRenderNarrations(data) {
-    if (!data) return '<div class="text-[10px]" style="color:var(--text-muted)">No narrations data</div>';
+    if (!data) return '<div class="yi-empty">No narrations data</div>';
     const narrations = Array.isArray(data) ? data : (data.narrations || []);
+    if (narrations.length === 0) return '<div class="yi-empty">No narrations found</div>';
     return narrations.map(n => {
+        const text = n.narration_text || n.text || n.narration || '';
+        const attribution = n.speaker_attribution || n.attribution || '';
+        const source = n.source_claimed || n.source || n.reference || '';
+        const needsVerify = n.needs_verification !== false;
         const verified = n.verified || n.status === 'verified';
-        const source = n.source || n.reference || '';
-        const statusBadge = verified
-            ? '<span class="text-[9px] px-1.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Verified</span>'
-            : '<span class="text-[9px] px-1.5 py-0.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20">Unverified</span>';
-
-        return `<div class="mb-3 px-3 py-2 rounded-lg" style="background:var(--bg-hover);border:1px solid var(--border);">
-            <div class="flex items-center justify-between mb-1">
-                <span class="text-[10px] font-semibold" style="color:var(--text-heading)">${_escHtml(n.text || n.narration || '')}</span>
-                ${statusBadge}
+        let badgeClass = 'yi-badge-needs-check';
+        let badgeText = 'Needs Verification';
+        if (verified) { badgeClass = 'yi-badge-verified'; badgeText = 'Verified'; }
+        else if (!needsVerify) { badgeClass = 'yi-badge-unverified'; badgeText = 'Unverified'; }
+        return `<div class="yi-narration">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:8px;">
+                <div class="yi-narration-text" style="margin-bottom:0;">${_escHtml(text)}</div>
+                <span class="yi-badge ${badgeClass}">${badgeText}</span>
             </div>
-            ${source ? `<div class="text-[9px]" style="color:var(--text-muted)">Source: ${_escHtml(source)}</div>` : ''}
+            ${attribution ? `<div class="yi-field"><div class="yi-field-label">Attribution</div><div class="yi-field-value">${_escHtml(attribution)}</div></div>` : ''}
+            ${source ? `<div class="yi-field"><div class="yi-field-label">Source</div><div class="yi-field-value">${_escHtml(source)}</div></div>` : ''}
         </div>`;
     }).join('');
 }
 
+function _ytRenderHistory(data) {
+    if (!data) return '<div class="yi-empty">No historical data</div>';
+    const events = Array.isArray(data) ? data : [data];
+    if (events.length === 0) return '<div class="yi-empty">No historical events found</div>';
+    return events.map(ev => {
+        return `<div class="yi-card">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+                <div style="width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;background:rgba(251,191,36,0.1);border:1px solid rgba(251,191,36,0.2);flex-shrink:0;">
+                    <i data-lucide="landmark" style="width:16px;height:16px;color:#fbbf24;"></i>
+                </div>
+                <div>
+                    <div style="font-size:14px;font-weight:700;color:#fff;">${_escHtml(ev.event || ev.name || 'Unknown Event')}</div>
+                    ${ev.period ? `<div style="font-size:11px;color:var(--text-muted);">${_escHtml(ev.period)}</div>` : ''}
+                </div>
+            </div>
+            ${ev.actors && ev.actors.length ? `<div class="yi-field"><div class="yi-field-label">Key Figures</div><div class="yi-field-value">${ev.actors.map(a => _escHtml(a)).join(', ')}</div></div>` : ''}
+            ${ev.summary ? `<div class="yi-field"><div class="yi-field-label">Summary</div><div class="yi-field-value">${_escHtml(ev.summary)}</div></div>` : ''}
+            ${ev.speaker_interpretation ? `<div class="yi-field"><div class="yi-field-label">Speaker's Interpretation</div><div class="yi-field-value" style="font-style:italic;">${_escHtml(ev.speaker_interpretation)}</div></div>` : ''}
+        </div>`;
+    }).join('');
+}
+
+function _ytRenderSpiritual(data) {
+    if (!data) return '<div class="yi-empty">No spiritual data</div>';
+    const lessons = Array.isArray(data) ? data : [data];
+    if (lessons.length === 0) return '<div class="yi-empty">No spiritual insights found</div>';
+    return lessons.map(l => {
+        return `<div class="yi-card">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+                <div style="width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;background:rgba(244,114,182,0.1);border:1px solid rgba(244,114,182,0.2);flex-shrink:0;">
+                    <i data-lucide="heart" style="width:16px;height:16px;color:#f472b6;"></i>
+                </div>
+                <div style="font-size:14px;font-weight:600;color:#fff;">${_escHtml(l.lesson || l.teaching || 'Spiritual Insight')}</div>
+            </div>
+            ${l.supporting_evidence ? `<div class="yi-field"><div class="yi-field-label">Evidence Cited</div><div class="yi-field-value">${_escHtml(l.supporting_evidence)}</div></div>` : ''}
+            ${l.speaker_framing ? `<div class="yi-field"><div class="yi-field-label">Speaker's Framing</div><div class="yi-field-value" style="font-style:italic;">${_escHtml(l.speaker_framing)}</div></div>` : ''}
+        </div>`;
+    }).join('');
+}
+
+function _ytRenderPolitics(data) {
+    if (!data) return '<div class="yi-empty">No political data</div>';
+    const topics = Array.isArray(data) ? data : [data];
+    if (topics.length === 0) return '<div class="yi-empty">No political commentary found</div>';
+    return topics.map(t => {
+        return `<div class="yi-card">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+                <div style="width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;background:rgba(96,165,250,0.1);border:1px solid rgba(96,165,250,0.2);flex-shrink:0;">
+                    <i data-lucide="flag" style="width:16px;height:16px;color:#60a5fa;"></i>
+                </div>
+                <div style="font-size:14px;font-weight:600;color:#fff;">${_escHtml(t.topic || t.subject || 'Political Topic')}</div>
+            </div>
+            ${t.analysis ? `<div class="yi-field"><div class="yi-field-label">Analysis</div><div class="yi-field-value">${_escHtml(t.analysis)}</div></div>` : ''}
+            ${t.speaker_position ? `<div class="yi-field"><div class="yi-field-label">Speaker's Position</div><div class="yi-field-value" style="font-style:italic;">${_escHtml(t.speaker_position)}</div></div>` : ''}
+            ${t.cited_sources && t.cited_sources.length ? `<div class="yi-field"><div class="yi-field-label">Cited Sources</div><div class="yi-field-value">${t.cited_sources.map(s => _escHtml(s)).join(', ')}</div></div>` : ''}
+        </div>`;
+    }).join('');
+}
+
+function _ytRenderGeneric(data, lens) {
+    if (!data) return `<div class="yi-empty">No data for ${_escHtml(lens)} lens</div>`;
+    const lensLabel = lens.charAt(0).toUpperCase() + lens.slice(1);
+    const items = Array.isArray(data) ? data : (typeof data === 'object' ? Object.entries(data) : [data]);
+    let html = `<div class="yi-section-title"><i data-lucide="${_ytLensIcons[lens] || 'sparkles'}" style="width:18px;height:18px;color:#c084fc;"></i> ${_escHtml(lensLabel)} Analysis</div>`;
+    for (const item of items) {
+        if (typeof item === 'object' && item !== null && !Array.isArray(item)) {
+            html += `<div class="yi-card">${Object.entries(item).map(([k, v]) => `<div class="yi-field"><div class="yi-field-label">${_escHtml(k)}</div><div class="yi-field-value">${_escHtml(String(v))}</div></div>`).join('')}</div>`;
+        } else if (Array.isArray(item) && item.length === 2) {
+            html += `<div class="yi-card"><div class="yi-field"><div class="yi-field-label">${_escHtml(String(item[0]))}</div><div class="yi-field-value">${_escHtml(String(item[1]))}</div></div></div>`;
+        } else {
+            html += `<div class="yi-card"><div style="font-size:13px;line-height:1.6;color:var(--text-secondary);">${_escHtml(String(item))}</div></div>`;
+        }
+    }
+    return html;
+}
+
+// ── Lens Guide Page ──
+
+function _ytShowLensGuide() {
+    _ytShowingGuide = true;
+    // Deactivate all tabs
+    document.querySelectorAll('.yi-tab').forEach(tab => tab.classList.remove('yi-tab-active'));
+
+    const body = document.getElementById('yi-body');
+    if (!body) return;
+
+    const lenses = [
+        { name: 'Summary', icon: 'file-text', color: '#c084fc', rgb: '192,132,252',
+          desc: 'Generates a concise 2-3 paragraph summary of the video content along with key takeaways.',
+          example: '"2-3 paragraph summary with 3-7 key takeaway bullet points"' },
+        { name: 'Transcript', icon: 'scroll-text', color: '#94a3b8', rgb: '148,163,184',
+          desc: 'Stores the raw transcript text without any LLM processing. Useful for reference and full-text search.',
+          example: '"Full verbatim transcript split into readable paragraphs"' },
+        { name: 'Eloquence', icon: 'pen-tool', color: '#34d399', rgb: '52,211,153',
+          desc: 'Extracts 5-10 advanced Arabic vocabulary words or phrases with definitions and usage context.',
+          example: '"Term: فصاحة — Definition: Eloquence, clarity of speech — Context: \'the فصاحة of the Quran is unmatched\'"' },
+        { name: 'Narrations', icon: 'book-open', color: '#fb923c', rgb: '251,146,60',
+          desc: 'Detects hadith, historical narrations, and scholarly citations. Each narration includes attribution and source claims, flagged for verification.',
+          example: '"Narration: \'Actions are by intentions\' — Attribution: Prophet Muhammad (PBUH) — Source: Sahih al-Bukhari — Needs Verification: Yes"' },
+        { name: 'History', icon: 'landmark', color: '#fbbf24', rgb: '251,191,36',
+          desc: 'Identifies historical events, battles, and figures discussed. Captures the time period, key actors, and the speaker\'s interpretation.',
+          example: '"Event: Battle of Badr — Period: 624 CE — Actors: Prophet Muhammad, Quraysh — Speaker\'s Interpretation: turning point for early Islam"' },
+        { name: 'Spiritual', icon: 'heart', color: '#f472b6', rgb: '244,114,182',
+          desc: 'Extracts spiritual lessons, philosophical arguments, and moral teachings with supporting evidence and the speaker\'s framing.',
+          example: '"Lesson: Patience in adversity — Evidence: Quran 2:153 — Framing: Speaker emphasizes sabr as active endurance, not passive waiting"' },
+        { name: 'Politics', icon: 'flag', color: '#60a5fa', rgb: '96,165,250',
+          desc: 'Identifies political commentary, policy analysis, and geopolitical observations including the speaker\'s position and cited sources.',
+          example: '"Topic: Gulf cooperation — Analysis: Speaker argues for economic integration — Position: Pro-GCC unity — Sources: recent summit declarations"' },
+    ];
+
+    body.innerHTML = `
+        <div class="yi-section-title" style="margin-bottom:18px;"><i data-lucide="book-open" style="width:20px;height:20px;color:#c084fc;"></i> Lens Guide</div>
+        <div style="font-size:13px;color:var(--text-secondary);line-height:1.7;margin-bottom:20px;">
+            Lenses are focused analysis prompts that extract specific types of insight from video transcripts. Each lens runs independently against the LLM, producing structured JSON output. Select lenses per-channel when adding a YouTube channel.
+        </div>
+        <div class="yi-guide-grid">
+            ${lenses.map(l => `
+                <div class="yi-guide-card" style="--gc-color:${l.color};--gc-rgb:${l.rgb};">
+                    <div style="display:flex;align-items:center;gap:10px;">
+                        <div class="yi-guide-icon" style="background:rgba(${l.rgb},0.1);border:1px solid rgba(${l.rgb},0.2);">
+                            <i data-lucide="${l.icon}" style="width:22px;height:22px;color:${l.color};"></i>
+                        </div>
+                        <div>
+                            <div class="yi-guide-title" style="color:${l.color};">${l.name}</div>
+                            <div class="yi-guide-sub">Lens Mode</div>
+                        </div>
+                    </div>
+                    <div class="yi-guide-desc">${l.desc}</div>
+                    <div class="yi-guide-ex" style="background:rgba(${l.rgb},0.06);color:${l.color};border:1px solid rgba(${l.rgb},0.12);">${l.example}</div>
+                </div>
+            `).join('')}
+        </div>`;
+    lucide.createIcons();
+}
+window._ytShowLensGuide = _ytShowLensGuide;
+
+// ── Star Parallax Engine (Purple theme) ──
+
+function _ytInitStars() {
+    const canvas = document.getElementById('yi-star-canvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    let W, H, stars = [], mouse = { x: 0.5, y: 0.5 };
+
+    function resize() {
+        const rect = canvas.parentElement.getBoundingClientRect();
+        W = canvas.width = rect.width; H = canvas.height = rect.height;
+    }
+    resize();
+    window.addEventListener('resize', resize);
+
+    // Create stars
+    for (let i = 0; i < 90; i++) {
+        stars.push({
+            x: Math.random() * W, y: Math.random() * H,
+            r: Math.random() * 1.4 + 0.3,
+            a: Math.random() * 0.5 + 0.15,
+            dx: (Math.random() - 0.5) * 0.15,
+            dy: (Math.random() - 0.5) * 0.1,
+            phase: Math.random() * Math.PI * 2,
+        });
+    }
+
+    canvas.parentElement.addEventListener('mousemove', e => {
+        const rect = canvas.parentElement.getBoundingClientRect();
+        mouse.x = (e.clientX - rect.left) / W;
+        mouse.y = (e.clientY - rect.top) / H;
+    });
+
+    let shootingStar = null;
+    let lastShoot = 0;
+
+    function draw(t) {
+        ctx.clearRect(0, 0, W, H);
+        const px = (mouse.x - 0.5) * 12;
+        const py = (mouse.y - 0.5) * 8;
+
+        // Stars
+        for (const s of stars) {
+            s.x += s.dx; s.y += s.dy;
+            if (s.x < 0) s.x = W; if (s.x > W) s.x = 0;
+            if (s.y < 0) s.y = H; if (s.y > H) s.y = 0;
+            const sx = s.x + px * s.r;
+            const sy = s.y + py * s.r;
+            const flicker = 0.7 + 0.3 * Math.sin(t * 0.002 + s.phase);
+            ctx.beginPath();
+            ctx.arc(sx, sy, s.r, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(192,132,252,${s.a * flicker})`;
+            ctx.fill();
+        }
+
+        // Constellation lines (connect nearby stars)
+        ctx.strokeStyle = 'rgba(192,132,252,0.04)';
+        ctx.lineWidth = 0.5;
+        for (let i = 0; i < stars.length; i++) {
+            for (let j = i + 1; j < stars.length; j++) {
+                const dx = (stars[i].x + px * stars[i].r) - (stars[j].x + px * stars[j].r);
+                const dy = (stars[i].y + py * stars[i].r) - (stars[j].y + py * stars[j].r);
+                const dist = dx * dx + dy * dy;
+                if (dist < 8000) {
+                    ctx.beginPath();
+                    ctx.moveTo(stars[i].x + px * stars[i].r, stars[i].y + py * stars[i].r);
+                    ctx.lineTo(stars[j].x + px * stars[j].r, stars[j].y + py * stars[j].r);
+                    ctx.stroke();
+                }
+            }
+        }
+
+        // Shooting star
+        if (t - lastShoot > 6000 && Math.random() < 0.008) {
+            shootingStar = { x: Math.random() * W * 0.7, y: Math.random() * H * 0.3, len: 60 + Math.random() * 40, life: 1 };
+            lastShoot = t;
+        }
+        if (shootingStar) {
+            shootingStar.life -= 0.02;
+            if (shootingStar.life <= 0) { shootingStar = null; }
+            else {
+                const ss = shootingStar;
+                const grad = ctx.createLinearGradient(ss.x, ss.y, ss.x + ss.len, ss.y + ss.len * 0.4);
+                grad.addColorStop(0, `rgba(192,132,252,${ss.life * 0.6})`);
+                grad.addColorStop(1, 'rgba(192,132,252,0)');
+                ctx.strokeStyle = grad; ctx.lineWidth = 1.5;
+                ctx.beginPath(); ctx.moveTo(ss.x, ss.y); ctx.lineTo(ss.x + ss.len, ss.y + ss.len * 0.4); ctx.stroke();
+                ss.x += 3; ss.y += 1.2;
+            }
+        }
+
+        _ytStarRAF = requestAnimationFrame(draw);
+    }
+    _ytStarRAF = requestAnimationFrame(draw);
+}
+
 function _ytCloseInsights() {
     const modal = document.getElementById('yt-insights-modal');
-    if (modal) {
-        modal.classList.add('hidden');
-        modal.classList.remove('ctx-slide-in');
-    }
+    if (modal) modal.remove();
+    if (_ytStarRAF) { cancelAnimationFrame(_ytStarRAF); _ytStarRAF = null; }
 }
 window._ytCloseInsights = _ytCloseInsights;
 
