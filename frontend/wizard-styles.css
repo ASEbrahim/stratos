@@ -153,9 +153,6 @@
 .wiz-scope .rail-bottom { margin-top:auto;padding:14px 16px 18px;border-top:1px solid var(--brd);display:flex;flex-direction:column;gap:12px;flex-shrink:0; }
 
 /* ── Depth Toggle ── */
-.wiz-scope .depth-toggle { display:flex;background:rgba(255,255,255,0.04);border-radius:12px;padding:4px;border:1px solid var(--brd);cursor:pointer; }
-.wiz-scope .depth-opt { flex:1;text-align:center;padding:7px;font-size:12px;font-weight:700;color:var(--text3);border-radius:9px;transition:all 0.25s;z-index:1;display:flex;align-items:center;justify-content:center;gap:5px; }
-.wiz-scope .depth-opt.active { color:var(--text);background:var(--accent-dim);box-shadow:0 2px 8px var(--accent-dim); }
 
 /* ── Build Button ── */
 .wiz-scope .build-btn { position:relative;width:100%;padding:14px 24px;border:none;border-radius:14px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#0c1222;font-size:15px;font-weight:800;letter-spacing:0.3px;cursor:pointer;overflow:hidden;box-shadow:0 8px 32px var(--accent-glow),0 0 0 1px var(--accent-glow);transition:all 0.25s; }
@@ -372,12 +369,10 @@
 .wiz-scope .btn.bo { background:transparent;border:1.5px solid var(--brd);color:var(--text2); }
 .wiz-scope .btn.bo:hover { border-color:var(--accent-glow);color:var(--text); }
 
-/* ── Tooltip System ── */
-.wiz-scope [data-tip] { position:relative; }
-.wiz-scope [data-tip]::after { content:attr(data-tip);position:absolute;bottom:calc(100% + 10px);left:50%;transform:translateX(-50%);background:var(--bg-card);color:var(--text2);font-size:11.5px;font-weight:500;line-height:1.5;padding:10px 14px;border-radius:10px;border:1px solid var(--accent-glow);border-left:3px solid var(--accent);width:max-content;max-width:240px;pointer-events:none;opacity:0;transition:opacity 0.15s;z-index:9999;box-shadow:0 8px 32px rgba(0,0,0,0.5);white-space:normal; }
-.wiz-scope [data-tip]:hover::after { opacity:1; }
-.wiz-scope [data-tip-pos="bottom"]::after { bottom:auto;top:calc(100% + 10px); }
-.wiz-scope [data-tip-pos="right"]::after { bottom:auto;left:calc(100% + 10px);top:50%;transform:translateY(-50%); }
+/* ── Tooltip System (JS-based, see wizard.js _wizTooltip) ── */
+.wiz-scope [data-tip] { cursor:default; }
+.wiz-tip-float { position:fixed;z-index:999999;pointer-events:none;background:rgba(10,10,30,0.97);color:#cbd5e1;font-size:11.5px;font-weight:500;line-height:1.5;padding:10px 14px;border-radius:10px;border:1px solid rgba(var(--accent-rgb,52,211,153),0.2);border-left:3px solid var(--accent,#10b981);width:max-content;max-width:240px;opacity:0;transition:opacity 0.12s;box-shadow:0 8px 32px rgba(0,0,0,0.6);white-space:normal; }
+.wiz-tip-float.visible { opacity:1; }
 
 /* ── Animations ── */
 @keyframes wizSpin { to { transform:rotate(360deg); } }

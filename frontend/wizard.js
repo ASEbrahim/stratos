@@ -699,7 +699,6 @@ function injectDOM(role, location) {
   wrapper.id = 'wiz-root';
   wrapper.className = 'wiz-scope';
   const circumference = 2 * Math.PI * 16; // r=16 for ring
-  const isDeep = document.getElementById('wiz-deep-mode')?.checked;
   wrapper.innerHTML = `
     <div class="backdrop" id="wiz-bk" onclick="_wiz.closeWizard()"></div>
     <div class="modal" id="wiz-modal">
@@ -737,10 +736,6 @@ function injectDOM(role, location) {
           <div class="rail-inner" id="wiz-rail-scroll"></div>
           <div id="wiz-feed-summary" style="padding:4px 0;"></div>
           <div class="rail-bottom" id="wiz-rail-bottom">
-            <div class="depth-toggle" id="wiz-depth-toggle" onclick="_wiz.toggleDeepMode()" data-tip="Quick: fast headlines only. Deep: full article analysis">
-              <div class="depth-opt ${isDeep ? '' : 'active'}" id="wiz-mode-quick">&#x26A1; Quick</div>
-              <div class="depth-opt ${isDeep ? 'active' : ''}" id="wiz-mode-deep">&#x25CF; Deep</div>
-            </div>
             <button class="build-btn" id="wiz-build-btn" onclick="_wiz.doBuild()" disabled data-tip="Generate your personalized intelligence feed">&#x2728; BUILD FEED &#x2728;</button>
           </div>
         </div>
@@ -753,19 +748,11 @@ function injectDOM(role, location) {
       </div>
     </div>`;
   document.body.appendChild(wrapper);
-
-  // Create hidden checkbox for deep-mode state
-  let deepCb = document.getElementById('wiz-deep-mode');
-  if (!deepCb) {
-    deepCb = document.createElement('input');
-    deepCb.type = 'checkbox';
-    deepCb.id = 'wiz-deep-mode';
-    deepCb.style.display = 'none';
-    wrapper.appendChild(deepCb);
-  }
+  _initWizTooltip();
 }
 
 function removeDOM() {
+  _destroyWizTooltip();
   const el = document.getElementById('wiz-root');
   if (el) el.remove();
 }
@@ -1169,13 +1156,11 @@ function renderFeedSummary(totalItems) {
   const el = document.getElementById('wiz-feed-summary');
   if (!el) return;
   const catNum = selCats.size;
-  const isDeep = document.getElementById('wiz-deep-mode')?.checked;
   if (catNum === 0) { el.innerHTML = ''; return; }
   el.innerHTML = `<div class="feed-summary">
     <div class="feed-summary-title">Feed Summary</div>
     <div class="feed-stat"><span class="feed-stat-label">Categories</span><span class="feed-stat-val accent">${catNum} selected</span></div>
     <div class="feed-stat"><span class="feed-stat-label">Tracked topics</span><span class="feed-stat-val">${totalItems} items</span></div>
-    <div class="feed-stat"><span class="feed-stat-label">Feed depth</span><span class="feed-stat-val accent">${isDeep ? 'Deep analysis' : 'Quick scan'}</span></div>
   </div>`;
 }
 
@@ -1381,18 +1366,65 @@ function _cleanupWizStars() {
   }
 }
 
-function toggleDeepMode() {
-  const quick = document.getElementById('wiz-mode-quick');
-  const deep = document.getElementById('wiz-mode-deep');
-  const cb = document.getElementById('wiz-deep-mode');
-  if (!quick || !deep) return;
-  const isOn = !cb?.checked;
-  if (cb) cb.checked = isOn;
-  quick.classList.toggle('active', !isOn);
-  deep.classList.toggle('active', isOn);
-  renderRail();
+/* ═══════════════════════════════════════
+   JS FLOATING TOOLTIP (escapes overflow:clip)
+   ═══════════════════════════════════════ */
+var _wizTipEl = null;
+var _wizTipTimer = null;
+
+function _initWizTooltip() {
+  if (_wizTipEl) return;
+  _wizTipEl = document.createElement('div');
+  _wizTipEl.className = 'wiz-tip-float';
+  document.body.appendChild(_wizTipEl);
+
+  var root = document.getElementById('wiz-root');
+  if (!root) return;
+
+  root.addEventListener('mouseover', function(e) {
+    var target = e.target.closest('[data-tip]');
+    if (!target) return;
+    var text = target.getAttribute('data-tip');
+    if (!text) return;
+    clearTimeout(_wizTipTimer);
+    _wizTipEl.textContent = text;
+    _wizTipEl.classList.remove('visible');
+
+    // Position: prefer above, fall back to below
+    var rect = target.getBoundingClientRect();
+    _wizTipEl.style.left = '0'; _wizTipEl.style.top = '0';
+    _wizTipEl.classList.add('visible'); // needed to measure
+    _wizTipEl.style.opacity = '0';
+
+    var tw = _wizTipEl.offsetWidth, th = _wizTipEl.offsetHeight;
+    var posBottom = target.getAttribute('data-tip-pos') === 'bottom';
+    var left = rect.left + rect.width / 2 - tw / 2;
+    var top = posBottom ? rect.bottom + 10 : rect.top - th - 10;
+
+    // Fallback if tooltip goes above viewport
+    if (top < 4) { top = rect.bottom + 10; }
+    // Keep within horizontal viewport
+    if (left < 4) left = 4;
+    if (left + tw > window.innerWidth - 4) left = window.innerWidth - tw - 4;
+
+    _wizTipEl.style.left = Math.round(left) + 'px';
+    _wizTipEl.style.top = Math.round(top) + 'px';
+    _wizTipEl.style.opacity = '';
+  });
+
+  root.addEventListener('mouseout', function(e) {
+    var target = e.target.closest('[data-tip]');
+    if (!target) return;
+    _wizTipTimer = setTimeout(function() {
+      if (_wizTipEl) _wizTipEl.classList.remove('visible');
+    }, 80);
+  });
 }
 
+function _destroyWizTooltip() {
+  clearTimeout(_wizTipTimer);
+  if (_wizTipEl) { _wizTipEl.remove(); _wizTipEl = null; }
+}
 
 /* ═══════════════════════════════════════
    CATEGORY / SUB TOGGLES
@@ -1708,19 +1740,17 @@ function buildWizardContext() {
 function doBuild() {
   const role = document.getElementById('simple-role')?.value?.trim() || 'your profile';
   const location = document.getElementById('simple-location')?.value?.trim() || '';
-  const deep = document.getElementById('wiz-deep-mode')?.checked || false;
-  const modeLabel = deep ? 'Deep analysis' : 'Quick generation';
   // Show loading in main area
   const main = document.getElementById('wiz-main');
   if (!main) return;
   main.innerHTML = `<div class="ld" id="wiz-build-ld">
     <div class="wiz-ring"></div>
     <div class="ld-t">Building your feed...</div>
-    <div class="ld-s">${modeLabel} for <strong>${esc(role)}</strong></div>
+    <div class="ld-s">Generating for <strong>${esc(role)}</strong></div>
     <div class="ld-bar"><div class="ld-bar-fill" id="wiz-bar"></div></div>
     <div class="ld-list">
       <div class="ls on" id="wiz-l0"><div class="ls-d"><div class="ls-sp"></div>${CK}</div><span>Generating context from your choices</span></div>
-      <div class="ls" id="wiz-l1"><div class="ls-d"><div class="ls-sp"></div>${CK}</div><span>Building tracking categories${deep ? ' (deep thinking)' : ''}</span></div>
+      <div class="ls" id="wiz-l1"><div class="ls-d"><div class="ls-sp"></div>${CK}</div><span>Building tracking categories</span></div>
       <div class="ls" id="wiz-l2"><div class="ls-d"><div class="ls-sp"></div>${CK}</div><span>Selecting news sources & scoring model</span></div>
     </div>
   </div>`;
@@ -1729,11 +1759,11 @@ function doBuild() {
   const btn = document.getElementById('wiz-build-btn');
   if (btn) btn.disabled = true;
   const wizContext = buildWizardContext();
-  callGenerateProfile(role, location, wizContext, deep);
+  callGenerateProfile(role, location, wizContext);
 }
 
-async function callGenerateProfile(role, location, context, deep = false) {
-  console.debug('[Wizard] callGenerateProfile:', {role, location, context, deep});
+async function callGenerateProfile(role, location, context) {
+  console.debug('[Wizard] callGenerateProfile:', {role, location, context});
   let stepIdx = 0;
   const bar = document.getElementById('wiz-bar');
   const setBar = (pct) => { if (bar) bar.style.width = pct + '%'; };
@@ -1752,15 +1782,14 @@ async function callGenerateProfile(role, location, context, deep = false) {
       const subtitle = document.querySelector('.ld-s');
       const elapsed = Math.round((Date.now() - startTime) / 1000);
       if (subtitle && elapsed > 3) {
-        const mode = deep ? 'Deep analysis' : 'Generating';
-        subtitle.innerHTML = mode + ' for <strong>' + esc(role) + '</strong> (' + elapsed + 's)';
+        subtitle.innerHTML = 'Generating for <strong>' + esc(role) + '</strong> (' + elapsed + 's)';
       }
     }, 400);
     const resp = await fetch('/api/generate-profile', {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
       signal: AbortSignal.timeout(180000),
-      body: JSON.stringify({role, location, context, deep})
+      body: JSON.stringify({role, location, context})
     });
     clearInterval(progressTimer);
     if (!resp.ok) throw new Error('Server error: ' + resp.status);
@@ -2384,7 +2413,7 @@ window._wiz = {
   togRvCollapse, collapseAllRv, expandAllRv,
   rvRm, rvRmInt, rvShowAdd, rvAddKey,
   discoverAdd, discoverRm, addTabSuggestion,
-  toggleRail, toggleDeepMode,
+  toggleRail,
   // Build
   doBuild, finishWizard, restoreMainView,
   // Presets
