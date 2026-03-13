@@ -41,16 +41,16 @@ JSON only, no other text.""",
     },
 
     'eloquence': {
-        'system': 'You extract advanced Arabic vocabulary and phrases from transcripts. Output valid JSON only.',
-        'user': """Extract 5-10 advanced Arabic words or phrases from this lecture.
+        'system': 'You extract advanced vocabulary and phrases from transcripts. Output valid JSON only.',
+        'user': """Extract uncommon and rare words or phrases from this lecture transcript. Focus on vocabulary that would expand a learner's proficiency.
 
 Title: {title}
 Transcript: {transcript}
 
-For each word/phrase provide: the term, its definition, and the context it was used in.
+For each word/phrase provide: the term, its definition, the context it was used in, and rarity ("uncommon" or "rare").
 
 Output JSON array:
-[{{"term": "word", "definition": "meaning", "context_quote": "sentence where used"}}]
+[{{"term": "word", "definition": "meaning", "context_quote": "sentence where used", "rarity": "uncommon"}}]
 
 JSON array only, no other text.""",
     },

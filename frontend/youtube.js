@@ -263,6 +263,7 @@ async function _ytToggleVideos(channelId) {
 let _ytCurrentVideoId = null;
 let _ytStarRAF = null;
 let _ytShowingGuide = false;
+let _ytEloquenceFilter = 'all';
 
 const _ytLensIcons = { summary: 'file-text', eloquence: 'pen-tool', narrations: 'book-open', history: 'landmark', spiritual: 'heart', politics: 'flag', transcript: 'scroll-text' };
 
@@ -469,17 +470,36 @@ function _ytRenderEloquence(data) {
     if (!data) return '<div class="yi-empty">No eloquence data</div>';
     const terms = Array.isArray(data) ? data : (data.terms || []);
     if (terms.length === 0) return '<div class="yi-empty">No vocabulary extracted</div>';
-    return `<div class="yi-grid">${terms.map(t => {
+    const filtered = _ytEloquenceFilter === 'all' ? terms : terms.filter(t => (t.rarity || 'uncommon') === _ytEloquenceFilter);
+    const filterBar = `<div style="display:flex;gap:6px;margin-bottom:14px;">
+        ${['all','uncommon','rare'].map(f => `<button onclick="_ytSetEloquenceFilter('${f}')" class="yi-header-btn" style="${_ytEloquenceFilter===f?'background:rgba(52,211,153,0.15);color:#34d399;border-color:rgba(52,211,153,0.3);':''}">${f.charAt(0).toUpperCase()+f.slice(1)}</button>`).join('')}
+    </div>`;
+    return filterBar + `<div class="yi-grid">${filtered.map(t => {
         const term = t.term || t.word || '';
         const def = t.definition || t.meaning || '';
         const ctx = t.context_quote || t.context || '';
+        const rarity = t.rarity || 'uncommon';
+        const rarityColor = rarity === 'rare' ? 'color:#f472b6;background:rgba(244,114,182,0.1);border:1px solid rgba(244,114,182,0.2)' : 'color:#34d399;background:rgba(52,211,153,0.1);border:1px solid rgba(52,211,153,0.2)';
         return `<div class="yi-vocab-card">
-            <div class="yi-vocab-term">${_escHtml(term)}</div>
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+                <div class="yi-vocab-term" style="margin-bottom:0;">${_escHtml(term)}</div>
+                <span style="font-size:9px;padding:1px 6px;border-radius:4px;flex-shrink:0;${rarityColor}">${rarity}</span>
+            </div>
             <div class="yi-vocab-def">${_escHtml(def)}</div>
             ${ctx ? `<div class="yi-vocab-ctx">"${_escHtml(ctx)}"</div>` : ''}
         </div>`;
     }).join('')}</div>`;
 }
+
+function _ytSetEloquenceFilter(filter) {
+    _ytEloquenceFilter = filter;
+    const activeTab = document.querySelector('.yi-tab.yi-tab-active');
+    if (activeTab) {
+        const idx = Array.from(document.querySelectorAll('.yi-tab')).indexOf(activeTab);
+        if (idx >= 0) _ytRenderLens(idx);
+    }
+}
+window._ytSetEloquenceFilter = _ytSetEloquenceFilter;
 
 function _ytRenderNarrations(data) {
     if (!data) return '<div class="yi-empty">No narrations data</div>';
@@ -600,8 +620,8 @@ function _ytShowLensGuide() {
           desc: 'Stores the raw transcript text without any LLM processing. Useful for reference and full-text search.',
           example: '"Full verbatim transcript split into readable paragraphs"' },
         { name: 'Eloquence', icon: 'pen-tool', color: '#34d399', rgb: '52,211,153',
-          desc: 'Extracts 5-10 advanced Arabic vocabulary words or phrases with definitions and usage context.',
-          example: '"Term: فصاحة — Definition: Eloquence, clarity of speech — Context: \'the فصاحة of the Quran is unmatched\'"' },
+          desc: 'Extracts advanced vocabulary and phrases from any language with definitions, usage context, and rarity classification (uncommon/rare).',
+          example: '"Term: فصاحة — Definition: Eloquence, clarity of speech — Context: \'the فصاحة of the Quran is unmatched\' — Rarity: rare"' },
         { name: 'Narrations', icon: 'book-open', color: '#fb923c', rgb: '251,146,60',
           desc: 'Detects hadith, historical narrations, and scholarly citations. Each narration includes attribution and source claims, flagged for verification.',
           example: '"Narration: \'Actions are by intentions\' — Attribution: Prophet Muhammad (PBUH) — Source: Sahih al-Bukhari — Needs Verification: Yes"' },
