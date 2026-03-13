@@ -658,6 +658,7 @@ function _ytInitStars() {
         stars.push({
             x: Math.random() * W, y: Math.random() * H,
             r: Math.random() * 1.4 + 0.3,
+            depth: Math.random() * 3 + 0.2,
             a: Math.random() * 0.5 + 0.15,
             dx: (Math.random() - 0.5) * 0.15,
             dy: (Math.random() - 0.5) * 0.1,
@@ -684,8 +685,8 @@ function _ytInitStars() {
             s.x += s.dx; s.y += s.dy;
             if (s.x < 0) s.x = W; if (s.x > W) s.x = 0;
             if (s.y < 0) s.y = H; if (s.y > H) s.y = 0;
-            const sx = s.x + px * s.r;
-            const sy = s.y + py * s.r;
+            const sx = s.x + px * s.depth;
+            const sy = s.y + py * s.depth;
             const flicker = 0.7 + 0.3 * Math.sin(t * 0.002 + s.phase);
             ctx.beginPath();
             ctx.arc(sx, sy, s.r, 0, Math.PI * 2);
@@ -698,13 +699,13 @@ function _ytInitStars() {
         ctx.lineWidth = 0.5;
         for (let i = 0; i < stars.length; i++) {
             for (let j = i + 1; j < stars.length; j++) {
-                const dx = (stars[i].x + px * stars[i].r) - (stars[j].x + px * stars[j].r);
-                const dy = (stars[i].y + py * stars[i].r) - (stars[j].y + py * stars[j].r);
+                const dx = (stars[i].x + px * stars[i].depth) - (stars[j].x + px * stars[j].depth);
+                const dy = (stars[i].y + py * stars[i].depth) - (stars[j].y + py * stars[j].depth);
                 const dist = dx * dx + dy * dy;
                 if (dist < 8000) {
                     ctx.beginPath();
-                    ctx.moveTo(stars[i].x + px * stars[i].r, stars[i].y + py * stars[i].r);
-                    ctx.lineTo(stars[j].x + px * stars[j].r, stars[j].y + py * stars[j].r);
+                    ctx.moveTo(stars[i].x + px * stars[i].depth, stars[i].y + py * stars[i].depth);
+                    ctx.lineTo(stars[j].x + px * stars[j].depth, stars[j].y + py * stars[j].depth);
                     ctx.stroke();
                 }
             }
