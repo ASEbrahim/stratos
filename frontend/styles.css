@@ -2860,9 +2860,32 @@ body.perf-mode *::after {
     transition-duration: 0.01ms !important;
 }
 
-body.perf-mode .glass-panel {
+/* Kill box-shadows globally — one of the biggest GPU consumers */
+body.perf-mode .glass-panel,
+body.perf-mode .profile-popup,
+body.perf-mode .chart-toolbar,
+body.perf-mode .cfs-hotbar,
+body.perf-mode .sidebar-backdrop,
+body.perf-mode .stratos-prompt-backdrop,
+body.perf-mode [class*="shadow"] {
     box-shadow: none !important;
+}
+body.perf-mode .glass-panel {
     background: var(--bg-panel-solid, var(--bg-panel)) !important;
+}
+
+/* Kill filters (brightness, blur, drop-shadow) — trigger full element repaint */
+body.perf-mode button:hover,
+body.perf-mode button:active,
+body.perf-mode .cfs-tool:hover,
+body.perf-mode .fe-sidebar-item:hover {
+    filter: none !important;
+    transform: none !important;
+}
+
+/* Kill hover transforms on cards and interactive elements */
+body.perf-mode .glass-panel[data-card-idx]:hover {
+    transform: none !important;
 }
 
 body.perf-mode .cosmos-canvas,

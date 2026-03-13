@@ -115,7 +115,7 @@ var _THEME_SYNC_KEYS = {};
     _THEME_NAMES.forEach(function(t) {
         _THEME_SYNC_KEYS['stratos-' + t + '-overrides'] = true;
         _THEME_SYNC_KEYS['stratos-' + t + '-presets'] = true;
-        ['cx', 'cy', 'scale', 'blur', 'opacity'].forEach(function(p) {
+        ['cx', 'cy', 'scale', 'blur', 'opacity', 'visible'].forEach(function(p) {
             _THEME_SYNC_KEYS['stratos-' + t + '-' + p] = true;
         });
     });
@@ -169,7 +169,7 @@ function _collectUiSettings() {
     // Theme element positions (pendulum, rose, coffee, etc.)
     var themePositions = {};
     _THEME_NAMES.forEach(function(t) {
-        ['cx', 'cy', 'scale', 'blur', 'opacity'].forEach(function(prop) {
+        ['cx', 'cy', 'scale', 'blur', 'opacity', 'visible'].forEach(function(prop) {
             var v = localStorage.getItem('stratos-' + t + '-' + prop);
             if (v) {
                 if (!themePositions[t]) themePositions[t] = {};

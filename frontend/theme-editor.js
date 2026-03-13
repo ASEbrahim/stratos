@@ -770,6 +770,7 @@
         section.id = 'te-element-section';
         section.className = 'te-group';
 
+        const elOn = localStorage.getItem(prefix + '-visible') !== 'false';
         const cx = parseFloat(localStorage.getItem(prefix + '-cx') || '0.5');
         const cy = parseFloat(localStorage.getItem(prefix + '-cy') || '0.35');
         const scale = parseFloat(localStorage.getItem(prefix + '-scale') || '1');
@@ -777,7 +778,13 @@
         const opacity = parseFloat(localStorage.getItem(prefix + '-opacity') || '1');
 
         section.innerHTML = `
-            <div class="te-group-label">${def.label}</div>
+            <div class="te-group-label" style="display:flex;align-items:center;justify-content:space-between;">
+                ${def.label}
+                <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:11px;color:var(--text-muted);">
+                    <input type="checkbox" id="te-el-toggle" ${elOn ? 'checked' : ''} style="accent-color:var(--accent);" />
+                    Show
+                </label>
+            </div>
             <div style="display:flex;gap:12px;align-items:flex-start;">
                 <div style="flex:0 0 auto;">
                     <label class="te-color-label" style="margin-bottom:4px;display:block;">Position</label>
@@ -852,6 +859,20 @@
         _wireSlider('#te-el-scale', '#te-el-scale-val', prefix + '-scale', v => v.toFixed(2) + 'x');
         _wireSlider('#te-el-blur', '#te-el-blur-val', prefix + '-blur', v => v.toFixed(1) + 'px');
         _wireSlider('#te-el-opacity', '#te-el-opacity-val', prefix + '-opacity', v => Math.round(v * 100) + '%');
+
+        // Element visibility toggle
+        const elToggle = section.querySelector('#te-el-toggle');
+        const elBody = section.querySelector('#te-el-grid')?.closest('div[style*="display:flex;gap"]');
+        if (elToggle) {
+            elToggle.addEventListener('change', () => {
+                const on = elToggle.checked;
+                localStorage.setItem(prefix + '-visible', on ? 'true' : 'false');
+                if (elBody) {
+                    elBody.style.opacity = on ? '' : '0.4';
+                    elBody.style.pointerEvents = on ? '' : 'none';
+                }
+            });
+        }
     }
 
     function _buildThemeElementControls(body) {

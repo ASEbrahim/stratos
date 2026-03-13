@@ -1117,12 +1117,13 @@ function renderStars() {
         }
 
         // Theme unique elements (drawn behind stars, like cosmos)
-        if (isNoir) _drawThemeElement('noir', _noirDrawPendulum, t);
-        if (isRose) _drawThemeElement('rose', _roseDrawBloom, t);
-        if (isCoffee) _drawThemeElement('coffee', _coffeeDrawCup, t);
-        if (isMidnight) _drawThemeElement('midnight', _midnightDrawMoon, t);
-        if (isNebula) _drawThemeElement('nebula', _nebulaDrawBlackHole, t);
-        if (isAurora) _drawThemeElement('aurora', _auroraDrawBinary, t);
+        // Each element respects its visibility toggle (stratos-{theme}-visible)
+        if (isNoir && localStorage.getItem('stratos-noir-visible') !== 'false') _drawThemeElement('noir', _noirDrawPendulum, t);
+        if (isRose && localStorage.getItem('stratos-rose-visible') !== 'false') _drawThemeElement('rose', _roseDrawBloom, t);
+        if (isCoffee && localStorage.getItem('stratos-coffee-visible') !== 'false') _drawThemeElement('coffee', _coffeeDrawCup, t);
+        if (isMidnight && localStorage.getItem('stratos-midnight-visible') !== 'false') _drawThemeElement('midnight', _midnightDrawMoon, t);
+        if (isNebula && localStorage.getItem('stratos-nebula-visible') !== 'false') _drawThemeElement('nebula', _nebulaDrawBlackHole, t);
+        if (isAurora && localStorage.getItem('stratos-aurora-visible') !== 'false') _drawThemeElement('aurora', _auroraDrawBinary, t);
         if (isSakura) _drawSakuraTree(canvas.width, canvas.height, t);
 
         // Shooting stars (skip in perf mode)
