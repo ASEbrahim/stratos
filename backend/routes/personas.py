@@ -24,7 +24,7 @@ logger = logging.getLogger("STRAT_OS")
 # CONTEXT BUILDERS
 # ═══════════════════════════════════════════════════════════
 
-def _build_news_context(strat, output_file: str) -> str:
+def _build_news_context(strat, output_file: str, include_market: bool = True) -> str:
     """Build news + market + briefing context from profile output."""
     news_context = ""
     output_path = Path(output_file)
@@ -51,39 +51,40 @@ def _build_news_context(strat, output_file: str) -> str:
                 continue
         news_context = "\n".join(lines)
 
-        # Market data
-        market = scraped.get("market", {})
-        mlines = []
-        for sym, md in market.items():
-            try:
-                if not isinstance(md, dict):
+        # Market data (only included when requested — Market persona, or explicit user ask)
+        if include_market:
+            market = scraped.get("market", {})
+            mlines = []
+            for sym, md in market.items():
+                try:
+                    if not isinstance(md, dict):
+                        continue
+                    name = md.get("name", sym)
+                    data_dict = md.get("data", {}) if isinstance(md.get("data"), dict) else {}
+                    parts = []
+                    for k in ["1m", "5m", "1d_1mo", "1d_1y", "1wk"]:
+                        d = data_dict.get(k)
+                        if isinstance(d, dict) and "price" in d:
+                            p = float(d.get("price", 0))
+                            c = float(d.get("change", 0))
+                            high = d.get("high")
+                            low = d.get("low")
+                            hl = f", H/L: ${float(high):.2f}/${float(low):.2f}" if high and low else ""
+                            hist = d.get("history", [])
+                            trend = ""
+                            if isinstance(hist, list) and len(hist) >= 5:
+                                r5 = hist[-5:]
+                                if all(isinstance(x, (int, float)) for x in r5):
+                                    trend = f", trend: {'rising' if r5[-1]>r5[0] else 'falling' if r5[-1]<r5[0] else 'flat'}"
+                            parts.append(f"  {k}: ${p:.2f} ({c:+.2f}%){hl}{trend}")
+                    if parts:
+                        mlines.append(f"{name} ({sym}):\n" + "\n".join(parts[:3]))
+                except Exception:
                     continue
-                name = md.get("name", sym)
-                data_dict = md.get("data", {}) if isinstance(md.get("data"), dict) else {}
-                parts = []
-                for k in ["1m", "5m", "1d_1mo", "1d_1y", "1wk"]:
-                    d = data_dict.get(k)
-                    if isinstance(d, dict) and "price" in d:
-                        p = float(d.get("price", 0))
-                        c = float(d.get("change", 0))
-                        high = d.get("high")
-                        low = d.get("low")
-                        hl = f", H/L: ${float(high):.2f}/${float(low):.2f}" if high and low else ""
-                        hist = d.get("history", [])
-                        trend = ""
-                        if isinstance(hist, list) and len(hist) >= 5:
-                            r5 = hist[-5:]
-                            if all(isinstance(x, (int, float)) for x in r5):
-                                trend = f", trend: {'rising' if r5[-1]>r5[0] else 'falling' if r5[-1]<r5[0] else 'flat'}"
-                        parts.append(f"  {k}: ${p:.2f} ({c:+.2f}%){hl}{trend}")
-                if parts:
-                    mlines.append(f"{name} ({sym}):\n" + "\n".join(parts[:3]))
-            except Exception:
-                continue
-        if mlines:
-            ts = scraped.get("timestamps", {}).get("market", "")
-            ts_label = f" (as of {ts[:16].replace('T',' ')})" if ts else ""
-            news_context += f"\n\nMARKET DATA{ts_label}:\n" + "\n".join(mlines)
+            if mlines:
+                ts = scraped.get("timestamps", {}).get("market", "")
+                ts_label = f" (as of {ts[:16].replace('T',' ')})" if ts else ""
+                news_context += f"\n\nMARKET DATA{ts_label}:\n" + "\n".join(mlines)
 
         # Briefing
         briefing = scraped.get("briefing", {})
@@ -560,7 +561,7 @@ from routes.persona_prompts import build_persona_prompt  # noqa: E402
 
 # Tool names available per persona
 PERSONA_TOOLS = {
-    'intelligence': ['web_search', 'search_feed', 'manage_watchlist', 'manage_categories', 'search_files', 'read_document'],
+    'intelligence': ['web_search', 'search_feed', 'manage_categories', 'search_files', 'read_document'],
     'market': ['manage_watchlist', 'search_feed', 'web_search'],
     'scholarly': ['search_insights', 'list_channels', 'get_video_summary', 'search_narrations', 'search_files', 'read_document', 'web_search', 'read_url'],
     'gaming': ['search_files', 'read_document'],
@@ -828,7 +829,7 @@ def _get_market_articles(strat, profile_id: int, limit: int = 5) -> str:
 def _pack_context(persona_name: str, strat, output_file: str,
                   profile_id: int, max_tokens: int = 16000,
                   user_message: str = '', rp_mode: str = 'gm',
-                  active_npc: str = '') -> str:
+                  active_npc: str = '', use_all_scans: bool = False) -> str:
     """Build the richest possible context that fits in max_tokens.
 
     Token estimation: word count * 1.3
@@ -866,12 +867,15 @@ def _pack_context(persona_name: str, strat, output_file: str,
 
     # Persona-specific data (fills remaining budget)
     if persona_name == 'intelligence':
-        # Existing rich context builders
-        news = _build_news_context(strat, output_file)
-        hist = _build_historical_context(strat, profile_id)
+        # Intelligence persona: news-focused, no market data unless user asks
+        news = _build_news_context(strat, output_file, include_market=False)
         sections.append(('feed_data', f"CURRENT FEED DATA:\n{news}" if news else ''))
-        sections.append(('historical', f"HISTORICAL DATA:\n{hist}" if hist else ''))
-        sections.append(('recent_feed', _get_recent_feed(strat, profile_id, limit=10)))
+        if use_all_scans:
+            hist = _build_historical_context(strat, profile_id)
+            sections.append(('historical', f"HISTORICAL DATA (all scans):\n{hist}" if hist else ''))
+            sections.append(('recent_feed', _get_recent_feed(strat, profile_id, limit=30)))
+        else:
+            sections.append(('recent_feed', _get_recent_feed(strat, profile_id, limit=10)))
         sections.append(('feedback', _get_feedback_summary(strat, profile_id)))
 
     elif persona_name == 'scholarly':
@@ -923,12 +927,13 @@ def _load_state_md(strat, profile_id: int, persona_name: str) -> str:
 
 def build_persona_context(persona: str, strat, output_file: str,
                           profile_id: int = 0, user_message: str = '',
-                          rp_mode: str = 'gm', active_npc: str = '') -> str:
+                          rp_mode: str = 'gm', active_npc: str = '',
+                          use_all_scans: bool = False) -> str:
     """Build context data for the given persona using smart context packing."""
     state = _load_state_md(strat, profile_id, persona)
     ctx = _pack_context(persona, strat, output_file, profile_id,
                         user_message=user_message, rp_mode=rp_mode,
-                        active_npc=active_npc)
+                        active_npc=active_npc, use_all_scans=use_all_scans)
 
     if state:
         ctx = f"{state}\n\n{ctx}" if ctx else state

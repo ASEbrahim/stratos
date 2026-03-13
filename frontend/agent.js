@@ -12,6 +12,8 @@ let selectedPersonas = ['intelligence']; // Multi-persona selection (max 3)
 let availablePersonas = [];
 let _personaSuggestions = {};  // Per-persona dynamic suggestion cache
 try { _personaSuggestions = JSON.parse(localStorage.getItem('stratos_persona_suggestions') || '{}'); } catch(e) {}
+let _agentFreeLength = false;  // Extended response mode
+let _agentAllScans = false;    // Use all stored scan data vs current only
 
 // ── Conversation management (DB-backed via /api/conversations) ──
 let _agentConvList = [];       // [{id, persona, title, is_active, message_count, ...}]
@@ -79,6 +81,30 @@ async function _switchConversation(convId) {
     if (_agentFullscreen) _refreshFsSidebar();
 }
 window._switchConversation = _switchConversation;
+
+function _toggleFreeLength() {
+    _agentFreeLength = !_agentFreeLength;
+    const btn = document.getElementById('agent-free-length-btn');
+    if (btn) {
+        btn.textContent = _agentFreeLength ? 'Long' : 'Short';
+        btn.style.background = _agentFreeLength ? 'rgba(52,211,153,0.12)' : 'rgba(255,255,255,0.03)';
+        btn.style.color = _agentFreeLength ? 'var(--accent,#34d399)' : 'var(--text-muted)';
+        btn.style.borderColor = _agentFreeLength ? 'rgba(52,211,153,0.3)' : 'rgba(255,255,255,0.08)';
+    }
+}
+window._toggleFreeLength = _toggleFreeLength;
+
+function _toggleAllScans() {
+    _agentAllScans = !_agentAllScans;
+    const btn = document.getElementById('agent-all-scans-btn');
+    if (btn) {
+        btn.textContent = _agentAllScans ? 'All Scans' : 'Current';
+        btn.style.background = _agentAllScans ? 'rgba(96,165,250,0.12)' : 'rgba(255,255,255,0.03)';
+        btn.style.color = _agentAllScans ? '#60a5fa' : 'var(--text-muted)';
+        btn.style.borderColor = _agentAllScans ? 'rgba(96,165,250,0.3)' : 'rgba(255,255,255,0.08)';
+    }
+}
+window._toggleAllScans = _toggleAllScans;
 
 async function newAgentChat() {
     if (agentStreaming) return;
@@ -1033,6 +1059,8 @@ async function sendAgentMessage() {
                 mode: agentMode,
                 persona: currentPersona,
                 ...(selectedPersonas.length > 1 ? { personas: selectedPersonas } : {}),
+                ...(_agentFreeLength ? { free_length: true } : {}),
+                ...(_agentAllScans ? { use_all_scans: true } : {}),
                 ...(currentPersona === 'gaming' && typeof _gamesGetState === 'function' ? {
                     rp_mode: _gamesGetState().rpMode,
                     active_npc: _gamesGetState().activeNpc,

@@ -289,6 +289,8 @@ def handle_agent_chat(handler, strat, output_file, profile_id=0):
         active_scenario = body.get("active_scenario", "")
         npc_personality = body.get("npc_personality", "")
         npc_memory = body.get("npc_memory", "")
+        free_length = body.get("free_length", False)
+        use_all_scans = body.get("use_all_scans", False)
         # Support single persona or multi-persona querying
         personas_param = body.get("personas", body.get("persona", "intelligence"))
         if isinstance(personas_param, list) and len(personas_param) > 1:
@@ -329,7 +331,8 @@ def handle_agent_chat(handler, strat, output_file, profile_id=0):
                 merged_tools.update(p_config['tools'])
                 ctx = build_persona_context(p, strat, output_file, profile_id,
                                             user_message=user_msg, rp_mode=rp_mode,
-                                            active_npc=active_npc)
+                                            active_npc=active_npc,
+                                            use_all_scans=use_all_scans)
                 if ctx:
                     context_parts.append(f"[{p.upper()} DATA]\n{ctx}")
             persona_config = {**persona_config, 'tools': list(merged_tools)}
@@ -389,7 +392,8 @@ def handle_agent_chat(handler, strat, output_file, profile_id=0):
             )
             persona_context = build_persona_context(
                 persona_name, strat, output_file, profile_id,
-                user_message=user_msg, rp_mode=rp_mode, active_npc=active_npc
+                user_message=user_msg, rp_mode=rp_mode, active_npc=active_npc,
+                use_all_scans=use_all_scans
             )
             system_prompt = base_prompt
             if persona_context:
@@ -426,6 +430,11 @@ def handle_agent_chat(handler, strat, output_file, profile_id=0):
                     if lines:
                         system_prompt += f"\n\nDB SEARCH '{' '.join(keywords[:3])}':\n" + "\n".join(lines)
 
+        # ── Free length mode: increase token budget and add structuring instructions ──
+        _num_predict = 8000 if free_length else 3000
+        if free_length:
+            system_prompt += "\n\nLENGTH MODE: The user has enabled extended responses. You may produce longer, more detailed output. Structure long responses with **headers**, bullet points, and clear sections. Use markdown formatting for readability."
+
         # ── Free chat mode: no tools, simple system prompt ──
         if free_mode:
             free_system = f"You are a helpful AI assistant. The user is a {role} in {location}. Be conversational, helpful, and concise."
@@ -440,7 +449,7 @@ def handle_agent_chat(handler, strat, output_file, profile_id=0):
                 r = req.post(
                     f"{ollama_host}/api/chat",
                     json={"model": model, "messages": messages, "stream": True,
-                          "options": {"temperature": 0.7, "num_predict": 3000}},
+                          "options": {"temperature": 0.7, "num_predict": _num_predict}},
                     timeout=180, stream=True
                 )
                 if r.status_code != 200:
@@ -498,7 +507,7 @@ def handle_agent_chat(handler, strat, output_file, profile_id=0):
                 r = req.post(
                     f"{ollama_host}/api/chat",
                     json={"model": model, "messages": messages, "stream": True,
-                          "options": {"temperature": 0.5, "num_predict": 3000}},
+                          "options": {"temperature": 0.5, "num_predict": _num_predict}},
                     timeout=180, stream=True
                 )
                 if r.status_code != 200:
@@ -545,7 +554,7 @@ def handle_agent_chat(handler, strat, output_file, profile_id=0):
                         "stream": False,
                         "options": {
                             "temperature": 0.4,
-                            "num_predict": 3000,
+                            "num_predict": _num_predict,
                         },
                         # Qwen3.5 separates reasoning into thinking field automatically.
                     },

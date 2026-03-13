@@ -208,6 +208,7 @@ def handle_wizard_tab_suggest(handler, strat):
         selections_context = data.get("selections_context", "").strip()
         selections = data.get("selections", {})  # structured dict: {label: [values]}
         exclude_selected = data.get("exclude_selected", [])  # previously-added suggestions
+        is_refresh = data.get("is_refresh", False)
 
         # Merge explicitly excluded items (previously-added suggestions)
         if exclude_selected:
@@ -234,7 +235,7 @@ def handle_wizard_tab_suggest(handler, strat):
         host = scorer.host
         model = strat.config.get('scoring', {}).get('wizard_model') or getattr(scorer, 'inference_model', None) or scorer.model
 
-        existing_str = ", ".join(existing_items[:20]) if existing_items else "none yet"
+        existing_str = ", ".join(existing_items[:40]) if existing_items else "none yet"
 
         # Build context block — make stage/opportunity prominent with anti-examples
         context_block = ""
@@ -258,7 +259,7 @@ Already tracking: {existing_str}
 
 Suggest 5-8 specific entities or keywords for the "{category_label}" category. Every suggestion MUST match the stage and goals above. Do not repeat items already being tracked."""
 
-        raw = _call_ollama(host, model, TAB_SUGGEST_SYSTEM, prompt, max_tokens=500, temperature=0.3)
+        raw = _call_ollama(host, model, TAB_SUGGEST_SYSTEM, prompt, max_tokens=500, temperature=0.7 if is_refresh else 0.3)
 
         if not raw:
             # Fallback: empty suggestions

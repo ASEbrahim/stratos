@@ -38,6 +38,9 @@ logger = logging.getLogger("STRAT_OS")
 # File extensions eligible for gzip compression on static file serving
 _GZIP_TYPES = frozenset({'.js', '.css', '.html', '.json', '.svg', '.txt', '.xml'})
 
+# In-memory gzip cache: {filepath: (mtime, compressed_bytes)}
+_gzip_cache = {}
+
 
 def _send_json(handler, data, status=200):
     """Send a JSON response with proper headers."""
@@ -219,9 +222,15 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                     ext = '.html'
                 if os.path.isfile(path):
                     try:
-                        with open(path, 'rb') as f:
-                            raw = f.read()
-                        compressed = _gzip_mod.compress(raw, compresslevel=6)
+                        mtime = os.path.getmtime(path)
+                        cached = _gzip_cache.get(path)
+                        if cached and cached[0] == mtime:
+                            compressed = cached[1]
+                        else:
+                            with open(path, 'rb') as f:
+                                raw = f.read()
+                            compressed = _gzip_mod.compress(raw, compresslevel=6)
+                            _gzip_cache[path] = (mtime, compressed)
                         ctype = mimetypes.guess_type(path)[0] or 'application/octet-stream'
                         self.send_response(200)
                         self.send_header("Content-Type", ctype)

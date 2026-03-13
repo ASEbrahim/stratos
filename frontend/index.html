@@ -281,6 +281,8 @@
                                                 <i data-lucide="folder-open" class="w-4 h-4"></i>
                                             </button>
                                             <span id="agent-model-badge" class="text-[10px] font-mono px-2 py-0.5 rounded" style="background:rgba(16,185,129,0.08); color:var(--accent,#34d399); border:1px solid rgba(16,185,129,0.15);"></span>
+                                            <button id="agent-free-length-btn" onclick="event.stopPropagation(); _toggleFreeLength()" class="text-[9px] font-mono px-2 py-0.5 rounded cursor-pointer transition-all" style="background:rgba(255,255,255,0.03);color:var(--text-muted);border:1px solid rgba(255,255,255,0.08);" title="Extended responses — longer, structured output">Short</button>
+                                            <button id="agent-all-scans-btn" onclick="event.stopPropagation(); _toggleAllScans()" class="text-[9px] font-mono px-2 py-0.5 rounded cursor-pointer transition-all" style="background:rgba(255,255,255,0.03);color:var(--text-muted);border:1px solid rgba(255,255,255,0.08);" title="Use all stored scan data vs current scan only">Current</button>
                                         </div>
                                         <p class="text-[10px] mt-0.5" style="color:var(--text-muted); opacity:0.7;">AI-powered research assistant</p>
                                     </div>

@@ -93,6 +93,7 @@ let rvItems, rvCollapsed, discoverAdded;
 let _wizMode = null;       // 'suggest' | 'generate'
 let _wizGenerateData = null; // response from /api/generate-profile (Stage 5)
 let _tabSuggestCache = {};  // cache per tab: {tabId: {suggestions:[], loading:false}}
+let _tabSuggestHistory = {};  // rotation history per tab: {tabId: [[batch1], [batch2], [batch3]]}
 let _rvItemsCache = null;   // AI-generated role-aware items for Step 3: {sections:{}, discover:[]}
 let _rvLoading = false;     // true while fetching rv items from backend
 let _viewAllPills = new Set();      // Issue 4: qIds where "View all" is active
@@ -251,7 +252,7 @@ function _loadPresetState(preset) {
   rvItems = preset.rvItems ? JSON.parse(JSON.stringify(preset.rvItems)) : {};
   _rvItemsCache = preset.rvItemsCache ? JSON.parse(JSON.stringify(preset.rvItemsCache)) : null;
   // Clear transient caches
-  _tabSuggestCache = {};
+  _tabSuggestCache = {}; _tabSuggestHistory = {};
   clearTimeout(_suggestDebounceTimer); _suggestDebounceTimer = null;
   for (const c of Object.values(_tabSuggestCache)) { if (c._abort) c._abort.abort(); }
   _s2BannerDismissed = false;
@@ -385,7 +386,7 @@ function initState() {
   activeTab = null;
   rvItems = {}; rvCollapsed = new Set();
   discoverAdded = new Set();
-  _tabSuggestCache = {};
+  _tabSuggestCache = {}; _tabSuggestHistory = {};
   clearTimeout(_suggestDebounceTimer); _suggestDebounceTimer = null;
   for (const c of Object.values(_tabSuggestCache)) { if (c._abort) c._abort.abort(); }
   _s2BannerDismissed = false;
@@ -675,6 +676,8 @@ function renderDetails() {
     }
 
     const sections = getTabSections(tab);
+    // Category header above all its subcategory accordions
+    sectionsHTML += `<div class="wiz-cat-hdr"><span class="wiz-cat-hdr-icon">${tab.icon}</span> ${esc(tab.name)}</div>`;
     for (const sec of sections) {
       const panel = PANELS[sec.id];
       if (!panel) {
@@ -717,17 +720,6 @@ function renderDetails() {
         return h;
       }).join('');
 
-      bodyH += renderTabSuggestions(tab.id);
-
-      // Discover pills for this category
-      const discoverItems = getRailDiscover(tab.id);
-      if (discoverItems.length) {
-        bodyH += `<div><div class="acc-group-label" style="display:flex;align-items:center;gap:6px">&#128269; Discover <span class="s2-hint">\u00B7 related topics to explore</span></div>
-          <div class="acc-pills">${discoverItems.map(d =>
-            `<span class="acc-pill pill-sug ${discoverAdded.has(d.name) ? 'on' : ''}" onclick="_wiz.discoverAdd('${escAttr(d.name)}','${escAttr(d.target || '')}')">${esc(d.name)}${discoverAdded.has(d.name) ? '<span class="pill-x" onclick="event.stopPropagation();_wiz.discoverRm(\''+escAttr(d.name)+'\',\''+escAttr(d.target || '')+'\')">&times;</span>' : ''}</span>`
-          ).join('')}</div></div>`;
-      }
-
       sectionsHTML += `<div class="accordion ${isOpen ? 'open' : ''}">
         <div class="acc-header" onclick="_wiz.togDetSection('${sec.id}')">
           <span class="acc-icon ai-${tab.id}">${sec.icon}</span>
@@ -739,6 +731,18 @@ function renderDetails() {
       </div>`;
 
     }
+
+    // Suggestions + discover rendered once per tab (after all sections)
+    const sugH = renderTabSuggestions(tab.id);
+    let discoverH = '';
+    const discoverItems = getRailDiscover(tab.id);
+    if (discoverItems.length) {
+      discoverH = `<div style="padding:0 12px 12px"><div class="acc-group-label" style="display:flex;align-items:center;gap:6px">&#128269; Discover <span class="s2-hint">\u00B7 related topics to explore</span></div>
+        <div class="acc-pills">${discoverItems.map(d =>
+          `<span class="acc-pill pill-sug ${discoverAdded.has(d.name) ? 'on' : ''}" onclick="_wiz.discoverAdd('${escAttr(d.name)}','${escAttr(d.target || '')}')">${esc(d.name)}${discoverAdded.has(d.name) ? '<span class="pill-x" onclick="event.stopPropagation();_wiz.discoverRm(\''+escAttr(d.name)+'\',\''+escAttr(d.target || '')+'\')">&times;</span>' : ''}</span>`
+        ).join('')}</div></div>`;
+    }
+    if (sugH || discoverH) sectionsHTML += sugH + discoverH;
   }
   // Kick off suggestion fetch for the first uncached tab only if none are in-flight
   // (subsequent tabs are chained from fetchTabSuggestion completion — NOT from here)
@@ -1226,7 +1230,7 @@ function rmCustomSub(cid, sid) {
 function clearAll() {
   initState();
   _wizClearState();
-  _tabSuggestCache = {};
+  _tabSuggestCache = {}; _tabSuggestHistory = {};
   clearTimeout(_suggestDebounceTimer); _suggestDebounceTimer = null;
   for (const c of Object.values(_tabSuggestCache)) { if (c._abort) c._abort.abort(); }
   _s2BannerDismissed = false;
@@ -2005,7 +2009,7 @@ async function fetchTabSuggestion(tabId, extraExclude, isRefresh) {
       signal: AbortSignal.any([abortCtrl.signal, AbortSignal.timeout(300000)]),
       body: JSON.stringify({ role, location, category_id: tabId, category_label: cat.name,
         existing_items: existingItems, selections_context: selectionsContext, selections,
-        exclude_selected: extraExclude ? [...extraExclude] : [] })
+        exclude_selected: extraExclude ? [...extraExclude] : [], is_refresh: !!isRefresh })
     });
     if (!resp.ok) throw new Error('Request failed');
     const data = await resp.json();
@@ -2078,16 +2082,38 @@ function renderTabSuggestions(tabId) {
 
 function refreshSuggestions(tabId) {
   const cache = _tabSuggestCache[tabId];
+  // Abort any in-flight fetch for this tab
+  if (cache?._abort) cache._abort.abort();
+  // Collect previously added items to exclude from new suggestions
   const allPreviouslyAdded = new Set();
   if (cache?.added) for (const item of cache.added) allPreviouslyAdded.add(item);
   if (cache?.keptFromPrev) for (const item of cache.keptFromPrev) allPreviouslyAdded.add(item);
+  // Add current suggestions to rotation history (keep last 3 batches)
+  if (cache?.suggestions?.length) {
+    if (!_tabSuggestHistory[tabId]) _tabSuggestHistory[tabId] = [];
+    _tabSuggestHistory[tabId].push([...cache.suggestions]);
+    if (_tabSuggestHistory[tabId].length > 3) _tabSuggestHistory[tabId].shift();
+  }
+  // Build full exclude set: user-added items + all items from last 3 batches
+  const excludeSet = new Set(allPreviouslyAdded);
+  if (_tabSuggestHistory[tabId]) {
+    for (const batch of _tabSuggestHistory[tabId]) {
+      for (const item of batch) excludeSet.add(item);
+    }
+  }
+  // Clear cache so fetchTabSuggestion proceeds (it early-returns if cache exists)
   delete _tabSuggestCache[tabId];
-  fetchTabSuggestion(tabId, allPreviouslyAdded, true).then(() => {
+  // Set loading state immediately and re-render to show spinner
+  _tabSuggestCache[tabId] = { suggestions: [], loading: true, added: new Set(), isRefresh: true };
+  renderDetails();
+  // Clear the temporary loading entry so fetchTabSuggestion can create its own
+  delete _tabSuggestCache[tabId];
+  fetchTabSuggestion(tabId, excludeSet, true).then(() => {
     const newCache = _tabSuggestCache[tabId];
     if (newCache && allPreviouslyAdded.size) {
       newCache.keptFromPrev = allPreviouslyAdded;
-      renderDetails();
     }
+    renderDetails();
   });
 }
 
