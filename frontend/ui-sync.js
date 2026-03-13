@@ -8,6 +8,9 @@
  * On setting change: save to localStorage (instant) + debounced POST to DB (2s).
  */
 
+// ── Suppress flag — prevents feedback loop during load/clear ──
+var _uiSyncSuppressed = false;
+
 // ── Settings key registry ──
 // Maps localStorage key → ui_state blob key (shorter names for DB storage)
 var _UI_SETTINGS_MAP = {
@@ -103,16 +106,20 @@ var _UI_SETTINGS_REVERSE = {};
     }
 })();
 
-// ── Dynamic key patterns (profile-scoped) ──
-// These keys contain the profile name and need special handling
-var _UI_DYNAMIC_PREFIXES = [
-    'stratos_tts_voice_',       // per-persona TTS voices
-    'stratos-',                 // theme overrides & presets (e.g., stratos-midnight-overrides)
-    'stratos_source_order_'     // feed source order
-];
-
-// Theme override/preset keys to sync (pattern: stratos-{theme}-overrides, stratos-{theme}-presets)
+// Theme names for override/preset/position sync
 var _THEME_NAMES = ['midnight', 'nebula', 'aurora', 'noir', 'cosmos', 'sakura', 'rose', 'coffee'];
+
+// Pre-build theme key set for O(1) lookup instead of O(n) loop per setItem
+var _THEME_SYNC_KEYS = {};
+(function() {
+    _THEME_NAMES.forEach(function(t) {
+        _THEME_SYNC_KEYS['stratos-' + t + '-overrides'] = true;
+        _THEME_SYNC_KEYS['stratos-' + t + '-presets'] = true;
+        ['cx', 'cy', 'scale', 'blur', 'opacity'].forEach(function(p) {
+            _THEME_SYNC_KEYS['stratos-' + t + '-' + p] = true;
+        });
+    });
+})();
 
 // ── Debounce timer ──
 var _uiSyncTimer = null;
@@ -172,13 +179,12 @@ function _collectUiSettings() {
     });
     if (Object.keys(themePositions).length) settings['theme_positions'] = JSON.stringify(themePositions);
 
-    // Feed source order
+    // Feed source order — read only tracked keys instead of scanning all localStorage
     var sourceOrders = {};
     for (var i = 0; i < localStorage.length; i++) {
         var k = localStorage.key(i);
         if (k && k.indexOf('stratos_source_order_') === 0) {
-            var root = k.replace('stratos_source_order_', '');
-            sourceOrders[root] = localStorage.getItem(k);
+            sourceOrders[k.substring(21)] = localStorage.getItem(k);
         }
     }
     if (Object.keys(sourceOrders).length) settings['source_orders'] = JSON.stringify(sourceOrders);
@@ -188,16 +194,16 @@ function _collectUiSettings() {
 
 /**
  * Debounced save of all UI settings to the server.
- * Called whenever a setting changes.
+ * Called whenever a setting changes. Suppressed during load/clear phases.
  */
 function syncUiSettingsToServer() {
+    if (_uiSyncSuppressed) return;
     if (_uiSyncTimer) clearTimeout(_uiSyncTimer);
     _uiSyncTimer = setTimeout(function() {
         var settings = _collectUiSettings();
         if (!Object.keys(settings).length) return;
         var token = typeof getAuthToken === 'function' ? getAuthToken() : localStorage.getItem('stratos_auth_token');
         if (!token) return;
-        // Wrap in ui_settings key to distinguish from existing ui_state fields (theme, stars, avatar)
         fetch('/api/ui-state', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'X-Auth-Token': token },
@@ -208,7 +214,8 @@ function syncUiSettingsToServer() {
 
 /**
  * Load UI settings from server and populate localStorage.
- * Returns a Promise. Should be called after _clearProfileLocalStorage() and before init().
+ * Returns a Promise. Called after _clearProfileLocalStorage() and before init().
+ * Suppresses sync during restore to prevent feedback loop.
  */
 function loadUiSettingsFromServer() {
     var token = typeof getAuthToken === 'function' ? getAuthToken() : localStorage.getItem('stratos_auth_token');
@@ -224,56 +231,64 @@ function loadUiSettingsFromServer() {
         var settings = uiState.ui_settings;
         var p = typeof getActiveProfile === 'function' ? getActiveProfile() : 'default';
 
-        // Restore static keys
-        for (var dbKey in settings) {
-            var lsKey = _UI_SETTINGS_REVERSE[dbKey];
-            if (lsKey) {
-                localStorage.setItem(lsKey, settings[dbKey]);
-                continue;
-            }
+        // Suppress sync while restoring — prevents writing back what we just read
+        _uiSyncSuppressed = true;
+        try {
+            // Restore static keys
+            for (var dbKey in settings) {
+                var lsKey = _UI_SETTINGS_REVERSE[dbKey];
+                if (lsKey) {
+                    localStorage.setItem(lsKey, settings[dbKey]);
+                    continue;
+                }
 
-            // Handle special keys
-            if (dbKey === 'tour_basic_done' && settings[dbKey]) {
-                localStorage.setItem('stratos_' + p + '_tour_basic_done', settings[dbKey]);
-            } else if (dbKey === 'tour_explore_done' && settings[dbKey]) {
-                localStorage.setItem('stratos_' + p + '_tour_explore_done', settings[dbKey]);
-            } else if (dbKey === 'tutorial_dismissed' && settings[dbKey]) {
-                localStorage.setItem('strat_tutorial_dismissed_' + p, settings[dbKey]);
-            } else if (dbKey === 'tts_persona_voices') {
-                try {
-                    var voices = JSON.parse(settings[dbKey]);
-                    for (var persona in voices) {
-                        localStorage.setItem('stratos_tts_voice_' + persona, voices[persona]);
-                    }
-                } catch (e) {}
-            } else if (dbKey === 'theme_custom') {
-                try {
-                    var custom = JSON.parse(settings[dbKey]);
-                    for (var ck in custom) {
-                        // ck is like "midnight_overrides" → "stratos-midnight-overrides"
-                        var parts = ck.split('_');
-                        var suffix = parts.pop(); // 'overrides' or 'presets'
-                        var theme = parts.join('_');
-                        localStorage.setItem('stratos-' + theme + '-' + suffix, custom[ck]);
-                    }
-                } catch (e) {}
-            } else if (dbKey === 'theme_positions') {
-                try {
-                    var positions = JSON.parse(settings[dbKey]);
-                    for (var theme in positions) {
-                        for (var prop in positions[theme]) {
-                            localStorage.setItem('stratos-' + theme + '-' + prop, positions[theme][prop]);
+                // Handle special keys
+                if (dbKey === 'tour_basic_done' && settings[dbKey]) {
+                    localStorage.setItem('stratos_' + p + '_tour_basic_done', settings[dbKey]);
+                } else if (dbKey === 'tour_explore_done' && settings[dbKey]) {
+                    localStorage.setItem('stratos_' + p + '_tour_explore_done', settings[dbKey]);
+                } else if (dbKey === 'tutorial_dismissed' && settings[dbKey]) {
+                    localStorage.setItem('strat_tutorial_dismissed_' + p, settings[dbKey]);
+                } else if (dbKey === 'tts_persona_voices') {
+                    try {
+                        var voices = JSON.parse(settings[dbKey]);
+                        for (var persona in voices) {
+                            localStorage.setItem('stratos_tts_voice_' + persona, voices[persona]);
                         }
-                    }
-                } catch (e) {}
-            } else if (dbKey === 'source_orders') {
-                try {
-                    var orders = JSON.parse(settings[dbKey]);
-                    for (var root in orders) {
-                        localStorage.setItem('stratos_source_order_' + root, orders[root]);
-                    }
-                } catch (e) {}
+                    } catch (e) {}
+                } else if (dbKey === 'theme_custom') {
+                    try {
+                        var custom = JSON.parse(settings[dbKey]);
+                        for (var ck in custom) {
+                            // ck format: "{theme}_{overrides|presets}"
+                            var idx = ck.lastIndexOf('_');
+                            if (idx < 0) continue;
+                            var theme = ck.substring(0, idx);
+                            var suffix = ck.substring(idx + 1);
+                            if (suffix !== 'overrides' && suffix !== 'presets') continue;
+                            localStorage.setItem('stratos-' + theme + '-' + suffix, custom[ck]);
+                        }
+                    } catch (e) {}
+                } else if (dbKey === 'theme_positions') {
+                    try {
+                        var positions = JSON.parse(settings[dbKey]);
+                        for (var theme in positions) {
+                            for (var prop in positions[theme]) {
+                                localStorage.setItem('stratos-' + theme + '-' + prop, positions[theme][prop]);
+                            }
+                        }
+                    } catch (e) {}
+                } else if (dbKey === 'source_orders') {
+                    try {
+                        var orders = JSON.parse(settings[dbKey]);
+                        for (var root in orders) {
+                            localStorage.setItem('stratos_source_order_' + root, orders[root]);
+                        }
+                    } catch (e) {}
+                }
             }
+        } finally {
+            _uiSyncSuppressed = false;
         }
     }).catch(function(e) {
         console.warn('UI settings load failed:', e);
@@ -281,8 +296,9 @@ function loadUiSettingsFromServer() {
 }
 
 /**
- * Hook into localStorage.setItem to auto-sync on changes.
- * This patches the native method so all existing code triggers DB sync automatically.
+ * Hook into localStorage.setItem/removeItem to auto-sync on changes.
+ * Patches native methods so all existing code triggers DB sync automatically.
+ * Suppressed during load/clear to prevent feedback loops.
  */
 (function() {
     var _origSetItem = localStorage.setItem.bind(localStorage);
@@ -290,31 +306,44 @@ function loadUiSettingsFromServer() {
 
     localStorage.setItem = function(key, value) {
         _origSetItem(key, value);
-        // Check if this key is one we sync
-        if (_UI_SETTINGS_MAP[key] || _shouldSyncDynamic(key)) {
+        if (!_uiSyncSuppressed && _isSyncedKey(key)) {
             syncUiSettingsToServer();
         }
     };
 
     localStorage.removeItem = function(key) {
         _origRemoveItem(key);
-        if (_UI_SETTINGS_MAP[key] || _shouldSyncDynamic(key)) {
+        if (!_uiSyncSuppressed && _isSyncedKey(key)) {
             syncUiSettingsToServer();
         }
     };
 
-    function _shouldSyncDynamic(key) {
+    function _isSyncedKey(key) {
+        // O(1) static key lookup
+        if (_UI_SETTINGS_MAP[key]) return true;
+        // O(1) theme key lookup (pre-built set)
+        if (_THEME_SYNC_KEYS[key]) return true;
+        // Dynamic prefix checks
         if (key.indexOf('stratos_tts_voice_') === 0) return true;
         if (key.indexOf('stratos_source_order_') === 0) return true;
         if (key.indexOf('strat_tutorial_dismissed_') === 0) return true;
-        // Tour completion keys
-        if (key.indexOf('stratos_') === 0 && (key.indexOf('_tour_') > 0)) return true;
-        // Theme overrides/presets/positions
-        for (var i = 0; i < _THEME_NAMES.length; i++) {
-            if (key === 'stratos-' + _THEME_NAMES[i] + '-overrides') return true;
-            if (key === 'stratos-' + _THEME_NAMES[i] + '-presets') return true;
-            if (key.indexOf('stratos-' + _THEME_NAMES[i] + '-') === 0) return true;
-        }
+        if (key.indexOf('stratos_') === 0 && key.indexOf('_tour_') > 0) return true;
         return false;
     }
 })();
+
+// Flush pending sync on page unload so settings aren't lost
+window.addEventListener('beforeunload', function() {
+    if (_uiSyncTimer) {
+        clearTimeout(_uiSyncTimer);
+        // Synchronous send via sendBeacon for reliability
+        var settings = _collectUiSettings();
+        if (Object.keys(settings).length) {
+            var token = typeof getAuthToken === 'function' ? getAuthToken() : '';
+            if (token && navigator.sendBeacon) {
+                var blob = new Blob([JSON.stringify({ ui_settings: settings, _token: token })], { type: 'application/json' });
+                navigator.sendBeacon('/api/ui-state', blob);
+            }
+        }
+    }
+});

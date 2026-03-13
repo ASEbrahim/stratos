@@ -797,6 +797,8 @@ async function _doOtpResend() {
 /* ═══ LOGOUT & HELPERS ═══ */
 /** Clear per-profile localStorage keys on login/register/switch to prevent bleed */
 function _clearProfileLocalStorage() {
+    // Suppress ui-sync during bulk removal to prevent feedback loop
+    if (typeof _uiSyncSuppressed !== 'undefined') _uiSyncSuppressed = true;
     // Remove all profile-scoped localStorage keys
     const keysToRemove = [];
     for (let i = 0; i < localStorage.length; i++) {
@@ -807,6 +809,7 @@ function _clearProfileLocalStorage() {
         keysToRemove.push(k);
     }
     keysToRemove.forEach(k => localStorage.removeItem(k));
+    if (typeof _uiSyncSuppressed !== 'undefined') _uiSyncSuppressed = false;
     // Clear in-memory data to prevent cross-profile bleed
     if (typeof newsData !== 'undefined') { newsData = []; }
     if (typeof marketData !== 'undefined') { marketData = {}; }

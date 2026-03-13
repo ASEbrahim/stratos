@@ -550,8 +550,20 @@ def handle_post(handler, strat, auth, path):
             body = json.loads(post_data.decode('utf-8')) if post_data.strip() else {}
         except (json.JSONDecodeError, UnicodeDecodeError):
             body = {}
-        if body and handler._profile_id:
-            strat.db.save_ui_state(handler._profile_id, body)
+        # Resolve profile_id: header auth or sendBeacon fallback (_token in body)
+        pid = handler._profile_id
+        if not pid and body.get('_token'):
+            try:
+                cursor = strat.db.conn.cursor()
+                cursor.execute("SELECT profile_id FROM sessions WHERE token = ?", (body['_token'],))
+                row = cursor.fetchone()
+                if row:
+                    pid = row[0]
+            except Exception:
+                pass
+            body.pop('_token', None)
+        if body and pid:
+            strat.db.save_ui_state(pid, body)
         _send_json(handler, {"ok": True})
         return True
 
