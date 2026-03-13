@@ -234,8 +234,10 @@ function updateCosmosPresetUI() {
 
 /* ═══ INTERACTIVE STAR CANVAS ENGINE ═══ */
 var _starEngine = null; // holds running engine state for cleanup
+var _starGeneration = 0; // incremented on stop — old draw() loops check this to self-terminate
 
 function _stopStarEngine() {
+    _starGeneration++; // signal any running draw() loop to exit
     if (!_starEngine) return;
     cancelAnimationFrame(_starEngine.raf);
     if (_starEngine.onMove) document.removeEventListener('mousemove', _starEngine.onMove);
@@ -305,6 +307,7 @@ function renderStars() {
     const isNebula = theme === 'nebula';
     const isAurora = theme === 'aurora';
 
+    const _myGen = _starGeneration; // capture generation — draw() exits if stale
     const _perfMul = _perfMode ? 0.5 : 1;
     const _cosmosDensityInit = isCosmos ? parseFloat(localStorage.getItem('stratos-cosmos-density') || '1') : 1;
     const _sakuraDensityInit = isSakura ? parseFloat(localStorage.getItem('stratos-sakura-density') || '1') : 1;
@@ -1077,6 +1080,7 @@ function renderStars() {
     }
 
     function draw() {
+        if (_myGen !== _starGeneration) return; // stale engine — stop loop
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         const t = Date.now() * 0.001;
         const now = Date.now();
