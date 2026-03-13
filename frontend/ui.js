@@ -908,7 +908,7 @@ function renderStars() {
     const _bhTierColors = [[200,190,255],[167,139,250],[56,189,248]];
     const _bhParticles = [];
     if (isNebula) {
-        const _bhCount = _perfMode ? 150 : 400;
+        const _bhCount = _perfMode ? 120 : 250;
         for (let i = 0; i < _bhCount; i++) {
             const band = Math.random(), dist = 50 + band * 260;
             const tier = band < 0.2 ? 0 : band < 0.55 ? 1 : 2;
@@ -922,10 +922,10 @@ function renderStars() {
     }
     function _bhDrawDisk(cx, cy) {
         ctx.save(); ctx.translate(cx, cy); ctx.rotate(_BH_ROT); ctx.scale(1, _BH_TILT);
-        for (let ring = 0; ring < 5; ring++) {
-            const rd = 70 + ring * 50, alpha = [0.12, 0.09, 0.07, 0.05, 0.035][ring];
+        for (let ring = 0; ring < 3; ring++) {
+            const rd = 80 + ring * 70, alpha = [0.10, 0.06, 0.035][ring];
             ctx.beginPath(); ctx.arc(0, 0, rd, 0, Math.PI * 2);
-            ctx.strokeStyle = `rgba(167,139,250,${alpha})`; ctx.lineWidth = 22 + ring * 10; ctx.stroke();
+            ctx.strokeStyle = `rgba(167,139,250,${alpha})`; ctx.lineWidth = 18 + ring * 8; ctx.stroke();
         }
         const haze = ctx.createRadialGradient(0, 0, 80, 0, 0, 320);
         haze.addColorStop(0, 'rgba(100,80,200,0.0)'); haze.addColorStop(0.4, 'rgba(80,60,180,0.04)');
@@ -968,9 +968,8 @@ function renderStars() {
             const c = _bhTierColors[p.tier];
             ctx.globalAlpha = p.a * (0.6 + p.d * 0.4);
             if (p.tier === 0) {
-                const glow = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r * 6);
-                glow.addColorStop(0, `rgba(${c[0]},${c[1]},${c[2]},${p.a * 0.35})`); glow.addColorStop(1, `rgba(${c[0]},${c[1]},${c[2]},0)`);
-                ctx.fillStyle = glow; ctx.beginPath(); ctx.arc(p.x, p.y, p.r * 6, 0, Math.PI * 2); ctx.fill();
+                ctx.fillStyle = `rgba(${c[0]},${c[1]},${c[2]},${p.a * 0.15})`;
+                ctx.beginPath(); ctx.arc(p.x, p.y, p.r * 4, 0, Math.PI * 2); ctx.fill();
             }
             ctx.fillStyle = `rgb(${c[0]},${c[1]},${c[2]})`; ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctx.fill();
         }

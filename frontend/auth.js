@@ -121,6 +121,7 @@ async function checkAuthAndInit() {
                     setActiveProfile(d.display_name || '');
                     if (d.ui_state && typeof _applyUiStateFromServer === 'function') _applyUiStateFromServer(d.ui_state);
                     if (typeof loadUiSettingsFromServer === 'function') await loadUiSettingsFromServer();
+                    const _app = document.querySelector('.flex.h-screen'); if (_app) _app.style.display = '';
                     init(); return;
                 }
             }
@@ -141,7 +142,7 @@ async function checkAuthAndInit() {
         }
         if (authResult.status === 'fulfilled' && authResult.value.ok) {
             const d = await authResult.value.json();
-            if (d.authenticated && d.active_profile) { setActiveProfile(d.active_profile); init(); return; }
+            if (d.authenticated && d.active_profile) { setActiveProfile(d.active_profile); const _app = document.querySelector('.flex.h-screen'); if (_app) _app.style.display = ''; init(); return; }
             _deviceProfiles = (d.profiles || []).filter(p => p.has_pin);
             _allProfiles = (d.all_profiles || d.profiles || []).filter(p => p.has_pin);
         }
@@ -830,7 +831,7 @@ function _dismiss() {
     const ov = document.getElementById('auth-overlay');
     if (!ov) return;
     ov.style.transition = 'opacity 0.35s ease'; ov.style.opacity = '0';
-    setTimeout(() => { ov.remove(); const app = document.querySelector('.flex.h-screen'); if (app) app.style.display = ''; init(); setTimeout(() => { if (typeof maybeStartTour === 'function') maybeStartTour(); }, 2000); }, 360);
+    setTimeout(() => { ov.remove(); const app = document.querySelector('.flex.h-screen'); if (app) app.style.display = ''; init(); }, 360);
 }
 function _shake(el) { el.style.animation='none'; el.offsetHeight; el.style.animation='authShake .4s ease'; }
 

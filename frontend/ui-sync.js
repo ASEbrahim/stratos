@@ -93,6 +93,9 @@ var _UI_SETTINGS_MAP = {
     'settingsMode': 'settings_mode',
     'advPanelLayout': 'adv_panel_layout',
 
+    // Fullscreen chart
+    'cfsIntelHeight': 'cfs_intel_height',
+
     // Mobile
     'pwa-dismiss': 'pwa_dismiss',
     'swipe-hints-seen': 'swipe_hints_seen'
@@ -113,8 +116,8 @@ var _THEME_NAMES = ['midnight', 'nebula', 'aurora', 'noir', 'cosmos', 'sakura', 
 var _THEME_SYNC_KEYS = {};
 (function() {
     _THEME_NAMES.forEach(function(t) {
-        _THEME_SYNC_KEYS['stratos-' + t + '-overrides'] = true;
-        _THEME_SYNC_KEYS['stratos-' + t + '-presets'] = true;
+        _THEME_SYNC_KEYS['stratos-theme-custom-' + t] = true;
+        _THEME_SYNC_KEYS['stratos-theme-presets-' + t] = true;
         ['cx', 'cy', 'scale', 'blur', 'opacity', 'visible'].forEach(function(p) {
             _THEME_SYNC_KEYS['stratos-' + t + '-' + p] = true;
         });
@@ -159,9 +162,9 @@ function _collectUiSettings() {
     // Theme overrides and presets
     var themeCustom = {};
     _THEME_NAMES.forEach(function(t) {
-        var ov = localStorage.getItem('stratos-' + t + '-overrides');
+        var ov = localStorage.getItem('stratos-theme-custom-' + t);
         if (ov) themeCustom[t + '_overrides'] = ov;
-        var pr = localStorage.getItem('stratos-' + t + '-presets');
+        var pr = localStorage.getItem('stratos-theme-presets-' + t);
         if (pr) themeCustom[t + '_presets'] = pr;
     });
     if (Object.keys(themeCustom).length) settings['theme_custom'] = JSON.stringify(themeCustom);
@@ -213,6 +216,22 @@ function syncUiSettingsToServer() {
 }
 
 /**
+ * Immediate (non-debounced) sync — used for initial migration when DB is empty.
+ * Pushes current localStorage to server right now.
+ */
+function _syncUiSettingsNow() {
+    var settings = _collectUiSettings();
+    if (!Object.keys(settings).length) return;
+    var token = typeof getAuthToken === 'function' ? getAuthToken() : localStorage.getItem('stratos_auth_token');
+    if (!token) return;
+    fetch('/api/ui-state', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Auth-Token': token },
+        body: JSON.stringify({ ui_settings: settings })
+    }).catch(function() {});
+}
+
+/**
  * Load UI settings from server and populate localStorage.
  * Returns a Promise. Called after _clearProfileLocalStorage() and before init().
  * Suppresses sync during restore to prevent feedback loop.
@@ -227,8 +246,16 @@ function loadUiSettingsFromServer() {
         if (!r.ok) throw new Error('Failed to load ui settings');
         return r.json();
     }).then(function(uiState) {
-        if (!uiState || !uiState.ui_settings) return;
+        if (!uiState || !uiState.ui_settings) {
+            // DB has no ui_settings — push current localStorage as initial migration
+            _syncUiSettingsNow();
+            return;
+        }
         var settings = uiState.ui_settings;
+        if (!Object.keys(settings).length) {
+            _syncUiSettingsNow();
+            return;
+        }
         var p = typeof getActiveProfile === 'function' ? getActiveProfile() : 'default';
 
         // Suppress sync while restoring — prevents writing back what we just read
@@ -265,8 +292,11 @@ function loadUiSettingsFromServer() {
                             if (idx < 0) continue;
                             var theme = ck.substring(0, idx);
                             var suffix = ck.substring(idx + 1);
-                            if (suffix !== 'overrides' && suffix !== 'presets') continue;
-                            localStorage.setItem('stratos-' + theme + '-' + suffix, custom[ck]);
+                            if (suffix === 'overrides') {
+                                localStorage.setItem('stratos-theme-custom-' + theme, custom[ck]);
+                            } else if (suffix === 'presets') {
+                                localStorage.setItem('stratos-theme-presets-' + theme, custom[ck]);
+                            } else { continue; }
                         }
                     } catch (e) {}
                 } else if (dbKey === 'theme_positions') {
@@ -290,6 +320,9 @@ function loadUiSettingsFromServer() {
         } finally {
             _uiSyncSuppressed = false;
         }
+        // After restoring DB→localStorage, push localStorage back to DB.
+        // This captures any local keys that exist but weren't in DB yet (migration).
+        _syncUiSettingsNow();
     }).catch(function(e) {
         console.warn('UI settings load failed:', e);
     });
