@@ -49,7 +49,6 @@ def stop_youtube_worker():
 def _worker_loop(strat, sse_manager):
     """Main worker loop — polls for pending videos and processes them."""
     from processors.youtube import YouTubeProcessor
-    from processors.verification import verify_narrations_batch
 
     while not _stop_flag.is_set():
         try:
@@ -123,120 +122,39 @@ def _worker_loop(strat, sse_manager):
             db._commit()
             logger.info(f"YouTube worker: transcribed {video_id} via {method} ({len(transcript)} chars) [lang={detected_lang}]")
 
-            # Step 2: Run lenses
-            yt._update_status(video_db_id, 'extracting')
-            _notify(sse_manager, {
-                'type': 'youtube_processing',
-                'video_id': video_id,
-                'title': title,
-                'status': 'extracting',
-            })
-
-            lenses = json.loads(video.get('lenses', '["summary"]'))
+            # Store transcript lens (raw text, no LLM)
             insights_count = 0
-
-            # Special lens: 'transcript' — store raw transcript, no LLM call
-            if 'transcript' in lenses:
-                lenses = [l for l in lenses if l != 'transcript']
+            cursor.execute(
+                """INSERT INTO video_insights
+                   (video_id, profile_id, lens_name, content, language)
+                   VALUES (?, ?, 'transcript', ?, ?)""",
+                (video_db_id, profile_id,
+                 json.dumps({"transcript": transcript}, ensure_ascii=False),
+                 detected_lang)
+            )
+            insights_count += 1
+            if detected_lang and detected_lang != 'en':
                 cursor.execute(
                     """INSERT INTO video_insights
                        (video_id, profile_id, lens_name, content, language)
-                       VALUES (?, ?, 'transcript', ?, ?)""",
+                       VALUES (?, ?, 'transcript', ?, 'en')""",
                     (video_db_id, profile_id,
-                     json.dumps({"transcript": transcript}, ensure_ascii=False),
-                     detected_lang)
+                     json.dumps({"transcript": transcript, "note": f"Original language: {detected_lang}"}, ensure_ascii=False))
                 )
                 insights_count += 1
-                logger.info(f"YouTube worker: transcript lens stored for {video_id} [{detected_lang}]")
-                # If non-English, also store under 'en' (same text, noted as original lang)
-                if detected_lang and detected_lang != 'en':
-                    cursor.execute(
-                        """INSERT INTO video_insights
-                           (video_id, profile_id, lens_name, content, language)
-                           VALUES (?, ?, 'transcript', ?, 'en')""",
-                        (video_db_id, profile_id,
-                         json.dumps({"transcript": transcript, "note": f"Original language: {detected_lang}"}, ensure_ascii=False))
-                    )
-                    insights_count += 1
-                db._commit()
-
-            for lens_name in lenses:
-                if _stop_flag.is_set():
-                    break
-                try:
-                    from processors.lenses import extract_lens
-                    # Extract in English (always)
-                    insight_en = extract_lens(
-                        transcript, lens_name, title,
-                        yt.ollama_host, yt.inference_model,
-                        target_language='en',
-                    )
-                    if insight_en:
-                        cursor.execute(
-                            """INSERT INTO video_insights
-                               (video_id, profile_id, lens_name, content, language)
-                               VALUES (?, ?, ?, ?, 'en')""",
-                            (video_db_id, profile_id, lens_name,
-                             json.dumps(insight_en, ensure_ascii=False))
-                        )
-                        insights_count += 1
-                        logger.info(f"YouTube worker: lens '{lens_name}' [en] extracted for {video_id}")
-
-                    # Extract in original language (if non-English)
-                    if detected_lang and detected_lang != 'en':
-                        insight_orig = extract_lens(
-                            transcript, lens_name, title,
-                            yt.ollama_host, yt.inference_model,
-                            target_language=detected_lang,
-                        )
-                        if insight_orig:
-                            cursor.execute(
-                                """INSERT INTO video_insights
-                                   (video_id, profile_id, lens_name, content, language)
-                                   VALUES (?, ?, ?, ?, ?)""",
-                                (video_db_id, profile_id, lens_name,
-                                 json.dumps(insight_orig, ensure_ascii=False), detected_lang)
-                            )
-                            insights_count += 1
-                            logger.info(f"YouTube worker: lens '{lens_name}' [{detected_lang}] extracted for {video_id}")
-                except Exception as e:
-                    logger.error(f"YouTube worker: lens '{lens_name}' failed: {e}")
-
             db._commit()
 
-            # Step 3: Verify narrations if applicable
-            if 'narrations' in lenses and not _stop_flag.is_set():
-                try:
-                    cursor.execute(
-                        "SELECT id, content FROM video_insights WHERE video_id = ? AND lens_name = 'narrations'",
-                        (video_db_id,)
-                    )
-                    narr_row = cursor.fetchone()
-                    if narr_row:
-                        narr_data = dict(narr_row)
-                        narrations = json.loads(narr_data['content'])
-                        if isinstance(narrations, list) and narrations:
-                            verified = verify_narrations_batch(narrations, strat.config)
-                            cursor.execute(
-                                "UPDATE video_insights SET content = ? WHERE id = ?",
-                                (json.dumps(verified, ensure_ascii=False), narr_data['id'])
-                            )
-                            db._commit()
-                            logger.info(f"YouTube worker: verified {len(verified)} narrations for {video_id}")
-                except Exception as e:
-                    logger.error(f"YouTube worker: narration verification failed: {e}")
-
-            # Mark complete
-            yt._update_status(video_db_id, 'complete')
+            # Mark as transcribed — lenses extracted on demand
+            yt._update_status(video_db_id, 'transcribed')
             _notify(sse_manager, {
                 'type': 'youtube_processing',
                 'video_id': video_id,
                 'title': title,
-                'status': 'complete',
+                'status': 'transcribed',
                 'insights_count': insights_count,
                 'transcript_method': method,
             })
-            logger.info(f"YouTube worker: completed '{title}' — {insights_count} insights extracted")
+            logger.info(f"YouTube worker: transcribed '{title}' — ready for on-demand lens extraction")
 
         except Exception as e:
             logger.error(f"YouTube worker error: {e}")

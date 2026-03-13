@@ -23,14 +23,14 @@ function _handleYouTubeSSE(event) {
     const statusEl = document.querySelector(`[data-yt-video="${video_id}"]`);
     if (statusEl) {
         const statusColor = {
-            'complete': 'text-emerald-400', 'transcribing': 'text-blue-400',
-            'extracting': 'text-purple-400', 'failed': 'text-red-400',
-            'started': 'text-amber-400'
+            'complete': 'text-emerald-400', 'transcribed': 'text-cyan-400',
+            'transcribing': 'text-blue-400', 'extracting': 'text-purple-400',
+            'failed': 'text-red-400', 'started': 'text-amber-400'
         }[status] || 'text-slate-500';
         const statusIcon = {
-            'complete': 'check-circle', 'transcribing': 'mic',
-            'extracting': 'sparkles', 'failed': 'alert-circle',
-            'started': 'loader-2'
+            'complete': 'check-circle', 'transcribed': 'file-check',
+            'transcribing': 'mic', 'extracting': 'sparkles',
+            'failed': 'alert-circle', 'started': 'loader-2'
         }[status] || 'clock';
         const iconEl = statusEl.querySelector('[data-lucide]');
         const textEl = statusEl.querySelector('.yt-video-status');
@@ -39,8 +39,8 @@ function _handleYouTubeSSE(event) {
             iconEl.className = `w-3 h-3 ${statusColor} flex-shrink-0${status === 'started' || status === 'transcribing' || status === 'extracting' ? ' animate-spin' : ''}`;
         }
         if (textEl) textEl.textContent = status;
-        // Make clickable when complete
-        if (status === 'complete') {
+        // Make clickable when complete or transcribed
+        if (status === 'complete' || status === 'transcribed') {
             const dbId = statusEl.dataset.ytDbId;
             if (dbId) {
                 statusEl.style.cursor = 'pointer';
@@ -232,16 +232,18 @@ async function _ytToggleVideos(channelId) {
             }
             el.innerHTML = videos.map(v => {
                 const statusColor = {
-                    'complete': 'text-emerald-400', 'processing': 'text-amber-400',
-                    'pending': 'text-slate-500', 'failed': 'text-red-400',
-                    'transcribing': 'text-blue-400', 'extracting': 'text-purple-400'
+                    'complete': 'text-emerald-400', 'transcribed': 'text-cyan-400',
+                    'processing': 'text-amber-400', 'pending': 'text-slate-500',
+                    'failed': 'text-red-400', 'transcribing': 'text-blue-400',
+                    'extracting': 'text-purple-400'
                 }[v.status] || 'text-slate-500';
                 const statusIcon = {
-                    'complete': 'check-circle', 'processing': 'loader-2',
-                    'pending': 'clock', 'failed': 'alert-circle',
-                    'transcribing': 'mic', 'extracting': 'sparkles'
+                    'complete': 'check-circle', 'transcribed': 'file-check',
+                    'processing': 'loader-2', 'pending': 'clock',
+                    'failed': 'alert-circle', 'transcribing': 'mic',
+                    'extracting': 'sparkles'
                 }[v.status] || 'clock';
-                const clickable = v.status === 'complete' ? `onclick="_ytShowInsights(${v.id})" class="cursor-pointer"` : '';
+                const clickable = (v.status === 'complete' || v.status === 'transcribed') ? `onclick="_ytShowInsights(${v.id})" class="cursor-pointer"` : '';
 
                 return `<div data-yt-video="${v.video_id}" data-yt-db-id="${v.id}" ${clickable} class="flex items-center gap-2 px-2 py-1.5 rounded-md transition-colors" onmouseenter="this.style.background='var(--bg-hover)'" onmouseleave="this.style.background='transparent'">
                     <i data-lucide="${statusIcon}" class="w-3 h-3 ${statusColor} flex-shrink-0${v.status === 'transcribing' || v.status === 'extracting' ? ' animate-spin' : ''}"></i>
