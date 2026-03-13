@@ -3541,6 +3541,16 @@ body.perf-mode .agent-mic-btn.stt-processing { animation: none; }
 .cx-chip:hover { border-color: var(--accent, #34d399); color: var(--accent, #34d399); }
 .cx-detail-meta { margin-top: 20px; font-size: 12px; color: var(--text-secondary, #64748b); }
 
+/* Breadcrumb */
+.cx-breadcrumb { display: flex; align-items: center; gap: 6px; }
+.cx-breadcrumb-link {
+    font-size: 13px; font-weight: 600; color: var(--accent, #34d399); background: none; border: none; padding: 0; cursor: pointer;
+    transition: opacity 0.15s;
+}
+.cx-breadcrumb-link:hover { opacity: 0.75; text-decoration: underline; }
+.cx-breadcrumb-sep { font-size: 13px; color: var(--text-secondary, #64748b); }
+.cx-breadcrumb-active { font-size: 13px; font-weight: 600; color: var(--text-primary, #e2e8f0); }
+
 /* Responsive */
 @media (max-width: 640px) {
     .cx-modal { width: 98vw; max-height: 95vh; }

@@ -58,10 +58,22 @@ function _cxRender() {
     // Header
     html += '<div class="cx-header">';
     html += '<div class="cx-header-left">';
-    if (_cxView !== 'categories') {
-        html += '<button class="cx-back" onclick="_cxBack()">&larr;</button>';
+    // Breadcrumb: Codex > Category > Term
+    html += '<nav class="cx-breadcrumb">';
+    if (_cxView === 'categories') {
+        html += '<span class="cx-breadcrumb-active">Codex</span>';
+    } else {
+        html += '<button class="cx-breadcrumb-link" onclick="_cxView=\'categories\';_cxCategory=null;_cxTerm=null;_cxRender()">Codex</button>';
+        html += '<span class="cx-breadcrumb-sep">&rsaquo;</span>';
+        if (_cxView === 'terms') {
+            html += '<span class="cx-breadcrumb-active">' + _esc(_cxCategory) + '</span>';
+        } else if (_cxView === 'detail') {
+            html += '<button class="cx-breadcrumb-link" onclick="_cxOpenCategory(\'' + _esc(_cxCategory) + '\')">' + _esc(_cxCategory) + '</button>';
+            html += '<span class="cx-breadcrumb-sep">&rsaquo;</span>';
+            html += '<span class="cx-breadcrumb-active">' + _esc(_cxTerm) + '</span>';
+        }
     }
-    html += '<span class="cx-title">StratOS Codex</span>';
+    html += '</nav>';
     html += '<span class="cx-badge">' + d.categories.reduce((s, c) => s + c.terms.length, 0) + ' terms</span>';
     html += '</div>';
     html += '<div class="cx-header-right">';
@@ -257,5 +269,11 @@ function _esc(s) {
     return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
 
+// Esc to close
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && _cxOpen) { closeCodex(); }
+});
+
 // Make openCodex globally available
 window.openCodex = openCodex;
+window.openCodexBrowser = openCodex;
