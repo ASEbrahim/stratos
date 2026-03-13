@@ -69,18 +69,20 @@ def handle_get(handler, strat, auth, path):
             )
             available_langs = [row['language'] for row in cursor.fetchall()]
             cursor.execute(
-                "SELECT title, transcript_language FROM youtube_videos WHERE id = ? AND profile_id = ?",
+                "SELECT title, transcript_language, transcript_text FROM youtube_videos WHERE id = ? AND profile_id = ?",
                 (vid_id, handler._profile_id)
             )
             vrow = cursor.fetchone()
             video_title = vrow['title'] if vrow else ''
             transcript_lang = (vrow['transcript_language'] if vrow else 'en') or 'en'
+            transcript_text = vrow['transcript_text'] if vrow else None
 
             _send_json(handler, {
                 "insights": insights,
                 "video_title": video_title,
                 "available_languages": available_langs,
                 "transcript_language": transcript_lang,
+                "transcript_text": transcript_text,
                 "current_language": language,
             })
         except (ValueError, IndexError):

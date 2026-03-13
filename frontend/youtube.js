@@ -44,7 +44,7 @@ function _handleYouTubeSSE(event) {
             const dbId = statusEl.dataset.ytDbId;
             if (dbId) {
                 statusEl.style.cursor = 'pointer';
-                statusEl.onclick = () => _ytShowInsights(parseInt(dbId));
+                statusEl.onclick = (e) => { e.stopPropagation(); _ytShowInsights(parseInt(dbId)); };
             }
         }
         lucide.createIcons();
@@ -243,7 +243,7 @@ async function _ytToggleVideos(channelId) {
                     'failed': 'alert-circle', 'transcribing': 'mic',
                     'extracting': 'sparkles'
                 }[v.status] || 'clock';
-                const clickable = (v.status === 'complete' || v.status === 'transcribed') ? `onclick="_ytShowInsights(${v.id})" class="cursor-pointer"` : '';
+                const clickable = (v.status === 'complete' || v.status === 'transcribed') ? `onclick="event.stopPropagation();_ytShowInsights(${v.id})" class="cursor-pointer"` : '';
 
                 return `<div data-yt-video="${v.video_id}" data-yt-db-id="${v.id}" ${clickable} class="flex items-center gap-2 px-2 py-1.5 rounded-md transition-colors" onmouseenter="this.style.background='var(--bg-hover)'" onmouseleave="this.style.background='transparent'">
                     <i data-lucide="${statusIcon}" class="w-3 h-3 ${statusColor} flex-shrink-0${v.status === 'transcribing' || v.status === 'extracting' ? ' animate-spin' : ''}"></i>
@@ -320,6 +320,23 @@ async function _ytShowInsights(videoId) {
         _ytInsightsAll = {};
         for (const ins of allInsights) {
             _ytInsightsAll[`${ins.lens_name}_${ins.language || 'en'}`] = ins;
+        }
+
+        // Fallback: inject transcript from video record if no transcript lens row exists
+        if (d.transcript_text && !_ytInsightsAll[`transcript_${_ytTranscriptLang}`] && !_ytInsightsAll['transcript_en']) {
+            const fallbackLang = _ytTranscriptLang || 'en';
+            _ytInsightsAll[`transcript_${fallbackLang}`] = {
+                lens_name: 'transcript', language: fallbackLang,
+                content: JSON.stringify({ transcript: d.transcript_text }),
+            };
+            if (fallbackLang !== 'en') {
+                _ytInsightsAll['transcript_en'] = {
+                    lens_name: 'transcript', language: 'en',
+                    content: JSON.stringify({ transcript: d.transcript_text, note: `Original language: ${fallbackLang}` }),
+                };
+            }
+            // Add to allInsights for counting
+            allInsights.push(_ytInsightsAll[`transcript_${fallbackLang}`]);
         }
 
         if (!_ytAvailableLangs.includes(_ytCurrentLang)) _ytCurrentLang = 'en';
@@ -713,15 +730,17 @@ function _ytInitStars() {
     resize();
     window.addEventListener('resize', resize);
 
-    // Create stars
-    for (let i = 0; i < 90; i++) {
+    // Create stars — depth controls parallax, visual size, and brightness
+    for (let i = 0; i < 100; i++) {
+        const depth = Math.random() * 4 + 0.1; // 0.1 (far) to 4.1 (near)
+        const depthNorm = depth / 4.1; // 0..1
         stars.push({
             x: Math.random() * W, y: Math.random() * H,
-            r: Math.random() * 1.4 + 0.3,
-            depth: Math.random() * 3 + 0.2,
-            a: Math.random() * 0.5 + 0.15,
-            dx: (Math.random() - 0.5) * 0.15,
-            dy: (Math.random() - 0.5) * 0.1,
+            r: 0.3 + depthNorm * 1.8, // far=0.3px, near=2.1px
+            depth: depth,
+            a: 0.1 + depthNorm * 0.55, // far=dim, near=bright
+            dx: (Math.random() - 0.5) * (0.05 + depthNorm * 0.2),
+            dy: (Math.random() - 0.5) * (0.03 + depthNorm * 0.12),
             phase: Math.random() * Math.PI * 2,
         });
     }
@@ -737,8 +756,8 @@ function _ytInitStars() {
 
     function draw(t) {
         ctx.clearRect(0, 0, W, H);
-        const px = (mouse.x - 0.5) * 12;
-        const py = (mouse.y - 0.5) * 8;
+        const px = (mouse.x - 0.5) * 20;
+        const py = (mouse.y - 0.5) * 14;
 
         // Stars
         for (const s of stars) {
