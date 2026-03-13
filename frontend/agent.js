@@ -1161,18 +1161,19 @@ async function _agentFileSelected(fileInput) {
             body: file,
         });
         const d = await r.json().catch(() => ({}));
-        if (r.ok && d.file_id) {
+        const fileId = d.file?.id || d.file_id;
+        if (r.ok && fileId) {
             // Pre-fill agent input with analysis request
             const input = document.getElementById('agent-input');
             const isImage = /\.(png|jpg|jpeg|bmp|webp|gif)$/i.test(file.name);
             const isPdf = /\.pdf$/i.test(file.name);
             if (input) {
                 if (isImage) {
-                    input.value = `Analyze the image I just uploaded: "${file.name}" (file ID: ${d.file_id})`;
+                    input.value = `Analyze the image I just uploaded: "${file.name}" (file ID: ${fileId})`;
                 } else if (isPdf) {
-                    input.value = `Summarize the PDF I just uploaded: "${file.name}" (file ID: ${d.file_id})`;
+                    input.value = `Summarize the PDF I just uploaded: "${file.name}" (file ID: ${fileId})`;
                 } else {
-                    input.value = `Read the file I just uploaded: "${file.name}" (file ID: ${d.file_id})`;
+                    input.value = `Read the file I just uploaded: "${file.name}" (file ID: ${fileId})`;
                 }
                 sendAgentMessage();
             }
