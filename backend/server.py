@@ -30,7 +30,7 @@ from routes.generate import handle_generate_profile
 from routes.wizard import handle_wizard_preselect, handle_wizard_tab_suggest, handle_wizard_rv_items
 from routes.helpers import json_response, error_response
 from routes.config import handle_config_save
-from routes import feeds, media, data_endpoints, controls, youtube_endpoints, persona_data
+from routes import feeds, media, data_endpoints, controls, youtube_endpoints, persona_data, dev_endpoints
 from email_service import EmailService
 
 logger = logging.getLogger("STRAT_OS")
@@ -212,6 +212,7 @@ def create_handler(strat, auth, frontend_dir, output_dir):
             if persona_data.handle_get(self, strat, auth, clean_path): return
             if media.handle_get(self, strat, auth, clean_path): return
             if data_endpoints.handle_get(self, strat, auth, clean_path, output_dir=output_dir): return
+            if dev_endpoints.handle_get(self, strat, auth, clean_path): return
 
             # --- Static file serving with gzip compression ---
             accepts_gzip = 'gzip' in self.headers.get('Accept-Encoding', '')
@@ -521,6 +522,7 @@ def create_handler(strat, auth, frontend_dir, output_dir):
             if persona_data.handle_post(self, strat, auth, clean_path): return
             if media.handle_post(self, strat, auth, clean_path): return
             if data_endpoints.handle_post(self, strat, auth, clean_path): return
+            if dev_endpoints.handle_post(self, strat, auth, clean_path): return
 
             self.send_response(404)
             self.end_headers()

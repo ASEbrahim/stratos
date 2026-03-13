@@ -612,6 +612,33 @@ def migration_024(cursor):
     )
 
 
+# -- Migration 025: Sprint prompt builder tables --
+@migration
+def migration_025(cursor):
+    """Create sprint_log and prompt_templates tables for the Sprint Prompt Builder."""
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS sprint_log (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            sprint_number INTEGER,
+            sprint_name TEXT NOT NULL,
+            owner TEXT,
+            generated_prompt TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            status TEXT DEFAULT 'generated'
+        )
+    """)
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS prompt_templates (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            profile_id INTEGER NOT NULL,
+            name TEXT NOT NULL,
+            template_json TEXT NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE(profile_id, name)
+        )
+    """)
+
+
 # =========================================================================
 # Migration runner
 # =========================================================================
