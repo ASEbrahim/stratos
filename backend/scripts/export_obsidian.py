@@ -223,9 +223,9 @@ def export_vault(codex_path: str, vault_path: str) -> dict:
     # Category index notes + term notes (index lives inside the category folder)
     for cat in data['categories']:
         cat_dir = _safe_filename(cat['name'])
-        # Category index as _index.md inside the folder
+        # Category index named same as folder so [[Category]] wikilinks resolve
         cat_note = _build_category_index(cat, all_terms)
-        _write_note(f'{cat_dir}/_index.md', cat_note)
+        _write_note(f'{cat_dir}/{cat_dir}.md', cat_note)
         # Individual term notes
         for term in cat['terms']:
             note = _build_note(term, cat['name'], all_terms)
