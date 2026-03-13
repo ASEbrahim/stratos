@@ -192,6 +192,11 @@ function sendSuggestion(btn) {
 
 function _generateResponseChips(response, userMsg) {
     var chips = [];
+    // Response chips are only useful for intelligence and market personas
+    if (typeof currentPersona !== 'undefined' &&
+        !['intelligence', 'market'].includes(currentPersona)) {
+        return chips;
+    }
     var rLower = response.toLowerCase();
     var mLower = userMsg.toLowerCase();
 
