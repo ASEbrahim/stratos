@@ -781,23 +781,39 @@ def _tool_import_canon_world(args, strat, profile_id=0):
     if not info:
         return f"Could not find a Fandom wiki for '{franchise_name}'. Try the exact franchise name (e.g., 'Sword Art Online' instead of 'SAO') or create the scenario manually."
 
-    # Create scenario
+    # Create scenario (check for existing with case-insensitive match)
     scenario_name = args.get("scenario_name", "").strip()
     if not scenario_name:
         scenario_name = _re.sub(r'[^a-z0-9_]', '_', info['full_name'].lower())[:40]
 
     from processors.scenario_templates import get_scenario_base_path, create_scenario_skeleton
+    from processors.scenarios import ScenarioManager
     data_dir = strat.config.get("system", {}).get("data_dir", "data")
+
+    # Check for existing scenario with same name (case-insensitive) to avoid duplicates
+    sm = None
+    try:
+        sm = ScenarioManager(strat.config, db=strat.db)
+        existing = sm.list_scenarios(profile_id)
+        for s in existing:
+            if s.get('name', '').lower() == scenario_name.lower():
+                scenario_name = s['name']  # use existing casing
+                break
+    except Exception:
+        pass
+
     base_path = get_scenario_base_path(data_dir, profile_id)
     scenario_path = create_scenario_skeleton(base_path, scenario_name)
 
     # Save to DB and activate
-    sm = None
     try:
-        from processors.scenarios import ScenarioManager
-        sm = ScenarioManager(strat.config, db=strat.db)
-        sm.create_scenario(profile_id, scenario_name,
-                           world_md=f"Canon import: {info['full_name']}")
+        if not sm:
+            sm = ScenarioManager(strat.config, db=strat.db)
+        result = sm.create_scenario(profile_id, scenario_name,
+                                    world_md=f"Canon import: {info['full_name']}")
+        # If scenario already exists, that's fine — we'll overwrite its files
+        if isinstance(result, dict) and result.get('error') and 'already exists' in str(result['error']):
+            logger.info(f"Scenario '{scenario_name}' already exists, reusing for canon import")
         sm.set_active_scenario(profile_id, scenario_name)
     except Exception as e:
         logger.warning(f"DB save failed: {e}")

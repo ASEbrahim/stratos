@@ -249,7 +249,11 @@ def _post_response_tasks(handler, strat, ollama_host, model, user_msg, ai_respon
         ).start()
 
     # Background scenario auto-update for gaming persona (Sprint 7)
-    if persona_name == 'gaming' and scenario:
+    # Skip auto-update if the response mentions an import/generation in progress
+    _skip_auto_update = any(phrase in ai_response.lower() for phrase in
+                            ['importing', 'canon import', 'import runs in the background',
+                             'being generated', 'check the scenario panel'])
+    if persona_name == 'gaming' and scenario and not _skip_auto_update:
         try:
             from routes.personas import _get_scenario_path
             scenario_path = _get_scenario_path(strat, profile_id)
