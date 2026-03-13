@@ -903,8 +903,8 @@ function renderFeed() {
                         <i data-lucide="chevron-down" class="w-3 h-3" id="${cardId}-icon"></i> Read More
                     </button>
                 ` : ''}
-                <button onclick="askAI(${idx})" class="text-[10px] text-slate-500 hover:text-purple-400 flex items-center gap-1 transition-colors">
-                    <i data-lucide="sparkles" class="w-3 h-3"></i> Ask AI
+                <button onclick="continueInAgent(${idx}, this, true)" class="text-[10px] text-slate-500 hover:text-emerald-400 flex items-center gap-1 transition-colors">
+                    <i data-lucide="sparkles" class="w-3 h-3"></i> Ask Agent
                 </button>
                 <button onclick="toggleRating(${idx})" class="text-[10px] text-slate-500 hover:text-amber-400 flex items-center gap-1 transition-colors">
                     <i data-lucide="star" class="w-3 h-3"></i> Rate

@@ -1524,7 +1524,7 @@ function submitAI(idx) {
             answerEl.innerHTML = `<span class="text-red-400">Error: ${esc(data.error)}</span>`;
         } else {
             answerEl.innerHTML = `<div class="text-slate-300 whitespace-pre-wrap">${esc(data.answer)}</div>
-                <button onclick="continueInAgent(${idx}, this)" class="mt-2 text-[10px] px-2 py-1 bg-purple-900/30 text-purple-400 rounded hover:bg-purple-800/40 transition-colors flex items-center gap-1">
+                <button onclick="continueInAgent(${idx}, this, true)" class="mt-2 text-[10px] px-2 py-1 bg-emerald-900/30 text-emerald-400 rounded hover:bg-emerald-800/40 transition-colors flex items-center gap-1">
                     <i data-lucide="message-circle" class="w-3 h-3"></i> Continue in Agent
                 </button>`;
             if (typeof lucide !== 'undefined') lucide.createIcons({nodes: [answerEl]});
@@ -1535,19 +1535,23 @@ function submitAI(idx) {
     });
 }
 
-function continueInAgent(idx) {
+function continueInAgent(idx, btn, autoSend) {
     const items = window.currentItems || [];
     const item = items[idx];
     if (!item) return;
     // Build context message for the agent
-    const ctx = `Regarding "${item.title}" (score: ${item.score}):\n${item.summary || ''}`;
+    const ctx = `Analyze this article and tell me what it means:\n\n**${item.title}** (score: ${item.score})\n${item.summary || ''}${item.url ? '\n' + item.url : ''}`;
     // Open agent panel and pre-fill
     if (typeof _openAgentPanel === 'function') _openAgentPanel();
     const input = document.getElementById('agent-input');
     if (input) {
         input.value = ctx;
-        input.focus();
-        input.setSelectionRange(input.value.length, input.value.length);
+        if (autoSend && typeof sendAgentMessage === 'function') {
+            sendAgentMessage();
+        } else {
+            input.focus();
+            input.setSelectionRange(input.value.length, input.value.length);
+        }
     }
 }
 
