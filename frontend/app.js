@@ -1158,6 +1158,13 @@ function _connectSSE() {
             } catch(err) { console.warn('[SSE] youtube_processing parse error:', err); }
         });
 
+        _sseSource.addEventListener('lens_extracted', (e) => {
+            try {
+                const d = JSON.parse(e.data);
+                if (typeof _handleLensExtracted === 'function') _handleLensExtracted(d);
+            } catch(err) { console.warn('[SSE] lens_extracted parse error:', err); }
+        });
+
         _sseSource.onerror = () => {
             // SSE disconnected — fall back to polling
             if (_sseConnected) {

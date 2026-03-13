@@ -5,6 +5,7 @@ Extracted from server.py (Sprint 5K Phase 1).
 
 import json
 import logging
+import threading
 from urllib.parse import urlparse, parse_qs
 
 logger = logging.getLogger("STRAT_OS")
@@ -133,6 +134,61 @@ def handle_post(handler, strat, auth, path):
             _send_json(handler, {"ok": True, "new_videos": len(new_videos), "videos": new_videos[:10]})
         except (ValueError, IndexError):
             _send_json(handler, {"error": "Invalid channel ID"}, 400)
+        return True
+
+    if path == "/api/youtube/extract-lens":
+        video_id = body.get('video_id')
+        lens_name = body.get('lens')
+        language = body.get('language', 'en')
+        if not video_id or not lens_name:
+            _send_json(handler, {"error": "video_id and lens required"}, 400)
+            return True
+        from processors.lenses import AVAILABLE_LENSES
+        if lens_name not in AVAILABLE_LENSES or lens_name == 'transcript':
+            _send_json(handler, {"error": f"Invalid lens: {lens_name}"}, 400)
+            return True
+        cursor = strat.db.conn.cursor()
+        cursor.execute(
+            "SELECT id, transcript_text, title, profile_id, transcript_language FROM youtube_videos WHERE id = ? AND profile_id = ?",
+            (int(video_id), handler._profile_id)
+        )
+        vrow = cursor.fetchone()
+        if not vrow or not vrow['transcript_text']:
+            _send_json(handler, {"error": "Video not found or not yet transcribed"}, 404)
+            return True
+        video = dict(vrow)
+        _send_json(handler, {"ok": True, "status": "extracting"})
+
+        def _extract_in_background():
+            try:
+                from processors.lenses import extract_lens
+                detected_lang = video.get('transcript_language') or 'en'
+                insight = extract_lens(
+                    video['transcript_text'], lens_name, video['title'],
+                    yt.ollama_host, yt.inference_model,
+                    target_language=language,
+                )
+                if insight:
+                    cur = strat.db.conn.cursor()
+                    cur.execute(
+                        """INSERT INTO video_insights
+                           (video_id, profile_id, lens_name, content, language)
+                           VALUES (?, ?, ?, ?, ?)""",
+                        (video['id'], video['profile_id'], lens_name,
+                         json.dumps(insight, ensure_ascii=False), language)
+                    )
+                    strat.db._commit()
+                    if hasattr(strat, 'sse_manager') and strat.sse_manager:
+                        strat.sse_manager.broadcast('lens_extracted', {
+                            'video_id': video['id'],
+                            'lens': lens_name,
+                            'language': language,
+                        })
+                    logger.info(f"On-demand lens '{lens_name}' [{language}] extracted for video {video['id']}")
+            except Exception as e:
+                logger.error(f"On-demand lens extraction failed: {e}")
+
+        threading.Thread(target=_extract_in_background, daemon=True).start()
         return True
 
     if len(path_parts) == 5 and path_parts[2] == 'channels' and path_parts[4] == 'lenses':

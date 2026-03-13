@@ -268,10 +268,14 @@ let _ytShowingGuide = false;
 let _ytEloquenceFilter = 'all';
 
 const _ytLensIcons = { summary: 'file-text', eloquence: 'pen-tool', narrations: 'book-open', history: 'landmark', spiritual: 'heart', politics: 'flag', transcript: 'scroll-text' };
+const _ytAllLenses = ['transcript', 'summary', 'eloquence', 'narrations', 'history', 'spiritual', 'politics'];
+let _ytExtractingLenses = new Set();
+let _ytTranscriptLang = 'en';
 
 async function _ytShowInsights(videoId) {
     _ytCurrentVideoId = videoId;
     _ytShowingGuide = false;
+    _ytExtractingLenses = new Set();
     let modal = document.getElementById('yt-insights-modal');
     if (modal) modal.remove();
 
@@ -311,6 +315,7 @@ async function _ytShowInsights(videoId) {
         const allInsights = d.insights || [];
         const videoTitle = d.video_title || d.title || '';
         _ytAvailableLangs = d.available_languages || ['en'];
+        _ytTranscriptLang = d.transcript_language || 'en';
 
         _ytInsightsAll = {};
         for (const ins of allInsights) {
@@ -319,41 +324,40 @@ async function _ytShowInsights(videoId) {
 
         if (!_ytAvailableLangs.includes(_ytCurrentLang)) _ytCurrentLang = 'en';
 
-        const insights = allInsights.filter(ins => (ins.language || 'en') === _ytCurrentLang);
-        const seenLenses = new Set();
-        const uniqueInsights = [];
-        for (const ins of insights) {
-            if (!seenLenses.has(ins.lens_name)) { seenLenses.add(ins.lens_name); uniqueInsights.push(ins); }
-        }
+        // Build set of lenses that have data
+        const availableLensSet = new Set();
+        for (const ins of allInsights) availableLensSet.add(ins.lens_name);
+
+        const extractedCount = new Set(allInsights.filter(ins => (ins.language || 'en') === _ytCurrentLang).map(ins => ins.lens_name)).size;
 
         const titleEl = document.getElementById('yi-title');
         const subEl = document.getElementById('yi-subtitle');
         if (titleEl && videoTitle) titleEl.textContent = videoTitle;
-        if (subEl) subEl.textContent = `${uniqueInsights.length} lens${uniqueInsights.length !== 1 ? 'es' : ''} extracted`;
+        if (subEl) subEl.textContent = `${extractedCount} lens${extractedCount !== 1 ? 'es' : ''} extracted`;
 
-        // Language toggle
         _ytRenderLangToggle();
 
-        if (uniqueInsights.length === 0) {
-            const body = document.getElementById('yi-body');
-            if (body) body.innerHTML = `<div class="yi-empty"><div class="yi-empty-icon"><i data-lucide="search-x" style="width:48px;height:48px;color:var(--text-muted);opacity:0.3;"></i></div><div style="font-size:13px;margin-bottom:4px;">No insights extracted yet</div><div style="font-size:11px;opacity:0.6;">Video may still be processing</div></div>`;
-            lucide.createIcons();
-            return;
-        }
-
+        // Always show all lens tabs — dim those without data
         const tabs = document.getElementById('yi-tabs');
         if (tabs) {
-            tabs.innerHTML = uniqueInsights.map((ins, i) => {
-                const lens = ins.lens_name || 'unknown';
+            tabs.innerHTML = _ytAllLenses.map((lens, i) => {
                 const lensName = lens.charAt(0).toUpperCase() + lens.slice(1);
                 const icon = _ytLensIcons[lens] || 'sparkles';
-                return `<button onclick="_ytShowLens(${i})" data-lens="${lens}" class="yi-tab${i === 0 ? ' yi-tab-active' : ''}"><i data-lucide="${icon}" style="width:14px;height:14px;"></i>${lensName}</button>`;
+                const hasData = availableLensSet.has(lens);
+                const dimClass = hasData ? '' : ' yi-tab-dim';
+                return `<button onclick="_ytShowLensTab('${lens}')" data-lens="${lens}" class="yi-tab${i === 0 ? ' yi-tab-active' : ''}${dimClass}"><i data-lucide="${icon}" style="width:14px;height:14px;"></i>${lensName}</button>`;
             }).join('');
             lucide.createIcons();
         }
 
-        _ytInsights = uniqueInsights;
-        _ytRenderLens(0);
+        // Build _ytInsights array matching _ytAllLenses order
+        _ytInsights = _ytAllLenses.map(lens => {
+            const langKey = `${lens}_${_ytCurrentLang}`;
+            const fallbackKey = `${lens}_en`;
+            return _ytInsightsAll[langKey] || _ytInsightsAll[fallbackKey] || null;
+        });
+
+        _ytRenderLensByName(_ytAllLenses[0]);
     } catch (e) {
         const body = document.getElementById('yi-body');
         if (body) body.innerHTML = '<div class="yi-empty" style="color:#f87171;">Failed to load insights</div>';
@@ -384,22 +388,49 @@ function _ytAskAgent() {
 }
 window._ytAskAgent = _ytAskAgent;
 
-function _ytShowLens(index) {
+function _ytShowLensTab(lensName) {
     _ytShowingGuide = false;
-    document.querySelectorAll('.yi-tab').forEach((tab, i) => {
-        tab.classList.toggle('yi-tab-active', i === index);
+    document.querySelectorAll('.yi-tab').forEach(tab => {
+        tab.classList.toggle('yi-tab-active', tab.dataset.lens === lensName);
     });
-    _ytRenderLens(index);
+    _ytRenderLensByName(lensName);
+}
+window._ytShowLensTab = _ytShowLensTab;
+
+function _ytShowLens(index) {
+    _ytShowLensTab(_ytAllLenses[index] || _ytAllLenses[0]);
 }
 
-function _ytRenderLens(index) {
+function _ytRenderLensByName(lensName) {
     const body = document.getElementById('yi-body');
-    if (!body || !_ytInsights[index]) return;
+    if (!body) return;
 
-    const baseLens = _ytInsights[index].lens_name || 'unknown';
-    const langKey = `${baseLens}_${_ytCurrentLang}`;
-    const fallbackKey = `${baseLens}_en`;
-    const ins = _ytInsightsAll[langKey] || _ytInsightsAll[fallbackKey] || _ytInsights[index];
+    const langKey = `${lensName}_${_ytCurrentLang}`;
+    const fallbackKey = `${lensName}_en`;
+    const ins = _ytInsightsAll[langKey] || _ytInsightsAll[fallbackKey] || null;
+
+    if (!ins) {
+        // No data — show extract button (not for transcript)
+        if (lensName === 'transcript') {
+            body.innerHTML = '<div class="yi-empty"><div style="font-size:13px;margin-bottom:4px;">No transcript available</div><div style="font-size:11px;opacity:0.6;">Video may still be processing</div></div>';
+        } else {
+            const isExtracting = _ytExtractingLenses.has(lensName);
+            const lensLabel = lensName.charAt(0).toUpperCase() + lensName.slice(1);
+            const icon = _ytLensIcons[lensName] || 'sparkles';
+            body.innerHTML = `<div class="yi-empty">
+                <div style="width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;background:rgba(192,132,252,0.1);border:1px solid rgba(192,132,252,0.15);">
+                    <i data-lucide="${icon}" style="width:24px;height:24px;color:#c084fc;opacity:0.5;"></i>
+                </div>
+                <div style="font-size:13px;margin-bottom:4px;">No ${lensLabel} data yet</div>
+                <div style="font-size:11px;opacity:0.6;margin-bottom:16px;">Click below to extract this lens from the transcript</div>
+                <button onclick="_ytExtractLens('${lensName}')" class="yi-header-btn" style="padding:8px 20px;font-size:12px;${isExtracting ? 'opacity:0.5;pointer-events:none;' : ''}" id="yi-extract-btn-${lensName}">
+                    ${isExtracting ? '<i data-lucide="loader-2" style="width:14px;height:14px;" class="animate-spin"></i> Extracting...' : `<i data-lucide="sparkles" style="width:14px;height:14px;"></i> Extract ${lensLabel}`}
+                </button>
+            </div>`;
+        }
+        lucide.createIcons();
+        return;
+    }
 
     const lens = ins.lens_name || 'unknown';
     let data;
@@ -418,6 +449,10 @@ function _ytRenderLens(index) {
     lucide.createIcons();
 }
 
+function _ytRenderLens(index) {
+    _ytRenderLensByName(_ytAllLenses[index] || _ytAllLenses[0]);
+}
+
 function _ytSwitchLang(lang) {
     _ytCurrentLang = lang;
     localStorage.setItem('stratos_insight_lang', lang);
@@ -426,9 +461,8 @@ function _ytSwitchLang(lang) {
     });
     if (_ytShowingGuide) return; // Don't re-render if on guide page
     const activeTab = document.querySelector('.yi-tab.yi-tab-active');
-    if (activeTab) {
-        const idx = Array.from(document.querySelectorAll('.yi-tab')).indexOf(activeTab);
-        if (idx >= 0) _ytRenderLens(idx);
+    if (activeTab && activeTab.dataset.lens) {
+        _ytRenderLensByName(activeTab.dataset.lens);
     }
 }
 window._ytSwitchLang = _ytSwitchLang;
@@ -760,6 +794,69 @@ function _ytInitStars() {
     }
     _ytStarRAF = requestAnimationFrame(draw);
 }
+
+async function _ytExtractLens(lensName) {
+    if (!_ytCurrentVideoId || _ytExtractingLenses.has(lensName)) return;
+    _ytExtractingLenses.add(lensName);
+    // Re-render to show spinner
+    _ytRenderLensByName(lensName);
+    try {
+        const r = await fetch('/api/youtube/extract-lens', {
+            method: 'POST',
+            headers: _ytHeaders(),
+            body: JSON.stringify({ video_id: _ytCurrentVideoId, lens: lensName, language: _ytCurrentLang })
+        });
+        if (!r.ok) {
+            const d = await r.json().catch(() => ({}));
+            if (typeof showToast === 'function') showToast(d.error || 'Extraction failed', 'error');
+            _ytExtractingLenses.delete(lensName);
+            _ytRenderLensByName(lensName);
+        }
+    } catch (e) {
+        if (typeof showToast === 'function') showToast('Extraction failed', 'error');
+        _ytExtractingLenses.delete(lensName);
+        _ytRenderLensByName(lensName);
+    }
+}
+window._ytExtractLens = _ytExtractLens;
+
+function _handleLensExtracted(event) {
+    const { video_id, lens, language } = event;
+    _ytExtractingLenses.delete(lens);
+    // If the modal is open for this video, re-fetch and re-render
+    if (_ytCurrentVideoId && _ytCurrentVideoId == video_id) {
+        // Re-fetch insights for this video
+        fetch(`/api/youtube/insights/${video_id}?language=all`, { headers: _ytHeaders() })
+            .then(r => r.json())
+            .then(d => {
+                const allInsights = d.insights || [];
+                _ytAvailableLangs = d.available_languages || ['en'];
+                _ytInsightsAll = {};
+                for (const ins of allInsights) {
+                    _ytInsightsAll[`${ins.lens_name}_${ins.language || 'en'}`] = ins;
+                }
+                // Update tab dim state
+                const availableLensSet = new Set();
+                for (const ins of allInsights) availableLensSet.add(ins.lens_name);
+                document.querySelectorAll('.yi-tab').forEach(tab => {
+                    if (availableLensSet.has(tab.dataset.lens)) tab.classList.remove('yi-tab-dim');
+                });
+                // Update subtitle count
+                const extractedCount = new Set(allInsights.filter(ins => (ins.language || 'en') === _ytCurrentLang).map(ins => ins.lens_name)).size;
+                const subEl = document.getElementById('yi-subtitle');
+                if (subEl) subEl.textContent = `${extractedCount} lens${extractedCount !== 1 ? 'es' : ''} extracted`;
+                // Re-render active tab if it matches the extracted lens
+                const activeTab = document.querySelector('.yi-tab.yi-tab-active');
+                if (activeTab && activeTab.dataset.lens === lens) {
+                    _ytRenderLensByName(lens);
+                }
+                _ytRenderLangToggle();
+                if (typeof showToast === 'function') showToast(`${lens.charAt(0).toUpperCase() + lens.slice(1)} lens extracted`, 'success');
+            })
+            .catch(() => {});
+    }
+}
+window._handleLensExtracted = _handleLensExtracted;
 
 function _ytCloseInsights() {
     const modal = document.getElementById('yt-insights-modal');
