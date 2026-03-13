@@ -221,6 +221,8 @@ def handle_wizard_tab_suggest(handler, strat):
             if parts:
                 selections_context = '; '.join(parts)
 
+        logger.info(f"Wizard tab-suggest: category_id='{category_id}', category_label='{category_label}', role='{role}'")
+
         if not role or not category_label:
             error_response(handler, "Role and category_label are required", 400)
             return
@@ -286,29 +288,20 @@ CRITICAL: Respond with ONLY valid JSON — no markdown, no explanation, no backt
 Schema:
 {
   "sections": {
-    "<section_id>": {"label": "short label", "items": ["entity1", "entity2", ...], "tags": {"entity1": "tag1", "entity2": "tag2"}},
+    "<section_id>": {"label": "short label", "items": ["entity1", "entity2", ...]},
     ...
   },
-  "discover": [
-    {"name": "entity", "tag": "category", "target": "section_id"},
-    ...
-  ]
+  "discover": ["extra entity 1", "extra entity 2", ...]
 }
 
 Rules:
-- For EACH section, suggest 3-6 specific entities (companies, platforms, certifications, organizations) that a person with this EXACT role in this EXACT location would use or track
-- "label" is a short category word like "Employers", "Certifications", "Platforms", "Companies", "Organizations"
-- "tags" maps each entity to a short 1-2 word category tag for display (e.g. "Jobs", "Cloud", "Finance")
-- "discover" has 4-6 additional entities the user might want, spread across different sections
+- For EACH section, suggest 3-5 specific entities (companies, platforms, certifications, organizations) relevant to this EXACT role and location
+- "label" is a short category word like "Employers", "Certifications", "Platforms", "Companies"
+- "discover" has 4-6 additional entities the user might want
 - Be HIGHLY specific to the role and location:
-  * A "Pastry Chef in Tokyo" should see: Japanese culinary schools, Tsuji Culinary Institute, Japanese Patisserie Association — NOT AWS, Google, CCNA
-  * A "Marine Biologist in Italy" should see: ISPRA, CNR, Mediterranean Science Commission — NOT LinkedIn Jobs, Indeed, Glassdoor
-  * A "Nuclear Engineer in Germany" should see: Framatome, TÜV, Bundesamt für Strahlenschutz — NOT Apple, Meta, Microsoft
-- For job/career sections: suggest role-specific job platforms, industry recruiters, and local employers
-- For certification sections: suggest certifications relevant to THIS role, not generic IT certs
-- For industry sections: suggest companies and organizations in THIS person's actual industry
-- For events sections: suggest conferences and events for THIS profession
-- NEVER suggest generic tech entities (AWS, Google, Microsoft, CCNA, CompTIA) unless the role is specifically in tech/IT
+  * "Pastry Chef in Tokyo" → Tsuji Culinary Institute, Japanese Patisserie Association — NOT AWS, Google
+  * "Marine Biologist in Italy" → ISPRA, CNR, Mediterranean Science Commission — NOT LinkedIn, Indeed
+- NEVER suggest generic tech entities unless the role is specifically in tech/IT
 - Location matters: include local companies, institutions, job portals for the user's country/city"""
 
 
@@ -376,8 +369,10 @@ Generate role-appropriate entities for each of these dashboard sections:
 
 Remember: every entity MUST be relevant to a "{role}" in "{location or 'anywhere'}". Do NOT use generic tech defaults."""
 
-        logger.info(f"Wizard rv-items: role='{role}', location='{location}', sections={len(sections)}")
-        raw = _call_ollama(host, model, RV_ITEMS_SYSTEM, prompt, max_tokens=1500, temperature=0.3)
+        # Scale tokens by section count — each section needs ~100-150 tokens
+        max_tok = min(3000, max(800, len(sections) * 200))
+        logger.info(f"Wizard rv-items: role='{role}', location='{location}', sections={len(sections)}, max_tokens={max_tok}")
+        raw = _call_ollama(host, model, RV_ITEMS_SYSTEM, prompt, max_tokens=max_tok, temperature=0.3)
         logger.info(f"Wizard rv-items raw response: {raw[:300] if raw else 'None'}")
 
         if not raw:
@@ -408,7 +403,14 @@ Remember: every entity MUST be relevant to a "{role}" in "{location or 'anywhere
                     validated[sid] = {"label": label, "items": items, "tags": tags}
             if not isinstance(discover, list):
                 discover = []
-            discover = [d for d in discover if isinstance(d, dict) and "name" in d][:6]
+            # Support both formats: list of strings or list of dicts
+            cleaned_discover = []
+            for d in discover[:6]:
+                if isinstance(d, str):
+                    cleaned_discover.append({"name": d, "tag": "", "target": ""})
+                elif isinstance(d, dict) and "name" in d:
+                    cleaned_discover.append(d)
+            discover = cleaned_discover
             json_response(handler, {"sections": validated, "discover": discover})
             return
         except (json.JSONDecodeError, ValueError):
