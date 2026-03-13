@@ -101,16 +101,21 @@ JSON array only. If no political content, output [].""",
     },
 
     'narrations': {
-        'system': 'You detect hadith, historical narrations, and scholarly citations in transcripts. Output valid JSON only.',
-        'user': """Detect any hadith, historical narrations, or scholarly citations in this lecture.
+        'system': 'You detect quotes, narrations, citations, and attributed statements in transcripts. This includes religious texts (any religion), philosophical works, historical accounts, scholarly references, proverbs, and any attributed speech. Output valid JSON only.',
+        'user': """Detect any quotes, narrations, citations, or attributed statements in this lecture. This includes references from any tradition — religious (Islamic, Christian, Jewish, Hindu, Buddhist, etc.), philosophical, historical, literary, or scholarly.
 
 Title: {title}
 Transcript: {transcript}
 
-For each narration: the text, who the speaker attributed it to, and the claimed source.
+For each narration provide:
+- narration_text: the quote or narration
+- speaker_attribution: who the speaker attributed it to (e.g. "Prophet Muhammad", "Jesus", "Aristotle", "Shakespeare")
+- source_claimed: the source mentioned (e.g. "Sahih Bukhari", "Gospel of Matthew", "Republic by Plato", "Torah")
+- source_reference: specific chapter/verse/number if mentioned (e.g. "Bukhari 6094", "Matthew 5:44", "Genesis 1:1", ""). Empty string if not identifiable.
+- needs_verification: true if the exact source cannot be pinpointed
 
 Output JSON array:
-[{{"narration_text": "the narration", "speaker_attribution": "who speaker said narrated it", "source_claimed": "book or chain mentioned", "needs_verification": true}}]
+[{{"narration_text": "the quote", "speaker_attribution": "who said it", "source_claimed": "source book or text", "source_reference": "specific ref if any", "needs_verification": true}}]
 
 JSON array only. If no narrations found, output [].""",
     },

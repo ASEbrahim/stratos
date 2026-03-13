@@ -456,6 +456,22 @@ body:has(.agent-fullscreen) > .flex > main {
 }
 .yt-channel-card:hover { background: var(--bg-hover); }
 
+/* ── YouTube Channel Action Buttons ── */
+.yt-action-btn {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 6px 12px; border-radius: 6px; cursor: pointer;
+    font-size: 12px; font-weight: 600; border: 1px solid var(--border-strong);
+    background: transparent; transition: all 0.15s; white-space: nowrap;
+}
+.yt-action-process { color: var(--accent-light, var(--accent)); }
+.yt-action-process:hover { background: color-mix(in srgb, var(--accent) 12%, transparent); border-color: var(--accent); }
+.yt-action-videos { color: var(--text-secondary); }
+.yt-action-videos:hover { color: var(--accent-light, var(--accent)); background: color-mix(in srgb, var(--accent) 8%, transparent); border-color: var(--accent); }
+.yt-action-extract { color: #a78bfa; }
+.yt-action-extract:hover { background: rgba(167,139,250,0.1); border-color: #a78bfa; }
+.yt-action-remove { color: var(--text-muted); }
+.yt-action-remove:hover { color: #f87171; border-color: rgba(239,68,68,0.4); background: rgba(239,68,68,0.08); }
+
 /* ── YouTube Language Toggle ── */
 .yt-lang-toggle {
     display: inline-flex; border: 1px solid var(--border-strong);

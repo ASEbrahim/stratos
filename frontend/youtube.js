@@ -113,23 +113,26 @@ function _ytRenderChannels() {
         return `<div class="yt-channel-card" data-channel-id="${ch.id}" onclick="_ytToggleVideos(${ch.id})" style="cursor:pointer">
             <div class="flex items-center justify-between">
                 <div class="flex items-center gap-2 min-w-0">
-                    <div class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);">
-                        <i data-lucide="youtube" class="w-4 h-4 text-red-400"></i>
+                    <div class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);">
+                        <i data-lucide="youtube" class="w-5 h-5 text-red-400"></i>
                     </div>
                     <div class="min-w-0">
-                        <div class="text-[11px] font-semibold truncate" style="color:var(--text-heading)">${_escHtml(channelName)}</div>
-                        <div class="text-[9px]" style="color:var(--text-muted)">${videoCount} videos · Lenses: ${lenses}</div>
+                        <div class="text-[14px] font-semibold truncate" style="color:var(--text-heading)">${_escHtml(channelName)}</div>
+                        <div class="text-[11px]" style="color:var(--text-muted)">${videoCount} videos · Lenses: ${lenses}</div>
                     </div>
                 </div>
-                <div class="flex items-center gap-1 flex-shrink-0">
-                    <button onclick="event.stopPropagation();_ytProcessChannel(${ch.id})" class="fb-tool-btn" title="Process new videos">
-                        <i data-lucide="play" class="w-3 h-3"></i>
+                <div class="flex items-center gap-2 flex-shrink-0">
+                    <button onclick="event.stopPropagation();_ytProcessChannel(${ch.id})" class="yt-action-btn yt-action-process" title="Fetch & process new videos">
+                        <i data-lucide="play" style="width:14px;height:14px;"></i> Process
                     </button>
-                    <button onclick="event.stopPropagation();_ytToggleVideos(${ch.id})" class="fb-tool-btn" title="Show videos">
-                        <i data-lucide="list" class="w-3 h-3"></i>
+                    <button onclick="event.stopPropagation();_ytExtractAllChannel(${ch.id})" class="yt-action-btn yt-action-extract" title="Extract all lenses for all videos" id="yt-extract-all-${ch.id}">
+                        <i data-lucide="sparkles" style="width:14px;height:14px;"></i> Extract All
                     </button>
-                    <button onclick="event.stopPropagation();_ytDeleteChannel(${ch.id}, '${_escAttr(channelName)}')" class="fb-tool-btn" title="Remove channel" onmouseenter="this.style.color='#f87171';this.style.borderColor='rgba(239,68,68,0.3)'" onmouseleave="this.style.color='var(--text-muted)';this.style.borderColor='var(--border-strong)'">
-                        <i data-lucide="trash-2" class="w-3 h-3"></i>
+                    <button onclick="event.stopPropagation();_ytToggleVideos(${ch.id})" class="yt-action-btn yt-action-videos" title="Show/hide video list">
+                        <i data-lucide="list" style="width:14px;height:14px;"></i> Videos
+                    </button>
+                    <button onclick="event.stopPropagation();_ytDeleteChannel(${ch.id}, '${_escAttr(channelName)}')" class="yt-action-btn yt-action-remove" title="Remove channel">
+                        <i data-lucide="trash-2" style="width:14px;height:14px;"></i> Remove
                     </button>
                 </div>
             </div>
@@ -208,6 +211,29 @@ async function _ytProcessChannel(channelId) {
     }
 }
 
+// ── Extract all lenses for all videos in a channel ──
+async function _ytExtractAllChannel(channelId) {
+    const btn = document.getElementById(`yt-extract-all-${channelId}`);
+    if (btn) { btn.style.opacity = '0.5'; btn.style.pointerEvents = 'none'; btn.innerHTML = '<i data-lucide="loader-2" style="width:14px;height:14px;" class="animate-spin"></i> Extracting...'; lucide.createIcons(); }
+    try {
+        const r = await fetch(`/api/youtube/extract-all/${channelId}`, {
+            method: 'POST',
+            headers: _ytHeaders(),
+        });
+        const d = await r.json().catch(() => ({}));
+        if (r.ok) {
+            const count = d.queued || 0;
+            if (typeof showToast === 'function') showToast(`Extracting lenses for ${count} video${count !== 1 ? 's' : ''}...`, 'success');
+        } else {
+            if (typeof showToast === 'function') showToast(d.error || 'Extract failed', 'error');
+        }
+    } catch (e) {
+        if (typeof showToast === 'function') showToast('Extract failed', 'error');
+    }
+    if (btn) { btn.style.opacity = ''; btn.style.pointerEvents = ''; btn.innerHTML = '<i data-lucide="sparkles" style="width:14px;height:14px;"></i> Extract All'; lucide.createIcons(); }
+}
+window._ytExtractAllChannel = _ytExtractAllChannel;
+
 // ── Toggle video list for a channel ──
 async function _ytToggleVideos(channelId) {
     const el = document.getElementById(`yt-videos-${channelId}`);
@@ -219,7 +245,7 @@ async function _ytToggleVideos(channelId) {
     }
 
     el.classList.remove('hidden');
-    el.innerHTML = '<div class="text-[9px] py-2" style="color:var(--text-muted)">Loading videos...</div>';
+    el.innerHTML = '<div class="text-[11px] py-2" style="color:var(--text-muted)">Loading videos...</div>';
 
     try {
         const r = await fetch(`/api/youtube/videos/${channelId}`, { headers: _ytHeaders() });
@@ -227,7 +253,7 @@ async function _ytToggleVideos(channelId) {
             const d = await r.json();
             const videos = d.videos || [];
             if (videos.length === 0) {
-                el.innerHTML = '<div class="text-[9px] py-2" style="color:var(--text-muted)">No videos yet. Click play to process.</div>';
+                el.innerHTML = '<div class="text-[11px] py-2" style="color:var(--text-muted)">No videos yet. Click Process to fetch.</div>';
                 return;
             }
             el.innerHTML = videos.map(v => {
@@ -245,10 +271,10 @@ async function _ytToggleVideos(channelId) {
                 }[v.status] || 'clock';
                 const clickable = (v.status === 'complete' || v.status === 'transcribed') ? `onclick="event.stopPropagation();_ytShowInsights(${v.id})" class="cursor-pointer"` : '';
 
-                return `<div data-yt-video="${v.video_id}" data-yt-db-id="${v.id}" ${clickable} class="flex items-center gap-2 px-2 py-1.5 rounded-md transition-colors" onmouseenter="this.style.background='var(--bg-hover)'" onmouseleave="this.style.background='transparent'">
-                    <i data-lucide="${statusIcon}" class="w-3 h-3 ${statusColor} flex-shrink-0${v.status === 'transcribing' || v.status === 'extracting' ? ' animate-spin' : ''}"></i>
-                    <span class="text-[10px] flex-1 truncate" style="color:var(--text-secondary)">${_escHtml(v.title || v.video_id)}</span>
-                    <span class="text-[8px] yt-video-status ${statusColor}">${v.status}</span>
+                return `<div data-yt-video="${v.video_id}" data-yt-db-id="${v.id}" ${clickable} class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors" onmouseenter="this.style.background='var(--bg-hover)'" onmouseleave="this.style.background='transparent'">
+                    <i data-lucide="${statusIcon}" class="w-4 h-4 ${statusColor} flex-shrink-0${v.status === 'transcribing' || v.status === 'extracting' ? ' animate-spin' : ''}"></i>
+                    <span class="text-[13px] flex-1 truncate" style="color:var(--text-secondary)">${_escHtml(v.title || v.video_id)}</span>
+                    <span class="text-[10px] yt-video-status ${statusColor}" style="font-weight:600;">${v.status}</span>
                 </div>`;
             }).join('');
             lucide.createIcons();
@@ -607,6 +633,17 @@ function _ytSetEloquenceFilter(filter) {
 }
 window._ytSetEloquenceFilter = _ytSetEloquenceFilter;
 
+function _ytNarrationSourceUrl(source, sourceRef, text) {
+    // Build the best Google search query from available info
+    const parts = [];
+    if (source) parts.push(source);
+    if (sourceRef) parts.push(sourceRef);
+    // If we have neither source nor ref, use a snippet of the narration text
+    if (parts.length === 0 && text) parts.push(text.slice(0, 60));
+    if (parts.length === 0) return null;
+    return `https://www.google.com/search?q=${encodeURIComponent(parts.join(' '))}`;
+}
+
 function _ytRenderNarrations(data) {
     if (!data) return '<div class="yi-empty">No narrations data</div>';
     const narrations = Array.isArray(data) ? data : (data.narrations || []);
@@ -621,16 +658,13 @@ function _ytRenderNarrations(data) {
         let badgeText = 'Needs Verification';
         if (verified) { badgeClass = 'yi-badge-verified'; badgeText = 'Verified'; }
         else if (!needsVerify) { badgeClass = 'yi-badge-unverified'; badgeText = 'Unverified'; }
-        // Build source link — search sunnah.com for hadith, Google Scholar for others
+        // Build source link — Google search for any source type
+        const sourceRef = n.source_reference || '';
         let sourceHtml = '';
-        if (source) {
-            const q = encodeURIComponent(source);
-            const narQ = encodeURIComponent(text.slice(0, 80));
-            const isHadith = /hadith|bukhari|muslim|tirmidhi|dawud|nasa.i|majah|muwatta|sahih|sunan/i.test(source + ' ' + attribution);
-            const searchUrl = isHadith
-                ? `https://sunnah.com/search?q=${narQ}`
-                : `https://scholar.google.com/scholar?q=${q}+${narQ}`;
-            sourceHtml = `<div class="yi-field"><div class="yi-field-label">Source</div><div class="yi-field-value"><a href="${searchUrl}" target="_blank" rel="noopener" style="color:var(--accent-light,var(--accent));text-decoration:underline;text-underline-offset:2px;">${_escHtml(source)}</a></div></div>`;
+        if (source || sourceRef) {
+            const searchUrl = _ytNarrationSourceUrl(source, sourceRef, text);
+            const displayText = sourceRef ? `${source} (${sourceRef})` : source;
+            sourceHtml = `<div class="yi-field"><div class="yi-field-label">Source</div><div class="yi-field-value"><a href="${searchUrl}" target="_blank" rel="noopener" style="color:var(--accent-light,var(--accent));text-decoration:underline;text-underline-offset:2px;">${_escHtml(displayText)}</a>${needsVerify ? ' <span style="font-size:10px;opacity:0.5;margin-left:4px;">· Needs verification</span>' : ''}</div></div>`;
         }
         return `<div class="yi-narration">
             <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:8px;">
@@ -899,21 +933,24 @@ function _ytInitStars() {
 
 async function _ytExtractLens(lensName) {
     if (!_ytCurrentVideoId || _ytExtractingLenses.has(lensName)) return;
+    const extractLang = _ytGetExtractLang();
     _ytExtractingLenses.add(lensName);
-    // Re-render to show spinner
     _ytRenderLensByName(lensName);
     try {
         const r = await fetch('/api/youtube/extract-lens', {
             method: 'POST',
             headers: _ytHeaders(),
-            body: JSON.stringify({ video_id: _ytCurrentVideoId, lens: lensName, language: _ytGetExtractLang() })
+            body: JSON.stringify({ video_id: _ytCurrentVideoId, lens: lensName, language: extractLang })
         });
         if (!r.ok) {
             const d = await r.json().catch(() => ({}));
             if (typeof showToast === 'function') showToast(d.error || 'Extraction failed', 'error');
             _ytExtractingLenses.delete(lensName);
             _ytRenderLensByName(lensName);
+            return;
         }
+        // Poll for completion — SSE is unreliable, polling is the primary mechanism
+        _ytPollForLens(_ytCurrentVideoId, lensName, extractLang);
     } catch (e) {
         if (typeof showToast === 'function') showToast('Extraction failed', 'error');
         _ytExtractingLenses.delete(lensName);
@@ -924,20 +961,23 @@ window._ytExtractLens = _ytExtractLens;
 
 async function _ytRefreshLens(lensName, mode) {
     if (!_ytCurrentVideoId || _ytExtractingLenses.has(lensName)) return;
+    const extractLang = _ytGetExtractLang();
     _ytExtractingLenses.add(lensName);
     _ytRenderLensByName(lensName);
     try {
         const r = await fetch('/api/youtube/extract-lens', {
             method: 'POST',
             headers: _ytHeaders(),
-            body: JSON.stringify({ video_id: _ytCurrentVideoId, lens: lensName, language: _ytGetExtractLang(), mode })
+            body: JSON.stringify({ video_id: _ytCurrentVideoId, lens: lensName, language: extractLang, mode })
         });
         if (!r.ok) {
             const d = await r.json().catch(() => ({}));
             if (typeof showToast === 'function') showToast(d.error || 'Refresh failed', 'error');
             _ytExtractingLenses.delete(lensName);
             _ytRenderLensByName(lensName);
+            return;
         }
+        _ytPollForLens(_ytCurrentVideoId, lensName, extractLang);
     } catch (e) {
         if (typeof showToast === 'function') showToast('Refresh failed', 'error');
         _ytExtractingLenses.delete(lensName);
@@ -946,42 +986,92 @@ async function _ytRefreshLens(lensName, mode) {
 }
 window._ytRefreshLens = _ytRefreshLens;
 
+// Poll for lens extraction completion — checks every 3s, up to 120s
+function _ytPollForLens(videoId, lensName, extractLang) {
+    const startTime = Date.now();
+    const maxWait = 120000;
+    // Snapshot current content to detect changes (for refresh/merge)
+    const oldKey = `${lensName}_${extractLang}`;
+    const oldContent = _ytInsightsAll[oldKey]?.content || null;
+
+    const poll = async () => {
+        if (_ytCurrentVideoId != videoId) return; // modal closed or different video
+        if (Date.now() - startTime > maxWait) {
+            _ytExtractingLenses.delete(lensName);
+            _ytRenderLensByName(lensName);
+            if (typeof showToast === 'function') showToast('Extraction timed out', 'error');
+            return;
+        }
+        try {
+            const r = await fetch(`/api/youtube/insights/${videoId}?language=all`, { headers: _ytHeaders() });
+            if (!r.ok) { setTimeout(poll, 3000); return; }
+            const d = await r.json();
+            const allInsights = d.insights || [];
+            const newRow = allInsights.find(ins => ins.lens_name === lensName && (ins.language || 'en') === extractLang);
+            if (newRow && newRow.content !== oldContent) {
+                _ytRefreshInsightsFromData(d, lensName, extractLang);
+                return;
+            }
+        } catch (e) { /* retry */ }
+        setTimeout(poll, 3000);
+    };
+    setTimeout(poll, 3000);
+}
+
+// Shared: rebuild insights cache from API data and re-render
+function _ytRefreshInsightsFromData(d, lensName, extractLang) {
+    const allInsights = d.insights || [];
+    _ytAvailableLangs = d.available_languages || ['en'];
+    _ytInsightsAll = {};
+    for (const ins of allInsights) {
+        _ytInsightsAll[`${ins.lens_name}_${ins.language || 'en'}`] = ins;
+    }
+    // Transcript fallback
+    if (d.transcript_text && !_ytInsightsAll[`transcript_${_ytTranscriptLang}`] && !_ytInsightsAll['transcript_en']) {
+        const fl = _ytTranscriptLang || 'en';
+        _ytInsightsAll[`transcript_${fl}`] = { lens_name: 'transcript', language: fl, content: JSON.stringify({ transcript: d.transcript_text }) };
+        allInsights.push(_ytInsightsAll[`transcript_${fl}`]);
+    }
+    // Ensure the extracted language is in the available list so the toggle appears
+    if (extractLang && !_ytAvailableLangs.includes(extractLang)) {
+        _ytAvailableLangs.push(extractLang);
+    }
+    // Only auto-switch if the current language has NO data for this lens
+    // (i.e., first extraction ever — user hasn't built up data in current lang yet)
+    const curKey = `${lensName}_${_ytCurrentLang}`;
+    if (extractLang && extractLang !== _ytCurrentLang && !_ytInsightsAll[curKey]) {
+        _ytCurrentLang = extractLang;
+        localStorage.setItem('stratos_insight_lang', extractLang);
+    }
+    // Update tab dim state
+    const availableLensSet = new Set();
+    for (const ins of allInsights) availableLensSet.add(ins.lens_name);
+    document.querySelectorAll('.yi-tab').forEach(tab => {
+        if (availableLensSet.has(tab.dataset.lens)) tab.classList.remove('yi-tab-dim');
+    });
+    // Update subtitle count
+    const extractedCount = new Set(allInsights.filter(ins => (ins.language || 'en') === _ytCurrentLang).map(ins => ins.lens_name)).size;
+    const subEl = document.getElementById('yi-subtitle');
+    if (subEl) subEl.textContent = `${extractedCount} lens${extractedCount !== 1 ? 'es' : ''} extracted`;
+    // Clear spinner and re-render
+    _ytExtractingLenses.delete(lensName);
+    const activeTab = document.querySelector('.yi-tab.yi-tab-active');
+    if (activeTab) _ytRenderLensByName(activeTab.dataset.lens);
+    _ytRenderLangToggle();
+    const langLabel = extractLang && extractLang !== _ytCurrentLang
+        ? ` in ${_ytLangLabels[extractLang] || extractLang.toUpperCase()} — use language toggle to view`
+        : '';
+    if (typeof showToast === 'function') showToast(`${lensName.charAt(0).toUpperCase() + lensName.slice(1)} lens extracted${langLabel}`, 'success');
+}
+
+// SSE handler — fast-path, but polling is the reliable fallback
 function _handleLensExtracted(event) {
     const { video_id, lens, language } = event;
-    _ytExtractingLenses.delete(lens);
-    // If the modal is open for this video, re-fetch and re-render
+    if (!_ytExtractingLenses.has(lens)) return; // polling already handled it
     if (_ytCurrentVideoId && _ytCurrentVideoId == video_id) {
         fetch(`/api/youtube/insights/${video_id}?language=all`, { headers: _ytHeaders() })
             .then(r => r.json())
-            .then(d => {
-                const allInsights = d.insights || [];
-                _ytAvailableLangs = d.available_languages || ['en'];
-                _ytInsightsAll = {};
-                for (const ins of allInsights) {
-                    _ytInsightsAll[`${ins.lens_name}_${ins.language || 'en'}`] = ins;
-                }
-                // Transcript fallback from video record
-                if (d.transcript_text && !_ytInsightsAll[`transcript_${_ytTranscriptLang}`] && !_ytInsightsAll['transcript_en']) {
-                    const fl = _ytTranscriptLang || 'en';
-                    _ytInsightsAll[`transcript_${fl}`] = { lens_name: 'transcript', language: fl, content: JSON.stringify({ transcript: d.transcript_text }) };
-                    allInsights.push(_ytInsightsAll[`transcript_${fl}`]);
-                }
-                // Update tab dim state
-                const availableLensSet = new Set();
-                for (const ins of allInsights) availableLensSet.add(ins.lens_name);
-                document.querySelectorAll('.yi-tab').forEach(tab => {
-                    if (availableLensSet.has(tab.dataset.lens)) tab.classList.remove('yi-tab-dim');
-                });
-                // Update subtitle count
-                const extractedCount = new Set(allInsights.filter(ins => (ins.language || 'en') === _ytCurrentLang).map(ins => ins.lens_name)).size;
-                const subEl = document.getElementById('yi-subtitle');
-                if (subEl) subEl.textContent = `${extractedCount} lens${extractedCount !== 1 ? 'es' : ''} extracted`;
-                // Always re-render the active tab
-                const activeTab = document.querySelector('.yi-tab.yi-tab-active');
-                if (activeTab) _ytRenderLensByName(activeTab.dataset.lens);
-                _ytRenderLangToggle();
-                if (typeof showToast === 'function') showToast(`${lens.charAt(0).toUpperCase() + lens.slice(1)} lens extracted`, 'success');
-            })
+            .then(d => _ytRefreshInsightsFromData(d, lens, language))
             .catch(() => {});
     }
 }

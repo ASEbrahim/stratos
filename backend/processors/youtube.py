@@ -419,7 +419,7 @@ class YouTubeProcessor:
 
         channel_id = resolved['channel_id']
         channel_name = resolved.get('channel_name', '')
-        lenses = lenses or ['summary']
+        lenses = lenses or ['transcript']
 
         try:
             cursor = self.db.conn.cursor()
@@ -461,7 +461,7 @@ class YouTubeProcessor:
         """
         if not self.db:
             return None
-        lenses = lenses or ['summary']
+        lenses = lenses or ['transcript']
 
         try:
             cursor = self.db.conn.cursor()

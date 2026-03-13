@@ -157,7 +157,7 @@ def handle_post(handler, strat, auth, path):
 
     if path == "/api/youtube/channels":
         channel_input = (body.get('channel') or body.get('channel_url') or '').strip()
-        lenses = body.get('lenses', ['summary'])
+        lenses = body.get('lenses', ['transcript'])
         if not channel_input:
             _send_json(handler, {"error": "No channel URL/handle provided"}, 400)
             return True
@@ -187,6 +187,102 @@ def handle_post(handler, strat, auth, path):
             ch_id = int(path_parts[3])
             new_videos = yt.discover_new_videos(handler._profile_id, ch_id)
             _send_json(handler, {"ok": True, "new_videos": len(new_videos), "videos": new_videos[:10]})
+        except (ValueError, IndexError):
+            _send_json(handler, {"error": "Invalid channel ID"}, 400)
+        return True
+
+    if len(path_parts) == 4 and path_parts[2] == 'extract-all':
+        # POST /api/youtube/extract-all/:channel_db_id
+        # Queues lens extraction for all transcribed videos in the channel
+        try:
+            ch_id = int(path_parts[3])
+            cursor = strat.db.conn.cursor()
+            # Get all transcribed/complete videos that have transcripts
+            cursor.execute(
+                """SELECT id, transcript_text, title, profile_id, transcript_language
+                   FROM youtube_videos
+                   WHERE channel_id = ? AND profile_id = ? AND transcript_text IS NOT NULL AND transcript_text != ''""",
+                (ch_id, handler._profile_id)
+            )
+            videos = [dict(r) for r in cursor.fetchall()]
+            if not videos:
+                _send_json(handler, {"ok": True, "queued": 0, "message": "No transcribed videos found"})
+                return True
+
+            # Get channel lenses config
+            cursor.execute(
+                "SELECT lenses FROM youtube_channels WHERE id = ? AND profile_id = ?",
+                (ch_id, handler._profile_id)
+            )
+            ch_row = cursor.fetchone()
+            channel_lenses = ['summary', 'eloquence', 'narrations', 'history', 'spiritual', 'politics']
+            if ch_row and ch_row['lenses']:
+                try:
+                    parsed = json.loads(ch_row['lenses'])
+                    # Filter to only LLM lenses (not transcript)
+                    channel_lenses = [l for l in parsed if l != 'transcript'] or channel_lenses
+                except (json.JSONDecodeError, TypeError):
+                    pass
+
+            from processors.lenses import extract_lens, AVAILABLE_LENSES
+            queued = 0
+
+            def _extract_all_background():
+                nonlocal queued
+                for video in videos:
+                    vid_id = video['id']
+                    transcript = video['transcript_text']
+                    title = video['title'] or ''
+                    lang = video.get('transcript_language') or 'en'
+                    # Check which lenses already exist for this video
+                    cur = strat.db.conn.cursor()
+                    cur.execute(
+                        "SELECT DISTINCT lens_name FROM video_insights WHERE video_id = ? AND profile_id = ?",
+                        (vid_id, handler._profile_id)
+                    )
+                    existing = {row['lens_name'] for row in cur.fetchall()}
+                    for lens_name in channel_lenses:
+                        if lens_name in existing or lens_name not in AVAILABLE_LENSES or lens_name == 'transcript':
+                            continue
+                        try:
+                            result = extract_lens(
+                                transcript, lens_name, title,
+                                yt.ollama_host, yt.inference_model,
+                                target_language=lang if lang != 'en' else 'en',
+                            )
+                            if result:
+                                cur.execute(
+                                    """INSERT INTO video_insights
+                                       (video_id, profile_id, lens_name, content, language)
+                                       VALUES (?, ?, ?, ?, ?)""",
+                                    (vid_id, handler._profile_id, lens_name,
+                                     json.dumps(result, ensure_ascii=False), lang if lang != 'en' else 'en')
+                                )
+                                strat.db._commit()
+                                logger.info(f"Extract-all: '{lens_name}' for video {vid_id} ({title[:40]})")
+                        except Exception as e:
+                            logger.error(f"Extract-all: lens '{lens_name}' failed for video {vid_id}: {e}")
+                # Broadcast completion
+                if hasattr(strat, 'sse_manager') and strat.sse_manager:
+                    strat.sse_manager.broadcast('extract_all_complete', {
+                        'channel_id': ch_id,
+                    })
+                logger.info(f"Extract-all complete for channel {ch_id}: processed {len(videos)} videos")
+
+            # Count how many video-lens pairs will be extracted
+            cursor_check = strat.db.conn.cursor()
+            for video in videos:
+                cursor_check.execute(
+                    "SELECT DISTINCT lens_name FROM video_insights WHERE video_id = ? AND profile_id = ?",
+                    (video['id'], handler._profile_id)
+                )
+                existing = {row['lens_name'] for row in cursor_check.fetchall()}
+                for lens_name in channel_lenses:
+                    if lens_name not in existing and lens_name in AVAILABLE_LENSES and lens_name != 'transcript':
+                        queued += 1
+
+            threading.Thread(target=_extract_all_background, daemon=True).start()
+            _send_json(handler, {"ok": True, "queued": queued, "videos": len(videos)})
         except (ValueError, IndexError):
             _send_json(handler, {"error": "Invalid channel ID"}, 400)
         return True
