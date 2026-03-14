@@ -229,14 +229,14 @@ var _defaultTickerPresets = [
 var _tickerPresets = [];
 
 function loadTickerPresets() {
-    var token = localStorage.getItem('stratos_token');
+    var token = typeof getAuthToken === 'function' ? getAuthToken() : '';
     if (!token) {
         _tickerPresets = _defaultTickerPresets.slice();
         renderTickerPresets();
         return;
     }
     fetch('/api/ticker-presets', {
-        headers: { 'Authorization': 'Bearer ' + token }
+        headers: { 'X-Auth-Token': token }
     })
     .then(function(r) { return r.json(); })
     .then(function(data) {
@@ -332,11 +332,11 @@ async function deleteTickerPreset(name) {
     if (!(await stratosConfirm('Delete preset "' + name + '"?', { title: 'Delete Preset', okText: 'Delete', cancelText: 'Cancel' }))) return;
     _tickerPresets = _tickerPresets.filter(function(p) { return p.name !== name; });
     renderTickerPresets();
-    var token = localStorage.getItem('stratos_token');
+    var token = typeof getAuthToken === 'function' ? getAuthToken() : '';
     if (token) {
         fetch('/api/ticker-presets', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+            headers: { 'Content-Type': 'application/json', 'X-Auth-Token': token },
             body: JSON.stringify({ action: 'delete', name: name })
         }).catch(function() {});
     }
@@ -344,11 +344,11 @@ async function deleteTickerPreset(name) {
 }
 
 function _savePresetToServer(name, tickers) {
-    var token = localStorage.getItem('stratos_token');
+    var token = typeof getAuthToken === 'function' ? getAuthToken() : '';
     if (!token) return;
     fetch('/api/ticker-presets', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+        headers: { 'Content-Type': 'application/json', 'X-Auth-Token': token },
         body: JSON.stringify({ action: 'save', name: name, tickers: tickers })
     }).catch(function() {});
 }
