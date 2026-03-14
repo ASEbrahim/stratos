@@ -87,3 +87,37 @@ Issues discovered but NOT safe to fix automatically.
 - **File**: `frontend/games-ui.js`, line 368
 - **Issue**: `_gamesActiveNpc.toLowerCase().replace(/ /g, '_') === e.name` compares the NPC display name (spaces→underscores) against the entity `name` field. But in `_gamesSelectEntity()` (line 383), `_gamesActiveNpc` is set to `displayName` (with spaces). The `_gamesSetNpc` and `_gamesAutoDetectNpc` functions also use display names. So the comparison in the entity bar highlight is inconsistent — it may fail to highlight the active character chip if the display name contains spaces that don't match the `name` field.
 - **Recommended fix**: Compare against `e.display_name` instead of `e.name` (after the transform). Not fixed because the comparison happens to work when names are single words (no spaces), which is the common case.
+
+---
+
+## Session 3 Findings (Remaining Processors + Fetchers)
+
+### F017: extra_feeds.py accepts arbitrary user-provided URLs without validation
+- **File**: `backend/fetchers/extra_feeds.py`, lines 294-302
+- **Issue**: Custom feed URLs from user config are passed directly to HTTP fetcher. User could specify `file:///etc/passwd` or internal network URLs for SSRF.
+- **Recommended fix**: Validate URL scheme is http/https, block private IP ranges. Not fixed — low risk since only the authenticated user's own URLs are fetched.
+
+### F018: google_search.py QueryTracker file operations not locked
+- **File**: `backend/fetchers/google_search.py`, lines 65-88
+- **Issue**: `_load()` and `_save()` on the query tracker JSON file have no file locking. Concurrent requests could lose count increments.
+- **Recommended fix**: Use `fcntl.flock()` or atomic write pattern. Not fixed — single-user desktop app, concurrent search calls are rare.
+
+### F019: workspace.py json.loads() without try-except in import
+- **File**: `backend/processors/workspace.py`, lines 207, 212, 256, 279
+- **Issue**: Multiple `json.loads()` calls on ZIP content without error handling. Malformed ZIP contents crash import.
+- **Recommended fix**: Wrap in try-except, skip malformed entries. Not fixed — import is user-initiated and errors are visible.
+
+### F020: kuwait_scrapers.py user config items used in regex without escaping
+- **File**: `backend/fetchers/kuwait_scrapers.py`, line 250
+- **Issue**: User-configured category items used in regex search. If items contain regex metacharacters, could cause ReDoS.
+- **Recommended fix**: Use `re.escape()` on user input before regex. Not fixed — items come from config, not arbitrary user input.
+
+### F021: user_data.py creates directories with default (world-readable) permissions
+- **File**: `backend/user_data.py`, lines 26-29
+- **Issue**: `os.makedirs()` uses default 0o755 permissions. User data directories are world-readable.
+- **Recommended fix**: Use `mode=0o700` for user data dirs. Not fixed — single-user system, no multi-tenant risk.
+
+### F022: scenario_generator.py LLM response not validated before file operations
+- **File**: `backend/processors/scenario_generator.py`, lines 313-328
+- **Issue**: `_llm_json_call()` returns parsed JSON from Ollama but doesn't validate the response structure. Missing keys cause silent failures (empty files written).
+- **Recommended fix**: Validate required keys before processing. Not fixed — silent failure is acceptable for optional generation fields.

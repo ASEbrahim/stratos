@@ -125,6 +125,68 @@ Each entry documents a code change with before/after context.
 
 - **Session 1**: 40+ backend files, 11 fixes (C001-C011), 9 findings (F001-F009)
 - **Session 2**: 30+ frontend files, 5 fixes (C012-C016), 7 findings (F010-F016)
-- **Total**: 70+ files audited, 16 fixes, 16 findings
-- **High severity fixes**: C003, C006, C009, C010 (Session 1) + C012, C013 (Session 2)
 - **Database**: Integrity OK, no orphans, no duplicates, 27 tables, 46 indices
+
+---
+
+## Session 3: 2026-03-14 (Remaining Processors + Fetchers)
+
+### C017: HxH wiki alias typo in canon_import.py
+- **File**: `backend/processors/canon_import.py`
+- **Before**: `"hxh": {"wiki": "hunterxhunner", ...}` — typo in wiki slug, canon import for Hunter x Hunter would fail to find the wiki
+- **After**: `"hxh": {"wiki": "hunterxhunter", ...}`
+- **Severity**: Low (typo, only affects HxH franchise import)
+
+### C018: Character fallback batch_result duplication in canon_import.py
+- **File**: `backend/processors/canon_import.py`
+- **Before**: `batch_result` variable used before assignment in fallback path. Conditional `isinstance` check was redundant and could cause duplication:
+```python
+batch_result = [char_data] if not isinstance(batch_result, list) else batch_result
+if isinstance(batch_result, list):
+    batch_result.append(char_data)
+else:
+    batch_result = [char_data]
+```
+- **After**: Initialize `batch_result = []` at top, simply `batch_result.append(char_data)` in fallback
+- **Severity**: Medium (character duplication in canon imports)
+
+### C019: _index.json race condition in scenario_updater.py
+- **File**: `backend/processors/scenario_updater.py`
+- **Before**: `_load_json()` → modify → `_write_json_direct()` for `_index.json` without any lock. Since scenario_updater runs in a daemon thread after each gaming response, two rapid messages could interleave reads and writes, losing data.
+- **After**: Added `_index_lock = threading.Lock()` and wrapped both read-modify-write sites in `with _index_lock:`
+- **Severity**: Medium (data loss on rapid gaming messages)
+
+### C020: Path traversal in file_handler.py filename sanitization
+- **File**: `backend/processors/file_handler.py`
+- **Before**: `safe_name = re.sub(r'[^\w\-.]', '_', filename)` — did NOT strip directory components. A filename like `../../etc/passwd` would pass through as `______etc_passwd` but still allowed `../` traversal before the regex.
+- **After**: `os.path.basename(filename)` first to strip all directory components, then regex scrub, then `.lstrip('.')` to prevent hidden files like `.env`, with empty-name fallback to `'upload'`
+- **Severity**: High (path traversal attack surface on file uploads)
+
+---
+
+## Summary (all sessions)
+
+- **Session 1**: 40+ backend files, 11 fixes (C001-C011), 9 findings (F001-F009)
+- **Session 2**: 30+ frontend files, 5 fixes (C012-C016), 7 findings (F010-F016)
+- **Session 3**: 18 remaining files, 7 fixes (C017-C023), 6 findings (F017-F022)
+- **Total**: 23 fixes, 22 findings, 68 files audited (COMPLETE)
+- **High severity fixes**: C003, C006, C009, C010, C012, C013, C020, C021
+- **All source files audited** — no files remaining
+
+### C021: Path traversal in scenario_generator.py _write_file/_write_json
+- **File**: `backend/processors/scenario_generator.py`
+- **Before**: `os.path.join(scenario_path, relative_path)` with no validation — LLM-generated location/NPC IDs used directly in file paths
+- **After**: Added `_safe_path()` that resolves realpath and verifies it stays within scenario_path. Raises ValueError on traversal.
+- **Severity**: High (path traversal via malicious LLM output)
+
+### C022: Path traversal in scenario_templates.py item ID
+- **File**: `backend/processors/scenario_templates.py`
+- **Before**: `item_data['id']` used directly in filename construction
+- **After**: `os.path.basename()` + strip `..` from item ID
+- **Severity**: High (path traversal)
+
+### C023: OCR file size guard
+- **File**: `backend/processors/ocr.py`
+- **Before**: `path.read_bytes()` with no size check — could exhaust memory
+- **After**: Checks `st_size > 50MB`, returns None if exceeded
+- **Severity**: High (resource exhaustion)
