@@ -533,12 +533,16 @@ def create_handler(strat, auth, frontend_dir, output_dir):
 
         def do_DELETE(self):
             self._profile_id = 0
+            self._session_profile = None
             # Auth enforcement for DELETE
             if self.path.startswith('/api/'):
                 token = self.headers.get('X-Auth-Token', '')
                 if not auth.validate_session(token):
                     _send_json(self, {"error": "Authentication required"}, 401)
                     return
+                _session_profile = auth.get_session_profile(token)
+                if _session_profile:
+                    strat.ensure_profile(_session_profile)
                 try:
                     cursor = strat.db.conn.cursor()
                     cursor.execute("SELECT profile_id FROM sessions WHERE token = ?", (token,))
@@ -547,6 +551,7 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                         self._profile_id = _pid_row[0]
                 except Exception:
                     pass
+                self._session_profile = _session_profile
 
             # --- Auth route DELETE (profile deletion) ---
             if self.path.startswith("/api/profiles/"):
