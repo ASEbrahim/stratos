@@ -1149,7 +1149,7 @@ async function _agentFileSelected(fileInput) {
     if (uploadBtn) { uploadBtn.style.opacity = '0.5'; uploadBtn.style.pointerEvents = 'none'; }
 
     try {
-        const token = localStorage.getItem('stratos_session_token') || '';
+        const token = typeof getAuthToken === 'function' ? getAuthToken() : '';
         const r = await fetch('/api/files/upload', {
             method: 'POST',
             headers: {
