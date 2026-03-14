@@ -49,6 +49,16 @@ def handle_get(handler, strat, auth, path):
             from routes.helpers import error_response
             error_response(handler, "Missing url param", 400)
             return True
+
+        # SSRF protection: validate URL scheme and block private/internal IPs
+        from routes.url_validation import validate_url
+        is_safe, err_msg = validate_url(target_url)
+        if not is_safe:
+            logger.warning(f"Proxy SSRF blocked: {err_msg} — url={target_url}")
+            from routes.helpers import error_response
+            error_response(handler, "Blocked URL", 403)
+            return True
+
         worker_base = strat.config.get("proxy", {}).get("cloudflare_worker", "")
         blocked = strat.config.get("proxy", {}).get("blocked_domains", [])
         domain = urlparse(target_url).hostname or ""

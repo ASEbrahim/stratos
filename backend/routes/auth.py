@@ -503,23 +503,34 @@ def handle_auth_routes(handler, method, path, data, db, strat, send_json, email_
             return True
 
         cursor = db.conn.cursor()
-        cursor.execute("SELECT id, reset_code_hash, reset_code_expires FROM users WHERE email = ?", (email,))
+        cursor.execute("SELECT id, reset_code_hash, reset_code_expires, reset_attempts FROM users WHERE email = ?", (email,))
         row = cursor.fetchone()
         if not row or not row[1]:
             send_json(handler, {"error": "No reset request found"}, status=400)
             return True
 
-        user_id, stored_hash, expires = row
+        user_id, stored_hash, expires, reset_attempts = row
+
+        # Brute-force protection: 5 failed attempts invalidates the reset code
+        if (reset_attempts or 0) >= 5:
+            cursor.execute("UPDATE users SET reset_code_hash = NULL, reset_code_expires = NULL, reset_attempts = 0 WHERE id = ?", (user_id,))
+            db._commit()
+            send_json(handler, {"error": "Too many failed attempts. Request a new code."}, status=429)
+            return True
+
         if expires and datetime.fromisoformat(expires) < datetime.now():
             send_json(handler, {"error": "Code expired"}, status=400)
             return True
         if _hash_code(code) != stored_hash:
-            send_json(handler, {"error": "Invalid code"}, status=400)
+            cursor.execute("UPDATE users SET reset_attempts = COALESCE(reset_attempts, 0) + 1 WHERE id = ?", (user_id,))
+            db._commit()
+            remaining = 4 - (reset_attempts or 0)
+            send_json(handler, {"error": f"Invalid code. {remaining} attempt(s) remaining."}, status=400)
             return True
 
         new_hash = _hash_password(new_password)
         cursor.execute("""
-            UPDATE users SET password_hash = ?, reset_code_hash = NULL, reset_code_expires = NULL WHERE id = ?
+            UPDATE users SET password_hash = ?, reset_code_hash = NULL, reset_code_expires = NULL, reset_attempts = 0 WHERE id = ?
         """, (new_hash, user_id))
         # Invalidate all sessions for this user
         cursor.execute("DELETE FROM sessions WHERE user_id = ?", (user_id,))
@@ -560,7 +571,7 @@ def handle_auth_routes(handler, method, path, data, db, strat, send_json, email_
         code = _generate_code()
         otp_expires_at = (datetime.now() + timedelta(minutes=15)).isoformat()
         cursor.execute(
-            "UPDATE users SET otp_code_hash = ?, otp_code_expires = ? WHERE id = ?",
+            "UPDATE users SET otp_code_hash = ?, otp_code_expires = ?, otp_attempts = 0 WHERE id = ?",
             (_hash_code(code), otp_expires_at, user_id)
         )
         db._commit()
@@ -586,7 +597,7 @@ def handle_auth_routes(handler, method, path, data, db, strat, send_json, email_
 
         cursor = db.conn.cursor()
         cursor.execute(
-            "SELECT id, display_name, is_admin, email_verified, otp_code_hash, otp_code_expires FROM users WHERE email = ?",
+            "SELECT id, display_name, is_admin, email_verified, otp_code_hash, otp_code_expires, otp_attempts FROM users WHERE email = ?",
             (email,)
         )
         row = cursor.fetchone()
@@ -594,7 +605,14 @@ def handle_auth_routes(handler, method, path, data, db, strat, send_json, email_
             send_json(handler, {"error": "Invalid or expired code"}, status=400)
             return True
 
-        user_id, display_name, is_admin, email_verified, stored_hash, otp_expires = row
+        user_id, display_name, is_admin, email_verified, stored_hash, otp_expires, otp_attempts = row
+
+        # Brute-force protection: 5 failed attempts invalidates the OTP
+        if (otp_attempts or 0) >= 5:
+            cursor.execute("UPDATE users SET otp_code_hash = NULL, otp_code_expires = NULL, otp_attempts = 0 WHERE id = ?", (user_id,))
+            db._commit()
+            send_json(handler, {"error": "Too many failed attempts. Request a new code."}, status=429)
+            return True
 
         if not email_verified:
             send_json(handler, {"error": "Email not verified"}, status=403)
@@ -603,12 +621,15 @@ def handle_auth_routes(handler, method, path, data, db, strat, send_json, email_
             send_json(handler, {"error": "Code expired. Request a new one."}, status=400)
             return True
         if _hash_code(code) != stored_hash:
-            send_json(handler, {"error": "Invalid code"}, status=400)
+            cursor.execute("UPDATE users SET otp_attempts = COALESCE(otp_attempts, 0) + 1 WHERE id = ?", (user_id,))
+            db._commit()
+            remaining = 4 - (otp_attempts or 0)
+            send_json(handler, {"error": f"Invalid code. {remaining} attempt(s) remaining."}, status=400)
             return True
 
         # Clear OTP after use
         cursor.execute(
-            "UPDATE users SET otp_code_hash = NULL, otp_code_expires = NULL, last_login = ? WHERE id = ?",
+            "UPDATE users SET otp_code_hash = NULL, otp_code_expires = NULL, otp_attempts = 0, last_login = ? WHERE id = ?",
             (datetime.now().isoformat(), user_id)
         )
 

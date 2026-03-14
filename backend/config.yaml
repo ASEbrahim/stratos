@@ -51,12 +51,12 @@ scoring:
     avg_cap: 60
   fallback_score: 3.0
 search:
-  google_api_key: AIzaSyAYmzOV-kl1m60gidsKAhXKiDM92F4qGmY
-  google_cx: 52d68e3fc17d74e9a
+  google_api_key: ""
+  google_cx: ""
   provider: serper
   searxng_host: http://localhost:8888
-  serper_api_key: bc26c29537b924cf7e8022eaaf83c50cfdeb51be
-  serper_credits: 884
+  serper_api_key: ""
+  serper_credits: 869
 system:
   database_file: strat_os.db
   frontend_port: 8080
@@ -64,10 +64,10 @@ system:
   max_news_items: 100
   output_file: output/news_data.json
 email:
-  smtp_host: smtp.gmail.com
+  smtp_host: ""
   smtp_port: 587
-  smtp_user: StratintOS@gmail.com
-  smtp_password: ctko nnjl skkl kxxj
+  smtp_user: ""
+  smtp_password: ""
 profile:
   role: Japanese language translator
   location: Japan

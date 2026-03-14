@@ -301,20 +301,34 @@ class AuthManager:
             del self._active_sessions[token]
             self._save_sessions()
 
-    def rate_limited(self, path):
-        """Check if a request path is rate-limited."""
-        limit = self.RATE_LIMITS.get(path)
+    def rate_limited(self, path, client_ip=""):
+        """Check if a request path is rate-limited (per source IP).
+
+        Rate buckets are keyed by (path, client_ip) so one client's
+        requests don't count against other clients.
+        """
+        # Strip query string for rate limit lookup
+        clean_path = path.split('?')[0]
+        limit = self.RATE_LIMITS.get(clean_path)
         if not limit:
             return False
         max_calls, window = limit
         now = time.time()
+        bucket_key = f"{clean_path}:{client_ip}" if client_ip else clean_path
         with self._rate_lock:
-            bucket = self._rate_buckets.get(path, [])
+            bucket = self._rate_buckets.get(bucket_key, [])
             bucket = [t for t in bucket if now - t < window]
             if len(bucket) >= max_calls:
                 return True
             bucket.append(now)
-            self._rate_buckets[path] = bucket
+            self._rate_buckets[bucket_key] = bucket
+            # Periodic cleanup: purge stale buckets every 10 minutes
+            if now - self._last_purge > 600:
+                stale = [k for k, v in self._rate_buckets.items()
+                         if not v or now - v[-1] > 600]
+                for k in stale:
+                    del self._rate_buckets[k]
+                self._last_purge = now
         return False
 
     @staticmethod

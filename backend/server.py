@@ -95,12 +95,19 @@ def create_handler(strat, auth, frontend_dir, output_dir):
             self.send_header("Referrer-Policy", "strict-origin-when-cross-origin")
             super().end_headers()
 
+        def _client_ip(self):
+            """Get client IP from X-Forwarded-For header or socket address."""
+            forwarded = self.headers.get("X-Forwarded-For", "")
+            if forwarded:
+                return forwarded.split(",")[0].strip()
+            return self.client_address[0] if self.client_address else ""
+
         def do_GET(self):
             self._profile_id = 0
             self._session_profile = None
 
             # --- Rate limiting (before any dispatch) ---
-            if auth.rate_limited(self.path):
+            if auth.rate_limited(self.path, self._client_ip()):
                 _send_json(self, {"error": "Too many requests. Try again shortly."}, 429)
                 return
 
@@ -260,7 +267,7 @@ def create_handler(strat, auth, frontend_dir, output_dir):
             self._session_profile = None
 
             # --- Rate limiting (before any dispatch) ---
-            if auth.rate_limited(self.path):
+            if auth.rate_limited(self.path, self._client_ip()):
                 _send_json(self, {"error": "Too many requests. Try again shortly."}, 429)
                 return
 

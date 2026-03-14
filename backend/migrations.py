@@ -639,6 +639,16 @@ def migration_025(cursor):
     """)
 
 
+@migration
+def migration_026(cursor):
+    """Add brute-force attempt counters for password reset and OTP verification."""
+    for col in ["reset_attempts INTEGER DEFAULT 0", "otp_attempts INTEGER DEFAULT 0"]:
+        try:
+            cursor.execute(f"ALTER TABLE users ADD COLUMN {col}")
+        except Exception:
+            pass  # Column already exists
+
+
 # =========================================================================
 # Migration runner
 # =========================================================================

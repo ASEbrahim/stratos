@@ -420,6 +420,14 @@ def handle_post(handler, strat, auth, path):
                             "entries": 0
                         }]})
                     return True
+            # SSRF protection: block private/internal IPs
+            from routes.url_validation import validate_url
+            is_safe, ssrf_err = validate_url(url)
+            if not is_safe:
+                logger.warning(f"RSS discovery SSRF blocked: {ssrf_err} — url={url}")
+                _send_json(handler, {"error": "Blocked URL"}, 403)
+                return True
+
             # Check if domain is blocked
             from urllib.parse import urlparse as _urlparse, quote_plus as _quote_plus
             _parsed_url = _urlparse(url)
