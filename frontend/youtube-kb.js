@@ -102,15 +102,22 @@ async function _ykbLoadChannels() {
     const panel = document.getElementById('youtube-kb-panel');
     if (!panel) return;
 
-    panel.innerHTML = '<div style="text-align:center;padding:40px;color:#64748b;"><div class="w-5 h-5 border-2 rounded-full animate-spin mx-auto mb-3" style="border-color:rgba(52,211,153,0.3);border-top-color:#34d399;"></div>Loading channels...</div>';
+    panel.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-muted,#64748b);"><div style="width:20px;height:20px;border:2px solid var(--border-strong,rgba(255,255,255,0.1));border-top-color:var(--accent,#10b981);border-radius:50%;animation:ykb-pulse 0.8s linear infinite;margin:0 auto 12px;"></div>Loading channels...</div>';
 
     try {
-        const res = await fetch('/api/youtube/channels', { headers: _ykbAuthHeader() });
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 15000);
+        const res = await fetch('/api/youtube/channels', { headers: _ykbAuthHeader(), signal: controller.signal });
+        clearTimeout(timeout);
+        if (!res.ok) throw new Error(`HTTP ${res.status} — ${res.statusText}`);
         const data = await res.json();
         _ykbChannels = data.channels || [];
     } catch (err) {
-        panel.innerHTML = `<div style="text-align:center;padding:40px;color:#ef4444;">Failed to load channels: ${err.message}</div>`;
+        const msg = err.name === 'AbortError' ? 'Request timed out' : err.message;
+        panel.innerHTML = `<div style="text-align:center;padding:40px;">
+            <div style="color:#ef4444;font-size:13px;margin-bottom:12px;">Failed to load channels: ${msg}</div>
+            <button onclick="initYouTubeKB()" style="padding:8px 18px;border-radius:8px;border:1px solid var(--accent-border,rgba(16,185,129,0.2));background:var(--accent-bg,rgba(16,185,129,0.1));color:var(--accent-light,#34d399);font-size:12px;font-weight:600;cursor:pointer;">Retry</button>
+        </div>`;
         return;
     }
 
