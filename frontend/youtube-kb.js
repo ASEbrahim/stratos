@@ -23,7 +23,7 @@ function _ykbInjectStyles() {
     style.id = _ykbStyleId;
     style.textContent = `
         /* ═══ Theme-aware styles using CSS variables ═══ */
-        .ykb-card { background: var(--bg-panel-solid, #0e1026); border: 1px solid var(--accent-border, rgba(16,185,129,0.2)); border-radius: 12px; overflow: hidden; transition: all 0.3s ease; box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
+        .ykb-card { background: var(--bg-panel-solid, #0e1026); border: 1px solid var(--accent-border, rgba(16,185,129,0.2)); border-radius: 12px; overflow: hidden; transition: all 0.3s ease; box-shadow: 0 4px 20px rgba(0,0,0,0.3); margin-bottom: 12px; }
         .ykb-card:hover { border-color: var(--accent-border, rgba(16,185,129,0.3)); box-shadow: 0 8px 30px rgba(0,0,0,0.4), 0 0 20px var(--accent-bg, rgba(16,185,129,0.06)); }
         .ykb-card.expanded { border-color: var(--accent, #10b981); box-shadow: 0 12px 40px rgba(0,0,0,0.5), 0 0 30px var(--accent-bg, rgba(16,185,129,0.1)); }
         .ykb-header { display: flex; align-items: center; gap: 12px; padding: 14px 18px; cursor: pointer; user-select: none; transition: background 0.2s; }
@@ -126,12 +126,15 @@ function _ykbRender() {
     // Toolbar
     html += `<div class="ykb-toolbar">
         <div>
-            <div class="ykb-title"><i data-lucide="play-circle" class="w-5 h-5" style="color:#34d399;"></i> YouTube Knowledge Base</div>
+            <div class="ykb-title"><i data-lucide="play-circle" class="w-5 h-5" style="color:var(--accent,#10b981);"></i> YouTube Knowledge Base</div>
             <div class="ykb-subtitle">${_ykbChannels.length} channel${_ykbChannels.length !== 1 ? 's' : ''} tracked</div>
         </div>
         <div style="flex:1;"></div>
-        <button class="ykb-btn ykb-btn-add" onclick="_ykbAddChannel()">
-            <i data-lucide="plus" class="w-3.5 h-3.5"></i> Add Channel
+        <button class="ykb-btn" onclick="_ykbShowGuide()" title="How the Knowledge Base works">
+            <i data-lucide="book-open" class="w-3.5 h-3.5"></i> Guide
+        </button>
+        <button onclick="_ykbAddChannel()" style="padding:9px 20px;border-radius:10px;border:none;background:var(--accent,#10b981);color:var(--bg-primary,#050810);font-size:12px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:6px;box-shadow:0 4px 16px var(--accent-bg,rgba(16,185,129,0.2));transition:all 0.2s;" onmouseover="this.style.transform='translateY(-1px)';this.style.boxShadow='0 6px 24px var(--accent-bg)'" onmouseout="this.style.transform='';this.style.boxShadow='0 4px 16px var(--accent-bg)'">
+            <i data-lucide="plus" class="w-4 h-4"></i> Add Channel
         </button>
     </div>`;
 
@@ -178,6 +181,15 @@ function _ykbRender() {
                         </button>
                         <button class="ykb-btn ykb-btn-secondary" onclick="_ykbProcessAll(${ch.id})" title="Run AI processing on all videos">
                             <i data-lucide="sparkles" class="w-3 h-3"></i> Process
+                        </button>
+                        <button class="ykb-btn ykb-btn-secondary" onclick="_ykbTranslateAll(${ch.id})" title="Translate all videos in this channel">
+                            <i data-lucide="languages" class="w-3 h-3"></i> Translate All
+                        </button>
+                        <button class="ykb-btn ykb-btn-secondary" onclick="_ykbExportChannel(${ch.id})" title="Export channel data as JSON">
+                            <i data-lucide="download" class="w-3 h-3"></i> Export
+                        </button>
+                        <button class="ykb-btn" onclick="_ykbDeleteChannel(${ch.id},'${_ykbEsc(ch.channel_name)}')" title="Delete channel" style="color:#ef4444;border-color:rgba(239,68,68,0.1);">
+                            <i data-lucide="trash-2" class="w-3 h-3"></i>
                         </button>
                     </div>`;
             html += `<i data-lucide="${isExpanded ? 'chevron-up' : 'chevron-down'}" class="w-4 h-4 text-slate-500 flex-shrink-0"></i>`;
@@ -591,23 +603,65 @@ async function _ykbProcessAll(chId) {
     }
 }
 
-async function _ykbAddChannel() {
-    const url = prompt('Enter YouTube channel URL or @handle:');
-    if (!url || !url.trim()) return;
+function _ykbAddChannel() {
+    const existing = document.getElementById('ykb-add-modal');
+    if (existing) existing.remove();
 
+    const modal = document.createElement('div');
+    modal.id = 'ykb-add-modal';
+    modal.style.cssText = 'position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);';
+    modal.onclick = (e) => { if (e.target === modal) modal.remove(); };
+
+    const allLenses = ['transcript', 'summary', 'eloquence', 'narrations'];
+
+    modal.innerHTML = `<div style="background:var(--bg-panel-solid,#0e1026);border:1px solid var(--accent-border,rgba(16,185,129,0.2));border-radius:16px;padding:28px;max-width:440px;width:92%;box-shadow:0 20px 60px rgba(0,0,0,0.5),0 0 30px var(--accent-bg,rgba(16,185,129,0.08));">
+        <div style="font-size:16px;font-weight:700;color:var(--text-primary,#e2e8f0);margin-bottom:4px;">Add YouTube Channel</div>
+        <div style="font-size:11px;color:var(--text-muted,#64748b);margin-bottom:16px;">Enter a channel URL, @handle, or video URL</div>
+
+        <input id="ykb-add-url" type="text" placeholder="https://www.youtube.com/@channelname" style="width:100%;padding:10px 14px;border-radius:10px;border:1px solid var(--border-strong,rgba(255,255,255,0.1));background:var(--bg-input,rgba(8,10,22,0.7));color:var(--text-primary,#e2e8f0);font-size:13px;outline:none;transition:border-color 0.2s;" onfocus="this.style.borderColor='var(--accent-border)'" onblur="this.style.borderColor='var(--border-strong)'">
+
+        <div style="margin-top:14px;">
+            <div style="font-size:11px;font-weight:600;color:var(--text-secondary,#94a3b8);margin-bottom:8px;">Lenses to extract</div>
+            <div style="display:flex;flex-wrap:wrap;gap:6px;">
+                ${allLenses.map(l => `<label style="display:flex;align-items:center;gap:5px;padding:5px 12px;border-radius:8px;cursor:pointer;border:1px solid var(--border,rgba(255,255,255,0.05));background:var(--bg-hover,rgba(22,26,55,0.5));font-size:11px;color:var(--text-secondary,#94a3b8);transition:all 0.15s;" onmouseover="this.style.borderColor='var(--accent-border)'" onmouseout="this.style.borderColor='var(--border)'"><input type="checkbox" class="ykb-add-lens" value="${l}" ${l === 'transcript' || l === 'summary' ? 'checked' : ''} style="accent-color:var(--accent,#10b981);width:13px;height:13px;">${l.charAt(0).toUpperCase() + l.slice(1)}</label>`).join('')}
+            </div>
+        </div>
+
+        <div style="display:flex;gap:8px;margin-top:18px;justify-content:flex-end;">
+            <button onclick="document.getElementById('ykb-add-modal').remove()" style="padding:8px 18px;border-radius:8px;border:1px solid var(--border,rgba(255,255,255,0.05));background:none;color:var(--text-muted,#64748b);font-size:12px;cursor:pointer;">Cancel</button>
+            <button onclick="_ykbDoAddChannel()" style="padding:8px 22px;border-radius:8px;border:none;background:var(--accent,#10b981);color:var(--bg-primary,#050810);font-size:12px;font-weight:700;cursor:pointer;box-shadow:0 4px 16px var(--accent-bg,rgba(16,185,129,0.2));transition:all 0.2s;" onmouseover="this.style.transform='translateY(-1px)';this.style.boxShadow='0 6px 24px var(--accent-bg)'" onmouseout="this.style.transform='';this.style.boxShadow='0 4px 16px var(--accent-bg)'">Add Channel</button>
+        </div>
+    </div>`;
+
+    document.body.appendChild(modal);
+    setTimeout(() => document.getElementById('ykb-add-url')?.focus(), 100);
+
+    // Allow Enter key to submit
+    document.getElementById('ykb-add-url').addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') _ykbDoAddChannel();
+    });
+}
+
+async function _ykbDoAddChannel() {
+    const urlInput = document.getElementById('ykb-add-url');
+    const url = urlInput?.value?.trim();
+    if (!url) { urlInput?.focus(); return; }
+
+    const lenses = [...document.querySelectorAll('.ykb-add-lens:checked')].map(cb => cb.value);
+
+    document.getElementById('ykb-add-modal')?.remove();
     _ykbShowToast('Adding channel...', '#fbbf24');
     try {
         const res = await fetch('/api/youtube/channels', {
             method: 'POST',
-            headers: { ...{ 'Content-Type': 'application/json' }, ..._ykbAuthHeader() },
-            body: JSON.stringify({ url: url.trim() })
+            headers: { 'Content-Type': 'application/json', ..._ykbAuthHeader() },
+            body: JSON.stringify({ channel_url: url, lenses: lenses.length ? lenses : undefined })
         });
         if (!res.ok) {
             const errData = await res.json().catch(() => ({}));
             throw new Error(errData.detail || errData.error || `HTTP ${res.status}`);
         }
         _ykbShowToast('Channel added!', '#34d399');
-        // Reload
         await _ykbLoadChannels();
     } catch (err) {
         _ykbShowToast('Failed: ' + err.message, '#ef4444');
@@ -682,6 +736,58 @@ async function _ykbTranslate(videoDbId) {
     document.body.appendChild(picker);
 }
 
+function _ykbTranslateAll(chId) {
+    const videos = (_ykbVideos[chId] || []).filter(v => v.transcript_text || v.status === 'complete' || v.status === 'transcribed');
+    if (!videos.length) {
+        _ykbShowToast('No transcribed videos to translate', '#ef4444');
+        return;
+    }
+
+    // Reuse the same picker UI but batch translate
+    const existing = document.getElementById('ykb-lang-picker');
+    if (existing) existing.remove();
+
+    const picker = document.createElement('div');
+    picker.id = 'ykb-lang-picker';
+    picker.style.cssText = 'position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);';
+    picker.onclick = (e) => { if (e.target === picker) picker.remove(); };
+
+    const langs = [
+        { code: 'ar', label: 'Arabic' }, { code: 'ja', label: 'Japanese' }, { code: 'ko', label: 'Korean' },
+        { code: 'zh', label: 'Chinese' }, { code: 'fr', label: 'French' }, { code: 'de', label: 'German' },
+        { code: 'es', label: 'Spanish' }, { code: 'ru', label: 'Russian' }, { code: 'en', label: 'English' },
+    ];
+
+    picker.innerHTML = `<div style="background:var(--bg-panel-solid,#0e1026);border:1px solid var(--accent-border,rgba(16,185,129,0.2));border-radius:16px;padding:24px;max-width:360px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.5),0 0 30px var(--accent-bg,rgba(16,185,129,0.08));">
+        <div style="font-size:14px;font-weight:700;color:var(--text-primary,#e2e8f0);margin-bottom:4px;">Translate All Videos</div>
+        <div style="font-size:11px;color:var(--text-muted,#64748b);margin-bottom:16px;">${videos.length} videos will be translated</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;">
+            ${langs.map(l => `<button onclick="_ykbDoTranslateAll(${chId},'${l.code}');document.getElementById('ykb-lang-picker').remove();" style="padding:8px 4px;border-radius:8px;border:1px solid var(--border,rgba(255,255,255,0.05));background:var(--bg-hover,rgba(22,26,55,0.5));color:var(--text-secondary,#94a3b8);font-size:11px;font-weight:600;cursor:pointer;transition:all 0.2s;text-align:center;" onmouseover="this.style.borderColor='var(--accent-border)';this.style.color='var(--accent-light,#34d399)';this.style.background='var(--accent-bg,rgba(16,185,129,0.1))'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-secondary)';this.style.background='var(--bg-hover)'">${l.label}</button>`).join('')}
+        </div>
+        <div style="margin-top:14px;text-align:right;"><button onclick="document.getElementById('ykb-lang-picker').remove()" style="padding:6px 14px;border-radius:8px;border:1px solid var(--border,rgba(255,255,255,0.05));background:none;color:var(--text-muted,#64748b);font-size:11px;cursor:pointer;">Cancel</button></div>
+    </div>`;
+
+    document.body.appendChild(picker);
+}
+
+async function _ykbDoTranslateAll(chId, lang) {
+    const videos = (_ykbVideos[chId] || []).filter(v => v.transcript_text || v.status === 'complete' || v.status === 'transcribed');
+    _ykbShowToast(`Translating ${videos.length} videos to ${lang}...`, '#fbbf24');
+    let done = 0, failed = 0;
+    for (const vid of videos) {
+        try {
+            const res = await fetch('/api/youtube/translate-transcript', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', ..._ykbAuthHeader() },
+                body: JSON.stringify({ video_id: vid.id, target_language: lang })
+            });
+            if (res.ok) { done++; _ykbClearVideoCache(vid.id); }
+            else failed++;
+        } catch (e) { failed++; }
+    }
+    _ykbShowToast(`Translated ${done}/${videos.length} videos${failed ? ` (${failed} failed)` : ''}`, done > 0 ? '#34d399' : '#ef4444');
+}
+
 async function _ykbDoTranslate(videoDbId, lang) {
     _ykbShowToast(`Translating to ${lang}...`, '#fbbf24');
     try {
@@ -721,6 +827,62 @@ async function _ykbCancelTranscribe(videoDbId) {
             _ykbRender();
         }
     } catch (err) { _ykbShowToast('Failed: ' + err.message, '#ef4444'); }
+}
+
+async function _ykbDeleteChannel(chId, name) {
+    if (!confirm(`Delete "${name}" and all its videos/insights? This cannot be undone.`)) return;
+    _ykbShowToast('Deleting channel...', '#fbbf24');
+    try {
+        const res = await fetch(`/api/youtube/channels/${chId}`, { method: 'DELETE', headers: _ykbAuthHeader() });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        _ykbShowToast('Channel deleted', '#34d399');
+        if (_ykbExpanded === chId) _ykbExpanded = null;
+        delete _ykbVideos[chId];
+        await _ykbLoadChannels();
+    } catch (err) { _ykbShowToast('Failed: ' + err.message, '#ef4444'); }
+}
+
+function _ykbExportChannel(chId) {
+    const token = typeof getAuthToken === 'function' ? getAuthToken() : '';
+    window.open(`/api/youtube/export/${chId}?format=json&token=${encodeURIComponent(token)}`, '_blank');
+}
+
+function _ykbShowGuide() {
+    const existing = document.getElementById('ykb-guide-modal');
+    if (existing) { existing.remove(); return; }
+
+    const modal = document.createElement('div');
+    modal.id = 'ykb-guide-modal';
+    modal.style.cssText = 'position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);';
+    modal.onclick = (e) => { if (e.target === modal) modal.remove(); };
+
+    modal.innerHTML = `<div style="background:var(--bg-panel-solid,#0e1026);border:1px solid var(--accent-border,rgba(16,185,129,0.2));border-radius:16px;padding:28px;max-width:520px;width:92%;max-height:80vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.5);">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+            <div style="font-size:16px;font-weight:700;color:var(--text-primary,#e2e8f0);">Knowledge Base Guide</div>
+            <button onclick="document.getElementById('ykb-guide-modal').remove()" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:18px;">&times;</button>
+        </div>
+        <div style="font-size:12px;color:var(--text-secondary,#94a3b8);line-height:1.8;">
+            <p style="margin-bottom:12px;"><strong style="color:var(--text-primary);">How it works:</strong> Add YouTube channels or individual videos. The system automatically transcribes them using multiple methods, then extracts insights using AI.</p>
+            <p style="margin-bottom:12px;"><strong style="color:var(--accent-light,#34d399);">Transcription Pipeline:</strong></p>
+            <ul style="margin:0 0 12px 18px;">
+                <li><strong>Tier 0 — Lyrics:</strong> Music videos auto-detected → lyrics fetched from LRCLIB (instant)</li>
+                <li><strong>Tier 1 — Captions:</strong> YouTube captions API (free, instant)</li>
+                <li><strong>Tier 2 — Supadata:</strong> Cloud transcription service (if configured)</li>
+                <li><strong>Tier 3 — Whisper:</strong> Local AI transcription on CPU (slowest but most reliable)</li>
+            </ul>
+            <p style="margin-bottom:12px;"><strong style="color:var(--accent-light,#34d399);">Available Lenses:</strong></p>
+            <ul style="margin:0 0 12px 18px;">
+                <li><strong>Transcript:</strong> Raw text from the video</li>
+                <li><strong>Summary:</strong> AI-generated summary with key takeaways</li>
+                <li><strong>Eloquence:</strong> Vocabulary analysis — rare/interesting words with definitions</li>
+                <li><strong>Narrations:</strong> Attributed quotes and source verification</li>
+            </ul>
+            <p style="margin-bottom:12px;"><strong style="color:var(--accent-light,#34d399);">Translation:</strong> Powered by Argos Translate (offline neural machine translation). Supports Arabic, Japanese, Korean, Chinese, French, German, Spanish, Russian, English.</p>
+            <p><strong style="color:var(--accent-light,#34d399);">Buttons:</strong> <em>Extract All</em> = transcribe all videos. <em>Process</em> = run AI lenses. <em>Translate All</em> = batch translate. <em>Export</em> = download as JSON.</p>
+        </div>
+    </div>`;
+
+    document.body.appendChild(modal);
 }
 
 function _ykbClearVideoCache(videoDbId) {
