@@ -60,8 +60,12 @@ class FileHandler:
             logger.warning(f"File too large: {len(data)} bytes (max {MAX_FILE_SIZE})")
             return None
 
-        # Sanitize filename
-        safe_name = re.sub(r'[^\w\-.]', '_', filename)
+        # Sanitize filename: strip directory components, then scrub chars
+        basename = os.path.basename(filename)
+        safe_name = re.sub(r'[^\w\-.]', '_', basename)
+        safe_name = safe_name.lstrip('.')  # prevent hidden files like .env
+        if not safe_name:
+            safe_name = 'upload'
         suffix = Path(safe_name).suffix.lower()
 
         if suffix not in SUPPORTED_TYPES:
