@@ -356,13 +356,13 @@ def handle_post(handler, strat, auth, path):
                            (SELECT id FROM youtube_videos WHERE channel_id = ? AND profile_id = ?)""",
                         (ch_id, handler._profile_id)
                     )
-                    _rpc.execute(
+                    _reset_cur = _rpc.execute(
                         """UPDATE youtube_videos SET status = 'pending', transcript_text = NULL,
                            transcript_method = NULL, transcript_language = NULL, error_message = NULL
                            WHERE channel_id = ? AND profile_id = ?""",
                         (ch_id, handler._profile_id)
                     )
-                    reset_count = _rpc.total_changes
+                    reset_count = _reset_cur.rowcount
                     _rpc.commit()
                 logger.info(f"Re-process channel {ch_id}: reset {reset_count} videos to pending")
                 _send_json(handler, {"ok": True, "reset": reset_count, "new_videos": 0})
@@ -587,13 +587,12 @@ def handle_post(handler, strat, auth, path):
             _db_path = str(strat.db.db_path)
             with _sq.connect(_db_path) as _cc:
                 _cc.execute("PRAGMA busy_timeout = 5000")
-                _cc.execute(
+                cur = _cc.execute(
                     "UPDATE youtube_videos SET status = 'pending', transcript_text = NULL, error_message = NULL "
                     "WHERE id = ? AND profile_id = ? AND status IN ('transcribing', 'extracting', 'processing', 'failed', 'low_quality')",
                     (int(video_id), handler._profile_id)
                 )
-                affected = _cc.total_changes
-                if affected:
+                if cur.rowcount > 0:
                     _cc.execute(
                         "DELETE FROM video_insights WHERE video_id = ? AND profile_id = ?",
                         (int(video_id), handler._profile_id)

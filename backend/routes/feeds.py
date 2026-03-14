@@ -95,6 +95,43 @@ def handle_get(handler, strat, auth, path):
                         feed_domain = urlparse(feed_url).hostname or ""
                         _is_blocked = any(feed_domain == b or feed_domain.endswith("." + b) for b in _blocked)
 
+                        # YouTube RSS fallback: if RSS returns 404/500, use yt-dlp
+                        _yt_rss_match = _re.search(r'youtube\.com/feeds/videos\.xml\?channel_id=(UC[\w-]{22})', feed_url)
+                        if _yt_rss_match:
+                            try:
+                                _yt_resp = requests.get(feed_url, timeout=8, headers={"User-Agent": _ua})
+                                if _yt_resp.status_code == 200:
+                                    feed = feedparser.parse(_yt_resp.content)
+                                else:
+                                    raise requests.RequestException(f"HTTP {_yt_resp.status_code}")
+                            except Exception:
+                                # yt-dlp fallback for YouTube feeds
+                                import subprocess as _sp
+                                try:
+                                    _yt_cid = _yt_rss_match.group(1)
+                                    _yt_result = _sp.run(
+                                        ['yt-dlp', '--flat-playlist', '--no-download', '-J',
+                                         '--playlist-end', '15', '--js-runtimes', 'node',
+                                         f'https://www.youtube.com/channel/{_yt_cid}/videos'],
+                                        capture_output=True, text=True, timeout=30
+                                    )
+                                    if _yt_result.returncode == 0:
+                                        _yt_data = json.loads(_yt_result.stdout)
+                                        _yt_ch_name = _yt_data.get('channel', feed_cfg.get('name', ''))
+                                        for _yt_entry in (_yt_data.get('entries', []) or [])[:15]:
+                                            items.append({
+                                                "title": _yt_entry.get("title", ""),
+                                                "url": _yt_entry.get("url", ""),
+                                                "source": _yt_ch_name,
+                                                "category": "custom",
+                                                "summary": _yt_entry.get("description", "")[:200] if _yt_entry.get("description") else "",
+                                                "timestamp": _yt_entry.get("upload_date", ""),
+                                                "thumbnail": (_yt_entry.get("thumbnails", [{}])[-1] or {}).get("url", ""),
+                                            })
+                                except Exception as _yt_e:
+                                    logger.debug(f"YouTube yt-dlp fallback failed for {feed_cfg.get('name','')}: {_yt_e}")
+                                continue  # Skip normal feed processing
+
                         # Route blocked feeds through Cloudflare Worker
                         if _is_blocked and _worker_base:
                             try:
