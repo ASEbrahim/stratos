@@ -177,6 +177,75 @@ def handle_get(handler, strat, auth, path):
             _send_json(handler, {"error": "Invalid video ID"}, 400)
         return True
 
+    elif len(path_parts) == 4 and path_parts[2] == 'captions':
+        # GET /api/youtube/captions/:video_db_id — fetch timed YouTube captions
+        try:
+            vid_id = int(path_parts[3])
+            cursor = strat.db.conn.cursor()
+            cursor.execute(
+                "SELECT video_id, title, transcript_language FROM youtube_videos WHERE id = ? AND profile_id = ?",
+                (vid_id, handler._profile_id)
+            )
+            row = cursor.fetchone()
+            if not row:
+                _send_json(handler, {"error": "Video not found"}, 404)
+                return True
+
+            yt_video_id = row[0]
+            try:
+                from youtube_transcript_api import YouTubeTranscriptApi
+                api = YouTubeTranscriptApi()
+                transcript_list = api.list(yt_video_id)
+
+                # Collect available tracks
+                tracks = []
+                for t in transcript_list:
+                    tracks.append({
+                        "language": t.language_code,
+                        "language_name": t.language,
+                        "is_generated": t.is_generated,
+                    })
+
+                # Fetch the best available captions
+                target_lang = parse_qs(parsed.query).get('lang', [row[2] or 'en'])[0]
+                captions = []
+                try:
+                    result = api.fetch(YouTubeTranscriptApi().list(yt_video_id).find_transcript([target_lang, 'en', 'ar', 'ja']))
+                except Exception:
+                    # Fallback: try any available
+                    for t in transcript_list:
+                        try:
+                            result = t.fetch()
+                            target_lang = t.language_code
+                            break
+                        except Exception:
+                            continue
+                    else:
+                        result = None
+
+                if result:
+                    for snippet in result:
+                        captions.append({
+                            "start": round(snippet.start, 2),
+                            "duration": round(snippet.duration, 2),
+                            "text": snippet.text,
+                        })
+
+                _send_json(handler, {
+                    "video_id": yt_video_id,
+                    "title": row[1],
+                    "language": target_lang,
+                    "tracks": tracks,
+                    "captions": captions,
+                    "count": len(captions),
+                })
+            except Exception as e:
+                logger.warning(f"Caption fetch failed for {yt_video_id}: {e}")
+                _send_json(handler, {"error": f"No captions available: {e}", "tracks": []}, 404)
+        except (ValueError, IndexError):
+            _send_json(handler, {"error": "Invalid video ID"}, 400)
+        return True
+
     elif len(path_parts) == 4 and path_parts[2] == 'export':
         # GET /api/youtube/export/:channel_db_id?format=json|md
         try:

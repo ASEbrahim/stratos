@@ -272,6 +272,7 @@ function _ykbRenderExpanded(chId) {
             <button class="ykb-btn" onclick="event.stopPropagation();_ykbExtractLens(${activeVid.id},'eloquence')" title="Extract vocabulary & eloquence"><i data-lucide="sparkles" style="width:12px;height:12px;"></i> Eloquence</button>
             <button class="ykb-btn" onclick="event.stopPropagation();_ykbExtractLens(${activeVid.id},'narrations')" title="Extract narrations & sources"><i data-lucide="message-circle" style="width:12px;height:12px;"></i> Narrations</button>
             <button class="ykb-btn" onclick="event.stopPropagation();_ykbTranslate(${activeVid.id})" title="Translate transcript to another language"><i data-lucide="languages" style="width:12px;height:12px;"></i> Translate</button>
+            <button class="ykb-btn" onclick="event.stopPropagation();_ykbShowCaptions(${activeVid.id},'${_ykbEsc(activeVid.video_id)}','${_ykbEsc(activeVid.title)}')" title="View timed YouTube captions"><i data-lucide="subtitles" style="width:12px;height:12px;"></i> Captions</button>
             <div style="flex:1;"></div>
             <button class="ykb-btn" onclick="event.stopPropagation();_ykbCancelTranscribe(${activeVid.id})" title="Cancel and reset to pending" style="color:#ef4444;border-color:rgba(239,68,68,0.1);"><i data-lucide="x-circle" style="width:12px;height:12px;"></i> Reset</button>
         </div>`;
@@ -916,6 +917,138 @@ function _ykbOpenLensGuide() {
     } else {
         _ykbShowToast('Guide not available — open a video first', '#fbbf24');
     }
+}
+
+async function _ykbShowCaptions(videoDbId, ytVideoId, title) {
+    // Remove existing modal
+    document.getElementById('ykb-captions-modal')?.remove();
+
+    const modal = document.createElement('div');
+    modal.id = 'ykb-captions-modal';
+    modal.style.cssText = 'position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.7);backdrop-filter:blur(6px);';
+    modal.onclick = (e) => { if (e.target === modal) modal.remove(); };
+
+    // Arcane-themed container
+    modal.innerHTML = `<div id="ykb-cap-container" style="position:relative;width:92%;max-width:680px;max-height:85vh;background:var(--bg-panel-solid,#0e1026);border:1px solid var(--accent-border,rgba(16,185,129,0.2));border-radius:16px;overflow:hidden;box-shadow:0 32px 80px rgba(0,0,0,0.6),0 0 40px var(--accent-bg,rgba(16,185,129,0.06));display:flex;flex-direction:column;">
+        <canvas id="ykb-cap-stars" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:0;"></canvas>
+        <div style="position:relative;z-index:1;padding:18px 20px;border-bottom:1px solid var(--border,rgba(255,255,255,0.05));box-shadow:inset 0 3px 0 0 var(--accent,#10b981),inset 0 3px 20px -6px var(--accent-bg,rgba(16,185,129,0.15));">
+            <div style="display:flex;align-items:center;justify-content:space-between;">
+                <div style="display:flex;align-items:center;gap:10px;">
+                    <div style="width:32px;height:32px;border-radius:8px;background:var(--accent-bg,rgba(16,185,129,0.1));border:1px solid var(--accent-border,rgba(16,185,129,0.2));display:flex;align-items:center;justify-content:center;">
+                        <i data-lucide="subtitles" style="width:16px;height:16px;color:var(--accent-light,#34d399);"></i>
+                    </div>
+                    <div>
+                        <div style="font-size:14px;font-weight:700;color:var(--text-primary,#e2e8f0);">Captions</div>
+                        <div style="font-size:10px;color:var(--text-muted,#64748b);max-width:400px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${_ykbEsc(title)}</div>
+                    </div>
+                </div>
+                <div style="display:flex;align-items:center;gap:6px;">
+                    <span id="ykb-cap-track-info" style="font-size:10px;color:var(--text-faint,#475569);"></span>
+                    <button onclick="document.getElementById('ykb-captions-modal').remove()" style="background:none;border:none;color:var(--text-muted,#64748b);cursor:pointer;font-size:20px;line-height:1;padding:4px;">&times;</button>
+                </div>
+            </div>
+        </div>
+        <div id="ykb-cap-body" style="position:relative;z-index:1;flex:1;overflow-y:auto;padding:16px 20px;min-height:200px;">
+            <div style="text-align:center;padding:30px;"><div style="width:20px;height:20px;border:2px solid var(--border-strong,rgba(255,255,255,0.1));border-top-color:var(--accent,#10b981);border-radius:50%;animation:ykb-pulse 0.8s linear infinite;margin:0 auto 10px;"></div><span style="font-size:11px;color:var(--text-muted,#64748b);">Loading captions...</span></div>
+        </div>
+    </div>`;
+
+    document.body.appendChild(modal);
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+
+    // Init stars for the modal
+    _ykbInitCaptionStars();
+
+    // Fetch captions
+    try {
+        const res = await fetch(`/api/youtube/captions/${videoDbId}`, { headers: _ykbAuthHeader() });
+        const data = await res.json();
+        const body = document.getElementById('ykb-cap-body');
+        const trackInfo = document.getElementById('ykb-cap-track-info');
+        if (!body) return;
+
+        if (data.error || !data.captions || data.captions.length === 0) {
+            // Show available tracks info
+            let trackHtml = '';
+            if (data.tracks && data.tracks.length > 0) {
+                trackHtml = `<div style="margin-top:10px;font-size:10px;color:var(--text-faint);">Available tracks: ${data.tracks.map(t => `${t.language_name} (${t.language}${t.is_generated ? ', auto' : ''})`).join(', ')}</div>`;
+            }
+            body.innerHTML = `<div style="text-align:center;padding:30px;color:var(--text-muted,#64748b);">
+                <i data-lucide="subtitles" style="width:32px;height:32px;opacity:0.3;margin:0 auto 10px;display:block;"></i>
+                <div style="font-size:13px;">No captions available</div>
+                <div style="font-size:10px;margin-top:4px;color:var(--text-faint);">${data.error || 'This video may not have subtitles'}</div>
+                ${trackHtml}
+            </div>`;
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+            return;
+        }
+
+        if (trackInfo) trackInfo.textContent = `${data.language?.toUpperCase()} · ${data.count} segments`;
+
+        // Render timed captions
+        let html = '<div style="display:flex;flex-direction:column;gap:2px;">';
+        data.captions.forEach(cap => {
+            const mins = Math.floor(cap.start / 60);
+            const secs = Math.floor(cap.start % 60);
+            const ts = `${mins}:${secs.toString().padStart(2, '0')}`;
+            html += `<div style="display:flex;gap:12px;padding:6px 8px;border-radius:6px;transition:background 0.15s;cursor:default;" onmouseover="this.style.background='var(--bg-hover,rgba(22,26,55,0.5))'" onmouseout="this.style.background=''">
+                <span style="flex-shrink:0;width:42px;font-size:10px;font-weight:600;color:var(--accent-light,#34d399);font-variant-numeric:tabular-nums;padding-top:2px;">${ts}</span>
+                <span style="font-size:12px;color:var(--text-primary,#e2e8f0);line-height:1.6;">${_ykbEsc(cap.text)}</span>
+            </div>`;
+        });
+        html += '</div>';
+        body.innerHTML = html;
+    } catch (err) {
+        const body = document.getElementById('ykb-cap-body');
+        if (body) body.innerHTML = `<div style="text-align:center;padding:30px;color:#ef4444;">Failed to load captions: ${err.message}</div>`;
+    }
+}
+
+function _ykbInitCaptionStars() {
+    const canvas = document.getElementById('ykb-cap-stars');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const _accentStr = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#10b981';
+    const _hm = _accentStr.match(/^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i);
+    const sr = _hm ? parseInt(_hm[1],16) : 16, sg = _hm ? parseInt(_hm[2],16) : 185, sb = _hm ? parseInt(_hm[3],16) : 129;
+
+    function resize() {
+        const el = canvas.parentElement;
+        if (!el) return;
+        canvas.width = el.offsetWidth;
+        canvas.height = el.offsetHeight;
+    }
+    resize();
+    const obs = new ResizeObserver(resize);
+    obs.observe(canvas.parentElement);
+
+    const stars = [];
+    for (let i = 0; i < 60; i++) {
+        const d = Math.random() * 4 + 0.1, dn = d / 4.1;
+        stars.push({ x: Math.random(), y: Math.random(), r: 0.4 + dn * 1.8, a: 0.12 + dn * 0.5, dx: (Math.random()-0.5)*0.03, dy: (Math.random()-0.5)*0.02, phase: Math.random()*Math.PI*2 });
+    }
+
+    let _anim;
+    function draw(t) {
+        if (!document.getElementById('ykb-cap-stars')) { obs.disconnect(); return; }
+        const W = canvas.width, H = canvas.height;
+        ctx.clearRect(0, 0, W, H);
+        for (const s of stars) {
+            s.x += s.dx/W; s.y += s.dy/H;
+            if (s.x<0) s.x=1; if (s.x>1) s.x=0; if (s.y<0) s.y=1; if (s.y>1) s.y=0;
+            const f = 0.7 + 0.3*Math.sin(t*0.002+s.phase);
+            ctx.beginPath(); ctx.arc(s.x*W, s.y*H, s.r, 0, Math.PI*2);
+            ctx.fillStyle = `rgba(${sr},${sg},${sb},${s.a*f})`; ctx.fill();
+        }
+        // Constellation lines
+        ctx.strokeStyle = `rgba(${sr},${sg},${sb},0.05)`; ctx.lineWidth = 0.5;
+        for (let i=0;i<stars.length;i++) for (let j=i+1;j<stars.length;j++) {
+            const dx=(stars[i].x-stars[j].x)*W, dy=(stars[i].y-stars[j].y)*H;
+            if (dx*dx+dy*dy<6000) { ctx.beginPath(); ctx.moveTo(stars[i].x*W,stars[i].y*H); ctx.lineTo(stars[j].x*W,stars[j].y*H); ctx.stroke(); }
+        }
+        _anim = requestAnimationFrame(draw);
+    }
+    _anim = requestAnimationFrame(draw);
 }
 
 function _ykbClearVideoCache(videoDbId) {
