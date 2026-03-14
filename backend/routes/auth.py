@@ -901,13 +901,22 @@ def _delete_user_data(db, user_id: int):
     profile_ids = [r[0] for r in cursor.execute(
         "SELECT id FROM profiles WHERE user_id = ?", (user_id,)
     ).fetchall()]
-    # Delete profile-scoped data
+    # Delete profile-scoped data (all tables with profile_id column)
     for pid in profile_ids:
         cursor.execute("DELETE FROM news_items WHERE profile_id = ?", (pid,))
         cursor.execute("DELETE FROM user_feedback WHERE profile_id = ?", (pid,))
         cursor.execute("DELETE FROM scan_log WHERE profile_id = ?", (pid,))
         cursor.execute("DELETE FROM briefings WHERE profile_id = ?", (pid,))
         cursor.execute("DELETE FROM shadow_scores WHERE profile_id = ?", (pid,))
+        # Tables added after initial auth system — must also be cleaned
+        for table in ['conversations', 'scenarios', 'persona_entities',
+                       'persona_context', 'user_preference_signals', 'user_files',
+                       'video_insights', 'youtube_videos', 'youtube_channels',
+                       'narration_sources']:
+            try:
+                cursor.execute(f"DELETE FROM {table} WHERE profile_id = ?", (pid,))
+            except Exception:
+                pass  # Table may not exist in older schema versions
     # Delete user-scoped data
     cursor.execute("DELETE FROM sessions WHERE user_id = ?", (user_id,))
     cursor.execute("DELETE FROM invite_codes WHERE created_by = ? OR used_by = ?", (user_id, user_id))
