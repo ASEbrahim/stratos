@@ -167,6 +167,32 @@ def fetch_channel_videos(channel_id: str, limit: int = 15) -> List[Dict[str, Any
         logger.error(f"RSS feed error for {channel_id}: {e}")
         return []
 
+    # Fallback: yt-dlp playlist scrape if RSS returned nothing
+    if not videos:
+        try:
+            result = subprocess.run(
+                ['yt-dlp', '--flat-playlist', '--no-download', '-J',
+                 '--playlist-end', str(limit), '--js-runtimes', 'nodejs',
+                 f'https://www.youtube.com/channel/{channel_id}/videos'],
+                capture_output=True, text=True, timeout=60
+            )
+            if result.returncode == 0:
+                import json as _json
+                data = _json.loads(result.stdout)
+                for entry in (data.get('entries', []) or [])[:limit]:
+                    videos.append({
+                        'video_id': entry.get('id', ''),
+                        'title': entry.get('title', ''),
+                        'published_at': entry.get('upload_date', ''),
+                        'link': entry.get('url', f'https://www.youtube.com/watch?v={entry.get("id", "")}'),
+                    })
+                if videos:
+                    logger.info(f"yt-dlp fallback: found {len(videos)} videos for {channel_id}")
+        except Exception as e2:
+            logger.debug(f"yt-dlp fallback failed for {channel_id}: {e2}")
+
+    return videos
+
 
 # ═══════════════════════════════════════════════════════════
 # TRANSCRIPT ACQUISITION (3-tier)
