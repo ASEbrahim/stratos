@@ -2,11 +2,19 @@
 
 Issues discovered but NOT safe to fix automatically.
 
+## Cloud Deployment Blockers (must fix before multi-user)
+- **F001**: Rate limiter per-client (not per-path) — DoS vector
+- **F003**: Per-request config snapshots (not shared mutable) — race conditions
+- **F008**: FTS5 for insight search (performance at scale)
+- **F017**: URL validation on custom feeds (SSRF protection — AWS metadata, internal network)
+- **F021**: Restrictive file permissions (multi-tenant isolation)
+
 ---
 
 ### F001: Rate limiter is global per-path, not per-client
 - **File**: `backend/auth.py`, `rate_limited()` at line 304
 - **Issue**: Rate limiting uses path as the only key. One user hitting a limit blocks ALL users on that endpoint.
+- **Severity**: Low (single-user) → **Critical** (multi-user/cloud)
 - **Recommended fix**: Key by `(path, client_ip)` or `(path, auth_token)`. Not fixed because it changes the rate limiting API contract and behavior.
 
 ### F002: `cgi.FieldStorage` deprecated in Python 3.13+
@@ -17,6 +25,7 @@ Issues discovered but NOT safe to fix automatically.
 ### F003: Profile config is shared mutable global state
 - **File**: `backend/main.py`, `strat.config`
 - **Issue**: `strat.config` is a single mutable dict shared across all request threads. While `_config_lock` protects profile switches, individual dict reads/writes during request handling are unsynchronized. Two concurrent requests from different profiles could read stale config.
+- **Severity**: Low (single-user) → **Critical** (multi-user/cloud)
 - **Recommended fix**: Use per-request config snapshots (pass config as parameter rather than using `strat.config`). Not fixed because it's an architectural change.
 
 ### F004: `_sessions_file` persistence has no file locking
@@ -95,6 +104,7 @@ Issues discovered but NOT safe to fix automatically.
 ### F017: extra_feeds.py accepts arbitrary user-provided URLs without validation
 - **File**: `backend/fetchers/extra_feeds.py`, lines 294-302
 - **Issue**: Custom feed URLs from user config are passed directly to HTTP fetcher. User could specify `file:///etc/passwd` or internal network URLs for SSRF.
+- **Severity**: Low (self-hosted) → **Critical** (cloud — AWS metadata, internal network SSRF)
 - **Recommended fix**: Validate URL scheme is http/https, block private IP ranges. Not fixed — low risk since only the authenticated user's own URLs are fetched.
 
 ### F018: google_search.py QueryTracker file operations not locked
@@ -115,6 +125,7 @@ Issues discovered but NOT safe to fix automatically.
 ### F021: user_data.py creates directories with default (world-readable) permissions
 - **File**: `backend/user_data.py`, lines 26-29
 - **Issue**: `os.makedirs()` uses default 0o755 permissions. User data directories are world-readable.
+- **Severity**: Low (single-user) → **High** (multi-tenant)
 - **Recommended fix**: Use `mode=0o700` for user data dirs. Not fixed — single-user system, no multi-tenant risk.
 
 ### F022: scenario_generator.py LLM response not validated before file operations
