@@ -912,7 +912,7 @@ def _delete_user_data(db, user_id: int):
         for table in ['conversations', 'scenarios', 'persona_entities',
                        'persona_context', 'user_preference_signals', 'user_files',
                        'video_insights', 'youtube_videos', 'youtube_channels',
-                       'narration_sources']:
+                       'narration_sources', 'prompt_templates']:
             try:
                 cursor.execute(f"DELETE FROM {table} WHERE profile_id = ?", (pid,))
             except Exception:
