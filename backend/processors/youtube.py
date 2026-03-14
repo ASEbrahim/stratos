@@ -172,7 +172,7 @@ def fetch_channel_videos(channel_id: str, limit: int = 15) -> List[Dict[str, Any
         try:
             result = subprocess.run(
                 ['yt-dlp', '--flat-playlist', '--no-download', '-J',
-                 '--playlist-end', str(limit), '--js-runtimes', 'nodejs',
+                 '--playlist-end', str(limit), '--js-runtimes', 'node',
                  f'https://www.youtube.com/channel/{channel_id}/videos'],
                 capture_output=True, text=True, timeout=60
             )
@@ -505,7 +505,7 @@ def _tier3_whisper(video_id: str, model_name: str = 'large-v3-turbo') -> Tuple[O
                 [
                     'yt-dlp', '-f', 'bestaudio',
                     '--no-playlist',
-                    '--js-runtimes', 'nodejs',
+                    '--js-runtimes', 'node',
                     '-o', audio_path,
                     f'https://www.youtube.com/watch?v={video_id}',
                 ],
