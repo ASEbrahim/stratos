@@ -599,6 +599,7 @@ def run_canon_import(ollama_host, model, scenario_path, franchise_info, progress
         if not batch_result:
             logger.warning(f"Batch {batch_num} LLM call failed, falling back to individual")
             # Fallback: try each character individually
+            batch_result = []
             for title, text in batch:
                 single_prompt = f"""Convert this {franchise} character wiki article to game-ready JSON.
 
@@ -611,11 +612,7 @@ Return a single JSON object:
 Return ONLY valid JSON."""
                 char_data = _llm_json_call(ollama_host, single_prompt, model, num_predict=1536)
                 if char_data:
-                    batch_result = [char_data] if not isinstance(batch_result, list) else batch_result
-                    if isinstance(batch_result, list):
-                        batch_result.append(char_data)
-                    else:
-                        batch_result = [char_data]
+                    batch_result.append(char_data)
             if not batch_result:
                 continue
 
