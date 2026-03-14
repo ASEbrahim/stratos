@@ -610,19 +610,22 @@ def start_server(strat, auth, port=8080, open_browser=True):
     server = ThreadedHTTPServer(("0.0.0.0", port), HandlerClass)
     logger.info(f"Frontend server started at http://localhost:{port}")
 
-    # Reset any stuck transcription statuses from previous server run
+    # Reset stuck transcription statuses — only truly stuck ones (transcribing/extracting/processing)
+    # These are NOT reset to 'pending' (which would re-queue for worker), but to 'failed'
+    # so the user can manually retranscribe if desired
     try:
         import sqlite3 as _sq
         _db_path = str(strat.db.db_path)
         with _sq.connect(_db_path) as _rc:
             _rc.execute("PRAGMA busy_timeout = 5000")
             _rc.execute(
-                "UPDATE youtube_videos SET status = 'pending' WHERE status IN ('transcribing', 'extracting', 'processing')"
+                "UPDATE youtube_videos SET status = 'failed', error_message = 'Server restarted during processing' "
+                "WHERE status IN ('transcribing', 'extracting', 'processing')"
             )
             _stuck_count = _rc.total_changes
             _rc.commit()
         if _stuck_count:
-            logger.info(f"Reset {_stuck_count} stuck video(s) to pending")
+            logger.info(f"Reset {_stuck_count} stuck video(s) to failed")
     except Exception as e:
         logger.debug(f"Stuck status reset: {e}")
 
