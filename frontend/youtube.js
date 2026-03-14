@@ -358,20 +358,27 @@ async function _ytLoadVideoList(channelId, el) {
                     'complete': 'text-emerald-400', 'transcribed': 'text-cyan-400',
                     'processing': 'text-amber-400', 'pending': 'text-slate-500',
                     'failed': 'text-red-400', 'transcribing': 'text-blue-400',
-                    'extracting': 'text-purple-400'
+                    'extracting': 'text-purple-400', 'low_quality': 'text-yellow-400'
                 }[v.status] || 'text-slate-500';
                 const statusIcon = {
                     'complete': 'check-circle', 'transcribed': 'file-check',
                     'processing': 'loader-2', 'pending': 'clock',
                     'failed': 'alert-circle', 'transcribing': 'mic',
-                    'extracting': 'sparkles'
+                    'extracting': 'sparkles', 'low_quality': 'alert-triangle'
                 }[v.status] || 'clock';
                 const isActive = v.status === 'processing' || v.status === 'transcribing' || v.status === 'extracting';
-                const clickable = (v.status === 'complete' || v.status === 'transcribed') ? `onclick="event.stopPropagation();_ytShowInsights(${v.id})" class="cursor-pointer"` : '';
+                const viewable = v.status === 'complete' || v.status === 'transcribed' || v.status === 'low_quality';
+                const clickable = viewable ? `onclick="event.stopPropagation();_ytShowInsights(${v.id})" class="cursor-pointer"` : '';
+                const canRetranscribe = v.status !== 'transcribing' && v.status !== 'processing' && v.status !== 'extracting' && v.status !== 'pending';
+                const retranscribeBtn = canRetranscribe
+                    ? `<button onclick="event.stopPropagation();_ytRetranscribeVideo(${v.id})" class="yi-header-btn" style="padding:2px 8px;font-size:10px;gap:3px;flex-shrink:0;" title="Re-transcribe this video">
+                        <i data-lucide="refresh-cw" style="width:10px;height:10px;"></i>
+                    </button>` : '';
 
                 return `<div data-yt-video="${v.video_id}" data-yt-db-id="${v.id}" ${clickable} class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors" onmouseenter="this.style.background='var(--bg-hover)'" onmouseleave="this.style.background='transparent'">
                     <i data-lucide="${statusIcon}" class="w-4 h-4 ${statusColor} flex-shrink-0${isActive ? ' animate-pulse' : ''}"></i>
                     <span class="text-[13px] flex-1 truncate" style="color:var(--text-secondary)">${_escHtml(v.title || v.video_id)}</span>
+                    ${retranscribeBtn}
                     <span class="text-[10px] yt-video-status ${statusColor}" style="font-weight:600;">${v.status}</span>
                 </div>`;
             }).join('');
@@ -698,19 +705,52 @@ function _ytParagraphize(text, sentencesPerPara = 3) {
 
 function _ytRenderTranscript(data) {
     if (!data) return '<div class="yi-empty">No transcript data</div>';
-    const text = typeof data === 'string' ? data : (data.transcript || JSON.stringify(data));
+    const text = typeof data === 'string' ? data : (data.transcript || '');
+
+    // If this is a placeholder (no real transcript, just a note)
+    if (!text && data.translation_available === false) {
+        const origLang = data.original_language || '?';
+        return `<div class="yi-empty" style="text-align:center;padding:30px;">
+            <p style="margin-bottom:8px;">Transcript is in <strong>${origLang.toUpperCase()}</strong></p>
+            <p style="font-size:11px;color:var(--text-secondary);">Switch to the ${origLang.toUpperCase()} language tab to view the original transcript.</p>
+        </div>`;
+    }
+    if (!text) return '<div class="yi-empty">No transcript data</div>';
+
     const note = data.note ? `<div class="yi-note">${_escHtml(data.note)}</div>` : '';
     const paragraphs = _ytParagraphize(text, 3);
-    // Show re-transcribe warning if transcript is suspiciously short
+
+    // Action bar: re-transcribe + translate
     const shortWarning = text.length < 500
         ? `<div style="display:flex;align-items:center;gap:10px;padding:10px 14px;margin-bottom:12px;border-radius:8px;background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.2);">
             <i data-lucide="alert-triangle" style="width:16px;height:16px;color:#fbbf24;flex-shrink:0;"></i>
-            <span style="font-size:12px;color:var(--text-secondary);flex:1;">This transcript looks incomplete (${text.length} chars). It may have been fetched incorrectly.</span>
+            <span style="font-size:12px;color:var(--text-secondary);flex:1;">This transcript looks incomplete (${text.length} chars).</span>
             <button onclick="_ytRetranscribe()" class="yi-header-btn" style="padding:6px 14px;font-size:11px;white-space:nowrap;" id="yi-retranscribe-btn">
                 <i data-lucide="refresh-cw" style="width:12px;height:12px;"></i> Re-transcribe
             </button>
         </div>` : '';
-    return `${shortWarning}${note}<div class="yi-transcript">${paragraphs.map(p => `<p>${_escHtml(p)}</p>`).join('')}</div>`;
+
+    // Translate button bar
+    const translateBar = `<div style="display:flex;justify-content:flex-end;align-items:center;gap:8px;margin-bottom:8px;">
+        <button onclick="_ytRetranscribe()" class="yi-header-btn" style="padding:4px 10px;font-size:11px;gap:4px;" title="Re-fetch transcript from scratch" id="yi-retranscribe-btn2">
+            <i data-lucide="refresh-cw" style="width:12px;height:12px;"></i> Re-transcribe
+        </button>
+        <select id="yi-translate-lang" style="background:var(--bg-input,rgba(255,255,255,0.06));border:1px solid var(--border-strong,rgba(255,255,255,0.1));border-radius:6px;padding:3px 8px;font-size:11px;color:var(--text-secondary,rgba(255,255,255,0.6));">
+            <option value="en">English</option>
+            <option value="ar">Arabic</option>
+            <option value="ja">Japanese</option>
+            <option value="zh">Chinese</option>
+            <option value="ko">Korean</option>
+            <option value="fr">French</option>
+            <option value="de">German</option>
+            <option value="es">Spanish</option>
+        </select>
+        <button onclick="_ytTranslateTranscript()" class="yi-header-btn" style="padding:4px 10px;font-size:11px;gap:4px;" id="yi-translate-btn">
+            <i data-lucide="languages" style="width:12px;height:12px;"></i> Translate
+        </button>
+    </div>`;
+
+    return `${shortWarning}${translateBar}${note}<div class="yi-transcript" id="yi-transcript-content">${paragraphs.map(p => `<p>${_escHtml(p)}</p>`).join('')}</div>`;
 }
 
 async function _ytRetranscribe() {
@@ -738,6 +778,63 @@ async function _ytRetranscribe() {
     }
 }
 window._ytRetranscribe = _ytRetranscribe;
+
+async function _ytTranslateTranscript() {
+    if (!_ytCurrentVideoId) return;
+    const targetLang = document.getElementById('yi-translate-lang')?.value || 'en';
+    const btn = document.getElementById('yi-translate-btn');
+    const contentEl = document.getElementById('yi-transcript-content');
+    if (!contentEl) return;
+
+    if (btn) { btn.style.opacity = '0.5'; btn.style.pointerEvents = 'none'; btn.innerHTML = '<i data-lucide="loader-2" style="width:12px;height:12px;" class="animate-pulse"></i> Translating...'; lucide.createIcons(); }
+
+    try {
+        const r = await fetch('/api/youtube/translate-transcript', {
+            method: 'POST',
+            headers: _ytHeaders(),
+            body: JSON.stringify({ video_id: _ytCurrentVideoId, target_language: targetLang }),
+        });
+        if (!r.ok) {
+            const d = await r.json().catch(() => ({}));
+            if (typeof showToast === 'function') showToast(d.error || 'Translation failed', 'error');
+            return;
+        }
+        const data = await r.json();
+        if (data.translated_text) {
+            const paragraphs = _ytParagraphize(data.translated_text, 3);
+            contentEl.innerHTML = `<div class="yi-note" style="margin-bottom:8px;">Translated to ${targetLang.toUpperCase()} via LLM (${data.source_language || '?'} → ${targetLang})</div>` +
+                paragraphs.map(p => `<p>${_escHtml(p)}</p>`).join('');
+            if (typeof showToast === 'function') showToast(`Translated to ${targetLang.toUpperCase()}`, 'success');
+        }
+    } catch (e) {
+        if (typeof showToast === 'function') showToast('Translation failed: ' + e.message, 'error');
+    } finally {
+        if (btn) { btn.style.opacity = ''; btn.style.pointerEvents = ''; btn.innerHTML = '<i data-lucide="languages" style="width:12px;height:12px;"></i> Translate'; lucide.createIcons(); }
+    }
+}
+window._ytTranslateTranscript = _ytTranslateTranscript;
+
+async function _ytRetranscribeVideo(dbId) {
+    try {
+        const r = await fetch('/api/youtube/retranscribe', {
+            method: 'POST',
+            headers: _ytHeaders(),
+            body: JSON.stringify({ video_id: dbId }),
+        });
+        if (r.ok) {
+            if (typeof showToast === 'function') showToast('Re-transcribing video...', 'info');
+            // Update status in UI immediately
+            const el = document.querySelector(`[data-yt-db-id="${dbId}"] .yt-video-status`);
+            if (el) { el.textContent = 'transcribing'; el.className = 'text-[10px] yt-video-status text-blue-400'; }
+        } else {
+            const d = await r.json().catch(() => ({}));
+            if (typeof showToast === 'function') showToast(d.error || 'Re-transcribe failed', 'error');
+        }
+    } catch (e) {
+        if (typeof showToast === 'function') showToast('Re-transcribe failed', 'error');
+    }
+}
+window._ytRetranscribeVideo = _ytRetranscribeVideo;
 
 function _ytPollForRetranscribe(videoId) {
     const startTime = Date.now();

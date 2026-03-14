@@ -619,6 +619,65 @@ def handle_post(handler, strat, auth, path):
         threading.Thread(target=_retranscribe, daemon=True).start()
         return True
 
+    if path == "/api/youtube/translate-transcript":
+        video_id = body.get('video_id')
+        target_lang = body.get('target_language', 'en')
+        if not video_id:
+            _send_json(handler, {"error": "Missing video_id"}, 400)
+            return True
+
+        cursor = strat.db.conn.cursor()
+        cursor.execute(
+            "SELECT transcript_text, transcript_language FROM youtube_videos WHERE id = ? AND profile_id = ?",
+            (video_id, handler._profile_id)
+        )
+        row = cursor.fetchone()
+        if not row or not row[0]:
+            _send_json(handler, {"error": "No transcript found"}, 404)
+            return True
+
+        transcript_text = row[0]
+        source_lang = row[1] or 'unknown'
+
+        # Use Ollama to translate
+        try:
+            scoring_cfg = strat.config.get('scoring', {})
+            ollama_host = scoring_cfg.get('ollama_host', 'http://localhost:11434')
+            model = scoring_cfg.get('inference_model', 'qwen3.5:9b')
+
+            # Truncate to ~4000 chars to fit context
+            text_chunk = transcript_text[:4000]
+            import requests as req
+            resp = req.post(f"{ollama_host}/api/chat", json={
+                "model": model,
+                "messages": [
+                    {"role": "system", "content": f"You are a translator. Translate the following text to {target_lang}. Output ONLY the translation, nothing else. Preserve paragraph breaks."},
+                    {"role": "user", "content": text_chunk},
+                ],
+                "stream": False,
+                "options": {"num_predict": 4000, "temperature": 0.3},
+            }, timeout=120)
+
+            if resp.status_code == 200:
+                result = resp.json()
+                translated = result.get('message', {}).get('content', '')
+                # Strip think blocks
+                import re
+                translated = re.sub(r'<think>.*?</think>', '', translated, flags=re.DOTALL).strip()
+                _send_json(handler, {
+                    "translated_text": translated,
+                    "source_language": source_lang,
+                    "target_language": target_lang,
+                    "chars_translated": len(text_chunk),
+                    "total_chars": len(transcript_text),
+                })
+            else:
+                _send_json(handler, {"error": "LLM translation failed"}, 500)
+        except Exception as e:
+            logger.error(f"Translation error: {e}")
+            _send_json(handler, {"error": str(e)}, 500)
+        return True
+
     if len(path_parts) == 5 and path_parts[2] == 'channels' and path_parts[4] == 'lenses':
         # PUT-like: POST /api/youtube/channels/:id/lenses
         try:
