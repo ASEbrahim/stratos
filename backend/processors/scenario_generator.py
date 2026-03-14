@@ -351,11 +351,20 @@ def _llm_json_call(ollama_host, prompt, model, max_retries=2):
             return None
 
 
+def _safe_path(scenario_path, relative_path):
+    """Resolve path and ensure it stays within scenario_path (prevent traversal)."""
+    full = os.path.realpath(os.path.join(scenario_path, relative_path))
+    base = os.path.realpath(scenario_path)
+    if not full.startswith(base + os.sep) and full != base:
+        raise ValueError(f"Path traversal blocked: {relative_path}")
+    return full
+
+
 def _write_file(scenario_path, relative_path, content):
     """Write content to a file, creating directories as needed."""
     if not content:
         return
-    full_path = os.path.join(scenario_path, relative_path)
+    full_path = _safe_path(scenario_path, relative_path)
     os.makedirs(os.path.dirname(full_path), exist_ok=True)
     with open(full_path, 'w') as f:
         f.write(content)
@@ -363,7 +372,7 @@ def _write_file(scenario_path, relative_path, content):
 
 def _write_json(scenario_path, relative_path, data):
     """Write JSON data to a file."""
-    full_path = os.path.join(scenario_path, relative_path)
+    full_path = _safe_path(scenario_path, relative_path)
     os.makedirs(os.path.dirname(full_path), exist_ok=True)
     with open(full_path, 'w') as f:
         json.dump(data, f, indent=2)
