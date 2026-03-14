@@ -74,3 +74,18 @@ Each entry documents a code change with before/after context.
 - **Before**: Referenced `strat.sse_manager` which doesn't exist — attribute is `strat.sse`. All `hasattr` checks silently returned False, disabling SSE broadcasts
 - **After**: Corrected all 9 references to `strat.sse`
 - **Severity**: High (all YouTube SSE notifications silently broken)
+
+### C011: Bare `except:` blocks catch SystemExit/KeyboardInterrupt
+- **File**: `backend/fetchers/news.py` (lines 423, 428) + `backend/processors/briefing.py` (line 152)
+- **Before**: `except:` catches all exceptions including SystemExit and KeyboardInterrupt, preventing clean Ctrl+C shutdown
+- **After**: Changed to `except Exception:` which lets SystemExit/KeyboardInterrupt propagate
+- **Severity**: Low (affects graceful shutdown)
+
+---
+
+## Summary
+
+- **Files audited**: 40+ (all backend Python, key frontend JS)
+- **Issues found**: 20 (11 fixed, 9 documented as findings)
+- **High severity fixes**: C003 (DELETE profile leak), C006 (market refresh race), C009 (incomplete account deletion), C010 (YouTube SSE broken)
+- **New codex terms**: 5
