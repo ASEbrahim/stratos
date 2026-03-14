@@ -149,7 +149,7 @@ Do NOT include items just because they scored high — they must be relevant to 
         try:
             response = self._session.get(f"{self.host}/api/tags", timeout=5)
             self._available = response.status_code == 200
-        except:
+        except Exception:
             self._available = False
         
         return self._available

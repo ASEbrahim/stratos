@@ -420,12 +420,12 @@ class RSSFetcher:
             if hasattr(entry, "published_parsed") and entry.published_parsed:
                 try:
                     timestamp = datetime(*entry.published_parsed[:6]).isoformat()
-                except:
+                except Exception:
                     pass
             elif hasattr(entry, "updated_parsed") and entry.updated_parsed:
                 try:
                     timestamp = datetime(*entry.updated_parsed[:6]).isoformat()
-                except:
+                except Exception:
                     pass
             
             # Extract summary
