@@ -131,65 +131,63 @@ def resolve_channel_id(channel_input: str) -> Optional[Dict[str, str]]:
 
 
 def fetch_channel_videos(channel_id: str, limit: int = 15) -> List[Dict[str, Any]]:
-    """Fetch recent videos from a YouTube channel via RSS feed.
+    """Fetch recent videos from a YouTube channel.
 
+    Tries RSS feed first, falls back to yt-dlp if RSS fails.
     Returns list of dicts with: video_id, title, published_at, link
     """
+    videos = []
+
+    # Strategy 1: YouTube RSS feed (fast, free)
     feed_url = f'https://www.youtube.com/feeds/videos.xml?channel_id={channel_id}'
     try:
         resp = requests.get(feed_url, timeout=15, headers={'User-Agent': 'Mozilla/5.0'})
-        if resp.status_code != 200:
+        if resp.status_code == 200:
+            root = ElementTree.fromstring(resp.content)
+            ns = {'atom': 'http://www.w3.org/2005/Atom', 'yt': 'http://www.youtube.com/xml/schemas/2015'}
+            for entry in root.findall('atom:entry', ns)[:limit]:
+                video_id_el = entry.find('yt:videoId', ns)
+                title_el = entry.find('atom:title', ns)
+                published_el = entry.find('atom:published', ns)
+                if video_id_el is None:
+                    continue
+                videos.append({
+                    'video_id': video_id_el.text,
+                    'title': title_el.text if title_el is not None else '',
+                    'published_at': published_el.text if published_el is not None else '',
+                    'link': f'https://www.youtube.com/watch?v={video_id_el.text}',
+                })
+        else:
             logger.warning(f"YouTube RSS feed returned {resp.status_code} for {channel_id}")
-            return []
+    except Exception as e:
+        logger.debug(f"RSS feed error for {channel_id}: {e}")
 
-        root = ElementTree.fromstring(resp.content)
-        ns = {'atom': 'http://www.w3.org/2005/Atom', 'yt': 'http://www.youtube.com/xml/schemas/2015'}
-
-        videos = []
-        for entry in root.findall('atom:entry', ns)[:limit]:
-            video_id_el = entry.find('yt:videoId', ns)
-            title_el = entry.find('atom:title', ns)
-            published_el = entry.find('atom:published', ns)
-
-            if video_id_el is None:
-                continue
-
-            videos.append({
-                'video_id': video_id_el.text,
-                'title': title_el.text if title_el is not None else '',
-                'published_at': published_el.text if published_el is not None else '',
-                'link': f'https://www.youtube.com/watch?v={video_id_el.text}',
-            })
-
+    if videos:
         return videos
 
-    except Exception as e:
-        logger.error(f"RSS feed error for {channel_id}: {e}")
-        return []
-
-    # Fallback: yt-dlp playlist scrape if RSS returned nothing
-    if not videos:
-        try:
-            result = subprocess.run(
-                ['yt-dlp', '--flat-playlist', '--no-download', '-J',
-                 '--playlist-end', str(limit), '--js-runtimes', 'node',
-                 f'https://www.youtube.com/channel/{channel_id}/videos'],
-                capture_output=True, text=True, timeout=60
-            )
-            if result.returncode == 0:
-                import json as _json
-                data = _json.loads(result.stdout)
-                for entry in (data.get('entries', []) or [])[:limit]:
-                    videos.append({
-                        'video_id': entry.get('id', ''),
-                        'title': entry.get('title', ''),
-                        'published_at': entry.get('upload_date', ''),
-                        'link': entry.get('url', f'https://www.youtube.com/watch?v={entry.get("id", "")}'),
-                    })
-                if videos:
-                    logger.info(f"yt-dlp fallback: found {len(videos)} videos for {channel_id}")
-        except Exception as e2:
-            logger.debug(f"yt-dlp fallback failed for {channel_id}: {e2}")
+    # Strategy 2: yt-dlp playlist scrape (slower, but works when RSS is blocked)
+    logger.info(f"RSS empty for {channel_id}, trying yt-dlp fallback...")
+    try:
+        result = subprocess.run(
+            ['yt-dlp', '--flat-playlist', '--no-download', '-J',
+             '--playlist-end', str(limit), '--js-runtimes', 'node',
+             f'https://www.youtube.com/channel/{channel_id}/videos'],
+            capture_output=True, text=True, timeout=60
+        )
+        if result.returncode == 0:
+            import json as _json
+            data = _json.loads(result.stdout)
+            for entry in (data.get('entries', []) or [])[:limit]:
+                videos.append({
+                    'video_id': entry.get('id', ''),
+                    'title': entry.get('title', ''),
+                    'published_at': entry.get('upload_date', ''),
+                    'link': entry.get('url', f'https://www.youtube.com/watch?v={entry.get("id", "")}'),
+                })
+            if videos:
+                logger.info(f"yt-dlp fallback: found {len(videos)} videos for {channel_id}")
+    except Exception as e2:
+        logger.warning(f"yt-dlp fallback failed for {channel_id}: {e2}")
 
     return videos
 
