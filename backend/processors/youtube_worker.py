@@ -11,6 +11,7 @@ Usage:
 
 import json
 import logging
+import sqlite3
 import threading
 import time
 from datetime import datetime
@@ -50,27 +51,40 @@ def _worker_loop(strat, sse_manager):
     """Main worker loop — polls for pending videos and processes them."""
     from processors.youtube import YouTubeProcessor
 
+    _backoff = 30  # seconds between polls (increases on lock errors)
+
+    # Worker uses its own DB path — never touches strat.db to avoid lock contention
+    db_path = str(strat.db.db_path) if hasattr(strat, 'db') and strat.db and hasattr(strat.db, 'db_path') else None
+
+    # Wait for server to fully initialize before processing
+    _stop_flag.wait(15)
+    if _stop_flag.is_set():
+        return
+
     while not _stop_flag.is_set():
         try:
-            db = strat.db
-            if not db:
+            if not db_path:
                 time.sleep(30)
                 continue
 
-            cursor = db.conn.cursor()
-            cursor.execute(
-                """SELECT v.id, v.video_id, v.title, v.profile_id, v.channel_id,
-                          c.lenses, c.channel_name
-                   FROM youtube_videos v
-                   JOIN youtube_channels c ON v.channel_id = c.id
-                   WHERE v.status = 'pending'
-                   ORDER BY v.published_at ASC
-                   LIMIT 1"""
-            )
-            row = cursor.fetchone()
+            # Use a short-lived cursor for the query — don't hold connection open during transcription
+            with sqlite3.connect(db_path) as poll_conn:
+                poll_conn.row_factory = sqlite3.Row
+                poll_conn.execute("PRAGMA busy_timeout = 5000")
+                poll_cursor = poll_conn.cursor()
+                poll_cursor.execute(
+                    """SELECT v.id, v.video_id, v.title, v.profile_id, v.channel_id,
+                              c.lenses, c.channel_name
+                       FROM youtube_videos v
+                       JOIN youtube_channels c ON v.channel_id = c.id
+                       WHERE v.status = 'pending'
+                       ORDER BY v.published_at ASC
+                       LIMIT 1"""
+                )
+                row = poll_cursor.fetchone()
 
             if not row:
-                _stop_flag.wait(30)  # Sleep 30s, but wake immediately if stopped
+                _stop_flag.wait(_backoff)
                 continue
 
             video = dict(row)
@@ -81,18 +95,15 @@ def _worker_loop(strat, sse_manager):
 
             logger.info(f"YouTube worker: processing '{title}' ({video_id})")
 
-            yt = YouTubeProcessor(strat.config, db=db)
+            # Mark as transcribing (quick DB touch, then release)
+            with sqlite3.connect(db_path) as status_conn:
+                status_conn.execute("PRAGMA busy_timeout = 5000")
+                status_conn.execute(
+                    "UPDATE youtube_videos SET status = 'transcribing' WHERE id = ?",
+                    (video_db_id,)
+                )
+                status_conn.commit()
 
-            # Notify start
-            _notify(sse_manager, {
-                'type': 'youtube_processing',
-                'video_id': video_id,
-                'title': title,
-                'status': 'started',
-            })
-
-            # Step 1: Transcribe
-            yt._update_status(video_db_id, 'transcribing')
             _notify(sse_manager, {
                 'type': 'youtube_processing',
                 'video_id': video_id,
@@ -100,10 +111,22 @@ def _worker_loop(strat, sse_manager):
                 'status': 'transcribing',
             })
 
+            # Transcription — long operation, NO DB connection held
+            # Use standalone get_transcript() — no DB needed for transcription itself
+            from processors.youtube import get_transcript
             try:
-                transcript, method, detected_lang = yt.get_transcript_for_video(video_id)
+                transcript, method, detected_lang = get_transcript(
+                    video_id, preferred_lang='',
+                    supadata_key=strat.config.get('search', {}).get('supadata_api_key', ''),
+                )
             except RuntimeError as e:
-                yt._update_status(video_db_id, 'failed', str(e))
+                with sqlite3.connect(db_path) as err_conn:
+                    err_conn.execute("PRAGMA busy_timeout = 5000")
+                    err_conn.execute(
+                        "UPDATE youtube_videos SET status = 'failed', error_message = ? WHERE id = ?",
+                        (str(e)[:500], video_db_id)
+                    )
+                    err_conn.commit()
                 _notify(sse_manager, {
                     'type': 'youtube_processing',
                     'video_id': video_id,
@@ -114,38 +137,45 @@ def _worker_loop(strat, sse_manager):
                 logger.error(f"YouTube worker: transcription failed for {video_id}: {e}")
                 continue
 
-            # Save transcript + detected language
-            cursor.execute(
-                "UPDATE youtube_videos SET transcript_text = ?, transcript_method = ?, transcript_language = ? WHERE id = ?",
-                (transcript, method, detected_lang, video_db_id)
-            )
-            db._commit()
+            # Save transcript — quick DB touch
+            with sqlite3.connect(db_path) as save_conn:
+                save_conn.execute("PRAGMA busy_timeout = 5000")
+                save_conn.execute(
+                    "UPDATE youtube_videos SET transcript_text = ?, transcript_method = ?, transcript_language = ? WHERE id = ?",
+                    (transcript, method, detected_lang, video_db_id)
+                )
+                save_conn.commit()
             logger.info(f"YouTube worker: transcribed {video_id} via {method} ({len(transcript)} chars) [lang={detected_lang}]")
 
-            # Store transcript lens (raw text, no LLM)
+            # Store transcript lens + mark as transcribed — quick DB touch
             insights_count = 0
-            cursor.execute(
-                """INSERT INTO video_insights
-                   (video_id, profile_id, lens_name, content, language)
-                   VALUES (?, ?, 'transcript', ?, ?)""",
-                (video_db_id, profile_id,
-                 json.dumps({"transcript": transcript}, ensure_ascii=False),
-                 detected_lang)
-            )
-            insights_count += 1
-            if detected_lang and detected_lang != 'en':
-                cursor.execute(
+            with sqlite3.connect(db_path) as lens_conn:
+                lens_conn.execute("PRAGMA busy_timeout = 5000")
+                lens_conn.execute(
                     """INSERT INTO video_insights
                        (video_id, profile_id, lens_name, content, language)
-                       VALUES (?, ?, 'transcript', ?, 'en')""",
+                       VALUES (?, ?, 'transcript', ?, ?)""",
                     (video_db_id, profile_id,
-                     json.dumps({"transcript": transcript, "note": f"Original language: {detected_lang}"}, ensure_ascii=False))
+                     json.dumps({"transcript": transcript}, ensure_ascii=False),
+                     detected_lang)
                 )
                 insights_count += 1
-            db._commit()
-
-            # Mark as transcribed — lenses extracted on demand
-            yt._update_status(video_db_id, 'transcribed')
+                if detected_lang and detected_lang != 'en':
+                    lens_conn.execute(
+                        """INSERT INTO video_insights
+                           (video_id, profile_id, lens_name, content, language)
+                           VALUES (?, ?, 'transcript', ?, 'en')""",
+                        (video_db_id, profile_id,
+                         json.dumps({"transcript": "", "original_language": detected_lang,
+                                     "translation_available": False,
+                                     "note": f"Transcript is in {detected_lang}. View the {detected_lang} tab for content."}, ensure_ascii=False))
+                    )
+                    insights_count += 1
+                lens_conn.execute(
+                    "UPDATE youtube_videos SET status = 'transcribed' WHERE id = ?",
+                    (video_db_id,)
+                )
+                lens_conn.commit()
             _notify(sse_manager, {
                 'type': 'youtube_processing',
                 'video_id': video_id,
@@ -156,9 +186,16 @@ def _worker_loop(strat, sse_manager):
             })
             logger.info(f"YouTube worker: transcribed '{title}' — ready for on-demand lens extraction")
 
+            _backoff = 30  # Reset backoff on success
+
         except Exception as e:
-            logger.error(f"YouTube worker error: {e}")
-            time.sleep(10)  # Back off on error
+            if 'database is locked' in str(e):
+                _backoff = min(_backoff * 2, 120)  # Exponential backoff up to 2 min
+                logger.debug(f"YouTube worker: DB locked, backing off {_backoff}s")
+            else:
+                logger.error(f"YouTube worker error: {e}")
+                _backoff = 30
+            _stop_flag.wait(_backoff)
 
     logger.info("YouTube background worker stopped")
 

@@ -607,6 +607,7 @@ def handle_post(handler, strat, auth, path):
         _send_json(handler, {"ok": True, "status": "queued"})
 
         def _retranscribe():
+            _db_path = str(strat.db.db_path)
             try:
                 from processors.youtube import get_transcript
                 text, method, lang = get_transcript(
@@ -614,12 +615,15 @@ def handle_post(handler, strat, auth, path):
                     preferred_lang='en',
                     supadata_key=strat.config.get('search', {}).get('supadata_api_key', ''),
                 )
-                cur = strat.db.conn.cursor()
-                cur.execute(
-                    "UPDATE youtube_videos SET transcript_text = ?, transcript_language = ?, status = 'transcribed' WHERE id = ?",
-                    (text, lang, video['id'])
-                )
-                strat.db._commit()
+                # Use short-lived connection — don't hold strat.db open in daemon thread
+                import sqlite3 as _sq
+                with _sq.connect(_db_path) as _c:
+                    _c.execute("PRAGMA busy_timeout = 5000")
+                    _c.execute(
+                        "UPDATE youtube_videos SET transcript_text = ?, transcript_language = ?, status = 'transcribed' WHERE id = ?",
+                        (text, lang, video['id'])
+                    )
+                    _c.commit()
                 logger.info(f"Re-transcribed video {video['id']} ({video['title'][:40]}) via {method}: {len(text)} chars")
                 if hasattr(strat, 'sse') and strat.sse:
                     strat.sse.broadcast('youtube_processing', {
@@ -629,9 +633,14 @@ def handle_post(handler, strat, auth, path):
                     })
             except Exception as e:
                 logger.error(f"Re-transcribe failed for video {video['id']}: {e}")
-                cur = strat.db.conn.cursor()
-                cur.execute("UPDATE youtube_videos SET status = 'failed' WHERE id = ?", (video['id'],))
-                strat.db._commit()
+                try:
+                    import sqlite3 as _sq
+                    with _sq.connect(_db_path) as _c:
+                        _c.execute("PRAGMA busy_timeout = 5000")
+                        _c.execute("UPDATE youtube_videos SET status = 'failed' WHERE id = ?", (video['id'],))
+                        _c.commit()
+                except Exception:
+                    pass
                 if hasattr(strat, 'sse') and strat.sse:
                     strat.sse.broadcast('youtube_processing', {
                         'video_id': video['video_id'],
