@@ -208,7 +208,10 @@ def read_json_body(handler) -> dict:
     text = raw.decode('utf-8').strip()
     if not text:
         return {}
-    return json.loads(text)
+    try:
+        return json.loads(text)
+    except (json.JSONDecodeError, UnicodeDecodeError):
+        return {}
 
 
 def sse_event(handler, data: dict):
