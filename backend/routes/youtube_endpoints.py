@@ -341,10 +341,33 @@ def handle_post(handler, strat, auth, path):
     path_parts = path.strip('/').split('/')
     if len(path_parts) == 4 and path_parts[2] == 'process':
         # POST /api/youtube/process/:channel_db_id
+        # If reprocess=true, wipe existing transcripts and re-queue all videos
         try:
             ch_id = int(path_parts[3])
-            new_videos = yt.discover_new_videos(handler._profile_id, ch_id)
-            _send_json(handler, {"ok": True, "new_videos": len(new_videos), "videos": new_videos[:10]})
+            reprocess = body.get('reprocess', False)
+
+            if reprocess:
+                cursor = strat.db.conn.cursor()
+                # Delete all insights for this channel's videos
+                cursor.execute(
+                    """DELETE FROM video_insights WHERE video_id IN
+                       (SELECT id FROM youtube_videos WHERE channel_id = ? AND profile_id = ?)""",
+                    (ch_id, handler._profile_id)
+                )
+                # Reset all videos to pending, clear transcripts
+                cursor.execute(
+                    """UPDATE youtube_videos SET status = 'pending', transcript_text = NULL,
+                       transcript_method = NULL, transcript_language = NULL, error_message = NULL
+                       WHERE channel_id = ? AND profile_id = ?""",
+                    (ch_id, handler._profile_id)
+                )
+                reset_count = cursor.rowcount
+                strat.db._commit()
+                logger.info(f"Re-process channel {ch_id}: reset {reset_count} videos to pending")
+                _send_json(handler, {"ok": True, "reset": reset_count, "new_videos": 0})
+            else:
+                new_videos = yt.discover_new_videos(handler._profile_id, ch_id)
+                _send_json(handler, {"ok": True, "new_videos": len(new_videos), "videos": new_videos[:10]})
         except (ValueError, IndexError):
             _send_json(handler, {"error": "Invalid channel ID"}, 400)
         return True

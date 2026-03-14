@@ -207,12 +207,21 @@ async function _ytDeleteChannel(id, name) {
 // ── Process channel videos ──
 async function _ytProcessChannel(channelId) {
     try {
+        // First try to discover new videos
         const r = await fetch(`/api/youtube/process/${channelId}`, {
             method: 'POST',
-            headers: _ytHeaders()
+            headers: _ytHeaders(),
+            body: JSON.stringify({ reprocess: true })
         });
         if (r.ok) {
-            if (typeof showToast === 'function') showToast('Processing queued', 'success');
+            const data = await r.json();
+            if (data.reset) {
+                if (typeof showToast === 'function') showToast(`Reset ${data.reset} videos — re-transcribing...`, 'info');
+            } else if (data.new_videos > 0) {
+                if (typeof showToast === 'function') showToast(`Found ${data.new_videos} new videos`, 'success');
+            } else {
+                if (typeof showToast === 'function') showToast('Processing queued', 'success');
+            }
             // Ensure video list is visible and start polling for status updates
             const vidEl = document.getElementById(`yt-videos-${channelId}`);
             if (vidEl && vidEl.classList.contains('hidden')) _ytToggleVideos(channelId);
