@@ -522,6 +522,9 @@ def _assemble_prompt(form_data, context):
     phases = form_data.get('phases', [])
     include = form_data.get('include_sections', {})
     custom_rules = form_data.get('custom_rules', [])
+    # Defensive: ensure custom_rules is a list, not a string
+    if isinstance(custom_rules, str):
+        custom_rules = [r.strip() for r in custom_rules.split('\n') if r.strip()]
     files_owned = form_data.get('files_owned', [])
     files_forbidden = form_data.get('files_forbidden', [])
 
