@@ -204,49 +204,175 @@ def get_transcript(video_id: str, preferred_lang: str = 'ar',
     raise RuntimeError(f"All transcript tiers failed for video {video_id}")
 
 
+def _detect_cjk_language(text: str) -> str:
+    """Distinguish between Japanese, Chinese, and Korean from text content.
+
+    Uses Unicode block analysis:
+    - Hiragana/Katakana present → Japanese (even if kanji also present)
+    - Hangul present → Korean
+    - CJK ideographs only (no kana/hangul) → Chinese
+    """
+    has_hiragana = bool(re.search(r'[\u3040-\u309F]', text))
+    has_katakana = bool(re.search(r'[\u30A0-\u30FF]', text))
+    has_hangul = bool(re.search(r'[\uAC00-\uD7AF\u1100-\u11FF]', text))
+    has_cjk = bool(re.search(r'[\u4E00-\u9FFF]', text))
+
+    if has_hiragana or has_katakana:
+        return 'ja'
+    if has_hangul:
+        return 'ko'
+    if has_cjk:
+        return 'zh'
+    return ''
+
+
+def _is_garbage_transcript(text: str, video_duration_secs: int = 0) -> Optional[str]:
+    """Detect degenerate/garbage transcripts. Returns reason string or None if OK."""
+    if not text or len(text.strip()) < 20:
+        return "too_short"
+
+    # Single character repetition: if any char is >40% of text
+    from collections import Counter
+    char_counts = Counter(text.replace(' ', '').replace('\n', ''))
+    if char_counts:
+        most_common_char, most_common_count = char_counts.most_common(1)[0]
+        total_chars = sum(char_counts.values())
+        if total_chars > 50 and most_common_count / total_chars > 0.4:
+            return f"repetition_{most_common_char}"
+
+    # Whisper hallucination phrases (known failure modes on non-speech audio)
+    _HALLUCINATION_PHRASES = [
+        "we'll be right back", "i'll see you next time", "thank you for watching",
+        "please subscribe", "don't forget to subscribe", "like and subscribe",
+        "thanks for watching", "see you in the next", "music",
+    ]
+    text_lower = text.lower()
+    for phrase in _HALLUCINATION_PHRASES:
+        if text_lower.count(phrase) >= 3:
+            return f"hallucination_{phrase[:20]}"
+
+    # All-identical segments: same phrase repeated
+    words = text.split()
+    if len(words) >= 10:
+        # Check if any 3-word sequence appears > 5 times
+        trigrams = [' '.join(words[i:i+3]) for i in range(len(words) - 2)]
+        tri_counts = Counter(trigrams)
+        if tri_counts:
+            top_tri, top_count = tri_counts.most_common(1)[0]
+            if top_count > 5 and top_count / len(trigrams) > 0.3:
+                return f"repeated_segment_{top_tri[:30]}"
+
+    # Too short for video length (< 20 chars for > 60s video)
+    if video_duration_secs and video_duration_secs > 60 and len(text.strip()) < 20:
+        return "too_short_for_duration"
+
+    return None
+
+
 def _tier1_youtube_api(video_id: str, preferred_lang: str = 'ar') -> Tuple[Optional[str], str, str]:
-    """Tier 1: Free youtube-transcript-api library (v1.2.4+)."""
+    """Tier 1: Free youtube-transcript-api library (v1.2.4+).
+
+    Priority: manual captions > auto-generated, preferred_lang first.
+    Differentiates Japanese vs Chinese via Unicode analysis.
+    """
     try:
         from youtube_transcript_api import YouTubeTranscriptApi
         api = YouTubeTranscriptApi()
 
-        # Try fetching transcript with language fallback chain
-        # Each entry: (lang_codes, detected_lang_if_matched)
-        _LANG_CHAIN = [
-            (['en'], 'en'),
-            (['en-US', 'en-GB'], 'en'),
-            (['ar'], 'ar'),
-            (['ja'], 'ja'),
-            (['zh-CN', 'zh-Hans'], 'zh'),
-            (['zh-TW', 'zh-Hant', 'zh-HK'], 'zh'),
-            (['ko'], 'ko'),
-            (['fr'], 'fr'),
-            (['de'], 'de'),
-            (['es'], 'es'),
-            (['ru'], 'ru'),
-            ([], None),  # Any available
-        ]
+        # Build language priority: preferred_lang first, then common languages
+        _ALL_LANGS = ['en', 'en-US', 'en-GB', 'ar', 'ja', 'zh-CN', 'zh-Hans',
+                      'zh-TW', 'zh-Hant', 'zh-HK', 'ko', 'fr', 'de', 'es', 'ru']
+
+        # Put preferred_lang and its variants first
+        _LANG_MAP = {
+            'ar': ['ar'],
+            'ja': ['ja'],
+            'ko': ['ko'],
+            'zh': ['zh-CN', 'zh-Hans', 'zh-TW', 'zh-Hant', 'zh-HK'],
+            'en': ['en', 'en-US', 'en-GB'],
+            'fr': ['fr'], 'de': ['de'], 'es': ['es'], 'ru': ['ru'],
+        }
+        preferred_codes = _LANG_MAP.get(preferred_lang, [preferred_lang])
+        # Ordered: preferred first, then everything else (deduplicated)
+        ordered_langs = list(preferred_codes)
+        for lang in _ALL_LANGS:
+            if lang not in ordered_langs:
+                ordered_langs.append(lang)
+
+        # Strategy: try to use list_transcripts to distinguish manual vs auto
         transcript = None
-        detected_lang = 'en'
-        for lang_list, lang_tag in _LANG_CHAIN:
-            try:
-                if lang_list:
-                    transcript = api.fetch(video_id, languages=lang_list)
+        detected_lang = preferred_lang or 'en'
+        caption_type = 'unknown'
+
+        try:
+            transcript_list = api.list_transcripts(video_id)
+
+            # Separate manual and auto-generated tracks
+            manual_tracks = {}
+            auto_tracks = {}
+            for t in transcript_list:
+                lang = t.language_code
+                if t.is_generated:
+                    auto_tracks[lang] = t
                 else:
-                    transcript = api.fetch(video_id)
-                if transcript:
-                    if lang_tag:
-                        detected_lang = lang_tag
-                    else:
-                        detected_lang = getattr(transcript, 'language', None) or 'en'
+                    manual_tracks[lang] = t
+
+            logger.debug(f"Tier 1: {video_id} — manual: {list(manual_tracks.keys())}, auto: {list(auto_tracks.keys())}")
+
+            # Try manual tracks first (in preferred language order)
+            for lang in ordered_langs:
+                if lang in manual_tracks:
+                    transcript = manual_tracks[lang].fetch()
+                    detected_lang = lang
+                    caption_type = 'manual'
                     break
-            except Exception:
-                continue
+            # Try any manual track (not in our list)
+            if not transcript:
+                for lang, track in manual_tracks.items():
+                    transcript = track.fetch()
+                    detected_lang = lang
+                    caption_type = 'manual'
+                    break
+            # Then auto-generated (in preferred order)
+            if not transcript:
+                for lang in ordered_langs:
+                    if lang in auto_tracks:
+                        transcript = auto_tracks[lang].fetch()
+                        detected_lang = lang
+                        caption_type = 'auto'
+                        break
+            # Any auto track
+            if not transcript:
+                for lang, track in auto_tracks.items():
+                    transcript = track.fetch()
+                    detected_lang = lang
+                    caption_type = 'auto'
+                    break
+
+        except Exception as e:
+            logger.debug(f"list_transcripts failed for {video_id}: {e}, falling back to fetch()")
+            # Fallback: direct fetch with language priority
+            for lang in ordered_langs:
+                try:
+                    transcript = api.fetch(video_id, languages=[lang])
+                    if transcript:
+                        detected_lang = lang
+                        caption_type = 'fetch-fallback'
+                        break
+                except Exception:
+                    continue
+            # Last resort: fetch any
+            if not transcript:
+                try:
+                    transcript = api.fetch(video_id)
+                    caption_type = 'fetch-any'
+                except Exception:
+                    pass
 
         if not transcript:
             return None, '', ''
 
-        # Extract text from transcript entries (v1.2.4 returns objects with .text)
+        # Extract text
         parts = []
         for entry in transcript:
             text = getattr(entry, 'text', None) or (entry.get('text') if isinstance(entry, dict) else '')
@@ -255,11 +381,25 @@ def _tier1_youtube_api(video_id: str, preferred_lang: str = 'ar') -> Tuple[Optio
 
         full_text = ' '.join(parts)
         if len(full_text.strip()) < 500:
-            logger.debug(f"Tier 1 (youtube-api): too short ({len(full_text)} chars) for {video_id} — likely bad data")
+            logger.debug(f"Tier 1: too short ({len(full_text)} chars) for {video_id}")
             return None, '', ''
 
-        logger.info(f"Tier 1 (youtube-api): got {len(full_text)} chars for {video_id} [lang={detected_lang}]")
-        return full_text.strip(), 'youtube-api', detected_lang
+        # Normalize detected language — differentiate Japanese vs Chinese
+        norm_lang = detected_lang.split('-')[0]  # 'zh-CN' → 'zh', 'en-US' → 'en'
+        if norm_lang in ('zh', 'ja', 'ko') or not norm_lang:
+            cjk_lang = _detect_cjk_language(full_text)
+            if cjk_lang:
+                norm_lang = cjk_lang
+
+        # Check for garbage
+        garbage_reason = _is_garbage_transcript(full_text)
+        if garbage_reason:
+            logger.warning(f"Tier 1: garbage transcript for {video_id}: {garbage_reason} (caption_type={caption_type})")
+            # Still return it but flag via method suffix
+            return full_text.strip(), f'youtube-api-{caption_type}-low_quality', norm_lang
+
+        logger.info(f"Tier 1 (youtube-api/{caption_type}): got {len(full_text)} chars for {video_id} [lang={norm_lang}]")
+        return full_text.strip(), f'youtube-api-{caption_type}', norm_lang
 
     except ImportError:
         logger.warning("youtube-transcript-api not installed")
@@ -645,14 +785,15 @@ class YouTubeProcessor:
             logger.info(f"Discovered {len(new_videos)} new videos for profile {profile_id}")
         return new_videos
 
-    def get_transcript_for_video(self, video_id: str) -> Tuple[str, str, str]:
+    def get_transcript_for_video(self, video_id: str, preferred_lang: str = '') -> Tuple[str, str, str]:
         """Get transcript for a video using the 3-tier system.
 
         Returns (transcript_text, method, detected_language).
+        preferred_lang: channel/video language hint (e.g. 'ja' for Japanese channels).
         """
         return get_transcript(
             video_id,
-            preferred_lang='ar',
+            preferred_lang=preferred_lang or 'ar',
             supadata_key=self.supadata_key,
             whisper_model=self.whisper_model,
         )
@@ -679,13 +820,36 @@ class YouTubeProcessor:
         video = dict(row)
         video_id = video['video_id']
 
+        # Detect channel language hint from existing transcripts or video title
+        channel_lang = ''
+        try:
+            cursor.execute(
+                "SELECT transcript_language FROM youtube_videos "
+                "WHERE channel_id = ? AND transcript_language IS NOT NULL AND transcript_language != '' LIMIT 1",
+                (video.get('channel_id'),)
+            )
+            lang_row = cursor.fetchone()
+            if lang_row:
+                channel_lang = lang_row[0]
+        except Exception:
+            pass
+        # Also check title for CJK characters to hint language
+        if not channel_lang:
+            title = video.get('title', '')
+            title_lang = _detect_cjk_language(title)
+            if title_lang:
+                channel_lang = title_lang
+
         # Step 1: Transcribe
         self._update_status(video_db_id, 'transcribing')
         try:
-            transcript, method, detected_lang = self.get_transcript_for_video(video_id)
+            transcript, method, detected_lang = self.get_transcript_for_video(video_id, preferred_lang=channel_lang)
         except RuntimeError as e:
             self._update_status(video_db_id, 'failed', str(e))
             return False
+
+        # Check if transcript is flagged as low quality
+        is_low_quality = 'low_quality' in method
 
         # Save transcript + detected language
         cursor.execute(
@@ -693,6 +857,12 @@ class YouTubeProcessor:
             (transcript, method, detected_lang, video_db_id)
         )
         self.db._commit()
+
+        # Skip lens extraction for low-quality transcripts
+        if is_low_quality:
+            self._update_status(video_db_id, 'low_quality')
+            logger.info(f"Skipping lens extraction for {video_id} — low quality transcript")
+            return True
 
         # Step 2: Run lenses (bilingual — original language + English)
         self._update_status(video_db_id, 'extracting')
@@ -710,14 +880,16 @@ class YouTubeProcessor:
                  json.dumps({"transcript": transcript}, ensure_ascii=False),
                  detected_lang)
             )
-            # If non-English, also store under 'en' key (same text — user can read original)
+            # If non-English, store a note in 'en' slot (NOT a duplicate of untranslated text)
             if detected_lang and detected_lang != 'en':
                 cursor.execute(
                     """INSERT INTO video_insights
                        (video_id, profile_id, lens_name, content, language)
                        VALUES (?, ?, 'transcript', ?, 'en')""",
                     (video_db_id, profile_id,
-                     json.dumps({"transcript": transcript, "note": f"Original language: {detected_lang}"}, ensure_ascii=False))
+                     json.dumps({"transcript": "", "original_language": detected_lang,
+                                 "translation_available": False,
+                                 "note": f"Transcript is in {detected_lang}. View the {detected_lang} tab for content."}, ensure_ascii=False))
                 )
             self.db._commit()
 
