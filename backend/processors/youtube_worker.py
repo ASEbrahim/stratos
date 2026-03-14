@@ -167,7 +167,8 @@ def _notify(sse_manager, event: dict):
     """Send SSE notification if manager available."""
     if sse_manager:
         try:
-            event_type = event.pop('type', 'youtube_processing')
-            sse_manager.broadcast(event_type, event)
+            event_type = event.get('type', 'youtube_processing')
+            payload = {k: v for k, v in event.items() if k != 'type'}
+            sse_manager.broadcast(event_type, payload)
         except Exception:
             pass
