@@ -130,7 +130,7 @@ function _ykbRender() {
             <div class="ykb-subtitle">${_ykbChannels.length} channel${_ykbChannels.length !== 1 ? 's' : ''} tracked</div>
         </div>
         <div style="flex:1;"></div>
-        <button class="ykb-btn" onclick="_ykbShowGuide()" title="How the Knowledge Base works">
+        <button class="ykb-btn" onclick="_ykbOpenLensGuide()" title="Lens Guide — what each analysis mode does">
             <i data-lucide="book-open" class="w-3.5 h-3.5"></i> Guide
         </button>
         <button onclick="_ykbAddChannel()" style="padding:9px 20px;border-radius:10px;border:none;background:var(--accent,#10b981);color:var(--bg-primary,#050810);font-size:12px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:6px;box-shadow:0 4px 16px var(--accent-bg,rgba(16,185,129,0.2));transition:all 0.2s;" onmouseover="this.style.transform='translateY(-1px)';this.style.boxShadow='0 6px 24px var(--accent-bg)'" onmouseout="this.style.transform='';this.style.boxShadow='0 4px 16px var(--accent-bg)'">
@@ -847,42 +847,28 @@ function _ykbExportChannel(chId) {
     window.open(`/api/youtube/export/${chId}?format=json&token=${encodeURIComponent(token)}`, '_blank');
 }
 
-function _ykbShowGuide() {
-    const existing = document.getElementById('ykb-guide-modal');
-    if (existing) { existing.remove(); return; }
-
-    const modal = document.createElement('div');
-    modal.id = 'ykb-guide-modal';
-    modal.style.cssText = 'position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);';
-    modal.onclick = (e) => { if (e.target === modal) modal.remove(); };
-
-    modal.innerHTML = `<div style="background:var(--bg-panel-solid,#0e1026);border:1px solid var(--accent-border,rgba(16,185,129,0.2));border-radius:16px;padding:28px;max-width:520px;width:92%;max-height:80vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.5);">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
-            <div style="font-size:16px;font-weight:700;color:var(--text-primary,#e2e8f0);">Knowledge Base Guide</div>
-            <button onclick="document.getElementById('ykb-guide-modal').remove()" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:18px;">&times;</button>
-        </div>
-        <div style="font-size:12px;color:var(--text-secondary,#94a3b8);line-height:1.8;">
-            <p style="margin-bottom:12px;"><strong style="color:var(--text-primary);">How it works:</strong> Add YouTube channels or individual videos. The system automatically transcribes them using multiple methods, then extracts insights using AI.</p>
-            <p style="margin-bottom:12px;"><strong style="color:var(--accent-light,#34d399);">Transcription Pipeline:</strong></p>
-            <ul style="margin:0 0 12px 18px;">
-                <li><strong>Tier 0 — Lyrics:</strong> Music videos auto-detected → lyrics fetched from LRCLIB (instant)</li>
-                <li><strong>Tier 1 — Captions:</strong> YouTube captions API (free, instant)</li>
-                <li><strong>Tier 2 — Supadata:</strong> Cloud transcription service (if configured)</li>
-                <li><strong>Tier 3 — Whisper:</strong> Local AI transcription on CPU (slowest but most reliable)</li>
-            </ul>
-            <p style="margin-bottom:12px;"><strong style="color:var(--accent-light,#34d399);">Available Lenses:</strong></p>
-            <ul style="margin:0 0 12px 18px;">
-                <li><strong>Transcript:</strong> Raw text from the video</li>
-                <li><strong>Summary:</strong> AI-generated summary with key takeaways</li>
-                <li><strong>Eloquence:</strong> Vocabulary analysis — rare/interesting words with definitions</li>
-                <li><strong>Narrations:</strong> Attributed quotes and source verification</li>
-            </ul>
-            <p style="margin-bottom:12px;"><strong style="color:var(--accent-light,#34d399);">Translation:</strong> Powered by Argos Translate (offline neural machine translation). Supports Arabic, Japanese, Korean, Chinese, French, German, Spanish, Russian, English.</p>
-            <p><strong style="color:var(--accent-light,#34d399);">Buttons:</strong> <em>Extract All</em> = transcribe all videos. <em>Process</em> = run AI lenses. <em>Translate All</em> = batch translate. <em>Export</em> = download as JSON.</p>
-        </div>
-    </div>`;
-
-    document.body.appendChild(modal);
+function _ykbOpenLensGuide() {
+    // Use the existing lens guide from youtube.js insights modal
+    if (typeof _ytShowLensGuide === 'function') {
+        // Need to open the insights modal first, then show the guide
+        // Create a minimal dummy modal if none exists
+        let modal = document.getElementById('yt-insights-modal');
+        if (!modal) {
+            // Open a dummy insights view to get the modal created, then show guide
+            if (typeof _ytShowInsights === 'function') {
+                // Find any video to open insights for
+                const anyVid = Object.values(_ykbVideos).flat().find(v => v.status === 'complete' || v.status === 'transcribed');
+                if (anyVid) {
+                    _ytShowInsights(anyVid.id);
+                    setTimeout(() => _ytShowLensGuide(), 300);
+                    return;
+                }
+            }
+        }
+        _ytShowLensGuide();
+    } else {
+        _ykbShowToast('Guide not available — open a video first', '#fbbf24');
+    }
 }
 
 function _ykbClearVideoCache(videoDbId) {
