@@ -120,3 +120,132 @@ The canonical auth token key is `stratos_auth_token` (defined in `auth.js` as `A
 | `localStorage.getItem('stratos_token')` | settings-tickers.js | **Fixed in C013** |
 | `localStorage.getItem('stratos_session_token')` | prompt-builder.js, agent.js | **Fixed in C014** (agent.js: F010) |
 | `Authorization: Bearer` header | settings-tickers.js | **Fixed in C013** (backend only reads X-Auth-Token) |
+## Frontend Detailed Connection Map
+
+### agent.js (1877 lines)
+**API calls:**
+  - /api/agent-chat
+  - /api/agent-personas
+  - /api/agent-status
+  - /api/config
+  - /api/conversations
+  - /api/files/upload
+  - /api/tts
+  - /api/conversations/${_agentActiveConvId}
+  - /api/conversations/${convId}
+  - /api/conversations/${d.id}
+  - /api/conversations?persona=${encodeURIComponent(persona || currentPersona)}
+**localStorage keys:**
+  - stratos_agent_active_conv
+  - stratos_agent_conversations
+  - stratos_agent_history
+  - stratos_persona_suggestions
+  - stratos_tts_enabled
+  - stratos_tts_speed
+  - stratos_tts_voice
+
+### app.js (2137 lines)
+**API calls:**
+  - /api/agent-warmup
+  - /api/auth/delete-account
+  - /api/briefing
+  - /api/config
+  - /api/data
+  - /api/feedback
+  - /api/refresh-market
+  - /api/refresh-news
+  - /api/scan/cancel
+  - /api/scan/status
+  - /api/search-status
+  - /api/status
+  - /api/update-profile
+  - /api/${type}-news?_=${Date.now()}
+**localStorage keys:**
+  - notif_muted
+  - stratos_auto_refresh
+  - stratos_chart_type
+  - stratos_density
+  - stratos_fontsize
+  - stratos_stt_enabled
+  - stratos-theme
+  - stratos_tts_enabled
+
+### feed.js (1268 lines)
+**API calls:**
+  - /api/config
+  - /api/feed-catalog/
+**localStorage keys:**
+  - savedViewGrid
+
+### youtube.js (1327 lines)
+**API calls:**
+  - /api/youtube/channels
+  - /api/youtube/extract-lens
+  - /api/youtube/retranscribe
+  - /api/youtube/channels/${id}
+  - /api/youtube/extract-all/${channelId}
+  - /api/youtube/insights/${video_id}?language=all
+  - /api/youtube/insights/${videoId}?language=all
+  - /api/youtube/process/${channelId}
+  - /api/youtube/videos/${channelId}
+**localStorage keys:**
+  - stratos_insight_lang
+  - stratos_yi_extract_lang
+  - stratos_yi_size
+
+### games-ui.js (440 lines)
+**API calls:**
+  - /api/scenarios
+  - /api/scenarios/activate
+  - /api/scenarios/active
+  - /api/scenarios/create
+  - /api/scenarios/generate-status
+  - /api/personas/${persona}/entities
+  - /api/personas/${persona}/entities/${encodeURIComponent(name)}?scenario=${encodeURIComponent(_gamesActiveScenario || '')}
+  - /api/personas/${persona}/entities?scenario=${encodeURIComponent(_gamesActiveScenario)}
+  - /api/scenarios?name=${encodeURIComponent(name)}
+**localStorage keys:**
+  - stratos_games_rp_mode
+
+### file-browser.js (1012 lines)
+**API calls:**
+  - /api/file-assist
+  - /api/files/upload
+  - /api/persona-files/mkdir
+  - /api/persona-files/write
+  - /api/persona-files?persona=${encodeURIComponent(_fbPersona)}&path=${encodeURIComponent(path)}
+  - /api/persona-files/read?persona=${encodeURIComponent(_fbPersona)}&path=${encodeURIComponent(path)}
+**localStorage keys:**
+  - fe-atmosphere
+
+### settings.js (1770 lines)
+**API calls:**
+  - /api/config
+  - /api/generate-profile
+  - /api/profiles
+  - /api/save-serper-key
+  - /api/search-status
+  - /api/serper-credits
+  - /api/suggest-context
+**localStorage keys:**
+  - advPanelLayout
+  - settingsMode
+  - simpleCategories
+
+### auth.js (839 lines)
+**API calls:**
+**localStorage keys:**
+
+### market.js (1360 lines)
+**API calls:**
+**localStorage keys:**
+  - stratos_drawings_
+
+### mobile.js (860 lines)
+**API calls:**
+**localStorage keys:**
+  - pwa-dismiss
+  - sidebarCollapsed
+  - sidebarWidth
+  - swipe-hints-seen
+
