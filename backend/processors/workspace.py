@@ -192,6 +192,14 @@ def import_profile(strat, profile_id: int, zip_data: bytes,
     except zipfile.BadZipFile:
         return {"error": "Invalid ZIP file"}
 
+    try:
+        return _do_import(strat, profile_id, zf, strategy, db, cursor, stats)
+    finally:
+        zf.close()
+
+
+def _do_import(strat, profile_id, zf, strategy, db, cursor, stats):
+    """Inner import logic — separated so ZipFile can be closed in finally."""
     # Verify manifest
     if "manifest.json" not in zf.namelist():
         return {"error": "Missing manifest.json — not a valid StratOS export"}
