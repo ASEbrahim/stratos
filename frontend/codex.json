@@ -2602,6 +2602,33 @@
           "related": [],
           "added_in": "Auto-detected",
           "type": "python module"
+        },
+        {
+          "term": "Path Traversal Guard",
+          "definition": "Security pattern used in scenario_generator.py, scenario_templates.py, and file_handler.py. _safe_path() resolves os.path.realpath() and verifies the result starts with the base directory path. Prevents ../../../ attacks in LLM-generated filenames and user uploads. Added during audit session (C020-C022).",
+          "files": [
+            "backend/processors/scenario_generator.py",
+            "backend/processors/file_handler.py"
+          ],
+          "related": [
+            "Scenario",
+            "Canon Import"
+          ],
+          "added_in": "Audit Session",
+          "type": "concept"
+        },
+        {
+          "term": "Output Lock",
+          "definition": "_output_lock in main.py — threading.Lock() that protects read-modify-write operations on the output JSON file. Market refresh and briefing thread both write to the same file; without the lock, concurrent writes caused data loss. Fixed in audit C006.",
+          "files": [
+            "backend/main.py"
+          ],
+          "related": [
+            "Background Scheduler",
+            "StratOS Class"
+          ],
+          "added_in": "Audit Session",
+          "type": "concept"
         }
       ]
     },
