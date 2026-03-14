@@ -49,6 +49,14 @@ output/
 # Session state
 .sessions.json
 
+# RP Pipeline — large artifacts
+data/rp_pipeline/base_model/
+data/rp_pipeline/raw_data/
+data/rp_pipeline/training_output/checkpoint-*/
+data/rp_pipeline/merged/
+data/rp_pipeline/*.gguf
+data/rp_pipeline/*.safetensors
+
 # OS
 .DS_Store
 Thumbs.db
