@@ -299,13 +299,13 @@ def _tier1_youtube_api(video_id: str, preferred_lang: str = 'ar') -> Tuple[Optio
             if lang not in ordered_langs:
                 ordered_langs.append(lang)
 
-        # Strategy: try to use list_transcripts to distinguish manual vs auto
+        # Strategy: try to use list to distinguish manual vs auto
         transcript = None
         detected_lang = preferred_lang or 'en'
         caption_type = 'unknown'
 
         try:
-            transcript_list = api.list_transcripts(video_id)
+            transcript_list = api.list(video_id)
 
             # Separate manual and auto-generated tracks
             manual_tracks = {}
@@ -350,7 +350,7 @@ def _tier1_youtube_api(video_id: str, preferred_lang: str = 'ar') -> Tuple[Optio
                     break
 
         except Exception as e:
-            logger.debug(f"list_transcripts failed for {video_id}: {e}, falling back to fetch()")
+            logger.debug(f"list failed for {video_id}: {e}, falling back to fetch()")
             # Fallback: direct fetch with language priority
             for lang in ordered_langs:
                 try:
@@ -380,8 +380,11 @@ def _tier1_youtube_api(video_id: str, preferred_lang: str = 'ar') -> Tuple[Optio
                 parts.append(text)
 
         full_text = ' '.join(parts)
-        if len(full_text.strip()) < 500:
-            logger.debug(f"Tier 1: too short ({len(full_text)} chars) for {video_id}")
+        # CJK text is ~3x denser than Latin — 150 CJK chars ≈ 500 Latin chars
+        cjk_check = _detect_cjk_language(full_text[:200])
+        min_chars = 150 if cjk_check else 500
+        if len(full_text.strip()) < min_chars:
+            logger.debug(f"Tier 1: too short ({len(full_text)} chars, min={min_chars}) for {video_id}")
             return None, '', ''
 
         # Normalize detected language — differentiate Japanese vs Chinese
@@ -476,6 +479,7 @@ def _tier3_whisper(video_id: str, model_name: str = 'large-v3-turbo') -> Tuple[O
                 [
                     'yt-dlp', '-f', 'bestaudio',
                     '--no-playlist',
+                    '--js-runtimes', 'nodejs',
                     '-o', audio_path,
                     f'https://www.youtube.com/watch?v={video_id}',
                 ],
