@@ -86,15 +86,18 @@ function stratosPrompt(opts) {
                 lbl.textContent = f.label + (f.optional ? ' (optional)' : '');
                 row.appendChild(lbl);
             }
-            const input = document.createElement('input');
-            input.type = 'text';
+            const input = f.multiline
+                ? document.createElement('textarea')
+                : document.createElement('input');
+            if (!f.multiline) input.type = 'text';
             input.className = 'sp-input';
+            if (f.multiline) { input.rows = 4; input.style.resize = 'vertical'; }
             input.placeholder = f.placeholder || '';
             input.value = f.defaultValue || '';
             input.dataset.key = f.key;
-            if (i === 0) setTimeout(() => { input.focus(); input.select(); }, 50);
+            if (i === 0) setTimeout(() => { input.focus(); if (!f.multiline) input.select(); }, 50);
             input.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter') submit();
+                if (e.key === 'Enter' && (!f.multiline || e.ctrlKey)) submit();
                 if (e.key === 'Escape') close(null);
             });
             row.appendChild(input);
