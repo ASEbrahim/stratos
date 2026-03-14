@@ -24,7 +24,7 @@
     // ── Load live context ──
     async function _loadContext() {
         try {
-            const token = localStorage.getItem('stratos_session_token') || '';
+            const token = typeof getAuthToken === 'function' ? getAuthToken() : '';
             const r = await fetch('/api/dev/context', { headers: { 'X-Auth-Token': token } });
             if (r.ok) {
                 _pbContext = await r.json();
@@ -268,7 +268,7 @@
     // ── Generate prompt ──
     window._pbGenerate = async function() {
         const formData = _collectFormData();
-        const token = localStorage.getItem('stratos_session_token') || '';
+        const token = typeof getAuthToken === 'function' ? getAuthToken() : '';
 
         try {
             const r = await fetch('/api/prompt-builder/generate', {
@@ -337,7 +337,7 @@
 
     window._pbSaveToLog = async function() {
         if (!_pbGenerated) return;
-        const token = localStorage.getItem('stratos_session_token') || '';
+        const token = typeof getAuthToken === 'function' ? getAuthToken() : '';
         try {
             await fetch('/api/dev/sprint-log', {
                 method: 'POST',
@@ -361,7 +361,7 @@
         if (!name) return;
         const formData = _collectFormData();
         delete formData.feature_spec; // Templates exclude feature spec
-        const token = localStorage.getItem('stratos_session_token') || '';
+        const token = typeof getAuthToken === 'function' ? getAuthToken() : '';
         try {
             await fetch('/api/dev/templates', {
                 method: 'POST',
@@ -375,7 +375,7 @@
     async function _loadTemplateList() {
         const sel = document.getElementById('pb-load-template');
         if (!sel) return;
-        const token = localStorage.getItem('stratos_session_token') || '';
+        const token = typeof getAuthToken === 'function' ? getAuthToken() : '';
         try {
             const r = await fetch('/api/dev/templates', { headers: { 'X-Auth-Token': token } });
             if (!r.ok) return;
@@ -428,7 +428,7 @@
         const container = document.getElementById('pb-view-history');
         if (!container) return;
         container.innerHTML = '<div class="pb-loading">Loading...</div>';
-        const token = localStorage.getItem('stratos_session_token') || '';
+        const token = typeof getAuthToken === 'function' ? getAuthToken() : '';
         try {
             const r = await fetch('/api/dev/sprint-log', { headers: { 'X-Auth-Token': token } });
             if (!r.ok) throw new Error('Failed');
@@ -461,7 +461,7 @@
     }
 
     window._pbViewPrompt = async function(id) {
-        const token = localStorage.getItem('stratos_session_token') || '';
+        const token = typeof getAuthToken === 'function' ? getAuthToken() : '';
         try {
             const r = await fetch(`/api/dev/sprint-log/prompt?id=${id}`, { headers: { 'X-Auth-Token': token } });
             if (!r.ok) return;
@@ -479,7 +479,7 @@
     };
 
     window._pbCopyPrompt = async function(id) {
-        const token = localStorage.getItem('stratos_session_token') || '';
+        const token = typeof getAuthToken === 'function' ? getAuthToken() : '';
         try {
             const r = await fetch(`/api/dev/sprint-log/prompt?id=${id}`, { headers: { 'X-Auth-Token': token } });
             if (!r.ok) return;
@@ -489,7 +489,7 @@
     };
 
     window._pbUpdateStatus = async function(id, status) {
-        const token = localStorage.getItem('stratos_session_token') || '';
+        const token = typeof getAuthToken === 'function' ? getAuthToken() : '';
         try {
             await fetch('/api/dev/sprint-log', {
                 method: 'POST',
@@ -504,7 +504,7 @@
         const container = document.getElementById('pb-view-templates');
         if (!container) return;
         container.innerHTML = '<div class="pb-loading">Loading...</div>';
-        const token = localStorage.getItem('stratos_session_token') || '';
+        const token = typeof getAuthToken === 'function' ? getAuthToken() : '';
         try {
             const r = await fetch('/api/dev/templates', { headers: { 'X-Auth-Token': token } });
             if (!r.ok) throw new Error('Failed');
@@ -536,7 +536,7 @@
 
     window._pbDeleteTemplate = async function(id) {
         if (!confirm('Delete this template?')) return;
-        const token = localStorage.getItem('stratos_session_token') || '';
+        const token = typeof getAuthToken === 'function' ? getAuthToken() : '';
         try {
             await fetch('/api/dev/templates', {
                 method: 'POST',
