@@ -811,30 +811,34 @@ class StratOS:
                     for interval, interval_data in data.get("data", {}).items():
                         self.db.save_market_snapshot(symbol, data["name"], interval, interval_data)
 
-            # Load existing output and update market section
-            output = {}
-            if self.output_file.exists():
-                with open(self.output_file, "r") as f:
-                    output = json.load(f)
+            # Load existing output and update market section (under lock to
+            # prevent race with deferred briefing writer)
+            with self._output_lock:
+                output = {}
+                if self.output_file.exists():
+                    with open(self.output_file, "r") as f:
+                        output = json.load(f)
 
-            # Update market data
-            market_output = {}
-            for symbol, data in market_data.items():
-                market_output[symbol] = {
-                    "name": data.get("name", symbol),
-                    "data": data.get("data", {})
-                }
-            output["market"] = market_output
-            output["alerts"] = market_alerts or []
-            output["last_updated"] = datetime.now().strftime("%b %d, %I:%M %p")
+                # Update market data
+                market_output = {}
+                for symbol, data in market_data.items():
+                    market_output[symbol] = {
+                        "name": data.get("name", symbol),
+                        "data": data.get("data", {})
+                    }
+                output["market"] = market_output
+                output["alerts"] = market_alerts or []
+                output["last_updated"] = datetime.now().strftime("%b %d, %I:%M %p")
 
-            # Update only market timestamp, preserve news timestamp
-            if "timestamps" not in output:
-                output["timestamps"] = {}
-            output["timestamps"]["market"] = datetime.now().isoformat()
+                # Update only market timestamp, preserve news timestamp
+                if "timestamps" not in output:
+                    output["timestamps"] = {}
+                output["timestamps"]["market"] = datetime.now().isoformat()
 
-            # Write back
-            self._write_output(output)
+                # Write back (inline, lock already held)
+                with open(self.output_file, "w") as f:
+                    json.dump(output, f, indent=2)
+            logger.info(f"Output written to {self.output_file}")
 
             elapsed = time.time() - start_time
             logger.info(f"Market refresh complete in {elapsed:.1f}s")
