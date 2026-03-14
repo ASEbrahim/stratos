@@ -441,6 +441,7 @@ function renderFeed() {
             ${!isExtraFeed && !searchQuery && activeRoot !== 'saved' ? '<p class="text-[11px] text-slate-600 mt-1">Run a scan or adjust your categories to see signals here.</p>' : ''}
         </div>`;
         if (isExtraFeed) lucide.createIcons();
+        if (typeof _updateFeedSuggestionsPanel === 'function') _updateFeedSuggestionsPanel();
         return;
     }
 
@@ -500,7 +501,7 @@ function renderFeed() {
                 </button>
             </div>` : ''}
             <span class="text-[10px] text-slate-600 ml-auto">${filtered.length} headlines · ${sourceKeys.length} sources</span>
-            <button onclick="(async(btn){const i=btn.querySelector('svg');if(i)i.classList.add('animate-spin');await loadExtraFeeds('${isFinance ? 'finance' : isJobs ? 'jobs' : isCustom ? 'custom' : 'politics'}');if(i)i.classList.remove('animate-spin');renderFeed();if(typeof showToast==='function')showToast('Feed refreshed','success');})(this)" class="text-[10px] text-slate-500 hover:text-${accentColor}-400 flex items-center gap-1 transition-colors ml-2" id="headline-refresh-btn">
+            <button onclick="_refreshCurrentFeeds(this,'${isFinance ? 'finance' : isJobs ? 'jobs' : isCustom ? 'custom' : 'politics'}')" class="text-[10px] text-slate-500 hover:text-${accentColor}-400 flex items-center gap-1 transition-colors ml-2" id="headline-refresh-btn">
                 <i data-lucide="refresh-cw" class="w-3 h-3"></i> Refresh
             </button>
         </div>`;
@@ -532,47 +533,44 @@ function renderFeed() {
                         <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Videos</span>
                         <span class="text-[9px] text-slate-600">${showVids.length} (${Object.keys(_vidSourceCount).length} channels)</span>
                     </div>
-                    <div class="space-y-2">`;
+                    <div class="grid grid-cols-2 lg:grid-cols-3 gap-2">`;
                 showVids.forEach(item => {
                     const age = timeAgo(item.timestamp);
                     const embedId = item.embed_id || '';
                     const thumb = item.thumbnail || '';
                     if (embedId && item.embed_type === 'youtube') {
-                        // Horizontal card: fixed-height thumbnail left, info right, click expands to player
+                        // Grid card, click expands to full row and plays
                         html += `<div class="group rounded-lg overflow-hidden transition-all hover:ring-1 hover:ring-red-500/30" style="background:rgba(30,41,59,0.5);border:1px solid rgba(51,65,85,0.3);">
-                            <div class="flex items-stretch" style="height:90px">
-                                <div class="media-player-slot relative cursor-pointer shrink-0" style="width:160px"
-                                     onclick="const card=this.closest('.group');card.style.height='auto';this.parentElement.style.height='auto';this.parentElement.style.display='block';this.style.width='100%';this.style.aspectRatio='16/9';this.innerHTML='<iframe src=\\'https://www.youtube.com/embed/${esc(embedId)}?autoplay=1\\' class=\\'w-full h-full\\' style=\\'min-height:300px\\' frameborder=\\'0\\' allow=\\'autoplay; encrypted-media\\' allowfullscreen></iframe>';this.style.cursor='default'">
-                                    <img src="${esc(thumb)}" alt="" class="w-full h-full object-cover" loading="lazy" onerror="this.style.display='none'">
-                                    <div class="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/10 transition-colors">
-                                        <div class="w-9 h-9 rounded-full bg-red-600/90 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="white"><polygon points="9.5,7.5 16.5,12 9.5,16.5"/></svg>
-                                        </div>
+                            <div class="media-player-slot relative cursor-pointer" style="aspect-ratio:16/9"
+                                 onclick="var p=this.closest('.group');p.style.gridColumn='1/-1';this.innerHTML='<iframe src=\\'https://www.youtube.com/embed/${esc(embedId)}?autoplay=1\\' style=\\'width:100%;height:100%;min-height:320px;border:none\\' allow=\\'autoplay; encrypted-media\\' allowfullscreen></iframe>';this.style.cursor='default'">
+                                <img src="${esc(thumb)}" alt="" class="w-full h-full object-cover" loading="lazy" onerror="this.style.display='none'">
+                                <div class="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/10 transition-colors">
+                                    <div class="w-10 h-10 rounded-full bg-red-600/90 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><polygon points="9.5,7.5 16.5,12 9.5,16.5"/></svg>
                                     </div>
                                 </div>
-                                <div class="p-2.5 flex flex-col justify-center min-w-0">
-                                    <a href="${esc(item.url)}" target="_blank" rel="noopener" class="text-[11px] font-medium text-slate-200 hover:text-white line-clamp-2 leading-snug">${esc(item.title)}</a>
-                                    <div class="flex items-center gap-2 mt-1.5">
-                                        <span class="text-[9px] text-red-400 font-medium truncate">${esc(item.source)}</span>
-                                        ${age ? `<span class="text-[9px] text-slate-600">${age}</span>` : ''}
-                                        <span class="text-[8px] text-slate-700 ml-auto">click to play</span>
-                                    </div>
+                            </div>
+                            <div class="p-2">
+                                <a href="${esc(item.url)}" target="_blank" rel="noopener" class="text-[11px] font-medium text-slate-200 hover:text-white line-clamp-2 leading-snug">${esc(item.title)}</a>
+                                <div class="flex items-center gap-2 mt-1">
+                                    <span class="text-[9px] text-red-400 font-medium truncate">${esc(item.source)}</span>
+                                    ${age ? `<span class="text-[9px] text-slate-600">${age}</span>` : ''}
                                 </div>
                             </div>
                         </div>`;
                     } else {
-                        html += `<a href="${esc(item.url)}" target="_blank" rel="noopener" class="group flex items-stretch rounded-lg overflow-hidden transition-all hover:ring-1 hover:ring-red-500/30" style="height:90px;background:rgba(30,41,59,0.5);border:1px solid rgba(51,65,85,0.3);">
-                            <div class="relative shrink-0 overflow-hidden" style="width:160px">
+                        html += `<a href="${esc(item.url)}" target="_blank" rel="noopener" class="group block rounded-lg overflow-hidden transition-all hover:ring-1 hover:ring-red-500/30" style="background:rgba(30,41,59,0.5);border:1px solid rgba(51,65,85,0.3);">
+                            <div class="relative overflow-hidden" style="aspect-ratio:16/9">
                                 ${thumb ? `<img src="${esc(thumb)}" alt="" class="w-full h-full object-cover" loading="lazy">` : '<div class="w-full h-full flex items-center justify-center bg-slate-800"><i data-lucide="video" class="w-5 h-5 text-slate-600"></i></div>'}
                                 <div class="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/5 transition-colors">
-                                    <div class="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center backdrop-blur-sm">
-                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="white"><polygon points="9.5,7.5 16.5,12 9.5,16.5"/></svg>
+                                    <div class="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center backdrop-blur-sm">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><polygon points="9.5,7.5 16.5,12 9.5,16.5"/></svg>
                                     </div>
                                 </div>
                             </div>
-                            <div class="p-2.5 flex flex-col justify-center min-w-0">
+                            <div class="p-2">
                                 <h4 class="text-[11px] font-medium text-slate-200 group-hover:text-white line-clamp-2 leading-snug">${esc(item.title)}</h4>
-                                <div class="flex items-center gap-2 mt-1.5">
+                                <div class="flex items-center gap-2 mt-1">
                                     <span class="text-[9px] text-red-400 font-medium truncate">${esc(item.source)}</span>
                                     ${age ? `<span class="text-[9px] text-slate-600">${age}</span>` : ''}
                                 </div>
@@ -838,6 +836,7 @@ function renderFeed() {
         initSourceDragDrop(); // Initialize drag-to-reorder
         if (!searchQuery) renderNav();
         lucide.createIcons();
+        if (typeof _updateFeedSuggestionsPanel === 'function') _updateFeedSuggestionsPanel();
         return;
     }
 
@@ -1071,42 +1070,75 @@ function _updateFeedSuggestionsPanel() {
     const panel = document.getElementById('feed-suggestions-panel');
     if (!panel) return;
 
+    const marketsWidget = document.getElementById('markets-widget');
+    const assetAnalysis = document.getElementById('asset-analysis');
+
     // Map active tab to catalog type
     const tabToCatalog = {
         'finance_news': 'finance',
         'politics': 'politics',
         'jobs_feeds': 'jobs',
-        'custom_feeds': null
+        'custom_feeds': 'custom'
     };
 
     const catalogType = tabToCatalog[activeRoot];
     if (catalogType === undefined) {
         panel.classList.add('hidden');
+        if (marketsWidget) marketsWidget.classList.remove('hidden');
+        if (assetAnalysis) assetAnalysis.classList.remove('hidden');
         return;
     }
 
     panel.classList.remove('hidden');
+    if (marketsWidget) marketsWidget.classList.add('hidden');
+    if (assetAnalysis) assetAnalysis.classList.add('hidden');
     const content = document.getElementById('feed-suggestions-content');
     if (!content) return;
 
-    if (catalogType === null) {
-        // Custom tab: show tabs for all catalog types
-        content.innerHTML = `<div class="flex gap-1 mb-2">
-            <button onclick="_loadFeedSuggestions('finance')" class="text-[10px] px-2 py-1 rounded bg-slate-800 text-slate-400 hover:text-emerald-400 transition-colors">Finance</button>
-            <button onclick="_loadFeedSuggestions('politics')" class="text-[10px] px-2 py-1 rounded bg-slate-800 text-slate-400 hover:text-emerald-400 transition-colors">Politics</button>
-            <button onclick="_loadFeedSuggestions('jobs')" class="text-[10px] px-2 py-1 rounded bg-slate-800 text-slate-400 hover:text-emerald-400 transition-colors">Jobs</button>
-        </div><div id="feed-sug-items"></div>`;
-        _loadFeedSuggestions('finance');
-    } else {
-        content.innerHTML = '<div id="feed-sug-items"></div>';
-        _loadFeedSuggestions(catalogType);
-    }
+    // Build tab bar
+    const types = ['finance', 'politics', 'jobs', 'custom'];
+    let tabHtml = '<div class="flex mb-3" style="border-bottom:1px solid rgba(51,65,85,0.4)">';
+    types.forEach(t => {
+        const isActive = t === catalogType;
+        const cls = isActive
+            ? (t === 'custom' ? 'color:#c4b5fd;border-bottom:2px solid #a78bfa;' : 'color:#34d399;border-bottom:2px solid #34d399;')
+            : 'color:#475569;border-bottom:2px solid transparent;';
+        tabHtml += `<button onclick="_switchFeedSugTab('${t}')" style="padding:6px 0;margin-right:16px;font-size:12px;font-weight:600;cursor:pointer;border:none;background:none;position:relative;bottom:-1px;transition:all 0.2s;${cls}">${t.charAt(0).toUpperCase() + t.slice(1)}</button>`;
+    });
+    tabHtml += '</div>';
+    content.innerHTML = tabHtml + '<div id="feed-sug-items"></div>';
+
+    _loadFeedSuggestions(catalogType);
 }
+
+window._switchFeedSugTab = function(type) {
+    // Update tab bar active state
+    const content = document.getElementById('feed-suggestions-content');
+    if (!content) return;
+    const btns = content.querySelectorAll('button[onclick^="_switchFeedSugTab"]');
+    btns.forEach(btn => {
+        const t = btn.textContent.trim().toLowerCase();
+        const isActive = t === type;
+        if (isActive) {
+            btn.style.color = t === 'custom' ? '#c4b5fd' : '#34d399';
+            btn.style.borderBottom = '2px solid ' + (t === 'custom' ? '#a78bfa' : '#34d399');
+        } else {
+            btn.style.color = '#475569';
+            btn.style.borderBottom = '2px solid transparent';
+        }
+    });
+    _loadFeedSuggestions(type);
+};
 
 function _loadFeedSuggestions(type) {
     const container = document.getElementById('feed-sug-items');
     if (!container) return;
-    container.innerHTML = '<div class="text-[10px] text-slate-600 py-2">Loading...</div>';
+    container.innerHTML = '<div style="display:flex;align-items:center;gap:6px;padding:8px 0;"><div style="width:14px;height:14px;border:2px solid #334155;border-top-color:#34d399;border-radius:50%;animation:spin 0.8s linear infinite;flex-shrink:0;"></div><span style="font-size:10px;color:#475569;">Loading sources...</span></div>';
+
+    if (type === 'custom') {
+        _renderCustomFeedSuggestions(container);
+        return;
+    }
 
     fetch('/api/feed-catalog/' + type, {
         headers: { 'X-Auth-Token': typeof getAuthToken === 'function' ? getAuthToken() : '' }
@@ -1118,30 +1150,237 @@ function _loadFeedSuggestions(type) {
             container.innerHTML = '<div class="text-[10px] text-slate-600 py-2">No feeds available</div>';
             return;
         }
-
-        let html = '<div class="space-y-1 max-h-[400px] overflow-y-auto">';
-        catalog.forEach(feed => {
-            const isOn = feed.on !== false;
-            html += `<label class="flex items-center gap-2 px-2 py-1.5 rounded-lg cursor-pointer transition-all hover:bg-slate-800/30 text-[11px]" title="${esc(feed.url)}">
-                <input type="checkbox" ${isOn ? 'checked' : ''} onchange="_toggleFeedSource('${type}', '${esc(feed.id)}', this.checked)"
-                    class="w-3 h-3 rounded accent-emerald-500">
-                <span class="${isOn ? 'text-slate-300' : 'text-slate-500'}">${esc(feed.name)}</span>
-                <span class="text-[9px] text-slate-700 ml-auto">${esc(feed.region || '')}</span>
-            </label>`;
-        });
-        html += '</div>';
-
-        const enabledCount = catalog.filter(f => f.on !== false).length;
-        html += `<div class="flex items-center justify-between mt-2 pt-2" style="border-top:1px solid rgba(51,65,85,0.3)">
-            <span class="text-[10px] text-slate-600">${enabledCount}/${catalog.length} enabled</span>
-            <button onclick="_saveAndRefreshFeeds('${type}')" class="text-[10px] text-emerald-400 hover:text-emerald-300 font-medium transition-colors">Apply & Refresh</button>
-        </div>`;
-
-        container.innerHTML = html;
+        _renderCatalogTags(container, catalog, type);
     })
     .catch(() => {
         container.innerHTML = '<div class="text-[10px] text-red-400 py-2">Failed to load</div>';
     });
+}
+
+function _renderCatalogTags(container, catalog, type) {
+    // Group by category
+    const groups = {};
+    catalog.forEach(feed => {
+        const cat = feed.category || 'other';
+        if (!groups[cat]) groups[cat] = [];
+        groups[cat].push(feed);
+    });
+
+    const catLabels = { markets: '📈 Markets', business: '💼 Business', energy: '⛽ Energy', crypto: '₿ Crypto', world: '🌍 World', mideast: '🕌 Middle East', wire: '📡 Wire', career: '💼 Career', remote: '🌐 Remote', tech: '💻 Tech', other: '📋 Other' };
+    const accent = type === 'custom' ? '#a78bfa' : '#34d399';
+    const accentBg = type === 'custom' ? 'rgba(167,139,250,' : 'rgba(52,211,153,';
+
+    let html = '<div style="max-height:380px;overflow-y:auto;">';
+    for (const [cat, feeds] of Object.entries(groups)) {
+        html += `<div style="font-size:10px;font-weight:600;color:#475569;text-transform:uppercase;letter-spacing:0.08em;margin:10px 0 6px;padding-left:2px;">${catLabels[cat] || cat}</div>`;
+        html += '<div style="display:flex;flex-wrap:wrap;gap:6px;">';
+        feeds.forEach(feed => {
+            const isOn = feed.on !== false;
+            const dotStyle = isOn
+                ? `background:${accent};border-color:${accent};box-shadow:0 0 6px ${accentBg}0.4);`
+                : 'background:#1e293b;border:1px solid #334155;';
+            const tagStyle = isOn
+                ? `border-color:${accentBg}0.3);color:${accent};background:${accentBg}0.08);`
+                : 'border-color:#1e293b;color:#475569;background:#0f172a;';
+            const rgnStyle = isOn
+                ? `color:#475569;background:${accentBg}0.1);`
+                : 'color:#334155;background:rgba(30,41,59,0.5);';
+            html += `<span class="feed-tag" data-id="${esc(feed.id)}" data-on="${isOn}" onclick="_toggleFeedTag(this,'${type}')" title="${esc(feed.url || feed.name)}" style="display:inline-flex;align-items:center;gap:5px;padding:5px 11px 5px 8px;border-radius:20px;cursor:pointer;font-size:12px;font-weight:500;transition:all 0.15s;border:1px solid;${tagStyle}"><span style="width:7px;height:7px;border-radius:50%;flex-shrink:0;${dotStyle}"></span>${esc(feed.name)}<span style="font-size:9px;font-weight:600;margin-left:2px;padding:1px 5px;border-radius:3px;${rgnStyle}">${esc(_feedRegionShort(feed.region || ''))}</span></span>`;
+        });
+        html += '</div>';
+    }
+    html += '</div>';
+
+    const enabledCount = catalog.filter(f => f.on !== false).length;
+    html += `<div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px;padding-top:10px;border-top:1px solid rgba(51,65,85,0.3);">
+        <div style="display:flex;align-items:center;gap:10px;">
+            <span style="font-size:12px;color:#475569;">${enabledCount} / ${catalog.length} on</span>
+            <span onclick="_feedSugToggleAll('${type}',true)" style="font-size:11px;color:#64748b;cursor:pointer;text-decoration:underline;text-underline-offset:2px;">All</span>
+            <span onclick="_feedSugToggleAll('${type}',false)" style="font-size:11px;color:#64748b;cursor:pointer;text-decoration:underline;text-underline-offset:2px;">None</span>
+        </div>
+        <button onclick="_saveAndRefreshFeeds('${type}')" style="font-size:12px;color:#0f172a;font-weight:600;cursor:pointer;background:${accent};border:none;padding:6px 14px;border-radius:6px;transition:all 0.15s;">Apply</button>
+    </div>`;
+
+    container.innerHTML = html;
+}
+
+function _feedRegionShort(r) {
+    const map = { 'Global': 'GLB', 'US': 'US', 'UK': 'UK', 'Kuwait': 'KW', 'GCC': 'GCC', 'Middle East': 'ME' };
+    return map[r] || r.substring(0, 3).toUpperCase();
+}
+
+function _toggleFeedTag(el, type) {
+    const isOn = el.dataset.on === 'true';
+    el.dataset.on = String(!isOn);
+    const id = el.dataset.id;
+    _toggleFeedSource(type, id, !isOn);
+
+    const accent = type === 'custom' ? '#a78bfa' : '#34d399';
+    const accentBg = type === 'custom' ? 'rgba(167,139,250,' : 'rgba(52,211,153,';
+    const dot = el.querySelector('span');
+    const rgn = el.querySelector('span:last-child');
+
+    if (!isOn) {
+        el.style.borderColor = accentBg + '0.3)';
+        el.style.color = accent;
+        el.style.background = accentBg + '0.08)';
+        dot.style.background = accent;
+        dot.style.borderColor = accent;
+        dot.style.boxShadow = '0 0 6px ' + accentBg + '0.4)';
+        if (rgn) { rgn.style.color = '#475569'; rgn.style.background = accentBg + '0.1)'; }
+    } else {
+        el.style.borderColor = '#1e293b';
+        el.style.color = '#475569';
+        el.style.background = '#0f172a';
+        dot.style.background = '#1e293b';
+        dot.style.borderColor = '#334155';
+        dot.style.boxShadow = 'none';
+        if (rgn) { rgn.style.color = '#334155'; rgn.style.background = 'rgba(30,41,59,0.5)'; }
+    }
+
+    // Update footer count
+    const tags = el.closest('#feed-sug-items').querySelectorAll('.feed-tag');
+    const total = tags.length;
+    const onCount = [...tags].filter(t => t.dataset.on === 'true').length;
+    const counter = el.closest('#feed-sug-items').querySelector('[data-counter]');
+    if (!counter) {
+        const footerSpan = el.closest('#feed-sug-items').querySelector('div:last-child span');
+        if (footerSpan && footerSpan.textContent.includes('/')) footerSpan.textContent = onCount + ' / ' + total + ' on';
+    }
+}
+
+function _feedSugToggleAll(type, enable) {
+    const container = document.getElementById('feed-sug-items');
+    if (!container) return;
+    container.querySelectorAll('.feed-tag').forEach(el => {
+        if ((el.dataset.on === 'true') !== enable) {
+            _toggleFeedTag(el, type);
+        }
+    });
+}
+
+function _renderCustomFeedSuggestions(container) {
+    const feeds = (typeof configData !== 'undefined' && configData) ? (configData.custom_feeds || []) : [];
+    if (!feeds.length) {
+        container.innerHTML = '<div style="font-size:10px;color:#475569;padding:8px 0;">No custom feeds. Add feeds in Settings → Sources → Custom.</div>';
+        return;
+    }
+
+    // Detect media type from URL
+    function _detectType(url) {
+        if (!url) return 'rss';
+        if (/youtube\.com|youtu\.be/.test(url)) return 'vid';
+        if (/danbooru|yande\.re|gelbooru|konachan|safebooru/.test(url)) return 'img';
+        return 'rss';
+    }
+    const typeBadge = { img: 'background:rgba(251,191,36,0.1);color:#fbbf24;', vid: 'background:rgba(239,68,68,0.1);color:#ef4444;', rss: 'background:rgba(96,165,250,0.1);color:#60a5fa;' };
+
+    let html = '<div style="display:flex;flex-wrap:wrap;gap:6px;max-height:420px;overflow-y:auto;">';
+    feeds.forEach((feed, idx) => {
+        const isOn = feed.on !== false;
+        const mt = _detectType(feed.url);
+        const accent = '#a78bfa';
+        const accentBg = 'rgba(167,139,250,';
+        const dotStyle = isOn
+            ? `background:${accent};border-color:${accent};box-shadow:0 0 6px ${accentBg}0.4);`
+            : 'background:#1e293b;border:1px solid #334155;';
+        const tagStyle = isOn
+            ? `border-color:${accentBg}0.3);color:${accent};background:${accentBg}0.08);`
+            : 'border-color:#1e293b;color:#475569;background:#0f172a;';
+        html += `<span class="feed-tag" data-id="${idx}" data-on="${isOn}" onclick="_toggleCustomFeedTag(this,${idx})" title="${esc(feed.url)}" style="display:inline-flex;align-items:center;gap:5px;padding:5px 11px 5px 8px;border-radius:20px;cursor:pointer;font-size:12px;font-weight:500;transition:all 0.15s;border:1px solid;${tagStyle}"><span style="width:7px;height:7px;border-radius:50%;flex-shrink:0;${dotStyle}"></span>${esc(feed.name)}<span style="font-size:9px;font-weight:700;padding:2px 6px;border-radius:3px;text-transform:uppercase;letter-spacing:0.05em;${typeBadge[mt]}">${mt}</span></span>`;
+    });
+    html += '</div>';
+
+    const enabledCount = feeds.filter(f => f.on !== false).length;
+    html += `<div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px;padding-top:10px;border-top:1px solid rgba(51,65,85,0.3);">
+        <div style="display:flex;align-items:center;gap:10px;">
+            <span style="font-size:12px;color:#475569;">${enabledCount} / ${feeds.length} on</span>
+            <span onclick="_customFeedSugToggleAll(true)" style="font-size:11px;color:#64748b;cursor:pointer;text-decoration:underline;text-underline-offset:2px;">All</span>
+            <span onclick="_customFeedSugToggleAll(false)" style="font-size:11px;color:#64748b;cursor:pointer;text-decoration:underline;text-underline-offset:2px;">None</span>
+        </div>
+        <button onclick="_saveCustomFeedToggles()" style="font-size:12px;color:#0f172a;font-weight:600;cursor:pointer;background:#a78bfa;border:none;padding:6px 14px;border-radius:6px;transition:all 0.15s;">Apply</button>
+    </div>`;
+
+    container.innerHTML = html;
+}
+
+window._toggleCustomFeedTag = function(el, idx) {
+    const isOn = el.dataset.on === 'true';
+    el.dataset.on = String(!isOn);
+    if (configData && configData.custom_feeds && configData.custom_feeds[idx]) {
+        configData.custom_feeds[idx].on = !isOn;
+    }
+
+    const accent = '#a78bfa';
+    const accentBg = 'rgba(167,139,250,';
+    const dot = el.querySelector('span');
+    if (!isOn) {
+        el.style.borderColor = accentBg + '0.3)';
+        el.style.color = accent;
+        el.style.background = accentBg + '0.08)';
+        dot.style.background = accent;
+        dot.style.borderColor = accent;
+        dot.style.boxShadow = '0 0 6px ' + accentBg + '0.4)';
+    } else {
+        el.style.borderColor = '#1e293b';
+        el.style.color = '#475569';
+        el.style.background = '#0f172a';
+        dot.style.background = '#1e293b';
+        dot.style.borderColor = '#334155';
+        dot.style.boxShadow = 'none';
+    }
+
+    const tags = el.closest('#feed-sug-items').querySelectorAll('.feed-tag');
+    const onCount = [...tags].filter(t => t.dataset.on === 'true').length;
+    const footerSpan = el.closest('#feed-sug-items').querySelector('div:last-child span');
+    if (footerSpan && footerSpan.textContent.includes('/')) footerSpan.textContent = onCount + ' / ' + tags.length + ' on';
+};
+
+window._customFeedSugToggleAll = function(enable) {
+    const container = document.getElementById('feed-sug-items');
+    if (!container) return;
+    container.querySelectorAll('.feed-tag').forEach(el => {
+        if ((el.dataset.on === 'true') !== enable) {
+            const idx = parseInt(el.dataset.id);
+            _toggleCustomFeedTag(el, idx);
+        }
+    });
+};
+
+window._saveCustomFeedToggles = async function() {
+    if (!configData) return;
+    // Find and disable the Apply button with loading state
+    const applyBtn = document.querySelector('#feed-sug-items button[onclick*="saveCustomFeedToggles"]');
+    if (applyBtn) { applyBtn.disabled = true; applyBtn.textContent = 'Saving...'; applyBtn.style.opacity = '0.6'; }
+    try {
+        await fetch('/api/config', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-Auth-Token': typeof getAuthToken === 'function' ? getAuthToken() : '' },
+            body: JSON.stringify({ custom_feeds: configData.custom_feeds })
+        });
+        if (applyBtn) applyBtn.textContent = 'Refreshing...';
+        await loadExtraFeeds('custom');
+        renderFeed();
+        if (typeof showToast === 'function') showToast('Custom feeds updated', 'success');
+    } catch(e) {
+        if (typeof showToast === 'function') showToast('Failed to update feeds', 'error');
+    }
+    if (applyBtn) { applyBtn.disabled = false; applyBtn.textContent = 'Apply'; applyBtn.style.opacity = ''; }
+};
+
+async function _refreshCurrentFeeds(btn, type) {
+    const sv = btn ? (btn.querySelector('svg') || btn.querySelector('i')) : null;
+    if (sv) sv.style.animation = 'spin 0.8s linear infinite';
+    if (btn) { btn.disabled = true; btn.style.opacity = '0.6'; }
+    try {
+        await loadExtraFeeds(type);
+        renderFeed();
+        if (typeof showToast === 'function') showToast('Feed refreshed', 'success');
+    } catch(e) {
+        if (typeof showToast === 'function') showToast('Refresh failed', 'error');
+    }
+    if (sv) sv.style.animation = '';
+    if (btn) { btn.disabled = false; btn.style.opacity = ''; }
 }
 
 function _toggleFeedSource(type, feedId, enabled) {
@@ -1150,10 +1389,17 @@ function _toggleFeedSource(type, feedId, enabled) {
     window._pendingFeedToggles[type][feedId] = enabled;
 }
 
-function _saveAndRefreshFeeds(type) {
+async function _saveAndRefreshFeeds(type) {
+    const applyBtn = document.querySelector('#feed-sug-items button[onclick*="saveAndRefreshFeeds"]');
+    if (applyBtn) { applyBtn.disabled = true; applyBtn.textContent = 'Saving...'; applyBtn.style.opacity = '0.6'; }
+
     const toggles = window._pendingFeedToggles?.[type];
     if (!toggles || !Object.keys(toggles).length) {
-        loadExtraFeeds(type).then(renderFeed);
+        if (applyBtn) applyBtn.textContent = 'Refreshing...';
+        await loadExtraFeeds(type);
+        renderFeed();
+        if (typeof showToast === 'function') showToast('Feeds refreshed', 'success');
+        if (applyBtn) { applyBtn.disabled = false; applyBtn.textContent = 'Apply'; applyBtn.style.opacity = ''; }
         return;
     }
 
@@ -1163,17 +1409,21 @@ function _saveAndRefreshFeeds(type) {
     Object.assign(configData[key], toggles);
     window._pendingFeedToggles[type] = {};
 
-    fetch('/api/config', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-Auth-Token': typeof getAuthToken === 'function' ? getAuthToken() : '' },
-        body: JSON.stringify(configData)
-    }).then(() => {
-        loadExtraFeeds(type).then(() => {
-            renderFeed();
-            _loadFeedSuggestions(type);
+    try {
+        await fetch('/api/config', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-Auth-Token': typeof getAuthToken === 'function' ? getAuthToken() : '' },
+            body: JSON.stringify(configData)
         });
+        if (applyBtn) applyBtn.textContent = 'Refreshing...';
+        await loadExtraFeeds(type);
+        renderFeed();
+        _loadFeedSuggestions(type);
         if (typeof showToast === 'function') showToast('Feed sources updated', 'success');
-    });
+    } catch(e) {
+        if (typeof showToast === 'function') showToast('Failed to update feeds', 'error');
+    }
+    if (applyBtn) { applyBtn.disabled = false; applyBtn.textContent = 'Apply'; applyBtn.style.opacity = ''; }
 }
 
 // ═══════════════════════════════════════════════════════════════

@@ -553,10 +553,10 @@
                     </div>
 
                     <!-- RSS Feed Suggestions (shown on feed tabs) -->
-                    <div id="feed-suggestions-panel" class="glass-panel rounded-xl p-4 hidden">
-                        <div class="flex items-center gap-2 mb-3">
-                            <i data-lucide="rss" class="w-4 h-4 text-emerald-400"></i>
-                            <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest">Feed Sources</h3>
+                    <div id="feed-suggestions-panel" class="glass-panel rounded-xl p-5 hidden">
+                        <div class="flex items-center gap-2 mb-4">
+                            <i data-lucide="rss" class="w-5 h-5 text-emerald-400"></i>
+                            <h3 class="text-sm font-bold text-slate-400 uppercase tracking-widest">Feed Sources</h3>
                         </div>
                         <div id="feed-suggestions-content" class="space-y-2"></div>
                     </div>
@@ -695,6 +695,10 @@
 
 
 
+
+            <!-- YouTube Knowledge Base Panel -->
+            <div id="youtube-kb-panel" class="hidden" style="max-width:100%;overflow:hidden;padding:20px 28px;">
+            </div>
 
             <!-- Settings Panel (separate from main grid) -->
             <div id="settings-panel" class="hidden">
@@ -1487,6 +1491,9 @@
                             <button onclick="saveSourceToggles()" id="save-sources-btn" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-medium rounded-lg transition-colors flex items-center gap-2">
                                 <i data-lucide="save" class="w-4 h-4"></i> Save Sources
                             </button>
+                            <button onclick="refreshSourceFeeds(this)" id="refresh-sources-btn" class="px-5 py-2.5 bg-slate-700 hover:bg-slate-600 text-slate-300 text-sm font-medium rounded-lg transition-colors flex items-center gap-2">
+                                <i data-lucide="refresh-cw" class="w-4 h-4"></i> Refresh Feeds
+                            </button>
                             <span id="save-sources-status" class="text-xs"></span>
                         </div>
                     </div>
@@ -1569,6 +1576,7 @@
     <script defer src="persona-context.js"></script>
     <script defer src="file-browser.js"></script>
     <script defer src="youtube.js"></script>
+    <script defer src="youtube-kb.js"></script>
     <script defer src="games-ui.js"></script>
     <script defer src="workspace.js"></script>
     <script defer src="agent-suggestions.js"></script>

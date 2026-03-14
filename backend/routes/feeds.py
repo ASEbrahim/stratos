@@ -97,15 +97,36 @@ def handle_get(handler, strat, auth, path):
 
                         # YouTube RSS fallback: if RSS returns 404/500, use yt-dlp
                         _yt_rss_match = _re.search(r'youtube\.com/feeds/videos\.xml\?channel_id=(UC[\w-]{22})', feed_url)
+                        logger.info(f"[CUSTOM] Processing feed: {feed_cfg.get('name','')} url={feed_url[:60]} yt_match={bool(_yt_rss_match)}")
                         if _yt_rss_match:
+                            _yt_handled = False
                             try:
                                 _yt_resp = requests.get(feed_url, timeout=8, headers={"User-Agent": _ua})
                                 if _yt_resp.status_code == 200:
-                                    feed = feedparser.parse(_yt_resp.content)
+                                    _yt_feed = feedparser.parse(_yt_resp.content)
+                                    _yt_ch_name = feed_cfg.get('name', '')
+                                    for _yt_e in (_yt_feed.entries or [])[:15]:
+                                        _yt_vid_url = _yt_e.get('link', '')
+                                        _yt_vid_match = _re.search(r'(?:v=|youtu\.be/)([a-zA-Z0-9_-]{11})', _yt_vid_url)
+                                        _yt_vid_id = _yt_vid_match.group(1) if _yt_vid_match else ''
+                                        items.append({
+                                            "title": _yt_e.get("title", ""),
+                                            "url": _yt_vid_url,
+                                            "source": _yt_ch_name,
+                                            "category": "custom",
+                                            "summary": (_yt_e.get("summary", "") or "")[:200],
+                                            "timestamp": _yt_e.get("published", ""),
+                                            "thumbnail": f"https://img.youtube.com/vi/{_yt_vid_id}/hqdefault.jpg" if _yt_vid_id else "",
+                                            "media_type": "video",
+                                            "embed_id": _yt_vid_id,
+                                            "embed_type": "youtube",
+                                        })
+                                    _yt_handled = True
                                 else:
                                     raise requests.RequestException(f"HTTP {_yt_resp.status_code}")
-                            except Exception:
+                            except Exception as _rss_err:
                                 # yt-dlp fallback for YouTube feeds
+                                logger.info(f"YouTube RSS failed ({_rss_err}), trying yt-dlp for {feed_cfg.get('name','')}")
                                 import subprocess as _sp
                                 try:
                                     _yt_cid = _yt_rss_match.group(1)
@@ -119,18 +140,28 @@ def handle_get(handler, strat, auth, path):
                                         _yt_data = json.loads(_yt_result.stdout)
                                         _yt_ch_name = _yt_data.get('channel', feed_cfg.get('name', ''))
                                         for _yt_entry in (_yt_data.get('entries', []) or [])[:15]:
+                                            _yt_vid_url = _yt_entry.get("url", "")
+                                            _yt_vid_match = _re.search(r'(?:v=|youtu\.be/)([a-zA-Z0-9_-]{11})', _yt_vid_url)
+                                            _yt_vid_id = _yt_vid_match.group(1) if _yt_vid_match else ''
                                             items.append({
                                                 "title": _yt_entry.get("title", ""),
-                                                "url": _yt_entry.get("url", ""),
+                                                "url": _yt_vid_url,
                                                 "source": _yt_ch_name,
                                                 "category": "custom",
                                                 "summary": _yt_entry.get("description", "")[:200] if _yt_entry.get("description") else "",
                                                 "timestamp": _yt_entry.get("upload_date", ""),
-                                                "thumbnail": (_yt_entry.get("thumbnails", [{}])[-1] or {}).get("url", ""),
+                                                "thumbnail": f"https://img.youtube.com/vi/{_yt_vid_id}/hqdefault.jpg" if _yt_vid_id else ((_yt_entry.get("thumbnails", [{}])[-1] or {}).get("url", "")),
+                                                "media_type": "video",
+                                                "embed_id": _yt_vid_id,
+                                                "embed_type": "youtube",
                                             })
+                                        _yt_handled = True
+                                    logger.info(f"yt-dlp success for {feed_cfg.get('name','')}: {len((_yt_data.get('entries',[]) or [])[:15])} entries")
                                 except Exception as _yt_e:
-                                    logger.debug(f"YouTube yt-dlp fallback failed for {feed_cfg.get('name','')}: {_yt_e}")
-                                continue  # Skip normal feed processing
+                                    logger.warning(f"YouTube yt-dlp fallback failed for {feed_cfg.get('name','')}: {_yt_e}")
+                            if _yt_handled:
+                                logger.info(f"YouTube feed handled for {feed_cfg.get('name','')}: {sum(1 for i in items if i.get('media_type')=='video')} videos total")
+                                continue  # Skip normal feed processing — YouTube items already added
 
                         # Route blocked feeds through Cloudflare Worker
                         if _is_blocked and _worker_base:
@@ -205,10 +236,11 @@ def handle_get(handler, strat, auth, path):
                                 elif 'konachan.' in thumb and '/preview/' in thumb:
                                     sample_image = thumb.replace('/preview/', '/jpeg/')
                                     full_image = thumb.replace('/preview/', '/image/')
-                                # Danbooru: 360px thumbnail is the max free resolution
-                                # /sample/ and /original/ require different filename formats or paid account
+                                # Danbooru: /360x360/ → /original/ for full res
                                 elif 'donmai.us' in thumb:
-                                    pass  # Just use thumbnail as-is
+                                    if '/360x360/' in thumb:
+                                        full_image = thumb.replace('/360x360/', '/original/')
+                                        sample_image = thumb.replace('/360x360/', '/sample/')
                                 # Gelbooru: img*.gelbooru.com/thumbnails/hash/thumbnail_file.jpg
                                 elif 'gelbooru.' in thumb and '/thumbnails/' in thumb:
                                     sample_image = thumb.replace('/thumbnails/', '/samples/').replace('thumbnail_', 'sample_')
@@ -293,7 +325,7 @@ def handle_get(handler, strat, auth, path):
                         logger.warning(f"Custom feed error ({feed_cfg.get('name','')}): {e}")
                 # Sort by timestamp descending
                 items.sort(key=lambda x: x.get("timestamp", ""), reverse=True)
-                items = items[:80]  # Cap at 80 (more content for media view)
+                items = items[:120]  # Cap at 120 (accommodate images + videos + articles)
         except Exception as e:
             logger.error(f"Custom feeds error: {e}")
         handler.wfile.write(json.dumps({"items": items, "fetched_at": datetime.now().isoformat()}).encode())

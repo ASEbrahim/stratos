@@ -197,18 +197,26 @@ def fetch_channel_videos(channel_id: str, limit: int = 15) -> List[Dict[str, Any
 # ═══════════════════════════════════════════════════════════
 
 def get_transcript(video_id: str, preferred_lang: str = 'ar',
-                   supadata_key: str = '', whisper_model: str = 'large-v3-turbo') -> Tuple[str, str, str]:
+                   supadata_key: str = '', whisper_model: str = 'large-v3-turbo',
+                   video_title: str = '', channel_name: str = '') -> Tuple[str, str, str]:
     """Get transcript using best available method.
 
     Tries in order:
+      Tier 0: Lyrics lookup via LRCLIB (for music videos, free, instant)
       Tier 1: youtube-transcript-api (free, instant)
       Tier 2: Supadata API (if key configured)
       Tier 3: faster-whisper on CPU (slow but reliable)
 
     Returns (transcript_text, method, detected_language) where method is
-    'youtube-api'/'supadata'/'whisper-turbo'/'whisper-v3'.
+    'lyrics-lrclib'/'youtube-api'/'supadata'/'whisper-turbo'/'whisper-v3'.
     Raises RuntimeError if all tiers fail.
     """
+    # Tier 0: Lyrics lookup for music videos
+    if video_title:
+        text, method, lang = _tier0_lyrics(video_id, video_title, channel_name)
+        if text:
+            return text, method, lang
+
     # Tier 1: youtube-transcript-api
     text, method, lang = _tier1_youtube_api(video_id, preferred_lang)
     if text:
@@ -226,6 +234,156 @@ def get_transcript(video_id: str, preferred_lang: str = 'ar',
         return text, method, lang
 
     raise RuntimeError(f"All transcript tiers failed for video {video_id}")
+
+
+def _parse_artist_track(title: str, channel_name: str = '') -> Tuple[str, str]:
+    """Extract artist and track name from YouTube video title.
+
+    Handles common patterns:
+      【Ado】うっせぇわ → ('Ado', 'うっせぇわ')
+      Ado - Usseewa (Official Video) → ('Ado', 'Usseewa')
+      うっせぇわ / Ado → ('Ado', 'うっせぇわ')
+      Ado くちばしにチェリー 20200623 → ('Ado', 'くちばしにチェリー')
+      Track Name (Official Audio) → (channel_name, 'Track Name')
+    """
+    # Strip common suffixes
+    clean = re.sub(r'\s*[\(\[（【](?:Official\s*(?:Music\s*)?Video|Official\s*Audio|MV|Music\s*Video|Lyric\s*Video|Full\s*Ver\.?|Short\s*Ver\.?|instrumental|inst\.?)[\)\]）】]', '', title, flags=re.IGNORECASE)
+    # Strip trailing dates (20200623, 2024.01.15, etc.)
+    clean = re.sub(r'\s+\d{4}[\.\-]?\d{2}[\.\-]?\d{2}\s*$', '', clean)
+    # Strip trailing metadata like "Teaser", "Behind The Scenes", "Release Special #3"
+    clean = re.sub(r'\s+(?:Teaser|Trailer|Behind\s+The\s+Scenes?|Release\s+Special\s*#?\d*|Preview|Short\s+Version?)\s*$', '', clean, flags=re.IGNORECASE)
+    clean = clean.strip(' -—–')
+
+    # Pattern: 【Artist】Track or [Artist] Track
+    m = re.match(r'[【\[]([^】\]]+)[】\]]\s*(.+)', clean)
+    if m:
+        return m.group(1).strip(), m.group(2).strip()
+
+    # Pattern: Artist - Track or Artist — Track
+    m = re.match(r'^(.+?)\s*[-—–]\s*(.+)$', clean)
+    if m:
+        return m.group(1).strip(), m.group(2).strip()
+
+    # Pattern: Track / Artist
+    m = re.match(r'^(.+?)\s*/\s*(.+)$', clean)
+    if m:
+        return m.group(2).strip(), m.group(1).strip()
+
+    # Pattern: "ArtistName NonLatinTrack" — split on script boundary
+    # e.g. "Ado くちばしにチェリー" → ('Ado', 'くちばしにチェリー')
+    m = re.match(r'^([A-Za-z0-9][\w\s]*?)\s+([\u3000-\u9FFF\uAC00-\uD7AF].+)$', clean)
+    if m:
+        return m.group(1).strip(), m.group(2).strip()
+
+    # Clean channel name (strip trailing numbers like "Ado1024" → "Ado")
+    _clean_ch = re.sub(r'\d+$', '', channel_name).strip() if channel_name else ''
+
+    # Fallback: use cleaned channel name as artist, clean title as track
+    return _clean_ch or channel_name.strip(), clean.strip()
+
+
+def _tier0_lyrics(video_id: str, video_title: str, channel_name: str = '') -> Tuple[str, str, str]:
+    """Tier 0: Fetch lyrics from LRCLIB for music videos.
+
+    Detects music videos by checking YouTube category or title patterns.
+    Returns (lyrics_text, 'lyrics-lrclib', detected_language) or ('', '', '').
+    """
+    # Check if this looks like a music video from title patterns
+    title_lower = video_title.lower()
+    music_signals = [
+        'official music video', 'official video', 'official audio',
+        'official mv', 'music video', ' mv)', ' mv]', '(mv)', '[mv]',
+        'lyric video', 'lyrics video', 'official lyric',
+        'instrumental', '(inst)', 'full ver', 'short ver',
+    ]
+    title_has_music = any(p in title_lower for p in music_signals)
+
+    # Also check for 【brackets】 pattern common in Japanese music
+    has_bracket_artist = bool(re.match(r'[【\[]', video_title))
+
+    # Check YouTube video category via yt-dlp (fast, no download)
+    is_music_category = False
+    try:
+        result = subprocess.run(
+            ['yt-dlp', '--no-download', '--print', '%(categories)j',
+             '--js-runtimes', 'node', f'https://www.youtube.com/watch?v={video_id}'],
+            capture_output=True, text=True, timeout=15
+        )
+        if result.returncode == 0:
+            cats = json.loads(result.stdout.strip())
+            is_music_category = 'Music' in (cats or [])
+    except Exception:
+        pass
+
+    if not (is_music_category or title_has_music or has_bracket_artist):
+        return '', '', ''
+
+    logger.info(f"Music video detected for {video_id}: '{video_title}' (category={is_music_category}, title_signal={title_has_music})")
+
+    artist, track = _parse_artist_track(video_title, channel_name)
+    if not track:
+        return '', '', ''
+
+    logger.info(f"LRCLIB lookup: artist='{artist}' track='{track}'")
+
+    # Try LRCLIB search
+    try:
+        params = {'track_name': track}
+        if artist:
+            params['artist_name'] = artist
+        resp = requests.get('https://lrclib.net/api/search', params=params, timeout=10,
+                           headers={'User-Agent': 'StratOS/1.0 (youtube-lyrics-lookup)'})
+        if resp.status_code == 200:
+            results = resp.json()
+            if results:
+                # Pick the best match (prefer synced lyrics, then plain)
+                best = None
+                for r in results:
+                    if r.get('syncedLyrics'):
+                        best = r
+                        break
+                if not best:
+                    for r in results:
+                        if r.get('plainLyrics'):
+                            best = r
+                            break
+                if best:
+                    # Prefer plain lyrics for readability, synced as fallback
+                    lyrics = best.get('plainLyrics') or ''
+                    if not lyrics and best.get('syncedLyrics'):
+                        # Strip timestamps from synced lyrics: [00:17.12] text → text
+                        lyrics = re.sub(r'\[\d{2}:\d{2}\.\d{2,3}\]\s*', '', best.get('syncedLyrics', ''))
+
+                    if lyrics and len(lyrics) > 50:
+                        # Detect language
+                        lang = _detect_cjk_language(lyrics)
+                        if not lang:
+                            lang = 'en'  # Default assumption for non-CJK
+                        logger.info(f"LRCLIB found lyrics for '{artist} - {track}': {len(lyrics)} chars, lang={lang}")
+                        return lyrics.strip(), 'lyrics-lrclib', lang
+
+        # Also try with just the track name (broader search)
+        if artist:
+            resp2 = requests.get('https://lrclib.net/api/search', params={'q': f'{artist} {track}'}, timeout=10,
+                                headers={'User-Agent': 'StratOS/1.0 (youtube-lyrics-lookup)'})
+            if resp2.status_code == 200:
+                results2 = resp2.json()
+                for r in results2:
+                    lyrics = r.get('plainLyrics') or ''
+                    if not lyrics and r.get('syncedLyrics'):
+                        lyrics = re.sub(r'\[\d{2}:\d{2}\.\d{2,3}\]\s*', '', r.get('syncedLyrics', ''))
+                    if lyrics and len(lyrics) > 50:
+                        lang = _detect_cjk_language(lyrics)
+                        if not lang:
+                            lang = 'en'
+                        logger.info(f"LRCLIB found lyrics via search for '{artist} {track}': {len(lyrics)} chars")
+                        return lyrics.strip(), 'lyrics-lrclib', lang
+
+    except Exception as e:
+        logger.debug(f"LRCLIB lookup failed for '{artist} - {track}': {e}")
+
+    logger.info(f"No lyrics found for '{artist} - {track}', falling back to transcript tiers")
+    return '', '', ''
 
 
 def _detect_cjk_language(text: str) -> str:
@@ -813,8 +971,9 @@ class YouTubeProcessor:
             logger.info(f"Discovered {len(new_videos)} new videos for profile {profile_id}")
         return new_videos
 
-    def get_transcript_for_video(self, video_id: str, preferred_lang: str = '') -> Tuple[str, str, str]:
-        """Get transcript for a video using the 3-tier system.
+    def get_transcript_for_video(self, video_id: str, preferred_lang: str = '',
+                                video_title: str = '', channel_name: str = '') -> Tuple[str, str, str]:
+        """Get transcript for a video using the 4-tier system.
 
         Returns (transcript_text, method, detected_language).
         preferred_lang: channel/video language hint (e.g. 'ja' for Japanese channels).
@@ -824,6 +983,8 @@ class YouTubeProcessor:
             preferred_lang=preferred_lang or 'ar',
             supadata_key=self.supadata_key,
             whisper_model=self.whisper_model,
+            video_title=video_title,
+            channel_name=channel_name,
         )
 
     def process_video(self, video_db_id: int, profile_id: int) -> bool:
@@ -868,10 +1029,20 @@ class YouTubeProcessor:
             if title_lang:
                 channel_lang = title_lang
 
-        # Step 1: Transcribe
+        # Get channel name for lyrics lookup
+        _ch_name = ''
+        try:
+            _ch_row = cursor.execute("SELECT name FROM youtube_channels WHERE id = ?", (video.get('channel_id'),)).fetchone()
+            if _ch_row: _ch_name = _ch_row[0]
+        except Exception:
+            pass
+
+        # Step 1: Transcribe (Tier 0 lyrics → Tier 1 API → Tier 2 Supadata → Tier 3 Whisper)
         self._update_status(video_db_id, 'transcribing')
         try:
-            transcript, method, detected_lang = self.get_transcript_for_video(video_id, preferred_lang=channel_lang)
+            transcript, method, detected_lang = self.get_transcript_for_video(
+                video_id, preferred_lang=channel_lang,
+                video_title=video.get('title', ''), channel_name=_ch_name)
         except RuntimeError as e:
             self._update_status(video_db_id, 'failed', str(e))
             return False

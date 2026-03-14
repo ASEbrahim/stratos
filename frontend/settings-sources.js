@@ -574,6 +574,32 @@ async function editCustomTabName() {
 }
 
 // ═══════════════════════════════════════════════════════════
+// REFRESH FEEDS (re-fetch from backend for active source tab)
+// ═══════════════════════════════════════════════════════════
+
+async function refreshSourceFeeds(btn) {
+    const typeMap = { finance: 'finance', politics: 'politics', jobs: 'jobs', custom: 'custom' };
+    const feedType = typeMap[sourcesActiveTab] || 'finance';
+
+    const icon = btn ? (btn.querySelector('svg') || btn.querySelector('i')) : null;
+    if (icon) icon.style.animation = 'spin 0.8s linear infinite';
+    if (btn) { btn.disabled = true; btn.style.opacity = '0.6'; }
+
+    const status = document.getElementById('save-sources-status');
+    try {
+        await loadExtraFeeds(feedType);
+        if (status) status.innerHTML = '<span class="text-emerald-400">✓ ' + feedType.charAt(0).toUpperCase() + feedType.slice(1) + ' feeds refreshed</span>';
+        if (typeof showToast === 'function') showToast(feedType + ' feeds refreshed', 'success');
+    } catch(e) {
+        if (status) status.innerHTML = '<span class="text-red-400">✗ Refresh failed</span>';
+    }
+
+    if (icon) icon.style.animation = '';
+    if (btn) { btn.disabled = false; btn.style.opacity = ''; }
+    if (status) setTimeout(() => { status.innerHTML = ''; }, 4000);
+}
+
+// ═══════════════════════════════════════════════════════════
 // SAVE SOURCE TOGGLES
 // ═══════════════════════════════════════════════════════════
 

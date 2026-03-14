@@ -131,6 +131,13 @@ function buildNavSections(dynamicCats) {
             label: null,
             collapsible: false,
             items: [
+                { id: 'youtube_kb', label: 'YouTube', icon: 'play-circle', subtitle: 'Knowledge Base' }
+            ]
+        },
+        {
+            label: null,
+            collapsible: false,
+            items: [
                 { id: 'settings', label: 'Settings', icon: 'settings', subtitle: 'Customize Your Intelligence Feed' }
             ]
         }

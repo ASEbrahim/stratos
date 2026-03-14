@@ -230,9 +230,19 @@ function setActive(id) {
         mainContent.classList.add('hidden');
         settingsPanel.classList.add('hidden');
         if (marketsPanel) { marketsPanel.classList.remove('hidden'); initMarketsPanel(); }
+        const ytPanelM = document.getElementById('youtube-kb-panel');
+        if (ytPanelM) ytPanelM.classList.add('hidden');
+    } else if (id === 'youtube_kb') {
+        mainContent.classList.add('hidden');
+        settingsPanel.classList.add('hidden');
+        if (marketsPanel) marketsPanel.classList.add('hidden');
+        const ytPanel = document.getElementById('youtube-kb-panel');
+        if (ytPanel) { ytPanel.classList.remove('hidden'); if (typeof initYouTubeKB === 'function') initYouTubeKB(); }
     } else if (id === 'settings') {
         mainContent.classList.add('hidden');
         if (marketsPanel) marketsPanel.classList.add('hidden');
+        const ytPanelS = document.getElementById('youtube-kb-panel');
+        if (ytPanelS) ytPanelS.classList.add('hidden');
         settingsPanel.classList.remove('hidden');
         // Only hide the main notification if no scan/refresh is running
         if (!window._isScanRunning && !window._marketRefreshPending) {
@@ -245,6 +255,8 @@ function setActive(id) {
         mainContent.classList.remove('hidden');
         settingsPanel.classList.add('hidden');
         if (marketsPanel) marketsPanel.classList.add('hidden');
+        const ytPanel = document.getElementById('youtube-kb-panel');
+        if (ytPanel) ytPanel.classList.add('hidden');
         renderFeed();
         if (id === 'finance_news' || id === 'politics' || id === 'jobs_feeds' || id === 'custom_feeds') {
             loadExtraFeedsIfNeeded();

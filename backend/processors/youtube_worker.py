@@ -116,10 +116,12 @@ def _worker_loop(strat, sse_manager):
             # Transcription — long operation, NO DB connection held
             # Use standalone get_transcript() — no DB needed for transcription itself
             from processors.youtube import get_transcript
+            _ch_name = video.get('channel_name', '')
             try:
                 transcript, method, detected_lang = get_transcript(
                     video_id, preferred_lang='',
                     supadata_key=strat.config.get('search', {}).get('supadata_api_key', ''),
+                    video_title=title, channel_name=_ch_name,
                 )
             except RuntimeError as e:
                 with sqlite3.connect(db_path) as err_conn:

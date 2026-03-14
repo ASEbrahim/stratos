@@ -703,40 +703,111 @@ def handle_post(handler, strat, auth, path):
         transcript_text = row[0]
         source_lang = row[1] or 'unknown'
 
-        # Use Ollama to translate
+        # Use Argos Translate (offline, fast) with LLM fallback
         try:
-            scoring_cfg = strat.config.get('scoring', {})
-            ollama_host = scoring_cfg.get('ollama_host', 'http://localhost:11434')
-            model = scoring_cfg.get('inference_model', 'qwen3.5:9b')
+            translated = None
+            _method = 'argos'
 
-            # Truncate to ~4000 chars to fit context
-            text_chunk = transcript_text[:4000]
-            import requests as req
-            resp = req.post(f"{ollama_host}/api/chat", json={
-                "model": model,
-                "messages": [
-                    {"role": "system", "content": f"You are a translator. Translate the following text to {target_lang}. Output ONLY the translation, nothing else. Preserve paragraph breaks."},
-                    {"role": "user", "content": text_chunk},
-                ],
-                "stream": False,
-                "options": {"num_predict": 4000, "temperature": 0.3},
-            }, timeout=120)
+            # Try Argos Translate first
+            try:
+                import argostranslate.package
+                import argostranslate.translate
 
-            if resp.status_code == 200:
-                result = resp.json()
-                translated = result.get('message', {}).get('content', '')
-                # Strip think blocks
-                import re
-                translated = re.sub(r'<think>.*?</think>', '', translated, flags=re.DOTALL).strip()
+                # Map language codes
+                _src = source_lang if source_lang != 'unknown' else 'en'
+                _tgt = target_lang
+
+                # Check if we have the language package installed
+                installed = argostranslate.translate.get_installed_languages()
+                src_lang_obj = next((l for l in installed if l.code == _src), None)
+                tgt_lang_obj = next((l for l in installed if l.code == _tgt), None)
+
+                if not src_lang_obj or not tgt_lang_obj:
+                    # Auto-download the needed packages
+                    logger.info(f"Downloading Argos language package: {_src} → {_tgt}")
+                    argostranslate.package.update_package_index()
+                    available = argostranslate.package.get_available_packages()
+                    pkg = next((p for p in available if p.from_code == _src and p.to_code == _tgt), None)
+                    if pkg:
+                        argostranslate.package.install_from_path(pkg.download())
+                    else:
+                        # Pivot through English
+                        if _src != 'en':
+                            pkg_to_en = next((p for p in available if p.from_code == _src and p.to_code == 'en'), None)
+                            if pkg_to_en:
+                                argostranslate.package.install_from_path(pkg_to_en.download())
+                        if _tgt != 'en':
+                            pkg_from_en = next((p for p in available if p.from_code == 'en' and p.to_code == _tgt), None)
+                            if pkg_from_en:
+                                argostranslate.package.install_from_path(pkg_from_en.download())
+
+                    # Reload installed languages after download
+                    installed = argostranslate.translate.get_installed_languages()
+                    src_lang_obj = next((l for l in installed if l.code == _src), None)
+                    tgt_lang_obj = next((l for l in installed if l.code == _tgt), None)
+
+                if src_lang_obj and tgt_lang_obj:
+                    translation = src_lang_obj.get_translation(tgt_lang_obj)
+                    if translation:
+                        translated = translation.translate(transcript_text)
+                    else:
+                        # Try pivot: src→en→tgt
+                        en_obj = next((l for l in installed if l.code == 'en'), None)
+                        if en_obj:
+                            t1 = src_lang_obj.get_translation(en_obj)
+                            t2 = en_obj.get_translation(tgt_lang_obj)
+                            if t1 and t2:
+                                translated = t2.translate(t1.translate(transcript_text))
+                if not translated:
+                    raise RuntimeError(f"No translation path found for {_src}→{_tgt}")
+            except Exception as argos_err:
+                logger.warning(f"Argos Translate failed ({argos_err}), falling back to LLM")
+                _method = 'ollama'
+
+            # LLM fallback if Argos failed
+            if not translated:
+                scoring_cfg = strat.config.get('scoring', {})
+                ollama_host = scoring_cfg.get('ollama_host', 'http://localhost:11434')
+                model = scoring_cfg.get('inference_model', 'qwen3.5:9b')
+                text_chunk = transcript_text[:4000]
+                import requests as req
+                resp = req.post(f"{ollama_host}/api/chat", json={
+                    "model": model,
+                    "messages": [
+                        {"role": "system", "content": f"You are a translator. Translate the following text to {target_lang}. Output ONLY the translation, nothing else."},
+                        {"role": "user", "content": text_chunk},
+                    ],
+                    "stream": False,
+                    "options": {"num_predict": 4000, "temperature": 0.3},
+                }, timeout=120)
+                if resp.status_code == 200:
+                    result = resp.json()
+                    translated = result.get('message', {}).get('content', '')
+                    import re
+                    translated = re.sub(r'<think>.*?</think>', '', translated, flags=re.DOTALL).strip()
+
+            if translated:
+                # Save translation as a transcript insight in the target language
+                cursor.execute(
+                    "DELETE FROM video_insights WHERE video_id = ? AND profile_id = ? AND lens_name = 'transcript' AND language = ?",
+                    (video_id, handler._profile_id, target_lang)
+                )
+                cursor.execute(
+                    "INSERT INTO video_insights (video_id, profile_id, lens_name, content, language) VALUES (?, ?, 'transcript', ?, ?)",
+                    (video_id, handler._profile_id, json.dumps({"transcript": translated}, ensure_ascii=False), target_lang)
+                )
+                strat.db._commit()
+
                 _send_json(handler, {
                     "translated_text": translated,
                     "source_language": source_lang,
                     "target_language": target_lang,
-                    "chars_translated": len(text_chunk),
+                    "chars_translated": len(transcript_text),
                     "total_chars": len(transcript_text),
+                    "method": _method,
                 })
             else:
-                _send_json(handler, {"error": "LLM translation failed"}, 500)
+                _send_json(handler, {"error": "Translation failed"}, 500)
         except Exception as e:
             logger.error(f"Translation error: {e}")
             _send_json(handler, {"error": str(e)}, 500)

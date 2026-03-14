@@ -1,3 +1,19 @@
+proxy:
+  cloudflare_worker: https://stratos-proxy.stratintos.workers.dev
+  blocked_domains:
+  - konachan.com
+  - danbooru.donmai.us
+  - cdn.donmai.us
+  - yande.re
+  - files.yande.re
+  - assets.yande.re
+  - linkedin.com
+  - f95zone.to
+  - gelbooru.com
+  - safebooru.org
+  - mangadex.org
+  - myanimelist.net
+  - anilist.co
 cache:
   discovery_ttl_seconds: 3600
   market_ttl_seconds: 60
@@ -40,7 +56,7 @@ search:
   provider: serper
   searxng_host: http://localhost:8888
   serper_api_key: bc26c29537b924cf7e8022eaaf83c50cfdeb51be
-  serper_credits: 975
+  serper_credits: 884
 system:
   database_file: strat_os.db
   frontend_port: 8080
@@ -282,19 +298,19 @@ custom_feeds:
   'on': false
 - url: https://yande.re/post/atom?tags=rating:safe+landscape
   name: yayay
-  'on': false
+  'on': true
 - url: https://konachan.com/post/atom?tags=rating:safe
   name: kon
-  'on': false
+  'on': true
 - url: https://danbooru.donmai.us/posts.atom?tags=rating:general+scenery
   name: dan
-  'on': false
+  'on': true
 - url: https://danbooru.donmai.us/posts.atom?tags=rating:general+genshin_impact
   name: ga
-  'on': false
+  'on': true
 - url: https://safebooru.org/index.php?page=atom&s=post&tags=scenery
   name: saf
-  'on': false
+  'on': true
 - url: https://www.youtube.com/feeds/videos.xml?channel_id=UCkpe73RMmmzcZHllWPw0sdw
   name: Yasin
   'on': true
@@ -302,4 +318,10 @@ custom_feeds:
   name: fe
   'on': true
 custom_tab_name: Custom
-tickers: []
+tickers:
+- BTC-USD
+- ETH-USD
+- GC=F
+- CL=F
+- EURUSD=X
+- ^GSPC
