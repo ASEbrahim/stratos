@@ -613,7 +613,7 @@ def start_server(strat, auth, port=8080, open_browser=True):
     # Start YouTube background worker
     try:
         from processors.youtube_worker import start_youtube_worker
-        start_youtube_worker(strat, strat.sse_manager if hasattr(strat, 'sse_manager') else None)
+        start_youtube_worker(strat, strat.sse if hasattr(strat, 'sse') else None)
     except Exception as e:
         logger.warning(f"YouTube worker failed to start: {e}")
 

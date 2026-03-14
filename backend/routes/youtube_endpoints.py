@@ -427,15 +427,15 @@ def handle_post(handler, strat, auth, path):
                                             resolve_sources_async(
                                                 vid_id, handler._profile_id,
                                                 narration_list, strat.db, strat.config,
-                                                sse_manager=strat.sse_manager if hasattr(strat, 'sse_manager') else None,
+                                                sse_manager=strat.sse if hasattr(strat, 'sse') else None,
                                             )
                                     except Exception as e:
                                         logger.debug(f"Extract-all source resolution failed: {e}")
                         except Exception as e:
                             logger.error(f"Extract-all: lens '{lens_name}' failed for video {vid_id}: {e}")
                 # Broadcast completion
-                if hasattr(strat, 'sse_manager') and strat.sse_manager:
-                    strat.sse_manager.broadcast('extract_all_complete', {
+                if hasattr(strat, 'sse') and strat.sse:
+                    strat.sse.broadcast('extract_all_complete', {
                         'channel_id': ch_id,
                     })
                 logger.info(f"Extract-all complete for channel {ch_id}: processed {len(videos)} videos")
@@ -526,8 +526,8 @@ def handle_post(handler, strat, auth, path):
                              json.dumps(final, ensure_ascii=False), language)
                         )
                     strat.db._commit()
-                    if hasattr(strat, 'sse_manager') and strat.sse_manager:
-                        strat.sse_manager.broadcast('lens_extracted', {
+                    if hasattr(strat, 'sse') and strat.sse:
+                        strat.sse.broadcast('lens_extracted', {
                             'video_id': video['id'],
                             'lens': lens_name,
                             'language': language,
@@ -543,7 +543,7 @@ def handle_post(handler, strat, auth, path):
                                 resolve_sources_async(
                                     video['id'], video['profile_id'],
                                     narration_list, strat.db, strat.config,
-                                    sse_manager=strat.sse_manager if hasattr(strat, 'sse_manager') else None,
+                                    sse_manager=strat.sse if hasattr(strat, 'sse') else None,
                                 )
                         except Exception as e:
                             logger.debug(f"Narration source resolution trigger failed: {e}")
@@ -597,8 +597,8 @@ def handle_post(handler, strat, auth, path):
                 )
                 strat.db._commit()
                 logger.info(f"Re-transcribed video {video['id']} ({video['title'][:40]}) via {method}: {len(text)} chars")
-                if hasattr(strat, 'sse_manager') and strat.sse_manager:
-                    strat.sse_manager.broadcast('youtube_processing', {
+                if hasattr(strat, 'sse') and strat.sse:
+                    strat.sse.broadcast('youtube_processing', {
                         'video_id': video['video_id'],
                         'title': video['title'],
                         'status': 'transcribed',
@@ -608,8 +608,8 @@ def handle_post(handler, strat, auth, path):
                 cur = strat.db.conn.cursor()
                 cur.execute("UPDATE youtube_videos SET status = 'failed' WHERE id = ?", (video['id'],))
                 strat.db._commit()
-                if hasattr(strat, 'sse_manager') and strat.sse_manager:
-                    strat.sse_manager.broadcast('youtube_processing', {
+                if hasattr(strat, 'sse') and strat.sse:
+                    strat.sse.broadcast('youtube_processing', {
                         'video_id': video['video_id'],
                         'title': video['title'],
                         'status': 'failed',
