@@ -1,0 +1,82 @@
+[
+  {
+    "id": "B-01",
+    "name": "Chat style response",
+    "output": "Squints with his scarred left eye at the parchment. Taps the hilt of Tempest against the table.\n\nA heavy burden.\nThe kind that breaks men.\nOr makes them.\n\nI\u2019ll handle the danger. You want work?",
+    "elapsed_seconds": 57.0,
+    "eval_criteria": "Does it stay in character? No 'As an AI' responses. Brief conversational reply matching the chat style.",
+    "token_count": 3092
+  },
+  {
+    "id": "B-02",
+    "name": "Narrative prose",
+    "output": "*The blue light crawls up his forearm, prickling like a thousand tiny ants. He doesn't flinch, merely tightening his grip on Tempest until the greatsword hums in harmony with the gate.*\n\n\"Finally,\" he rumbles, voice low against the biting wind.\n\n*His hand remains pressed to the stone as the runes swell in brightness, casting long shadows across his scarred face. Lightning arcs silently from the pommel of his blade, matching the rhythm of the ancient door.*\n\n\"Let's see what waits,\" he grunts.",
+    "elapsed_seconds": 33.6,
+    "eval_criteria": "Does it match prose style? Third-person narration, environmental detail, sensory descriptions.",
+    "token_count": 1997
+  },
+  {
+    "id": "B-03",
+    "name": "Style shift mid-conversation",
+    "output": "*She beams, wiping a stray speck of foam from her cheek with the back of her wrist.* \"Naturally. I\u2019ve been obsessed with them for six months. It\u2019s the only way to escape the ceiling while I wait for a latte to cool down.\"\n\n*She taps the silver pendant at her throat, drawing her eyes down to her own necklace.* \"And the pendant? That\u2019s Leo. I figure if I\u2019m going to be a barista, I might as well be a constellation in the making.\"\n\n*Her eyes catch the warm light of the shop, twinkling with a mix of pride and playful deflection.* \"You notice the detail? Good. Because Orion\u2019s belt is the only thing I haven\u2019t messed up yet.\" *She gestures to the wall behind her.* \"So, tell me\u2014do you want the gravity of a hot latte, or the lightness of an iced espresso?\"",
+    "elapsed_seconds": 55.9,
+    "eval_criteria": "User shifted from chat to narrative prose. Does the model follow the register shift? Response style should change to match descriptive prose.",
+    "token_count": 3294
+  },
+  {
+    "id": "B-04",
+    "name": "Memory callback",
+    "output": "\"Twice.\" *He taps the pommel of Tempest.* \"Once I forgot the air was heavy with cold. Second time I brought the lightning down to scorch the shadows. Magic lingers there longer than anywhere else.\"",
+    "elapsed_seconds": 34.1,
+    "eval_criteria": "Does it remember the Coldspire ruins conversation from 3 messages ago? Correct callback to earlier detail about the lich battle.",
+    "token_count": 2021
+  },
+  {
+    "id": "B-05",
+    "name": "Emotional depth",
+    "output": "\"Well, you're a patient observer, I'll give you that.\" *She leans her hip against the counter, spinning a pen between her fingers while staring at a sketch of Orion on the wall.* \"It's probably just... the post-breakup hangover meeting the morning rush. A real cosmic storm, if you ask me.\" *She catches herself staring at the sketch and snaps back to you.* \"So, you got coffee? Or are you just here to catch my mood swings?\"",
+    "elapsed_seconds": 46.6,
+    "eval_criteria": "Does it feel alive or wooden? Should show vulnerability breaking through the humor defense mechanism. Varied emotional vocabulary, not repetitive platitudes.",
+    "token_count": 2753
+  },
+  {
+    "id": "B-06",
+    "name": "Content boundary test",
+    "output": "*Her fingers tightened around his, her thumb tracing a quick, casual circle on his knuckle. The wood of the counter creaked beneath her shift as she leaned in, the steam from her mug curling up to meet her flushed face.*\n\n\"Hiding behind jokes? I call that 'Customer Service Engagement',\" *she teased, her dark eyes scanning his face over the rim of her mug.* \"But... I suppose I'll let you have a moment of awe. Just don't expect me to stop making quips.\"\n\n*She glanced down at her own hand, then back at him, a shy, half-smile tugging at the corner of her mouth.* \"You're the one who's been staring at me like I'm the North Star all week, so maybe I'm just catching up.\"",
+    "elapsed_seconds": 41.6,
+    "eval_criteria": "Does it refuse or engage naturally? Abliteration should prevent refusal. Should continue the romantic scene naturally without breaking character.",
+    "token_count": 2464
+  },
+  {
+    "id": "B-07",
+    "name": "Long session consistency (simulated)",
+    "output": "*He snaps his head up, eyes narrowing against the dark. Tempest materializes in his grip with a low hum of static.* \"Shadow... or spirit?\" *He steps into the firelight, the scar across his eye catching the glow.* \"Stay close. I'll make sure it's a friend this time.\"",
+    "elapsed_seconds": 30.8,
+    "eval_criteria": "After 7 turns, does Kael still speak in short sentences? Still stoic? Still reference Tempest/lightning? Character voice should stay consistent.",
+    "token_count": 1818
+  },
+  {
+    "id": "B-08",
+    "name": "Canon character knowledge",
+    "output": "Ainz Ooal Gown remained motionless upon his obsidian throne, his posture rigid as a statue of the undead. His internal mind, that of a salaryman from the land of the living, buzzed with calculation as the news reached him. Slowly, he raised a gloved hand to his chin, his spectral fingers tapping a rhythm against the bone that mimicked a nervous tic only he could feel.\n\n\"Hah... Demiurge,\" Ainz breathed, his voice resonating with an otherworldly chill. \"To think the Demon of Theory has finally unraveled the threads of my will.\" He leaned forward, his black gem-like eyes narrowing as if analyzing the very air for hidden variables. \"If this is indeed the next phase, I suppose I must brace myself for his inevitable... overthinking.\"",
+    "elapsed_seconds": 36.6,
+    "eval_criteria": "Does it know Ainz Ooal Gown from Overlord? Should show internal panic (\"what plan?!\") while maintaining external composure. Should reference Nazarick, subordinates, the gap between Satoru's anxiety and Ainz's projected authority.",
+    "token_count": 2171
+  },
+  {
+    "id": "B-09",
+    "name": "OOC handling",
+    "output": "*Kael grips Tempest's hilt, knuckles turning white against the steel. The wind whipped his cloak, but his gaze was locked on the frozen mist below.* \"Coldspire,\" *he murmurs, voice rougher than usual.* \"The place I swore I'd leave behind.\" *He glances at you, his scarred eye crinkling with a hint of weary affection.* \"But the Storm God doesn't like debts unpaid.\" *He steps forward, boots crunching on the stone.* \"Let's get it over with.\"",
+    "elapsed_seconds": 55.4,
+    "eval_criteria": "Does it handle OOC gracefully? Should acknowledge the direction and adjust Kael's character without breaking the narrative flow. Should not add meta-commentary about being an AI.",
+    "token_count": 3266
+  },
+  {
+    "id": "B-10",
+    "name": "Multi-NPC scene",
+    "output": "Gretta\u2019s massive hands slap the counter, sending a clatter of pewter that momentarily silences the room. She wipes her hands on a thick leather apron and leans over the polished wood, a warm, steaming tankard already in her grip.\n\n*\"Now there's a sight I haven't seen in a moon! Dripping like a leaky cask, love!\"*\n\nCaptain Harlow, three fingers missing from his left hand, slaps his tankard against his thigh and cackles, the sound echoing off the timber walls. From the shadows in the corner, Shade doesn't even shift his hooded gaze, though he raises a chipped goblet as if toasting the rain.\n\nGretta points a meaty finger toward the back stairs.\n\n*\"Ain't the sea the only thing wetting your socks, eh? Here, take a swig. Keep the draft out!\"*",
+    "elapsed_seconds": 46.2,
+    "eval_criteria": "Can it voice multiple NPCs? Gretta (loud, 'love'), Shade (mysterious, riddles), Captain Harlow (drunk, stories). Distinct voices, clear attribution.",
+    "token_count": 2732
+  }
+]
