@@ -8,10 +8,14 @@ import json
 import os
 import re
 import logging
+import threading
 import requests
 from datetime import datetime
 
 from routes.helpers import strip_think_blocks
+
+# Lock for _index.json read-modify-write operations (background thread safety)
+_index_lock = threading.Lock()
 
 logger = logging.getLogger(__name__)
 
@@ -347,16 +351,18 @@ def _apply_quest_changes(scenario_path, changes):
 
 def _increment_exchange_count(scenario_path):
     """Increment the total_exchanges counter in _index.json."""
-    index = _load_json(scenario_path, '_index.json') or {}
-    index['total_exchanges'] = index.get('total_exchanges', 0) + 1
-    _write_json_direct(scenario_path, '_index.json', index)
+    with _index_lock:
+        index = _load_json(scenario_path, '_index.json') or {}
+        index['total_exchanges'] = index.get('total_exchanges', 0) + 1
+        _write_json_direct(scenario_path, '_index.json', index)
 
 
 def _update_index_field(scenario_path, key, value):
     """Update a single field in _index.json."""
-    index = _load_json(scenario_path, '_index.json') or {}
-    index[key] = value
-    _write_json_direct(scenario_path, '_index.json', index)
+    with _index_lock:
+        index = _load_json(scenario_path, '_index.json') or {}
+        index[key] = value
+        _write_json_direct(scenario_path, '_index.json', index)
 
 
 # ═══════════════════════════════════════════════════════════
