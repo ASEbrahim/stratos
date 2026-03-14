@@ -209,10 +209,25 @@ def handle_get(handler, strat, auth, path):
                 # Fetch the best available captions
                 target_lang = parse_qs(parsed.query).get('lang', [row[2] or 'en'])[0]
                 captions = []
+                result = None
+
+                # Try preferred languages in order
+                preferred = [target_lang, 'en', 'ar', 'ja', 'ko', 'fr', 'de', 'es']
                 try:
-                    result = api.fetch(YouTubeTranscriptApi().list(yt_video_id).find_transcript([target_lang, 'en', 'ar', 'ja']))
-                except Exception:
-                    # Fallback: try any available
+                    found = transcript_list.find_transcript(preferred)
+                    result = found.fetch()
+                    target_lang = found.language_code
+                except Exception as _fetch_err:
+                    _fetch_reason = str(_fetch_err)
+                    if 'IpBlocked' in type(_fetch_err).__name__ or 'blocked' in _fetch_reason.lower():
+                        logger.warning(f"YouTube IP blocked for caption fetch on {yt_video_id}")
+                        _send_json(handler, {
+                            "error": "YouTube is blocking caption requests from this IP. Try using a VPN or proxy.",
+                            "tracks": tracks, "captions": [], "count": 0,
+                            "video_id": yt_video_id, "title": row[1],
+                        })
+                        return True
+                    # Fallback: try each track directly
                     for t in transcript_list:
                         try:
                             result = t.fetch()
@@ -220,8 +235,6 @@ def handle_get(handler, strat, auth, path):
                             break
                         except Exception:
                             continue
-                    else:
-                        result = None
 
                 if result:
                     for snippet in result:
