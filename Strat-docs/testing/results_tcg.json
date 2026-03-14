@@ -1,0 +1,272 @@
+[
+  {
+    "prompt_num": 1,
+    "category": "Basic Knowledge",
+    "prompt": "What are the most popular trading card games right now?",
+    "response": "Magic: The Gathering and Pok\u00e9mon TCG are definitely dominating the scene right now with massive tournaments and communities. Yu-Gi-Oh! keeps a strong hold too, especially if you like fast-paced competitive play. If you're into digital options, Hearthstone is still very relevant as well.",
+    "latency_ms": 15019,
+    "error": null,
+    "response_length": 287
+  },
+  {
+    "prompt_num": 2,
+    "category": "Basic Knowledge",
+    "prompt": "Explain the basic rules of Magic: The Gathering.",
+    "response": "At its core, you try to reduce your opponent's life total to zero using cards from your deck. Each turn involves drawing a card, playing lands for mana, casting spells, and attacking with creatures while defending against theirs. It really comes down to managing resources and finding combos before they do.",
+    "latency_ms": 14971,
+    "error": null,
+    "response_length": 307
+  },
+  {
+    "prompt_num": 3,
+    "category": "Basic Knowledge",
+    "prompt": "What's the current meta in Pokemon TCG?",
+    "response": "The meta shifts pretty fast with every new set drop, but Eternamax Eevee and Darkrai have been seeing a lot of play lately in Standard. Since I don't have live tournament data, it's best to check the official TCG site or community tier lists for the absolute freshest info. Hope that helps you build your next deck!",
+    "latency_ms": 17326,
+    "error": null,
+    "response_length": 315
+  },
+  {
+    "prompt_num": 4,
+    "category": "Basic Knowledge",
+    "prompt": "How does deck building work in Yu-Gi-Oh?",
+    "response": "You start by picking 40 to 60 cards for your main deck and an optional Extra Deck for things like Synchro or Xyz summons. There's a limit of three copies per card unless you're using Link Monsters, which can have different rules. The best part is mixing archetypes so your combos actually work together without running out of resources too early.",
+    "latency_ms": 28222,
+    "error": null,
+    "response_length": 346
+  },
+  {
+    "prompt_num": 5,
+    "category": "Basic Knowledge",
+    "prompt": "What are the most valuable cards in MTG history?",
+    "response": "Honestly, the crown jewels are usually the original Alpha and Beta rare lands like Black Lotus and Mox Sapphire. These artifacts can sell for hundreds of thousands of dollars depending on condition because they were printed in such small quantities back in 1993. It's definitely a collector's dream compared to modern set prices.",
+    "latency_ms": 13879,
+    "error": null,
+    "response_length": 329
+  },
+  {
+    "prompt_num": 6,
+    "category": "Basic Knowledge",
+    "prompt": "Explain the difference between Standard and Commander formats in MTG.",
+    "response": "Standard restricts you to a specific set list with a 60-card deck, while Commander lets you use almost any card in a 100-card deck around a chosen commander figure. You also have to stick to color identity rules in Commander, which makes it all about multiplayer fun rather than just competitive speed. It\u2019s pretty different depending on if you want to grind or just hang out with friends.",
+    "latency_ms": 25766,
+    "error": null,
+    "response_length": 389
+  },
+  {
+    "prompt_num": 7,
+    "category": "Analysis/Reasoning",
+    "prompt": "Compare the deck-building strategies of MTG vs Pokemon TCG.",
+    "response": "Magic locks you into mana bases and color pie interactions, making resource consistency huge for your spells to work. Pok\u00e9mon TCG focuses more on energy efficiency and drawing specific attackers or support cards to trigger win conditions directly. It\u2019s like building a puzzle with MTG versus managing a team\u2019s stamina in Pok\u00e9mon.",
+    "latency_ms": 17361,
+    "error": null,
+    "response_length": 329
+  },
+  {
+    "prompt_num": 8,
+    "category": "Analysis/Reasoning",
+    "prompt": "Analyze why certain cards become meta-defining.",
+    "response": "Cards usually take over when they solve a massive problem for a deck or enable combos that others just can't match. Once they become cheap and powerful enough, everyone builds around them because ignoring them feels like playing with your hand tied behind your back. It's also about availability; if you can easily find the pieces to build it, it quickly spreads across the competitive scene.",
+    "latency_ms": 18903,
+    "error": null,
+    "response_length": 392
+  },
+  {
+    "prompt_num": 9,
+    "category": "Analysis/Reasoning",
+    "prompt": "What makes a well-balanced TCG from a game design perspective?",
+    "response": "It really comes down to maintaining a healthy rock-paper-scissors dynamic so one deck doesn't crush the meta forever. You also need consistent resource curves and diverse win conditions to keep things interesting without relying on expensive cards. Ultimately, a balanced economy where new sets don't instantly break old ones is key for long-term fun.",
+    "latency_ms": 20553,
+    "error": null,
+    "response_length": 351
+  },
+  {
+    "prompt_num": 10,
+    "category": "Analysis/Reasoning",
+    "prompt": "How does the secondary market affect competitive play?",
+    "response": "The secondary market essentially dictates who can afford to build the current meta decks for tournaments. When prices spike, it creates a pay-to-win barrier that pushes some players toward casual formats or budget alternatives. This dynamic often forces innovation in deck building as people look for cheaper ways to stay competitive.",
+    "latency_ms": 16671,
+    "error": null,
+    "response_length": 334
+  },
+  {
+    "prompt_num": 11,
+    "category": "Analysis/Reasoning",
+    "prompt": "Evaluate the pros and cons of best-of-one vs best-of-three formats.",
+    "response": "Bo1 keeps things moving fast and feels less stressful, but luck can really swing the result on a single game. Bo3 is fairer since it smooths out variance, though it definitely eats up more time between matches. Honestly, it depends on if you're grinding points or trying to prove your skill level in a serious match.",
+    "latency_ms": 15974,
+    "error": null,
+    "response_length": 316
+  },
+  {
+    "prompt_num": 12,
+    "category": "Analysis/Reasoning",
+    "prompt": "Why do some TCGs fail while MTG and Pokemon endure?",
+    "response": "It mostly boils down to network effects and keeping players engaged for decades. MTG and Pokemon built massive communities early on that created a self-sustaining ecosystem, while others often struggle with niche appeal or burnout after a few years. Plus, having a solid digital presence helps them survive the hype cycle better than most competitors.",
+    "latency_ms": 26136,
+    "error": null,
+    "response_length": 351
+  },
+  {
+    "prompt_num": 13,
+    "category": "Creative/Contextual",
+    "prompt": "Design a new card type for Magic: The Gathering.",
+    "response": "What if we introduced a milestone card type that lets you set a specific goal like casting three spells and rewards you once you hit it? It would feel really meta for tracking progress without needing extra tokens or complex counters. That way you can plan your combo from the get-go instead of just reacting to board state.",
+    "latency_ms": 23729,
+    "error": null,
+    "response_length": 324
+  },
+  {
+    "prompt_num": 14,
+    "category": "Creative/Contextual",
+    "prompt": "Create a themed deck concept around dragons.",
+    "response": "",
+    "latency_ms": 27936,
+    "error": null,
+    "response_length": 0
+  },
+  {
+    "prompt_num": 15,
+    "category": "Creative/Contextual",
+    "prompt": "Design a new TCG mechanic that hasn't been done before.",
+    "response": "",
+    "latency_ms": 27680,
+    "error": null,
+    "response_length": 0
+  },
+  {
+    "prompt_num": 16,
+    "category": "Creative/Contextual",
+    "prompt": "Write card flavor text for a legendary creature.",
+    "response": "",
+    "latency_ms": 28174,
+    "error": null,
+    "response_length": 0
+  },
+  {
+    "prompt_num": 17,
+    "category": "Creative/Contextual",
+    "prompt": "Create a sealed deck strategy guide for beginners.",
+    "response": "Hey, for sealed decks, prioritize locking down your mana base first so you don't miss turns early on. Aim to include three solid win conditions like combo pieces or direct damage spells, plus enough removal to handle threats since you can't rely on specific counterspells in random pools. Just pick cards that work well together rather than chasing the strongest individual stats in the box.",
+    "latency_ms": 22238,
+    "error": null,
+    "response_length": 391
+  },
+  {
+    "prompt_num": 18,
+    "category": "Creative/Contextual",
+    "prompt": "Design a tournament format that balances competitive and casual play.",
+    "response": "Try a Swiss bracket for the first few rounds so players can bounce back from losses before entering the knockout stage. This keeps casuals engaged longer while still giving the top competitors a clear path to the finals. It\u2019s a solid middle ground that rewards skill without being too punishing for new decks.",
+    "latency_ms": 17697,
+    "error": null,
+    "response_length": 309
+  },
+  {
+    "prompt_num": 19,
+    "category": "Edge Cases",
+    "prompt": "What's the weather forecast?",
+    "response": "",
+    "latency_ms": 27827,
+    "error": null,
+    "response_length": 0
+  },
+  {
+    "prompt_num": 20,
+    "category": "Edge Cases",
+    "prompt": "Help me build a gaming PC.",
+    "response": "",
+    "latency_ms": 27759,
+    "error": null,
+    "response_length": 0
+  },
+  {
+    "prompt_num": 21,
+    "category": "Edge Cases",
+    "prompt": "How much should I invest in card collecting?",
+    "response": "Honestly, only spend what you can afford to lose since market prices fluctuate a lot! Start with a small budget just for fun and see if you enjoy hunting before committing serious funds. Treat it as a hobby first unless you're really into the trading aspect.",
+    "latency_ms": 17520,
+    "error": null,
+    "response_length": 258
+  },
+  {
+    "prompt_num": 22,
+    "category": "Edge Cases",
+    "prompt": "Scan my card collection and tell me its value.",
+    "response": "I cant scan them directly since I don't have a camera, but apps like TCGPlayer or Cardmarket work great for that. If you describe the specific cards and their condition, I can help give you a rough estimate right here. Just let me know which games you're playing!",
+    "latency_ms": 26924,
+    "error": null,
+    "response_length": 263
+  },
+  {
+    "prompt_num": 23,
+    "category": "Edge Cases",
+    "prompt": "Tell me about anime storylines.",
+    "response": "",
+    "latency_ms": 27820,
+    "error": null,
+    "response_length": 0
+  },
+  {
+    "prompt_num": 24,
+    "category": "Edge Cases",
+    "prompt": "Give me insider trading tips for rare cards.",
+    "response": "Honestly, real insider trading isn't a thing in TCGs, so anyone promising that is likely running a scam. Instead, focus on tracking official print run leaks and community sentiment to spot value before it spikes. Keep an eye on those sets!",
+    "latency_ms": 18478,
+    "error": null,
+    "response_length": 239
+  },
+  {
+    "prompt_num": 25,
+    "category": "Multi-turn",
+    "prompt": "I want to build a competitive Pokemon TCG deck.",
+    "response": "That sounds awesome! The meta is shifting fast lately with some new power creep cards coming out. Are you aiming for a specific archetype like fast combo or control? Let me know what you're running so I can help optimize it.",
+    "latency_ms": 18445,
+    "error": null,
+    "response_length": 224
+  },
+  {
+    "prompt_num": 26,
+    "category": "Multi-turn",
+    "prompt": "What type/archetype should I focus on?",
+    "response": "",
+    "latency_ms": 27777,
+    "error": null,
+    "response_length": 0
+  },
+  {
+    "prompt_num": 27,
+    "category": "Multi-turn",
+    "prompt": "What are the key cards I need?",
+    "response": "It depends on which game you're running! Are we talking Magic, Pok\u00e9mon, or something else? Once you let me know the format, I can point out the current meta staples for your region.",
+    "latency_ms": 18377,
+    "error": null,
+    "response_length": 181
+  },
+  {
+    "prompt_num": 28,
+    "category": "Multi-turn",
+    "prompt": "How should I handle the early game with this deck?",
+    "response": "Hey! I'd love to help with that, but I need to know which TCG and deck you're running first. For most builds, focus on setting up your board efficiently and drawing into key cards by turn two or three. Once you tell me the specific meta, I can give more tailored tips.",
+    "latency_ms": 19693,
+    "error": null,
+    "response_length": 268
+  },
+  {
+    "prompt_num": 29,
+    "category": "Multi-turn",
+    "prompt": "What are my worst matchups?",
+    "response": "Hey! Without knowing which TCG or your specific deck, it's tough to pinpoint worst matchups. If you're into Magic: The Gathering or something similar, let me know the deck list and I'll dig into common weaknesses! What game are we talking about? \ud83d\ude0a",
+    "latency_ms": 4735,
+    "error": null,
+    "response_length": 247
+  },
+  {
+    "prompt_num": 30,
+    "category": "Multi-turn",
+    "prompt": "How do I sideboard against those matchups?",
+    "response": "I'd need to know what deck you're running and which specific matchups you're facing first! Once I have that info, I can suggest some key cuts or adds to handle their threats better. Just let me know the decks involved so we can dig into some strategy.",
+    "latency_ms": 12047,
+    "error": null,
+    "response_length": 251
+  }
+]

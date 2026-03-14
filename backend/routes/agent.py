@@ -513,7 +513,8 @@ def handle_agent_chat(handler, strat, output_file, profile_id=0):
                 r = req.post(
                     f"{ollama_host}/api/chat",
                     json={"model": model, "messages": messages, "stream": True,
-                          "options": {"temperature": 0.5, "num_predict": _num_predict}},
+                          "options": {"temperature": 0.5, "num_predict": _num_predict},
+                          "think": False},
                     timeout=180, stream=True
                 )
                 if r.status_code != 200:

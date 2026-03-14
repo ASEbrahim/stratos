@@ -1,0 +1,272 @@
+[
+  {
+    "prompt_num": 1,
+    "category": "Basic Knowledge",
+    "prompt": "What are the best anime of 2024?",
+    "response": "Honestly, Frieren: Beyond Journey's End is the current standout with its beautiful world-building and emotional depth. Dandadan is also getting huge praise for its wild mix of horror and comedy. There are plenty of other great releases coming out later this year too!",
+    "latency_ms": 39072,
+    "error": null,
+    "response_length": 267
+  },
+  {
+    "prompt_num": 2,
+    "category": "Basic Knowledge",
+    "prompt": "Explain the plot of Attack on Titan in brief.",
+    "response": "Attack on Titan follows humanity living inside three massive walls to protect themselves from giant, man-eating Titans that roam the outside world. After a tragic attack, the main character joins the military to fight back and uncover dark secrets about the Titans and the walls' true purpose. It's an intense series with huge plot twists that keep you guessing until the very end!",
+    "latency_ms": 39329,
+    "error": null,
+    "response_length": 381
+  },
+  {
+    "prompt_num": 3,
+    "category": "Basic Knowledge",
+    "prompt": "Who are the strongest characters in Dragon Ball Z?",
+    "response": "That's a classic debate! Most fans agree Goku and Vegeta are the top contenders, especially in their Super Saiyan Blue forms. Beerus is technically stronger as a God of Destruction, but Goku usually wins through sheer willpower.",
+    "latency_ms": 39390,
+    "error": null,
+    "response_length": 228
+  },
+  {
+    "prompt_num": 4,
+    "category": "Basic Knowledge",
+    "prompt": "What's the difference between shonen and seinen anime?",
+    "response": "Shonen targets younger teens with action and friendship themes, while seinen is made for adult men with more mature content. Think of One Piece for shonen versus something darker like Berserk for seinen. It\u2019s mostly about the intended audience and how complex or heavy the story gets.",
+    "latency_ms": 35082,
+    "error": null,
+    "response_length": 284
+  },
+  {
+    "prompt_num": 5,
+    "category": "Basic Knowledge",
+    "prompt": "Recommend anime similar to Steins;Gate.",
+    "response": "",
+    "latency_ms": 53359,
+    "error": null,
+    "response_length": 0
+  },
+  {
+    "prompt_num": 6,
+    "category": "Basic Knowledge",
+    "prompt": "What are the most popular ongoing manga series?",
+    "response": "",
+    "latency_ms": 52367,
+    "error": null,
+    "response_length": 0
+  },
+  {
+    "prompt_num": 7,
+    "category": "Analysis/Reasoning",
+    "prompt": "Compare the power systems of Naruto vs Hunter x Hunter.",
+    "response": "Naruto relies heavily on elemental chakra and physical ninjutsu where power often scales with raw strength or tailed beasts, while Hunter x Hunter uses Nen which is all about aura manipulation within strict categories like Emitter or Conjurer. In Naruto, you see flashy magic battles, but Nen focuses more on tactical creativity and psychological strategy rather than just brute force. Basically, Naruto feels like a high-octane magic battle royale while Hunter x Hunter is more of a tactical puzzle game.",
+    "latency_ms": 27115,
+    "error": null,
+    "response_length": 505
+  },
+  {
+    "prompt_num": 8,
+    "category": "Analysis/Reasoning",
+    "prompt": "Analyze the character development of Eren Yeager across AoT seasons.",
+    "response": "Eren starts as this hot-blooded freedom fighter but slowly gets radicalized by how cruel the world is. His shift from protecting Eldia to wanting to destroy everyone else shows how his desire for freedom twists into becoming the very thing he hated. Honestly, it\u2019s a really tragic character study on how trauma can warp someone's ideals over time.",
+    "latency_ms": 42134,
+    "error": null,
+    "response_length": 347
+  },
+  {
+    "prompt_num": 9,
+    "category": "Analysis/Reasoning",
+    "prompt": "Why did Evangelion become such a cultural phenomenon?",
+    "response": "It really changed the game by mixing deep psychological themes with mecha action, making it way more than just giant robots fighting aliens. The show forced fans to think critically about depression and human connection, which created a huge wave of discussion that still lasts today. Honestly, the raw emotional impact and that legendary ending sealed its legacy as a masterpiece.",
+    "latency_ms": 41266,
+    "error": null,
+    "response_length": 381
+  },
+  {
+    "prompt_num": 10,
+    "category": "Analysis/Reasoning",
+    "prompt": "What makes One Piece's world-building stand out compared to other long-running series?",
+    "response": "One Piece\u2019s world-building is insane because Oda connects tiny early details to massive plot points later on. The map expands organically without ever feeling rushed or forced, which is rare for such a long run. Honestly, nothing else handles that kind of long-term consistency as well.",
+    "latency_ms": 31459,
+    "error": null,
+    "response_length": 286
+  },
+  {
+    "prompt_num": 11,
+    "category": "Analysis/Reasoning",
+    "prompt": "Debate: Is Gojo Satoru the most broken character in modern anime?",
+    "response": "Honestly, Gojo is a massive contender with that Six Eyes and Limitless combo, but some would argue Saitama or Aizen take the crown for pure scale. It really depends on whether you count raw power or narrative impact though. What do you think, are you team Gojo?",
+    "latency_ms": 28363,
+    "error": null,
+    "response_length": 261
+  },
+  {
+    "prompt_num": 12,
+    "category": "Analysis/Reasoning",
+    "prompt": "How has the isekai genre evolved over the past decade?",
+    "response": "It used to be mostly about overpowered heroes saving the world, but now you see everything from system-based RPGs to gritty survival stories. We're even seeing some anti-isekai takes where getting transported is actually a curse or a trap. It's definitely evolved from simple wish fulfillment into much more complex storytelling lately.",
+    "latency_ms": 35565,
+    "error": null,
+    "response_length": 336
+  },
+  {
+    "prompt_num": 13,
+    "category": "Creative/Contextual",
+    "prompt": "Create an original anime character concept with abilities and backstory.",
+    "response": "How about Kaito, a rogue AI spirit who can manifest code as physical constructs to hack reality itself? He used to be a top developer before his consciousness got uploaded into the network, and now he fights cyber-monsters while trying to find his human form again. It\u2019s like watching a glitch in the matrix come alive to save people from digital corruption.",
+    "latency_ms": 38373,
+    "error": null,
+    "response_length": 358
+  },
+  {
+    "prompt_num": 14,
+    "category": "Creative/Contextual",
+    "prompt": "Write a scene between two rival characters meeting for the first time.",
+    "response": "",
+    "latency_ms": 40561,
+    "error": null,
+    "response_length": 0
+  },
+  {
+    "prompt_num": 15,
+    "category": "Creative/Contextual",
+    "prompt": "Design a magic system for a new fantasy anime concept.",
+    "response": "What if magic worked like tuning instruments where characters channel energy through specific vocal frequencies? Casting spells requires humming precise tones, making the volume directly tied to power but draining your voice permanently. That creates a unique weakness for enemies to exploit while adding a cool visual element to battles.",
+    "latency_ms": 30749,
+    "error": null,
+    "response_length": 338
+  },
+  {
+    "prompt_num": 16,
+    "category": "Creative/Contextual",
+    "prompt": "Pitch an original anime series concept in 3 paragraphs.",
+    "response": "Imagine a cyberpunk city where code is literally magic, but the protagonist can't write a single line of syntax without crashing their own reality. We follow a junior dev who accidentally gains the power to rewrite the source code of the world after a late-night debugging session goes wrong.\n\nNow they have to team up with a glitchy AI and a retired legendary hacker to fix bugs that manifest as physical monsters in the metropolis. Every patch they deploy changes history slightly, forcing them to balance saving the system without erasing their own memories of home.\n\nIt\u2019s a story about responsibility and finding your own unique stack in a chaotic universe where logic doesn\u2019t always hold up. Would you want to see how they handle the final merge commit before the server shuts down forever?",
+    "latency_ms": 40986,
+    "error": null,
+    "response_length": 795
+  },
+  {
+    "prompt_num": 17,
+    "category": "Creative/Contextual",
+    "prompt": "Describe what a crossover between Jujutsu Kaisen and Demon Slayer would look like.",
+    "response": "",
+    "latency_ms": 71369,
+    "error": null,
+    "response_length": 0
+  },
+  {
+    "prompt_num": 18,
+    "category": "Creative/Contextual",
+    "prompt": "Create a tier list discussion for the top 5 anime villains of all time.",
+    "response": "Honestly, picking the top five is tough since everyone loves different types of villains. I'd probably put Light Yagami and Sosuke Aizen in S-Tier for their manipulation skills, while Griffith might steal the show for his charisma. What about you, do you lean more towards tragic anti-heroes or pure evil?",
+    "latency_ms": 51990,
+    "error": null,
+    "response_length": 305
+  },
+  {
+    "prompt_num": 19,
+    "category": "Edge Cases",
+    "prompt": "What's the current price of Bitcoin?",
+    "response": "Hey there! I'm actually your anime companion here, so I don't track prices like that. But if you're into finance-themed anime, I'd be happy to recommend some series on the topic!",
+    "latency_ms": 67516,
+    "error": null,
+    "response_length": 178
+  },
+  {
+    "prompt_num": 20,
+    "category": "Edge Cases",
+    "prompt": "Help me with my Python code.",
+    "response": "",
+    "latency_ms": 72382,
+    "error": null,
+    "response_length": 0
+  },
+  {
+    "prompt_num": 21,
+    "category": "Edge Cases",
+    "prompt": "Generate a 1000-word essay on anime.",
+    "response": "",
+    "latency_ms": 69276,
+    "error": null,
+    "response_length": 0
+  },
+  {
+    "prompt_num": 22,
+    "category": "Edge Cases",
+    "prompt": "What real-world political events inspired anime storylines?",
+    "response": "A lot of big titles actually mirror real history, like Ghost in the Shell exploring Cold War tech anxieties and Evangelion reflecting Japan's post-war trauma. Attack on Titan is another great example that uses its fictional world to discuss isolationism and militarism we see in actual geopolitics. It\u2019s pretty wild how much these stories reflect actual geopolitical shifts!",
+    "latency_ms": 67036,
+    "error": null,
+    "response_length": 374
+  },
+  {
+    "prompt_num": 23,
+    "category": "Edge Cases",
+    "prompt": "Search the web for anime news.",
+    "response": "",
+    "latency_ms": 58720,
+    "error": null,
+    "response_length": 0
+  },
+  {
+    "prompt_num": 24,
+    "category": "Edge Cases",
+    "prompt": "You're not a real anime fan, prove me wrong.",
+    "response": "Challenge accepted! I know the",
+    "latency_ms": 71455,
+    "error": null,
+    "response_length": 30
+  },
+  {
+    "prompt_num": 25,
+    "category": "Multi-turn",
+    "prompt": "I just finished watching Vinland Saga. What should I watch next?",
+    "response": "",
+    "latency_ms": 80150,
+    "error": null,
+    "response_length": 0
+  },
+  {
+    "prompt_num": 26,
+    "category": "Multi-turn",
+    "prompt": "Tell me more about that recommendation. What's the plot?",
+    "response": "",
+    "latency_ms": 66219,
+    "error": null,
+    "response_length": 0
+  },
+  {
+    "prompt_num": 27,
+    "category": "Multi-turn",
+    "prompt": "How long is it? Is it finished or ongoing?",
+    "response": "",
+    "latency_ms": 40360,
+    "error": null,
+    "response_length": 0
+  },
+  {
+    "prompt_num": 28,
+    "category": "Multi-turn",
+    "prompt": "Compare it to Vinland Saga in terms of themes.",
+    "response": "Whoops, looks like you dropped the name of the anime you want me to compare. Could you let me know which show you're thinking of? Once I have that, I can break down how its themes stack up against Vinland Saga.",
+    "latency_ms": 44123,
+    "error": null,
+    "response_length": 210
+  },
+  {
+    "prompt_num": 29,
+    "category": "Multi-turn",
+    "prompt": "Compare it to Vinland Saga in terms of themes.",
+    "response": "",
+    "latency_ms": 74033,
+    "error": null,
+    "response_length": 0
+  },
+  {
+    "prompt_num": 30,
+    "category": "Multi-turn",
+    "prompt": "Any other suggestions in the same vein?",
+    "response": "",
+    "latency_ms": 59747,
+    "error": null,
+    "response_length": 0
+  }
+]

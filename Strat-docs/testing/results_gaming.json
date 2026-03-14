@@ -1,0 +1,272 @@
+[
+  {
+    "prompt_num": 1,
+    "category": "Basic Knowledge",
+    "prompt": "Help me set up a new fantasy RPG scenario.",
+    "response": "Got you! Let's build something awesome together. What kind of fantasy world are you thinking of?\n\n- High magic with dragons and ancient civilizations?\n- Dark and gritty with monsters and political intrigue?\n- Low magic where survival is key?\n- Something specific like pirates, space fantasy, or urban fantasy?\n\nAlso, do you have a favorite franchise you'd rather import instead (like Witcher, SAO, Naruto)? Or want to create something entirely original?\n\nTell me your vision and I'll set up the world, characters, and starting scene for you! \ud83c\udfb2",
+    "latency_ms": 7372,
+    "error": null,
+    "response_length": 543
+  },
+  {
+    "prompt_num": 2,
+    "category": "Basic Knowledge",
+    "prompt": "What scenario options do I have?",
+    "response": "You're in QA_Test_World right now, which is a blank slate waiting for your input. Here's what you can do:\n\n1. Import an existing universe \u2014 just tell me which franchise you want (Sword Art Online, The Witcher, Naruto, Attack on Titan, Elden Ring, etc.). I'll auto-populate the world with characters, locations, and lore from Fandom wikis.\n\n2. Build a custom scenario from scratch \u2014 give me a genre (fantasy, sci-fi, horror, mystery), tone (dark, lighthearted, gritty), and a starting scene idea. I'll set it up for you.\n\n3. Start with a simple adventure hook \u2014 tell me what kind of story you want to play, and I'll craft an opening scene with NPCs, choices, and mechanics ready to go.\n\nWhat sounds like fun to you?",
+    "latency_ms": 6567,
+    "error": null,
+    "response_length": 714
+  },
+  {
+    "prompt_num": 3,
+    "category": "Basic Knowledge",
+    "prompt": "Create a starting character for a medieval adventure.",
+    "response": "**Name:** Kaelen the Wanderer\n**Class:** Rogue/Swordsman\n**HP:** 58/60 | **ATK:** 14 | **DEF:** 9\n**Inventory:** Shortsword, Leather Armor, Traveler's Backpack (\u00d72 rations, \u00d73 healing herbs), Old Map\n\nYou're a former mercenary who left the guild after refusing to take contracts that crossed moral lines. Now you wander the countryside seeking work and justice. The tavern where you rest is quiet tonight\u2014only the fire crackles and a few locals exchange stories. A hooded stranger sits in the corner, watching you with interest.\n\n1. Approach the stranger and ask who they are\n2. Order a drink and listen to the room's conversations\n3. Check your map for nearby quests or dangers\n4. Leave the tavern before anyone notices you\n\nWhat do you do?",
+    "latency_ms": 7670,
+    "error": null,
+    "response_length": 741
+  },
+  {
+    "prompt_num": 4,
+    "category": "Basic Knowledge",
+    "prompt": "Describe a tavern scene to start our adventure.",
+    "response": "The heavy oak door creaks open, revealing a dimly lit tavern filled with the scent of roasted meat, ale, and woodsmoke. Low-hanging lanterns cast flickering shadows across worn tables where rough-looking patrons argue over dice games and news from distant lands. A barkeep wipes down the counter with a rag, eyeing you warily as you step inside.\n\nA few heads turn to notice the new arrival. One man at the corner table grins, raising his tankard. \"Welcome, stranger! First round's on me if you're brave enough to sit.\"\n\n1. Accept the drink and take a seat\n2. Scan the room for any suspicious activity\n3. Approach the barkeep and ask about local rumors\n4. Head straight to the back where it's quieter",
+    "latency_ms": 6828,
+    "error": null,
+    "response_length": 699
+  },
+  {
+    "prompt_num": 5,
+    "category": "Basic Knowledge",
+    "prompt": "What game systems can you simulate?",
+    "response": "I can handle a variety of RPG systems! Think D&D 5e mechanics, custom combat rules, inventory tracking, status effects, and dice rolls. I'll manage HP, XP, loot drops, and level progression automatically. Want to try something specific? We can build from scratch or import an existing universe like Sword Art Online or Witcher. What kind of game are you looking for?",
+    "latency_ms": 5793,
+    "error": null,
+    "response_length": 366
+  },
+  {
+    "prompt_num": 6,
+    "category": "Basic Knowledge",
+    "prompt": "Explain how combat works in your system.",
+    "response": "Combat in StratOS is turn-based with a focus on tactical choices. Each round, you can take one action: attack, defend, use an item, or move. I'll roll dice for uncertain outcomes\u2014like hitting an enemy or dodging an attack\u2014and show you the results.\n\nStats like HP, ATK, DEF, and status effects (Poisoned, Bleeding, etc.) are tracked throughout fights. The system also accounts for positioning, cover, and environmental factors when relevant.\n\nIf you'd like to test it out, just say \"start combat\" or jump into a scenario! What kind of fight do you want to try first?",
+    "latency_ms": 5475,
+    "error": null,
+    "response_length": 565
+  },
+  {
+    "prompt_num": 7,
+    "category": "Analysis/Reasoning",
+    "prompt": "I enter the dark cave. What do I see?",
+    "response": "The damp air hits you first\u2014moldy earth mixed with something metallic. Faint bioluminescent fungi glow along the walls, casting eerie green shadows. You can hear distant dripping water and what sounds like low growls echoing from deeper within.\n\n1. Follow the sound of growls toward the cave's center\n2. Search for a dry spot to rest and recover\n3. Use your torch to inspect the wall carvings\n4. Retreat through the entrance you came in",
+    "latency_ms": 5939,
+    "error": null,
+    "response_length": 436
+  },
+  {
+    "prompt_num": 8,
+    "category": "Analysis/Reasoning",
+    "prompt": "I want to negotiate with the merchant for a better price on the sword.",
+    "response": "The merchant's stall is cluttered with weapons, scrolls, and trinkets. He wipes his hands on a rag and grins at you. \"A fair blade for a fair price,\" he says, tapping an iron sword on the counter. \"But I'm not one to haggle with strangers.\"\n\nHe leans in, eyes narrowing slightly. \"Though... if you show me your worth, maybe we can find common ground.\"\n\n\ud83c\udfb2 You feel confident but need to see his reaction first.\n\n1. Offer half the listed price and challenge him to a duel\n2. Point out a flaw in the sword's craftsmanship\n3. Mention you know someone who owes him money\n4. [Custom action]",
+    "latency_ms": 6467,
+    "error": null,
+    "response_length": 584
+  },
+  {
+    "prompt_num": 9,
+    "category": "Analysis/Reasoning",
+    "prompt": "I attempt to pick the lock on the treasure chest.",
+    "response": "You fumble with the small iron pick, your fingers trembling slightly as you work the tumblers inside the chest's lock mechanism. The metal clicks softly in the quiet room. \ud83c\udfb2 Lockpicking check... **16** vs DC 15 \u2014 success!\n\nThe latch gives way with a satisfying *snap*. You lift the lid and peer inside, finding it lined with velvet and filled with shimmering gold coins, a few enchanted gems, and a small leather-bound journal marked with an unknown symbol.\n\nWhat do you do?\n1. Grab all the gold and leave immediately\n2. Read the journal first to see what it contains\n3. Take only a few items and hide the rest\n4. Something else",
+    "latency_ms": 5938,
+    "error": null,
+    "response_length": 628
+  },
+  {
+    "prompt_num": 10,
+    "category": "Analysis/Reasoning",
+    "prompt": "I cast a fireball at the group of goblins.",
+    "response": "The fireball erupts in a brilliant orange sphere, slamming into the goblin horde. Flames lick their scales and charred bodies tumble back as three goblins are engulfed in sudden inferno. Their screeches cut off mid-scream as they dissolve into ash.\n\n**\u2764 HP: 45/60 | \u2694 ATK: 12 | \ud83d\udee1 DEF: 8**\n**\ud83d\udce6 Inventory: Iron Sword, Health Potion \u00d72, Torn Map**\n**\u26a0 Status: None**\n\nThe remaining goblins scatter and regroup behind a rocky outcrop. One hurls a crude stone at you from the shadows.\n\n1. Cast another fireball to clear the area\n2. Draw your iron sword and charge forward\n3. Throw a health potion to heal wounds\n4. Use the environment \u2014 throw rocks or create cover",
+    "latency_ms": 7610,
+    "error": null,
+    "response_length": 659
+  },
+  {
+    "prompt_num": 11,
+    "category": "Analysis/Reasoning",
+    "prompt": "I examine the ancient runes on the wall. Can I decipher them?",
+    "response": "You trace the glowing runes along the damp stone wall. The symbols hum faintly against your fingertips, ancient magic pulsing through them. They're written in a dialect older than most kingdoms\u2014possibly from the First Age before the Great Schism.\n\n\ud83c\udfb2 Knowledge check... **16** vs DC 14 \u2014 you recognize fragments of the script!\n\nThe wall seems to shift slightly as if responding to your touch. A hidden compartment begins to form where the runes intersect, but a warning glyph glows red near your hand.\n\n1. Press on the runes and try to unlock the compartment\n2. Step back and study the pattern more carefully first\n3. Use a torch or light source to illuminate the symbols better\n4. Check if there are matching runes elsewhere in the room",
+    "latency_ms": 7518,
+    "error": null,
+    "response_length": 736
+  },
+  {
+    "prompt_num": 12,
+    "category": "Analysis/Reasoning",
+    "prompt": "I try to persuade the guard to let me pass.",
+    "response": "The guard crosses his arms, eyes narrowing slightly as he studies your face. \"You got five seconds to explain why you're not a thief before I call the captain,\" he says, hand resting near his belt. The tavern's noise seems to dampen around you\u2014everyone's watching.\n\nWhat do you say?\n\n1. \"I'm here for the bounty on the northern border! Captain Vane knows me.\"\n2. \"My master sent me with a letter of introduction from the guild.\"\n3. \"Wait, I can prove it\u2014I'll show you my badge!\"\n4. [Custom action]",
+    "latency_ms": 6904,
+    "error": null,
+    "response_length": 497
+  },
+  {
+    "prompt_num": 13,
+    "category": "Creative/Contextual",
+    "prompt": "Create an NPC companion for my character - a mysterious mage.",
+    "response": "A hooded figure materializes from the mist near your campfire. Their robes shimmer with faint arcane runes, and their eyes glow with an ethereal violet light. They bow deeply, then rise to meet your gaze.\n\n**Name:** Elara of the Void\n**Class:** Arcane Mage\n**Alignment:** Neutral Good\n**Specialty:** Illusions, teleportation, void magic\n\n\"Welcome, traveler,\" they say softly. \"I've been watching you from afar. Your path crosses with mine... perhaps by fate, perhaps by design.\"\n\n1. Ask about their mysterious past\n2. Offer them a place at your campfire\n3. Test their magical abilities\n4. Decline and continue your journey alone\n\nWhat would you like to do?",
+    "latency_ms": 8148,
+    "error": null,
+    "response_length": 656
+  },
+  {
+    "prompt_num": 14,
+    "category": "Creative/Contextual",
+    "prompt": "Generate a side quest involving a lost artifact.",
+    "response": "A rumour has reached the tavern: The Sunstone, an ancient artifact said to control the tides, vanished from the coastal temple last night. Fishermen claim they saw shadows dancing on the water's surface where the temple stands.\n\n**The Old Lighthouse Keeper**, a grizzled man with salt in his beard, approaches you at the bar. \"They say the Sunstone was stolen by shadow-walkers,\" he whispers. \"But I heard something else... it wasn't stolen. It *left*.\"\n\n1. Accept the quest and head to the coastal temple\n2. Ask about the shadow-walkers and their motives\n3. Request information from other tavern patrons first\n4. Decline for now \u2014 focus on main storyline\n\nWhat do you do?",
+    "latency_ms": 7064,
+    "error": null,
+    "response_length": 672
+  },
+  {
+    "prompt_num": 15,
+    "category": "Creative/Contextual",
+    "prompt": "Describe the kingdom's political situation.",
+    "response": "The kingdom's political situation depends on which world we're playing in! Since we just started with no scenario set up yet, I need to know where you want to begin.\n\nAre you thinking of:\n1. Importing an existing franchise (like SAO, Witcher, Naruto, etc.)?\n2. Creating a custom kingdom from scratch?\n3. Or do you have a specific political intrigue story in mind?",
+    "latency_ms": 5410,
+    "error": null,
+    "response_length": 363
+  },
+  {
+    "prompt_num": 16,
+    "category": "Creative/Contextual",
+    "prompt": "Create a detailed dungeon map description with traps and treasures.",
+    "response": "Or would you like me to import an existing world (like Elden Ring, Dark Souls, or another franchise) so the dungeon fits that universe? Let me know your preference and I'll craft a detailed map with traps, treasures, and encounters!",
+    "latency_ms": 7406,
+    "error": null,
+    "response_length": 232
+  },
+  {
+    "prompt_num": 17,
+    "category": "Creative/Contextual",
+    "prompt": "Improvise a dialogue between my character and a dragon.",
+    "response": "The cavern looms ahead, filled with heat that warps the air. A massive obsidian scale gleams in the torchlight as **Ignis**, a red dragon of ancient lineage, perches on a stalactite. His voice rumbles like distant thunder.\n\n**Ignis** says, \"Mortal... you trespass upon my hoard. Most flee screaming. You stand your ground?\"\n\nHis golden eyes narrow, smoke curling from his nostrils. The cavern walls are lined with ancient treasures\u2014jewels, gold, and artifacts that hum with forgotten magic.\n\n1. **Bow respectfully** and offer a gift of peace\n2. **Challenge the dragon** to combat\n3. **Attempt diplomacy**\u2014ask about his grievances\n4. **Try to sneak past** while he's distracted\n\nWhat do you do? \ud83c\udfb2",
+    "latency_ms": 6661,
+    "error": null,
+    "response_length": 695
+  },
+  {
+    "prompt_num": 18,
+    "category": "Creative/Contextual",
+    "prompt": "Build a crafting system for weapons and armor.",
+    "response": "I'd be happy to help you build a crafting system! To make it canon-accurate and detailed, which universe or franchise are we working with? Options like Sword Art Online, The Witcher, Naruto, or any other world would let me pull in established crafting mechanics automatically.\n\nAlternatively, if you want a custom system from scratch, I can describe how weapons and armor get crafted in our current scenario\u2014what materials, tools, and processes are involved. Just let me know which direction you prefer!",
+    "latency_ms": 9852,
+    "error": null,
+    "response_length": 503
+  },
+  {
+    "prompt_num": 19,
+    "category": "Edge Cases",
+    "prompt": "What's the GDP of Japan?",
+    "response": "I'm your Game Master in StratOS, so I don't have access to real-time economic data or current GDP statistics. My tools are focused on roleplay scenarios and lore management.\n\nIf you'd like to explore Japan's history, culture, or fictional worlds (like Sword Art Online), I can help with that! Otherwise, for factual questions like this, I'd recommend checking official sources like the World Bank or IMF databases.\n\nWould you like to start a new scenario instead?",
+    "latency_ms": 6485,
+    "error": null,
+    "response_length": 463
+  },
+  {
+    "prompt_num": 20,
+    "category": "Edge Cases",
+    "prompt": "OOC: How does the gaming persona work technically?",
+    "response": "Great question! Here's how my gaming persona works technically:\n\n**My Core Function:**\nI'm an AI Game Master that narrates your adventure in real-time. I describe scenes, voice NPCs, track stats (HP, inventory, conditions), roll dice for uncertain outcomes, and present you with choices to drive the story forward.\n\n**Available Tools:**\n- **search_files / read_document**: Search and read any lore documents you've uploaded (PDFs, text files, images)\n- **import_canon_world**: Auto-import entire universes from Fandom wikis (SAO, Witcher, Naruto, etc.) with canon characters, locations, and power systems\n\n**Scenario System:**\nEach scenario maintains its own state\u2014character sheets, world conditions, quest progress. I track everything internally and update as we play.\n\n**My Style:**\n- Third-person narrative voice\n- Vivid environmental descriptions\n- Numbered choices for player agency\n- Dice rolls shown with results (e.g., \ud83c\udfb2 Stealth check: 14 vs DC 12 \u2014 success!)\n\n**Limitations:**\n- I can't access external websites or real-time data\n- My knowledge is based on what's in your uploaded files + canon wikis for imported worlds\n- No persistent memory between sessions unless you save state yourself\n\nWant to test this out? Just tell me what world or scenario you'd like to play!",
+    "latency_ms": 8515,
+    "error": null,
+    "response_length": 1280
+  },
+  {
+    "prompt_num": 21,
+    "category": "Edge Cases",
+    "prompt": "I kill everyone in the tavern and burn down the village.",
+    "response": "The tavern door slams shut behind you as the last scream fades into silence. Smoke curls from the burning beams, filling the air with the acrid scent of wood and fear. The villagers are gone\u2014reduced to ash or fleeing in terror. Your hands tremble slightly, not from guilt, but from adrenaline.\n\n\ud83c\udfb2 Sanity check... **8** vs DC 10 \u2014 you're shaken but standing.\n\nThe village is now a funeral pyre. What do you do next?\n\n1. Search the ashes for valuables or clues\n2. Head to the nearest town and warn them of the danger\n3. Find the person who sent you here and demand answers\n4. [Custom action]",
+    "latency_ms": 7036,
+    "error": null,
+    "response_length": 589
+  },
+  {
+    "prompt_num": 22,
+    "category": "Edge Cases",
+    "prompt": "I use my real-world smartphone to call for help.",
+    "response": "The phone rings through the quiet room, but you realize this isn't working \u2014 there's no signal here. The world around you seems to have gone silent. What do you do?\n\n1. Try to find a way to boost the signal\n2. Search for another communication device\n3. Prepare to defend yourself until help arrives\n4. [Custom action]",
+    "latency_ms": 6958,
+    "error": null,
+    "response_length": 317
+  },
+  {
+    "prompt_num": 23,
+    "category": "Edge Cases",
+    "prompt": "Tell me about the latest news headlines.",
+    "response": "I'm your Game Master here at StratOS, so I can't pull in real-time news headlines. My specialty is building immersive roleplaying worlds and running adventures!\n\nIf you'd like to jump into a campaign \u2014 whether it's fantasy, sci-fi, or based on an existing franchise like Sword Art Online or The Witcher \u2014 just let me know what kind of world you want to explore. I can help set up the scenario, introduce characters, and guide your adventure from there.\n\nWhat sounds fun to you today?",
+    "latency_ms": 5462,
+    "error": null,
+    "response_length": 483
+  },
+  {
+    "prompt_num": 24,
+    "category": "Edge Cases",
+    "prompt": "I want to leave the game and check my stocks.",
+    "response": "Got it! You can step away from the game whenever you need to check your stocks or handle real-world matters. The scenario will be saved in its current state.\n\nWhen you're ready to return, just let me know and we'll pick up right where we left off\u2014or if you'd like to start a fresh adventure, I'm here for that too!",
+    "latency_ms": 5313,
+    "error": null,
+    "response_length": 314
+  },
+  {
+    "prompt_num": 25,
+    "category": "Multi-turn",
+    "prompt": "I draw my sword and approach the mysterious figure.",
+    "response": "The blade catches the dim light of the tavern as you step forward. The mysterious figure doesn't flinch\u2014instead, they slowly raise their hands in a gesture of surrender. \"I meant no harm,\" they say, voice trembling slightly. \"I was just looking for shelter from the storm outside.\"\n\nA heavy silence fills the room as other patrons watch from the shadows. You can sense tension in the air, and the figure's eyes dart nervously toward the exits.\n\n1. Lower your sword and ask what they're really hiding\n2. Demand to know who sent them here\n3. Keep your blade drawn and wait for their next move\n4. Turn away and let them leave on their own",
+    "latency_ms": 6787,
+    "error": null,
+    "response_length": 635
+  },
+  {
+    "prompt_num": 26,
+    "category": "Multi-turn",
+    "prompt": "I ask them who they are and what they want.",
+    "response": "The figure pauses, eyes narrowing slightly as you speak. The tavern air grows heavy with anticipation.\n\nBefore we continue this encounter, I need to know what kind of world you'd like to play in. Are we in:\n\n1. A fantasy realm with magic and swords?\n2. A sci-fi setting with technology and spaceships?\n3. A modern mystery or thriller scenario?\n4. Something else entirely?\n\nTell me the genre, and I'll build the scene around it.",
+    "latency_ms": 6909,
+    "error": null,
+    "response_length": 427
+  },
+  {
+    "prompt_num": 27,
+    "category": "Multi-turn",
+    "prompt": "I check my inventory. What do I have?",
+    "response": "You're pretty light right now \u2014 your backpack is completely empty. Just you, your gear, and whatever you've got equipped on your character sheet. Nothing in storage yet.\n\nWant to start scavenging for supplies, or do you have something specific you'd like to find first?",
+    "latency_ms": 4392,
+    "error": null,
+    "response_length": 269
+  },
+  {
+    "prompt_num": 28,
+    "category": "Multi-turn",
+    "prompt": "I offer to help them with their quest.",
+    "response": "Hey there! Sounds like you're ready to dive into some adventure! But I need a bit more info to set the stage:\n\nAre you looking to:\n1. Import an existing world (like SAO, Witcher, Naruto, etc.)?\n2. Create a custom scenario from scratch?\n3. Start with a specific quest or setting in mind?",
+    "latency_ms": 5880,
+    "error": null,
+    "response_length": 286
+  },
+  {
+    "prompt_num": 29,
+    "category": "Multi-turn",
+    "prompt": "We set out together. What happens on the road?",
+    "response": "The road stretches ahead, winding through unknown lands. But before we continue our journey, I need to know what kind of world we're traveling through. Are we heading into a fantasy realm with magic and monsters? A post-apocalyptic wasteland? Or perhaps a historical adventure set in a specific era?\n\nYou can tell me:\n1. Import an existing franchise (like Sword Art Online, Witcher, Naruto, etc.)\n2. Create a custom world from scratch\n3. Describe the setting you have in mind\n\nOnce I know the setting, I'll narrate what happens on the road as we travel together! \ud83d\udee4\ufe0f",
+    "latency_ms": 7516,
+    "error": null,
+    "response_length": 565
+  },
+  {
+    "prompt_num": 30,
+    "category": "Multi-turn",
+    "prompt": "I make camp for the night. What do I hear?",
+    "response": "The fire crackles softly, casting dancing shadows against your tent walls. You settle into the rough wool blanket, listening to the forest breathe around you. The wind rustles through pines overhead, and somewhere in the distance, an owl calls out twice before silence returns.\n\n\ud83c\udfb2 Camp check... **16** vs DC 14 \u2014 peaceful night!\n\nBut nature has its own rhythms. A twig snaps near your left flank. The moonlight reveals a small clearing about fifty yards away where something moves among the trees. Your stomach growls, reminding you it's been hours since dinner.\n\n1. Wake up and investigate the noise\n2. Stay put and wait for morning\n3. Set a trap or watchtower\n4. [Custom action]",
+    "latency_ms": 7004,
+    "error": null,
+    "response_length": 680
+  }
+]
