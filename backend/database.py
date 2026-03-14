@@ -64,12 +64,12 @@ class Database:
     def _commit(self):
         """Commit the current thread's transaction.
 
-        WAL mode + busy_timeout (10s) handle cross-thread write serialization
-        at the SQLite level. No Python-level lock needed — WAL allows concurrent
-        readers and serializes writers automatically. The busy_timeout makes
-        writers wait up to 10s for the lock rather than failing immediately.
+        WAL mode + busy_timeout handle cross-thread write serialization
+        at the SQLite level. The Python lock serializes commits from the
+        application side to prevent concurrent write contention.
         """
-        self.conn.commit()
+        with self.lock:
+            self.conn.commit()
     
     def _create_tables(self):
         """Run the migration framework to create/update all tables."""

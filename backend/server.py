@@ -612,13 +612,16 @@ def start_server(strat, auth, port=8080, open_browser=True):
 
     # Reset any stuck transcription statuses from previous server run
     try:
-        _reset_cursor = strat.db.conn.cursor()
-        _reset_cursor.execute(
-            "UPDATE youtube_videos SET status = 'pending' WHERE status IN ('transcribing', 'extracting', 'processing')"
-        )
-        _stuck_count = _reset_cursor.rowcount
+        import sqlite3 as _sq
+        _db_path = str(strat.db.db_path)
+        with _sq.connect(_db_path) as _rc:
+            _rc.execute("PRAGMA busy_timeout = 5000")
+            _rc.execute(
+                "UPDATE youtube_videos SET status = 'pending' WHERE status IN ('transcribing', 'extracting', 'processing')"
+            )
+            _stuck_count = _rc.total_changes
+            _rc.commit()
         if _stuck_count:
-            strat.db._commit()
             logger.info(f"Reset {_stuck_count} stuck video(s) to pending")
     except Exception as e:
         logger.debug(f"Stuck status reset: {e}")

@@ -57,9 +57,11 @@ def _worker_loop(strat, sse_manager):
     db_path = str(strat.db.db_path) if hasattr(strat, 'db') and strat.db and hasattr(strat.db, 'db_path') else None
 
     # Wait for server to fully initialize before processing
-    _stop_flag.wait(15)
+    _stop_flag.wait(30)
     if _stop_flag.is_set():
         return
+
+    logger.info("YouTube worker: ready to process pending videos")
 
     while not _stop_flag.is_set():
         try:

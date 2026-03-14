@@ -737,13 +737,29 @@ def handle_delete(handler, strat, auth, path):
         return False
 
     try:
-        ch_id = int(handler.path.split("/")[-1])
-        from processors.youtube import YouTubeProcessor
-        yt = YouTubeProcessor(strat.config, db=strat.db)
-        if yt.remove_channel(handler._profile_id, ch_id):
-            _send_json(handler, {"ok": True})
-        else:
-            _send_json(handler, {"error": "Channel not found"}, 404)
-    except (ValueError, IndexError):
-        _send_json(handler, {"error": "Invalid channel ID"}, 400)
+        ch_id = int(path.split("/")[-1])
+        profile_id = handler._profile_id
+        logger.info(f"DELETE channel {ch_id} for profile {profile_id}")
+        cursor = strat.db.conn.cursor()
+        # Delete insights for this channel's videos
+        cursor.execute(
+            """DELETE FROM video_insights WHERE video_id IN
+               (SELECT id FROM youtube_videos WHERE channel_id = ? AND profile_id = ?)""",
+            (ch_id, profile_id)
+        )
+        # Delete videos
+        cursor.execute(
+            "DELETE FROM youtube_videos WHERE channel_id = ? AND profile_id = ?",
+            (ch_id, profile_id)
+        )
+        # Delete channel
+        cursor.execute(
+            "DELETE FROM youtube_channels WHERE id = ? AND profile_id = ?",
+            (ch_id, profile_id)
+        )
+        strat.db._commit()
+        _send_json(handler, {"ok": True})
+    except Exception as e:
+        logger.error(f"Delete channel failed: {e}")
+        _send_json(handler, {"error": str(e)}, 500)
     return True
