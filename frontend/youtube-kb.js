@@ -431,13 +431,15 @@ async function _ykbLoadInsights(chId, videoDbId) {
             _ykbInsightsByLang[videoDbId][lensName][lang] = ins;
         });
 
-        // Also store transcript_text from the response as fallback
-        if (data.transcript_text && !_ykbInsightsByLang[videoDbId]['transcript']) {
-            _ykbInsightsByLang[videoDbId]['transcript'] = {};
-        }
+        // Always inject transcript_text from the video row as fallback
         if (data.transcript_text) {
+            if (!_ykbInsightsByLang[videoDbId]['transcript']) {
+                _ykbInsightsByLang[videoDbId]['transcript'] = {};
+            }
             const tLang = data.transcript_language || 'en';
-            if (!_ykbInsightsByLang[videoDbId]['transcript'][tLang]) {
+            // Use it if no transcript insight exists for this language, or if the existing one is empty
+            const existing = _ykbInsightsByLang[videoDbId]['transcript'][tLang];
+            if (!existing || !existing.content || existing.content.length < 20) {
                 _ykbInsightsByLang[videoDbId]['transcript'][tLang] = {
                     content: JSON.stringify({ transcript: data.transcript_text }),
                     language: tLang
@@ -457,7 +459,14 @@ function _ykbRenderLensContent(contentEl, videoDbId, lens, forceLang, chId) {
     const availLangs = Object.keys(lensData);
 
     if (!availLangs.length) {
-        contentEl.innerHTML = `<div style="color:var(--text-faint,#475569);text-align:center;padding:20px;">No ${lens} insight available yet.<br><span style="font-size:10px;">Run "Extract All" then "Process" to generate insights.</span></div>`;
+        // Check if the video is currently being transcribed
+        const activeVid = _ykbActiveVideo[chId];
+        const isProcessing = activeVid && (activeVid.status === 'transcribing' || activeVid.status === 'extracting' || activeVid.status === 'pending');
+        if (isProcessing) {
+            contentEl.innerHTML = `<div style="text-align:center;padding:30px;"><div style="width:24px;height:24px;border:2px solid var(--border-strong,rgba(255,255,255,0.1));border-top-color:var(--accent,#10b981);border-radius:50%;animation:ykb-pulse 0.8s linear infinite;margin:0 auto 12px;"></div><div style="color:var(--text-muted,#64748b);font-size:12px;">${activeVid.status === 'pending' ? 'Queued for processing...' : 'Transcribing...'}</div><div style="color:var(--text-faint,#475569);font-size:10px;margin-top:4px;">This may take a minute</div></div>`;
+        } else {
+            contentEl.innerHTML = `<div style="color:var(--text-faint,#475569);text-align:center;padding:20px;">No ${lens} data yet.<br><span style="font-size:10px;">Click "Re-transcribe" or "Extract Summary" above.</span></div>`;
+        }
         return;
     }
 
