@@ -420,7 +420,7 @@ function _showRssSuggestions(type) {
 
     // Fetch from catalog API
     fetch('/api/feed-catalog/' + type, {
-        headers: { 'X-Auth-Token': localStorage.getItem('auth_token') || '' }
+        headers: { 'X-Auth-Token': typeof getAuthToken === 'function' ? getAuthToken() : '' }
     })
     .then(r => r.json())
     .then(data => {
@@ -497,7 +497,7 @@ function addCustomFeed() {
 
         fetch('/api/discover-rss', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'X-Auth-Token': localStorage.getItem('auth_token') || '' },
+            headers: { 'Content-Type': 'application/json', 'X-Auth-Token': typeof getAuthToken === 'function' ? getAuthToken() : '' },
             body: JSON.stringify({ url })
         })
         .then(r => r.json())

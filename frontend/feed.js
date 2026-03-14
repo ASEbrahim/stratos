@@ -1109,7 +1109,7 @@ function _loadFeedSuggestions(type) {
     container.innerHTML = '<div class="text-[10px] text-slate-600 py-2">Loading...</div>';
 
     fetch('/api/feed-catalog/' + type, {
-        headers: { 'X-Auth-Token': localStorage.getItem('auth_token') || '' }
+        headers: { 'X-Auth-Token': typeof getAuthToken === 'function' ? getAuthToken() : '' }
     })
     .then(r => r.json())
     .then(data => {
@@ -1165,7 +1165,7 @@ function _saveAndRefreshFeeds(type) {
 
     fetch('/api/config', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-Auth-Token': localStorage.getItem('auth_token') || '' },
+        headers: { 'Content-Type': 'application/json', 'X-Auth-Token': typeof getAuthToken === 'function' ? getAuthToken() : '' },
         body: JSON.stringify(configData)
     }).then(() => {
         loadExtraFeeds(type).then(() => {
