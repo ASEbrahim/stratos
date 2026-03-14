@@ -73,6 +73,54 @@ export default {
             return jsonResp({ status: 'ok', ts: Date.now() }, 200, origin, allowedOrigins);
         }
 
+        // ── /captions — proxy a timedtext URL through CF edge (bypasses IP blocks) ──
+        if (url.pathname === '/captions') {
+            const timedtextUrl = url.searchParams.get('url');
+            if (!timedtextUrl) {
+                return jsonResp({ error: 'Missing url parameter (timedtext base URL)' }, 400, origin, allowedOrigins);
+            }
+
+            try {
+                const target = new URL(timedtextUrl);
+                // Only allow youtube.com timedtext URLs
+                if (!target.hostname.includes('youtube.com') && !target.hostname.includes('google.com')) {
+                    return jsonResp({ error: 'Only YouTube timedtext URLs allowed' }, 403, origin, allowedOrigins);
+                }
+
+                const capResp = await fetch(timedtextUrl, {
+                    headers: {
+                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
+                        'Accept-Language': 'en-US,en;q=0.9',
+                    },
+                });
+                const capText = await capResp.text();
+
+                // Parse XML: <text start="1.23" dur="4.56">caption text</text>
+                const captions = [];
+                const regex = /<text start="([^"]*)" dur="([^"]*)"[^>]*>([\s\S]*?)<\/text>/g;
+                let m;
+                while ((m = regex.exec(capText)) !== null) {
+                    const text = m[3].replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&#39;/g,"'").replace(/&quot;/g,'"').replace(/<[^>]+>/g,'').trim();
+                    if (text) {
+                        captions.push({
+                            start: Math.round(parseFloat(m[1]) * 100) / 100,
+                            duration: Math.round(parseFloat(m[2]) * 100) / 100,
+                            text,
+                        });
+                    }
+                }
+
+                const responseHeaders = new Headers();
+                Object.entries(corsHeaders(origin, allowedOrigins)).forEach(([k, v]) => responseHeaders.set(k, v));
+                responseHeaders.set('Content-Type', 'application/json');
+                responseHeaders.set('Cache-Control', 'public, max-age=3600');
+
+                return new Response(JSON.stringify({ captions, count: captions.length }), { status: 200, headers: responseHeaders });
+            } catch (err) {
+                return jsonResp({ error: 'Caption proxy failed: ' + err.message }, 502, origin, allowedOrigins);
+            }
+        }
+
         // ── /proxy and /feed ──
         if (url.pathname === '/proxy' || url.pathname === '/feed') {
             const targetUrl = url.searchParams.get('url');

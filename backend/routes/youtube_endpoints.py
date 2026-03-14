@@ -193,64 +193,49 @@ def handle_get(handler, strat, auth, path):
 
             yt_video_id = row[0]
             try:
+                import requests as _req
                 from youtube_transcript_api import YouTubeTranscriptApi
+                _worker_base = strat.config.get("proxy", {}).get("cloudflare_worker", "")
+                target_lang = parse_qs(parsed.query).get('lang', [row[2] or 'en'])[0]
+
                 api = YouTubeTranscriptApi()
                 transcript_list = api.list(yt_video_id)
+                tracks = [{"language": t.language_code, "language_name": t.language, "is_generated": t.is_generated} for t in transcript_list]
 
-                # Collect available tracks
-                tracks = []
-                for t in transcript_list:
-                    tracks.append({
-                        "language": t.language_code,
-                        "language_name": t.language,
-                        "is_generated": t.is_generated,
-                    })
-
-                # Fetch the best available captions
-                target_lang = parse_qs(parsed.query).get('lang', [row[2] or 'en'])[0]
-                captions = []
-                result = None
-
-                # Try preferred languages in order
+                # Find best track
                 preferred = [target_lang, 'en', 'ar', 'ja', 'ko', 'fr', 'de', 'es']
+                found = None
                 try:
                     found = transcript_list.find_transcript(preferred)
-                    result = found.fetch()
-                    target_lang = found.language_code
-                except Exception as _fetch_err:
-                    _fetch_reason = str(_fetch_err)
-                    if 'IpBlocked' in type(_fetch_err).__name__ or 'blocked' in _fetch_reason.lower():
-                        logger.warning(f"YouTube IP blocked for caption fetch on {yt_video_id}")
-                        _send_json(handler, {
-                            "error": "YouTube is blocking caption requests from this IP. Try using a VPN or proxy.",
-                            "tracks": tracks, "captions": [], "count": 0,
-                            "video_id": yt_video_id, "title": row[1],
-                        })
-                        return True
-                    # Fallback: try each track directly
+                except Exception:
                     for t in transcript_list:
-                        try:
-                            result = t.fetch()
-                            target_lang = t.language_code
-                            break
-                        except Exception:
-                            continue
+                        found = t
+                        break
 
-                if result:
-                    for snippet in result:
-                        captions.append({
-                            "start": round(snippet.start, 2),
-                            "duration": round(snippet.duration, 2),
-                            "text": snippet.text,
-                        })
+                captions = []
+                if found:
+                    target_lang = found.language_code
+                    try:
+                        # Try direct fetch first
+                        result = found.fetch()
+                        for snippet in result:
+                            captions.append({"start": round(snippet.start, 2), "duration": round(snippet.duration, 2), "text": snippet.text})
+                    except Exception as _direct_err:
+                        # IP blocked — proxy through CF Worker using the track's HTTP URL
+                        if _worker_base and hasattr(found, '_http_client') and hasattr(found, '_url'):
+                            try:
+                                _timedtext_url = found._url
+                                _proxy_url = f"{_worker_base}/captions?url={requests.utils.quote(_timedtext_url, safe='')}"
+                                _proxy_resp = _req.get(_proxy_url, timeout=15)
+                                if _proxy_resp.status_code == 200:
+                                    _proxy_data = _proxy_resp.json()
+                                    captions = _proxy_data.get('captions', [])
+                            except Exception as _proxy_err:
+                                logger.warning(f"CF proxy caption fetch failed: {_proxy_err}")
 
                 _send_json(handler, {
-                    "video_id": yt_video_id,
-                    "title": row[1],
-                    "language": target_lang,
-                    "tracks": tracks,
-                    "captions": captions,
-                    "count": len(captions),
+                    "video_id": yt_video_id, "title": row[1], "language": target_lang,
+                    "tracks": tracks, "captions": captions, "count": len(captions),
                 })
             except Exception as e:
                 logger.warning(f"Caption fetch failed for {yt_video_id}: {e}")
