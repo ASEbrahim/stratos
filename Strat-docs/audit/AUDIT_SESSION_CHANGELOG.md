@@ -83,9 +83,48 @@ Each entry documents a code change with before/after context.
 
 ---
 
+## Session 2: 2026-03-14 (Frontend Deep Audit)
+
+### C012: Wrong auth token key in app.js, feed.js, settings-sources.js
+- **Files**: `frontend/app.js`, `frontend/feed.js`, `frontend/settings-sources.js`
+- **Before**: Used `localStorage.getItem('auth_token')` — wrong key, always returns `null`. The correct key is `stratos_auth_token` (set by auth.js as `AUTH_TOKEN_KEY`).
+- **After**: Changed to `typeof getAuthToken === 'function' ? getAuthToken() : ''` for consistency with rest of codebase.
+- **Impact**: Extra feeds loading, RSS suggestion fetching, and RSS auto-discovery were silently unauthenticated — profile-scoped data could be wrong.
+- **Severity**: High (auth bypass — wrong profile data)
+
+### C013: settings-tickers.js wrong token key AND wrong header name
+- **File**: `frontend/settings-tickers.js`
+- **Before**: Used `localStorage.getItem('stratos_token')` (wrong key, always null) AND sent via `Authorization: Bearer` header which the backend ignores (it only reads `X-Auth-Token`).
+- **After**: Uses `getAuthToken()` and sends via `X-Auth-Token` header.
+- **Impact**: Ticker presets load/save/delete were completely unauthenticated.
+- **Severity**: High (auth bypass — ticker presets silently broken)
+
+### C014: prompt-builder.js wrong token key
+- **File**: `frontend/prompt-builder.js`
+- **Before**: All 11 API calls used `localStorage.getItem('stratos_session_token')` — a key that doesn't exist.
+- **After**: Uses `getAuthToken()` consistently.
+- **Impact**: Sprint prompt builder was completely unauthenticated.
+- **Severity**: Medium (dev tool, not user-facing)
+
+### C015: scan-history.js missing auth token
+- **File**: `frontend/scan-history.js`
+- **Before**: `/api/scan-log` and `/api/export` called without auth token headers.
+- **After**: Added `X-Auth-Token` header using `getAuthToken()`.
+- **Impact**: Scan history and export used wrong profile's data.
+- **Severity**: Medium (profile data leak)
+
+### C016: stratosPrompt ignored multiline flag
+- **File**: `frontend/ui-dialogs.js`
+- **Before**: `stratosPrompt()` always created `<input type="text">` even when field specified `multiline: true`. Scenario descriptions in games-ui.js lost newlines.
+- **After**: Creates `<textarea>` when `multiline` is set. Enter submits for single-line, Ctrl+Enter for multiline.
+- **Severity**: Low (UX — newlines lost in scenario descriptions)
+
+---
+
 ## Summary
 
-- **Files audited**: 40+ (all backend Python, key frontend JS)
-- **Issues found**: 20 (11 fixed, 9 documented as findings)
-- **High severity fixes**: C003 (DELETE profile leak), C006 (market refresh race), C009 (incomplete account deletion), C010 (YouTube SSE broken)
-- **New codex terms**: 5
+- **Session 1**: 40+ backend files, 11 fixes (C001-C011), 9 findings (F001-F009)
+- **Session 2**: 30+ frontend files, 5 fixes (C012-C016), 7 findings (F010-F016)
+- **Total**: 70+ files audited, 16 fixes, 16 findings
+- **High severity fixes**: C003, C006, C009, C010 (Session 1) + C012, C013 (Session 2)
+- **Database**: Integrity OK, no orphans, no duplicates, 27 tables, 46 indices

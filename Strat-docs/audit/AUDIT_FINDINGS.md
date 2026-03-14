@@ -48,3 +48,42 @@ Issues discovered but NOT safe to fix automatically.
 - **File**: `backend/processors/youtube.py`, `_tier3_whisper()` at line 357
 - **Issue**: `WhisperModel(model_name, ...)` is instantiated per-call. Model loading takes ~10s and ~1.6GB RAM.
 - **Recommended fix**: Cache the model instance. Not fixed because Whisper is used infrequently and caching a 1.6GB model indefinitely may not be desirable.
+
+---
+
+## Session 2 Findings (Frontend Deep Audit)
+
+### F010: agent.js uses wrong token key `stratos_session_token` for file upload
+- **File**: `frontend/agent.js`, line 1152
+- **Issue**: File upload uses `localStorage.getItem('stratos_session_token')` which doesn't exist. The correct key is `stratos_auth_token`.
+- **Recommended fix**: Change to `getAuthToken()`. Not fixed because agent.js is in the do-not-touch list.
+
+### F011: `_escForAttr` in games-ui.js doesn't escape backslashes
+- **File**: `frontend/games-ui.js`, line 126
+- **Issue**: `_escForAttr(s)` only escapes single quotes and double quotes, not backslashes. A scenario name containing `\` followed by `'` could break out of onclick attribute strings.
+- **Recommended fix**: Add `.replace(/\\/g, '\\\\')` before the quote replacements. Not fixed — scenario names are user-created via a controlled prompt and the risk is self-XSS only.
+
+### F012: Fullscreen chart IIFE leaks document-level event listeners
+- **File**: `frontend/fullscreen-chart.js`, lines 605-615
+- **Issue**: The intel panel drag-resize registers `mousemove`, `mouseup`, `touchmove`, `touchend` on `document` inside an IIFE. These listeners are never removed when the fullscreen chart closes. Each open/close cycle adds 4 new listeners.
+- **Recommended fix**: Store handler references and remove them in `_fsClose()`. Not fixed because the handlers check a scoped `_ipDragging` flag so they're functionally inert, but they do leak memory over many open/close cycles.
+
+### F013: `exportDashboard` relies on implicit `event` global
+- **File**: `frontend/scan-history.js`, line 124
+- **Issue**: `const btn = event?.target?.closest('.sh-export-btn')` uses the deprecated implicit `event` global. This works when called from inline `onclick` but would fail if called programmatically.
+- **Recommended fix**: Pass `event` explicitly: `exportDashboard(format, event)`. Not fixed because all current call sites are inline onclick handlers where `event` is implicitly available.
+
+### F014: prompt-builder.js uses native prompt/confirm/alert
+- **File**: `frontend/prompt-builder.js`, lines 288, 352, 354, 360, 478, 488, 538
+- **Issue**: Uses native `prompt()`, `confirm()`, `alert()` instead of the styled `stratosPrompt()`, `stratosConfirm()`, `showToast()` used everywhere else. Causes jarring UX inconsistency.
+- **Recommended fix**: Replace with styled equivalents. Not fixed because it's a UX issue, not a functional bug, and the prompt-builder is a dev tool.
+
+### F015: Service worker caches non-auth API responses
+- **File**: `frontend/sw.js`, lines 56-73
+- **Issue**: API responses not in `NO_CACHE_API` list (e.g., `/api/tts/voices`, `/api/feed-catalog/*`, `/api/agent-status`) are cached and served from cache on network failure. These responses may be profile-specific but the cache key doesn't include the auth token, so a profile switch could serve stale data.
+- **Recommended fix**: Either add more endpoints to `NO_CACHE_API` or include a profile identifier in the cache key. Not fixed because the SW is network-first (cache only on network failure) and the impact is limited to offline scenarios.
+
+### F016: `_gamesEntities` comparison mismatch in entity bar
+- **File**: `frontend/games-ui.js`, line 368
+- **Issue**: `_gamesActiveNpc.toLowerCase().replace(/ /g, '_') === e.name` compares the NPC display name (spaces→underscores) against the entity `name` field. But in `_gamesSelectEntity()` (line 383), `_gamesActiveNpc` is set to `displayName` (with spaces). The `_gamesSetNpc` and `_gamesAutoDetectNpc` functions also use display names. So the comparison in the entity bar highlight is inconsistent — it may fail to highlight the active character chip if the display name contains spaces that don't match the `name` field.
+- **Recommended fix**: Compare against `e.display_name` instead of `e.name` (after the transform). Not fixed because the comparison happens to work when names are single words (no spaces), which is the common case.

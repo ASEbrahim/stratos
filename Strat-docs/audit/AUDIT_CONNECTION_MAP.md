@@ -78,9 +78,45 @@
 | youtube.js | YouTube panel, insights modal, lens viewer |
 | ui.js | Theme system, chart theming, stars, perf mode |
 | auth.js | Login/register forms, session management |
-| market.js | TradingView chart wrapper |
-| nav.js | Sidebar navigation |
-| mobile.js | Mobile responsive layout |
-| stt.js | Speech-to-text mic button |
-| tts-settings.js | Voice selection UI |
-| codex.js | Codex viewer |
+| market.js | TradingView chart wrapper, OHLC data resolution, timeframe switching |
+| markets-panel.js | Multi-chart grid, heatmap overview, ticker intel sidebar |
+| fullscreen-chart.js | Binance-style fullscreen chart with drawing tools, intel panel, embedded agent |
+| fullscreen-chart-utils.js | SMA calculation, OHLC data extraction, price formatting |
+| nav.js | Sidebar navigation, section collapse, tab switching, resize handle |
+| mobile.js | Touch gestures (swipe sidebar, card swipe, pull-to-refresh), bottom nav, PWA install |
+| stt.js | Speech-to-text mic button, hold-to-record, MediaRecorder API |
+| tts-settings.js | Voice picker (Kokoro + Edge-TTS), speed control, per-persona voice overrides |
+| codex.js | Codex browser modal, category/term navigation, search |
+| games-ui.js | Scenario selector, entity management, RP mode toggle, generation polling |
+| file-browser.js | Nautilus-style file browser/editor, persona-scoped directories, drag/resize |
+| persona-context.js | Per-persona system context editor, version history, revert |
+| scan-history.js | Scan history panel, export (CSV/JSON) |
+| wizard.js | Onboarding wizard, category generation, AI suggestions |
+| wizard-data.js | Wizard data constants (categories, interests, role keywords) |
+| settings-categories.js | Dynamic category rendering, add/remove/toggle |
+| settings-sources.js | News source catalog, custom RSS feeds, RSS auto-discovery |
+| settings-tickers.js | Ticker management, drag-drop reorder, presets |
+| theme-editor.js | Real-time CSS variable tweaker, per-theme presets |
+| ui-dialogs.js | Toast notifications, styled prompt/confirm modals |
+| ui-sync.js | localStorage-to-DB sync for UI settings, debounced persistence |
+| workspace.js | Profile export/import, preference signals, workspace stats |
+| agent-customizer.js | Fullscreen agent appearance settings (opacity, blur, fonts, presets) |
+| agent-suggestions.js | Persona-aware suggestion chips, response follow-up chips |
+| agent-tickers.js | Watchlist widget, ticker/category commands via agent chat |
+| prompt-builder.js | Sprint prompt builder form, templates, history |
+| auth-star-canvas.js | Interactive star field on auth screen |
+| auth-styles.js | Auth overlay CSS injection |
+| tour.js | Guided tour system (basic + explore), spotlight overlay, step navigation |
+| sw.js | Service worker — network-first caching, offline shell |
+
+## Auth Token Key Usage (Session 2 Discovery)
+
+The canonical auth token key is `stratos_auth_token` (defined in `auth.js` as `AUTH_TOKEN_KEY`).
+
+| Pattern | Files | Status |
+|---------|-------|--------|
+| `getAuthToken()` | Most files | Correct |
+| `localStorage.getItem('auth_token')` | app.js, feed.js, settings-sources.js | **Fixed in C012** |
+| `localStorage.getItem('stratos_token')` | settings-tickers.js | **Fixed in C013** |
+| `localStorage.getItem('stratos_session_token')` | prompt-builder.js, agent.js | **Fixed in C014** (agent.js: F010) |
+| `Authorization: Bearer` header | settings-tickers.js | **Fixed in C013** (backend only reads X-Auth-Token) |
