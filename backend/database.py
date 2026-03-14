@@ -636,10 +636,13 @@ class Database:
 
 # Singleton instance
 _db_instance = None
+_db_instance_lock = threading.Lock()
 
 def get_database(db_path: str = "strat_os.db") -> Database:
-    """Get or create database instance."""
+    """Get or create database instance (thread-safe singleton)."""
     global _db_instance
     if _db_instance is None:
-        _db_instance = Database(db_path)
+        with _db_instance_lock:
+            if _db_instance is None:
+                _db_instance = Database(db_path)
     return _db_instance
