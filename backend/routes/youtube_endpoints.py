@@ -347,22 +347,23 @@ def handle_post(handler, strat, auth, path):
             reprocess = body.get('reprocess', False)
 
             if reprocess:
-                cursor = strat.db.conn.cursor()
-                # Delete all insights for this channel's videos
-                cursor.execute(
-                    """DELETE FROM video_insights WHERE video_id IN
-                       (SELECT id FROM youtube_videos WHERE channel_id = ? AND profile_id = ?)""",
-                    (ch_id, handler._profile_id)
-                )
-                # Reset all videos to pending, clear transcripts
-                cursor.execute(
-                    """UPDATE youtube_videos SET status = 'pending', transcript_text = NULL,
-                       transcript_method = NULL, transcript_language = NULL, error_message = NULL
-                       WHERE channel_id = ? AND profile_id = ?""",
-                    (ch_id, handler._profile_id)
-                )
-                reset_count = cursor.rowcount
-                strat.db._commit()
+                import sqlite3 as _sq
+                _db_path = str(strat.db.db_path)
+                with _sq.connect(_db_path) as _rpc:
+                    _rpc.execute("PRAGMA busy_timeout = 5000")
+                    _rpc.execute(
+                        """DELETE FROM video_insights WHERE video_id IN
+                           (SELECT id FROM youtube_videos WHERE channel_id = ? AND profile_id = ?)""",
+                        (ch_id, handler._profile_id)
+                    )
+                    _rpc.execute(
+                        """UPDATE youtube_videos SET status = 'pending', transcript_text = NULL,
+                           transcript_method = NULL, transcript_language = NULL, error_message = NULL
+                           WHERE channel_id = ? AND profile_id = ?""",
+                        (ch_id, handler._profile_id)
+                    )
+                    reset_count = _rpc.total_changes
+                    _rpc.commit()
                 logger.info(f"Re-process channel {ch_id}: reset {reset_count} videos to pending")
                 _send_json(handler, {"ok": True, "reset": reset_count, "new_videos": 0})
             else:
@@ -581,23 +582,28 @@ def handle_post(handler, strat, auth, path):
         if not video_id:
             _send_json(handler, {"error": "video_id required"}, 400)
             return True
-        cursor = strat.db.conn.cursor()
-        cursor.execute(
-            "UPDATE youtube_videos SET status = 'pending', transcript_text = NULL, error_message = NULL "
-            "WHERE id = ? AND profile_id = ? AND status IN ('transcribing', 'extracting', 'processing', 'failed', 'low_quality')",
-            (int(video_id), handler._profile_id)
-        )
-        affected = cursor.rowcount
-        if affected:
-            # Also clear insights from bad/partial data
-            cursor.execute(
-                "DELETE FROM video_insights WHERE video_id = ? AND profile_id = ?",
-                (int(video_id), handler._profile_id)
-            )
-            strat.db._commit()
-            _send_json(handler, {"ok": True, "status": "cancelled"})
-        else:
-            _send_json(handler, {"error": "Video not found or not in cancellable state"}, 404)
+        try:
+            import sqlite3 as _sq
+            _db_path = str(strat.db.db_path)
+            with _sq.connect(_db_path) as _cc:
+                _cc.execute("PRAGMA busy_timeout = 5000")
+                _cc.execute(
+                    "UPDATE youtube_videos SET status = 'pending', transcript_text = NULL, error_message = NULL "
+                    "WHERE id = ? AND profile_id = ? AND status IN ('transcribing', 'extracting', 'processing', 'failed', 'low_quality')",
+                    (int(video_id), handler._profile_id)
+                )
+                affected = _cc.total_changes
+                if affected:
+                    _cc.execute(
+                        "DELETE FROM video_insights WHERE video_id = ? AND profile_id = ?",
+                        (int(video_id), handler._profile_id)
+                    )
+                    _cc.commit()
+                    _send_json(handler, {"ok": True, "status": "cancelled"})
+                else:
+                    _send_json(handler, {"error": "Video not found or not in cancellable state"}, 404)
+        except Exception as e:
+            _send_json(handler, {"error": str(e)}, 500)
         return True
 
     if path == "/api/youtube/retranscribe":
@@ -605,28 +611,31 @@ def handle_post(handler, strat, auth, path):
         if not video_id:
             _send_json(handler, {"error": "video_id required"}, 400)
             return True
-        cursor = strat.db.conn.cursor()
-        cursor.execute(
-            "SELECT id, video_id, title, profile_id FROM youtube_videos WHERE id = ? AND profile_id = ?",
-            (int(video_id), handler._profile_id)
-        )
-        vrow = cursor.fetchone()
-        if not vrow:
-            _send_json(handler, {"error": "Video not found"}, 404)
+        # Use independent connection to avoid lock contention
+        import sqlite3 as _sq
+        _db_path = str(strat.db.db_path)
+        try:
+            with _sq.connect(_db_path) as _rc:
+                _rc.row_factory = _sq.Row
+                _rc.execute("PRAGMA busy_timeout = 5000")
+                _rc.execute(
+                    "SELECT id, video_id, title, profile_id FROM youtube_videos WHERE id = ? AND profile_id = ?",
+                    (int(video_id), handler._profile_id)
+                )
+                vrow = _rc.execute(
+                    "SELECT id, video_id, title, profile_id FROM youtube_videos WHERE id = ? AND profile_id = ?",
+                    (int(video_id), handler._profile_id)
+                ).fetchone()
+                if not vrow:
+                    _send_json(handler, {"error": "Video not found"}, 404)
+                    return True
+                video = dict(vrow)
+                _rc.execute("UPDATE youtube_videos SET status = 'pending', transcript_text = NULL WHERE id = ?", (video['id'],))
+                _rc.execute("DELETE FROM video_insights WHERE video_id = ? AND profile_id = ?", (video['id'], handler._profile_id))
+                _rc.commit()
+        except Exception as e:
+            _send_json(handler, {"error": str(e)}, 500)
             return True
-        video = dict(vrow)
-
-        # Reset status and clear bad transcript
-        cursor.execute(
-            "UPDATE youtube_videos SET status = 'pending', transcript_text = NULL WHERE id = ?",
-            (video['id'],)
-        )
-        # Also clear any insights derived from the bad transcript
-        cursor.execute(
-            "DELETE FROM video_insights WHERE video_id = ? AND profile_id = ?",
-            (video['id'], handler._profile_id)
-        )
-        strat.db._commit()
         _send_json(handler, {"ok": True, "status": "queued"})
 
         def _retranscribe():
@@ -760,27 +769,28 @@ def handle_delete(handler, strat, auth, path):
         return False
 
     try:
+        import sqlite3 as _sq
         ch_id = int(path.split("/")[-1])
         profile_id = handler._profile_id
         logger.info(f"DELETE channel {ch_id} for profile {profile_id}")
-        cursor = strat.db.conn.cursor()
-        # Delete insights for this channel's videos
-        cursor.execute(
-            """DELETE FROM video_insights WHERE video_id IN
-               (SELECT id FROM youtube_videos WHERE channel_id = ? AND profile_id = ?)""",
-            (ch_id, profile_id)
-        )
-        # Delete videos
-        cursor.execute(
-            "DELETE FROM youtube_videos WHERE channel_id = ? AND profile_id = ?",
-            (ch_id, profile_id)
-        )
-        # Delete channel
-        cursor.execute(
-            "DELETE FROM youtube_channels WHERE id = ? AND profile_id = ?",
-            (ch_id, profile_id)
-        )
-        strat.db._commit()
+        # Use independent connection to avoid lock contention with worker
+        _db_path = str(strat.db.db_path)
+        with _sq.connect(_db_path) as _dc:
+            _dc.execute("PRAGMA busy_timeout = 5000")
+            _dc.execute(
+                """DELETE FROM video_insights WHERE video_id IN
+                   (SELECT id FROM youtube_videos WHERE channel_id = ? AND profile_id = ?)""",
+                (ch_id, profile_id)
+            )
+            _dc.execute(
+                "DELETE FROM youtube_videos WHERE channel_id = ? AND profile_id = ?",
+                (ch_id, profile_id)
+            )
+            _dc.execute(
+                "DELETE FROM youtube_channels WHERE id = ? AND profile_id = ?",
+                (ch_id, profile_id)
+            )
+            _dc.commit()
         _send_json(handler, {"ok": True})
     except Exception as e:
         logger.error(f"Delete channel failed: {e}")
