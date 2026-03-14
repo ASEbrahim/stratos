@@ -198,7 +198,8 @@ def create_item_file(scenario_path, item_data):
     item_dir = os.path.join(scenario_path, 'items', folder)
     os.makedirs(item_dir, exist_ok=True)
 
-    item_path = os.path.join(item_dir, f"{item_data['id']}.md")
+    safe_id = os.path.basename(item_data['id']).replace('..', '_')
+    item_path = os.path.join(item_dir, f"{safe_id}.md")
     with open(item_path, 'w') as f:
         f.write(item_data.get('description', f"# {item_data['name']}\n\n(No description yet)"))
 
