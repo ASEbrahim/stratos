@@ -408,7 +408,7 @@ def handle_get(handler, strat, auth, path, output_dir=None):
             health["db_size_mb"] = 0
         # Last scan
         try:
-            scans = strat.db.get_scan_log(1)
+            scans = strat.db.get_scan_log(1, profile_id=None)
             if scans:
                 s = scans[0]
                 health["last_scan"] = {
