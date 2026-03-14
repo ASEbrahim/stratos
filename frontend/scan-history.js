@@ -18,7 +18,9 @@ async function openScanHistory() {
     // Fetch log
     let scans = [];
     try {
-        const r = await fetch('/api/scan-log');
+        const r = await fetch('/api/scan-log', {
+            headers: { 'X-Auth-Token': typeof getAuthToken === 'function' ? getAuthToken() : '' }
+        });
         if (r.ok) scans = await r.json();
     } catch (e) { console.error('Failed to fetch scan log:', e); }
 
@@ -124,7 +126,9 @@ async function exportDashboard(format) {
     const btn = event?.target?.closest('.sh-export-btn');
     if (btn) { btn.disabled = true; btn.style.opacity = '.5'; }
     try {
-        const r = await fetch(`/api/export?format=${format}`);
+        const r = await fetch(`/api/export?format=${format}`, {
+            headers: { 'X-Auth-Token': typeof getAuthToken === 'function' ? getAuthToken() : '' }
+        });
         if (!r.ok) throw new Error(`Export failed: ${r.status}`);
         const blob = await r.blob();
         const url = URL.createObjectURL(blob);
