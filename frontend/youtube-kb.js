@@ -255,7 +255,7 @@ function _ykbRenderExpanded(chId) {
             <div style="flex:1;min-width:0;">
                 <div style="font-size:13px;font-weight:600;color:#e2e8f0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:0 0 6px rgba(52,211,153,0.1);">${_ykbEsc(activeVid.title)}</div>
             </div>
-            <span class="ykb-status ${statusClass}">${_ykbEsc(activeVid.status || 'pending')}</span>
+            <span class="ykb-status ${statusClass}" ${activeVid.error_message ? `title="${_ykbEsc(activeVid.error_message)}" style="cursor:help;"` : ''}>${_ykbEsc(activeVid.status || 'pending')}</span>
             ${method ? `<span style="font-size:9px;padding:2px 6px;border-radius:4px;background:rgba(167,139,250,0.1);color:#a78bfa;">${_ykbEsc(method)}</span>` : ''}
         </div>`;
         // Video action toolbar — prominent, full width
@@ -296,10 +296,11 @@ function _ykbRenderExpanded(chId) {
             const isActive = activeVid && activeVid.id === v.id;
             const thumbUrl = `https://img.youtube.com/vi/${_ykbEsc(v.video_id)}/mqdefault.jpg`;
             const statusClass = _ykbStatusClass(v.status);
+            const errTip = v.error_message ? ` title="${_ykbEsc(v.error_message)}"` : '';
             html += `<div class="ykb-strip-item ${isActive ? 'active' : ''}" onclick="_ykbPlayVideo(${chId},${v.id})">
                 <img src="${thumbUrl}" class="ykb-strip-thumb" alt="">
                 <div class="ykb-strip-title">${_ykbEsc(v.title)}</div>
-                <span class="ykb-status ${statusClass}" style="margin-top:2px;">${_ykbEsc(v.status || 'pending')}</span>
+                <span class="ykb-status ${statusClass}" style="margin-top:2px;cursor:${v.error_message ? 'help' : 'default'};"${errTip}>${_ykbEsc(v.status || 'pending')}</span>
             </div>`;
         });
         html += `</div>`;
@@ -600,13 +601,21 @@ async function _ykbExtractAll(chId) {
 }
 
 async function _ykbProcessAll(chId) {
-    _ykbShowToast('Processing videos...', '#fbbf24');
+    _ykbShowToast('Discovering & processing videos...', '#fbbf24');
     try {
-        const res = await fetch(`/api/youtube/process/${chId}`, { method: 'POST', headers: _ykbAuthHeader() });
+        const res = await fetch(`/api/youtube/process/${chId}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', ..._ykbAuthHeader() },
+            body: JSON.stringify({})
+        });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
-        _ykbShowToast(data.message || 'Processing started', '#34d399');
-        setTimeout(() => { _ykbLoadVideos(chId).then(() => _ykbRender()); }, 3000);
+        const msg = data.new_videos ? `Found ${data.new_videos} new videos` : (data.reset ? `Reset ${data.reset} videos` : 'Processing started');
+        _ykbShowToast(msg, '#34d399');
+        // Reload videos immediately and again after delay
+        await _ykbLoadVideos(chId);
+        _ykbRender();
+        setTimeout(() => { _ykbLoadVideos(chId).then(() => _ykbRender()); }, 5000);
     } catch (err) {
         _ykbShowToast('Processing failed: ' + err.message, '#ef4444');
     }
