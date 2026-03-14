@@ -553,6 +553,30 @@ def handle_post(handler, strat, auth, path):
         threading.Thread(target=_extract_in_background, daemon=True).start()
         return True
 
+    if path == "/api/youtube/cancel-transcribe":
+        video_id = body.get('video_id')
+        if not video_id:
+            _send_json(handler, {"error": "video_id required"}, 400)
+            return True
+        cursor = strat.db.conn.cursor()
+        cursor.execute(
+            "UPDATE youtube_videos SET status = 'pending', transcript_text = NULL, error_message = NULL "
+            "WHERE id = ? AND profile_id = ? AND status IN ('transcribing', 'extracting', 'processing', 'failed', 'low_quality')",
+            (int(video_id), handler._profile_id)
+        )
+        affected = cursor.rowcount
+        if affected:
+            # Also clear insights from bad/partial data
+            cursor.execute(
+                "DELETE FROM video_insights WHERE video_id = ? AND profile_id = ?",
+                (int(video_id), handler._profile_id)
+            )
+            strat.db._commit()
+            _send_json(handler, {"ok": True, "status": "cancelled"})
+        else:
+            _send_json(handler, {"error": "Video not found or not in cancellable state"}, 404)
+        return True
+
     if path == "/api/youtube/retranscribe":
         video_id = body.get('video_id')
         if not video_id:

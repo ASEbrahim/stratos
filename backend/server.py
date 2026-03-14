@@ -610,6 +610,19 @@ def start_server(strat, auth, port=8080, open_browser=True):
     server = ThreadedHTTPServer(("0.0.0.0", port), HandlerClass)
     logger.info(f"Frontend server started at http://localhost:{port}")
 
+    # Reset any stuck transcription statuses from previous server run
+    try:
+        _reset_cursor = strat.db.conn.cursor()
+        _reset_cursor.execute(
+            "UPDATE youtube_videos SET status = 'pending' WHERE status IN ('transcribing', 'extracting', 'processing')"
+        )
+        _stuck_count = _reset_cursor.rowcount
+        if _stuck_count:
+            strat.db._commit()
+            logger.info(f"Reset {_stuck_count} stuck video(s) to pending")
+    except Exception as e:
+        logger.debug(f"Stuck status reset: {e}")
+
     # Start YouTube background worker
     try:
         from processors.youtube_worker import start_youtube_worker

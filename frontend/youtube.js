@@ -369,16 +369,23 @@ async function _ytLoadVideoList(channelId, el) {
                 const isActive = v.status === 'processing' || v.status === 'transcribing' || v.status === 'extracting';
                 const viewable = v.status === 'complete' || v.status === 'transcribed' || v.status === 'low_quality';
                 const clickable = viewable ? `onclick="event.stopPropagation();_ytShowInsights(${v.id})" class="cursor-pointer"` : '';
-                const canRetranscribe = v.status !== 'transcribing' && v.status !== 'processing' && v.status !== 'extracting' && v.status !== 'pending';
-                const retranscribeBtn = canRetranscribe
-                    ? `<button onclick="event.stopPropagation();_ytRetranscribeVideo(${v.id})" class="yi-header-btn" style="padding:2px 8px;font-size:10px;gap:3px;flex-shrink:0;" title="Re-transcribe this video">
+                const isStuck = v.status === 'transcribing' || v.status === 'processing' || v.status === 'extracting';
+                const canRetranscribe = !isStuck && v.status !== 'pending';
+                let actionBtn = '';
+                if (isStuck) {
+                    actionBtn = `<button onclick="event.stopPropagation();_ytCancelTranscribe(${v.id})" class="yi-header-btn" style="padding:2px 8px;font-size:10px;gap:3px;flex-shrink:0;color:#f87171;" title="Cancel and reset">
+                        <i data-lucide="x-circle" style="width:10px;height:10px;"></i>
+                    </button>`;
+                } else if (canRetranscribe) {
+                    actionBtn = `<button onclick="event.stopPropagation();_ytRetranscribeVideo(${v.id})" class="yi-header-btn" style="padding:2px 8px;font-size:10px;gap:3px;flex-shrink:0;" title="Re-transcribe this video">
                         <i data-lucide="refresh-cw" style="width:10px;height:10px;"></i>
-                    </button>` : '';
+                    </button>`;
+                }
 
                 return `<div data-yt-video="${v.video_id}" data-yt-db-id="${v.id}" ${clickable} class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors" onmouseenter="this.style.background='var(--bg-hover)'" onmouseleave="this.style.background='transparent'">
                     <i data-lucide="${statusIcon}" class="w-4 h-4 ${statusColor} flex-shrink-0${isActive ? ' animate-pulse' : ''}"></i>
                     <span class="text-[13px] flex-1 truncate" style="color:var(--text-secondary)">${_escHtml(v.title || v.video_id)}</span>
-                    ${retranscribeBtn}
+                    ${actionBtn}
                     <span class="text-[10px] yt-video-status ${statusColor}" style="font-weight:600;">${v.status}</span>
                 </div>`;
             }).join('');
@@ -835,6 +842,33 @@ async function _ytRetranscribeVideo(dbId) {
     }
 }
 window._ytRetranscribeVideo = _ytRetranscribeVideo;
+
+async function _ytCancelTranscribe(dbId) {
+    try {
+        const r = await fetch('/api/youtube/cancel-transcribe', {
+            method: 'POST',
+            headers: _ytHeaders(),
+            body: JSON.stringify({ video_id: dbId }),
+        });
+        if (r.ok) {
+            if (typeof showToast === 'function') showToast('Transcription cancelled — video reset to pending', 'info');
+            const el = document.querySelector(`[data-yt-db-id="${dbId}"] .yt-video-status`);
+            if (el) { el.textContent = 'pending'; el.className = 'text-[10px] yt-video-status text-slate-500'; }
+            // Re-render video list to update buttons
+            const channelCard = document.querySelector(`[data-yt-db-id="${dbId}"]`)?.closest('[data-yt-channel]');
+            if (channelCard) {
+                const chId = channelCard.dataset.ytChannel;
+                if (chId) _ytLoadVideos(parseInt(chId));
+            }
+        } else {
+            const d = await r.json().catch(() => ({}));
+            if (typeof showToast === 'function') showToast(d.error || 'Cancel failed', 'error');
+        }
+    } catch (e) {
+        if (typeof showToast === 'function') showToast('Cancel failed', 'error');
+    }
+}
+window._ytCancelTranscribe = _ytCancelTranscribe;
 
 function _ytPollForRetranscribe(videoId) {
     const startTime = Date.now();
