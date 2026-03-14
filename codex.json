@@ -173,6 +173,44 @@
           ],
           "added_in": "Sprint 2",
           "type": "concept"
+        },
+        {
+          "term": "AUTH_TOKEN_KEY",
+          "definition": "The canonical localStorage key for the auth token: 'stratos_auth_token'. Defined in auth.js. All frontend files should use getAuthToken() to read it. Prior to Audit Session 2, five files used wrong key names ('auth_token', 'stratos_token', 'stratos_session_token') causing silent auth failures.",
+          "files": [
+            "frontend/auth.js"
+          ],
+          "related": [
+            "CORSHandler",
+            "X-Auth-Token"
+          ],
+          "added_in": "Audit Session 2",
+          "type": "constant"
+        },
+        {
+          "term": "X-Auth-Token",
+          "definition": "The HTTP header used for authentication in all API requests. The backend's CORSHandler reads this header via handler.headers.get('X-Auth-Token'). Never use 'Authorization: Bearer' — the backend ignores it.",
+          "files": [
+            "backend/server.py"
+          ],
+          "related": [
+            "AUTH_TOKEN_KEY",
+            "CORSHandler"
+          ],
+          "added_in": "Audit Session 2",
+          "type": "convention"
+        },
+        {
+          "term": "Guided Tour",
+          "definition": "Two-tier onboarding system in tour.js. BASIC_TOUR (11 steps) covers first-time setup: profile, sources, tickers, scan. EXPLORE_TOUR (7 steps) covers markets panel, chart tools, feed cards, display settings. Uses SVG mask cutout spotlight with positioned tooltip cards. Persists step progress to localStorage. Works across all 8 themes.",
+          "files": [
+            "frontend/tour.js"
+          ],
+          "related": [
+            "Theme System"
+          ],
+          "added_in": "Audit Session 2",
+          "type": "feature"
         }
       ]
     },

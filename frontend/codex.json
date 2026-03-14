@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "generated": "2026-03-13",
+  "generated": "2026-03-14",
   "categories": [
     {
       "name": "Architecture",
@@ -173,6 +173,44 @@
           ],
           "added_in": "Sprint 2",
           "type": "concept"
+        },
+        {
+          "term": "AUTH_TOKEN_KEY",
+          "definition": "The canonical localStorage key for the auth token: 'stratos_auth_token'. Defined in auth.js. All frontend files should use getAuthToken() to read it. Prior to Audit Session 2, five files used wrong key names ('auth_token', 'stratos_token', 'stratos_session_token') causing silent auth failures.",
+          "files": [
+            "frontend/auth.js"
+          ],
+          "related": [
+            "CORSHandler",
+            "X-Auth-Token"
+          ],
+          "added_in": "Audit Session 2",
+          "type": "constant"
+        },
+        {
+          "term": "X-Auth-Token",
+          "definition": "The HTTP header used for authentication in all API requests. The backend's CORSHandler reads this header via handler.headers.get('X-Auth-Token'). Never use 'Authorization: Bearer' — the backend ignores it.",
+          "files": [
+            "backend/server.py"
+          ],
+          "related": [
+            "AUTH_TOKEN_KEY",
+            "CORSHandler"
+          ],
+          "added_in": "Audit Session 2",
+          "type": "convention"
+        },
+        {
+          "term": "Guided Tour",
+          "definition": "Two-tier onboarding system in tour.js. BASIC_TOUR (11 steps) covers first-time setup: profile, sources, tickers, scan. EXPLORE_TOUR (7 steps) covers markets panel, chart tools, feed cards, display settings. Uses SVG mask cutout spotlight with positioned tooltip cards. Persists step progress to localStorage. Works across all 8 themes.",
+          "files": [
+            "frontend/tour.js"
+          ],
+          "related": [
+            "Theme System"
+          ],
+          "added_in": "Audit Session 2",
+          "type": "feature"
         }
       ]
     },
@@ -554,6 +592,16 @@
           ],
           "added_in": "Sprint 7",
           "type": "module"
+        },
+        {
+          "term": "Scenario Updater",
+          "definition": "Auto-update scenario files after each AI response.",
+          "files": [
+            "backend/processors/scenario_updater.py"
+          ],
+          "related": [],
+          "added_in": "Auto-detected",
+          "type": "python module"
         }
       ]
     },
@@ -710,6 +758,26 @@
           ],
           "added_in": "Sprint 3",
           "type": "concept"
+        },
+        {
+          "term": "Scorer Adaptive",
+          "definition": "Python Module: scorer_adaptive",
+          "files": [
+            "backend/processors/scorer_adaptive.py"
+          ],
+          "related": [],
+          "added_in": "Auto-detected",
+          "type": "python module"
+        },
+        {
+          "term": "Scorer Base",
+          "definition": "STRAT_OS — Scorer Base Module",
+          "files": [
+            "backend/processors/scorer_base.py"
+          ],
+          "related": [],
+          "added_in": "Auto-detected",
+          "type": "python module"
         }
       ]
     },
@@ -868,6 +936,36 @@
           ],
           "added_in": "Sprint YouTube",
           "type": "feature"
+        },
+        {
+          "term": "Lenses",
+          "definition": "Python Module: lenses",
+          "files": [
+            "backend/processors/lenses.py"
+          ],
+          "related": [],
+          "added_in": "Auto-detected",
+          "type": "python module"
+        },
+        {
+          "term": "Youtube",
+          "definition": "Python Module: youtube",
+          "files": [
+            "backend/processors/youtube.py"
+          ],
+          "related": [],
+          "added_in": "Auto-detected",
+          "type": "python module"
+        },
+        {
+          "term": "Youtube Worker",
+          "definition": "YouTube Background Worker — Processes video queue (transcription + lens extraction).",
+          "files": [
+            "backend/processors/youtube_worker.py"
+          ],
+          "related": [],
+          "added_in": "Auto-detected",
+          "type": "python module"
         }
       ]
     },
@@ -1057,6 +1155,126 @@
           ],
           "added_in": "Migration 002",
           "type": "table"
+        },
+        {
+          "term": "Briefings",
+          "definition": "Database table: briefings",
+          "files": [
+            "backend/migrations.py"
+          ],
+          "related": [],
+          "added_in": "Auto-detected",
+          "type": "db table"
+        },
+        {
+          "term": "Entities",
+          "definition": "Database table: entities",
+          "files": [
+            "backend/migrations.py"
+          ],
+          "related": [],
+          "added_in": "Auto-detected",
+          "type": "db table"
+        },
+        {
+          "term": "Entity Mentions",
+          "definition": "Database table: entity_mentions",
+          "files": [
+            "backend/migrations.py"
+          ],
+          "related": [],
+          "added_in": "Auto-detected",
+          "type": "db table"
+        },
+        {
+          "term": "Invite Codes",
+          "definition": "Database table: invite_codes",
+          "files": [
+            "backend/migrations.py"
+          ],
+          "related": [],
+          "added_in": "Auto-detected",
+          "type": "db table"
+        },
+        {
+          "term": "Market Snapshots",
+          "definition": "Database table: market_snapshots",
+          "files": [
+            "backend/migrations.py"
+          ],
+          "related": [],
+          "added_in": "Auto-detected",
+          "type": "db table"
+        },
+        {
+          "term": "Persona Context",
+          "definition": "Database table: persona_context",
+          "files": [
+            "backend/migrations.py"
+          ],
+          "related": [],
+          "added_in": "Auto-detected",
+          "type": "db table"
+        },
+        {
+          "term": "Scan Log",
+          "definition": "Database table: scan_log",
+          "files": [
+            "backend/migrations.py"
+          ],
+          "related": [],
+          "added_in": "Auto-detected",
+          "type": "db table"
+        },
+        {
+          "term": "User Files",
+          "definition": "Database table: user_files",
+          "files": [
+            "backend/migrations.py"
+          ],
+          "related": [],
+          "added_in": "Auto-detected",
+          "type": "db table"
+        },
+        {
+          "term": "User Preference Signals",
+          "definition": "Database table: user_preference_signals",
+          "files": [
+            "backend/migrations.py"
+          ],
+          "related": [],
+          "added_in": "Auto-detected",
+          "type": "db table"
+        },
+        {
+          "term": "Users",
+          "definition": "Database table: users",
+          "files": [
+            "backend/migrations.py"
+          ],
+          "related": [],
+          "added_in": "Auto-detected",
+          "type": "db table"
+        },
+        {
+          "term": "Youtube Channels",
+          "definition": "Database table: youtube_channels",
+          "files": [
+            "backend/migrations.py"
+          ],
+          "related": [],
+          "added_in": "Auto-detected",
+          "type": "db table"
+        },
+        {
+          "term": "Youtube Videos",
+          "definition": "Database table: youtube_videos",
+          "files": [
+            "backend/migrations.py"
+          ],
+          "related": [],
+          "added_in": "Auto-detected",
+          "type": "db table"
         }
       ]
     },
@@ -1195,6 +1413,266 @@
           "related": [],
           "added_in": "Sprint 1",
           "type": "module"
+        },
+        {
+          "term": "Agent Customizer",
+          "definition": "Js Module: agent-customizer",
+          "files": [
+            "frontend/agent-customizer.js"
+          ],
+          "related": [],
+          "added_in": "Auto-detected",
+          "type": "js module"
+        },
+        {
+          "term": "Agent Suggestions",
+          "definition": "Js Module: agent-suggestions",
+          "files": [
+            "frontend/agent-suggestions.js"
+          ],
+          "related": [],
+          "added_in": "Auto-detected",
+          "type": "js module"
+        },
+        {
+          "term": "Agent Tickers",
+          "definition": "Js Module: agent-tickers",
+          "files": [
+            "frontend/agent-tickers.js"
+          ],
+          "related": [],
+          "added_in": "Auto-detected",
+          "type": "js module"
+        },
+        {
+          "term": "App",
+          "definition": "Js Module: app",
+          "files": [
+            "frontend/app.js"
+          ],
+          "related": [],
+          "added_in": "Auto-detected",
+          "type": "js module"
+        },
+        {
+          "term": "Auth Star Canvas",
+          "definition": "* STRAT_OS Auth — Interactive Star Canvas Engine",
+          "files": [
+            "frontend/auth-star-canvas.js"
+          ],
+          "related": [],
+          "added_in": "Auto-detected",
+          "type": "js module"
+        },
+        {
+          "term": "Auth Styles",
+          "definition": "* STRAT_OS Auth — Styles",
+          "files": [
+            "frontend/auth-styles.js"
+          ],
+          "related": [],
+          "added_in": "Auto-detected",
+          "type": "js module"
+        },
+        {
+          "term": "Auth",
+          "definition": "* STRAT_OS Auth — Landing / Login / Register",
+          "files": [
+            "frontend/auth.js"
+          ],
+          "related": [],
+          "added_in": "Auto-detected",
+          "type": "js module"
+        },
+        {
+          "term": "Codex",
+          "definition": "Js Module: codex",
+          "files": [
+            "frontend/codex.js"
+          ],
+          "related": [],
+          "added_in": "Auto-detected",
+          "type": "js module"
+        },
+        {
+          "term": "Feed",
+          "definition": "Js Module: feed",
+          "files": [
+            "frontend/feed.js"
+          ],
+          "related": [],
+          "added_in": "Auto-detected",
+          "type": "js module"
+        },
+        {
+          "term": "Fullscreen Chart Utils",
+          "definition": "* fullscreen-chart-utils.js — Shared utilities for StratOS fullscreen chart",
+          "files": [
+            "frontend/fullscreen-chart-utils.js"
+          ],
+          "related": [],
+          "added_in": "Auto-detected",
+          "type": "js module"
+        },
+        {
+          "term": "Market",
+          "definition": "Js Module: market",
+          "files": [
+            "frontend/market.js"
+          ],
+          "related": [],
+          "added_in": "Auto-detected",
+          "type": "js module"
+        },
+        {
+          "term": "Markets Panel",
+          "definition": "Js Module: markets-panel",
+          "files": [
+            "frontend/markets-panel.js"
+          ],
+          "related": [],
+          "added_in": "Auto-detected",
+          "type": "js module"
+        },
+        {
+          "term": "Mobile",
+          "definition": "* mobile.js — StratOS Mobile Gestures, Touch Interactions & Fullscreen Charts",
+          "files": [
+            "frontend/mobile.js"
+          ],
+          "related": [],
+          "added_in": "Auto-detected",
+          "type": "js module"
+        },
+        {
+          "term": "Nav",
+          "definition": "Js Module: nav",
+          "files": [
+            "frontend/nav.js"
+          ],
+          "related": [],
+          "added_in": "Auto-detected",
+          "type": "js module"
+        },
+        {
+          "term": "Persona Context",
+          "definition": "Js Module: persona-context",
+          "files": [
+            "frontend/persona-context.js"
+          ],
+          "related": [],
+          "added_in": "Auto-detected",
+          "type": "js module"
+        },
+        {
+          "term": "Scan History",
+          "definition": "* STRAT_OS — Scan History Panel",
+          "files": [
+            "frontend/scan-history.js"
+          ],
+          "related": [],
+          "added_in": "Auto-detected",
+          "type": "js module"
+        },
+        {
+          "term": "Settings Categories",
+          "definition": "Js Module: settings-categories",
+          "files": [
+            "frontend/settings-categories.js"
+          ],
+          "related": [],
+          "added_in": "Auto-detected",
+          "type": "js module"
+        },
+        {
+          "term": "Settings Sources",
+          "definition": "Js Module: settings-sources",
+          "files": [
+            "frontend/settings-sources.js"
+          ],
+          "related": [],
+          "added_in": "Auto-detected",
+          "type": "js module"
+        },
+        {
+          "term": "Settings Tickers",
+          "definition": "Js Module: settings-tickers",
+          "files": [
+            "frontend/settings-tickers.js"
+          ],
+          "related": [],
+          "added_in": "Auto-detected",
+          "type": "js module"
+        },
+        {
+          "term": "Settings",
+          "definition": "Js Module: settings",
+          "files": [
+            "frontend/settings.js"
+          ],
+          "related": [],
+          "added_in": "Auto-detected",
+          "type": "js module"
+        },
+        {
+          "term": "Tailwind.Config",
+          "definition": "@type {import('tailwindcss').Config}",
+          "files": [
+            "frontend/tailwind.config.js"
+          ],
+          "related": [],
+          "added_in": "Auto-detected",
+          "type": "js module"
+        },
+        {
+          "term": "Tour",
+          "definition": "* tour.js — StratOS Guided Tour System",
+          "files": [
+            "frontend/tour.js"
+          ],
+          "related": [],
+          "added_in": "Auto-detected",
+          "type": "js module"
+        },
+        {
+          "term": "Tts Settings",
+          "definition": "* TTS Settings — Voice picker, speed, persona voice overrides, preview.",
+          "files": [
+            "frontend/tts-settings.js"
+          ],
+          "related": [],
+          "added_in": "Auto-detected",
+          "type": "js module"
+        },
+        {
+          "term": "Ui Dialogs",
+          "definition": "Js Module: ui-dialogs",
+          "files": [
+            "frontend/ui-dialogs.js"
+          ],
+          "related": [],
+          "added_in": "Auto-detected",
+          "type": "js module"
+        },
+        {
+          "term": "Ui",
+          "definition": "Js Module: ui",
+          "files": [
+            "frontend/ui.js"
+          ],
+          "related": [],
+          "added_in": "Auto-detected",
+          "type": "js module"
+        },
+        {
+          "term": "Workspace",
+          "definition": "Js Module: workspace",
+          "files": [
+            "frontend/workspace.js"
+          ],
+          "related": [],
+          "added_in": "Auto-detected",
+          "type": "js module"
         }
       ]
     },
@@ -1306,6 +1784,156 @@
           "related": [],
           "added_in": "Sprint 3",
           "type": "endpoint"
+        },
+        {
+          "term": "Agent",
+          "definition": "Agent routes — /api/agent-chat, /api/suggest-context, /api/ask, /api/agent-status",
+          "files": [
+            "backend/routes/agent.py"
+          ],
+          "related": [],
+          "added_in": "Auto-detected",
+          "type": "python module"
+        },
+        {
+          "term": "Auth",
+          "definition": "Email-based authentication routes for StratOS.",
+          "files": [
+            "backend/routes/auth.py"
+          ],
+          "related": [],
+          "added_in": "Auto-detected",
+          "type": "python module"
+        },
+        {
+          "term": "Config",
+          "definition": "Config routes — POST /api/config (save), GET /api/config (load)",
+          "files": [
+            "backend/routes/config.py"
+          ],
+          "related": [],
+          "added_in": "Auto-detected",
+          "type": "python module"
+        },
+        {
+          "term": "Controls",
+          "definition": "Control routes — refresh triggers, scan status, ticker presets, agent warmup.",
+          "files": [
+            "backend/routes/controls.py"
+          ],
+          "related": [],
+          "added_in": "Auto-detected",
+          "type": "python module"
+        },
+        {
+          "term": "Data Endpoints",
+          "definition": "Data endpoints — news data, briefing, status, config, profiles, export, feedback,",
+          "files": [
+            "backend/routes/data_endpoints.py"
+          ],
+          "related": [],
+          "added_in": "Auto-detected",
+          "type": "python module"
+        },
+        {
+          "term": "Dev Endpoints",
+          "definition": "Dev endpoints — filesystem context API and prompt builder generation.",
+          "files": [
+            "backend/routes/dev_endpoints.py"
+          ],
+          "related": [],
+          "added_in": "Auto-detected",
+          "type": "python module"
+        },
+        {
+          "term": "Feeds",
+          "definition": "Feed routes — extra RSS feeds, custom user feeds, feed catalog, RSS discovery.",
+          "files": [
+            "backend/routes/feeds.py"
+          ],
+          "related": [],
+          "added_in": "Auto-detected",
+          "type": "python module"
+        },
+        {
+          "term": "Generate",
+          "definition": "Generate routes — /api/generate-profile",
+          "files": [
+            "backend/routes/generate.py"
+          ],
+          "related": [],
+          "added_in": "Auto-detected",
+          "type": "python module"
+        },
+        {
+          "term": "Helpers",
+          "definition": "Shared route handler utilities.",
+          "files": [
+            "backend/routes/helpers.py"
+          ],
+          "related": [],
+          "added_in": "Auto-detected",
+          "type": "python module"
+        },
+        {
+          "term": "Media",
+          "definition": "Media routes — proxy, file upload/list/delete, persona files.",
+          "files": [
+            "backend/routes/media.py"
+          ],
+          "related": [],
+          "added_in": "Auto-detected",
+          "type": "python module"
+        },
+        {
+          "term": "Persona Data",
+          "definition": "Persona data routes — conversations, persona context, scenarios, preferences,",
+          "files": [
+            "backend/routes/persona_data.py"
+          ],
+          "related": [],
+          "added_in": "Auto-detected",
+          "type": "python module"
+        },
+        {
+          "term": "Persona Prompts",
+          "definition": "Persona Prompt Builders — System prompts for each StratOS persona.",
+          "files": [
+            "backend/routes/persona_prompts.py"
+          ],
+          "related": [],
+          "added_in": "Auto-detected",
+          "type": "python module"
+        },
+        {
+          "term": "Personas",
+          "definition": "Python Module: personas",
+          "files": [
+            "backend/routes/personas.py"
+          ],
+          "related": [],
+          "added_in": "Auto-detected",
+          "type": "python module"
+        },
+        {
+          "term": "Wizard",
+          "definition": "Wizard routes — /api/wizard-preselect, /api/wizard-tab-suggest, /api/wizard-rv-items",
+          "files": [
+            "backend/routes/wizard.py"
+          ],
+          "related": [],
+          "added_in": "Auto-detected",
+          "type": "python module"
+        },
+        {
+          "term": "Youtube Endpoints",
+          "definition": "YouTube routes — channel CRUD, video listing, insights, processing.",
+          "files": [
+            "backend/routes/youtube_endpoints.py"
+          ],
+          "related": [],
+          "added_in": "Auto-detected",
+          "type": "python module"
         }
       ]
     },
@@ -1463,6 +2091,16 @@
           ],
           "added_in": "Sprint 2",
           "type": "module"
+        },
+        {
+          "term": "Tts",
+          "definition": "Dual-engine TTS: Kokoro-82M (8 languages, GPU) + Edge-TTS (Arabic, cloud).",
+          "files": [
+            "backend/processors/tts.py"
+          ],
+          "related": [],
+          "added_in": "Auto-detected",
+          "type": "python module"
         }
       ]
     },
@@ -1874,6 +2512,182 @@
           ],
           "added_in": "Sprint 10",
           "type": "feature"
+        },
+        {
+          "term": "Briefing",
+          "definition": "STRAT_OS - Briefing Generator",
+          "files": [
+            "backend/processors/briefing.py"
+          ],
+          "related": [],
+          "added_in": "Auto-detected",
+          "type": "python module"
+        },
+        {
+          "term": "Context Compression",
+          "definition": "Context Compression — Auto-generated state.md and conversation log management.",
+          "files": [
+            "backend/processors/context_compression.py"
+          ],
+          "related": [],
+          "added_in": "Auto-detected",
+          "type": "python module"
+        },
+        {
+          "term": "File Handler",
+          "definition": "File Handler — Per-user file storage with text extraction.",
+          "files": [
+            "backend/processors/file_handler.py"
+          ],
+          "related": [],
+          "added_in": "Auto-detected",
+          "type": "python module"
+        },
+        {
+          "term": "Ocr",
+          "definition": "OCR Pipeline — PaddleOCR-VL via Ollama",
+          "files": [
+            "backend/processors/ocr.py"
+          ],
+          "related": [],
+          "added_in": "Auto-detected",
+          "type": "python module"
+        },
+        {
+          "term": "Persona Context",
+          "definition": "Python Module: persona_context",
+          "files": [
+            "backend/processors/persona_context.py"
+          ],
+          "related": [],
+          "added_in": "Auto-detected",
+          "type": "python module"
+        },
+        {
+          "term": "Profile Generator",
+          "definition": "Profile Generator — AI-powered category generation pipeline.",
+          "files": [
+            "backend/processors/profile_generator.py"
+          ],
+          "related": [],
+          "added_in": "Auto-detected",
+          "type": "python module"
+        },
+        {
+          "term": "Source Resolver",
+          "definition": "Python Module: source_resolver",
+          "files": [
+            "backend/processors/source_resolver.py"
+          ],
+          "related": [],
+          "added_in": "Auto-detected",
+          "type": "python module"
+        },
+        {
+          "term": "Verification",
+          "definition": "Python Module: verification",
+          "files": [
+            "backend/processors/verification.py"
+          ],
+          "related": [],
+          "added_in": "Auto-detected",
+          "type": "python module"
+        },
+        {
+          "term": "Workspace",
+          "definition": "Python Module: workspace",
+          "files": [
+            "backend/processors/workspace.py"
+          ],
+          "related": [],
+          "added_in": "Auto-detected",
+          "type": "python module"
+        }
+      ]
+    },
+    {
+      "name": "Data Fetchers",
+      "icon": "",
+      "terms": [
+        {
+          "term": "Discovery",
+          "definition": "STRAT_OS - Dynamic Entity Discovery",
+          "files": [
+            "backend/fetchers/discovery.py"
+          ],
+          "related": [],
+          "added_in": "Auto-detected",
+          "type": "python module"
+        },
+        {
+          "term": "Extra Feeds",
+          "definition": "STRAT_OS - Extra RSS Feeds (Finance, Politics & Jobs)",
+          "files": [
+            "backend/fetchers/extra_feeds.py"
+          ],
+          "related": [],
+          "added_in": "Auto-detected",
+          "type": "python module"
+        },
+        {
+          "term": "Google Search",
+          "definition": "Python Module: google_search",
+          "files": [
+            "backend/fetchers/google_search.py"
+          ],
+          "related": [],
+          "added_in": "Auto-detected",
+          "type": "python module"
+        },
+        {
+          "term": "Kuwait Scrapers",
+          "definition": "Python Module: kuwait_scrapers",
+          "files": [
+            "backend/fetchers/kuwait_scrapers.py"
+          ],
+          "related": [],
+          "added_in": "Auto-detected",
+          "type": "python module"
+        },
+        {
+          "term": "Market",
+          "definition": "STRAT_OS - Market Data Fetcher",
+          "files": [
+            "backend/fetchers/market.py"
+          ],
+          "related": [],
+          "added_in": "Auto-detected",
+          "type": "python module"
+        },
+        {
+          "term": "News",
+          "definition": "STRAT_OS - News Intelligence Fetcher",
+          "files": [
+            "backend/fetchers/news.py"
+          ],
+          "related": [],
+          "added_in": "Auto-detected",
+          "type": "python module"
+        },
+        {
+          "term": "Searxng Search",
+          "definition": "STRAT_OS - SearXNG Search Integration",
+          "files": [
+            "backend/fetchers/searxng_search.py"
+          ],
+          "related": [],
+          "added_in": "Auto-detected",
+          "type": "python module"
+        },
+        {
+          "term": "Serper Search",
+          "definition": "STRAT_OS - Serper.dev Search Integration",
+          "files": [
+            "backend/fetchers/serper_search.py"
+          ],
+          "related": [],
+          "added_in": "Auto-detected",
+          "type": "python module"
         }
       ]
     }
