@@ -120,9 +120,12 @@ async function checkAuthAndInit() {
                 if (d.authenticated) {
                     setActiveProfile(d.display_name || '');
                     if (d.ui_state && typeof _applyUiStateFromServer === 'function') _applyUiStateFromServer(d.ui_state);
-                    if (typeof loadUiSettingsFromServer === 'function') await loadUiSettingsFromServer();
+                    // Show app immediately — don't block on UI settings load
                     const _app = document.querySelector('.flex.h-screen'); if (_app) _app.style.display = '';
-                    init(); return;
+                    init();
+                    // Load full UI settings in background (non-blocking)
+                    if (typeof loadUiSettingsFromServer === 'function') loadUiSettingsFromServer();
+                    return;
                 }
             }
         }
