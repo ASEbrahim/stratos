@@ -310,7 +310,8 @@ def handle_post(handler, strat, auth, path):
 
     from processors.youtube import YouTubeProcessor
     yt = YouTubeProcessor(strat.config, db=strat.db)
-    body = json.loads(handler.rfile.read(int(handler.headers.get('Content-Length', 0))).decode()) if int(handler.headers.get('Content-Length', 0)) > 0 else {}
+    _cl = int(handler.headers.get('Content-Length', 0))
+    body = json.loads(handler.rfile.read(_cl).decode()) if _cl > 0 else {}
 
     if path == "/api/youtube/channels":
         channel_input = (body.get('channel') or body.get('channel_url') or '').strip()
