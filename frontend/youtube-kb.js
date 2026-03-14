@@ -174,7 +174,7 @@ function _ykbRender() {
                         <div class="ykb-channel-name">${_ykbEsc(ch.channel_name || ch.channel_id)}</div>
                         <div class="ykb-channel-stats">
                             <span>${totalVids} video${totalVids !== 1 ? 's' : ''}</span>
-                            <span>${readyVids} ready</span>
+                            <span>${readyVids} ready</span>${videos.some(v => v.status === "transcribing" || v.status === "extracting") ? '<span style="color:var(--accent-light,#34d399);animation:ykb-pulse 1.5s ease infinite;display:inline-flex;align-items:center;gap:3px;"><span style="width:6px;height:6px;border-radius:50%;background:var(--accent,#10b981);display:inline-block;"></span> Transcribing...</span>' : ""}
                             <span>${pct}% processed</span>
                         </div>
                         <div class="ykb-progress-bar">
@@ -183,8 +183,8 @@ function _ykbRender() {
                     </div>`;
             // Action buttons (stop propagation)
             html += `<div class="ykb-actions" onclick="event.stopPropagation()">
-                        <button class="ykb-btn ykb-btn-secondary" onclick="_ykbExtractAll(${ch.id})" title="Extract transcripts & lyrics for all videos">
-                            <i data-lucide="file-text" class="w-3 h-3"></i> Extract All
+                        <button class="ykb-btn ykb-btn-secondary" onclick="_ykbTranscribeAll(${ch.id})" title="Transcribe all videos & lyrics for all videos">
+                            <i data-lucide="file-text" class="w-3 h-3"></i> Transcribe All
                         </button>
                         <button class="ykb-btn ykb-btn-secondary" onclick="_ykbProcessAll(${ch.id})" title="Run AI processing on all videos">
                             <i data-lucide="sparkles" class="w-3 h-3"></i> Process
@@ -304,9 +304,11 @@ function _ykbRenderExpanded(chId) {
             const thumbUrl = `https://img.youtube.com/vi/${_ykbEsc(v.video_id)}/mqdefault.jpg`;
             const statusClass = _ykbStatusClass(v.status);
             const errTip = v.error_message ? ` title="${_ykbEsc(v.error_message)}"` : '';
-            html += `<div class="ykb-strip-item ${isActive ? 'active' : ''}" onclick="_ykbPlayVideo(${chId},${v.id})">
-                <img src="${thumbUrl}" class="ykb-strip-thumb" alt="">
-                <div class="ykb-strip-title">${_ykbEsc(v.title)}</div>
+            const _isTranscribing = v.status === 'transcribing' || v.status === 'extracting';
+            html += `<div class="ykb-strip-item ${isActive ? 'active' : ''}" onclick="_ykbPlayVideo(${chId},${v.id})" style="position:relative;">
+                <img src="${thumbUrl}" class="ykb-strip-thumb" alt="" style="${_isTranscribing ? 'opacity:0.4;' : ''}">
+                ${_isTranscribing ? `<div style="position:absolute;top:8px;left:50%;transform:translateX(-50%);width:22px;height:22px;border:2.5px solid rgba(255,255,255,0.15);border-top-color:var(--accent,#10b981);border-radius:50%;animation:ykb-pulse 0.8s linear infinite;"></div>` : ''}
+                <div class="ykb-strip-title" style="${_isTranscribing ? 'color:var(--accent-light,#34d399);font-weight:600;' : ''}">${_ykbEsc(v.title)}</div>
                 <span class="ykb-status ${statusClass}" style="margin-top:2px;cursor:${v.error_message ? 'help' : 'default'};"${errTip}>${_ykbEsc(v.status || 'pending')}</span>
             </div>`;
         });
@@ -593,7 +595,7 @@ function _ykbFormatInsight(insight, lens) {
 }
 
 // ── Actions ──
-async function _ykbExtractAll(chId) {
+async function _ykbTranscribeAll(chId) {
     _ykbShowToast('Extracting transcripts...', '#fbbf24');
     try {
         const res = await fetch(`/api/youtube/extract-all/${chId}`, { method: 'POST', headers: _ykbAuthHeader() });
@@ -617,14 +619,14 @@ async function _ykbProcessAll(chId) {
         });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
-        const msg = data.new_videos ? `Found ${data.new_videos} new videos` : (data.reset ? `Reset ${data.reset} videos` : 'Processing started');
+        const msg = data.new_videos ? `Found ${data.new_videos} new videos` : (data.reset ? `Reset ${data.reset} videos` : 'Re-processing started');
         _ykbShowToast(msg, '#34d399');
         // Reload videos immediately and again after delay
         await _ykbLoadVideos(chId);
         _ykbRender();
         setTimeout(() => { _ykbLoadVideos(chId).then(() => _ykbRender()); }, 5000);
     } catch (err) {
-        _ykbShowToast('Processing failed: ' + err.message, '#ef4444');
+        _ykbShowToast('Re-processing failed: ' + err.message, '#ef4444');
     }
 }
 
@@ -686,8 +688,28 @@ async function _ykbDoAddChannel() {
             const errData = await res.json().catch(() => ({}));
             throw new Error(errData.detail || errData.error || `HTTP ${res.status}`);
         }
-        _ykbShowToast('Channel added!', '#34d399');
+        const addData = await res.json();
+        _ykbShowToast('Channel added! Discovering videos...', '#34d399');
         await _ykbLoadChannels();
+
+        // Auto-process: discover videos for the new channel
+        const newChId = addData.channel?.id;
+        if (newChId) {
+            try {
+                const procRes = await fetch(`/api/youtube/process/${newChId}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', ..._ykbAuthHeader() },
+                    body: JSON.stringify({})
+                });
+                if (procRes.ok) {
+                    const procData = await procRes.json();
+                    _ykbShowToast(`Found ${procData.new_videos || 0} videos — transcription starting`, '#34d399');
+                    await _ykbLoadVideos(newChId);
+                    _ykbExpanded = newChId;
+                    _ykbRender();
+                }
+            } catch(e) { /* process failed silently, user can click Re-process */ }
+        }
     } catch (err) {
         _ykbShowToast('Failed: ' + err.message, '#ef4444');
     }
