@@ -61,6 +61,9 @@ var _UI_SETTINGS_MAP = {
     // Perf mode
     'stratos-perf-mode': 'perf_mode',
 
+    // Stars
+    'stratos-stars': 'stars_enabled',
+
     // Sidebar
     'sidebarCollapsed': 'sidebar_collapsed',
     'sidebarWidth': 'sidebar_width',
@@ -88,10 +91,13 @@ var _UI_SETTINGS_MAP = {
 
     // YouTube
     'stratos_insight_lang': 'insight_lang',
+    'stratos_yi_size': 'yi_size',
+    'stratos_yi_extract_lang': 'yi_extract_lang',
 
     // Settings mode
     'settingsMode': 'settings_mode',
     'advPanelLayout': 'adv_panel_layout',
+    'simpleCategories': 'simple_categories',
 
     // Fullscreen chart
     'cfsIntelHeight': 'cfs_intel_height',

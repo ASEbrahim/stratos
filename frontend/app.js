@@ -865,7 +865,7 @@ function _restoreDisplaySettings() {
     var fontSize = localStorage.getItem('stratos_fontsize');
     if (fontSize) { _applyFontSize(fontSize); var el2 = document.getElementById('cfg-font-size'); if (el2) el2.value = fontSize; }
     var chartType = localStorage.getItem('stratos_chart_type');
-    if (chartType) { var el3 = document.getElementById('cfg-chart-type'); if (el3) el3.value = chartType; }
+    if (chartType) { var el3 = document.getElementById('cfg-chart-type'); if (el3) el3.value = chartType; if (typeof setChartType === 'function') setChartType(chartType); }
     var autoRefresh = localStorage.getItem('stratos_auto_refresh');
     if (autoRefresh) { _setAutoRefresh(autoRefresh); var el4 = document.getElementById('cfg-auto-refresh'); if (el4) el4.value = autoRefresh; }
     else { _setAutoRefresh('0'); } // Default off — DB sync restores user's preference
