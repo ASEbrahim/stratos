@@ -58,6 +58,11 @@ class OCRProcessor:
             return None
 
         try:
+            # Guard against oversized files (50MB limit)
+            if path.stat().st_size > 50_000_000:
+                logger.warning(f"OCR: file too large ({path.stat().st_size} bytes)")
+                return None
+
             # Read and base64 encode the image
             img_data = path.read_bytes()
             b64_image = base64.b64encode(img_data).decode('utf-8')
