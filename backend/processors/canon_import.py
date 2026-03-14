@@ -43,7 +43,7 @@ FRANCHISE_ALIASES = {
     "my hero academia": {"wiki": "myheroacademia", "full_name": "My Hero Academia", "genre": "superhero academy RPG"},
     "mha": {"wiki": "myheroacademia", "full_name": "My Hero Academia", "genre": "superhero academy RPG"},
     "hunter x hunter": {"wiki": "hunterxhunter", "full_name": "Hunter x Hunter", "genre": "adventure RPG"},
-    "hxh": {"wiki": "hunterxhunner", "full_name": "Hunter x Hunter", "genre": "adventure RPG"},
+    "hxh": {"wiki": "hunterxhunter", "full_name": "Hunter x Hunter", "genre": "adventure RPG"},
     "fullmetal alchemist": {"wiki": "fma", "full_name": "Fullmetal Alchemist", "genre": "steampunk fantasy RPG"},
     "fma": {"wiki": "fma", "full_name": "Fullmetal Alchemist", "genre": "steampunk fantasy RPG"},
     "death note": {"wiki": "deathnote", "full_name": "Death Note", "genre": "psychological thriller"},
