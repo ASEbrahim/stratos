@@ -1810,6 +1810,70 @@
           ],
           "added_in": "Sprint 1",
           "type": "concept"
+        },
+        {
+          "term": "Narration Source Resolution",
+          "definition": "Three-stage cascade for verifying narrations extracted by the narrations lens. Stage A: regex-based pattern matching against known reference APIs (Quran.com, BibleGateway, Sefaria, Sunnah.com, etc.). Stage B: Serper web search with authority domain scoring (max 3 queries/video). Stage C: Frontend Google search fallback. Results cached in narration_sources table.",
+          "files": [
+            "backend/processors/source_resolver.py"
+          ],
+          "related": [
+            "Lens System",
+            "Narration Sources Table"
+          ],
+          "added_in": "Sprint Narration",
+          "type": "feature"
+        },
+        {
+          "term": "Output Lock",
+          "definition": "threading.Lock (self._output_lock) in StratOS class that serializes all JSON output file read-modify-write operations. Prevents race between scan output, deferred briefing patch, and market refresh. All paths that touch the output JSON must hold this lock.",
+          "files": [
+            "backend/main.py"
+          ],
+          "related": [
+            "Deferred Briefing",
+            "Market Refresh"
+          ],
+          "added_in": "Sprint 10",
+          "type": "concept"
+        },
+        {
+          "term": "Pending Registrations",
+          "definition": "Users are NOT created in the users table until email verification succeeds. Registration creates a row in pending_registrations with a hashed verification code. On verification, the row moves to users + default profile is created. Brute-force protected: 5 failed attempts deletes the pending registration.",
+          "files": [
+            "backend/routes/auth.py",
+            "backend/migrations.py"
+          ],
+          "related": [
+            "Email Auth"
+          ],
+          "added_in": "Sprint 10",
+          "type": "concept"
+        },
+        {
+          "term": "OTP Login",
+          "definition": "One-time password login flow. User requests OTP via email, enters 5-digit code. No password required. Code expires in 15 minutes, rate-limited to 1 request per 60 seconds.",
+          "files": [
+            "backend/routes/auth.py"
+          ],
+          "related": [
+            "Email Auth",
+            "Pending Registrations"
+          ],
+          "added_in": "Sprint 10",
+          "type": "feature"
+        },
+        {
+          "term": "Sprint Prompt Builder",
+          "definition": "Dev endpoint that auto-generates sprint prompts from form data + live filesystem context (git log, file structure, DB tables, pending items). Template engine assembles sections: context block, read-before-starting, safety branch, do-not-touch, phases, rules, handoff.",
+          "files": [
+            "backend/routes/dev_endpoints.py"
+          ],
+          "related": [
+            "Sprint Log"
+          ],
+          "added_in": "Sprint 10",
+          "type": "feature"
         }
       ]
     }
