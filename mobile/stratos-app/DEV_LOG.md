@@ -180,5 +180,8 @@ Spring-animated emoji icons + fade-in text on empty states.
 ## Iteration 60: Random Character shuffle button ✅
 Shuffle button next to search bar — picks random character.
 
-## Iteration 61: First message preview on Popular This Week cards
-The Popular cards show description but not the character's first message. Adding a first message snippet — this is what hooks users into clicking (seeing how the character actually talks).
+## Iteration 61: First message quote on Popular cards ✅
+Italic quote snippet from character's first message on Popular This Week.
+
+## Iteration 62: "Favorites" quick-access section in Library
+Users who save many characters need a way to pin their top picks. Adding a "Favorites" star toggle on saved characters and a favorites section at the top of the Saved tab.

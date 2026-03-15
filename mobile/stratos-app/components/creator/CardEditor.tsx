@@ -13,16 +13,19 @@ import { AvatarPicker } from './AvatarPicker';
 import { GENRES } from '../../constants/genres';
 import { FEATURES } from '../../constants/config';
 import { colors, typography, spacing, borderRadius } from '../../constants/theme';
+import { useThemeStore } from '../../stores/themeStore';
 import Animated, { useSharedValue, useAnimatedStyle, withSpring, withSequence } from 'react-native-reanimated';
 
 function WordCount({ text }: { text: string }) {
+  const tc = useThemeStore(s => s.colors);
   if (!text.trim()) return null;
   const words = text.trim().split(/\s+/).length;
-  return <Text style={{ fontSize: 9, color: colors.text.muted, textAlign: 'right', marginTop: 2 }}>{words} words · {text.length} chars</Text>;
+  return <Text style={{ fontSize: 9, color: tc.text.muted, textAlign: 'right', marginTop: 2 }}>{words} words · {text.length} chars</Text>;
 }
 
 export function CardEditor() {
   const router = useRouter();
+  const tc = useThemeStore(s => s.colors);
   const [mode, setMode] = useState<'quick' | 'advanced'>('quick');
   const [saving, setSaving] = useState(false);
   const [importing, setImporting] = useState(false);
@@ -42,7 +45,7 @@ export function CardEditor() {
   }));
 
   const quality = getQualityScore(card);
-  const qualityColor = colors.quality[quality.level];
+  const qualityColor = tc.quality[quality.level];
 
   const handleSave = async () => {
     if (!card.name.trim()) { Alert.alert('Missing Name', 'Give your character a name.'); return; }
