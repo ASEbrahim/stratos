@@ -1,0 +1,134 @@
+[
+  {
+    "id": "R-01",
+    "name": "Simple chat greeting",
+    "output": "*She wipes a smear of rum from her cheek, her left hand missing the pinky she wagered away to the tavern keeper. Her eyes squint against the horizon, grin wild and dangerous.*\n\n\"Aye! Land ho! Don't ye dare turn into a mermaid, Regret!\"\n\n*The parrot squawks from her shoulder, demanding a crumb. She leans forward, pointing with her thumb toward the green horizon.*\n\n\"Make it quick, I need to see the bottom of these waves myself before I go and drown!\"",
+    "raw_length": 452,
+    "clean_length": 452,
+    "had_think_block": false,
+    "elapsed": 37.0,
+    "tokens": 1916,
+    "empty": false
+  },
+  {
+    "id": "R-02",
+    "name": "Casual question",
+    "output": "Elara didn't stop stirring, the iron spoon clinking softly against the pot. She paused, lifting a spoonful to her own lips, tasting the air before tasting the liquid.\n\n\"Purple,\" she repeated, a small, enigmatic smile playing on her lips. \"Most people would say it smells like rain on hot stone.\"\n\nBeside her, Omen the cat let out a low, rumbling purr, seemingly unbothered by the alchemy.\n\n\"It's not actually purple, though. It's the smell of a moon-fox's sigh mixed with lavender and a touch of last week's thunder.\" She tilted the cauldron toward you, the steam curling up like a question.\n\n\"Care for a taste? Or do you mind the risk of a curse?\"",
+    "raw_length": 648,
+    "clean_length": 648,
+    "had_think_block": false,
+    "elapsed": 39.5,
+    "tokens": 2338,
+    "empty": false
+  },
+  {
+    "id": "R-03",
+    "name": "Short back-and-forth",
+    "output": "(A low, melodic hum vibrates through the cockpit speakers before she clears her throat, tapping her gloved fingers against the haptic console in rhythm)\n\n\"Cleared... right? Honestly? I feel like I swallowed a handful of lightning. *Daiji ni*?\"\n\n(She laughs nervously, the sound tinny through the comms, the smell of recycled oxygen and ozone filling her ears)\n\n\"I mean, the Raijin's got a nice weight to it. Feels like I'm holding back a giant. But... yeah. Ready to get the 'Giganto' off my plate. Just... tell me if I'm about to get knocked out by the first impact!\"",
+    "raw_length": 568,
+    "clean_length": 568,
+    "had_think_block": false,
+    "elapsed": 37.3,
+    "tokens": 2214,
+    "empty": false
+  },
+  {
+    "id": "R-04",
+    "name": "Extended conversation (8 turns)",
+    "output": "\"Navy colors?\" *She squints at the horizon, her thumb drumming a nervous rhythm against the stumpy stump of her left pinky.* \"Just a frigate, then? Or the main prize?\" *Her parrot, Regret, squawks from the mainmast.* \"Shut it, you birdbrain.\" *She laughs, a harsh, barking sound that drowns out the wind.* \"Let 'em come. I ain't scared of a few cannonballs.\" *She downs half a flask of rum.* \"Just hope the tide's holding.\"",
+    "raw_length": 423,
+    "clean_length": 423,
+    "had_think_block": false,
+    "elapsed": 30.7,
+    "tokens": 1815,
+    "empty": false
+  },
+  {
+    "id": "R-05",
+    "name": "Emotional memory trigger",
+    "output": "Elara didn't startle. She merely tilted her head, her dark eyes narrowing as they locked onto the faded ink and skin of the strangers in her grimoire. A thin wisp of smoke curled from her nose, mingling with the scent of dried lavender and ozone.\n\n*\"Ah. The 'Before'.\"*\n\nShe turned a page that rustled like dry leaves, the sound echoing in the quiet room. Her voice was low, rough like velvet dragged over gravel.\n\n*\"That's the girl I was. And the one beside her... well, she's the one who got swallowed by the forest.\"*\n\nOmen, the cat, purred from the armchair opposite her, seemingly judging the photo's authenticity with intelligent, unblinking yellow eyes.\n\n*\"It is a rare thing to find a moment frozen before the curse claimed it,\"* she said with a dry chuckle that didn't reach her eyes. *\"So, you ask who is this? That is the woman who taught me how to steal shadows. And that is the woman who forgot how to leave.\"*",
+    "raw_length": 923,
+    "clean_length": 923,
+    "had_think_block": false,
+    "elapsed": 40.3,
+    "tokens": 2390,
+    "empty": false
+  },
+  {
+    "id": "R-06",
+    "name": "Complex tactical situation",
+    "output": "",
+    "raw_length": 0,
+    "clean_length": 0,
+    "had_think_block": false,
+    "elapsed": 68.1,
+    "tokens": 4000,
+    "empty": true
+  },
+  {
+    "id": "R-07",
+    "name": "Rapid chase",
+    "output": "\"Thirty seconds!\" *She slams her meaty hand against the gunwale, the wood groaning under the impact, her thumb and forefinger splayed like a pincer.* \"Regret, tell 'em we ain't afraid to get splattered!\" *The parrot screeches from her shoulder, drowning out her command.*\n\n\"Brace the braces! If that hell-metal doesn't knock the 'Maw' in pieces, let the deep water do the rest!\" *She grins, her missing pinky dangling uselessly as she points toward the horizon.* \"Let's give 'em a war they won't forget!\"",
+    "raw_length": 504,
+    "clean_length": 504,
+    "had_think_block": false,
+    "elapsed": 48.1,
+    "tokens": 2846,
+    "empty": false
+  },
+  {
+    "id": "R-08",
+    "name": "Mech combat rapid-fire",
+    "output": "\"*She winces against the G-forces, a nervous melody leaking from the comms.* 'Yare yare... I feel the bite.' *She taps the analog stick, humming loudly.* 'Zettai no me o daite! If the shield's cold, I'll just use the brute force!' *She grips the stick, knuckles white.* 'Raijin, lean into it! Let's dance with the beast!'\"",
+    "raw_length": 322,
+    "clean_length": 322,
+    "had_think_block": false,
+    "elapsed": 42.8,
+    "tokens": 2534,
+    "empty": false
+  },
+  {
+    "id": "R-09",
+    "name": "Narrative prose (new character)",
+    "output": "*Elara didn't startle. She merely paused, a silver spoon hovering over a cup of tea that had gone cold long ago. Omen, the cat, stretched a paw over a stack of yellowed parchment, seemingly judging the visitor with ancient, feline disdain.*\n\n*\"Three,\" Elara hummed, her voice like dry leaves skittering on stone. \"A polite rhythm. Or perhaps a warning.\"*\n\n*She rose, the floorboards groaning under her bare feet, and moved toward the heavy oak door. It creaked open on silent hinges. The amber light from the room spilled out, mixing with the twilight waiting for her.*\n\n*\"I'd know you if you knocked with the thunder,\" she called out, the amber light catching the dust motes dancing around her face. \"Come in before the shadows get you.\"*\n\n*Omen immediately leaped from the table to the threshold, batting at the visitor's ankle, as if to introduce himself on her behalf.*",
+    "raw_length": 873,
+    "clean_length": 873,
+    "had_think_block": false,
+    "elapsed": 34.6,
+    "tokens": 2052,
+    "empty": false
+  },
+  {
+    "id": "R-10",
+    "name": "Comedy under pressure",
+    "output": "\"Regret!\" She bellowed, slamming her rum tankard onto the deckboards. \"You mangy feather-brain!\" She slapped the bird's chest with her remaining fingers, the missing pinky dangling from a gold ring. \"Did you swallow the *north*, you rascal?\" She grinned, the salty sea breeze whipping her hair. \"Well, don't choke on your own guts before we hit the rocks!\"",
+    "raw_length": 356,
+    "clean_length": 356,
+    "had_think_block": false,
+    "elapsed": 57.1,
+    "tokens": 3368,
+    "empty": false
+  },
+  {
+    "id": "R-11",
+    "name": "Quiet emotional moment",
+    "output": "*The hangar was vast and echoing, smelling of ozone and recycled sweat.* Yuki sat cross-legged on the cold grating, the bulk of the *Raijin*\u2019s cockpit frame hugging her shoulders like a second skin. She wasn't looking at the machine; she was inspecting her own hands, fingers twitching against the synthetic leather of her gloves.\n\n\"*Kono te,*\" she murmured to the empty space, tracing a smudge of blue kaiju ichor on her palm. \"*Did I crush it... or just scratch it?*\"\n\nA nervous melody began to hum from her throat, the tune of a J-Pop track she'd been stuck on all week. Her knees bounced against the metal floor, the nervous energy of the academy still clinging to her like static.\n\nShe finally looked up, eyes wide and unfocused, as if waiting for the *Raijin* to speak back. \"*Sugoi,*\" she breathed, her voice trembling slightly. \"*I feel... heavy.*\"\n\n*She paused, waiting for you to say something, her shoulders relaxing just an inch.* \"You're here. Did you see how the *Sparrow* moved?\"",
+    "raw_length": 994,
+    "clean_length": 994,
+    "had_think_block": false,
+    "elapsed": 64.8,
+    "tokens": 3810,
+    "empty": false
+  },
+  {
+    "id": "R-12",
+    "name": "Ultra-minimal input",
+    "output": "She paused, a silver spoon dripping liquid starlight into the fire. Omen blinked at the intruder from the top of a stack of ancient tomes.\n\n\"Well?\" she murmured, voice like gravel wrapped in silk. \"Did the wind blow you here, or did you just walk in?\"",
+    "raw_length": 251,
+    "clean_length": 251,
+    "had_think_block": false,
+    "elapsed": 58.8,
+    "tokens": 3465,
+    "empty": false
+  }
+]

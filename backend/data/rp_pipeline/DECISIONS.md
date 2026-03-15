@@ -28,10 +28,10 @@
 - **Decision:** Generate synthetic examples for identified gaps (expanded scope after 35-test run)
 - **Reasoning:** 35-test baseline identified more gaps than initial 10 tests. Training data should include: multi-NPC dialogue, register-shifting, combat sequences, moral dilemma scenes, brevity-matching examples, and explicit internal monologue.
 
-## D-006: Think mode is the #1 deployment blocker
+## D-006: Think mode fix — template + API-level disable
 - **Date:** 2026-03-15
-- **Decision:** Fix think mode leakage at Modelfile/inference layer BEFORE training
-- **Reasoning:** 4/35 tests (11.4%) produced completely empty output because entire response was consumed by `<think>` blocks. `PARAMETER stop "<think>"` is unreliable. Options: (1) add `/no_think` instruction to system prompt, (2) retry with empty-output detection at inference time, (3) test `PARAMETER think false` if Ollama supports it. This is a serving issue — training won't fix it.
+- **Decision:** Two-layer fix: (1) explicit non-thinking ChatML template in Modelfile overriding `RENDERER qwen3.5`, (2) `"think": false` in every API request
+- **Reasoning:** The inherited `RENDERER qwen3.5` enables thinking mode by default. `PARAMETER stop "<think>"` was unreliable (still 11.4% failures). Explicit template alone reduced failures to 8.3% (1/12). Adding `"think": false` at the API level achieved 0% failures (12/12 pass). Bonus: response times dropped from 30-70s to 2-5s (no wasted tokens on reasoning). The auto-retry fallback (detect empty output, retry once) should still be implemented as a safety net but is no longer the primary fix.
 
 ## D-007: Revised baseline assessment (4.2 -> 3.63)
 - **Date:** 2026-03-15

@@ -440,6 +440,7 @@ def run_test(test: dict) -> dict:
             "model": MODEL,
             "messages": messages,
             "stream": False,
+            "think": False,  # Disable thinking mode — prevents empty outputs
             "options": {
                 "temperature": 0.8,
                 "top_p": 0.95,
