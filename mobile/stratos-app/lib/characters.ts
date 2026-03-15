@@ -1,6 +1,7 @@
 import { USE_MOCKS } from '../constants/config';
 import { apiFetch } from './api';
 import { CharacterCard, CharacterCardCreate } from './types';
+import { mapCardFromBackend, mapCardsFromBackend } from './mappers';
 import { MOCK_CHARACTERS, generateId } from './mock';
 
 let mockLibrary: CharacterCard[] = [];
@@ -10,7 +11,8 @@ export async function getTrendingCharacters(): Promise<CharacterCard[]> {
     await new Promise(r => setTimeout(r, 400));
     return [...MOCK_CHARACTERS].sort((a, b) => b.session_count - a.session_count);
   }
-  return apiFetch<CharacterCard[]>('/api/characters/trending');
+  const { cards } = await apiFetch<{ cards: any[] }>('/api/cards/trending');
+  return mapCardsFromBackend(cards);
 }
 
 export async function getNewCharacters(page = 1): Promise<CharacterCard[]> {
@@ -18,7 +20,9 @@ export async function getNewCharacters(page = 1): Promise<CharacterCard[]> {
     await new Promise(r => setTimeout(r, 300));
     return [...MOCK_CHARACTERS].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
   }
-  return apiFetch<CharacterCard[]>(`/api/characters?page=${page}&sort=new`);
+  const offset = (page - 1) * 20;
+  const { cards } = await apiFetch<{ cards: any[] }>(`/api/cards/browse?sort=newest&offset=${offset}`);
+  return mapCardsFromBackend(cards);
 }
 
 export async function searchCharacters(query: string, genre?: string): Promise<CharacterCard[]> {
@@ -35,7 +39,8 @@ export async function searchCharacters(query: string, genre?: string): Promise<C
   const params = new URLSearchParams();
   if (query) params.set('q', query);
   if (genre) params.set('genre', genre);
-  return apiFetch<CharacterCard[]>(`/api/characters/search?${params}`);
+  const { cards } = await apiFetch<{ cards: any[] }>(`/api/cards/search?${params}`);
+  return mapCardsFromBackend(cards);
 }
 
 export async function getCharacter(id: string): Promise<CharacterCard | null> {
@@ -43,7 +48,12 @@ export async function getCharacter(id: string): Promise<CharacterCard | null> {
     await new Promise(r => setTimeout(r, 200));
     return MOCK_CHARACTERS.find(c => c.id === id) ?? mockLibrary.find(c => c.id === id) ?? null;
   }
-  return apiFetch<CharacterCard>(`/api/characters/${id}`);
+  try {
+    const raw = await apiFetch<any>(`/api/cards/${id}`);
+    return mapCardFromBackend(raw);
+  } catch {
+    return null;
+  }
 }
 
 export async function createCharacter(data: CharacterCardCreate): Promise<CharacterCard> {
@@ -57,15 +67,44 @@ export async function createCharacter(data: CharacterCardCreate): Promise<Charac
     mockLibrary.push(card);
     return card;
   }
-  return apiFetch<CharacterCard>('/api/characters', { method: 'POST', body: JSON.stringify(data) });
+  const result = await apiFetch<{ ok: boolean; card_id: string }>('/api/cards', {
+    method: 'POST',
+    body: JSON.stringify({
+      name: data.name,
+      physical_description: data.physical_description,
+      speech_pattern: data.speech_pattern,
+      emotional_trigger: data.emotional_trigger,
+      defensive_mechanism: data.defensive_mechanism,
+      vulnerability: data.vulnerability,
+      specific_detail: data.specific_detail,
+      personality: data.personality,
+      scenario: data.scenario,
+      first_message: data.first_message,
+      genre_tags: data.genre_tags,
+      content_rating: data.content_rating,
+    }),
+  });
+  // Fetch the created card to get full data
+  const card = await getCharacter(result.card_id);
+  return card!;
 }
 
 export async function getSavedCharacters(): Promise<CharacterCard[]> {
   if (USE_MOCKS) return mockLibrary;
-  return apiFetch<CharacterCard[]>('/api/characters?filter=saved');
+  try {
+    const { cards } = await apiFetch<{ cards: any[] }>('/api/cards/my');
+    return mapCardsFromBackend(cards);
+  } catch {
+    return [];
+  }
 }
 
 export async function getMyCharacters(): Promise<CharacterCard[]> {
   if (USE_MOCKS) return mockLibrary.filter(c => c.creator_id === 'user-1');
-  return apiFetch<CharacterCard[]>('/api/characters?filter=mine');
+  try {
+    const { cards } = await apiFetch<{ cards: any[] }>('/api/cards/my');
+    return mapCardsFromBackend(cards);
+  } catch {
+    return [];
+  }
 }

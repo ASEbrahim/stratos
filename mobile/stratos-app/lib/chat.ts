@@ -14,10 +14,15 @@ export async function streamMessage(
     return;
   }
   const token = await getToken();
-  const response = await fetch(`${API_BASE}/api/agent/chat`, {
+  const response = await fetch(`${API_BASE}/api/rp/chat`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-    body: JSON.stringify({ message, persona, session_id: sessionId, character_card: characterCard }),
+    body: JSON.stringify({
+      content: message,
+      persona,
+      session_id: sessionId,
+      character_card_id: characterCard?.id || undefined,
+    }),
   });
   const reader = response.body?.getReader();
   const decoder = new TextDecoder();
@@ -140,12 +145,18 @@ export async function getSuggestions(
     return [...MOCK_SUGGESTIONS].sort(() => Math.random() - 0.5).slice(0, 3);
   }
   const token = await getToken();
-  const response = await fetch(`${API_BASE}/api/agent/suggest`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-    body: JSON.stringify({ session_id: sessionId, persona, last_message: lastMessage }),
-  });
-  return response.json();
+  try {
+    const response = await fetch(`${API_BASE}/api/suggest-context`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ session_id: sessionId, persona, last_message: lastMessage }),
+    });
+    if (!response.ok) return [];
+    const data = await response.json();
+    return data.suggestions || data || [];
+  } catch {
+    return [];
+  }
 }
 
 export function createMessageId(): string {

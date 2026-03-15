@@ -5,18 +5,31 @@ import { MOCK_SCENARIOS } from './mock';
 
 export async function getScenarios(): Promise<GamingScenario[]> {
   if (USE_MOCKS) { await new Promise(r => setTimeout(r, 400)); return MOCK_SCENARIOS; }
-  return apiFetch<GamingScenario[]>('/api/scenarios');
+  try {
+    const { scenarios } = await apiFetch<{ scenarios: any[] }>('/api/scenarios');
+    return scenarios;
+  } catch {
+    return [];
+  }
 }
 
 export async function getScenario(id: string): Promise<GamingScenario | null> {
   if (USE_MOCKS) { await new Promise(r => setTimeout(r, 200)); return MOCK_SCENARIOS.find(s => s.id === id) ?? null; }
-  return apiFetch<GamingScenario>(`/api/scenarios/${id}`);
+  try {
+    return await apiFetch<GamingScenario>(`/api/scenarios/${id}`);
+  } catch {
+    return null;
+  }
 }
 
 export async function startGamingSession(scenarioId: string): Promise<string> {
   if (USE_MOCKS) return `gaming-session-${scenarioId}-${Date.now()}`;
-  const result = await apiFetch<{ session_id: string }>(`/api/scenarios/${scenarioId}/start`, { method: 'POST' });
-  return result.session_id;
+  try {
+    const result = await apiFetch<{ session_id: string }>(`/api/scenarios/${scenarioId}/start`, { method: 'POST' });
+    return result.session_id;
+  } catch {
+    return `gaming-session-${scenarioId}-${Date.now()}`;
+  }
 }
 
 export function parseOptions(text: string): { text: string; options: string[] } {

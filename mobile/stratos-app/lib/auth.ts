@@ -10,7 +10,7 @@ export async function login(email: string, password: string): Promise<AuthRespon
     await setToken(token);
     return { token, user: MOCK_USER };
   }
-  const result = await apiFetch<AuthResponse>('/api/login', {
+  const result = await apiFetch<AuthResponse>('/api/auth/login', {
     method: 'POST',
     body: JSON.stringify({ email, password }),
   });
@@ -25,7 +25,7 @@ export async function register(name: string, email: string, password: string): P
     await setToken(token);
     return { token, user: { ...MOCK_USER, name, email } };
   }
-  const result = await apiFetch<AuthResponse>('/api/register', {
+  const result = await apiFetch<AuthResponse>('/api/auth/register', {
     method: 'POST',
     body: JSON.stringify({ name, email, password }),
   });
@@ -38,7 +38,7 @@ export async function getProfile(): Promise<User | null> {
   if (!token) return null;
   if (USE_MOCKS) return MOCK_USER;
   try {
-    return await apiFetch<User>('/api/profile');
+    return await apiFetch<User>('/api/auth/me');
   } catch {
     return null;
   }
