@@ -234,5 +234,8 @@ Haptic notification when streaming finishes.
 ## Iteration 78: "Auto-saved ✓" indicator in chat ✅
 Flashes briefly after each AI response to confirm persistence.
 
-## Iteration 79: Content rating selector in character creator
-The creator defaults to SFW but gives no way to change it. Adding a SFW/NSFW toggle so creators can properly tag their content — critical for the content filter system to work correctly.
+## Iteration 79: Theme-aware content rating in quick creator ✅
+SFW/18+ toggle with green/red themed colors in quick mode.
+
+## Iteration 80: Final comprehensive audit + memory update
+Running a full TypeScript check, bundle verify, and visual audit across all screens. Updating project memory with final iteration count and feature list.
