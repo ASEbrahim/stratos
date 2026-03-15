@@ -60,8 +60,7 @@ export default function DiscoverScreen() {
         onScroll={(e) => setShowScrollTop(e.nativeEvent.contentOffset.y > 600)}
         scrollEventThrottle={200}>
         <Animated.View entering={FadeInDown.duration(400).springify().damping(16)} style={styles.brandRow}>
-          <Text style={[styles.brandText, { color: tc.accent.primary }]}>StratOS</Text>
-          <Text style={[styles.brandSub, { color: tc.text.muted }]}>Characters</Text>
+          <Text style={[styles.brandText, { color: tc.accent.primary }]}>Strat<Text style={[styles.brandAccent, { color: tc.text.primary }]}>OS</Text></Text>
         </Animated.View>
         <View style={styles.searchRow}>
           <View style={[styles.searchBox, { backgroundColor: tc.bg.tertiary, flex: 1 }]}>
@@ -144,26 +143,26 @@ export default function DiscoverScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1 },
   scroll: { flex: 1 },
-  brandRow: { flexDirection: 'row', alignItems: 'baseline', paddingHorizontal: spacing.lg, paddingTop: spacing.md, gap: spacing.sm },
-  brandText: { fontSize: 22, fontWeight: '800', letterSpacing: -0.5 },
-  brandSub: { fontSize: 12, fontWeight: '500' },
-  searchRow: { flexDirection: 'row', alignItems: 'center', marginHorizontal: spacing.lg, marginTop: spacing.sm, marginBottom: spacing.lg, gap: spacing.sm },
-  searchBox: { flexDirection: 'row', alignItems: 'center', borderRadius: borderRadius.lg, paddingHorizontal: spacing.lg, gap: spacing.sm },
-  shuffleBtn: { width: 44, height: 44, borderRadius: borderRadius.lg, justifyContent: 'center', alignItems: 'center' },
-  searchInput: { flex: 1, paddingVertical: spacing.md, fontSize: 15 },
-  sectionHdr: { paddingHorizontal: spacing.lg, marginTop: spacing.lg, marginBottom: spacing.md },
+  brandRow: { alignItems: 'center', paddingTop: spacing.sm },
+  brandText: { fontSize: 24, fontWeight: '900', letterSpacing: 2, textTransform: 'uppercase' },
+  brandAccent: { fontWeight: '400', letterSpacing: 0 },
+  searchRow: { flexDirection: 'row', alignItems: 'center', marginHorizontal: spacing.md, marginTop: spacing.sm, marginBottom: spacing.xs, gap: spacing.sm },
+  searchBox: { flexDirection: 'row', alignItems: 'center', borderRadius: borderRadius.lg, paddingHorizontal: spacing.md, gap: spacing.sm },
+  shuffleBtn: { width: 38, height: 38, borderRadius: borderRadius.md, justifyContent: 'center', alignItems: 'center' },
+  searchInput: { flex: 1, paddingVertical: spacing.sm, fontSize: 14 },
+  sectionHdr: { paddingHorizontal: spacing.md, marginTop: spacing.lg, marginBottom: spacing.sm },
   sectionTitle: { ...typography.heading },
-  hScroll: { paddingHorizontal: spacing.lg },
-  genreScroll: { paddingHorizontal: spacing.lg, gap: spacing.sm, paddingVertical: spacing.md },
-  genreChip: { paddingHorizontal: spacing.md, paddingVertical: spacing.sm, borderRadius: borderRadius.full, borderWidth: 1 },
-  genreText: { ...typography.caption },
+  hScroll: { paddingHorizontal: spacing.md },
+  genreScroll: { paddingHorizontal: spacing.md, gap: spacing.xs, paddingVertical: spacing.xs },
+  genreChip: { paddingHorizontal: spacing.sm, paddingVertical: 4, borderRadius: borderRadius.full, borderWidth: 1 },
+  genreText: { fontSize: 11 },
   grid: { flexDirection: 'row', flexWrap: 'wrap', paddingHorizontal: spacing.md, gap: spacing.sm },
   scenarioGrid: { paddingHorizontal: spacing.lg, gap: spacing.md },
   emptySearch: { alignItems: 'center', paddingVertical: spacing.xxl * 2, paddingHorizontal: spacing.xxl },
   emptyIcon: { fontSize: 40, marginBottom: spacing.md },
   emptyTitle: { ...typography.subheading, marginBottom: spacing.xs },
   emptySubtitle: { ...typography.caption, textAlign: 'center' },
-  gridHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: spacing.lg, marginTop: spacing.lg, marginBottom: spacing.md },
+  gridHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: spacing.md, marginTop: spacing.xs, marginBottom: spacing.xs },
   sortRow: { flexDirection: 'row', gap: 2 },
   sortChip: { paddingHorizontal: spacing.sm, paddingVertical: 3, borderRadius: borderRadius.sm },
   sortText: { fontSize: 10, fontWeight: '600' },

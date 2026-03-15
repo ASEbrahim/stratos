@@ -104,16 +104,9 @@ export function CharacterCardComponent({ card, variant = 'grid', featured = fals
         )}
       </View>
       <View style={styles.info}>
-        <Text style={[styles.name, { color: tc.text.primary }]} numberOfLines={1}>{card.name}</Text>
-        <View style={styles.metaRow}>
-          <View style={[styles.genrePill, { backgroundColor: accentColor + '18', borderColor: accentColor + '35' }]}>
-            <Text style={[styles.genrePillText, { color: accentColor }]}>{genreLabel}</Text>
-          </View>
-          <View style={styles.ratingRow}>
-            {Array.from({ length: 5 }, (_, i) => (
-              <Star key={i} size={8} color={i < starCount ? tc.accent.secondary : tc.text.faint} fill={i < starCount ? tc.accent.secondary : 'transparent'} />
-            ))}
-          </View>
+        <View style={styles.nameRow}>
+          <Text style={[styles.name, { color: tc.text.primary }]} numberOfLines={1}>{card.name}</Text>
+          <Text style={[styles.genreTag, { color: accentColor }]}>{genreLabel}</Text>
         </View>
       </View>
       <TouchableOpacity style={[styles.quickChatBtn, { backgroundColor: accentColor + '15', borderColor: accentColor + '30' }]} onPress={handleQuickChat} activeOpacity={0.7} accessibilityLabel={`Chat with ${card.name}`} accessibilityRole="button">
@@ -142,12 +135,10 @@ const styles = StyleSheet.create({
   newBadge: { position: 'absolute', top: spacing.xs, left: spacing.xs, paddingHorizontal: 4, paddingVertical: 1, borderRadius: borderRadius.sm },
   newBadgeText: { fontSize: 7, fontWeight: '800', color: '#fff', letterSpacing: 0.5 },
   nsfwText: { fontSize: 8, color: '#fff', fontWeight: '700' },
-  info: { paddingHorizontal: spacing.xs, paddingVertical: spacing.xs, gap: 1 },
-  name: { ...typography.subheading, fontSize: 12 },
-  metaRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  genrePill: { borderWidth: 1, borderRadius: borderRadius.full, paddingHorizontal: spacing.xs, paddingVertical: 1 },
-  genrePillText: { fontSize: 9, fontWeight: '600' },
-  ratingRow: { flexDirection: 'row', gap: 1 },
+  info: { paddingHorizontal: spacing.xs, paddingVertical: 3 },
+  nameRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 2 },
+  name: { fontSize: 12, fontWeight: '700', flex: 1 },
+  genreTag: { fontSize: 9, fontWeight: '600' },
   avatarInitial: { fontSize: 24, fontWeight: '700', opacity: 0.7 },
   avatarGlow: { position: 'absolute', width: '100%', height: '100%', borderRadius: 16 },
   horizontalCard: { width: 120, alignItems: 'center', marginRight: spacing.md },
