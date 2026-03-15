@@ -1,15 +1,16 @@
 // Font families loaded in _layout.tsx
-// Nunito: bubbly, friendly — used for headings, logos, buttons
+// Quicksand: round, modern — used for headings, logos, buttons
 // Poppins: clean geometric — used for body text, labels
+// Nunito: bubbly friendly — available as alternate
 
 export const fonts = {
-  // Nunito — bubbly/friendly
-  heading: 'Nunito_700Bold',
-  headingBold: 'Nunito_800ExtraBold',
-  logo: 'Nunito_900Black',
-  button: 'Nunito_600SemiBold',
+  // Quicksand — round/modern headings
+  heading: 'Quicksand_700Bold',
+  headingBold: 'Quicksand_700Bold',
+  logo: 'Quicksand_700Bold',
+  button: 'Quicksand_600SemiBold',
 
-  // Poppins — clean/modern
+  // Poppins — clean/modern body
   body: 'Poppins_400Regular',
   bodyMedium: 'Poppins_500Medium',
   bodySemiBold: 'Poppins_600SemiBold',

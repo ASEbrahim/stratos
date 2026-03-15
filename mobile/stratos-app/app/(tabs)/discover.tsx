@@ -61,7 +61,7 @@ export default function DiscoverScreen() {
         onScroll={(e) => setShowScrollTop(e.nativeEvent.contentOffset.y > 600)}
         scrollEventThrottle={200}>
         <Animated.View entering={FadeInDown.duration(400).springify().damping(16)} style={styles.brandRow}>
-          <Text style={[styles.brandText, { color: tc.accent.primary, textShadowColor: tc.accent.primary + '40', textShadowOffset: { width: 0, height: 0 }, textShadowRadius: 12 }]}>strat<Text style={[styles.brandAccent, { color: tc.text.primary }]}>OS</Text></Text>
+          <Text style={[styles.brandText, { color: tc.accent.primary, textShadowColor: tc.accent.primary + '40', textShadowOffset: { width: 0, height: 0 }, textShadowRadius: 12 }]}>Strat<Text style={[styles.brandAccent, { color: tc.text.primary }]}>OS</Text></Text>
         </Animated.View>
         <View style={styles.searchRow}>
           <View style={[styles.searchBox, { backgroundColor: tc.bg.tertiary, flex: 1 }]}>
