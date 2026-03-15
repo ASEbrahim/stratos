@@ -1,6 +1,6 @@
 import { USE_MOCKS } from '../constants/config';
 import { API_BASE } from '../constants/config';
-import { getToken } from './api';
+import { getToken, getDeviceId } from './api';
 import { ChatMessage, CharacterCard, Suggestion } from './types';
 import { MOCK_SUGGESTIONS, generateId } from './mock';
 
@@ -15,10 +15,12 @@ export async function streamMessage(
   }
   try {
     const token = await getToken();
+    const deviceId = await getDeviceId();
     const response = await fetch(`${API_BASE}/api/rp/chat`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'X-Device-Id': deviceId,
         ...(token ? { 'X-Auth-Token': token } : {}),
       },
       body: JSON.stringify({
@@ -158,10 +160,15 @@ export async function getSuggestions(
     return [...MOCK_SUGGESTIONS].sort(() => Math.random() - 0.5).slice(0, 3);
   }
   const token = await getToken();
+  const deviceId = await getDeviceId();
   try {
     const response = await fetch(`${API_BASE}/api/suggest-context`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Device-Id': deviceId,
+        ...(token ? { 'X-Auth-Token': token } : {}),
+      },
       body: JSON.stringify({ session_id: sessionId, persona, last_message: lastMessage }),
     });
     if (!response.ok) return [];

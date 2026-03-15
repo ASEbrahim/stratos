@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, ScrollView, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import { View, Text, TextInput, ScrollView, TouchableOpacity, StyleSheet, Alert, Modal, ActivityIndicator } from 'react-native';
+import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 import * as Haptics from 'expo-haptics';
 import * as DocumentPicker from 'expo-document-picker';
-import { Upload } from 'lucide-react-native';
+import { Upload, Wand2 } from 'lucide-react-native';
 import { CharacterCardCreate, getQualityScore } from '../../lib/types';
 import { createCharacter } from '../../lib/characters';
 import { parseTavernCard } from '../../lib/tavern-import';
@@ -13,7 +14,10 @@ import { AvatarPicker } from './AvatarPicker';
 import { GENRES } from '../../constants/genres';
 import { FEATURES } from '../../constants/config';
 import { typography, spacing, borderRadius } from '../../constants/theme';
+import { fonts } from '../../constants/fonts';
 import { useThemeStore } from '../../stores/themeStore';
+import { useCharacterStore } from '../../stores/characterStore';
+import { generateCharacterPortrait, getImageUrl } from '../../lib/rp';
 import Animated, { useSharedValue, useAnimatedStyle, withSpring, withSequence } from 'react-native-reanimated';
 
 function WordCount({ text }: { text: string }) {
@@ -36,6 +40,9 @@ export function CardEditor() {
     genre_tags: [], content_rating: 'sfw', avatar_url: '',
   });
 
+  const { loadMyCards, loadNew } = useCharacterStore();
+  const [generatingImage, setGeneratingImage] = useState(false);
+  const [previewImageId, setPreviewImageId] = useState<string | null>(null);
   const saveBtnScale = useSharedValue(1);
   const saveBtnAnimStyle = useAnimatedStyle(() => ({ transform: [{ scale: saveBtnScale.value }] }));
 
@@ -55,6 +62,9 @@ export function CardEditor() {
     try {
       await createCharacter(card);
       await incrementStat('totalCharacters');
+      // Reload stores so Library and Discover show the new card
+      loadMyCards().catch(() => {});
+      loadNew().catch(() => {});
       Alert.alert('Created!', 'Your character has been created.', [{ text: 'OK', onPress: () => router.back() }]);
     } catch { Alert.alert('Error', 'Failed to create character.'); }
     finally { setSaving(false); }
@@ -225,11 +235,56 @@ export function CardEditor() {
         </View>
       </View>
 
+      {/* Generate Image button */}
+      {card.name.trim() && card.physical_description?.trim() ? (
+        <TouchableOpacity
+          style={[styles.genImageBtn, { borderColor: tc.accent.secondary + '40', backgroundColor: tc.accent.secondary + '08' }, generatingImage && { opacity: 0.6 }]}
+          onPress={async () => {
+            setGeneratingImage(true);
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+            try {
+              const result = await generateCharacterPortrait({
+                character_name: card.name, physical_description: card.physical_description,
+                style: 'anime',
+              });
+              if (result.success && result.image_id) {
+                setPreviewImageId(result.image_id);
+                Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+              } else {
+                Alert.alert('Generation Failed', result.error || 'Could not generate image');
+              }
+            } catch { Alert.alert('Error', 'Image generation unavailable'); }
+            finally { setGeneratingImage(false); }
+          }}
+          disabled={generatingImage}
+          activeOpacity={0.7}
+        >
+          {generatingImage ? (
+            <><ActivityIndicator size={14} color={tc.accent.secondary} /><Text style={[styles.genImageText, { color: tc.accent.secondary }]}>Generating... ~30-60s</Text></>
+          ) : (
+            <><Wand2 size={14} color={tc.accent.secondary} /><Text style={[styles.genImageText, { color: tc.accent.secondary }]}>Generate Character Image</Text></>
+          )}
+        </TouchableOpacity>
+      ) : null}
+
       <Animated.View style={saveBtnAnimStyle}>
         <TouchableOpacity style={[styles.saveBtn, { backgroundColor: tc.accent.primary }, saving && { opacity: 0.6 }]} onPress={handleSave} disabled={saving} accessibilityLabel={saving ? 'Creating character' : 'Create character'} accessibilityRole="button">
           <Text style={styles.saveBtnText}>{saving ? 'Creating...' : 'Create Character'}</Text>
         </TouchableOpacity>
       </Animated.View>
+
+      {/* Image preview popup */}
+      {previewImageId && (
+        <Modal visible transparent animationType="fade" onRequestClose={() => setPreviewImageId(null)}>
+          <TouchableOpacity style={styles.previewOverlay} activeOpacity={1} onPress={() => setPreviewImageId(null)}>
+            <View style={[styles.previewCard, { backgroundColor: tc.bg.primary, borderColor: tc.border.subtle }]}>
+              <Image source={{ uri: getImageUrl(previewImageId) }} style={styles.previewImage} contentFit="contain" />
+              <Text style={[styles.previewHint, { color: tc.text.muted }]}>Tap anywhere to close</Text>
+            </View>
+          </TouchableOpacity>
+        </Modal>
+      )}
+
       <View style={{ height: spacing.xxl }} />
     </ScrollView>
   );
@@ -261,6 +316,12 @@ const styles = StyleSheet.create({
   ratingToggle: { flexDirection: 'row', gap: spacing.sm, marginTop: spacing.sm },
   ratingOpt: { paddingHorizontal: spacing.xl, paddingVertical: spacing.sm, borderRadius: borderRadius.md, borderWidth: 1 },
   importText: { ...typography.caption, fontWeight: '600' },
-  saveBtn: { paddingVertical: spacing.lg, borderRadius: borderRadius.lg, alignItems: 'center', marginTop: spacing.xxl },
+  genImageBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.sm, paddingVertical: spacing.md, borderRadius: borderRadius.lg, borderWidth: 1, marginTop: spacing.lg },
+  genImageText: { fontSize: 13, fontFamily: fonts.button },
+  saveBtn: { paddingVertical: spacing.lg, borderRadius: borderRadius.lg, alignItems: 'center', marginTop: spacing.md },
   saveBtnText: { ...typography.subheading, color: '#fff' },
+  previewOverlay: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.7)', padding: spacing.xl },
+  previewCard: { width: '100%', borderRadius: borderRadius.lg, borderWidth: 1, overflow: 'hidden', padding: spacing.sm },
+  previewImage: { width: '100%', aspectRatio: 3 / 4, borderRadius: borderRadius.md },
+  previewHint: { fontSize: 10, textAlign: 'center', marginTop: spacing.sm },
 });
