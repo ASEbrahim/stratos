@@ -16,6 +16,7 @@ Endpoints:
   POST /api/rp/feedback          — Submit thumbs up/down
 """
 
+import hashlib
 import json
 import time
 import uuid
@@ -78,6 +79,25 @@ CHARACTER RULES:
 - Remember and reference earlier conversation details.
 - Show emotional depth through action and subtext, not just dialogue.
 - LANGUAGE: Match the language of the player's MESSAGE."""
+
+
+def select_rp_model(session_id: str, config: dict) -> str:
+    """Select RP model with optional A/B split.
+
+    Deterministic: same session_id always gets same model.
+    Config keys: rp.model, rp.ab_split (0.0-1.0), rp.candidate_model
+    """
+    rp_cfg = config.get("rp", {})
+    ab_split = rp_cfg.get("ab_split", 0.0)
+    candidate = rp_cfg.get("candidate_model")
+
+    if ab_split <= 0 or not candidate:
+        return rp_cfg.get("model", config.get("scoring", {}).get("rp_model", "stratos-rp-q8"))
+
+    hash_val = int(hashlib.md5(session_id.encode()).hexdigest()[:8], 16)
+    if (hash_val % 100) < (ab_split * 100):
+        return candidate
+    return rp_cfg.get("model", config.get("scoring", {}).get("rp_model", "stratos-rp-q8"))
 
 
 def _build_system_prompt(card: dict = None, director_note: str = None) -> str:
@@ -229,11 +249,11 @@ def handle_post(handler, strat, auth, path) -> bool:
 
         messages.append({"role": "user", "content": content})
 
-        # Select model
+        # Select model (with A/B testing support)
         scoring_cfg = strat.config.get("scoring", {})
         ollama_host = scoring_cfg.get("ollama_host", "http://localhost:11434")
         if persona == 'roleplay':
-            model = scoring_cfg.get("rp_model", "stratos-rp-q8")
+            model = select_rp_model(session_id, strat.config)
         else:
             model = scoring_cfg.get("inference_model", "qwen3.5:9b")
 
