@@ -17,3 +17,6 @@ Chat screen background, session header, and input all now respond to the active 
 
 ## Iteration 6: Theme-aware gaming + character detail screens ✅
 Gaming session, character detail, and gaming scenarios screens now use themeStore for backgrounds. This completes full theme coverage across every screen in the app.
+
+## Iteration 7: "Continue Conversation" on character detail
+Competitor apps (Character.AI, Chai, Janitor AI) show a "Continue" button when you have an active session with a character. Adding this to CharacterDetail so users can resume where they left off instead of always starting fresh.
