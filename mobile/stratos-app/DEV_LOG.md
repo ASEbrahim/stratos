@@ -90,5 +90,8 @@ Network-aware banner in root layout, animated slide.
 ## Iteration 30: Final polish pass + memory update ✅
 All screens verified, zero errors, project memory updated.
 
-## Iteration 31: Word counter on creator fields + creator improvements
-The character creator lacks feedback on field lengths. Adding word counters to multi-line fields (description, personality, first message, scenario) to help users write the right amount.
+## Iteration 31: Word counter on creator fields ✅
+Word/char counter on creator text fields.
+
+## Iteration 32: Featured character spotlight card on discover
+Full-width spotlight card for the highest-rated character. Creates a hero moment at the top of discover — used by Janitor AI, Chai, and Character.AI to hook users.

@@ -60,6 +60,27 @@ export default function DiscoverScreen() {
           <TextInput style={[styles.searchInput, { color: tc.text.primary }]} value={searchQuery} onChangeText={handleSearch} placeholder="Search characters..." placeholderTextColor={tc.text.muted} />
         </View>
         {isLoading && trending.length === 0 && <DiscoverSkeleton />}
+        {/* Featured Character Spotlight */}
+        {!searchQuery.trim() && trending.length > 0 && (() => {
+          const featured = [...trending].sort((a, b) => b.rating - a.rating)[0];
+          if (!featured) return null;
+          const fc = getGenreColor(featured.genre_tags[0] ?? 'default');
+          return (
+            <TouchableOpacity style={[styles.spotlightCard, { borderColor: fc + '30' }]} onPress={() => router.push(`/character/${featured.id}`)} activeOpacity={0.8}>
+              <View style={[styles.spotlightAvatar, { backgroundColor: fc + '15' }]}>
+                <Text style={[styles.spotlightLetter, { color: fc }]}>{featured.name[0]}</Text>
+              </View>
+              <View style={styles.spotlightInfo}>
+                <View style={[styles.spotlightBadge, { backgroundColor: fc + '20' }]}>
+                  <Text style={[styles.spotlightBadgeText, { color: fc }]}>Featured</Text>
+                </View>
+                <Text style={[styles.spotlightName, { color: tc.text.primary }]}>{featured.name}</Text>
+                <Text style={[styles.spotlightDesc, { color: tc.text.secondary }]} numberOfLines={2}>{featured.description}</Text>
+                <Text style={[styles.spotlightMeta, { color: tc.text.muted }]}>{featured.rating.toFixed(1)} rating · {formatCount(featured.session_count)} chats</Text>
+              </View>
+            </TouchableOpacity>
+          );
+        })()}
         {/* Recently Chatted — quick resume */}
         {!searchQuery.trim() && recentSessions.length > 0 && (
           <>
@@ -185,6 +206,15 @@ const styles = StyleSheet.create({
   emptyIcon: { fontSize: 40, marginBottom: spacing.md },
   emptyTitle: { ...typography.subheading, marginBottom: spacing.xs },
   emptySubtitle: { ...typography.caption, textAlign: 'center' },
+  spotlightCard: { flexDirection: 'row', marginHorizontal: spacing.lg, marginBottom: spacing.md, padding: spacing.lg, borderRadius: borderRadius.lg, borderWidth: 1, gap: spacing.lg, backgroundColor: 'rgba(255,255,255,0.02)' },
+  spotlightAvatar: { width: 70, height: 70, borderRadius: borderRadius.lg, justifyContent: 'center', alignItems: 'center' },
+  spotlightLetter: { fontSize: 28, fontWeight: '700', opacity: 0.7 },
+  spotlightInfo: { flex: 1, justifyContent: 'center' },
+  spotlightBadge: { alignSelf: 'flex-start', paddingHorizontal: spacing.sm, paddingVertical: 1, borderRadius: borderRadius.sm, marginBottom: 4 },
+  spotlightBadgeText: { fontSize: 9, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 1 },
+  spotlightName: { ...typography.subheading, marginBottom: 2 },
+  spotlightDesc: { ...typography.small, lineHeight: 15, fontSize: 11, marginBottom: 4 },
+  spotlightMeta: { fontSize: 10 },
   recentRow: { flexDirection: 'row', alignItems: 'center', paddingLeft: spacing.lg, marginBottom: spacing.sm },
   recentLabel: { ...typography.small, fontSize: 10, fontWeight: '600', textTransform: 'uppercase', letterSpacing: 1, marginRight: spacing.sm },
   recentScroll: { gap: spacing.md, paddingRight: spacing.lg },
