@@ -2,6 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, TextInput, StyleSheet, RefreshControl } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Search } from 'lucide-react-native';
+import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useCharacterStore } from '../../stores/characterStore';
 import { useChatStore } from '../../stores/chatStore';
 import { useThemeStore } from '../../stores/themeStore';
@@ -156,7 +157,11 @@ export default function DiscoverScreen() {
             <Text style={[styles.emptySubtitle, { color: tc.text.muted }]}>Try a different search term or browse by genre</Text>
           </View>
         ) : (
-          <View style={styles.grid}>{displayCards.map(c => <CharacterCardComponent key={c.id} card={c} />)}</View>
+          <View style={styles.grid}>{displayCards.map((c, idx) => (
+            <Animated.View key={c.id} entering={FadeInDown.delay(idx * 60).duration(300).springify().damping(14)}>
+              <CharacterCardComponent card={c} />
+            </Animated.View>
+          ))}</View>
         )}
         <View style={{ height: spacing.xxl }} />
       </ScrollView>

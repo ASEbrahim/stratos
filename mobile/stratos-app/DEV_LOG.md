@@ -76,4 +76,10 @@ Grid header shows character count next to title (e.g. "Characters (6)").
 All shared components now theme-aware.
 
 ## Iteration 26: GuidedFields theme-aware ✅
-Creator guided fields (6-element quality guide) now uses themeStore for all colors. This completes 100% theme coverage across every component in the app.
+Creator guided fields (6-element quality guide) now uses themeStore for all colors.
+
+## Iteration 27: QualityScore theme-aware ✅
+Quality score badges use themeStore quality colors.
+
+## Iteration 28: Staggered card animations on discover grid
+Character cards fade/slide in with staggered delays when the grid first renders. This gives a polished "content loading" feel similar to Instagram Reels or TikTok's grid loading pattern.
