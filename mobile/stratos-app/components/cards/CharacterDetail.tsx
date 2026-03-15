@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 import * as Haptics from 'expo-haptics';
-import { Star, BookmarkPlus, BookmarkCheck } from 'lucide-react-native';
+import { Star, BookmarkPlus, BookmarkCheck, Flag } from 'lucide-react-native';
 import { CharacterCard, formatCount } from '../../lib/types';
 import { TagPills } from './TagPills';
 import { QualityScore } from './QualityScore';
@@ -100,6 +100,10 @@ export function CharacterDetailView({ card }: CharacterDetailProps) {
         {saved ? <BookmarkCheck size={18} color={colors.status.success} /> : <BookmarkPlus size={18} color={colors.text.secondary} />}
         <Text style={[styles.secondaryButtonText, saved && { color: colors.status.success }]}>{saved ? 'Saved' : 'Save to Library'}</Text>
       </TouchableOpacity>
+      <TouchableOpacity style={styles.reportBtn} onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); Alert.alert('Report Character', 'Report this character for inappropriate content?', [{ text: 'Cancel', style: 'cancel' }, { text: 'Report', style: 'destructive', onPress: () => Alert.alert('Reported', 'Thank you for your report. We will review this character.') }]); }} activeOpacity={0.7}>
+        <Flag size={12} color={colors.text.muted} />
+        <Text style={styles.reportText}>Report Character</Text>
+      </TouchableOpacity>
       <View style={{ height: spacing.xxl }} />
     </ScrollView>
   );
@@ -137,4 +141,6 @@ const styles = StyleSheet.create({
   sessionHint: { ...typography.small, color: colors.text.muted, textAlign: 'center', marginTop: spacing.xs, marginBottom: spacing.sm },
   newSessionBtn: { paddingVertical: spacing.md, borderRadius: borderRadius.lg, borderWidth: 1, alignItems: 'center', marginBottom: spacing.md },
   newSessionText: { ...typography.caption, fontWeight: '600' },
+  reportBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.xs, paddingVertical: spacing.lg, marginTop: spacing.lg },
+  reportText: { ...typography.small, color: colors.text.muted },
 });

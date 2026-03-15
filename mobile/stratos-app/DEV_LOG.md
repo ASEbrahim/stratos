@@ -102,5 +102,8 @@ Next key auto-focuses next field in login/register forms.
 ## Iteration 34: Library "Clear All History" + tab badges ✅
 Tab count badges and Clear All History button with confirmation.
 
-## Iteration 35: Scroll-to-bottom FAB in chat
-When users scroll up to read earlier messages, they need a quick way to jump back to the latest. Adding a floating "scroll to bottom" button that appears when scrolled away from the bottom — standard in all chat apps.
+## Iteration 35: Scroll-to-bottom FAB in chat ✅
+Floating scroll-to-bottom button in chat when scrolled up.
+
+## Iteration 36: Report option on character detail + chat streaming indicator
+Adding trust & safety "Report" option to character detail's save button area. Also adding a visual streaming indicator on the send button while AI is responding.
