@@ -14,7 +14,8 @@ import { getScenario, startGamingSession, parseOptions } from '../../lib/gaming'
 import { streamMessage, createMessageId } from '../../lib/chat';
 import { getGenreColor } from '../../constants/genres';
 import { LoadingScreen } from '../../components/shared/LoadingScreen';
-import { colors, spacing } from '../../constants/theme';
+import { useThemeStore } from '../../stores/themeStore';
+import { spacing } from '../../constants/theme';
 
 export default function GamingSessionScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -27,6 +28,7 @@ export default function GamingSessionScreen() {
   const [streamingContent, setStreamingContent] = useState('');
   const [currentOptions, setCurrentOptions] = useState<string[]>([]);
   const [playerStats, setPlayerStats] = useState<Record<string, number>>({});
+  const tc = useThemeStore(s => s.colors);
   const accentColor = scenario ? getGenreColor(scenario.genre) : undefined;
 
   useEffect(() => {
@@ -62,7 +64,7 @@ export default function GamingSessionScreen() {
   if (!scenario) return <LoadingScreen />;
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top }]}>
+    <View style={[styles.container, { paddingTop: insets.top, backgroundColor: tc.bg.primary }]}>
       <SessionHeader characterName={scenario.name} accentColor={accentColor} />
       {Object.keys(playerStats).length > 0 && <StatBar stats={playerStats} accentColor={accentColor} />}
       <KeyboardAvoidingView style={styles.chatArea} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
@@ -75,7 +77,7 @@ export default function GamingSessionScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.bg.primary },
+  container: { flex: 1 },
   chatArea: { flex: 1 },
   msgList: { paddingVertical: spacing.md },
 });

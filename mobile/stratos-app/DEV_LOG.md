@@ -14,3 +14,6 @@ Messages now fade in with Reanimated entering animation, tapping reveals timesta
 
 ## Iteration 5: Theme-aware chat screen + session header ✅
 Chat screen background, session header, and input all now respond to the active theme. This completes the theme integration across all major screens.
+
+## Iteration 6: Theme-aware gaming + character detail screens ✅
+Gaming session, character detail, and gaming scenarios screens now use themeStore for backgrounds. This completes full theme coverage across every screen in the app.

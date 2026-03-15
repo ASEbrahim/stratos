@@ -7,20 +7,21 @@ import { CharacterDetailView } from '../../components/cards/CharacterDetail';
 import { LoadingScreen } from '../../components/shared/LoadingScreen';
 import { CharacterCard } from '../../lib/types';
 import { getCharacter } from '../../lib/characters';
-import { colors } from '../../constants/theme';
+import { useThemeStore } from '../../stores/themeStore';
 
 export default function CharacterDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const insets = useSafeAreaInsets();
+  const tc = useThemeStore(s => s.colors);
   const [card, setCard] = useState<CharacterCard | null>(null);
   const [loading, setLoading] = useState(true);
   useEffect(() => { if (id) getCharacter(id).then(c => { setCard(c); setLoading(false); }); }, [id]);
   if (loading || !card) return <LoadingScreen />;
   return (
-    <View style={[styles.container, { paddingTop: insets.top }]}>
+    <View style={[styles.container, { paddingTop: insets.top, backgroundColor: tc.bg.primary }]}>
       <Header showBack /><CharacterDetailView card={card} />
     </View>
   );
 }
 
-const styles = StyleSheet.create({ container: { flex: 1, backgroundColor: colors.bg.primary } });
+const styles = StyleSheet.create({ container: { flex: 1 } });
