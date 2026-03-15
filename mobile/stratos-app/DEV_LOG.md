@@ -183,5 +183,8 @@ Shuffle button next to search bar — picks random character.
 ## Iteration 61: First message quote on Popular cards ✅
 Italic quote snippet from character's first message on Popular This Week.
 
-## Iteration 62: "Favorites" quick-access section in Library
-Users who save many characters need a way to pin their top picks. Adding a "Favorites" star toggle on saved characters and a favorites section at the top of the Saved tab.
+## Iteration 62: Theme-aware CardEditor ✅
+WordCount and quality color now read from themeStore. checkpoint-15.
+
+## Iteration 63: Gradient header on character detail
+The character detail screen has a plain avatar container. Adding a gradient overlay from the genre color that fades into the background — makes the hero section more dramatic and polished.

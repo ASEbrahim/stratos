@@ -64,8 +64,15 @@ export function CharacterDetailView({ card }: CharacterDetailProps) {
 
   return (
     <ScrollView style={[styles.container, { backgroundColor: tc.bg.primary }]} contentContainerStyle={styles.content}>
-      <View style={[styles.avatarContainer, { backgroundColor: accentColor + '15' }]}>
-        {card.avatar_url ? <Image source={{ uri: card.avatar_url }} style={styles.avatar} /> : <Text style={[styles.avatarLetter, { color: accentColor }]}>{card.name[0]}</Text>}
+      <View style={[styles.avatarContainer, { backgroundColor: accentColor + '10' }]}>
+        {card.avatar_url ? <Image source={{ uri: card.avatar_url }} style={styles.avatar} /> : (
+          <>
+            <View style={[styles.avatarGlowBg, { backgroundColor: accentColor, opacity: 0.06 }]} />
+            <Text style={[styles.avatarLetter, { color: accentColor }]}>{card.name[0]}</Text>
+          </>
+        )}
+        <View style={[styles.avatarFade, { backgroundColor: tc.bg.primary }]} />
+        <View style={[styles.avatarBorderLine, { backgroundColor: accentColor + '30' }]} />
       </View>
       <Text style={[styles.name, { color: tc.text.primary }]}>{card.name}</Text>
       <Text style={[styles.creator, { color: tc.text.secondary }]}>by @{card.creator_name}</Text>
@@ -161,7 +168,10 @@ const styles = StyleSheet.create({
   content: { padding: spacing.lg },
   avatarContainer: { width: '100%', aspectRatio: 1, borderRadius: borderRadius.xl, justifyContent: 'center', alignItems: 'center', marginBottom: spacing.lg, overflow: 'hidden' },
   avatar: { width: '100%', height: '100%' },
-  avatarLetter: { fontSize: 80, fontWeight: '700', opacity: 0.5 },
+  avatarLetter: { fontSize: 80, fontWeight: '700', opacity: 0.5, zIndex: 1 },
+  avatarGlowBg: { position: 'absolute', width: 200, height: 200, borderRadius: 100 },
+  avatarFade: { position: 'absolute', bottom: 0, left: 0, right: 0, height: 60, opacity: 0.8 },
+  avatarBorderLine: { position: 'absolute', bottom: 0, left: 0, right: 0, height: 2 },
   name: { ...typography.display, color: colors.text.primary, marginBottom: spacing.xs },
   creator: { ...typography.body, color: colors.text.secondary, marginBottom: spacing.sm },
   ratingRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs, marginBottom: spacing.lg },
