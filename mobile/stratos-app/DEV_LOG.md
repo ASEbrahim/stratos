@@ -186,5 +186,8 @@ Italic quote snippet from character's first message on Popular This Week.
 ## Iteration 62: Theme-aware CardEditor ✅
 WordCount and quality color now read from themeStore. checkpoint-15.
 
-## Iteration 63: Gradient header on character detail
-The character detail screen has a plain avatar container. Adding a gradient overlay from the genre color that fades into the background — makes the hero section more dramatic and polished.
+## Iteration 63: Gradient fade on character detail avatar ✅
+Gradient overlay + accent border on avatar section.
+
+## Iteration 64: Auto-scroll to latest message when keyboard opens
+When the keyboard opens in chat, the message list should auto-scroll to show the latest message above the keyboard. Without this, users lose context when typing.
