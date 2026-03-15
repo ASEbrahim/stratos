@@ -189,5 +189,8 @@ WordCount and quality color now read from themeStore. checkpoint-15.
 ## Iteration 63: Gradient fade on character detail avatar ✅
 Gradient overlay + accent border on avatar section.
 
-## Iteration 64: Auto-scroll to latest message when keyboard opens
-When the keyboard opens in chat, the message list should auto-scroll to show the latest message above the keyboard. Without this, users lose context when typing.
+## Iteration 64: Auto-scroll on keyboard open in chat ✅
+Keyboard listener scrolls to latest message.
+
+## Iteration 65: Content rating badge on character detail
+The character detail screen doesn't show the content rating. Adding a prominent SFW/NSFW badge near the name so users know what to expect before starting a conversation.

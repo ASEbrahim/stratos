@@ -74,7 +74,12 @@ export function CharacterDetailView({ card }: CharacterDetailProps) {
         <View style={[styles.avatarFade, { backgroundColor: tc.bg.primary }]} />
         <View style={[styles.avatarBorderLine, { backgroundColor: accentColor + '30' }]} />
       </View>
-      <Text style={[styles.name, { color: tc.text.primary }]}>{card.name}</Text>
+      <View style={styles.nameRow}>
+        <Text style={[styles.name, { color: tc.text.primary }]}>{card.name}</Text>
+        <View style={[styles.ratingBadge, { backgroundColor: card.content_rating === 'nsfw' ? tc.nsfw + '20' : tc.status.success + '15' }]}>
+          <Text style={[styles.ratingBadgeText, { color: card.content_rating === 'nsfw' ? tc.nsfw : tc.status.success }]}>{card.content_rating === 'nsfw' ? '18+' : 'SFW'}</Text>
+        </View>
+      </View>
       <Text style={[styles.creator, { color: tc.text.secondary }]}>by @{card.creator_name}</Text>
       <View style={styles.ratingRow}>
         <Star size={14} color={tc.accent.secondary} fill={tc.accent.secondary} />
@@ -172,7 +177,10 @@ const styles = StyleSheet.create({
   avatarGlowBg: { position: 'absolute', width: 200, height: 200, borderRadius: 100 },
   avatarFade: { position: 'absolute', bottom: 0, left: 0, right: 0, height: 60, opacity: 0.8 },
   avatarBorderLine: { position: 'absolute', bottom: 0, left: 0, right: 0, height: 2 },
-  name: { ...typography.display, color: colors.text.primary, marginBottom: spacing.xs },
+  nameRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, marginBottom: spacing.xs },
+  name: { ...typography.display, flex: 1 },
+  ratingBadge: { paddingHorizontal: spacing.sm, paddingVertical: 2, borderRadius: borderRadius.sm },
+  ratingBadgeText: { fontSize: 10, fontWeight: '800', letterSpacing: 0.5 },
   creator: { ...typography.body, color: colors.text.secondary, marginBottom: spacing.sm },
   ratingRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs, marginBottom: spacing.lg },
   rating: { ...typography.body, color: colors.text.primary, fontWeight: '600' },
