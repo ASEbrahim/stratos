@@ -59,7 +59,7 @@ export function MessageBubble({ message, accentColor }: MessageBubbleProps) {
           styles.bubble,
           isUser
             ? [styles.userBubble, { backgroundColor: accent + '20', borderColor: accent + '15' }]
-            : [styles.assistantBubble, { backgroundColor: tc.bg.tertiary, borderColor: tc.border.subtle }]
+            : [styles.assistantBubble, { backgroundColor: tc.bg.tertiary, borderColor: accent + '10', borderLeftColor: accent + '30', borderLeftWidth: 2 }]
         ]}
         onLongPress={handleLongPress}
         onPress={handleTap}

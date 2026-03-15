@@ -222,5 +222,8 @@ First message rendered with action text styling on character detail.
 ## Iteration 74: Relative timestamps in chat ✅
 "just now", "2m ago", "Yesterday 3:15 PM" — contextual time display.
 
-## Iteration 75: Final visual verification + DEV_LOG cleanup
-Comprehensive visual check across all screens and themes. Cleaning up DEV_LOG formatting and ensuring all iterations are properly documented.
+## Iteration 75: Visual verification + DEV_LOG cleanup ✅
+All screens verified. checkpoint-18, 90 commits.
+
+## Iteration 76: Genre-colored message bubbles for assistant
+Assistant messages currently all use the same neutral background. Tinting them with a subtle genre color makes the chat feel more immersive and tied to the character — different characters feel visually distinct.
