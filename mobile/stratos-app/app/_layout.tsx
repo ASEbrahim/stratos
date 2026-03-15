@@ -3,22 +3,25 @@ import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { View, StyleSheet } from 'react-native';
 import { useAuthStore } from '../stores/authStore';
+import { useThemeStore } from '../stores/themeStore';
 import { LoadingScreen } from '../components/shared/LoadingScreen';
 import { ErrorBoundary } from '../components/shared/ErrorBoundary';
-import { colors } from '../constants/theme';
 
 export default function RootLayout() {
   const { isLoading, checkAuth } = useAuthStore();
-  useEffect(() => { checkAuth(); }, []);
+  const { colors: tc, loadTheme } = useThemeStore();
+
+  useEffect(() => { checkAuth(); loadTheme(); }, []);
+
   if (isLoading) return <LoadingScreen />;
   return (
     <ErrorBoundary>
-      <View style={styles.container}>
+      <View style={[styles.container, { backgroundColor: tc.bg.primary }]}>
         <StatusBar style="light" />
-        <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.bg.primary }, animation: 'slide_from_right' }} />
+        <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: tc.bg.primary }, animation: 'slide_from_right' }} />
       </View>
     </ErrorBoundary>
   );
 }
 
-const styles = StyleSheet.create({ container: { flex: 1, backgroundColor: colors.bg.primary } });
+const styles = StyleSheet.create({ container: { flex: 1 } });

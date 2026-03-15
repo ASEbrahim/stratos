@@ -1,4 +1,5 @@
-// StratOS Mobile — Arcane Theme (Hextech energy + Zaun depths)
+// StratOS Mobile — Default theme constants (Arcane)
+// For dynamic theming, use useThemeStore().colors instead of these statics
 
 export const colors = {
   bg: {
