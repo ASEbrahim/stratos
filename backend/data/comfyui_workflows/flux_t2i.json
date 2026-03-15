@@ -46,7 +46,7 @@
   "8": {
     "class_type": "VAELoader",
     "inputs": {
-      "vae_name": "ae.safetensors"
+      "vae_name": "diffusion_pytorch_model.safetensors"
     }
   },
   "9": {
