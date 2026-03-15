@@ -36,5 +36,8 @@ Users need to manage their chat history. Added delete button + long-press on his
 ## Iteration 12: Chat header menu actions + character count in input ✅
 The 3-dot menu in chat does nothing. Added New Session, Character Info, and Clear History actions. Also added character count to the chat input.
 
-## Iteration 13: Message regeneration + "Recommended" section on discover
-Regenerating the last AI response is a core feature in all RP apps. Adding a "Regenerate" button on the last assistant message. Also adding a "Recommended for You" section on discover that shows characters matching the user's most-chatted genre.
+## Iteration 13: Message regeneration + card first message preview ✅
+Regenerate button on last assistant message. First message preview on character cards.
+
+## Iteration 14: "Popular This Week" discover section ✅
+Added horizontal "Popular This Week" cards at the top of discover — wider format with avatar, name, description, and genre-colored chat count. Stronger content hierarchy.
