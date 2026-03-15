@@ -39,7 +39,8 @@ EPOCHS = 1
 TARGET_MODULES = ["q_proj", "k_proj", "v_proj", "o_proj"]
 
 
-def load_training_data(path: Path) -> list:
+def load_training_data(path: Path):
+    from datasets import Dataset
     conversations = []
     with open(path) as f:
         for line in f:
@@ -47,7 +48,7 @@ def load_training_data(path: Path) -> list:
             messages = conv.get("messages", [])
             if len(messages) >= 3:
                 conversations.append({"messages": messages})
-    return conversations
+    return Dataset.from_list(conversations)
 
 
 def main():
