@@ -71,3 +71,6 @@ All text, backgrounds, and accents in character detail read from themeStore.
 
 ## Iteration 24: Character count in grid header ✅
 Grid header shows character count next to title (e.g. "Characters (6)").
+
+## Iteration 25: EmptyState + LoadingScreen theme-aware
+Making the remaining shared components (EmptyState, LoadingScreen) read from themeStore so they match any theme.
