@@ -76,3 +76,4 @@ backend/data/users/
 cloudflare-proxy/node_modules/
 node_modules/
 test-results/
+tools/ComfyUI/
