@@ -28,7 +28,7 @@ export default function DiscoverScreen() {
   const [scenarios, setScenarios] = useState<GamingScenario[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [refreshing, setRefreshing] = useState(false);
-  const [sortBy, setSortBy] = useState<'popular' | 'newest' | 'rating'>('popular');
+  const [sortBy, setSortBy] = useState<'popular' | 'newest' | 'rating' | 'gaming'>('popular');
   const [showScrollTop, setShowScrollTop] = useState(false);
   const scrollRef = React.useRef<ScrollView>(null);
 
@@ -97,17 +97,29 @@ export default function DiscoverScreen() {
           <Text style={[styles.sectionTitle, { color: tc.text.primary }]}>{searchQuery.trim() ? 'Search Results' : 'Characters'} <Text style={{ color: tc.text.muted, fontSize: 14 }}>({displayCards.length})</Text></Text>
           {!searchQuery.trim() && (
             <View style={styles.sortRow}>
-              {(['popular', 'newest', 'rating'] as const).map(s => (
-                <TouchableOpacity key={s} onPress={() => { Haptics.selectionAsync(); setSortBy(s); }} style={[styles.sortChip, sortBy === s && { backgroundColor: tc.accent.primary + '15' }]} accessibilityLabel={`Sort by ${s === 'popular' ? 'popular' : s === 'newest' ? 'newest' : 'top rated'}${sortBy === s ? ', selected' : ''}`} accessibilityRole="button">
-                  <Text style={[styles.sortText, { color: sortBy === s ? tc.accent.primary : tc.text.muted }]}>{s === 'popular' ? 'Popular' : s === 'newest' ? 'New' : 'Top Rated'}</Text>
+              {(['popular', 'newest', 'rating', 'gaming'] as const).map(s => (
+                <TouchableOpacity key={s} onPress={() => { Haptics.selectionAsync(); setSortBy(s); }} style={[styles.sortChip, sortBy === s && { backgroundColor: tc.accent.primary + '15' }]} accessibilityLabel={`${s === 'gaming' ? 'Gaming scenarios' : `Sort by ${s}`}${sortBy === s ? ', selected' : ''}`} accessibilityRole="button">
+                  <Text style={[styles.sortText, { color: sortBy === s ? tc.accent.primary : tc.text.muted }]}>{s === 'popular' ? 'Popular' : s === 'newest' ? 'New' : s === 'rating' ? 'Top Rated' : 'Gaming'}</Text>
                 </TouchableOpacity>
               ))}
             </View>
           )}
         </View>
-        {displayCards.length === 0 ? (
+        {sortBy === 'gaming' ? (
+          scenarios.length === 0 ? (
+            <View style={styles.emptySearch}>
+              <Text style={styles.emptyIcon}>🎮</Text>
+              <Text style={[styles.emptyTitle, { color: tc.text.secondary }]}>No gaming scenarios yet</Text>
+              <Text style={[styles.emptySubtitle, { color: tc.text.muted }]}>Interactive story scenarios will appear here</Text>
+            </View>
+          ) : (
+            <View style={styles.scenarioGrid}>
+              {scenarios.map(s => <ScenarioCard key={s.id} scenario={s} />)}
+            </View>
+          )
+        ) : displayCards.length === 0 ? (
           <View style={styles.emptySearch}>
-            <Text style={[styles.emptyIcon]}>{searchQuery.trim() ? '🔍' : selectedGenre ? GENRES.find(g => g.id === selectedGenre)?.emoji ?? '🎭' : '✨'}</Text>
+            <Text style={styles.emptyIcon}>{searchQuery.trim() ? '🔍' : selectedGenre ? GENRES.find(g => g.id === selectedGenre)?.emoji ?? '🎭' : '✨'}</Text>
             <Text style={[styles.emptyTitle, { color: tc.text.secondary }]}>{searchQuery.trim() ? 'No characters found' : selectedGenre ? `No ${selectedGenre} characters yet` : 'No characters'}</Text>
             <Text style={[styles.emptySubtitle, { color: tc.text.muted }]}>{searchQuery.trim() ? 'Try a different search term or browse by genre' : selectedGenre ? 'Be the first to create one!' : 'Characters will appear here'}</Text>
           </View>
@@ -117,14 +129,6 @@ export default function DiscoverScreen() {
               <CharacterCardComponent card={c} featured={idx === 0 && !searchQuery.trim() && !selectedGenre} />
             </Animated.View>
           ))}</View>
-        )}
-        {!searchQuery.trim() && scenarios.length > 0 && (
-          <>
-            <View style={[styles.sectionHdr, { marginTop: spacing.xl }]}><Text style={[styles.sectionTitle, { color: tc.text.primary }]}>Gaming Scenarios</Text></View>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.hScroll}>
-              {scenarios.map(s => <ScenarioCard key={s.id} scenario={s} variant="horizontal" />)}
-            </ScrollView>
-          </>
         )}
         <View style={{ height: spacing.xxl }} />
       </ScrollView>
@@ -154,6 +158,7 @@ const styles = StyleSheet.create({
   genreChip: { paddingHorizontal: spacing.md, paddingVertical: spacing.sm, borderRadius: borderRadius.full, borderWidth: 1 },
   genreText: { ...typography.caption },
   grid: { flexDirection: 'row', flexWrap: 'wrap', paddingHorizontal: spacing.lg, gap: spacing.lg },
+  scenarioGrid: { paddingHorizontal: spacing.lg, gap: spacing.md },
   emptySearch: { alignItems: 'center', paddingVertical: spacing.xxl * 2, paddingHorizontal: spacing.xxl },
   emptyIcon: { fontSize: 40, marginBottom: spacing.md },
   emptyTitle: { ...typography.subheading, marginBottom: spacing.xs },

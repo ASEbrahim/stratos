@@ -97,7 +97,8 @@ export function CharacterCardComponent({ card, variant = 'grid', featured = fals
         )}
         {/* Quick chat button */}
         <TouchableOpacity style={[styles.quickChatBtn, { backgroundColor: accentColor + 'CC' }]} onPress={handleQuickChat} activeOpacity={0.8} hitSlop={4} accessibilityLabel={`Quick chat with ${card.name}`} accessibilityRole="button">
-          <MessageCircle size={12} color="#fff" />
+          <MessageCircle size={10} color="#fff" />
+          <Text style={styles.quickChatText}>Chat</Text>
         </TouchableOpacity>
         {/* NSFW badge */}
         {card.content_rating === 'nsfw' && <View style={[styles.nsfwBadge, { backgroundColor: tc.nsfw + 'CC' }]}><Text style={styles.nsfwText}>18+</Text></View>}
@@ -153,7 +154,8 @@ const styles = StyleSheet.create({
     opacity: 0.7,
   },
   heartOverlay: { position: 'absolute', zIndex: 10, justifyContent: 'center', alignItems: 'center', top: '35%', left: '35%' },
-  quickChatBtn: { position: 'absolute', bottom: spacing.sm + 30, right: spacing.sm, width: 28, height: 28, borderRadius: 14, justifyContent: 'center', alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.3, shadowRadius: 4, elevation: 3 },
+  quickChatBtn: { position: 'absolute', bottom: spacing.sm + 30, right: spacing.sm, flexDirection: 'row', alignItems: 'center', gap: 3, paddingHorizontal: 8, height: 26, borderRadius: 13, justifyContent: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.3, shadowRadius: 4, elevation: 3 },
+  quickChatText: { fontSize: 10, fontWeight: '700', color: '#fff' },
   nsfwBadge: { position: 'absolute', top: spacing.sm, right: spacing.sm, paddingHorizontal: spacing.sm, paddingVertical: 2, borderRadius: borderRadius.sm },
   newBadge: { position: 'absolute', top: spacing.sm, left: spacing.sm, paddingHorizontal: spacing.sm, paddingVertical: 2, borderRadius: borderRadius.sm },
   newBadgeText: { fontSize: 8, fontWeight: '800', color: '#fff', letterSpacing: 1 },
