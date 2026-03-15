@@ -11,12 +11,13 @@ interface SessionHeaderProps {
   characterName: string;
   accentColor?: string;
   characterId?: string;
+  isTyping?: boolean;
   onNewSession?: () => void;
   onClearHistory?: () => void;
   onExportChat?: () => void;
 }
 
-export function SessionHeader({ characterName, accentColor, characterId, onNewSession, onClearHistory, onExportChat }: SessionHeaderProps) {
+export function SessionHeader({ characterName, accentColor, characterId, isTyping, onNewSession, onClearHistory, onExportChat }: SessionHeaderProps) {
   const router = useRouter();
   const tc = useThemeStore(s => s.colors);
   const color = accentColor ?? tc.accent.primary;
@@ -43,7 +44,10 @@ export function SessionHeader({ characterName, accentColor, characterId, onNewSe
           <View style={[styles.avatar, { backgroundColor: color + '20' }]}><Text style={[styles.avatarText, { color }]}>{characterName[0]}</Text></View>
           <Animated.View style={[styles.onlineDot, { backgroundColor: tc.status.success }, pulseStyle]} />
         </View>
-        <Text style={[styles.name, { color: tc.text.primary }]} numberOfLines={1}>{characterName}</Text>
+        <View style={{ flex: 1 }}>
+          <Text style={[styles.name, { color: tc.text.primary }]} numberOfLines={1}>{characterName}</Text>
+          {isTyping && <Text style={[styles.typingText, { color: tc.status.success }]}>typing...</Text>}
+        </View>
       </View>
       <TouchableOpacity style={styles.menuButton} onPress={handleMenu}><MoreVertical size={20} color={tc.text.secondary} /></TouchableOpacity>
     </View>
@@ -56,7 +60,8 @@ const styles = StyleSheet.create({
   center: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: spacing.sm, paddingHorizontal: spacing.sm },
   avatar: { width: 32, height: 32, borderRadius: 16, justifyContent: 'center', alignItems: 'center' },
   avatarText: { fontSize: 14, fontWeight: '700' },
-  name: { ...typography.subheading, flex: 1 },
+  name: { ...typography.subheading },
+  typingText: { fontSize: 10, fontWeight: '500', marginTop: 1 },
   menuButton: { padding: spacing.xs },
   onlineDot: { position: 'absolute', bottom: 0, right: 0, width: 10, height: 10, borderRadius: 5, borderWidth: 2, borderColor: '#0a0a0f' },
 });

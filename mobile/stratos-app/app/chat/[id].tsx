@@ -36,6 +36,7 @@ export default function ChatScreen() {
         characterName={character?.name ?? 'Chat'}
         accentColor={accentColor}
         characterId={character?.id}
+        isTyping={isStreaming}
         onNewSession={character ? () => { startSession(character, 'roleplay'); } : undefined}
         onClearHistory={() => { clearSession(); }}
         onExportChat={messages.length > 1 ? () => {
@@ -48,7 +49,18 @@ export default function ChatScreen() {
         } : undefined}
       />
       <KeyboardAvoidingView style={styles.chatArea} behavior={Platform.OS === 'ios' ? 'padding' : undefined} keyboardVerticalOffset={insets.top}>
-        <FlatList ref={listRef} data={messages} renderItem={({ item }: { item: ChatMessage }) => <MessageBubble message={item} accentColor={accentColor} />} keyExtractor={item => item.id} contentContainerStyle={styles.msgList} showsVerticalScrollIndicator={false}
+        <FlatList ref={listRef} data={messages} renderItem={({ item, index }: { item: ChatMessage; index: number }) => {
+          const isLastUser = item.role === 'user' && index === messages.length - 1 && !isStreaming;
+          const isLastUserBeforeAssistant = item.role === 'user' && index < messages.length - 1 && messages[index + 1]?.role === 'assistant';
+          return (
+            <View>
+              <MessageBubble message={item} accentColor={accentColor} />
+              {(isLastUser || isLastUserBeforeAssistant) && !isStreaming && (
+                <Text style={[styles.seenText, { color: tc.text.muted }]}>Seen ✓</Text>
+              )}
+            </View>
+          );
+        }} keyExtractor={item => item.id} contentContainerStyle={styles.msgList} showsVerticalScrollIndicator={false}
           ListHeaderComponent={character && messages.length <= 2 ? (
             <View style={[styles.charIntro, { backgroundColor: (accentColor ?? tc.accent.primary) + '08', borderColor: (accentColor ?? tc.accent.primary) + '20' }]}>
               <View style={[styles.charIntroAvatar, { backgroundColor: (accentColor ?? tc.accent.primary) + '15' }]}>
@@ -95,4 +107,5 @@ const styles = StyleSheet.create({
   charIntroLetter: { fontSize: 18, fontWeight: '700' },
   charIntroName: { fontSize: 13, fontWeight: '700', marginBottom: 2 },
   charIntroDesc: { fontSize: 11, lineHeight: 15 },
+  seenText: { fontSize: 9, textAlign: 'right', paddingRight: spacing.lg, marginTop: 2 },
 });

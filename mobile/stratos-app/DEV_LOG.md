@@ -156,5 +156,8 @@ Double-tap saves to library with animated heart burst. checkpoint-12 tagged.
 ## Iteration 52: Working copy-to-clipboard on messages ✅
 Long-press → Copy now uses expo-clipboard with haptic confirmation.
 
-## Iteration 53: Search bar in Library
-Library has no search — with many saved characters, users need to find specific ones quickly. Adding a search bar that filters across all tabs.
+## Iteration 53: Search bar in Library ✅
+Filters My Characters, Saved, and History tabs by name/description.
+
+## Iteration 54: "Seen" indicator on chat messages + typing state in header
+Adding a subtle "Seen ✓" below the last user message and "typing..." text in the header subtitle when AI is responding — both are expected in modern chat apps.
