@@ -126,5 +126,8 @@ All hardcoded colors removed from library. Sessions animate out on delete.
 ## Iteration 42: Message count badge on recent session avatars ✅
 Badge shows message count on "Continue" row avatars.
 
-## Iteration 43: Chat export — copy full conversation to clipboard
-Power users want to save/share their best RP sessions. Adding "Export Chat" to the chat header menu that copies the full conversation as formatted text.
+## Iteration 43: Chat export via share sheet ✅
+Export Chat option in header menu, formatted with character name and message separators.
+
+## Iteration 44: Haptic feedback on key interactions
+Native apps feel premium with haptics. Adding selection feedback on tab switches, genre filters, sort toggles, and card taps — every touch should have tactile confirmation.

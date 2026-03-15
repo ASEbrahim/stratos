@@ -60,13 +60,13 @@ export default function LibraryScreen() {
     <View style={[styles.container, { paddingTop: insets.top, backgroundColor: tc.bg.primary }]}>
       <Text style={[styles.title, { color: tc.text.primary }]}>Library</Text>
       <View style={styles.tabs}>
-        <TouchableOpacity style={[styles.tab, { backgroundColor: tc.bg.tertiary }, tab === 'mine' && { backgroundColor: tc.accent.primary + '20' }]} onPress={() => setTab('mine')}>
+        <TouchableOpacity style={[styles.tab, { backgroundColor: tc.bg.tertiary }, tab === 'mine' && { backgroundColor: tc.accent.primary + '20' }]} onPress={() => { Haptics.selectionAsync(); setTab('mine'); }}>
           <Text style={[styles.tabText, { color: tc.text.muted }, tab === 'mine' && { color: tc.accent.primary }]}>My Characters{myCards.length > 0 ? ` (${myCards.length})` : ''}</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={[styles.tab, { backgroundColor: tc.bg.tertiary }, tab === 'saved' && { backgroundColor: tc.accent.primary + '20' }]} onPress={() => setTab('saved')}>
+        <TouchableOpacity style={[styles.tab, { backgroundColor: tc.bg.tertiary }, tab === 'saved' && { backgroundColor: tc.accent.primary + '20' }]} onPress={() => { Haptics.selectionAsync(); setTab('saved'); }}>
           <Text style={[styles.tabText, { color: tc.text.muted }, tab === 'saved' && { color: tc.accent.primary }]}>Saved{savedCards.length > 0 ? ` (${savedCards.length})` : ''}</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={[styles.tab, { backgroundColor: tc.bg.tertiary }, tab === 'history' && { backgroundColor: tc.accent.primary + '20' }]} onPress={() => setTab('history')}>
+        <TouchableOpacity style={[styles.tab, { backgroundColor: tc.bg.tertiary }, tab === 'history' && { backgroundColor: tc.accent.primary + '20' }]} onPress={() => { Haptics.selectionAsync(); setTab('history'); }}>
           <Text style={[styles.tabText, { color: tc.text.muted }, tab === 'history' && { color: tc.accent.primary }]}>History{recentSessions.length > 0 ? ` (${recentSessions.length})` : ''}</Text>
         </TouchableOpacity>
       </View>
