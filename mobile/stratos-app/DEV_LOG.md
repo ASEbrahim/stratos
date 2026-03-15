@@ -114,5 +114,8 @@ Trust & safety report with confirmation dialog.
 ## Iteration 38: Theme-aware MessageBubble + StreamingBubble ✅
 Chat bubbles now read from themeStore — true 100% theme coverage.
 
-## Iteration 39: Enhanced prose formatting — bold, quotes, combined markup
-RP chat needs rich text: `**bold**` for emphasis, `> quotes` for narration, and combined `***bold italic***`. Character.AI and SillyTavern both render these — we should too.
+## Iteration 39: Enhanced prose formatting — bold, quotes, combined markup ✅
+`**bold**`, `***bold italic***`, `> blockquotes` with accent-colored sidebar.
+
+## Iteration 40: Share character via native share sheet
+Every social app has sharing. Adding a share button on character detail that opens the OS share sheet with a formatted character description — lets users share characters they love.

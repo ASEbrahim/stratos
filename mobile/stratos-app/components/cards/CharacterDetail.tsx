@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Alert, Share } from 'react-native';
 import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 import * as Haptics from 'expo-haptics';
-import { Star, BookmarkPlus, BookmarkCheck, Flag } from 'lucide-react-native';
+import { Star, BookmarkPlus, BookmarkCheck, Flag, Share2 } from 'lucide-react-native';
 import { CharacterCard, formatCount } from '../../lib/types';
 import { TagPills } from './TagPills';
 import { QualityScore } from './QualityScore';
@@ -96,13 +96,22 @@ export function CharacterDetailView({ card }: CharacterDetailProps) {
           </TouchableOpacity>
         )}
       </Animated.View>
-      <TouchableOpacity style={[styles.secondaryButton, saved && { borderColor: colors.status.success + '60', backgroundColor: colors.status.success + '10' }]} onPress={handleToggleSave} activeOpacity={0.7}>
-        {saved ? <BookmarkCheck size={18} color={colors.status.success} /> : <BookmarkPlus size={18} color={colors.text.secondary} />}
-        <Text style={[styles.secondaryButtonText, saved && { color: colors.status.success }]}>{saved ? 'Saved' : 'Save to Library'}</Text>
-      </TouchableOpacity>
+      <View style={styles.actionRow}>
+        <TouchableOpacity style={[styles.secondaryButton, { flex: 1, borderColor: tc.border.medium }, saved && { borderColor: tc.status.success + '60', backgroundColor: tc.status.success + '10' }]} onPress={handleToggleSave} activeOpacity={0.7}>
+          {saved ? <BookmarkCheck size={18} color={tc.status.success} /> : <BookmarkPlus size={18} color={tc.text.secondary} />}
+          <Text style={[styles.secondaryButtonText, { color: tc.text.secondary }, saved && { color: tc.status.success }]}>{saved ? 'Saved' : 'Save'}</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={[styles.secondaryButton, { flex: 1, borderColor: tc.border.medium }]} onPress={async () => {
+          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+          await Share.share({ message: `Check out ${card.name} on StratOS!\n\n"${card.description}"\n\n${card.genre_tags.map(t => `#${t}`).join(' ')} · ${card.rating.toFixed(1)} rating` });
+        }} activeOpacity={0.7}>
+          <Share2 size={18} color={tc.text.secondary} />
+          <Text style={[styles.secondaryButtonText, { color: tc.text.secondary }]}>Share</Text>
+        </TouchableOpacity>
+      </View>
       <TouchableOpacity style={styles.reportBtn} onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); Alert.alert('Report Character', 'Report this character for inappropriate content?', [{ text: 'Cancel', style: 'cancel' }, { text: 'Report', style: 'destructive', onPress: () => Alert.alert('Reported', 'Thank you for your report. We will review this character.') }]); }} activeOpacity={0.7}>
-        <Flag size={12} color={colors.text.muted} />
-        <Text style={styles.reportText}>Report Character</Text>
+        <Flag size={12} color={tc.text.muted} />
+        <Text style={[styles.reportText, { color: tc.text.muted }]}>Report Character</Text>
       </TouchableOpacity>
       <View style={{ height: spacing.xxl }} />
     </ScrollView>
@@ -136,11 +145,12 @@ const styles = StyleSheet.create({
   sectionBody: { ...typography.body, color: colors.text.secondary, lineHeight: 24 },
   primaryButton: { paddingVertical: spacing.lg, borderRadius: borderRadius.lg, alignItems: 'center', marginBottom: spacing.md },
   primaryButtonText: { ...typography.subheading, color: '#fff' },
-  secondaryButton: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.sm, paddingVertical: spacing.lg, borderRadius: borderRadius.lg, borderWidth: 1, borderColor: colors.border.medium },
-  secondaryButtonText: { ...typography.subheading, color: colors.text.secondary },
+  actionRow: { flexDirection: 'row', gap: spacing.sm, marginBottom: spacing.sm },
+  secondaryButton: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.sm, paddingVertical: spacing.lg, borderRadius: borderRadius.lg, borderWidth: 1 },
+  secondaryButtonText: { ...typography.subheading },
   sessionHint: { ...typography.small, color: colors.text.muted, textAlign: 'center', marginTop: spacing.xs, marginBottom: spacing.sm },
   newSessionBtn: { paddingVertical: spacing.md, borderRadius: borderRadius.lg, borderWidth: 1, alignItems: 'center', marginBottom: spacing.md },
   newSessionText: { ...typography.caption, fontWeight: '600' },
   reportBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.xs, paddingVertical: spacing.lg, marginTop: spacing.lg },
-  reportText: { ...typography.small, color: colors.text.muted },
+  reportText: { ...typography.small },
 });
