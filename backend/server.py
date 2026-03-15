@@ -71,6 +71,68 @@ def create_handler(strat, auth, frontend_dir, output_dir):
         row = cursor.fetchone()
         return row[0] if row else None
 
+    # Cache: device_id → profile_id (avoid DB lookup on every request)
+    _device_profile_cache = {}
+
+    def _resolve_device_profile(db, device_id: str) -> int:
+        """Resolve or create an anonymous profile from a device ID.
+
+        First request from a new device: creates a user + profile in DB.
+        Subsequent requests: returns cached profile_id.
+        """
+        if device_id in _device_profile_cache:
+            return _device_profile_cache[device_id]
+
+        import time as _time
+        for _attempt in range(3):
+            try:
+                cursor = db.conn.cursor()
+                # Check if device already has a user
+                cursor.execute(
+                    "SELECT u.id, p.id FROM users u JOIN profiles p ON p.user_id = u.id "
+                    "WHERE u.email = ? LIMIT 1",
+                    (f"anon-{device_id}@device.local",)
+                )
+                row = cursor.fetchone()
+                if row:
+                    _device_profile_cache[device_id] = row[1]
+                    return row[1]
+
+                # Create anonymous user + profile
+                import hashlib
+                cursor.execute(
+                    "INSERT INTO users (email, password_hash, display_name, is_admin) VALUES (?, ?, ?, ?)",
+                    (f"anon-{device_id}@device.local", "anon-no-password", f"User-{device_id[:8]}", False)
+                )
+                user_id = cursor.lastrowid
+                cursor.execute(
+                    "INSERT INTO profiles (user_id, name, is_default) VALUES (?, ?, ?)",
+                    (user_id, "default", True)
+                )
+                profile_id = cursor.lastrowid
+                db.conn.commit()
+                logger.info(f"Created anonymous profile {profile_id} for device {device_id[:12]}...")
+                _device_profile_cache[device_id] = profile_id
+                return profile_id
+            except Exception as e:
+                if 'locked' in str(e) and _attempt < 2:
+                    _time.sleep(0.5)
+                    continue
+                if 'UNIQUE' in str(e):
+                    # Race condition — another thread created it. Retry lookup.
+                    db.conn.rollback()
+                    cursor.execute(
+                        "SELECT p.id FROM users u JOIN profiles p ON p.user_id = u.id "
+                        "WHERE u.email = ? LIMIT 1",
+                        (f"anon-{device_id}@device.local",)
+                    )
+                    row = cursor.fetchone()
+                    if row:
+                        _device_profile_cache[device_id] = row[0]
+                        return row[0]
+                raise
+        return 0
+
     class CORSHandler(SimpleHTTPRequestHandler):
         def __init__(self, *args, **kwargs):
             super().__init__(*args, directory=str(frontend_dir), **kwargs)
@@ -150,34 +212,40 @@ def create_handler(strat, auth, frontend_dir, output_dir):
             _auth_path = self.path.split('?')[0]
             if _auth_path.startswith('/api/') and not _auth_path.startswith('/api/proxy') and _auth_path not in auth.AUTH_EXEMPT:
                 token = self.headers.get('X-Auth-Token', '')
+                device_id = self.headers.get('X-Device-Id', '')
                 # Fallback: accept token as query param for file downloads (e.g. export)
                 if not token:
                     _qs = parse_qs(urlparse(self.path).query)
                     token = _qs.get('token', [''])[0]
-                if not auth.validate_session(token):
+
+                if token and auth.validate_session(token):
+                    # Logged-in user
+                    _session_profile = auth.get_session_profile(token)
+                    if _session_profile:
+                        strat.ensure_profile(_session_profile)
+                    try:
+                        cursor = strat.db.conn.cursor()
+                        cursor.execute("SELECT profile_id FROM sessions WHERE token = ?", (token,))
+                        _pid_row = cursor.fetchone()
+                        if _pid_row and _pid_row[0]:
+                            self._profile_id = _pid_row[0]
+                    except Exception:
+                        pass
+                    self._session_profile = _session_profile
+                elif device_id:
+                    # Anonymous user — resolve or create profile from device ID
+                    try:
+                        self._profile_id = _resolve_device_profile(strat.db, device_id)
+                    except Exception as e:
+                        logger.error(f"Device profile resolution failed: {e}")
+                        self._profile_id = 0
+                    self._session_profile = None
+                else:
                     self.send_response(401)
                     self.send_header("Content-type", "application/json")
                     self.end_headers()
                     self.wfile.write(b'{"error": "Authentication required"}')
                     return
-                # A2.1: Ensure the correct profile's config is loaded
-                _session_profile = auth.get_session_profile(token)
-                if _session_profile:
-                    strat.ensure_profile(_session_profile)
-                # Resolve DB profile_id from session (for data isolation)
-                try:
-                    cursor = strat.db.conn.cursor()
-                    cursor.execute("SELECT profile_id FROM sessions WHERE token = ?", (token,))
-                    _pid_row = cursor.fetchone()
-                    if _pid_row and _pid_row[0]:
-                        self._profile_id = _pid_row[0]
-                        # Note: do NOT set strat.active_profile_id here — it's global
-                        # mutable state that causes cross-profile bleed when concurrent
-                        # requests from different profiles race. Each handler uses
-                        # self._profile_id (per-request, thread-safe) instead.
-                except Exception:
-                    pass
-                self._session_profile = _session_profile
 
             # SSE event stream — replaces polling for real-time updates (keep in server.py: long-lived)
             if self.path.startswith("/api/events"):
@@ -467,27 +535,37 @@ def create_handler(strat, auth, frontend_dir, output_dir):
             _auth_path_post = self.path.split('?')[0]
             if _auth_path_post.startswith('/api/') and _auth_path_post not in auth.AUTH_EXEMPT:
                 token = self.headers.get('X-Auth-Token', '')
-                if not auth.validate_session(token):
+                device_id = self.headers.get('X-Device-Id', '')
+
+                if token and auth.validate_session(token):
+                    # Logged-in user — use their session
+                    _session_profile = auth.get_session_profile(token)
+                    if _session_profile:
+                        strat.ensure_profile(_session_profile)
+                    try:
+                        cursor = strat.db.conn.cursor()
+                        cursor.execute("SELECT profile_id FROM sessions WHERE token = ?", (token,))
+                        _pid_row = cursor.fetchone()
+                        if _pid_row and _pid_row[0]:
+                            self._profile_id = _pid_row[0]
+                    except Exception:
+                        pass
+                    self._session_profile = auth.get_session_profile(token)
+                elif device_id:
+                    # Anonymous user — resolve or create profile from device ID
+                    try:
+                        self._profile_id = _resolve_device_profile(strat.db, device_id)
+                    except Exception as e:
+                        logger.error(f"Device profile resolution failed: {e}")
+                        self._profile_id = 0
+                    self._session_profile = None
+                else:
+                    # No auth and no device ID — reject
                     self.send_response(401)
                     self.send_header("Content-type", "application/json")
                     self.end_headers()
                     self.wfile.write(b'{"error": "Authentication required"}')
                     return
-                # A2.1: Ensure the correct profile's config is loaded
-                _session_profile = auth.get_session_profile(token)
-                if _session_profile:
-                    strat.ensure_profile(_session_profile)
-                # Resolve DB profile_id from session (for data isolation)
-                try:
-                    cursor = strat.db.conn.cursor()
-                    cursor.execute("SELECT profile_id FROM sessions WHERE token = ?", (token,))
-                    _pid_row = cursor.fetchone()
-                    if _pid_row and _pid_row[0]:
-                        self._profile_id = _pid_row[0]
-                        # Note: do NOT set strat.active_profile_id here (see GET handler comment)
-                except Exception:
-                    pass
-                self._session_profile = _session_profile
 
             # Save config (existing delegation)
             if self.path == "/api/config":
@@ -553,20 +631,27 @@ def create_handler(strat, auth, frontend_dir, output_dir):
             # Auth enforcement for DELETE
             if self.path.startswith('/api/'):
                 token = self.headers.get('X-Auth-Token', '')
-                if not auth.validate_session(token):
+                device_id = self.headers.get('X-Device-Id', '')
+                if token and auth.validate_session(token):
+                    _session_profile = auth.get_session_profile(token)
+                    if _session_profile:
+                        strat.ensure_profile(_session_profile)
+                    try:
+                        cursor = strat.db.conn.cursor()
+                        cursor.execute("SELECT profile_id FROM sessions WHERE token = ?", (token,))
+                        _pid_row = cursor.fetchone()
+                        if _pid_row and _pid_row[0]:
+                            self._profile_id = _pid_row[0]
+                    except Exception:
+                        pass
+                elif device_id:
+                    try:
+                        self._profile_id = _resolve_device_profile(strat.db, device_id)
+                    except Exception:
+                        self._profile_id = 0
+                else:
                     _send_json(self, {"error": "Authentication required"}, 401)
                     return
-                _session_profile = auth.get_session_profile(token)
-                if _session_profile:
-                    strat.ensure_profile(_session_profile)
-                try:
-                    cursor = strat.db.conn.cursor()
-                    cursor.execute("SELECT profile_id FROM sessions WHERE token = ?", (token,))
-                    _pid_row = cursor.fetchone()
-                    if _pid_row and _pid_row[0]:
-                        self._profile_id = _pid_row[0]
-                except Exception:
-                    pass
                 self._session_profile = _session_profile
 
             # --- Auth route DELETE (profile deletion) ---
