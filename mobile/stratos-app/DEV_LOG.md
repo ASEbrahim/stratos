@@ -30,5 +30,8 @@ The character creator was missing the Personality field entirely. Also made the 
 ## Iteration 10: Gaming scenarios theme-aware + auth screens theme-aware ✅
 Completing the theme system across remaining screens that still use hardcoded colors: gaming scenarios browser and auth (login/register).
 
-## Iteration 11: Swipe-to-delete in Library History + character card first message preview
-Users need to manage their chat history. Adding swipe-to-delete on history sessions. Also adding first message preview text on character cards in the grid to give users a taste before tapping.
+## Iteration 11: Delete sessions + character card first message preview ✅
+Users need to manage their chat history. Added delete button + long-press on history sessions. Also added first message preview text on character cards.
+
+## Iteration 12: Chat header menu actions + character count in input
+The 3-dot menu in chat does nothing. Adding New Session, Character Info, and Clear History actions. Also adding character count to the chat input to help users gauge message length.

@@ -19,7 +19,7 @@ export default function ChatScreen() {
   const listRef = useRef<FlatList>(null);
   const prevStreamRef = useRef(false);
   const tc = useThemeStore(s => s.colors);
-  const { character, messages, suggestions, isStreaming, streamingContent, sendMessage, persistSession } = useChatStore();
+  const { character, messages, suggestions, isStreaming, streamingContent, sendMessage, persistSession, startSession, clearSession } = useChatStore();
   const accentColor = character ? getGenreColor(character.genre_tags?.[0] ?? 'default') : undefined;
 
   // Persist session when leaving the screen
@@ -30,7 +30,13 @@ export default function ChatScreen() {
 
   return (
     <View style={[styles.container, { paddingTop: insets.top, backgroundColor: tc.bg.primary }]}>
-      <SessionHeader characterName={character?.name ?? 'Chat'} accentColor={accentColor} />
+      <SessionHeader
+        characterName={character?.name ?? 'Chat'}
+        accentColor={accentColor}
+        characterId={character?.id}
+        onNewSession={character ? () => { startSession(character, 'roleplay'); } : undefined}
+        onClearHistory={() => { clearSession(); }}
+      />
       <KeyboardAvoidingView style={styles.chatArea} behavior={Platform.OS === 'ios' ? 'padding' : undefined} keyboardVerticalOffset={insets.top}>
         <FlatList ref={listRef} data={messages} renderItem={({ item }: { item: ChatMessage }) => <MessageBubble message={item} accentColor={accentColor} />} keyExtractor={item => item.id} contentContainerStyle={styles.msgList} showsVerticalScrollIndicator={false}
           ListFooterComponent={<View>{isStreaming && streamingContent ? <StreamingBubble content={streamingContent} accentColor={accentColor} /> : isStreaming ? <TypingIndicator /> : null}</View>} />

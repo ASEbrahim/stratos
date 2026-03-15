@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { View, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import { Send } from 'lucide-react-native';
 import Animated, { useSharedValue, useAnimatedStyle, withSpring, withSequence } from 'react-native-reanimated';
-import { colors, spacing, borderRadius } from '../../constants/theme';
+import { useThemeStore } from '../../stores/themeStore';
+import { spacing, borderRadius, typography } from '../../constants/theme';
 
 interface ChatInputProps { onSend: (text: string) => void; disabled?: boolean; accentColor?: string; }
 
@@ -11,7 +12,8 @@ const AnimatedTouchable = Animated.createAnimatedComponent(TouchableOpacity);
 
 export function ChatInput({ onSend, disabled = false, accentColor }: ChatInputProps) {
   const [text, setText] = useState('');
-  const color = accentColor ?? colors.accent.primary;
+  const tc = useThemeStore(s => s.colors);
+  const color = accentColor ?? tc.accent.primary;
   const btnScale = useSharedValue(1);
   const btnAnimStyle = useAnimatedStyle(() => ({ transform: [{ scale: btnScale.value }] }));
 
@@ -25,20 +27,27 @@ export function ChatInput({ onSend, disabled = false, accentColor }: ChatInputPr
   };
 
   const active = !!text.trim() && !disabled;
+  const charCount = text.length;
 
   return (
-    <View style={styles.container}><View style={styles.inputRow}>
-      <TextInput style={styles.input} value={text} onChangeText={setText} placeholder="Type your action..." placeholderTextColor={colors.text.muted} multiline maxLength={4000} editable={!disabled} onSubmitEditing={handleSend} blurOnSubmit={false} />
-      <AnimatedTouchable style={[styles.sendButton, { backgroundColor: active ? color : colors.bg.elevated }, btnAnimStyle]} onPress={handleSend} disabled={!active} activeOpacity={0.7}>
-        <Send size={18} color={active ? '#fff' : colors.text.muted} />
-      </AnimatedTouchable>
-    </View></View>
+    <View style={[styles.container, { backgroundColor: tc.bg.primary, borderTopColor: tc.border.subtle }]}>
+      {charCount > 100 && (
+        <Text style={[styles.charCount, { color: charCount > 3500 ? tc.status.error : tc.text.muted }]}>{charCount}/4000</Text>
+      )}
+      <View style={styles.inputRow}>
+        <TextInput style={[styles.input, { backgroundColor: tc.bg.tertiary, color: tc.text.primary }]} value={text} onChangeText={setText} placeholder="Type your action..." placeholderTextColor={tc.text.muted} multiline maxLength={4000} editable={!disabled} onSubmitEditing={handleSend} blurOnSubmit={false} />
+        <AnimatedTouchable style={[styles.sendButton, { backgroundColor: active ? color : tc.bg.elevated }, btnAnimStyle]} onPress={handleSend} disabled={!active} activeOpacity={0.7}>
+          <Send size={18} color={active ? '#fff' : tc.text.muted} />
+        </AnimatedTouchable>
+      </View>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { backgroundColor: colors.bg.primary, borderTopWidth: 1, borderTopColor: colors.border.subtle, paddingHorizontal: spacing.lg, paddingVertical: spacing.sm, paddingBottom: spacing.lg },
+  container: { borderTopWidth: 1, paddingHorizontal: spacing.lg, paddingVertical: spacing.sm, paddingBottom: spacing.lg },
   inputRow: { flexDirection: 'row', alignItems: 'flex-end', gap: spacing.sm },
-  input: { flex: 1, backgroundColor: colors.bg.tertiary, borderRadius: borderRadius.xl, paddingHorizontal: spacing.lg, paddingVertical: spacing.md, color: colors.text.primary, fontSize: 15, maxHeight: 120 },
+  input: { flex: 1, borderRadius: borderRadius.xl, paddingHorizontal: spacing.lg, paddingVertical: spacing.md, fontSize: 15, maxHeight: 120 },
   sendButton: { width: 40, height: 40, borderRadius: 20, justifyContent: 'center', alignItems: 'center' },
+  charCount: { ...typography.small, fontSize: 9, textAlign: 'right', marginBottom: 2 },
 });
