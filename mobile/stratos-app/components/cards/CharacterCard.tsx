@@ -6,17 +6,24 @@ import { Star, MessageCircle } from 'lucide-react-native';
 import Animated, { useSharedValue, useAnimatedStyle, withSpring } from 'react-native-reanimated';
 import { CharacterCard as CharacterCardType, formatCount } from '../../lib/types';
 import { useChatStore } from '../../stores/chatStore';
-import { colors, typography, spacing, borderRadius } from '../../constants/theme';
+import { typography, spacing, borderRadius } from '../../constants/theme';
 import { getGenreColor } from '../../constants/genres';
+import { useThemeStore } from '../../stores/themeStore';
 const CARD_WIDTH = (Dimensions.get('window').width - spacing.lg * 3) / 2;
 
 interface CharacterCardProps { card: CharacterCardType; variant?: 'grid' | 'horizontal'; }
 
+function isNew(dateStr: string): boolean {
+  return Date.now() - new Date(dateStr).getTime() < 30 * 24 * 60 * 60 * 1000;
+}
+
 export function CharacterCardComponent({ card, variant = 'grid' }: CharacterCardProps) {
   const router = useRouter();
   const startSession = useChatStore(s => s.startSession);
+  const tc = useThemeStore(s => s.colors);
   const accentColor = getGenreColor(card.genre_tags[0] ?? 'default');
   const genreLabel = (card.genre_tags[0] ?? '').charAt(0).toUpperCase() + (card.genre_tags[0] ?? '').slice(1);
+  const showNew = isNew(card.created_at);
 
   const handleQuickChat = () => { startSession(card, 'roleplay'); router.push(`/chat/${card.id}`); };
 
@@ -33,7 +40,7 @@ export function CharacterCardComponent({ card, variant = 'grid' }: CharacterCard
             </>
           )}
         </View>
-        <Text style={styles.horizontalName} numberOfLines={1}>{card.name}</Text>
+        <Text style={[styles.horizontalName, { color: tc.text.primary }]} numberOfLines={1}>{card.name}</Text>
         <Text style={[styles.horizontalGenre, { color: accentColor }]}>{genreLabel}</Text>
       </TouchableOpacity>
     );
@@ -46,7 +53,7 @@ export function CharacterCardComponent({ card, variant = 'grid' }: CharacterCard
   return (
     <Animated.View style={[{ width: CARD_WIDTH }, cardAnimStyle]}>
     <Pressable
-      style={[styles.card]}
+      style={[styles.card, { backgroundColor: tc.bg.secondary, borderColor: tc.border.subtle }]}
       onPress={() => router.push(`/character/${card.id}`)}
       onPressIn={() => { cardScale.value = withSpring(0.96, { damping: 15 }); }}
       onPressOut={() => { cardScale.value = withSpring(1, { damping: 10 }); }}
@@ -66,28 +73,30 @@ export function CharacterCardComponent({ card, variant = 'grid' }: CharacterCard
           <MessageCircle size={12} color="#fff" />
         </TouchableOpacity>
         {/* NSFW badge */}
-        {card.content_rating === 'nsfw' && <View style={styles.nsfwBadge}><Text style={styles.nsfwText}>18+</Text></View>}
+        {card.content_rating === 'nsfw' && <View style={[styles.nsfwBadge, { backgroundColor: tc.nsfw + 'CC' }]}><Text style={styles.nsfwText}>18+</Text></View>}
+        {/* NEW badge */}
+        {showNew && card.content_rating !== 'nsfw' && <View style={[styles.newBadge, { backgroundColor: tc.status.success }]}><Text style={styles.newBadgeText}>NEW</Text></View>}
         {/* Gradient overlay at bottom of avatar */}
-        <View style={[styles.avatarGradient, { backgroundColor: colors.bg.secondary }]} />
+        <View style={[styles.avatarGradient, { backgroundColor: tc.bg.secondary }]} />
       </View>
       <View style={styles.info}>
-        <Text style={styles.name} numberOfLines={1}>{card.name}</Text>
+        <Text style={[styles.name, { color: tc.text.primary }]} numberOfLines={1}>{card.name}</Text>
         <View style={styles.metaRow}>
           <View style={[styles.genrePill, { backgroundColor: accentColor + '18', borderColor: accentColor + '35' }]}>
             <Text style={[styles.genrePillText, { color: accentColor }]}>{genreLabel}</Text>
           </View>
           <View style={styles.ratingRow}>
             {Array.from({ length: 5 }, (_, i) => (
-              <Star key={i} size={9} color={i < starCount ? colors.accent.secondary : colors.text.faint} fill={i < starCount ? colors.accent.secondary : 'transparent'} />
+              <Star key={i} size={9} color={i < starCount ? tc.accent.secondary : tc.text.faint} fill={i < starCount ? tc.accent.secondary : 'transparent'} />
             ))}
           </View>
         </View>
         {card.first_message ? (
-          <Text style={styles.preview} numberOfLines={2}>{card.first_message.replace(/\*[^*]+\*/g, '').replace(/\n/g, ' ').trim().slice(0, 80)}</Text>
+          <Text style={[styles.preview, { color: tc.text.muted }]} numberOfLines={2}>{card.first_message.replace(/\*[^*]+\*/g, '').replace(/\n/g, ' ').trim().slice(0, 80)}</Text>
         ) : null}
         <View style={styles.bottomRow}>
-          <MessageCircle size={10} color={colors.text.muted} />
-          <Text style={styles.sessions}>{formatCount(card.session_count)} chats</Text>
+          <MessageCircle size={10} color={tc.text.muted} />
+          <Text style={[styles.sessions, { color: tc.text.muted }]}>{formatCount(card.session_count)} chats</Text>
         </View>
       </View>
     </Pressable>
@@ -96,7 +105,7 @@ export function CharacterCardComponent({ card, variant = 'grid' }: CharacterCard
 }
 
 const styles = StyleSheet.create({
-  card: { backgroundColor: colors.bg.secondary, borderRadius: borderRadius.lg, overflow: 'hidden', borderWidth: 1, borderColor: colors.border.subtle },
+  card: { borderRadius: borderRadius.lg, overflow: 'hidden', borderWidth: 1 },
   avatarContainer: { width: '100%', aspectRatio: 3/4, justifyContent: 'center', alignItems: 'center', position: 'relative' },
   avatarImage: { width: '100%', height: '100%' },
   avatarLetter: { fontSize: 48, fontWeight: '700', opacity: 0.7 },
@@ -110,22 +119,24 @@ const styles = StyleSheet.create({
     opacity: 0.7,
   },
   quickChatBtn: { position: 'absolute', bottom: spacing.sm + 30, right: spacing.sm, width: 28, height: 28, borderRadius: 14, justifyContent: 'center', alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.3, shadowRadius: 4, elevation: 3 },
-  nsfwBadge: { position: 'absolute', top: spacing.sm, right: spacing.sm, backgroundColor: colors.nsfw + 'CC', paddingHorizontal: spacing.sm, paddingVertical: 2, borderRadius: borderRadius.sm },
+  nsfwBadge: { position: 'absolute', top: spacing.sm, right: spacing.sm, paddingHorizontal: spacing.sm, paddingVertical: 2, borderRadius: borderRadius.sm },
+  newBadge: { position: 'absolute', top: spacing.sm, left: spacing.sm, paddingHorizontal: spacing.sm, paddingVertical: 2, borderRadius: borderRadius.sm },
+  newBadgeText: { fontSize: 8, fontWeight: '800', color: '#fff', letterSpacing: 1 },
   nsfwText: { ...typography.small, color: '#fff', fontWeight: '700' },
   info: { padding: spacing.md, gap: 4 },
-  name: { ...typography.subheading, color: colors.text.primary, fontSize: 14 },
+  name: { ...typography.subheading, fontSize: 14 },
   metaRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 2 },
   genrePill: { borderWidth: 1, borderRadius: borderRadius.full, paddingHorizontal: spacing.sm, paddingVertical: 1 },
   genrePillText: { fontSize: 10, fontWeight: '600' },
   ratingRow: { flexDirection: 'row', gap: 1 },
   bottomRow: { flexDirection: 'row', alignItems: 'center', gap: 3, marginTop: 2 },
-  preview: { ...typography.small, color: colors.text.muted, fontSize: 10, lineHeight: 14, marginTop: 2 },
-  sessions: { ...typography.small, color: colors.text.muted, fontSize: 10 },
+  preview: { ...typography.small, fontSize: 10, lineHeight: 14, marginTop: 2 },
+  sessions: { ...typography.small, fontSize: 10 },
   avatarInitial: { fontSize: 24, fontWeight: '700', opacity: 0.7 },
   avatarGlow: { position: 'absolute', width: '100%', height: '100%', borderRadius: 16 },
   horizontalCard: { width: 120, alignItems: 'center', marginRight: spacing.md },
   horizontalAvatar: { width: 100, height: 100, borderRadius: borderRadius.lg, justifyContent: 'center', alignItems: 'center', marginBottom: spacing.sm, overflow: 'hidden' },
   horizontalAvatarImage: { width: 100, height: 100, borderRadius: borderRadius.lg },
-  horizontalName: { ...typography.caption, color: colors.text.primary, fontWeight: '600', textAlign: 'center' },
+  horizontalName: { ...typography.caption, fontWeight: '600', textAlign: 'center' },
   horizontalGenre: { ...typography.small, textTransform: 'capitalize' },
 });

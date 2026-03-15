@@ -132,5 +132,8 @@ Export Chat option in header menu, formatted with character name and message sep
 ## Iteration 44: Haptic feedback on key interactions ✅
 Selection haptics on genre filters, sort toggles, library tab switches.
 
-## Iteration 45: Online status indicator in chat header
-A pulsing green dot next to the character name makes the AI feel alive and present — standard in all chat apps (WhatsApp, Telegram, Discord).
+## Iteration 45: Online status indicator in chat header ✅
+Pulsing green dot on avatar in chat header.
+
+## Iteration 46: "NEW" badge on recently added characters
+Characters added in the last 30 days get a glowing "NEW" badge on their card — drives discovery and makes the catalog feel actively curated.
