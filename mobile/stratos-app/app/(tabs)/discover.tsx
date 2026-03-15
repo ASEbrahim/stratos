@@ -60,7 +60,7 @@ export default function DiscoverScreen() {
         onScroll={(e) => setShowScrollTop(e.nativeEvent.contentOffset.y > 600)}
         scrollEventThrottle={200}>
         <Animated.View entering={FadeInDown.duration(400).springify().damping(16)} style={styles.brandRow}>
-          <Text style={[styles.brandText, { color: tc.accent.primary }]}>Strat<Text style={[styles.brandAccent, { color: tc.text.primary }]}>OS</Text></Text>
+          <Text style={[styles.brandText, { color: tc.accent.primary, textShadowColor: tc.accent.primary + '40', textShadowOffset: { width: 0, height: 0 }, textShadowRadius: 12 }]}>strat<Text style={[styles.brandAccent, { color: tc.text.primary }]}>OS</Text></Text>
         </Animated.View>
         <View style={styles.searchRow}>
           <View style={[styles.searchBox, { backgroundColor: tc.bg.tertiary, flex: 1 }]}>
@@ -144,8 +144,8 @@ const styles = StyleSheet.create({
   container: { flex: 1 },
   scroll: { flex: 1 },
   brandRow: { alignItems: 'center', paddingTop: spacing.sm },
-  brandText: { fontSize: 22, fontWeight: '800', letterSpacing: 1 },
-  brandAccent: { fontWeight: '300' },
+  brandText: { fontSize: 26, fontWeight: '900', letterSpacing: 3 },
+  brandAccent: { fontWeight: '300', letterSpacing: 1 },
   searchRow: { flexDirection: 'row', alignItems: 'center', marginHorizontal: spacing.md, marginTop: spacing.sm, marginBottom: spacing.xs, gap: spacing.sm },
   searchBox: { flexDirection: 'row', alignItems: 'center', borderRadius: borderRadius.lg, paddingHorizontal: spacing.md, gap: spacing.sm },
   shuffleBtn: { width: 38, height: 38, borderRadius: borderRadius.md, justifyContent: 'center', alignItems: 'center' },
