@@ -252,5 +252,8 @@ Total word count of all character definition fields shown in meta row.
 ## Iteration 84: Create tab character count + Header subtitle ✅
 "X created" subtitle on Create header. Header component now supports subtitles.
 
-## Iteration 85: Milestone 100 commit — visual audit across all themes
-100th commit celebration. Running full visual verification across Arcane, Sakura, Nebula, Cosmos, and Noir themes to ensure everything looks perfect.
+## Iteration 85: Milestone 100 commit — visual audit ✅
+All screens verified at 100 commits. checkpoint-20.
+
+## Iteration 86: Genre-specific empty search results
+When searching for a genre with no results, showing genre-themed empty states instead of the generic "No characters found" — more helpful and contextual.

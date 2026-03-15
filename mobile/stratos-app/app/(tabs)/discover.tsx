@@ -198,11 +198,11 @@ export default function DiscoverScreen() {
             </View>
           )}
         </View>
-        {displayCards.length === 0 && searchQuery.trim() ? (
+        {displayCards.length === 0 ? (
           <View style={styles.emptySearch}>
-            <Text style={[styles.emptyIcon]}>🔍</Text>
-            <Text style={[styles.emptyTitle, { color: tc.text.secondary }]}>No characters found</Text>
-            <Text style={[styles.emptySubtitle, { color: tc.text.muted }]}>Try a different search term or browse by genre</Text>
+            <Text style={[styles.emptyIcon]}>{searchQuery.trim() ? '🔍' : selectedGenre ? GENRES.find(g => g.id === selectedGenre)?.emoji ?? '🎭' : '✨'}</Text>
+            <Text style={[styles.emptyTitle, { color: tc.text.secondary }]}>{searchQuery.trim() ? 'No characters found' : selectedGenre ? `No ${selectedGenre} characters yet` : 'No characters'}</Text>
+            <Text style={[styles.emptySubtitle, { color: tc.text.muted }]}>{searchQuery.trim() ? 'Try a different search term or browse by genre' : selectedGenre ? 'Be the first to create one!' : 'Characters will appear here'}</Text>
           </View>
         ) : (
           <View style={styles.grid}>{displayCards.map((c, idx) => (
