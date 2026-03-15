@@ -93,5 +93,8 @@ All screens verified, zero errors, project memory updated.
 ## Iteration 31: Word counter on creator fields ✅
 Word/char counter on creator text fields.
 
-## Iteration 32: Featured character spotlight card on discover
-Full-width spotlight card for the highest-rated character. Creates a hero moment at the top of discover — used by Janitor AI, Chai, and Character.AI to hook users.
+## Iteration 32: Featured character spotlight card on discover ✅
+Full-width spotlight card for the highest-rated character.
+
+## Iteration 33: Auth screens — login/register keyboard avoidance + input improvements
+Auth inputs need proper keyboard behavior on mobile — auto-focus, proper keyboard types, secure text entry, return key handling.

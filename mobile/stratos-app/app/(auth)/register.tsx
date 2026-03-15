@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity, StyleSheet,
   KeyboardAvoidingView, Platform, Alert, ScrollView,
@@ -16,6 +16,8 @@ export default function RegisterScreen() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const emailRef = useRef<TextInput>(null);
+  const passwordRef = useRef<TextInput>(null);
 
   const handleRegister = async () => {
     if (!name.trim() || !email.trim() || !password.trim()) {
@@ -51,9 +53,9 @@ export default function RegisterScreen() {
           </View>
 
           <View style={styles.form}>
-            <TextInput style={styles.input} value={name} onChangeText={setName} placeholder="Display Name" placeholderTextColor={colors.text.muted} autoCapitalize="words" returnKeyType="next" />
-            <TextInput style={styles.input} value={email} onChangeText={setEmail} placeholder="Email" placeholderTextColor={colors.text.muted} keyboardType="email-address" autoCapitalize="none" returnKeyType="next" />
-            <TextInput style={styles.input} value={password} onChangeText={setPassword} placeholder="Password" placeholderTextColor={colors.text.muted} secureTextEntry returnKeyType="go" onSubmitEditing={handleRegister} />
+            <TextInput style={styles.input} value={name} onChangeText={setName} placeholder="Display Name" placeholderTextColor={colors.text.muted} autoCapitalize="words" returnKeyType="next" onSubmitEditing={() => emailRef.current?.focus()} />
+            <TextInput ref={emailRef} style={styles.input} value={email} onChangeText={setEmail} placeholder="Email" placeholderTextColor={colors.text.muted} keyboardType="email-address" autoCapitalize="none" autoCorrect={false} returnKeyType="next" onSubmitEditing={() => passwordRef.current?.focus()} />
+            <TextInput ref={passwordRef} style={styles.input} value={password} onChangeText={setPassword} placeholder="Password (6+ characters)" placeholderTextColor={colors.text.muted} secureTextEntry returnKeyType="go" onSubmitEditing={handleRegister} />
 
             <TouchableOpacity style={[styles.button, isLoading && styles.buttonDisabled]} onPress={handleRegister} disabled={isLoading} activeOpacity={0.8}>
               <Text style={styles.buttonText}>{isLoading ? 'Creating...' : 'Create Account'}</Text>
