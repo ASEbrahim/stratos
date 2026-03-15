@@ -3,6 +3,7 @@ import { View, Text, ScrollView, TouchableOpacity, TextInput, StyleSheet, Refres
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Search } from 'lucide-react-native';
 import { useCharacterStore } from '../../stores/characterStore';
+import { useChatStore } from '../../stores/chatStore';
 import { useThemeStore } from '../../stores/themeStore';
 import { CharacterCardComponent } from '../../components/cards/CharacterCard';
 import { ScenarioCard } from '../../components/gaming/ScenarioCard';
@@ -21,12 +22,13 @@ export default function DiscoverScreen() {
   const router = useRouter();
   const tc = useThemeStore(s => s.colors);
   const { trending, newCards, selectedGenre, isLoading, loadTrending, loadNew, setGenre, search } = useCharacterStore();
+  const { recentSessions, loadRecentSessions, resumeSession } = useChatStore();
   const [scenarios, setScenarios] = useState<GamingScenario[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [refreshing, setRefreshing] = useState(false);
   const [showWelcome, setShowWelcome] = useState(true);
 
-  useEffect(() => { loadTrending(); loadNew(); getScenarios().then(setScenarios); }, []);
+  useEffect(() => { loadTrending(); loadNew(); getScenarios().then(setScenarios); loadRecentSessions(); }, []);
   const onRefresh = useCallback(async () => { setRefreshing(true); await Promise.all([loadTrending(), loadNew(), getScenarios().then(setScenarios)]); setRefreshing(false); }, []);
   const searchTimer = React.useRef<ReturnType<typeof setTimeout> | null>(null);
   const handleSearch = (text: string) => {
@@ -47,6 +49,24 @@ export default function DiscoverScreen() {
           <TextInput style={[styles.searchInput, { color: tc.text.primary }]} value={searchQuery} onChangeText={handleSearch} placeholder="Search characters..." placeholderTextColor={tc.text.muted} />
         </View>
         {isLoading && trending.length === 0 && <DiscoverSkeleton />}
+        {/* Recently Chatted — quick resume */}
+        {!searchQuery.trim() && recentSessions.length > 0 && (
+          <>
+            <View style={styles.recentRow}>
+              <Text style={[styles.recentLabel, { color: tc.text.muted }]}>Continue</Text>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.recentScroll}>
+                {recentSessions.slice(0, 8).map(s => (
+                  <TouchableOpacity key={s.id} style={styles.recentItem} onPress={() => { resumeSession(s); router.push(`/chat/${s.character_id}`); }} activeOpacity={0.7}>
+                    <View style={[styles.recentAvatar, { backgroundColor: tc.accent.primary + '15', borderColor: tc.accent.primary + '30' }]}>
+                      <Text style={[styles.recentLetter, { color: tc.accent.primary }]}>{s.character_name[0]}</Text>
+                    </View>
+                    <Text style={[styles.recentName, { color: tc.text.secondary }]} numberOfLines={1}>{s.character_name.split(' ')[0]}</Text>
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+            </View>
+          </>
+        )}
         {/* Popular This Week — curated picks */}
         {!searchQuery.trim() && trending.length > 0 && (
           <>
@@ -139,6 +159,13 @@ const styles = StyleSheet.create({
   emptyIcon: { fontSize: 40, marginBottom: spacing.md },
   emptyTitle: { ...typography.subheading, marginBottom: spacing.xs },
   emptySubtitle: { ...typography.caption, textAlign: 'center' },
+  recentRow: { flexDirection: 'row', alignItems: 'center', paddingLeft: spacing.lg, marginBottom: spacing.sm },
+  recentLabel: { ...typography.small, fontSize: 10, fontWeight: '600', textTransform: 'uppercase', letterSpacing: 1, marginRight: spacing.sm },
+  recentScroll: { gap: spacing.md, paddingRight: spacing.lg },
+  recentItem: { alignItems: 'center', width: 52 },
+  recentAvatar: { width: 40, height: 40, borderRadius: 20, justifyContent: 'center', alignItems: 'center', borderWidth: 1.5, marginBottom: 3 },
+  recentLetter: { fontSize: 16, fontWeight: '700' },
+  recentName: { fontSize: 9, fontWeight: '500', textAlign: 'center' },
   popularScroll: { paddingHorizontal: spacing.lg, gap: spacing.md },
   popularCard: { width: 280, flexDirection: 'row', backgroundColor: 'rgba(255,255,255,0.03)', borderRadius: borderRadius.lg, padding: spacing.md, borderWidth: 1, gap: spacing.md },
   popularAvatar: { width: 56, height: 56, borderRadius: borderRadius.md, justifyContent: 'center', alignItems: 'center' },
