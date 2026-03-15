@@ -1,28 +1,34 @@
 # RP Pipeline State
 
 **Last updated:** 2026-03-15
-**Current phase:** Phase 0 COMPLETE (expanded) -- Phase 1 ready
-**Current task:** 35-test baseline scored. Think mode blocker identified.
-**Next step:** Fix think mode in Modelfile, then begin Phase 1 data preparation
-**Blockers:** Think mode leakage (11.4% blank responses) must be resolved before training
+**Current phase:** Phase 0 COMPLETE — 5 refinement runs done. Ready for Phase 1.
+**Current task:** System prompt optimized. Baseline at 4.55/5 (verification run).
+**Next step:** Phase 1 — download LimaRP + PIPPA, filter, prepare training data
+**Blockers:** None. System prompt at ceiling; remaining improvements need training data.
 
 ## Completed
-- [x] Branch: `rp-model-v1`
-- [x] Scaffolding (dirs, .gitignore, 5 living docs)
-- [x] Phase 0: Model pulled (huihui_ai/qwen3.5-abliterated:9b)
-- [x] Phase 0: 10-test baseline (avg 4.2/5 -- now known to be misleadingly high)
-- [x] Phase 0: 35-test expanded baseline (avg **3.63/5** -- authoritative)
-- [x] Phase 0: Think mode leakage identified (11.4% empty outputs)
-- [x] Decisions D-001 through D-007 logged
-- [ ] Fix think mode in Modelfile (pre-training serving fix)
-- [ ] Phase 1: Download LimaRP + PIPPA
-- [ ] Phase 1: Filter, convert, create holdout
-- [ ] Phase 1: Generate synthetic gap-filling data (combat, moral dilemma, brevity, internal monologue)
-- [ ] Phase 2-5: Training, evaluation, integration
+- [x] Branch: `rp-model-v1` (rebased on main with security fixes)
+- [x] Scaffolding, .gitignore, living documents
+- [x] Model pulled: huihui_ai/qwen3.5-abliterated:9b
+- [x] Think mode FIXED: explicit non-thinking template + API think:false
+- [x] 5 refinement runs:
+  - v1: 10 tests = 4.2/5 (small sample, misleading)
+  - v2: 35 tests = 3.63/5 (think leakage found)
+  - v3: 35 tests = 4.03/5 (think fixed)
+  - v4: 35 tests = 4.26/5 (prompt refined)
+  - v5: 20 fresh = 4.55/5 (verification, 70% score 5)
+- [x] System prompt optimized (length mirroring, character agency, multi-NPC)
+- [x] Decisions D-001 through D-007
+
+## Remaining Training Targets (for Phase 1 data prep)
+1. God-modding resistance (partially accepts before redirecting)
+2. Register shifting (doesn't fully commit to tone change)
+3. Brevity matching (still slightly verbose for ultra-short inputs)
+4. Emotional escalation (peak moments stay controlled)
+5. Multilingual code-switching (no Japanese mixing)
 
 ## Key Numbers
-- Baseline average (35 tests): **3.63/5**
-- Think mode failure rate: **11.4%** (4/35 tests)
-- Tests scoring 1-2: 6/35 (17%)
-- Tests scoring 4-5: 22/35 (63%)
-- Primary gaps: think leakage, combat, moral code, emotional escalation, brevity matching
+- Final baseline: **4.55/5** (20 fresh questions)
+- Think mode failure: **0%** (was 11.4%)
+- Response time: **1-4s** (was 30-70s)
+- Score distribution: 70% score 5, 20% score 4, 10% score 3, 0% below 3
