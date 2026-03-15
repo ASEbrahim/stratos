@@ -123,5 +123,8 @@ Share button + fixed hardcoded colors on detail screen buttons.
 ## Iteration 41: Library fully theme-aware + animated delete ✅
 All hardcoded colors removed from library. Sessions animate out on delete.
 
-## Iteration 42: Enhanced "Recently Chatted" row on discover
-The recent sessions row just shows plain avatar circles. Adding character name below and a subtle message count badge to give users more context before tapping.
+## Iteration 42: Message count badge on recent session avatars ✅
+Badge shows message count on "Continue" row avatars.
+
+## Iteration 43: Chat export — copy full conversation to clipboard
+Power users want to save/share their best RP sessions. Adding "Export Chat" to the chat header menu that copies the full conversation as formatted text.

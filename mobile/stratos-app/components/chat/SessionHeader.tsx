@@ -12,9 +12,10 @@ interface SessionHeaderProps {
   characterId?: string;
   onNewSession?: () => void;
   onClearHistory?: () => void;
+  onExportChat?: () => void;
 }
 
-export function SessionHeader({ characterName, accentColor, characterId, onNewSession, onClearHistory }: SessionHeaderProps) {
+export function SessionHeader({ characterName, accentColor, characterId, onNewSession, onClearHistory, onExportChat }: SessionHeaderProps) {
   const router = useRouter();
   const tc = useThemeStore(s => s.colors);
   const color = accentColor ?? tc.accent.primary;
@@ -24,6 +25,7 @@ export function SessionHeader({ characterName, accentColor, characterId, onNewSe
     const actions: any[] = [];
     if (characterId) actions.push({ text: 'Character Info', onPress: () => router.push(`/character/${characterId}`) });
     if (onNewSession) actions.push({ text: 'New Session', onPress: onNewSession });
+    if (onExportChat) actions.push({ text: 'Export Chat', onPress: onExportChat });
     if (onClearHistory) actions.push({ text: 'Clear History', style: 'destructive', onPress: onClearHistory });
     actions.push({ text: 'Cancel', style: 'cancel' });
     Alert.alert(characterName, undefined, actions);

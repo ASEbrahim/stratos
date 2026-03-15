@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useCallback, useState } from 'react';
-import { View, Text, FlatList, StyleSheet, KeyboardAvoidingView, Platform, TouchableOpacity } from 'react-native';
+import { View, Text, FlatList, StyleSheet, KeyboardAvoidingView, Platform, TouchableOpacity, Alert, Share } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useFocusEffect } from 'expo-router';
 import * as Haptics from 'expo-haptics';
@@ -38,6 +38,14 @@ export default function ChatScreen() {
         characterId={character?.id}
         onNewSession={character ? () => { startSession(character, 'roleplay'); } : undefined}
         onClearHistory={() => { clearSession(); }}
+        onExportChat={messages.length > 1 ? () => {
+          const text = messages
+            .filter(m => m.role !== 'system')
+            .map(m => `${m.role === 'user' ? 'You' : character?.name ?? 'Character'}: ${m.content}`)
+            .join('\n\n---\n\n');
+          const header = `Chat with ${character?.name ?? 'Character'} (${messages.length} messages)\n\n`;
+          Share.share({ message: header + text });
+        } : undefined}
       />
       <KeyboardAvoidingView style={styles.chatArea} behavior={Platform.OS === 'ios' ? 'padding' : undefined} keyboardVerticalOffset={insets.top}>
         <FlatList ref={listRef} data={messages} renderItem={({ item }: { item: ChatMessage }) => <MessageBubble message={item} accentColor={accentColor} />} keyExtractor={item => item.id} contentContainerStyle={styles.msgList} showsVerticalScrollIndicator={false}
