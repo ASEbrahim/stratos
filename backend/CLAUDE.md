@@ -88,6 +88,22 @@ News Sources → NewsFetcher → AI Scorer → SQLite DB → JSON API → Fronte
 - `config.py` — `/api/config` save handler.
 - `helpers.py` — JSON response, SSE, gzip utilities.
 
+### RP Expansion Routes (Sprint 1-6)
+- `rp_chat.py` — RP chat with branching, swipes, edits, director's notes, feedback, A/B testing. **Swipe = last message only (same branch). Branch = earlier message (new timeline).** Uses `select_rp_model()` for deterministic A/B split.
+- `image_gen.py` — ComfyUI-backed image generation. FLUX (SFW), Pony V7 (NSFW). Cannot coexist with Ollama in VRAM. Start via `tools/start_comfyui.sh`.
+- `character_cards.py` — Character card CRUD, TavernCard V2 import, quality element scoring (0-6), publish/browse/rate/search.
+
+### RP Data Pipeline
+- `data/rp_pipeline/scripts/nightly_quality_score.py` — Cron at 3 AM. Scores conversations, updates card stats. SCORING_WEIGHTS dict is tunable.
+- `data/rp_pipeline/scripts/aggregate_feedback.py` — Monthly. Exports SFT + DPO JSONL. DPO beta=0.1, max_context_turns=20. Only opted-in users.
+- **On-policy rule**: Each model version trains on data from its immediate predecessor only.
+
+### RP Database Tables (Migration 027)
+`rp_messages`, `rp_edits`, `rp_suggestions`, `rp_feedback`, `character_cards`, `character_card_stats`, `character_card_ratings`, `generated_images`, `rp_conversation_scores`. Plus `training_data_opt_in` on profiles.
+
+### Branch-by-Reference
+Branches don't copy parent messages. `get_full_branch_conversation()` walks the parent chain via recursive CTE. MAX_BRANCH_DEPTH=15.
+
 ### Adding a New API Endpoint
 1. Pick the route module that matches your endpoint's domain (feeds, media, controls, etc.)
 2. Add your handler inside `handle_get()`, `handle_post()`, or `handle_delete()` with a path check
