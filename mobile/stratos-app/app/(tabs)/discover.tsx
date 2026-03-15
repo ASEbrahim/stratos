@@ -62,17 +62,19 @@ export default function DiscoverScreen() {
         onScroll={(e) => setShowScrollTop(e.nativeEvent.contentOffset.y > 600)}
         scrollEventThrottle={200}>
         <Animated.View entering={FadeInDown.duration(400).springify().damping(16)} style={styles.brandRow}>
-          {THEMES.slice(0, 2).map(t => (
-            <TouchableOpacity key={t.id} onPress={() => { Haptics.selectionAsync(); setTheme(t.id); }} activeOpacity={0.7} style={[styles.themeDot, { backgroundColor: t.colors.accent.primary + (themeId === t.id ? 'FF' : '30'), borderColor: themeId === t.id ? t.colors.accent.primary : 'transparent' }]} accessibilityLabel={`${t.label} theme`} accessibilityRole="button">
-              <Text style={styles.themeDotIcon}>{t.icon}</Text>
-            </TouchableOpacity>
-          ))}
+          {THEMES.slice(0, 2).map(t => {
+            const active = themeId === t.id;
+            return (
+              <TouchableOpacity key={t.id} onPress={() => { Haptics.selectionAsync(); setTheme(t.id); }} activeOpacity={0.7} style={[styles.themeDot, { backgroundColor: t.colors.accent.primary, opacity: active ? 1 : 0.3 }, active && { shadowColor: t.colors.accent.primary, shadowOpacity: 0.6, shadowRadius: 6, elevation: 3 }]} accessibilityLabel={`${t.label} theme${active ? ', selected' : ''}`} accessibilityRole="button" />
+            );
+          })}
           <Text style={[styles.brandText, { color: tc.accent.primary, textShadowColor: tc.accent.primary + '40', textShadowOffset: { width: 0, height: 0 }, textShadowRadius: 12 }]}>Strat<Text style={[styles.brandAccent, { color: tc.text.primary }]}>OS</Text></Text>
-          {THEMES.slice(2, 4).map(t => (
-            <TouchableOpacity key={t.id} onPress={() => { Haptics.selectionAsync(); setTheme(t.id); }} activeOpacity={0.7} style={[styles.themeDot, { backgroundColor: t.colors.accent.primary + (themeId === t.id ? 'FF' : '30'), borderColor: themeId === t.id ? t.colors.accent.primary : 'transparent' }]} accessibilityLabel={`${t.label} theme`} accessibilityRole="button">
-              <Text style={styles.themeDotIcon}>{t.icon}</Text>
-            </TouchableOpacity>
-          ))}
+          {THEMES.slice(2, 4).map(t => {
+            const active = themeId === t.id;
+            return (
+              <TouchableOpacity key={t.id} onPress={() => { Haptics.selectionAsync(); setTheme(t.id); }} activeOpacity={0.7} style={[styles.themeDot, { backgroundColor: t.colors.accent.primary, opacity: active ? 1 : 0.3 }, active && { shadowColor: t.colors.accent.primary, shadowOpacity: 0.6, shadowRadius: 6, elevation: 3 }]} accessibilityLabel={`${t.label} theme${active ? ', selected' : ''}`} accessibilityRole="button" />
+            );
+          })}
         </Animated.View>
         <View style={styles.searchRow}>
           <View style={[styles.searchBox, { backgroundColor: tc.bg.tertiary, flex: 1 }]}>
@@ -158,8 +160,7 @@ const styles = StyleSheet.create({
   brandRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingTop: spacing.sm, gap: spacing.md },
   brandText: { fontSize: 26, fontFamily: fonts.logo, letterSpacing: 2 },
   brandAccent: { fontFamily: fonts.bodyLight, letterSpacing: 0 },
-  themeDot: { width: 28, height: 28, borderRadius: 14, justifyContent: 'center', alignItems: 'center', borderWidth: 1.5 },
-  themeDotIcon: { fontSize: 12 },
+  themeDot: { width: 10, height: 10, borderRadius: 5 },
   searchRow: { flexDirection: 'row', alignItems: 'center', marginHorizontal: spacing.md, marginTop: spacing.sm, marginBottom: spacing.xs, gap: spacing.sm },
   searchBox: { flexDirection: 'row', alignItems: 'center', borderRadius: borderRadius.lg, paddingHorizontal: spacing.md, gap: spacing.sm },
   shuffleBtn: { width: 38, height: 38, borderRadius: borderRadius.md, justifyContent: 'center', alignItems: 'center' },
