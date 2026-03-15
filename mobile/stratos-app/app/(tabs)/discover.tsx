@@ -75,7 +75,10 @@ export default function DiscoverScreen() {
         {isLoading && trending.length === 0 && <DiscoverSkeleton />}
         {/* Featured Character Spotlight */}
         {!searchQuery.trim() && trending.length > 0 && (() => {
-          const featured = [...trending].sort((a, b) => b.rating - a.rating)[0];
+          // Character of the Day — rotate daily based on day of year
+          const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0).getTime()) / 86400000);
+          const sortedByRating = [...trending].sort((a, b) => b.rating - a.rating);
+          const featured = sortedByRating[dayOfYear % sortedByRating.length];
           if (!featured) return null;
           const fc = getGenreColor(featured.genre_tags[0] ?? 'default');
           return (
@@ -85,7 +88,7 @@ export default function DiscoverScreen() {
               </View>
               <View style={styles.spotlightInfo}>
                 <View style={[styles.spotlightBadge, { backgroundColor: fc + '20' }]}>
-                  <Text style={[styles.spotlightBadgeText, { color: fc }]}>Featured</Text>
+                  <Text style={[styles.spotlightBadgeText, { color: fc }]}>Character of the Day</Text>
                 </View>
                 <Text style={[styles.spotlightName, { color: tc.text.primary }]}>{featured.name}</Text>
                 <Text style={[styles.spotlightDesc, { color: tc.text.secondary }]} numberOfLines={2}>{featured.description}</Text>
