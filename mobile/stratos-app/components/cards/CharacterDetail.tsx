@@ -140,6 +140,33 @@ export function CharacterDetailView({ card }: CharacterDetailProps) {
           <Text style={[styles.secondaryButtonText, { color: tc.text.secondary }]}>Share</Text>
         </TouchableOpacity>
       </View>
+      {/* Similar Characters */}
+      {(() => {
+        const { newCards } = useCharacterStore.getState();
+        const similar = newCards
+          .filter(c => c.id !== card.id && c.genre_tags.some(t => card.genre_tags.includes(t)))
+          .slice(0, 3);
+        if (similar.length === 0) return null;
+        return (
+          <View style={[styles.section, { marginTop: spacing.lg }]}>
+            <Text style={[styles.sectionTitle, { color: tc.text.primary }]}>Similar Characters</Text>
+            <View style={styles.similarRow}>
+              {similar.map(c => {
+                const gc = getGenreColor(c.genre_tags[0] ?? 'default');
+                return (
+                  <TouchableOpacity key={c.id} style={styles.similarCard} onPress={() => router.push(`/character/${c.id}`)} activeOpacity={0.7}>
+                    <View style={[styles.similarAvatar, { backgroundColor: gc + '15' }]}>
+                      <Text style={[styles.similarLetter, { color: gc }]}>{c.name[0]}</Text>
+                    </View>
+                    <Text style={[styles.similarName, { color: tc.text.primary }]} numberOfLines={1}>{c.name}</Text>
+                    <Text style={[styles.similarGenre, { color: gc }]}>{c.genre_tags[0]}</Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+          </View>
+        );
+      })()}
       <TouchableOpacity style={styles.reportBtn} onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); Alert.alert('Report Character', 'Report this character for inappropriate content?', [{ text: 'Cancel', style: 'cancel' }, { text: 'Report', style: 'destructive', onPress: () => Alert.alert('Reported', 'Thank you for your report. We will review this character.') }]); }} activeOpacity={0.7}>
         <Flag size={12} color={tc.text.muted} />
         <Text style={[styles.reportText, { color: tc.text.muted }]}>Report Character</Text>
@@ -202,4 +229,10 @@ const styles = StyleSheet.create({
   depthToggle: { paddingVertical: spacing.sm, marginTop: spacing.sm, borderRadius: borderRadius.sm, borderWidth: 1, alignItems: 'center' },
   depthToggleText: { fontSize: 12, fontWeight: '600' },
   depthGrid: { marginTop: spacing.md },
+  similarRow: { flexDirection: 'row', gap: spacing.md },
+  similarCard: { flex: 1, alignItems: 'center' },
+  similarAvatar: { width: 50, height: 50, borderRadius: borderRadius.md, justifyContent: 'center', alignItems: 'center', marginBottom: spacing.xs },
+  similarLetter: { fontSize: 20, fontWeight: '700', opacity: 0.7 },
+  similarName: { fontSize: 11, fontWeight: '600', textAlign: 'center' },
+  similarGenre: { fontSize: 9, textTransform: 'capitalize', marginTop: 2 },
 });

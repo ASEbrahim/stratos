@@ -210,5 +210,8 @@ Skeleton uses themeStore colors. ErrorBoundary kept static (class component fall
 ## Iteration 70: Accessibility labels on chat elements ✅
 Labels on input, send, back, and menu buttons. checkpoint-17.
 
-## Iteration 71: "Top Characters" showcase on profile
-Profile shows stats but no personality. Adding a "Top Characters" section that shows the user's 3 most-chatted characters — makes the profile feel personal and gives a quick way to resume favorites.
+## Iteration 71: "Top Characters" showcase on profile ✅
+Top 3 most-chatted characters with avatars and message counts.
+
+## Iteration 72: "Similar Characters" recommendations on detail
+When viewing a character, show 3 similar characters based on genre — helps users discover related content and reduces bounce from the detail screen.
