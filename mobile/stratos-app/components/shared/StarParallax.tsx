@@ -2,10 +2,9 @@
  * StarParallax — Native animated star field
  *
  * Uses Reanimated withRepeat/withTiming for smooth GPU-driven animations.
- * No frame callbacks, no manual time tracking. Stars twinkle and drift
- * using native driver animations for best performance.
+ * Stars twinkle and gently oscillate. No abrupt resets.
  */
-import React, { useMemo } from 'react';
+import React, { useMemo, useEffect } from 'react';
 import { View, StyleSheet, Dimensions } from 'react-native';
 import Animated, {
   useSharedValue, useAnimatedStyle, withRepeat, withTiming, withDelay,
@@ -13,7 +12,6 @@ import Animated, {
 } from 'react-native-reanimated';
 import { useThemeStore } from '../../stores/themeStore';
 import type { ThemeColors } from '../../constants/themes';
-import { useEffect } from 'react';
 
 const { width: W, height: H } = Dimensions.get('window');
 
@@ -32,25 +30,42 @@ function TwinkleStar({ x, y, size, color, delay }: {
 }) {
   const opacity = useSharedValue(0.1);
   const translateY = useSharedValue(0);
+  const translateX = useSharedValue(0);
 
   useEffect(() => {
-    // Twinkle: fade in/out with random timing
+    const fadeHigh = rand(0.4, 0.9);
+    const fadeLow = rand(0.05, 0.2);
+    const driftY = rand(8, 20);
+    const driftX = rand(4, 10);
+    const twinkleDur = rand(2000, 4000);
+    const driftDur = rand(6000, 12000);
+
+    // Twinkle: smooth fade in/out — always reverses
     opacity.value = withDelay(delay, withRepeat(
       withSequence(
-        withTiming(rand(0.4, 0.9), { duration: rand(1500, 3000), easing: Easing.inOut(Easing.sin) }),
-        withTiming(rand(0.05, 0.2), { duration: rand(1500, 3000), easing: Easing.inOut(Easing.sin) }),
+        withTiming(fadeHigh, { duration: twinkleDur, easing: Easing.inOut(Easing.sin) }),
+        withTiming(fadeLow, { duration: twinkleDur, easing: Easing.inOut(Easing.sin) }),
       ), -1, true
     ));
-    // Gentle upward drift
+    // Gentle vertical oscillation — reverses so no jump
     translateY.value = withDelay(delay, withRepeat(
-      withTiming(-rand(15, 40), { duration: rand(8000, 15000), easing: Easing.linear }),
-      -1, false
+      withSequence(
+        withTiming(-driftY, { duration: driftDur, easing: Easing.inOut(Easing.sin) }),
+        withTiming(driftY, { duration: driftDur, easing: Easing.inOut(Easing.sin) }),
+      ), -1, true
+    ));
+    // Gentle horizontal sway
+    translateX.value = withDelay(delay, withRepeat(
+      withSequence(
+        withTiming(driftX, { duration: driftDur * 1.3, easing: Easing.inOut(Easing.sin) }),
+        withTiming(-driftX, { duration: driftDur * 1.3, easing: Easing.inOut(Easing.sin) }),
+      ), -1, true
     ));
   }, []);
 
   const style = useAnimatedStyle(() => ({
     opacity: opacity.value,
-    transform: [{ translateY: translateY.value }],
+    transform: [{ translateX: translateX.value }, { translateY: translateY.value }],
   }));
 
   return (
@@ -77,21 +92,29 @@ function FloatingOrb({ x, y, size, color, delay }: {
   const scale = useSharedValue(0.6);
 
   useEffect(() => {
+    const swayX = rand(15, 30);
+    const swayY = rand(15, 30);
+    const driftDur = rand(6000, 12000);
+
     opacity.value = withDelay(delay, withRepeat(
       withSequence(
         withTiming(rand(0.15, 0.35), { duration: rand(3000, 5000), easing: Easing.inOut(Easing.quad) }),
         withTiming(0.05, { duration: rand(3000, 5000), easing: Easing.inOut(Easing.quad) }),
       ), -1, true
     ));
+    // Horizontal sway — reverses
     translateX.value = withDelay(delay, withRepeat(
       withSequence(
-        withTiming(rand(-20, 20), { duration: rand(5000, 9000), easing: Easing.inOut(Easing.sin) }),
-        withTiming(rand(-20, 20), { duration: rand(5000, 9000), easing: Easing.inOut(Easing.sin) }),
+        withTiming(swayX, { duration: driftDur, easing: Easing.inOut(Easing.sin) }),
+        withTiming(-swayX, { duration: driftDur, easing: Easing.inOut(Easing.sin) }),
       ), -1, true
     ));
+    // Vertical sway — reverses
     translateY.value = withDelay(delay, withRepeat(
-      withTiming(-rand(30, 60), { duration: rand(10000, 18000), easing: Easing.inOut(Easing.sin) }),
-      -1, false
+      withSequence(
+        withTiming(-swayY, { duration: driftDur * 1.2, easing: Easing.inOut(Easing.sin) }),
+        withTiming(swayY, { duration: driftDur * 1.2, easing: Easing.inOut(Easing.sin) }),
+      ), -1, true
     ));
     scale.value = withDelay(delay, withRepeat(
       withSequence(
@@ -178,25 +201,60 @@ function ShootingStar({ color, minInterval, maxInterval }: { color: string; minI
 }
 
 // ─── Generate star/orb data ───
-function generateField(count: number, orbCount: number, c: ThemeColors) {
-  const stars = Array.from({ length: count }, () => {
+// logoZone: if true, adds extra density in the top ~120px (logo area)
+function generateField(count: number, orbCount: number, c: ThemeColors, logoZone: boolean = false) {
+  const stars: { x: number; y: number; size: number; color: string; delay: number }[] = [];
+
+  // Spread stars across the full screen
+  for (let i = 0; i < count; i++) {
     const col = pickColor(c);
-    return {
+    stars.push({
       x: rand(0, W), y: rand(0, H),
       size: rand(1.5, 3.5),
       color: `rgb(${col.r},${col.g},${col.b})`,
       delay: rand(0, 3000),
-    };
-  });
-  const orbs = Array.from({ length: orbCount }, () => {
+    });
+  }
+
+  // Extra dense cluster around logo area (top 120px, centered)
+  if (logoZone) {
+    const extraCount = Math.floor(count * 0.4);
+    for (let i = 0; i < extraCount; i++) {
+      const col = pickColor(c);
+      stars.push({
+        x: rand(W * 0.15, W * 0.85),
+        y: rand(10, 120),
+        size: rand(1, 2.5),
+        color: `rgb(${col.r},${col.g},${col.b})`,
+        delay: rand(0, 4000),
+      });
+    }
+  }
+
+  const orbs: { x: number; y: number; size: number; color: string; delay: number }[] = [];
+  for (let i = 0; i < orbCount; i++) {
     const col = pickColor(c);
-    return {
+    orbs.push({
       x: rand(W * 0.1, W * 0.9), y: rand(H * 0.1, H * 0.8),
       size: rand(6, 14),
       color: `rgba(${col.r},${col.g},${col.b},0.4)`,
       delay: rand(0, 5000),
-    };
-  });
+    });
+  }
+
+  // Extra orbs near logo
+  if (logoZone) {
+    for (let i = 0; i < 3; i++) {
+      const col = pickColor(c);
+      orbs.push({
+        x: rand(W * 0.2, W * 0.8), y: rand(20, 100),
+        size: rand(4, 10),
+        color: `rgba(${col.r},${col.g},${col.b},0.3)`,
+        delay: rand(0, 3000),
+      });
+    }
+  }
+
   const shootColor = `rgb(${c.star.color1.r},${c.star.color1.g},${c.star.color1.b})`;
   return { stars, orbs, shootColor };
 }
@@ -208,7 +266,6 @@ export function StarParallax({ children }: { children?: React.ReactNode }) {
 
   return (
     <View style={[localStyles.container, { backgroundColor: tc.bg.primary }]}>
-      {/* Ambient glow */}
       <View style={[localStyles.glowTop, { backgroundColor: tc.glow.top }]} />
       <View style={[localStyles.glowBottom, { backgroundColor: tc.glow.bottom }]} />
 
@@ -227,7 +284,7 @@ export function StarParallax({ children }: { children?: React.ReactNode }) {
 // ─── Lightweight ambient background (discover etc) ───
 export function StarParallaxBg() {
   const tc = useThemeStore(s => s.colors);
-  const { stars, orbs, shootColor } = useMemo(() => generateField(20, 4, tc), [tc]);
+  const { stars, orbs, shootColor } = useMemo(() => generateField(25, 5, tc, true), [tc]);
 
   return (
     <Animated.View
