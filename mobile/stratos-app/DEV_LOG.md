@@ -50,3 +50,6 @@ NSFW filter in profile now functional. Quick-chat buttons on cards.
 
 ## Iteration 17: Typing indicator with character name + theme-aware ✅
 Typing indicator now shows "{Name} is typing" label and uses theme colors. Fades in with animation.
+
+## Iteration 18: Profile about section + Library pull-to-refresh ✅
+Added app version footer in profile. Library screen now has pull-to-refresh on all tabs.

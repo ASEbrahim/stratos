@@ -86,6 +86,10 @@ export default function ProfileScreen() {
       <TouchableOpacity style={[styles.logoutBtn, { borderColor: tc.status.error + '40' }]} onPress={handleLogout}>
         <LogOut size={18} color={tc.status.error} /><Text style={[styles.logoutText, { color: tc.status.error }]}>Sign Out</Text>
       </TouchableOpacity>
+      <View style={styles.aboutSection}>
+        <Text style={[styles.aboutText, { color: tc.text.muted }]}>StratOS Mobile v1.0.0</Text>
+        <Text style={[styles.aboutText, { color: tc.text.faint }]}>Strategic Intelligence Platform</Text>
+      </View>
       <View style={{ height: spacing.xxl * 2 }} />
     </ScrollView>
   );
@@ -128,4 +132,6 @@ const styles = StyleSheet.create({
   themeName: { fontSize: 9, fontWeight: '600', zIndex: 1 },
   logoutBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.sm, marginHorizontal: spacing.lg, paddingVertical: spacing.lg, borderRadius: borderRadius.lg, borderWidth: 1, marginTop: spacing.lg },
   logoutText: { ...typography.subheading },
+  aboutSection: { alignItems: 'center', paddingVertical: spacing.xxl, gap: 4 },
+  aboutText: { fontSize: 11 },
 });

@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import React, { useEffect, useState, useCallback } from 'react';
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Alert, RefreshControl } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { MessageCircle, Clock, Trash2 } from 'lucide-react-native';
@@ -20,8 +20,10 @@ export default function LibraryScreen() {
   const { myCards, savedCards, loadMyCards, loadSaved } = useCharacterStore();
   const { recentSessions, loadRecentSessions, resumeSession } = useChatStore();
   const [tab, setTab] = useState<'mine' | 'saved' | 'history'>('mine');
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => { loadMyCards(); loadSaved(); loadRecentSessions(); }, []);
+  const onRefresh = useCallback(async () => { setRefreshing(true); await Promise.all([loadMyCards(), loadSaved(), loadRecentSessions()]); setRefreshing(false); }, []);
 
   const handleResumeSession = (session: ChatSession) => {
     resumeSession(session);
@@ -53,7 +55,7 @@ export default function LibraryScreen() {
         recentSessions.length === 0 ? (
           <EmptyState title="No conversations yet" subtitle="Start a chat from Discover to see it here." />
         ) : (
-          <ScrollView contentContainerStyle={styles.sessionList}>
+          <ScrollView contentContainerStyle={styles.sessionList} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={tc.accent.primary} />}>
             {recentSessions.map(s => (
               <TouchableOpacity key={s.id} style={styles.sessionCard} onPress={() => handleResumeSession(s)} onLongPress={() => handleDeleteSession(s)} delayLongPress={500} activeOpacity={0.7}>
                 <View style={[styles.sessionAvatar, { backgroundColor: tc.accent.primary + '15' }]}>
@@ -81,7 +83,7 @@ export default function LibraryScreen() {
         cards.length === 0 ? (
           <EmptyState title={tab === 'mine' ? 'No characters yet' : 'No saved characters'} subtitle={tab === 'mine' ? 'Create your first character!' : 'Browse and save from Discover.'} />
         ) : (
-          <ScrollView contentContainerStyle={styles.grid}>{cards.map(c => <CharacterCardComponent key={c.id} card={c} />)}</ScrollView>
+          <ScrollView contentContainerStyle={styles.grid} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={tc.accent.primary} />}>{cards.map(c => <CharacterCardComponent key={c.id} card={c} />)}</ScrollView>
         )
       )}
     </View>
