@@ -18,6 +18,7 @@ import { useRouter } from 'expo-router';
 import { getGenreColor } from '../../constants/genres';
 import { formatCount } from '../../lib/types';
 import { typography, spacing, borderRadius } from '../../constants/theme';
+import { fonts } from '../../constants/fonts';
 
 export default function DiscoverScreen() {
   const insets = useSafeAreaInsets();
@@ -144,18 +145,18 @@ const styles = StyleSheet.create({
   container: { flex: 1 },
   scroll: { flex: 1 },
   brandRow: { alignItems: 'center', paddingTop: spacing.sm },
-  brandText: { fontSize: 26, fontWeight: '900', letterSpacing: 3 },
-  brandAccent: { fontWeight: '300', letterSpacing: 1 },
+  brandText: { fontSize: 26, fontFamily: fonts.logo, letterSpacing: 2 },
+  brandAccent: { fontFamily: fonts.bodyLight, letterSpacing: 0 },
   searchRow: { flexDirection: 'row', alignItems: 'center', marginHorizontal: spacing.md, marginTop: spacing.sm, marginBottom: spacing.xs, gap: spacing.sm },
   searchBox: { flexDirection: 'row', alignItems: 'center', borderRadius: borderRadius.lg, paddingHorizontal: spacing.md, gap: spacing.sm },
   shuffleBtn: { width: 38, height: 38, borderRadius: borderRadius.md, justifyContent: 'center', alignItems: 'center' },
   searchInput: { flex: 1, paddingVertical: spacing.sm, fontSize: 14 },
   sectionHdr: { paddingHorizontal: spacing.md, marginTop: spacing.lg, marginBottom: spacing.sm },
-  sectionTitle: { ...typography.heading },
+  sectionTitle: { ...typography.heading, fontFamily: fonts.heading },
   hScroll: { paddingHorizontal: spacing.md },
   genreScroll: { paddingHorizontal: spacing.md, gap: spacing.xs, paddingVertical: spacing.xs },
   genreChip: { paddingHorizontal: spacing.md, paddingVertical: 6, borderRadius: 20, borderWidth: 1 },
-  genreText: { fontSize: 12, fontWeight: '600' },
+  genreText: { fontSize: 12, fontFamily: fonts.button },
   grid: { flexDirection: 'row', flexWrap: 'wrap', paddingHorizontal: spacing.md, gap: spacing.sm },
   scenarioGrid: { paddingHorizontal: spacing.lg, gap: spacing.md },
   emptySearch: { alignItems: 'center', paddingVertical: spacing.xxl * 2, paddingHorizontal: spacing.xxl },
@@ -165,6 +166,6 @@ const styles = StyleSheet.create({
   gridHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: spacing.md, marginTop: spacing.xs, marginBottom: spacing.xs },
   sortRow: { flexDirection: 'row', gap: 2 },
   sortChip: { paddingHorizontal: spacing.sm, paddingVertical: 3, borderRadius: borderRadius.sm },
-  sortText: { fontSize: 10, fontWeight: '600' },
+  sortText: { fontSize: 10, fontFamily: fonts.bodySemiBold },
   scrollTopFab: { position: 'absolute', right: spacing.lg, bottom: 80, width: 36, height: 36, borderRadius: 18, justifyContent: 'center', alignItems: 'center', borderWidth: 1, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.3, shadowRadius: 4, elevation: 4 },
 });

@@ -6,6 +6,7 @@ import { ChevronLeft, MoreVertical } from 'lucide-react-native';
 import Animated, { useSharedValue, useAnimatedStyle, withRepeat, withTiming, withDelay } from 'react-native-reanimated';
 import { useThemeStore } from '../../stores/themeStore';
 import { typography, spacing } from '../../constants/theme';
+import { fonts } from '../../constants/fonts';
 
 interface SessionHeaderProps {
   characterName: string;
@@ -59,9 +60,9 @@ const styles = StyleSheet.create({
   backButton: { padding: spacing.xs },
   center: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: spacing.sm, paddingHorizontal: spacing.sm },
   avatar: { width: 32, height: 32, borderRadius: 16, justifyContent: 'center', alignItems: 'center' },
-  avatarText: { fontSize: 14, fontWeight: '700' },
-  name: { ...typography.subheading },
-  typingText: { fontSize: 10, fontWeight: '500', marginTop: 1 },
+  avatarText: { fontSize: 14, fontFamily: fonts.heading },
+  name: { ...typography.subheading, fontFamily: fonts.heading },
+  typingText: { fontSize: 10, fontFamily: fonts.bodyMedium, marginTop: 1 },
   menuButton: { padding: spacing.xs },
   onlineDot: { position: 'absolute', bottom: 0, right: 0, width: 10, height: 10, borderRadius: 5, borderWidth: 2, borderColor: '#0a0a0f' },
 });

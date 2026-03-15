@@ -12,6 +12,7 @@ import { getDetailedStats, DetailedStats } from '../../lib/storage';
 import { formatCount } from '../../lib/types';
 import { THEMES } from '../../constants/themes';
 import { typography, spacing, borderRadius } from '../../constants/theme';
+import { fonts } from '../../constants/fonts';
 
 export default function ProfileScreen() {
   const insets = useSafeAreaInsets();
@@ -155,24 +156,24 @@ function SettingsItem({ icon, label, value, tc }: { icon: React.ReactNode; label
 }
 const styles2 = StyleSheet.create({
   item: { flexDirection: 'row', alignItems: 'center', paddingVertical: spacing.lg, borderBottomWidth: 1, gap: spacing.md },
-  label: { ...typography.body, flex: 1 },
-  value: { ...typography.body },
+  label: { ...typography.body, flex: 1, fontFamily: fonts.body },
+  value: { ...typography.body, fontFamily: fonts.bodyMedium },
 });
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
   header: { alignItems: 'center', paddingVertical: spacing.xxl },
   avatar: { width: 80, height: 80, borderRadius: 40, justifyContent: 'center', alignItems: 'center', marginBottom: spacing.md },
-  avatarText: { fontSize: 32, fontWeight: '700' },
-  name: { ...typography.heading },
-  email: { ...typography.body, marginTop: spacing.xs },
+  avatarText: { fontSize: 32, fontFamily: fonts.logo },
+  name: { ...typography.heading, fontFamily: fonts.headingBold },
+  email: { ...typography.body, marginTop: spacing.xs, fontFamily: fonts.body },
   statsRow: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginHorizontal: spacing.lg, borderRadius: borderRadius.lg, paddingVertical: spacing.lg, marginBottom: spacing.xxl },
   stat: { flex: 1, alignItems: 'center' },
-  statVal: { ...typography.heading },
-  statLbl: { ...typography.small, marginTop: 2 },
+  statVal: { ...typography.heading, fontFamily: fonts.headingBold },
+  statLbl: { ...typography.small, marginTop: 2, fontFamily: fonts.bodyMedium },
   statDiv: { width: 1, height: 30 },
   section: { paddingHorizontal: spacing.lg, marginBottom: spacing.lg },
-  sectionTitle: { ...typography.subheading, marginBottom: spacing.md, textTransform: 'uppercase', letterSpacing: 1, fontSize: 12 },
+  sectionTitle: { ...typography.subheading, marginBottom: spacing.md, textTransform: 'uppercase', letterSpacing: 1, fontSize: 12, fontFamily: fonts.heading },
   themeGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
   themeCard: { width: '18.5%', aspectRatio: 0.75, borderRadius: borderRadius.md, borderWidth: 1, alignItems: 'center', justifyContent: 'flex-end', paddingBottom: spacing.xs, overflow: 'hidden' },
   themePreview: { ...StyleSheet.absoluteFillObject, borderRadius: borderRadius.md },
@@ -180,19 +181,19 @@ const styles = StyleSheet.create({
   themeAccentDot2: { position: 'absolute', top: 16, right: 10, width: 4, height: 4, borderRadius: 2, opacity: 0.6 },
   themeAccentDot3: { position: 'absolute', bottom: 20, left: 12, width: 3, height: 3, borderRadius: 1.5, opacity: 0.4 },
   themeIcon: { fontSize: 16, marginBottom: 2, zIndex: 1 },
-  themeName: { fontSize: 9, fontWeight: '600', zIndex: 1 },
+  themeName: { fontSize: 9, fontFamily: fonts.button, zIndex: 1 },
   logoutBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.sm, marginHorizontal: spacing.lg, paddingVertical: spacing.lg, borderRadius: borderRadius.lg, borderWidth: 1, marginTop: spacing.lg },
-  logoutText: { ...typography.subheading },
+  logoutText: { ...typography.subheading, fontFamily: fonts.heading },
   aboutSection: { alignItems: 'center', paddingVertical: spacing.xxl, gap: 4 },
   aboutText: { fontSize: 11 },
   detailStatsGrid: { flexDirection: 'row', flexWrap: 'wrap', padding: spacing.md },
   detailStat: { width: '50%', alignItems: 'center', paddingVertical: spacing.md },
-  detailVal: { fontSize: 18, fontWeight: '700', marginBottom: 2 },
-  detailLbl: { fontSize: 10, fontWeight: '500' },
+  detailVal: { fontSize: 18, fontFamily: fonts.headingBold, marginBottom: 2 },
+  detailLbl: { fontSize: 10, fontFamily: fonts.bodyMedium },
   topCharsRow: { flexDirection: 'row', justifyContent: 'space-around', paddingVertical: spacing.md },
   topChar: { alignItems: 'center', width: 80 },
   topCharAvatar: { width: 50, height: 50, borderRadius: 25, justifyContent: 'center', alignItems: 'center', marginBottom: spacing.xs },
-  topCharLetter: { fontSize: 20, fontWeight: '700' },
-  topCharName: { fontSize: 12, fontWeight: '600', textAlign: 'center' },
-  topCharMsgs: { fontSize: 9, marginTop: 2 },
+  topCharLetter: { fontSize: 20, fontFamily: fonts.heading },
+  topCharName: { fontSize: 12, fontFamily: fonts.button, textAlign: 'center' },
+  topCharMsgs: { fontSize: 9, fontFamily: fonts.body, marginTop: 2 },
 });

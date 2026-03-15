@@ -5,6 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Compass, MessageSquare, BookOpen, PlusCircle, User } from 'lucide-react-native';
 import { useThemeStore } from '../../stores/themeStore';
 import { typography } from '../../constants/theme';
+import { fonts } from '../../constants/fonts';
 
 function TabIcon({ Icon, color, size, focused, accentColor }: { Icon: any; color: string; size: number; focused: boolean; accentColor: string }) {
   return (
@@ -25,7 +26,7 @@ export default function TabsLayout() {
       tabBarStyle: { backgroundColor: tc.bg.secondary, borderTopColor: tc.border.subtle, borderTopWidth: 1, height: 52 + bottomPad, paddingBottom: bottomPad, paddingTop: 4 },
       tabBarActiveTintColor: tc.accent.primary,
       tabBarInactiveTintColor: tc.text.muted,
-      tabBarLabelStyle: { ...typography.small, fontSize: 10 },
+      tabBarLabelStyle: { fontFamily: fonts.button, fontSize: 10 },
     }}>
       <Tabs.Screen name="discover" options={{ title: 'Discover', tabBarIcon: ({ color, size, focused }) => <TabIcon Icon={Compass} color={color} size={size} focused={focused} accentColor={tc.accent.primary} /> }} />
       <Tabs.Screen name="chats" options={{ title: 'Chats', tabBarIcon: ({ color, size, focused }) => <TabIcon Icon={MessageSquare} color={color} size={size} focused={focused} accentColor={tc.accent.primary} /> }} />

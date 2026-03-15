@@ -13,6 +13,7 @@ import { EmptyState } from '../../components/shared/EmptyState';
 import { ChatSession } from '../../lib/types';
 import { useThemeStore } from '../../stores/themeStore';
 import { typography, spacing, borderRadius } from '../../constants/theme';
+import { fonts } from '../../constants/fonts';
 import Animated, { FadeOut, Layout } from 'react-native-reanimated';
 
 export default function LibraryScreen() {
@@ -139,23 +140,23 @@ function formatRelativeTime(iso: string): string {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  title: { ...typography.display, paddingHorizontal: spacing.lg, paddingTop: spacing.lg, paddingBottom: spacing.sm },
+  title: { ...typography.display, fontFamily: fonts.logo, paddingHorizontal: spacing.lg, paddingTop: spacing.lg, paddingBottom: spacing.sm },
   searchBox: { flexDirection: 'row', alignItems: 'center', borderRadius: borderRadius.lg, paddingHorizontal: spacing.md, marginHorizontal: spacing.lg, marginBottom: spacing.md, gap: spacing.sm },
-  searchInput: { flex: 1, paddingVertical: spacing.sm, fontSize: 14 },
+  searchInput: { flex: 1, paddingVertical: spacing.sm, fontSize: 14, fontFamily: fonts.body },
   tabs: { flexDirection: 'row', paddingHorizontal: spacing.lg, gap: spacing.sm, marginBottom: spacing.lg },
   tab: { paddingVertical: spacing.sm, paddingHorizontal: spacing.lg, borderRadius: borderRadius.full },
-  tabText: { ...typography.subheading, fontSize: 14 },
+  tabText: { ...typography.subheading, fontSize: 14, fontFamily: fonts.button },
   grid: { flexDirection: 'row', flexWrap: 'wrap', paddingHorizontal: spacing.lg, gap: spacing.lg, paddingBottom: spacing.xxl },
   sessionList: { paddingHorizontal: spacing.lg, gap: spacing.sm, paddingBottom: spacing.xxl },
   sessionCard: { flexDirection: 'row', alignItems: 'center', borderRadius: borderRadius.lg, padding: spacing.lg, gap: spacing.md },
   sessionAvatar: { width: 44, height: 44, borderRadius: 22, justifyContent: 'center', alignItems: 'center' },
   sessionInfo: { flex: 1 },
-  sessionName: { ...typography.subheading, fontSize: 15 },
-  sessionPreview: { ...typography.caption, marginTop: 2 },
+  sessionName: { ...typography.subheading, fontSize: 15, fontFamily: fonts.heading },
+  sessionPreview: { ...typography.caption, marginTop: 2, fontFamily: fonts.body },
   sessionMeta: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs, marginTop: spacing.xs },
   sessionTime: { ...typography.small },
   sessionMsgCount: { ...typography.small, marginLeft: spacing.sm },
   deleteBtn: { padding: spacing.sm, justifyContent: 'center' },
   clearAllBtn: { alignSelf: 'flex-end', paddingVertical: spacing.xs, paddingHorizontal: spacing.sm, marginBottom: spacing.sm },
-  clearAllText: { fontSize: 11, fontWeight: '600' },
+  clearAllText: { fontSize: 11, fontFamily: fonts.button },
 });

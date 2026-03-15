@@ -6,6 +6,7 @@ import { Send, Square } from 'lucide-react-native';
 import Animated, { useSharedValue, useAnimatedStyle, withSpring, withSequence, withRepeat, withTiming } from 'react-native-reanimated';
 import { useThemeStore } from '../../stores/themeStore';
 import { spacing, borderRadius, typography } from '../../constants/theme';
+import { fonts } from '../../constants/fonts';
 
 interface ChatInputProps { onSend: (text: string) => void; disabled?: boolean; accentColor?: string; }
 
@@ -53,7 +54,7 @@ export function ChatInput({ onSend, disabled = false, accentColor }: ChatInputPr
 const styles = StyleSheet.create({
   container: { borderTopWidth: 1, paddingHorizontal: spacing.lg, paddingVertical: spacing.sm },
   inputRow: { flexDirection: 'row', alignItems: 'flex-end', gap: spacing.sm },
-  input: { flex: 1, borderRadius: borderRadius.xl, paddingHorizontal: spacing.lg, paddingVertical: spacing.md, fontSize: 15, maxHeight: 120 },
+  input: { flex: 1, borderRadius: borderRadius.xl, paddingHorizontal: spacing.lg, paddingVertical: spacing.md, fontSize: 15, fontFamily: fonts.body, maxHeight: 120 },
   sendButton: { width: 40, height: 40, borderRadius: 20, justifyContent: 'center', alignItems: 'center' },
   charCount: { ...typography.small, fontSize: 9, textAlign: 'right', marginBottom: 2 },
 });

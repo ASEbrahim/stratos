@@ -11,6 +11,7 @@ import { EmptyState } from '../../components/shared/EmptyState';
 import { ChatSession } from '../../lib/types';
 import { getGenreColor } from '../../constants/genres';
 import { typography, spacing, borderRadius } from '../../constants/theme';
+import { fonts } from '../../constants/fonts';
 import Animated, { FadeIn, FadeOut, Layout } from 'react-native-reanimated';
 
 export default function ChatsScreen() {
@@ -210,22 +211,22 @@ function formatTime(iso: string): string {
 const styles = StyleSheet.create({
   container: { flex: 1 },
   header: { flexDirection: 'row', alignItems: 'baseline', paddingHorizontal: spacing.lg, paddingTop: spacing.lg, paddingBottom: spacing.sm, gap: spacing.sm },
-  title: { ...typography.display },
-  chatCount: { fontSize: 16, fontWeight: '600' },
+  title: { ...typography.display, fontFamily: fonts.logo },
+  chatCount: { fontSize: 16, fontFamily: fonts.button },
   searchBox: { flexDirection: 'row', alignItems: 'center', borderRadius: borderRadius.lg, paddingHorizontal: spacing.md, marginHorizontal: spacing.lg, marginBottom: spacing.md, gap: spacing.sm },
-  searchInput: { flex: 1, paddingVertical: spacing.sm, fontSize: 14 },
+  searchInput: { flex: 1, paddingVertical: spacing.sm, fontSize: 14, fontFamily: fonts.body },
   list: { paddingHorizontal: spacing.lg },
-  sectionLabel: { fontSize: 11, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 1.5, marginTop: spacing.lg, marginBottom: spacing.sm, paddingLeft: spacing.xs },
+  sectionLabel: { fontSize: 11, fontFamily: fonts.heading, textTransform: 'uppercase', letterSpacing: 1.5, marginTop: spacing.lg, marginBottom: spacing.sm, paddingLeft: spacing.xs },
   chatRow: { flexDirection: 'row', alignItems: 'center', padding: spacing.md, borderRadius: borderRadius.lg, marginBottom: spacing.sm, gap: spacing.md },
   avatar: { width: 50, height: 50, borderRadius: 25, justifyContent: 'center', alignItems: 'center', position: 'relative' },
-  avatarLetter: { fontSize: 20, fontWeight: '700' },
+  avatarLetter: { fontSize: 20, fontFamily: fonts.heading },
   onlineDot: { position: 'absolute', bottom: 1, right: 1, width: 10, height: 10, borderRadius: 5, borderWidth: 2, borderColor: '#0a0a0f' },
   chatInfo: { flex: 1 },
   nameRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 3 },
-  chatName: { ...typography.subheading, fontSize: 15, flex: 1, marginRight: spacing.sm },
-  chatTime: { fontSize: 11 },
+  chatName: { ...typography.subheading, fontSize: 15, fontFamily: fonts.heading, flex: 1, marginRight: spacing.sm },
+  chatTime: { fontSize: 11, fontFamily: fonts.body },
   previewRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
-  chatPreview: { ...typography.caption, flex: 1, lineHeight: 18 },
+  chatPreview: { ...typography.caption, flex: 1, lineHeight: 18, fontFamily: fonts.body },
   msgBadge: { minWidth: 22, height: 22, borderRadius: 11, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 5 },
   msgBadgeText: { fontSize: 10, fontWeight: '800' },
   modeBadge: { alignSelf: 'flex-start', paddingHorizontal: spacing.sm, paddingVertical: 1, borderRadius: borderRadius.sm, marginTop: 4 },
@@ -233,6 +234,6 @@ const styles = StyleSheet.create({
   deleteBtn: { padding: spacing.sm, justifyContent: 'center' },
   activeSession: { flexDirection: 'row', alignItems: 'center', padding: spacing.md, borderRadius: borderRadius.lg, borderWidth: 1, marginBottom: spacing.md, gap: spacing.sm },
   activeDot: { width: 8, height: 8, borderRadius: 4 },
-  activeText: { flex: 1, fontSize: 13, fontWeight: '600' },
+  activeText: { flex: 1, fontSize: 13, fontFamily: fonts.button },
   activeArrow: { fontSize: 16, fontWeight: '700' },
 });

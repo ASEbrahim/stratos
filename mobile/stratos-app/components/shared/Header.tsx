@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router';
 import { ChevronLeft } from 'lucide-react-native';
 import { useThemeStore } from '../../stores/themeStore';
 import { typography, spacing } from '../../constants/theme';
+import { fonts } from '../../constants/fonts';
 
 interface HeaderProps { title?: string; subtitle?: string; showBack?: boolean; right?: React.ReactNode; }
 
@@ -31,8 +32,8 @@ export function Header({ title, subtitle, showBack = false, right }: HeaderProps
 const styles = StyleSheet.create({
   container: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: spacing.lg, paddingVertical: spacing.md, borderBottomWidth: 1 },
   left: { width: 40 },
-  title: { ...typography.subheading, textAlign: 'center' },
-  subtitle: { fontSize: 10, textAlign: 'center', marginTop: 1 },
+  title: { ...typography.subheading, textAlign: 'center', fontFamily: fonts.heading },
+  subtitle: { fontSize: 10, textAlign: 'center', marginTop: 1, fontFamily: fonts.bodyMedium },
   right: { width: 40, alignItems: 'flex-end' },
   backButton: { padding: spacing.xs },
 });

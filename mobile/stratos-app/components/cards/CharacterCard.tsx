@@ -11,6 +11,7 @@ import { useCharacterStore } from '../../stores/characterStore';
 import { typography, spacing, borderRadius } from '../../constants/theme';
 import { getGenreColor } from '../../constants/genres';
 import { useThemeStore } from '../../stores/themeStore';
+import { fonts } from '../../constants/fonts';
 const CARD_WIDTH = (Dimensions.get('window').width - spacing.md * 2 - spacing.sm) / 2;
 
 interface CharacterCardProps { card: CharacterCardType; variant?: 'grid' | 'horizontal'; featured?: boolean; }
@@ -130,15 +131,15 @@ const styles = StyleSheet.create({
   },
   heartOverlay: { position: 'absolute', zIndex: 10, justifyContent: 'center', alignItems: 'center', top: '30%', left: '30%' },
   quickChatBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 3, paddingVertical: spacing.xs, borderTopWidth: 1 },
-  quickChatText: { fontSize: 10, fontWeight: '700' },
+  quickChatText: { fontSize: 10, fontFamily: fonts.button },
   nsfwBadge: { position: 'absolute', top: spacing.xs, right: spacing.xs, paddingHorizontal: 4, paddingVertical: 1, borderRadius: borderRadius.sm },
   newBadge: { position: 'absolute', top: spacing.xs, left: spacing.xs, paddingHorizontal: 4, paddingVertical: 1, borderRadius: borderRadius.sm },
-  newBadgeText: { fontSize: 7, fontWeight: '800', color: '#fff', letterSpacing: 0.5 },
-  nsfwText: { fontSize: 8, color: '#fff', fontWeight: '700' },
+  newBadgeText: { fontSize: 7, fontFamily: fonts.headingBold, color: '#fff', letterSpacing: 0.5 },
+  nsfwText: { fontSize: 8, color: '#fff', fontFamily: fonts.heading },
   info: { paddingHorizontal: spacing.xs, paddingVertical: 3 },
   nameRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 2 },
-  name: { fontSize: 12, fontWeight: '700', flex: 1 },
-  genreTag: { fontSize: 9, fontWeight: '600' },
+  name: { fontSize: 12, fontFamily: fonts.heading, flex: 1 },
+  genreTag: { fontSize: 9, fontFamily: fonts.bodySemiBold },
   avatarInitial: { fontSize: 24, fontWeight: '700', opacity: 0.7 },
   avatarGlow: { position: 'absolute', width: '100%', height: '100%', borderRadius: 16 },
   horizontalCard: { width: 120, alignItems: 'center', marginRight: spacing.md },

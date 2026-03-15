@@ -6,6 +6,7 @@ import Animated, { useSharedValue, useAnimatedStyle, withSpring, FadeIn } from '
 import { ChatMessage } from '../../lib/types';
 import { typography, spacing, borderRadius } from '../../constants/theme';
 import { useThemeStore } from '../../stores/themeStore';
+import { fonts } from '../../constants/fonts';
 
 interface MessageBubbleProps { message: ChatMessage; accentColor?: string; }
 
@@ -139,9 +140,9 @@ const styles = StyleSheet.create({
   bubble: { maxWidth: '85%', paddingHorizontal: spacing.lg, paddingVertical: spacing.md, borderRadius: borderRadius.lg },
   userBubble: { borderTopRightRadius: borderRadius.sm, borderWidth: 1 },
   assistantBubble: { borderTopLeftRadius: borderRadius.sm, maxWidth: '90%', borderWidth: 1 },
-  userText: { ...typography.body },
-  assistantText: { ...typography.body, lineHeight: 24 },
-  systemText: { ...typography.caption, textAlign: 'center', fontStyle: 'italic' },
+  userText: { ...typography.body, fontFamily: fonts.body },
+  assistantText: { ...typography.body, lineHeight: 24, fontFamily: fonts.body },
+  systemText: { ...typography.caption, textAlign: 'center', fontStyle: 'italic', fontFamily: fonts.bodyLight },
   timestamp: { ...typography.small, fontSize: 9, marginTop: 2 },
   timestampLeft: { marginLeft: spacing.sm },
   timestampRight: { marginRight: spacing.sm },
