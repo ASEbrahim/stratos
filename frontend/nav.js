@@ -238,6 +238,11 @@ function setActive(id) {
         if (marketsPanel) marketsPanel.classList.add('hidden');
         const ytPanel = document.getElementById('youtube-kb-panel');
         if (ytPanel) { ytPanel.classList.remove('hidden'); if (typeof initYouTubeKB === 'function') initYouTubeKB(); }
+    } else if (id === 'image_gen') {
+        // Open image gen as modal overlay (doesn't replace main content)
+        if (typeof toggleImageGenPanel === 'function') toggleImageGenPanel();
+        // Reset active to previous tab so nav doesn't stay on image_gen
+        return;
     } else if (id === 'settings') {
         mainContent.classList.add('hidden');
         if (marketsPanel) marketsPanel.classList.add('hidden');

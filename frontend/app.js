@@ -131,7 +131,8 @@ function buildNavSections(dynamicCats) {
             label: null,
             collapsible: false,
             items: [
-                { id: 'youtube_kb', label: 'YouTube', icon: 'play-circle', subtitle: 'Knowledge Base' }
+                { id: 'youtube_kb', label: 'YouTube', icon: 'play-circle', subtitle: 'Knowledge Base' },
+                { id: 'image_gen', label: 'Image Gen', icon: 'wand-2', subtitle: 'AI Image Generation' }
             ]
         },
         {

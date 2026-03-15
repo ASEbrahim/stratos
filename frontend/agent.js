@@ -337,6 +337,34 @@ async function switchPersona(name) {
     _updateContextBadge(name);
     if (typeof _onPersonaChanged === 'function') _onPersonaChanged(name);
     if (typeof updateScenarioBar === 'function') updateScenarioBar();
+    // Show/hide RP-specific controls (director's note button)
+    _updateRPControls(name);
+}
+
+function _updateRPControls(persona) {
+    const isRP = persona === 'roleplay' || persona === 'gaming';
+    let dirBtn = document.getElementById('rp-director-btn');
+    if (isRP && !dirBtn) {
+        const uploadBtn = document.getElementById('agent-upload-btn');
+        if (uploadBtn) {
+            dirBtn = document.createElement('button');
+            dirBtn.id = 'rp-director-btn';
+            dirBtn.className = 'w-9 h-9 rounded-xl flex items-center justify-center transition-all flex-shrink-0';
+            dirBtn.style.cssText = 'color:var(--text-muted);border:1px solid var(--border-strong);background:rgba(255,255,255,0.02);';
+            dirBtn.title = "Director's Note — steer the AI";
+            dirBtn.setAttribute('aria-label', "Director's Note");
+            dirBtn.setAttribute('onmouseenter', "this.style.borderColor='var(--accent)';this.style.color='var(--accent)'");
+            dirBtn.setAttribute('onmouseleave', "this.style.borderColor='var(--border-strong)';this.style.color='var(--text-muted)'");
+            dirBtn.onclick = _rpToggleDirector;
+            dirBtn.innerHTML = '<i data-lucide="sparkles" class="w-4 h-4"></i>';
+            uploadBtn.parentElement.insertBefore(dirBtn, uploadBtn);
+            lucide.createIcons();
+        }
+    } else if (!isRP && dirBtn) {
+        dirBtn.remove();
+        const panel = document.getElementById('rp-director-panel');
+        if (panel) panel.remove();
+    }
 }
 
 // ── Persona theme data ──
@@ -784,6 +812,18 @@ function appendAgentMessage(role, content) {
                     <button onclick="speakMessage(this.closest('.agent-msg-actions').parentElement.querySelector('.agent-response').innerText, this)" class="speak-btn p-0.5 rounded" title="Read aloud">
                         <i data-lucide="volume-2" class="w-3 h-3" style="color:var(--text-muted);"></i>
                     </button>
+                    ${(currentPersona === 'roleplay' || currentPersona === 'gaming') ? `
+                    <span style="color:var(--text-muted);opacity:0.2;">|</span>
+                    <button onclick="_rpThumbsFeedback(this, 'thumbs_up')" class="p-0.5 rounded rp-feedback-btn" title="Good response" data-feedback="">
+                        <i data-lucide="thumbs-up" class="w-3 h-3" style="color:var(--text-muted);"></i>
+                    </button>
+                    <button onclick="_rpThumbsFeedback(this, 'thumbs_down')" class="p-0.5 rounded rp-feedback-btn" title="Bad response" data-feedback="">
+                        <i data-lucide="thumbs-down" class="w-3 h-3" style="color:var(--text-muted);"></i>
+                    </button>
+                    <button onclick="_rpEditMessage(this)" class="p-0.5 rounded" title="Edit response">
+                        <i data-lucide="pencil" class="w-3 h-3" style="color:var(--text-muted);"></i>
+                    </button>
+                    ` : ''}
                 </div>
             </div>`;
     }
@@ -907,6 +947,112 @@ function _copyAgentMessage(btn) {
         document.body.appendChild(ta); ta.select(); document.execCommand('copy');
         document.body.removeChild(ta); showCheck();
     }
+}
+
+// ── RP Expansion: Feedback, Edit, Regenerate ──
+
+function _rpThumbsFeedback(btn, type) {
+    // Visual feedback
+    const allBtns = btn.parentElement.querySelectorAll('.rp-feedback-btn');
+    allBtns.forEach(b => {
+        b.dataset.feedback = '';
+        b.querySelector('[data-lucide]')?.setAttribute('style', 'color:var(--text-muted);');
+    });
+    btn.dataset.feedback = type;
+    btn.querySelector('[data-lucide]')?.setAttribute('style',
+        type === 'thumbs_up' ? 'color:#34d399;' : 'color:#f87171;');
+    lucide.createIcons();
+
+    // Send to backend (fire and forget)
+    const msgId = btn.closest('.group\\/msg')?.dataset?.messageId || 0;
+    fetch('/api/rp/feedback', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ..._agentHeaders() },
+        body: JSON.stringify({ message_id: parseInt(msgId), feedback_type: type })
+    }).catch(() => {});
+}
+
+function _rpEditMessage(btn) {
+    const resp = btn.closest('.agent-msg-actions')?.parentElement?.querySelector('.agent-response');
+    if (!resp) return;
+    const original = resp.innerText || '';
+
+    // Create inline edit UI
+    const container = resp.parentElement;
+    const editArea = document.createElement('div');
+    editArea.className = 'rp-edit-area mt-2';
+    editArea.innerHTML = `
+        <textarea class="w-full rounded-lg p-3 text-xs" style="background:var(--bg-secondary); color:var(--text-body); border:1px solid var(--border-subtle); min-height:100px; resize:vertical;">${escAgent(original)}</textarea>
+        <div class="flex items-center gap-2 mt-2">
+            <select class="text-[10px] rounded px-2 py-1" style="background:var(--bg-tertiary); color:var(--text-body); border:1px solid var(--border-subtle);">
+                <option value="">Reason (optional)</option>
+                <option value="voice">Voice</option>
+                <option value="length">Length</option>
+                <option value="accuracy">Accuracy</option>
+                <option value="tone">Tone</option>
+                <option value="agency">Agency</option>
+                <option value="other">Other</option>
+            </select>
+            <button onclick="_rpSaveEdit(this)" class="text-[10px] px-3 py-1 rounded" style="background:var(--accent-primary); color:#fff;">Save</button>
+            <button onclick="this.closest('.rp-edit-area').remove()" class="text-[10px] px-3 py-1 rounded" style="background:var(--bg-tertiary); color:var(--text-muted);">Cancel</button>
+        </div>`;
+    container.appendChild(editArea);
+    editArea.querySelector('textarea').focus();
+}
+
+function _rpSaveEdit(btn) {
+    const editArea = btn.closest('.rp-edit-area');
+    const textarea = editArea.querySelector('textarea');
+    const reason = editArea.querySelector('select').value || undefined;
+    const newContent = textarea.value.trim();
+    const resp = editArea.parentElement.querySelector('.agent-response');
+    const msgId = editArea.closest('.group\\/msg')?.dataset?.messageId || 0;
+
+    if (!newContent) return;
+
+    // Update display
+    resp.innerHTML = formatAgentText(newContent);
+    lucide.createIcons();
+    editArea.remove();
+
+    // Send to backend
+    fetch('/api/rp/edit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ..._agentHeaders() },
+        body: JSON.stringify({ message_id: parseInt(msgId), edited_content: newContent, edit_reason: reason })
+    }).catch(() => {});
+}
+
+// Director's Note panel (injected above chat input for RP personas)
+let _rpDirectorNote = '';
+let _rpLastUsedNote = '';
+
+function _rpToggleDirector() {
+    const panel = document.getElementById('rp-director-panel');
+    if (panel) { panel.classList.toggle('hidden'); return; }
+
+    const input = document.getElementById('agent-input-area');
+    if (!input) return;
+
+    const div = document.createElement('div');
+    div.id = 'rp-director-panel';
+    div.className = 'px-4 py-2';
+    div.style.borderTop = '1px solid var(--border-subtle)';
+    div.innerHTML = `
+        <div class="flex items-center gap-2 mb-1">
+            <i data-lucide="sparkles" class="w-3 h-3" style="color:var(--accent-primary);"></i>
+            <span class="text-[10px] font-medium" style="color:var(--accent-primary);">Director's Note</span>
+            <button onclick="this.closest('#rp-director-panel').classList.add('hidden')" class="ml-auto p-0.5">
+                <i data-lucide="x" class="w-3 h-3" style="color:var(--text-muted);"></i>
+            </button>
+        </div>
+        <input type="text" id="rp-director-input" placeholder="Guide the AI's next response..." maxlength="500"
+            class="w-full text-xs rounded px-3 py-1.5" style="background:var(--bg-tertiary); color:var(--text-body); border:1px solid var(--border-subtle);"
+            value="${escAgent(_rpDirectorNote)}"
+            oninput="_rpDirectorNote=this.value">
+        ${_rpLastUsedNote ? `<button onclick="_rpDirectorNote='${escAgent(_rpLastUsedNote)}';document.getElementById('rp-director-input').value=_rpDirectorNote;" class="text-[9px] mt-1 opacity-60 hover:opacity-100" style="color:var(--accent-primary);">↩ Reuse: ${escAgent(_rpLastUsedNote.slice(0, 40))}${_rpLastUsedNote.length > 40 ? '...' : ''}</button>` : ''}`;
+    input.parentElement.insertBefore(div, input);
+    lucide.createIcons();
 }
 
 function escAgent(s) {

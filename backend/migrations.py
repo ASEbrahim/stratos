@@ -12,6 +12,8 @@ logger = logging.getLogger(__name__)
 
 # =========================================================================
 # Migration registry — append new migrations at the end, never reorder
+# NOTE: f-strings in ALTER TABLE are safe — column names are hardcoded literals,
+# not user input. SQLite DDL does not support parameterized column names.
 # =========================================================================
 
 MIGRATIONS = []
