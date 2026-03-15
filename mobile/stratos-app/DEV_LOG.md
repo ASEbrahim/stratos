@@ -192,5 +192,8 @@ Gradient overlay + accent border on avatar section.
 ## Iteration 64: Auto-scroll on keyboard open in chat ✅
 Keyboard listener scrolls to latest message.
 
-## Iteration 65: Content rating badge on character detail
-The character detail screen doesn't show the content rating. Adding a prominent SFW/NSFW badge near the name so users know what to expect before starting a conversation.
+## Iteration 65: SFW/18+ content rating badge on detail ✅
+Content rating badge next to character name.
+
+## Iteration 66: Theme-aware SuggestionChips + tag pills cleanup
+SuggestionChips still imports static `colors`. Making it fully theme-aware and cleaning up any remaining static color imports in chat components.

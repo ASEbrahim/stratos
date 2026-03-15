@@ -3,7 +3,8 @@ import { ScrollView, TouchableOpacity, Text, StyleSheet } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import Animated, { useSharedValue, useAnimatedStyle, withDelay, withTiming, withSpring } from 'react-native-reanimated';
 import { Suggestion } from '../../lib/types';
-import { colors, typography, spacing, borderRadius } from '../../constants/theme';
+import { typography, spacing, borderRadius } from '../../constants/theme';
+import { useThemeStore } from '../../stores/themeStore';
 
 interface SuggestionChipsProps { suggestions: Suggestion[]; onSelect: (prompt: string) => void; accentColor?: string; }
 
@@ -39,7 +40,8 @@ function AnimatedChip({ suggestion, index, color, onSelect }: { suggestion: Sugg
 
 export function SuggestionChips({ suggestions, onSelect, accentColor }: SuggestionChipsProps) {
   if (suggestions.length === 0) return null;
-  const color = accentColor ?? colors.accent.primary;
+  const tc = useThemeStore(s => s.colors);
+  const color = accentColor ?? tc.accent.primary;
   return (
     <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
       {suggestions.map((s, i) => (
