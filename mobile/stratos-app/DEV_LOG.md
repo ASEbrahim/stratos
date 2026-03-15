@@ -53,3 +53,6 @@ Typing indicator now shows "{Name} is typing" label and uses theme colors. Fades
 
 ## Iteration 18: Profile about section + Library pull-to-refresh ✅
 Added app version footer in profile. Library screen now has pull-to-refresh on all tabs.
+
+## Iteration 19: Sort options for character grid
+Users need to sort characters by different criteria. Adding a sort toggle (Popular/Newest/Rating) above the grid — common in Chai and Character.AI.

@@ -27,6 +27,7 @@ export default function DiscoverScreen() {
   const [searchQuery, setSearchQuery] = useState('');
   const [refreshing, setRefreshing] = useState(false);
   const [showWelcome, setShowWelcome] = useState(true);
+  const [sortBy, setSortBy] = useState<'popular' | 'newest' | 'rating'>('popular');
 
   useEffect(() => { loadTrending(); loadNew(); getScenarios().then(setScenarios); loadRecentSessions(); }, []);
   const onRefresh = useCallback(async () => { setRefreshing(true); await Promise.all([loadTrending(), loadNew(), getScenarios().then(setScenarios)]); setRefreshing(false); }, []);
@@ -40,7 +41,14 @@ export default function DiscoverScreen() {
   };
   const nsfwFilter = useThemeStore(s => s.nsfwFilter);
   const filterNsfw = (cards: typeof newCards) => nsfwFilter ? cards.filter(c => c.content_rating !== 'nsfw') : cards;
-  const displayCards = filterNsfw(searchQuery.trim() ? useCharacterStore.getState().searchResults : (selectedGenre ? newCards.filter(c => c.genre_tags.includes(selectedGenre)) : newCards));
+  const sortCards = (cards: typeof newCards) => {
+    const sorted = [...cards];
+    if (sortBy === 'popular') sorted.sort((a, b) => b.session_count - a.session_count);
+    else if (sortBy === 'newest') sorted.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+    else if (sortBy === 'rating') sorted.sort((a, b) => b.rating - a.rating);
+    return sorted;
+  };
+  const displayCards = sortCards(filterNsfw(searchQuery.trim() ? useCharacterStore.getState().searchResults : (selectedGenre ? newCards.filter(c => c.genre_tags.includes(selectedGenre)) : newCards)));
 
   return (
     <View style={[styles.container, { paddingTop: insets.top, backgroundColor: tc.bg.primary }]}>
@@ -129,7 +137,18 @@ export default function DiscoverScreen() {
             );
           })}
         </ScrollView>
-        <View style={styles.sectionHdr}><Text style={[styles.sectionTitle, { color: tc.text.primary }]}>{searchQuery.trim() ? 'Search Results' : 'New Characters'}</Text></View>
+        <View style={styles.gridHeader}>
+          <Text style={[styles.sectionTitle, { color: tc.text.primary }]}>{searchQuery.trim() ? 'Search Results' : 'Characters'}</Text>
+          {!searchQuery.trim() && (
+            <View style={styles.sortRow}>
+              {(['popular', 'newest', 'rating'] as const).map(s => (
+                <TouchableOpacity key={s} onPress={() => setSortBy(s)} style={[styles.sortChip, sortBy === s && { backgroundColor: tc.accent.primary + '15' }]}>
+                  <Text style={[styles.sortText, { color: sortBy === s ? tc.accent.primary : tc.text.muted }]}>{s === 'popular' ? 'Popular' : s === 'newest' ? 'New' : 'Top Rated'}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          )}
+        </View>
         {displayCards.length === 0 && searchQuery.trim() ? (
           <View style={styles.emptySearch}>
             <Text style={[styles.emptyIcon]}>🔍</Text>
@@ -168,6 +187,10 @@ const styles = StyleSheet.create({
   recentAvatar: { width: 40, height: 40, borderRadius: 20, justifyContent: 'center', alignItems: 'center', borderWidth: 1.5, marginBottom: 3 },
   recentLetter: { fontSize: 16, fontWeight: '700' },
   recentName: { fontSize: 9, fontWeight: '500', textAlign: 'center' },
+  gridHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: spacing.lg, marginTop: spacing.lg, marginBottom: spacing.md },
+  sortRow: { flexDirection: 'row', gap: 2 },
+  sortChip: { paddingHorizontal: spacing.sm, paddingVertical: 3, borderRadius: borderRadius.sm },
+  sortText: { fontSize: 10, fontWeight: '600' },
   popularScroll: { paddingHorizontal: spacing.lg, gap: spacing.md },
   popularCard: { width: 280, flexDirection: 'row', backgroundColor: 'rgba(255,255,255,0.03)', borderRadius: borderRadius.lg, padding: spacing.md, borderWidth: 1, gap: spacing.md },
   popularAvatar: { width: 56, height: 56, borderRadius: borderRadius.md, justifyContent: 'center', alignItems: 'center' },
