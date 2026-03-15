@@ -6,6 +6,7 @@ import { useAuthStore } from '../stores/authStore';
 import { useThemeStore } from '../stores/themeStore';
 import { LoadingScreen } from '../components/shared/LoadingScreen';
 import { ErrorBoundary } from '../components/shared/ErrorBoundary';
+import { OfflineBanner } from '../components/shared/OfflineBanner';
 
 export default function RootLayout() {
   const { isLoading, checkAuth } = useAuthStore();
@@ -18,6 +19,7 @@ export default function RootLayout() {
     <ErrorBoundary>
       <View style={[styles.container, { backgroundColor: tc.bg.primary }]}>
         <StatusBar style="light" />
+        <OfflineBanner />
         <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: tc.bg.primary }, animation: 'slide_from_right' }} />
       </View>
     </ErrorBoundary>
