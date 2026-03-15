@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { MessageCircle, Clock } from 'lucide-react-native';
+import { MessageCircle, Clock, Trash2 } from 'lucide-react-native';
+import * as Haptics from 'expo-haptics';
+import { deleteChatSession } from '../../lib/storage';
 import { useCharacterStore } from '../../stores/characterStore';
 import { useChatStore } from '../../stores/chatStore';
 import { CharacterCardComponent } from '../../components/cards/CharacterCard';
@@ -26,6 +28,17 @@ export default function LibraryScreen() {
     router.push(`/chat/${session.character_id}`);
   };
 
+  const handleDeleteSession = (session: ChatSession) => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    Alert.alert('Delete Session', `Delete conversation with ${session.character_name}?`, [
+      { text: 'Cancel', style: 'cancel' },
+      { text: 'Delete', style: 'destructive', onPress: async () => {
+        await deleteChatSession(session.id);
+        loadRecentSessions();
+      }},
+    ]);
+  };
+
   const cards = tab === 'mine' ? myCards : savedCards;
 
   return (
@@ -42,21 +55,24 @@ export default function LibraryScreen() {
         ) : (
           <ScrollView contentContainerStyle={styles.sessionList}>
             {recentSessions.map(s => (
-              <TouchableOpacity key={s.id} style={styles.sessionCard} onPress={() => handleResumeSession(s)} activeOpacity={0.7}>
-                <View style={styles.sessionAvatar}>
-                  <MessageCircle size={20} color={colors.accent.primary} />
+              <TouchableOpacity key={s.id} style={styles.sessionCard} onPress={() => handleResumeSession(s)} onLongPress={() => handleDeleteSession(s)} delayLongPress={500} activeOpacity={0.7}>
+                <View style={[styles.sessionAvatar, { backgroundColor: tc.accent.primary + '15' }]}>
+                  <MessageCircle size={20} color={tc.accent.primary} />
                 </View>
                 <View style={styles.sessionInfo}>
-                  <Text style={styles.sessionName} numberOfLines={1}>{s.character_name}</Text>
-                  <Text style={styles.sessionPreview} numberOfLines={1}>
-                    {s.messages[s.messages.length - 1]?.content?.slice(0, 60) ?? 'No messages'}
+                  <Text style={[styles.sessionName, { color: tc.text.primary }]} numberOfLines={1}>{s.character_name}</Text>
+                  <Text style={[styles.sessionPreview, { color: tc.text.secondary }]} numberOfLines={1}>
+                    {s.messages[s.messages.length - 1]?.content?.replace(/\*[^*]+\*/g, '').slice(0, 60) ?? 'No messages'}
                   </Text>
                   <View style={styles.sessionMeta}>
-                    <Clock size={10} color={colors.text.muted} />
-                    <Text style={styles.sessionTime}>{formatRelativeTime(s.updated_at)}</Text>
-                    <Text style={styles.sessionMsgCount}>{s.messages.length} msgs</Text>
+                    <Clock size={10} color={tc.text.muted} />
+                    <Text style={[styles.sessionTime, { color: tc.text.muted }]}>{formatRelativeTime(s.updated_at)}</Text>
+                    <Text style={[styles.sessionMsgCount, { color: tc.text.muted }]}>{s.messages.length} msgs</Text>
                   </View>
                 </View>
+                <TouchableOpacity onPress={() => handleDeleteSession(s)} style={styles.deleteBtn} hitSlop={8}>
+                  <Trash2 size={14} color={colors.status.error + '80'} />
+                </TouchableOpacity>
               </TouchableOpacity>
             ))}
           </ScrollView>
@@ -101,4 +117,5 @@ const styles = StyleSheet.create({
   sessionMeta: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs, marginTop: spacing.xs },
   sessionTime: { ...typography.small, color: colors.text.muted },
   sessionMsgCount: { ...typography.small, color: colors.text.muted, marginLeft: spacing.sm },
+  deleteBtn: { padding: spacing.sm, justifyContent: 'center' },
 });

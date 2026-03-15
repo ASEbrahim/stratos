@@ -27,5 +27,8 @@ Search currently fires on every keystroke. Adding 300ms debounce, a proper "No r
 ## Iteration 9: Add Personality field + theme-aware create screen ✅
 The character creator was missing the Personality field entirely. Also made the create screen theme-aware.
 
-## Iteration 10: Gaming scenarios theme-aware + auth screens theme-aware
+## Iteration 10: Gaming scenarios theme-aware + auth screens theme-aware ✅
 Completing the theme system across remaining screens that still use hardcoded colors: gaming scenarios browser and auth (login/register).
+
+## Iteration 11: Swipe-to-delete in Library History + character card first message preview
+Users need to manage their chat history. Adding swipe-to-delete on history sessions. Also adding first message preview text on character cards in the grid to give users a taste before tapping.

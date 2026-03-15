@@ -65,6 +65,9 @@ export function CharacterCardComponent({ card, variant = 'grid' }: CharacterCard
             ))}
           </View>
         </View>
+        {card.first_message ? (
+          <Text style={styles.preview} numberOfLines={2}>{card.first_message.replace(/\*[^*]+\*/g, '').replace(/\n/g, ' ').trim().slice(0, 80)}</Text>
+        ) : null}
         <View style={styles.bottomRow}>
           <MessageCircle size={10} color={colors.text.muted} />
           <Text style={styles.sessions}>{formatCount(card.session_count)} chats</Text>
@@ -97,6 +100,7 @@ const styles = StyleSheet.create({
   genrePillText: { fontSize: 10, fontWeight: '600' },
   ratingRow: { flexDirection: 'row', gap: 1 },
   bottomRow: { flexDirection: 'row', alignItems: 'center', gap: 3, marginTop: 2 },
+  preview: { ...typography.small, color: colors.text.muted, fontSize: 10, lineHeight: 14, marginTop: 2 },
   sessions: { ...typography.small, color: colors.text.muted, fontSize: 10 },
   avatarInitial: { fontSize: 24, fontWeight: '700', opacity: 0.7 },
   avatarGlow: { position: 'absolute', width: '100%', height: '100%', borderRadius: 16 },
