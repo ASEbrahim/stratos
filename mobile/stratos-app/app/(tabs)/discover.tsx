@@ -80,30 +80,6 @@ export default function DiscoverScreen() {
           )}
         </View>
         {isLoading && trending.length === 0 && <DiscoverSkeleton />}
-        {/* Featured Character Spotlight */}
-        {!searchQuery.trim() && trending.length > 0 && (() => {
-          // Character of the Day — rotate daily based on day of year
-          const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0).getTime()) / 86400000);
-          const sortedByRating = [...trending].sort((a, b) => b.rating - a.rating);
-          const featured = sortedByRating[dayOfYear % sortedByRating.length];
-          if (!featured) return null;
-          const fc = getGenreColor(featured.genre_tags[0] ?? 'default');
-          return (
-            <TouchableOpacity style={[styles.spotlightCard, { borderColor: fc + '30' }]} onPress={() => router.push(`/character/${featured.id}`)} activeOpacity={0.8} accessibilityLabel={`Character of the day: ${featured.name}`} accessibilityRole="button">
-              <View style={[styles.spotlightAvatar, { backgroundColor: fc + '15' }]}>
-                <Text style={[styles.spotlightLetter, { color: fc }]}>{featured.name[0]}</Text>
-              </View>
-              <View style={styles.spotlightInfo}>
-                <View style={[styles.spotlightBadge, { backgroundColor: fc + '20' }]}>
-                  <Text style={[styles.spotlightBadgeText, { color: fc }]}>Character of the Day</Text>
-                </View>
-                <Text style={[styles.spotlightName, { color: tc.text.primary }]}>{featured.name}</Text>
-                <Text style={[styles.spotlightDesc, { color: tc.text.secondary }]} numberOfLines={2}>{featured.description}</Text>
-                <Text style={[styles.spotlightMeta, { color: tc.text.muted }]}>{featured.rating.toFixed(1)} rating · {formatCount(featured.session_count)} chats</Text>
-              </View>
-            </TouchableOpacity>
-          );
-        })()}
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.genreScroll}>
           <TouchableOpacity style={[styles.genreChip, { borderColor: tc.border.subtle, backgroundColor: tc.bg.secondary }, !selectedGenre && { backgroundColor: tc.accent.primary + '20', borderColor: tc.accent.primary }]} onPress={() => { Haptics.selectionAsync(); setGenre(null); }} accessibilityLabel={`Filter by all genres${!selectedGenre ? ', selected' : ''}`} accessibilityRole="button">
             <Text style={[styles.genreText, { color: tc.text.secondary }, !selectedGenre && { color: tc.accent.primary }]}>All</Text>
@@ -138,7 +114,7 @@ export default function DiscoverScreen() {
         ) : (
           <View style={styles.grid}>{displayCards.map((c, idx) => (
             <Animated.View key={c.id} entering={FadeInDown.delay(idx * 60).duration(300).springify().damping(14)}>
-              <CharacterCardComponent card={c} />
+              <CharacterCardComponent card={c} featured={idx === 0 && !searchQuery.trim() && !selectedGenre} />
             </Animated.View>
           ))}</View>
         )}
@@ -182,15 +158,6 @@ const styles = StyleSheet.create({
   emptyIcon: { fontSize: 40, marginBottom: spacing.md },
   emptyTitle: { ...typography.subheading, marginBottom: spacing.xs },
   emptySubtitle: { ...typography.caption, textAlign: 'center' },
-  spotlightCard: { flexDirection: 'row', marginHorizontal: spacing.lg, marginBottom: spacing.md, padding: spacing.lg, borderRadius: borderRadius.lg, borderWidth: 1, gap: spacing.lg, backgroundColor: 'rgba(255,255,255,0.02)' },
-  spotlightAvatar: { width: 70, height: 70, borderRadius: borderRadius.lg, justifyContent: 'center', alignItems: 'center' },
-  spotlightLetter: { fontSize: 28, fontWeight: '700', opacity: 0.7 },
-  spotlightInfo: { flex: 1, justifyContent: 'center' },
-  spotlightBadge: { alignSelf: 'flex-start', paddingHorizontal: spacing.sm, paddingVertical: 1, borderRadius: borderRadius.sm, marginBottom: 4 },
-  spotlightBadgeText: { fontSize: 9, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 1 },
-  spotlightName: { ...typography.subheading, marginBottom: 2 },
-  spotlightDesc: { ...typography.small, lineHeight: 15, fontSize: 11, marginBottom: 4 },
-  spotlightMeta: { fontSize: 10 },
   gridHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: spacing.lg, marginTop: spacing.lg, marginBottom: spacing.md },
   sortRow: { flexDirection: 'row', gap: 2 },
   sortChip: { paddingHorizontal: spacing.sm, paddingVertical: 3, borderRadius: borderRadius.sm },

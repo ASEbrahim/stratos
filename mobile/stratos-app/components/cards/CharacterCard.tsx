@@ -13,13 +13,13 @@ import { getGenreColor } from '../../constants/genres';
 import { useThemeStore } from '../../stores/themeStore';
 const CARD_WIDTH = (Dimensions.get('window').width - spacing.lg * 3) / 2;
 
-interface CharacterCardProps { card: CharacterCardType; variant?: 'grid' | 'horizontal'; }
+interface CharacterCardProps { card: CharacterCardType; variant?: 'grid' | 'horizontal'; featured?: boolean; }
 
 function isNew(dateStr: string): boolean {
   return Date.now() - new Date(dateStr).getTime() < 30 * 24 * 60 * 60 * 1000;
 }
 
-export function CharacterCardComponent({ card, variant = 'grid' }: CharacterCardProps) {
+export function CharacterCardComponent({ card, variant = 'grid', featured = false }: CharacterCardProps) {
   const router = useRouter();
   const startSession = useChatStore(s => s.startSession);
   const tc = useThemeStore(s => s.colors);
@@ -101,8 +101,9 @@ export function CharacterCardComponent({ card, variant = 'grid' }: CharacterCard
         </TouchableOpacity>
         {/* NSFW badge */}
         {card.content_rating === 'nsfw' && <View style={[styles.nsfwBadge, { backgroundColor: tc.nsfw + 'CC' }]}><Text style={styles.nsfwText}>18+</Text></View>}
-        {/* NEW badge */}
-        {showNew && card.content_rating !== 'nsfw' && <View style={[styles.newBadge, { backgroundColor: tc.status.success }]}><Text style={styles.newBadgeText}>NEW</Text></View>}
+        {/* Featured / NEW badge */}
+        {featured && <View style={[styles.newBadge, { backgroundColor: accentColor }]}><Text style={styles.newBadgeText}>PICK OF THE DAY</Text></View>}
+        {!featured && showNew && card.content_rating !== 'nsfw' && <View style={[styles.newBadge, { backgroundColor: tc.status.success }]}><Text style={styles.newBadgeText}>NEW</Text></View>}
         {/* Heart animation on double-tap */}
         {showHeart && (
           <Animated.View style={[styles.heartOverlay, heartStyle]}>
