@@ -104,20 +104,19 @@ export function CardEditor() {
         </TouchableOpacity>
       )}
 
-      {/* Quality indicator */}
-      <View style={[styles.qualityBanner, { borderColor: qualityColor + '40' }]}>
-        <Text style={[styles.qualityLabel, { color: qualityColor }]}>{quality.label} ({quality.score}/6 elements)</Text>
+      {/* Avatar + Name row */}
+      <View style={styles.avatarNameRow}>
+        <AvatarPicker
+          avatarUri={card.avatar_url}
+          onPick={(uri) => update('avatar_url', uri)}
+          onClear={() => update('avatar_url', '')}
+          compact
+        />
+        <View style={styles.nameCol}>
+          <Text style={[styles.fieldLabel, { color: tc.text.primary, marginTop: 0 }]}>Name *</Text>
+          <TextInput style={[styles.input, { backgroundColor: tc.bg.tertiary, color: tc.text.primary, borderColor: tc.border.subtle }]} value={card.name} onChangeText={v => update('name', v)} placeholder="Character name" placeholderTextColor={tc.text.muted} accessibilityLabel="Character name" />
+        </View>
       </View>
-
-      {/* Avatar picker */}
-      <AvatarPicker
-        avatarUri={card.avatar_url}
-        onPick={(uri) => update('avatar_url', uri)}
-        onClear={() => update('avatar_url', '')}
-      />
-
-      <Text style={[styles.fieldLabel, { color: tc.text.primary }]}>Name *</Text>
-      <TextInput style={[styles.input, { backgroundColor: tc.bg.tertiary, color: tc.text.primary, borderColor: tc.border.subtle }]} value={card.name} onChangeText={v => update('name', v)} placeholder="Character name" placeholderTextColor={tc.text.muted} accessibilityLabel="Character name" />
 
       <Text style={[styles.fieldLabel, { color: tc.text.primary }]}>Genre</Text>
       <View style={styles.genreGrid}>
@@ -193,8 +192,8 @@ const styles = StyleSheet.create({
   modeBtnActive: {},
   modeText: { ...typography.subheading, fontSize: 14 },
   modeTextActive: {},
-  qualityBanner: { borderWidth: 1, borderRadius: borderRadius.md, padding: spacing.md, alignItems: 'center', marginBottom: spacing.lg },
-  qualityLabel: { ...typography.subheading, fontSize: 14 },
+  avatarNameRow: { flexDirection: 'row', gap: spacing.md, alignItems: 'flex-start', marginBottom: spacing.sm },
+  nameCol: { flex: 1, justifyContent: 'center' },
   fieldLabel: { ...typography.subheading, marginBottom: spacing.xs, marginTop: spacing.lg },
   fieldHint: { ...typography.caption, marginBottom: spacing.sm },
   input: { borderRadius: borderRadius.md, paddingHorizontal: spacing.lg, paddingVertical: spacing.md, fontSize: 15, borderWidth: 1 },

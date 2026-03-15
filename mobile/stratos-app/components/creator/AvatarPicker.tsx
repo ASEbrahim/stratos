@@ -11,9 +11,10 @@ interface AvatarPickerProps {
   onPick: (uri: string) => void;
   onClear: () => void;
   accentColor?: string;
+  compact?: boolean;
 }
 
-export function AvatarPicker({ avatarUri, onPick, onClear, accentColor }: AvatarPickerProps) {
+export function AvatarPicker({ avatarUri, onPick, onClear, accentColor, compact }: AvatarPickerProps) {
   const tc = useThemeStore(s => s.colors);
   const accent = accentColor ?? tc.accent.primary;
 
@@ -49,6 +50,27 @@ export function AvatarPicker({ avatarUri, onPick, onClear, accentColor }: Avatar
       onPick(result.assets[0].uri);
     }
   };
+
+  if (compact) {
+    return (
+      <View style={styles.compactContainer}>
+        <TouchableOpacity onPress={pickImage} activeOpacity={0.7} accessibilityLabel={avatarUri ? 'Change avatar' : 'Pick avatar'} accessibilityRole="button">
+          {avatarUri ? (
+            <View style={styles.compactPreviewWrap}>
+              <Image source={{ uri: avatarUri }} style={styles.compactPreview} />
+              <TouchableOpacity style={styles.compactClearBtn} onPress={onClear} accessibilityLabel="Remove avatar" accessibilityRole="button">
+                <X size={12} color="#fff" />
+              </TouchableOpacity>
+            </View>
+          ) : (
+            <View style={[styles.compactPlaceholder, { borderColor: accent + '30', backgroundColor: tc.bg.tertiary }]}>
+              <Camera size={20} color={tc.text.muted} />
+            </View>
+          )}
+        </TouchableOpacity>
+      </View>
+    );
+  }
 
   if (avatarUri) {
     return (
@@ -102,5 +124,18 @@ const styles = StyleSheet.create({
     position: 'absolute', top: spacing.sm, right: spacing.sm,
     width: 28, height: 28, borderRadius: 14,
     backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'center', alignItems: 'center',
+  },
+  compactContainer: {},
+  compactPlaceholder: {
+    width: 80, height: 80, borderRadius: borderRadius.lg,
+    borderWidth: 1, borderStyle: 'dashed',
+    justifyContent: 'center', alignItems: 'center',
+  },
+  compactPreviewWrap: { position: 'relative' },
+  compactPreview: { width: 80, height: 80, borderRadius: borderRadius.lg },
+  compactClearBtn: {
+    position: 'absolute', top: -4, right: -4,
+    width: 20, height: 20, borderRadius: 10,
+    backgroundColor: 'rgba(0,0,0,0.7)', justifyContent: 'center', alignItems: 'center',
   },
 });
