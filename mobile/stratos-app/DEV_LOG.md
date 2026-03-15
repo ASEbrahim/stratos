@@ -96,5 +96,8 @@ Word/char counter on creator text fields.
 ## Iteration 32: Featured character spotlight card on discover ✅
 Full-width spotlight card for the highest-rated character.
 
-## Iteration 33: Auth screens — login/register keyboard avoidance + input improvements
-Auth inputs need proper keyboard behavior on mobile — auto-focus, proper keyboard types, secure text entry, return key handling.
+## Iteration 33: Auth input focus chaining ✅
+Next key auto-focuses next field in login/register forms.
+
+## Iteration 34: Library "Clear All History" + tab badges
+Library History needs a bulk delete option. Also adding unread-style badges on tabs to show content counts.

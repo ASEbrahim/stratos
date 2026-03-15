@@ -5,6 +5,7 @@ import { useRouter } from 'expo-router';
 import { MessageCircle, Clock, Trash2 } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 import { deleteChatSession } from '../../lib/storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useCharacterStore } from '../../stores/characterStore';
 import { useChatStore } from '../../stores/chatStore';
 import { CharacterCardComponent } from '../../components/cards/CharacterCard';
@@ -30,6 +31,17 @@ export default function LibraryScreen() {
     router.push(`/chat/${session.character_id}`);
   };
 
+  const handleClearAllHistory = () => {
+    Alert.alert('Clear All History', `Delete all ${recentSessions.length} conversations?`, [
+      { text: 'Cancel', style: 'cancel' },
+      { text: 'Clear All', style: 'destructive', onPress: async () => {
+        await AsyncStorage.removeItem('stratos_chat_sessions');
+        loadRecentSessions();
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      }},
+    ]);
+  };
+
   const handleDeleteSession = (session: ChatSession) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     Alert.alert('Delete Session', `Delete conversation with ${session.character_name}?`, [
@@ -47,15 +59,24 @@ export default function LibraryScreen() {
     <View style={[styles.container, { paddingTop: insets.top, backgroundColor: tc.bg.primary }]}>
       <Text style={[styles.title, { color: tc.text.primary }]}>Library</Text>
       <View style={styles.tabs}>
-        <TouchableOpacity style={[styles.tab, tab === 'mine' && styles.tabActive]} onPress={() => setTab('mine')}><Text style={[styles.tabText, tab === 'mine' && styles.tabTextActive]}>My Characters</Text></TouchableOpacity>
-        <TouchableOpacity style={[styles.tab, tab === 'saved' && styles.tabActive]} onPress={() => setTab('saved')}><Text style={[styles.tabText, tab === 'saved' && styles.tabTextActive]}>Saved</Text></TouchableOpacity>
-        <TouchableOpacity style={[styles.tab, tab === 'history' && styles.tabActive]} onPress={() => setTab('history')}><Text style={[styles.tabText, tab === 'history' && styles.tabTextActive]}>History</Text></TouchableOpacity>
+        <TouchableOpacity style={[styles.tab, tab === 'mine' && styles.tabActive]} onPress={() => setTab('mine')}>
+          <Text style={[styles.tabText, tab === 'mine' && styles.tabTextActive]}>My Characters{myCards.length > 0 ? ` (${myCards.length})` : ''}</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={[styles.tab, tab === 'saved' && styles.tabActive]} onPress={() => setTab('saved')}>
+          <Text style={[styles.tabText, tab === 'saved' && styles.tabTextActive]}>Saved{savedCards.length > 0 ? ` (${savedCards.length})` : ''}</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={[styles.tab, tab === 'history' && styles.tabActive]} onPress={() => setTab('history')}>
+          <Text style={[styles.tabText, tab === 'history' && styles.tabTextActive]}>History{recentSessions.length > 0 ? ` (${recentSessions.length})` : ''}</Text>
+        </TouchableOpacity>
       </View>
       {tab === 'history' ? (
         recentSessions.length === 0 ? (
           <EmptyState title="No conversations yet" subtitle="Start a chat from Discover to see it here." />
         ) : (
           <ScrollView contentContainerStyle={styles.sessionList} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={tc.accent.primary} />}>
+            <TouchableOpacity style={styles.clearAllBtn} onPress={handleClearAllHistory}>
+              <Text style={[styles.clearAllText, { color: colors.status.error }]}>Clear All History</Text>
+            </TouchableOpacity>
             {recentSessions.map(s => (
               <TouchableOpacity key={s.id} style={styles.sessionCard} onPress={() => handleResumeSession(s)} onLongPress={() => handleDeleteSession(s)} delayLongPress={500} activeOpacity={0.7}>
                 <View style={[styles.sessionAvatar, { backgroundColor: tc.accent.primary + '15' }]}>
@@ -120,4 +141,6 @@ const styles = StyleSheet.create({
   sessionTime: { ...typography.small, color: colors.text.muted },
   sessionMsgCount: { ...typography.small, color: colors.text.muted, marginLeft: spacing.sm },
   deleteBtn: { padding: spacing.sm, justifyContent: 'center' },
+  clearAllBtn: { alignSelf: 'flex-end', paddingVertical: spacing.xs, paddingHorizontal: spacing.sm, marginBottom: spacing.sm },
+  clearAllText: { fontSize: 11, fontWeight: '600' },
 });
