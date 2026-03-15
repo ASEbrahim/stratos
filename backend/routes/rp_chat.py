@@ -81,23 +81,46 @@ CHARACTER RULES:
 - LANGUAGE: Match the language of the player's MESSAGE."""
 
 
+def _check_model_exists(ollama_host: str, model: str) -> bool:
+    """Check if a model is available in Ollama."""
+    try:
+        r = req.get(f"{ollama_host}/api/tags", timeout=3)
+        if r.status_code == 200:
+            models = [m['name'] for m in r.json().get('models', [])]
+            return any(model in m for m in models)
+    except Exception:
+        pass
+    return False
+
+
 def select_rp_model(session_id: str, config: dict) -> str:
     """Select RP model with optional A/B split.
 
     Deterministic: same session_id always gets same model.
-    Config keys: rp.model, rp.ab_split (0.0-1.0), rp.candidate_model
+    Falls back to inference_model if RP model not available.
     """
+    scoring_cfg = config.get("scoring", {})
     rp_cfg = config.get("rp", {})
+    ollama_host = scoring_cfg.get("ollama_host", "http://localhost:11434")
     ab_split = rp_cfg.get("ab_split", 0.0)
     candidate = rp_cfg.get("candidate_model")
+    fallback = scoring_cfg.get("inference_model", "qwen3.5:9b")
 
-    if ab_split <= 0 or not candidate:
-        return rp_cfg.get("model", config.get("scoring", {}).get("rp_model", "stratos-rp-q8"))
+    # Get preferred RP model
+    rp_model = rp_cfg.get("model", scoring_cfg.get("rp_model", "stratos-rp-q8"))
 
-    hash_val = int(hashlib.md5(session_id.encode()).hexdigest()[:8], 16)
-    if (hash_val % 100) < (ab_split * 100):
-        return candidate
-    return rp_cfg.get("model", config.get("scoring", {}).get("rp_model", "stratos-rp-q8"))
+    # A/B split
+    if ab_split > 0 and candidate:
+        hash_val = int(hashlib.md5(session_id.encode()).hexdigest()[:8], 16)
+        if (hash_val % 100) < (ab_split * 100):
+            rp_model = candidate
+
+    # Check if preferred model exists, fall back to inference model
+    if not _check_model_exists(ollama_host, rp_model):
+        logger.warning(f"RP model '{rp_model}' not found in Ollama, falling back to '{fallback}'")
+        return fallback
+
+    return rp_model
 
 
 def _build_system_prompt(card: dict = None, director_note: str = None) -> str:

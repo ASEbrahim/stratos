@@ -630,7 +630,7 @@ class Database:
 
     def insert_rp_message(self, session_id: str, profile_id: int, branch_id: str,
                           turn_number: int, role: str, content: str, **kwargs) -> int:
-        """Insert an RP message and return its ID."""
+        """Insert an RP message and return its ID. Retries on DB lock."""
         cols = ['session_id', 'profile_id', 'branch_id', 'turn_number', 'role', 'content']
         vals = [session_id, profile_id, branch_id, turn_number, role, content]
         for k in ['model_version', 'character_card_id', 'persona', 'response_tokens',
@@ -641,11 +641,19 @@ class Database:
                 vals.append(kwargs[k])
         placeholders = ','.join(['?'] * len(vals))
         col_str = ','.join(cols)
-        cursor = self.conn.execute(
-            f"INSERT INTO rp_messages ({col_str}) VALUES ({placeholders})", vals
-        )
-        self._commit()
-        return cursor.lastrowid
+        import time
+        for attempt in range(3):
+            try:
+                cursor = self.conn.execute(
+                    f"INSERT INTO rp_messages ({col_str}) VALUES ({placeholders})", vals
+                )
+                self._commit()
+                return cursor.lastrowid
+            except Exception as e:
+                if 'locked' in str(e) and attempt < 2:
+                    time.sleep(0.5)
+                    continue
+                raise
 
     def get_full_branch_conversation(self, session_id: str, branch_id: str = 'main') -> list:
         """Reconstruct full conversation by walking the parent branch chain.
@@ -784,7 +792,7 @@ class Database:
     # =========================================================================
 
     def insert_character_card(self, card_id: str, creator_id: int, name: str, **fields):
-        """Create a new character card."""
+        """Create a new character card. Retries on DB lock."""
         cols = ['id', 'creator_profile_id', 'name']
         vals = [card_id, creator_id, name]
         allowed = ['physical_description', 'speech_pattern', 'emotional_trigger',
@@ -798,8 +806,17 @@ class Database:
                 vals.append(fields[k])
         placeholders = ','.join(['?'] * len(vals))
         col_str = ','.join(cols)
-        self.conn.execute(f"INSERT INTO character_cards ({col_str}) VALUES ({placeholders})", vals)
-        self._commit()
+        import time as _time
+        for _attempt in range(3):
+            try:
+                self.conn.execute(f"INSERT INTO character_cards ({col_str}) VALUES ({placeholders})", vals)
+                self._commit()
+                return
+            except Exception as e:
+                if 'locked' in str(e) and _attempt < 2:
+                    _time.sleep(0.5)
+                    continue
+                raise
 
     def get_character_card(self, card_id: str) -> Optional[dict]:
         row = self.conn.execute("SELECT * FROM character_cards WHERE id = ?", (card_id,)).fetchone()
