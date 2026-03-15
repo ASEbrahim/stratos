@@ -28,7 +28,6 @@ export default function DiscoverScreen() {
   const [scenarios, setScenarios] = useState<GamingScenario[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [refreshing, setRefreshing] = useState(false);
-  const [showWelcome, setShowWelcome] = useState(true);
   const [sortBy, setSortBy] = useState<'popular' | 'newest' | 'rating'>('popular');
   const [showScrollTop, setShowScrollTop] = useState(false);
   const scrollRef = React.useRef<ScrollView>(null);
@@ -155,12 +154,6 @@ export default function DiscoverScreen() {
             </ScrollView>
           </>
         )}
-        {showWelcome && !searchQuery.trim() && (
-          <TouchableOpacity style={[styles.welcomeCard, { backgroundColor: tc.accent.primary + '10', borderColor: tc.accent.primary + '25' }]} onPress={() => setShowWelcome(false)} activeOpacity={0.8} accessibilityLabel="Dismiss welcome message" accessibilityRole="button">
-            <Text style={[styles.welcomeTitle, { color: tc.text.primary }]}>Welcome to StratOS</Text>
-            <Text style={[styles.welcomeBody, { color: tc.text.secondary }]}>Discover AI characters for immersive roleplay and interactive gaming. Tap a character to start a conversation.</Text>
-          </TouchableOpacity>
-        )}
         {!searchQuery.trim() && trending.length > 0 && (
           <>
             <View style={styles.sectionHdr}><Text style={[styles.sectionTitle, { color: tc.text.primary }]}>Trending</Text></View>
@@ -279,8 +272,5 @@ const styles = StyleSheet.create({
   popularDesc: { ...typography.small, lineHeight: 15, fontSize: 10 },
   popularQuote: { ...typography.small, fontSize: 9, fontStyle: 'italic', lineHeight: 13, marginTop: 2 },
   popularStat: { ...typography.small, fontSize: 10, fontWeight: '600', marginTop: 2 },
-  welcomeCard: { marginHorizontal: spacing.lg, marginBottom: spacing.md, padding: spacing.lg, borderRadius: borderRadius.lg, borderWidth: 1 },
-  welcomeTitle: { ...typography.subheading, marginBottom: spacing.xs },
-  welcomeBody: { ...typography.caption, lineHeight: 18 },
   scrollTopFab: { position: 'absolute', right: spacing.lg, bottom: 80, width: 36, height: 36, borderRadius: 18, justifyContent: 'center', alignItems: 'center', borderWidth: 1, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.3, shadowRadius: 4, elevation: 4 },
 });
