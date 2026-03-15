@@ -8,6 +8,7 @@ Usage:
     python3 data/rp_pipeline/scripts/train_rp.py
     python3 data/rp_pipeline/scripts/train_rp.py --epochs 2 --lr 5e-6
     python3 data/rp_pipeline/scripts/train_rp.py --max-steps 10  # Dry run
+    python3 data/rp_pipeline/scripts/train_rp.py --resume         # Resume from checkpoint
 """
 
 import argparse
@@ -34,6 +35,7 @@ LEARNING_RATE = 5e-6
 BATCH_SIZE = 1
 GRADIENT_ACCUMULATION = 16
 EPOCHS = 1
+CHECKPOINT_EVERY = 200
 
 # Conservative: attention only to preserve base capabilities
 TARGET_MODULES = ["q_proj", "k_proj", "v_proj", "o_proj"]
@@ -65,6 +67,11 @@ def main():
     logger.info("RP Model DoRA Fine-Tuning")
     logger.info("=" * 60)
 
+    # ── Environment ──────────────────────────────────────────────
+    os.environ["ROCR_VISIBLE_DEVICES"] = "0"
+    os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+    os.environ.pop("TORCH_ROCM_AOTRITON_ENABLE_EXPERIMENTAL", None)
+
     import torch
     if not torch.cuda.is_available():
         logger.error("No GPU detected.")
@@ -74,13 +81,15 @@ def main():
     gpu_mem = torch.cuda.get_device_properties(0).total_memory / 1024**3
     logger.info(f"GPU: {gpu_name} ({gpu_mem:.1f} GB)")
 
-    os.environ["ROCR_VISIBLE_DEVICES"] = "0"
-    os.environ["CUDA_VISIBLE_DEVICES"] = "0"
-    os.environ.pop("TORCH_ROCM_AOTRITON_ENABLE_EXPERIMENTAL", None)
-    # Expandable segments prevents the ROCm allocator from hoarding large contiguous
-    # blocks — reuses memory more efficiently with variable-length sequences
-    os.environ["PYTORCH_HIP_ALLOC_CONF"] = "expandable_segments:True"
+    # ── Disable caching_allocator_warmup ─────────────────────────
+    # transformers 5.3.0 pre-allocates a contiguous block equal to the full
+    # model size (~16.7GiB) as a speed optimization. On a 24GB card with an
+    # 18GB model this OOMs instantly. Monkey-patch it to a no-op.
+    import transformers.modeling_utils as _mu
+    _mu.caching_allocator_warmup = lambda *a, **kw: None
+    logger.info("Disabled caching_allocator_warmup (OOM prevention)")
 
+    # ── Data ─────────────────────────────────────────────────────
     if not TRAINING_DATA.exists():
         logger.error(f"Training data not found: {TRAINING_DATA}")
         sys.exit(1)
@@ -88,6 +97,7 @@ def main():
     conversations = load_training_data(TRAINING_DATA)
     logger.info(f"Training conversations: {len(conversations)}")
 
+    # ── Model ────────────────────────────────────────────────────
     from transformers import AutoModelForCausalLM, AutoTokenizer
     from peft import LoraConfig, get_peft_model, TaskType
 
@@ -96,20 +106,19 @@ def main():
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
 
-    # Load bf16 with explicit GPU memory cap.
-    # Model is ~18GB bf16. device_map="auto" puts too much on GPU (22GB+),
-    # leaving no headroom for activation peaks on longer sequences.
-    # Cap at 18GB GPU → ~6GB left for activations/gradients → rest spills to CPU.
     model = AutoModelForCausalLM.from_pretrained(
         BASE_MODEL_ID,
         dtype=torch.bfloat16,
         device_map="auto",
-        max_memory={0: "18GiB", "cpu": "20GiB"},
+        max_memory={0: "20GiB", "cpu": "20GiB"},
         trust_remote_code=True,
         low_cpu_mem_usage=True,
     )
-    logger.info(f"Model loaded with auto device map (GPU capped at 18GiB, rest on CPU)")
 
+    vram_after_load = torch.cuda.memory_allocated() / 1024**3
+    logger.info(f"Model loaded — VRAM: {vram_after_load:.1f} GiB")
+
+    # ── DoRA ─────────────────────────────────────────────────────
     lora_config = LoraConfig(
         r=args.rank,
         lora_alpha=LORA_ALPHA,
@@ -122,7 +131,6 @@ def main():
 
     model = get_peft_model(model, lora_config)
 
-    # Verify DoRA is applied: trainable should be ~0.3% of total (~30M of 9B)
     trainable = sum(p.numel() for p in model.parameters() if p.requires_grad)
     total = sum(p.numel() for p in model.parameters())
     pct = 100 * trainable / total
@@ -134,13 +142,16 @@ def main():
         sys.exit(1)
 
     if trainable < 1_000_000:
-        logger.error(f"ABORT: Only {trainable:,} trainable params — suspiciously low, check LoRA targets.")
+        logger.error(f"ABORT: Only {trainable:,} trainable params — suspiciously low.")
         sys.exit(1)
 
     logger.info(f"DoRA verified: {trainable/1e6:.1f}M trainable params — OK")
     model.print_trainable_parameters()
 
+    # ── Trainer ──────────────────────────────────────────────────
     from trl import SFTTrainer, SFTConfig
+    from transformers import TrainerCallback
+    import shutil
 
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
@@ -156,7 +167,7 @@ def main():
         weight_decay=0.01,
         max_grad_norm=1.0,
         logging_steps=5,
-        save_strategy="no",
+        save_strategy="no",  # We handle saves manually via callback
         bf16=True,
         fp16=False,
         optim="adamw_torch",
@@ -167,31 +178,36 @@ def main():
         max_steps=args.max_steps,
     )
 
-    from transformers import TrainerCallback
-
     class PEFTCheckpointCallback(TrainerCallback):
-        """Save PEFT adapter every N steps without triggering full model serialization."""
-        def __init__(self, save_steps=200):
-            self.save_steps = save_steps
-
+        """Save PEFT adapter every N steps. Zero extra VRAM — just writes adapter to disk."""
         def on_step_end(self, args, state, control, model=None, **kwargs):
-            if state.global_step > 0 and state.global_step % self.save_steps == 0:
+            if state.global_step > 0 and state.global_step % CHECKPOINT_EVERY == 0:
+                torch.cuda.empty_cache()
                 ckpt_dir = OUTPUT_DIR / f"checkpoint-{state.global_step}"
                 ckpt_dir.mkdir(parents=True, exist_ok=True)
                 model.save_pretrained(str(ckpt_dir))
-                logger.info(f"PEFT checkpoint saved: {ckpt_dir}")
-                # Clean old checkpoints, keep last 2
-                ckpts = sorted(OUTPUT_DIR.glob("checkpoint-*"), key=lambda p: int(p.name.split("-")[1]))
+                vram = torch.cuda.memory_allocated() / 1024**3
+                logger.info(f"Checkpoint saved: {ckpt_dir} (VRAM: {vram:.1f} GiB)")
+                # Keep last 2 checkpoints
+                ckpts = sorted(OUTPUT_DIR.glob("checkpoint-*"),
+                               key=lambda p: int(p.name.split("-")[1]))
                 for old in ckpts[:-2]:
-                    import shutil
                     shutil.rmtree(old)
+
+    class VRAMMonitorCallback(TrainerCallback):
+        """Log VRAM every 50 steps to catch creep early."""
+        def on_step_end(self, args, state, control, **kwargs):
+            if state.global_step % 50 == 0:
+                vram = torch.cuda.memory_allocated() / 1024**3
+                vram_reserved = torch.cuda.memory_reserved() / 1024**3
+                logger.info(f"[Step {state.global_step}] VRAM: {vram:.1f} GiB allocated, {vram_reserved:.1f} GiB reserved")
 
     trainer = SFTTrainer(
         model=model,
         processing_class=tokenizer,
         train_dataset=conversations,
         args=training_args,
-        callbacks=[PEFTCheckpointCallback(save_steps=200)],
+        callbacks=[PEFTCheckpointCallback(), VRAMMonitorCallback()],
     )
 
     logger.info(f"\nStarting training:")
@@ -201,12 +217,13 @@ def main():
     logger.info(f"  Seq length: {args.seq_length}")
     logger.info(f"  DoRA rank: {args.rank}")
     logger.info(f"  Target modules: {TARGET_MODULES}")
+    logger.info(f"  Checkpoints every {CHECKPOINT_EVERY} steps")
 
     start = time.time()
     resume_ckpt = None
     if args.resume:
-        # Find latest checkpoint
-        ckpts = sorted(OUTPUT_DIR.glob("checkpoint-*"), key=lambda p: int(p.name.split("-")[1]))
+        ckpts = sorted(OUTPUT_DIR.glob("checkpoint-*"),
+                       key=lambda p: int(p.name.split("-")[1]))
         if ckpts:
             resume_ckpt = str(ckpts[-1])
             logger.info(f"Resuming from checkpoint: {resume_ckpt}")
@@ -218,7 +235,10 @@ def main():
     logger.info(f"\nTraining complete in {elapsed/3600:.1f} hours")
     logger.info(f"  Final loss: {result.training_loss:.4f}")
 
+    # Save final adapter
+    torch.cuda.empty_cache()
     adapter_path = OUTPUT_DIR / "adapter"
+    adapter_path.mkdir(parents=True, exist_ok=True)
     model.save_pretrained(str(adapter_path))
     tokenizer.save_pretrained(str(adapter_path))
     logger.info(f"Adapter saved: {adapter_path}")
