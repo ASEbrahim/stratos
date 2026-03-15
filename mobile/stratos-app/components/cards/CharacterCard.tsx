@@ -4,6 +4,7 @@ import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 import { Star, MessageCircle } from 'lucide-react-native';
 import { CharacterCard as CharacterCardType, formatCount } from '../../lib/types';
+import { useChatStore } from '../../stores/chatStore';
 import { colors, typography, spacing, borderRadius } from '../../constants/theme';
 import { getGenreColor } from '../../constants/genres';
 const CARD_WIDTH = (Dimensions.get('window').width - spacing.lg * 3) / 2;
@@ -12,8 +13,11 @@ interface CharacterCardProps { card: CharacterCardType; variant?: 'grid' | 'hori
 
 export function CharacterCardComponent({ card, variant = 'grid' }: CharacterCardProps) {
   const router = useRouter();
+  const startSession = useChatStore(s => s.startSession);
   const accentColor = getGenreColor(card.genre_tags[0] ?? 'default');
   const genreLabel = (card.genre_tags[0] ?? '').charAt(0).toUpperCase() + (card.genre_tags[0] ?? '').slice(1);
+
+  const handleQuickChat = () => { startSession(card, 'roleplay'); router.push(`/chat/${card.id}`); };
 
   if (variant === 'horizontal') {
     return (
@@ -48,6 +52,10 @@ export function CharacterCardComponent({ card, variant = 'grid' }: CharacterCard
             <Text style={[styles.avatarLetter, { color: accentColor }]}>{card.name[0]}</Text>
           </>
         )}
+        {/* Quick chat button */}
+        <TouchableOpacity style={[styles.quickChatBtn, { backgroundColor: accentColor + 'CC' }]} onPress={handleQuickChat} activeOpacity={0.8} hitSlop={4}>
+          <MessageCircle size={12} color="#fff" />
+        </TouchableOpacity>
         {/* NSFW badge */}
         {card.content_rating === 'nsfw' && <View style={styles.nsfwBadge}><Text style={styles.nsfwText}>18+</Text></View>}
         {/* Gradient overlay at bottom of avatar */}
@@ -91,6 +99,7 @@ const styles = StyleSheet.create({
     position: 'absolute', bottom: 0, left: 0, right: 0, height: 30,
     opacity: 0.7,
   },
+  quickChatBtn: { position: 'absolute', bottom: spacing.sm + 30, right: spacing.sm, width: 28, height: 28, borderRadius: 14, justifyContent: 'center', alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.3, shadowRadius: 4, elevation: 3 },
   nsfwBadge: { position: 'absolute', top: spacing.sm, right: spacing.sm, backgroundColor: colors.nsfw + 'CC', paddingHorizontal: spacing.sm, paddingVertical: 2, borderRadius: borderRadius.sm },
   nsfwText: { ...typography.small, color: '#fff', fontWeight: '700' },
   info: { padding: spacing.md, gap: 4 },

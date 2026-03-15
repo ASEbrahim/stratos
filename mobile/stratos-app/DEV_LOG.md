@@ -42,5 +42,8 @@ Regenerate button on last assistant message. First message preview on character 
 ## Iteration 14: "Popular This Week" discover section ✅
 Added horizontal "Popular This Week" cards at the top of discover — wider format with avatar, name, description, and genre-colored chat count. Stronger content hierarchy.
 
-## Iteration 15: "Recently Chatted" quick-access row on discover
-Character.AI shows your recent chats at the top for instant resume. Adding this to discover using the chat session history from AsyncStorage — shows small avatar circles of characters you've chatted with, tap to resume.
+## Iteration 15: "Recently Chatted" quick-access row on discover ✅
+Character.AI shows your recent chats at the top for instant resume. Added avatar circles for quick resume.
+
+## Iteration 16: Working NSFW filter + quick-chat button on cards
+NSFW filter in profile is currently cosmetic. Making it functional — persisted to AsyncStorage, filters cards in discover. Also adding a small chat icon overlay on character cards for quick-start without opening detail.

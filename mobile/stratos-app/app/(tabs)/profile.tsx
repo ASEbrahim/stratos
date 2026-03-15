@@ -15,7 +15,7 @@ export default function ProfileScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const { user, logout } = useAuthStore();
-  const { themeId, setTheme, colors: tc } = useThemeStore();
+  const { themeId, setTheme, colors: tc, nsfwFilter, setNsfwFilter } = useThemeStore();
   const [stats, setStats] = useState({ totalSessions: 0, totalMessages: 0, totalCharacters: 0 });
 
   useEffect(() => { getUserStats().then(setStats); }, []);
@@ -74,7 +74,11 @@ export default function ProfileScreen() {
 
       <View style={styles.section}>
         <Text style={[styles.sectionTitle, { color: tc.text.muted }]}>Settings</Text>
-        <SettingsItem icon={<Shield size={20} color={tc.text.secondary} />} label="Content Filter" value="SFW Only" tc={tc} />
+        <TouchableOpacity style={[styles2.item, { borderBottomColor: tc.border.subtle }]} activeOpacity={0.6} onPress={() => { setNsfwFilter(!nsfwFilter); Haptics.selectionAsync(); }}>
+          <Shield size={20} color={tc.text.secondary} />
+          <Text style={[styles2.label, { color: tc.text.primary }]}>Content Filter</Text>
+          <Text style={[styles2.value, { color: nsfwFilter ? tc.status.success : tc.status.error }]}>{nsfwFilter ? 'SFW Only' : 'All Content'}</Text>
+        </TouchableOpacity>
         <SettingsItem icon={<Type size={20} color={tc.text.secondary} />} label="Text Size" value="Medium" tc={tc} />
         <SettingsItem icon={<Bell size={20} color={tc.text.secondary} />} label="Notifications" value="On" tc={tc} />
         <SettingsItem icon={<Server size={20} color={tc.text.secondary} />} label="API Server" value="Default" tc={tc} />

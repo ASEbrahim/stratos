@@ -38,7 +38,9 @@ export default function DiscoverScreen() {
       if (text.trim()) search(text.trim(), selectedGenre ?? undefined);
     }, 300);
   };
-  const displayCards = searchQuery.trim() ? useCharacterStore.getState().searchResults : (selectedGenre ? newCards.filter(c => c.genre_tags.includes(selectedGenre)) : newCards);
+  const nsfwFilter = useThemeStore(s => s.nsfwFilter);
+  const filterNsfw = (cards: typeof newCards) => nsfwFilter ? cards.filter(c => c.content_rating !== 'nsfw') : cards;
+  const displayCards = filterNsfw(searchQuery.trim() ? useCharacterStore.getState().searchResults : (selectedGenre ? newCards.filter(c => c.genre_tags.includes(selectedGenre)) : newCards));
 
   return (
     <View style={[styles.container, { paddingTop: insets.top, backgroundColor: tc.bg.primary }]}>
