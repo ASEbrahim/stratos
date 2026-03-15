@@ -74,6 +74,8 @@ export default function ChatScreen() {
           ) : null}
           onScroll={(e) => { const y = e.nativeEvent.contentOffset.y; const h = e.nativeEvent.contentSize.height - e.nativeEvent.layoutMeasurement.height; setShowScrollBtn(h - y > 200); }}
           scrollEventThrottle={100}
+          keyboardDismissMode="on-drag"
+          keyboardShouldPersistTaps="handled"
           ListFooterComponent={<View>
             {isStreaming && streamingContent ? <StreamingBubble content={streamingContent} accentColor={accentColor} /> : isStreaming ? <TypingIndicator characterName={character?.name} /> : null}
             {!isStreaming && messages.length > 1 && messages[messages.length - 1]?.role === 'assistant' && (

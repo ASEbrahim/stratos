@@ -168,5 +168,8 @@ ActivityIndicator replaces send icon during streaming.
 ## Iteration 56: Expandable "Character Depth" on detail ✅
 Toggle shows all 6 quality elements in full text format.
 
-## Iteration 57: Gaming scenarios quick-start from discover
-The gaming scenarios section on discover only shows cards that navigate to a browser. Adding a quick-start button so users can jump directly into a gaming session from the card.
+## Iteration 57: Play badge on gaming scenario cards ✅
+"Play" button badge with accent color on scenario cards in discover.
+
+## Iteration 58: Keyboard dismiss on scroll + return key sends in chat
+Two missing chat UX basics: keyboard should dismiss when scrolling messages, and pressing Return on a single-line message should send it instead of inserting a newline.
