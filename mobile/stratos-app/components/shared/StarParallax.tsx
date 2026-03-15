@@ -1,26 +1,21 @@
 /**
  * StarParallax — Arcane-themed particle system
  *
- * Renders hextech energy motes, drifting stars, and shooting stars.
- * Uses a single reanimated SharedValue (t) to drive all animation at 60fps.
- * Touch parallax via PanResponder — drag to shift the field, spring-back on release.
- *
- * Two exports:
- *   <StarParallax>  — Full interactive (auth screens): 40 stars + 18 motes + 2 shooters
- *   <StarParallaxBg> — Lightweight ambient (behind scroll): 20 stars + 6 motes, no touch
+ * Stars + hex motes + shooting stars, all driven by a single SharedValue (t).
+ * Shooting star trajectory stored in SharedValues to avoid worklet serialization warnings.
+ * No PanResponder — particles are purely ambient, children receive all touches.
  */
 import React, { useEffect, useMemo, useState } from 'react';
-import { View, StyleSheet, Dimensions, LayoutChangeEvent, PanResponder } from 'react-native';
+import { View, StyleSheet, Dimensions, LayoutChangeEvent } from 'react-native';
 import Animated, {
-  useSharedValue, useAnimatedStyle, useFrameCallback, withSpring, SharedValue,
+  useSharedValue, useAnimatedStyle, useFrameCallback, SharedValue,
 } from 'react-native-reanimated';
 import { colors } from '../../constants/theme';
 
 const STAR_COUNT = 40;
 const MOTE_COUNT = 18;
-const SHOOTING_INTERVAL = 6000;
+const SHOOTING_INTERVAL = 7000;
 const DRIFT_SPEED = 0.15;
-const PARALLAX_STR = 25;
 
 interface StarData {
   startX: number; startY: number; radius: number; baseAlpha: number;
@@ -51,88 +46,98 @@ function pickMoteColor() {
 function genStars(w: number, h: number): StarData[] {
   return Array.from({ length: STAR_COUNT }, () => {
     const c = pickStarColor();
-    return { startX: Math.random() * w, startY: Math.random() * h, radius: rand(0.8, 2.2),
+    return {
+      startX: Math.random() * w, startY: Math.random() * h, radius: rand(0.8, 2.2),
       baseAlpha: rand(0.15, 0.55), speed: rand(0.03, 0.18), phase: rand(0, Math.PI * 2),
-      cr: c.r, cg: c.g, cb: c.b };
+      cr: c.r, cg: c.g, cb: c.b,
+    };
   });
 }
 
 function genMotes(w: number, h: number): MoteData[] {
   return Array.from({ length: MOTE_COUNT }, () => {
     const c = pickMoteColor();
-    return { startX: rand(w * 0.1, w * 0.9), startY: rand(-h * 0.2, h * 0.6),
+    return {
+      startX: rand(w * 0.1, w * 0.9), startY: rand(-h * 0.2, h * 0.6),
       size: rand(3, 7), baseAlpha: rand(0.2, 0.55), fallSpeed: rand(0.2, 0.6),
       swayFreq: rand(0.4, 1.2), swayAmp: rand(15, 40), spinSpeed: rand(0.01, 0.04),
       phase: rand(0, Math.PI * 2), cr: c.r, cg: c.g, cb: c.b,
-      spiralR: rand(8, 25), spiralSpeed: rand(0.5, 1.5) };
+      spiralR: rand(8, 25), spiralSpeed: rand(0.5, 1.5),
+    };
   });
 }
 
 // ─── Star ───
-function Star({ data, t, px, py, h }: { data: StarData; t: SharedValue<number>; px: SharedValue<number>; py: SharedValue<number>; h: number }) {
+// All data props are frozen constants — safe for worklet access
+function Star({ data, t, h }: { data: StarData; t: SharedValue<number>; h: number }) {
+  // Freeze data to prevent worklet serialization warnings
+  const d = useMemo(() => Object.freeze({ ...data }), []);
+
   const style = useAnimatedStyle(() => {
     const time = t.value;
-    let y = data.startY - (time * DRIFT_SPEED * data.speed * 60);
+    let y = d.startY - (time * DRIFT_SPEED * d.speed * 60);
     const totalH = h + 20;
     y = ((y % totalH) + totalH) % totalH - 10;
-    const x = data.startX + Math.sin(time * data.speed * 0.5 + data.phase) * 8;
-    const alpha = data.baseAlpha * (0.6 + 0.4 * Math.sin(time * 1.5 + data.phase));
+    const x = d.startX + Math.sin(time * d.speed * 0.5 + d.phase) * 8;
+    const alpha = d.baseAlpha * (0.6 + 0.4 * Math.sin(time * 1.5 + d.phase));
     return {
-      transform: [{ translateX: x + px.value * data.speed * PARALLAX_STR }, { translateY: y + py.value * data.speed * PARALLAX_STR }],
+      transform: [{ translateX: x }, { translateY: y }],
       opacity: alpha,
     };
   });
+
   return (
     <Animated.View style={[{
-      position: 'absolute', width: data.radius * 2, height: data.radius * 2, borderRadius: data.radius,
-      backgroundColor: `rgb(${data.cr},${data.cg},${data.cb})`,
-      shadowColor: `rgb(${data.cr},${data.cg},${data.cb})`,
-      shadowOffset: { width: 0, height: 0 }, shadowOpacity: 0.6, shadowRadius: data.radius * 1.5, elevation: 1,
+      position: 'absolute', width: d.radius * 2, height: d.radius * 2, borderRadius: d.radius,
+      backgroundColor: `rgb(${d.cr},${d.cg},${d.cb})`,
+      shadowColor: `rgb(${d.cr},${d.cg},${d.cb})`,
+      shadowOffset: { width: 0, height: 0 }, shadowOpacity: 0.6, shadowRadius: d.radius * 1.5,
+      elevation: 1,
     }, style]} />
   );
 }
 
-// ─── Hex Mote (replaces sakura petals — diamond/hex energy fragment) ───
-function HexMote({ data, t, px, py, w, h }: { data: MoteData; t: SharedValue<number>; px: SharedValue<number>; py: SharedValue<number>; w: number; h: number }) {
+// ─── Hex Mote ───
+function HexMote({ data, t, w, h }: { data: MoteData; t: SharedValue<number>; w: number; h: number }) {
+  const d = useMemo(() => Object.freeze({ ...data }), []);
+
   const style = useAnimatedStyle(() => {
     const time = t.value;
-    const age = (time * 30 + data.phase * 100) % 200;
+    const age = (time * 30 + d.phase * 100) % 200;
     const sp = Math.min(age / 80, 1);
     const sf = 1 - sp;
-    const sX = Math.cos(time * data.spiralSpeed + data.phase) * data.spiralR * sf;
-    const sY = Math.sin(time * data.spiralSpeed + data.phase) * data.spiralR * sf * 0.6;
-    const wind = Math.sin(time * 0.3 + data.phase) * 0.3;
+    const sX = Math.cos(time * d.spiralSpeed + d.phase) * d.spiralR * sf;
+    const sY = Math.sin(time * d.spiralSpeed + d.phase) * d.spiralR * sf * 0.6;
+    const wind = Math.sin(time * 0.3 + d.phase) * 0.3;
     const dX = (-0.4 - wind) * sp;
-    const fY = data.fallSpeed * sp;
-    const swX = Math.sin(time * data.swayFreq + data.phase) * data.swayAmp * sp * 0.3;
-    let x = data.startX + sX + dX * time * 20 + swX;
-    let y = data.startY + sY + fY * time * 20;
+    const fY = d.fallSpeed * sp;
+    const swX = Math.sin(time * d.swayFreq + d.phase) * d.swayAmp * sp * 0.3;
+    let x = d.startX + sX + dX * time * 20 + swX;
+    let y = d.startY + sY + fY * time * 20;
     y = ((y % (h + 40)) + (h + 40)) % (h + 40) - 20;
     x = ((x % (w + 40)) + (w + 40)) % (w + 40) - 20;
-    const rot = time * data.spinSpeed * 60 + data.phase;
-    // Pulsing glow (hextech energy throb)
-    const pulse = 0.7 + 0.3 * Math.sin(time * 2 + data.phase);
+    const rot = time * d.spinSpeed * 60 + d.phase;
+    const pulse = 0.7 + 0.3 * Math.sin(time * 2 + d.phase);
     const scale = sp < 1 ? pulse : 0.85 + 0.15 * pulse;
-    const alpha = data.baseAlpha * (1 - sp * 0.15) * pulse;
+    const alpha = d.baseAlpha * (1 - sp * 0.15) * pulse;
     return {
       transform: [
-        { translateX: x + px.value * 0.12 * PARALLAX_STR },
-        { translateY: y + py.value * 0.12 * PARALLAX_STR },
+        { translateX: x }, { translateY: y },
         { rotate: `${rot}rad` }, { scaleX: scale }, { scaleY: scale },
       ],
       opacity: alpha,
     };
   });
+
   return (
-    <Animated.View style={[{ position: 'absolute', width: data.size * 2, height: data.size * 2 }, style]}>
-      {/* Diamond/hex shape via 45deg rotation + border-radius */}
+    <Animated.View style={[{ position: 'absolute', width: d.size * 2, height: d.size * 2 }, style]}>
       <View style={{
-        position: 'absolute', width: data.size * 1.4, height: data.size * 1.4,
-        left: data.size * 0.3, top: data.size * 0.3,
+        position: 'absolute', width: d.size * 1.4, height: d.size * 1.4,
+        left: d.size * 0.3, top: d.size * 0.3,
         transform: [{ rotate: '45deg' }],
-        backgroundColor: `rgba(${data.cr},${data.cg},${data.cb},0.6)`,
-        borderRadius: data.size * 0.2,
-        shadowColor: `rgb(${data.cr},${data.cg},${data.cb})`,
+        backgroundColor: `rgba(${d.cr},${d.cg},${d.cb},0.6)`,
+        borderRadius: d.size * 0.2,
+        shadowColor: `rgb(${d.cr},${d.cg},${d.cb})`,
         shadowOffset: { width: 0, height: 0 }, shadowOpacity: 0.5, shadowRadius: 4, elevation: 1,
       }} />
     </Animated.View>
@@ -140,71 +145,122 @@ function HexMote({ data, t, px, py, w, h }: { data: MoteData; t: SharedValue<num
 }
 
 // ─── Shooting Star ───
+// All mutable trajectory data stored in SharedValues (no ref mutation = no worklet warnings)
 function Shooter({ t, w, h }: { t: SharedValue<number>; w: number; h: number }) {
-  const [vis, setVis] = useState(false);
-  const spawn = useSharedValue(0);
-  const ref = React.useRef({ x: 0, y: 0, a: 0.5, s: 8, l: 35 });
-  useEffect(() => {
-    const iv = setInterval(() => {
-      const d = ref.current;
-      d.x = rand(0, w * 0.7); d.y = rand(0, h * 0.35);
-      d.a = rand(0.25, 0.75); d.s = rand(5, 12); d.l = rand(25, 50);
-      spawn.value = t.value;
-      setVis(true);
-      setTimeout(() => setVis(false), 1200);
-    }, SHOOTING_INTERVAL + rand(0, 4000));
-    return () => clearInterval(iv);
-  }, [w, h]);
+  const shootX = useSharedValue(0);
+  const shootY = useSharedValue(0);
+  const shootAngle = useSharedValue(0.5);
+  const shootSpeed = useSharedValue(8);
+  const shootLen = useSharedValue(35);
+  const shootSpawn = useSharedValue(-999);
+
   const { r, g, b } = colors.star.color1;
-  const head = useAnimatedStyle(() => {
-    if (!vis) return { opacity: 0 };
-    const d = ref.current; const el = t.value - spawn.value; const life = Math.max(0, 1 - el * 0.8);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      shootX.value = rand(0, w * 0.7);
+      shootY.value = rand(0, h * 0.35);
+      shootAngle.value = rand(0.25, 0.75);
+      shootSpeed.value = rand(5, 12);
+      shootLen.value = rand(25, 50);
+      shootSpawn.value = t.value;
+    }, SHOOTING_INTERVAL + rand(0, 4000));
+    return () => clearInterval(interval);
+  }, [w, h]);
+
+  const headStyle = useAnimatedStyle(() => {
+    const elapsed = t.value - shootSpawn.value;
+    const life = Math.max(0, 1 - elapsed * 0.8);
     if (life <= 0) return { opacity: 0 };
-    const dist = el * d.s * 60;
-    return { transform: [{ translateX: d.x + Math.cos(d.a) * dist }, { translateY: d.y + Math.sin(d.a) * dist }], opacity: life * 0.85 };
+    const dist = elapsed * shootSpeed.value * 60;
+    const x = shootX.value + Math.cos(shootAngle.value) * dist;
+    const y = shootY.value + Math.sin(shootAngle.value) * dist;
+    return {
+      transform: [{ translateX: x }, { translateY: y }],
+      opacity: life * 0.85,
+    };
   });
-  const tail = useAnimatedStyle(() => {
-    if (!vis) return { opacity: 0, width: 0 };
-    const d = ref.current; const el = t.value - spawn.value; const life = Math.max(0, 1 - el * 0.8);
+
+  const tailStyle = useAnimatedStyle(() => {
+    const elapsed = t.value - shootSpawn.value;
+    const life = Math.max(0, 1 - elapsed * 0.8);
     if (life <= 0) return { opacity: 0, width: 0 };
-    const dist = el * d.s * 60; const x = d.x + Math.cos(d.a) * dist; const y = d.y + Math.sin(d.a) * dist;
-    return { transform: [{ translateX: x - Math.cos(d.a) * d.l }, { translateY: y - Math.sin(d.a) * d.l }, { rotate: `${d.a}rad` }], opacity: life * 0.4, width: d.l };
+    const dist = elapsed * shootSpeed.value * 60;
+    const x = shootX.value + Math.cos(shootAngle.value) * dist;
+    const y = shootY.value + Math.sin(shootAngle.value) * dist;
+    const len = shootLen.value;
+    const angle = shootAngle.value;
+    return {
+      transform: [
+        { translateX: x - Math.cos(angle) * len },
+        { translateY: y - Math.sin(angle) * len },
+        { rotate: `${angle}rad` },
+      ],
+      opacity: life * 0.4,
+      width: len,
+    };
   });
+
   return (
     <>
-      <Animated.View style={[{ position: 'absolute', height: 1.5, borderRadius: 1, backgroundColor: `rgb(${r},${g},${b})` }, tail]} />
-      <Animated.View style={[{ position: 'absolute', width: 3, height: 3, borderRadius: 1.5, backgroundColor: '#fff', shadowColor: '#fff', shadowOffset: { width: 0, height: 0 }, shadowOpacity: 0.8, shadowRadius: 3, elevation: 2 }, head]} />
+      <Animated.View style={[{
+        position: 'absolute', height: 1.5, borderRadius: 1,
+        backgroundColor: `rgb(${r},${g},${b})`,
+      }, tailStyle]} />
+      <Animated.View style={[{
+        position: 'absolute', width: 3, height: 3, borderRadius: 1.5,
+        backgroundColor: '#fff',
+        shadowColor: '#fff', shadowOffset: { width: 0, height: 0 },
+        shadowOpacity: 0.8, shadowRadius: 3, elevation: 2,
+      }, headStyle]} />
     </>
   );
 }
 
-// ─── Full interactive StarParallax ───
+// ─── Full StarParallax (auth screens) ───
+// pointerEvents="none" on particle layers — children (buttons, inputs) get all touches
 export function StarParallax({ children }: { children?: React.ReactNode }) {
-  const [layout, setLayout] = useState({ w: Dimensions.get('window').width, h: Dimensions.get('window').height });
+  const [layout, setLayout] = useState({
+    w: Dimensions.get('window').width,
+    h: Dimensions.get('window').height,
+  });
   const t = useSharedValue(0);
-  const pxV = useSharedValue(0);
-  const pyV = useSharedValue(0);
+
   const stars = useMemo(() => genStars(layout.w, layout.h), [layout.w, layout.h]);
   const motes = useMemo(() => genMotes(layout.w, layout.h), [layout.w, layout.h]);
-  useFrameCallback(fi => { if (fi.timeSincePreviousFrame) t.value += fi.timeSincePreviousFrame / 1000; });
-  const pan = useMemo(() => PanResponder.create({
-    onStartShouldSetPanResponder: () => true, onMoveShouldSetPanResponder: () => true,
-    onPanResponderMove: (_e, gs) => { pxV.value = (gs.moveX / layout.w - 0.5) * 2; pyV.value = (gs.moveY / layout.h - 0.5) * 2; },
-    onPanResponderRelease: () => { pxV.value = withSpring(0, { damping: 20, stiffness: 60 }); pyV.value = withSpring(0, { damping: 20, stiffness: 60 }); },
-  }), [layout.w, layout.h]);
+
+  useFrameCallback(fi => {
+    if (fi.timeSincePreviousFrame) t.value += fi.timeSincePreviousFrame / 1000;
+  });
+
   return (
-    <View style={s.container} onLayout={(e: LayoutChangeEvent) => { const { width: w, height: h } = e.nativeEvent.layout; if (w > 0) setLayout({ w, h }); }} {...pan.panHandlers}>
-      <View style={s.glowTop} /><View style={s.glowBot} />
+    <View
+      style={styles.container}
+      onLayout={(e: LayoutChangeEvent) => {
+        const { width: w, height: h } = e.nativeEvent.layout;
+        if (w > 0) setLayout({ w, h });
+      }}
+    >
+      <View style={styles.glowTop} />
+      <View style={styles.glowBot} />
+
+      {/* Stars — no touch */}
       <View style={StyleSheet.absoluteFill} pointerEvents="none">
-        {stars.map((d, i) => <Star key={`s${i}`} data={d} t={t} px={pxV} py={pyV} h={layout.h} />)}
+        {stars.map((d, i) => <Star key={`s${i}`} data={d} t={t} h={layout.h} />)}
       </View>
+
+      {/* Hex motes — no touch */}
       <View style={StyleSheet.absoluteFill} pointerEvents="none">
-        {motes.map((d, i) => <HexMote key={`m${i}`} data={d} t={t} px={pxV} py={pyV} w={layout.w} h={layout.h} />)}
+        {motes.map((d, i) => <HexMote key={`m${i}`} data={d} t={t} w={layout.w} h={layout.h} />)}
       </View>
+
+      {/* Shooting stars — no touch */}
       <View style={StyleSheet.absoluteFill} pointerEvents="none">
         <Shooter t={t} w={layout.w} h={layout.h} />
         <Shooter t={t} w={layout.w} h={layout.h} />
       </View>
+
+      {/* Content receives all touches */}
       {children}
     </View>
   );
@@ -212,26 +268,46 @@ export function StarParallax({ children }: { children?: React.ReactNode }) {
 
 // ─── Lightweight ambient background ───
 export function StarParallaxBg() {
-  const [layout, setLayout] = useState({ w: Dimensions.get('window').width, h: Dimensions.get('window').height });
+  const [layout, setLayout] = useState({
+    w: Dimensions.get('window').width,
+    h: Dimensions.get('window').height,
+  });
   const t = useSharedValue(0);
-  const z = useSharedValue(0);
+
   const stars = useMemo(() => genStars(layout.w, layout.h).slice(0, 20), [layout.w, layout.h]);
   const motes = useMemo(() => genMotes(layout.w, layout.h).slice(0, 6), [layout.w, layout.h]);
-  useFrameCallback(fi => { if (fi.timeSincePreviousFrame) t.value += fi.timeSincePreviousFrame / 1000; });
+
+  useFrameCallback(fi => {
+    if (fi.timeSincePreviousFrame) t.value += fi.timeSincePreviousFrame / 1000;
+  });
+
   return (
-    <View style={[StyleSheet.absoluteFill, { backgroundColor: colors.bg.primary }]} pointerEvents="none"
-      onLayout={(e: LayoutChangeEvent) => { const { width: w, height: h } = e.nativeEvent.layout; if (w > 0) setLayout({ w, h }); }}>
-      <View style={s.glowTop} /><View style={s.glowBot} />
-      {stars.map((d, i) => <Star key={`bs${i}`} data={d} t={t} px={z} py={z} h={layout.h} />)}
-      {motes.map((d, i) => <HexMote key={`bm${i}`} data={d} t={t} px={z} py={z} w={layout.w} h={layout.h} />)}
+    <View
+      style={[StyleSheet.absoluteFill, { backgroundColor: colors.bg.primary }]}
+      pointerEvents="none"
+      onLayout={(e: LayoutChangeEvent) => {
+        const { width: w, height: h } = e.nativeEvent.layout;
+        if (w > 0) setLayout({ w, h });
+      }}
+    >
+      <View style={styles.glowTop} />
+      <View style={styles.glowBot} />
+      {stars.map((d, i) => <Star key={`bs${i}`} data={d} t={t} h={layout.h} />)}
+      {motes.map((d, i) => <HexMote key={`bm${i}`} data={d} t={t} w={layout.w} h={layout.h} />)}
     </View>
   );
 }
 
-const s = StyleSheet.create({
+const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.bg.primary },
-  glowTop: { ...StyleSheet.absoluteFillObject, backgroundColor: 'transparent',
-    shadowColor: 'rgba(79, 168, 212, 0.05)', shadowOffset: { width: 0, height: -100 }, shadowOpacity: 1, shadowRadius: 200 },
-  glowBot: { ...StyleSheet.absoluteFillObject,
-    shadowColor: 'rgba(68, 212, 128, 0.03)', shadowOffset: { width: 0, height: 100 }, shadowOpacity: 1, shadowRadius: 200 },
+  glowTop: {
+    ...StyleSheet.absoluteFillObject, backgroundColor: 'transparent',
+    shadowColor: 'rgba(79, 168, 212, 0.05)',
+    shadowOffset: { width: 0, height: -100 }, shadowOpacity: 1, shadowRadius: 200,
+  },
+  glowBot: {
+    ...StyleSheet.absoluteFillObject,
+    shadowColor: 'rgba(68, 212, 128, 0.03)',
+    shadowOffset: { width: 0, height: 100 }, shadowOpacity: 1, shadowRadius: 200,
+  },
 });
