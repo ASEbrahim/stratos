@@ -135,6 +135,7 @@ export default function DiscoverScreen() {
                       <Text style={[styles.popularName, { color: tc.text.primary }]} numberOfLines={1}>{c.name}</Text>
                       <Text style={[styles.popularCreator, { color: tc.text.muted }]}>by @{c.creator_name}</Text>
                       <Text style={[styles.popularDesc, { color: tc.text.secondary }]} numberOfLines={2}>{c.description}</Text>
+                      {c.first_message && <Text style={[styles.popularQuote, { color: tc.text.muted }]} numberOfLines={1}>"{c.first_message.replace(/\*[^*]+\*/g, '').replace(/\n/g, ' ').trim().slice(0, 60)}"</Text>}
                       <Text style={[styles.popularStat, { color: gc }]}>{formatCount(c.session_count)} chats · {c.rating.toFixed(1)}★</Text>
                     </View>
                   </TouchableOpacity>
@@ -257,6 +258,7 @@ const styles = StyleSheet.create({
   popularName: { ...typography.subheading, fontSize: 14 },
   popularCreator: { fontSize: 9, marginBottom: 2 },
   popularDesc: { ...typography.small, lineHeight: 15, fontSize: 10 },
+  popularQuote: { ...typography.small, fontSize: 9, fontStyle: 'italic', lineHeight: 13, marginTop: 2 },
   popularStat: { ...typography.small, fontSize: 10, fontWeight: '600', marginTop: 2 },
   welcomeCard: { marginHorizontal: spacing.lg, marginBottom: spacing.md, padding: spacing.lg, borderRadius: borderRadius.lg, borderWidth: 1 },
   welcomeTitle: { ...typography.subheading, marginBottom: spacing.xs },

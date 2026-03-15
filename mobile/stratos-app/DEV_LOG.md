@@ -177,5 +177,8 @@ Keyboard auto-dismisses when dragging chat messages. checkpoint-14.
 ## Iteration 59: Animated empty states with icons ✅
 Spring-animated emoji icons + fade-in text on empty states.
 
-## Iteration 60: "Random Character" shuffle button on discover
-Users in a browsing mood want serendipity. Adding a shuffle button that picks a random character and navigates to their detail page — fun, low-friction discovery mechanic.
+## Iteration 60: Random Character shuffle button ✅
+Shuffle button next to search bar — picks random character.
+
+## Iteration 61: First message preview on Popular This Week cards
+The Popular cards show description but not the character's first message. Adding a first message snippet — this is what hooks users into clicking (seeing how the character actually talks).
