@@ -219,5 +219,8 @@ Genre-matched similar characters at bottom of detail screen.
 ## Iteration 73: "Opening Line" formatted preview on detail ✅
 First message rendered with action text styling on character detail.
 
-## Iteration 74: Message timestamp formatting improvement
-Chat timestamps currently show 12h time but no date context. Adding relative time display ("just now", "2m ago", "yesterday") for better context without cluttering the UI.
+## Iteration 74: Relative timestamps in chat ✅
+"just now", "2m ago", "Yesterday 3:15 PM" — contextual time display.
+
+## Iteration 75: Final visual verification + DEV_LOG cleanup
+Comprehensive visual check across all screens and themes. Cleaning up DEV_LOG formatting and ensuring all iterations are properly documented.
