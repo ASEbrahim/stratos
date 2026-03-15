@@ -159,15 +159,13 @@ export function CharacterDetailView({ card }: CharacterDetailProps) {
           {saved ? <BookmarkCheck size={18} color={tc.status.success} /> : <BookmarkPlus size={18} color={tc.text.secondary} />}
           <Text style={[styles.secondaryButtonText, { color: tc.text.secondary }, saved && { color: tc.status.success }]}>{saved ? 'Saved' : 'Save'}</Text>
         </TouchableOpacity>
-        {saved && (
-          <TouchableOpacity style={[styles.secondaryButton, { flex: 1, borderColor: accentColor + '40' }]} onPress={() => {
-            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-            router.push({ pathname: '/(tabs)/create', params: { editCard: JSON.stringify(card) } });
-          }} activeOpacity={0.7} accessibilityLabel={`Edit ${card.name}`} accessibilityRole="button">
-            <Pencil size={18} color={accentColor} />
-            <Text style={[styles.secondaryButtonText, { color: accentColor }]}>Edit</Text>
-          </TouchableOpacity>
-        )}
+        <TouchableOpacity style={[styles.secondaryButton, { flex: 1, borderColor: accentColor + '40' }]} onPress={() => {
+          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+          router.push({ pathname: '/(tabs)/create', params: { editCard: JSON.stringify(card) } });
+        }} activeOpacity={0.7} accessibilityLabel={`Edit ${card.name}`} accessibilityRole="button">
+          <Pencil size={18} color={accentColor} />
+          <Text style={[styles.secondaryButtonText, { color: accentColor }]}>Edit</Text>
+        </TouchableOpacity>
         <TouchableOpacity style={[styles.secondaryButton, { flex: 1, borderColor: tc.border.medium }]} onPress={() => {
           Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
           // Clone card into Create screen for editing as your own copy
