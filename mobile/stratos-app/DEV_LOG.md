@@ -120,5 +120,8 @@ Chat bubbles now read from themeStore — true 100% theme coverage.
 ## Iteration 40: Share character via native share sheet ✅
 Share button + fixed hardcoded colors on detail screen buttons.
 
-## Iteration 41: Swipe-to-delete on library history sessions
-Long-press delete is hidden UX. Swipe-to-reveal-delete is the standard mobile pattern (iMessage, WhatsApp, etc) — more discoverable and satisfying.
+## Iteration 41: Library fully theme-aware + animated delete ✅
+All hardcoded colors removed from library. Sessions animate out on delete.
+
+## Iteration 42: Enhanced "Recently Chatted" row on discover
+The recent sessions row just shows plain avatar circles. Adding character name below and a subtle message count badge to give users more context before tapping.

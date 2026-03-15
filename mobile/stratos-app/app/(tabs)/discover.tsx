@@ -91,6 +91,11 @@ export default function DiscoverScreen() {
                   <TouchableOpacity key={s.id} style={styles.recentItem} onPress={() => { resumeSession(s); router.push(`/chat/${s.character_id}`); }} activeOpacity={0.7}>
                     <View style={[styles.recentAvatar, { backgroundColor: tc.accent.primary + '15', borderColor: tc.accent.primary + '30' }]}>
                       <Text style={[styles.recentLetter, { color: tc.accent.primary }]}>{s.character_name[0]}</Text>
+                      {s.messages.length > 1 && (
+                        <View style={[styles.recentBadge, { backgroundColor: tc.accent.primary }]}>
+                          <Text style={styles.recentBadgeText}>{s.messages.length > 99 ? '99+' : s.messages.length}</Text>
+                        </View>
+                      )}
                     </View>
                     <Text style={[styles.recentName, { color: tc.text.secondary }]} numberOfLines={1}>{s.character_name.split(' ')[0]}</Text>
                   </TouchableOpacity>
@@ -222,6 +227,8 @@ const styles = StyleSheet.create({
   recentAvatar: { width: 40, height: 40, borderRadius: 20, justifyContent: 'center', alignItems: 'center', borderWidth: 1.5, marginBottom: 3 },
   recentLetter: { fontSize: 16, fontWeight: '700' },
   recentName: { fontSize: 9, fontWeight: '500', textAlign: 'center' },
+  recentBadge: { position: 'absolute', top: -4, right: -4, minWidth: 16, height: 16, borderRadius: 8, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 3 },
+  recentBadgeText: { fontSize: 8, fontWeight: '800', color: '#fff' },
   gridHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: spacing.lg, marginTop: spacing.lg, marginBottom: spacing.md },
   sortRow: { flexDirection: 'row', gap: 2 },
   sortChip: { paddingHorizontal: spacing.sm, paddingVertical: 3, borderRadius: borderRadius.sm },
