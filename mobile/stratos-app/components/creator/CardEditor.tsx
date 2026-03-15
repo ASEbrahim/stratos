@@ -96,6 +96,14 @@ export function CardEditor() {
         </TouchableOpacity>
       </View>
 
+      {/* TavernCard import */}
+      {FEATURES.enableTavernImport && (
+        <TouchableOpacity style={[styles.importBtn, { borderColor: tc.accent.primary + '40', backgroundColor: tc.accent.primary + '08' }]} onPress={handleImportTavern} disabled={importing} activeOpacity={0.7} accessibilityLabel={importing ? 'Importing TavernCard' : 'Import TavernCard V2'} accessibilityRole="button">
+          <Upload size={16} color={tc.accent.primary} />
+          <Text style={[styles.importText, { color: tc.accent.primary }]}>{importing ? 'Importing...' : 'Import TavernCard V2'}</Text>
+        </TouchableOpacity>
+      )}
+
       {/* Avatar + Name row — shared between both modes */}
       <View style={styles.avatarNameRow}>
         <AvatarPicker
@@ -146,14 +154,6 @@ export function CardEditor() {
       ) : (
         <>
           {/* ─── ADVANCED MODE ─── */}
-          {/* TavernCard import */}
-          {FEATURES.enableTavernImport && (
-            <TouchableOpacity style={[styles.importBtn, { borderColor: tc.accent.primary + '40', backgroundColor: tc.accent.primary + '08' }]} onPress={handleImportTavern} disabled={importing} activeOpacity={0.7} accessibilityLabel={importing ? 'Importing TavernCard' : 'Import TavernCard V2'} accessibilityRole="button">
-              <Upload size={16} color={tc.accent.primary} />
-              <Text style={[styles.importText, { color: tc.accent.primary }]}>{importing ? 'Importing...' : 'Import TavernCard V2'}</Text>
-            </TouchableOpacity>
-          )}
-
           {/* Section: Identity */}
           <Text style={[styles.sectionTitle, { color: tc.accent.primary }]}>Identity</Text>
           <Text style={[styles.fieldLabel, { color: tc.text.primary }]}>Description</Text>
