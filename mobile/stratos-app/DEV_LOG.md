@@ -246,5 +246,8 @@ Total word count of all character definition fields shown in meta row.
 ## Iteration 82: StratOS brand header on discover ✅
 "StratOS Characters" header with accent-colored brand text.
 
-## Iteration 83: Session duration on library history cards
-History cards show message count and time ago, but not session duration. Adding estimated duration based on message count — helps users pick which sessions to resume.
+## Iteration 83: Estimated session duration on history cards ✅
+"~Xmin" estimate based on message count.
+
+## Iteration 84: Create tab character count + tips
+Showing how many characters the user has created in the Create tab header, plus a tip about what makes a good character — encourages quality creation.
