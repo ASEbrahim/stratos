@@ -104,29 +104,6 @@ export default function DiscoverScreen() {
             </TouchableOpacity>
           );
         })()}
-        {/* Recently Chatted — quick resume */}
-        {!searchQuery.trim() && recentSessions.length > 0 && (
-          <>
-            <View style={styles.recentRow}>
-              <Text style={[styles.recentLabel, { color: tc.text.muted }]}>Continue</Text>
-              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.recentScroll}>
-                {recentSessions.slice(0, 8).map(s => (
-                  <TouchableOpacity key={s.id} style={styles.recentItem} onPress={() => { resumeSession(s); router.push(`/chat/${s.character_id}`); }} activeOpacity={0.7} accessibilityLabel={`Continue chat with ${s.character_name}`} accessibilityRole="button">
-                    <View style={[styles.recentAvatar, { backgroundColor: tc.accent.primary + '15', borderColor: tc.accent.primary + '30' }]}>
-                      <Text style={[styles.recentLetter, { color: tc.accent.primary }]}>{s.character_name[0]}</Text>
-                      {s.messages.length > 1 && (
-                        <View style={[styles.recentBadge, { backgroundColor: tc.accent.primary }]}>
-                          <Text style={styles.recentBadgeText}>{s.messages.length > 99 ? '99+' : s.messages.length}</Text>
-                        </View>
-                      )}
-                    </View>
-                    <Text style={[styles.recentName, { color: tc.text.secondary }]} numberOfLines={1}>{s.character_name.split(' ')[0]}</Text>
-                  </TouchableOpacity>
-                ))}
-              </ScrollView>
-            </View>
-          </>
-        )}
         {/* Popular This Week — curated picks */}
         {!searchQuery.trim() && trending.length > 0 && (
           <>
@@ -249,15 +226,6 @@ const styles = StyleSheet.create({
   spotlightName: { ...typography.subheading, marginBottom: 2 },
   spotlightDesc: { ...typography.small, lineHeight: 15, fontSize: 11, marginBottom: 4 },
   spotlightMeta: { fontSize: 10 },
-  recentRow: { flexDirection: 'row', alignItems: 'center', paddingLeft: spacing.lg, marginBottom: spacing.sm },
-  recentLabel: { ...typography.small, fontSize: 10, fontWeight: '600', textTransform: 'uppercase', letterSpacing: 1, marginRight: spacing.sm },
-  recentScroll: { gap: spacing.md, paddingRight: spacing.lg },
-  recentItem: { alignItems: 'center', width: 52 },
-  recentAvatar: { width: 40, height: 40, borderRadius: 20, justifyContent: 'center', alignItems: 'center', borderWidth: 1.5, marginBottom: 3 },
-  recentLetter: { fontSize: 16, fontWeight: '700' },
-  recentName: { fontSize: 9, fontWeight: '500', textAlign: 'center' },
-  recentBadge: { position: 'absolute', top: -4, right: -4, minWidth: 16, height: 16, borderRadius: 8, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 3 },
-  recentBadgeText: { fontSize: 8, fontWeight: '800', color: '#fff' },
   gridHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: spacing.lg, marginTop: spacing.lg, marginBottom: spacing.md },
   sortRow: { flexDirection: 'row', gap: 2 },
   sortChip: { paddingHorizontal: spacing.sm, paddingVertical: 3, borderRadius: borderRadius.sm },
