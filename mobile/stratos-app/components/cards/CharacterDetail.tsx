@@ -11,6 +11,7 @@ import { useChatStore } from '../../stores/chatStore';
 import { useCharacterStore } from '../../stores/characterStore';
 import { isCardSaved, loadChatSessions } from '../../lib/storage';
 import { ChatSession } from '../../lib/types';
+import { useThemeStore } from '../../stores/themeStore';
 import { colors, typography, spacing, borderRadius } from '../../constants/theme';
 import { getGenreColor } from '../../constants/genres';
 import Animated, { useSharedValue, useAnimatedStyle, withSpring, withSequence } from 'react-native-reanimated';
@@ -19,6 +20,7 @@ interface CharacterDetailProps { card: CharacterCard; }
 
 export function CharacterDetailView({ card }: CharacterDetailProps) {
   const router = useRouter();
+  const tc = useThemeStore(s => s.colors);
   const { startSession, resumeSession } = useChatStore();
   const { saveToLibrary, removeFromLibrary } = useCharacterStore();
   const [saved, setSaved] = useState(false);
@@ -60,23 +62,23 @@ export function CharacterDetailView({ card }: CharacterDetailProps) {
   };
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+    <ScrollView style={[styles.container, { backgroundColor: tc.bg.primary }]} contentContainerStyle={styles.content}>
       <View style={[styles.avatarContainer, { backgroundColor: accentColor + '15' }]}>
         {card.avatar_url ? <Image source={{ uri: card.avatar_url }} style={styles.avatar} /> : <Text style={[styles.avatarLetter, { color: accentColor }]}>{card.name[0]}</Text>}
       </View>
-      <Text style={styles.name}>{card.name}</Text>
-      <Text style={styles.creator}>by @{card.creator_name}</Text>
+      <Text style={[styles.name, { color: tc.text.primary }]}>{card.name}</Text>
+      <Text style={[styles.creator, { color: tc.text.secondary }]}>by @{card.creator_name}</Text>
       <View style={styles.ratingRow}>
-        <Star size={14} color={colors.accent.secondary} fill={colors.accent.secondary} />
-        <Text style={styles.rating}>{card.rating.toFixed(1)}</Text>
-        <Text style={styles.separator}>·</Text>
-        <Text style={styles.sessionCount}>{formatCount(card.session_count)} chats</Text>
+        <Star size={14} color={tc.accent.secondary} fill={tc.accent.secondary} />
+        <Text style={[styles.rating, { color: tc.text.primary }]}>{card.rating.toFixed(1)}</Text>
+        <Text style={[styles.separator, { color: tc.text.muted }]}>·</Text>
+        <Text style={[styles.sessionCount, { color: tc.text.secondary }]}>{formatCount(card.session_count)} chats</Text>
       </View>
       <View style={styles.section}><TagPills tags={card.genre_tags} size="medium" /></View>
-      <View style={styles.section}><Text style={styles.sectionTitle}>Description</Text><Text style={styles.sectionBody}>{card.description}</Text></View>
-      {card.personality && <View style={styles.section}><Text style={styles.sectionTitle}>Personality</Text><Text style={styles.sectionBody}>{card.personality}</Text></View>}
-      {card.scenario && <View style={styles.section}><Text style={styles.sectionTitle}>Scenario</Text><Text style={styles.sectionBody}>{card.scenario}</Text></View>}
-      <View style={styles.section}><Text style={styles.sectionTitle}>Quality Elements</Text><QualityScore card={card} showElements size="large" /></View>
+      <View style={styles.section}><Text style={[styles.sectionTitle, { color: tc.text.primary }]}>Description</Text><Text style={[styles.sectionBody, { color: tc.text.secondary }]}>{card.description}</Text></View>
+      {card.personality && <View style={styles.section}><Text style={[styles.sectionTitle, { color: tc.text.primary }]}>Personality</Text><Text style={[styles.sectionBody, { color: tc.text.secondary }]}>{card.personality}</Text></View>}
+      {card.scenario && <View style={styles.section}><Text style={[styles.sectionTitle, { color: tc.text.primary }]}>Scenario</Text><Text style={[styles.sectionBody, { color: tc.text.secondary }]}>{card.scenario}</Text></View>}
+      <View style={styles.section}><Text style={[styles.sectionTitle, { color: tc.text.primary }]}>Quality Elements</Text><QualityScore card={card} showElements size="large" /></View>
       <Animated.View style={btnAnimStyle}>
         {existingSession ? (
           <>
