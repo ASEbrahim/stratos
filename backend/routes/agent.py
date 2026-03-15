@@ -313,7 +313,7 @@ def handle_agent_chat(handler, strat, output_file, profile_id=0):
         # ── Model swap routing: roleplay persona uses dedicated RP model ──
         _is_rp = persona_name == 'roleplay'
         if _is_rp:
-            model = strat.config.get("scoring", {}).get("rp_model", "stratos-rp-baseline")
+            model = strat.config.get("scoring", {}).get("rp_model", "stratos-rp-q8")
 
         profile = strat.config.get("profile", {})
         role = profile.get("role", "user")
