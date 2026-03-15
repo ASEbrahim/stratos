@@ -54,5 +54,11 @@ Typing indicator now shows "{Name} is typing" label and uses theme colors. Fades
 ## Iteration 18: Profile about section + Library pull-to-refresh ✅
 Added app version footer in profile. Library screen now has pull-to-refresh on all tabs.
 
-## Iteration 19: Sort options for character grid
-Users need to sort characters by different criteria. Adding a sort toggle (Popular/Newest/Rating) above the grid — common in Chai and Character.AI.
+## Iteration 19: Sort options for character grid ✅
+Sort toggle (Popular/New/Top Rated) above character grid.
+
+## Iteration 20: Improved stat bar + theme-aware gaming components ✅
+Stat bar with icons, colors, HP fill bar. Option buttons with staggered spring animation. Scenario cards theme-aware.
+
+## Iteration 21: Animated option buttons + theme-aware scenario cards ✅
+Gaming option buttons stagger-animate in with spring. Scenario cards use themeStore colors.
