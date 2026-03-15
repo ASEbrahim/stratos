@@ -138,7 +138,7 @@ export default function DiscoverScreen() {
           </View>
         ) : (
           <View style={styles.grid}>{displayCards.map((c, idx) => (
-            <Animated.View key={c.id} entering={FadeInDown.delay(idx * 60).duration(300).springify().damping(14)}>
+            <Animated.View key={c.id} entering={FadeInDown.delay(idx * 50).duration(300).springify().damping(20)}>
               <CharacterCardComponent card={c} featured={idx === 0 && !searchQuery.trim() && !selectedGenre} />
             </Animated.View>
           ))}</View>
