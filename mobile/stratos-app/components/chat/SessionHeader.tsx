@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import * as Haptics from 'expo-haptics';
 import { ChevronLeft, MoreVertical } from 'lucide-react-native';
+import Animated, { useSharedValue, useAnimatedStyle, withRepeat, withTiming, withDelay } from 'react-native-reanimated';
 import { useThemeStore } from '../../stores/themeStore';
 import { typography, spacing } from '../../constants/theme';
 
@@ -19,6 +20,9 @@ export function SessionHeader({ characterName, accentColor, characterId, onNewSe
   const router = useRouter();
   const tc = useThemeStore(s => s.colors);
   const color = accentColor ?? tc.accent.primary;
+  const pulseOpacity = useSharedValue(1);
+  useEffect(() => { pulseOpacity.value = withRepeat(withDelay(1000, withTiming(0.3, { duration: 1000 })), -1, true); }, []);
+  const pulseStyle = useAnimatedStyle(() => ({ opacity: pulseOpacity.value }));
 
   const handleMenu = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -35,7 +39,10 @@ export function SessionHeader({ characterName, accentColor, characterId, onNewSe
     <View style={[styles.container, { backgroundColor: tc.bg.primary, borderBottomColor: tc.border.subtle }]}>
       <TouchableOpacity onPress={() => router.back()} style={styles.backButton}><ChevronLeft size={24} color={tc.text.primary} /></TouchableOpacity>
       <View style={styles.center}>
-        <View style={[styles.avatar, { backgroundColor: color + '20' }]}><Text style={[styles.avatarText, { color }]}>{characterName[0]}</Text></View>
+        <View>
+          <View style={[styles.avatar, { backgroundColor: color + '20' }]}><Text style={[styles.avatarText, { color }]}>{characterName[0]}</Text></View>
+          <Animated.View style={[styles.onlineDot, { backgroundColor: tc.status.success }, pulseStyle]} />
+        </View>
         <Text style={[styles.name, { color: tc.text.primary }]} numberOfLines={1}>{characterName}</Text>
       </View>
       <TouchableOpacity style={styles.menuButton} onPress={handleMenu}><MoreVertical size={20} color={tc.text.secondary} /></TouchableOpacity>
@@ -51,4 +58,5 @@ const styles = StyleSheet.create({
   avatarText: { fontSize: 14, fontWeight: '700' },
   name: { ...typography.subheading, flex: 1 },
   menuButton: { padding: spacing.xs },
+  onlineDot: { position: 'absolute', bottom: 0, right: 0, width: 10, height: 10, borderRadius: 5, borderWidth: 2, borderColor: '#0a0a0f' },
 });

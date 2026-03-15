@@ -129,5 +129,8 @@ Badge shows message count on "Continue" row avatars.
 ## Iteration 43: Chat export via share sheet ✅
 Export Chat option in header menu, formatted with character name and message separators.
 
-## Iteration 44: Haptic feedback on key interactions
-Native apps feel premium with haptics. Adding selection feedback on tab switches, genre filters, sort toggles, and card taps — every touch should have tactile confirmation.
+## Iteration 44: Haptic feedback on key interactions ✅
+Selection haptics on genre filters, sort toggles, library tab switches.
+
+## Iteration 45: Online status indicator in chat header
+A pulsing green dot next to the character name makes the AI feel alive and present — standard in all chat apps (WhatsApp, Telegram, Discord).
