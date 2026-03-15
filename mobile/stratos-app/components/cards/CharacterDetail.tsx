@@ -3,7 +3,7 @@ import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Alert, Share } fr
 import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 import * as Haptics from 'expo-haptics';
-import { Star, BookmarkPlus, BookmarkCheck, Flag, Share2 } from 'lucide-react-native';
+import { Star, BookmarkPlus, BookmarkCheck, Flag, Share2, Wand2, StarIcon } from 'lucide-react-native';
 import { CharacterCard, formatCount } from '../../lib/types';
 import { TagPills } from './TagPills';
 import { QualityScore } from './QualityScore';
@@ -14,6 +14,8 @@ import { ChatSession } from '../../lib/types';
 import { useThemeStore } from '../../stores/themeStore';
 import { typography, spacing, borderRadius } from '../../constants/theme';
 import { getGenreColor } from '../../constants/genres';
+import { rateCard } from '../../lib/rp';
+import { fonts } from '../../constants/fonts';
 import Animated, { useSharedValue, useAnimatedStyle, withSpring, withSequence, withRepeat, withTiming } from 'react-native-reanimated';
 
 interface CharacterDetailProps { card: CharacterCard; }
@@ -165,6 +167,36 @@ export function CharacterDetailView({ card }: CharacterDetailProps) {
           <Text style={[styles.secondaryButtonText, { color: tc.text.secondary }]}>Share</Text>
         </TouchableOpacity>
       </View>
+      {/* Generate Portrait */}
+      {card.physical_description ? (
+        <TouchableOpacity
+          style={[styles.portraitBtn, { borderColor: accentColor + '40', backgroundColor: accentColor + '08' }]}
+          onPress={() => {
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+            router.push({ pathname: '/imagegen', params: { name: card.name, description: card.physical_description, card_id: card.id } });
+          }}
+          activeOpacity={0.7}
+        >
+          <Wand2 size={16} color={accentColor} />
+          <Text style={[styles.portraitBtnText, { color: accentColor }]}>Generate Portrait</Text>
+        </TouchableOpacity>
+      ) : null}
+
+      {/* Rate this character */}
+      <View style={styles.rateSection}>
+        <Text style={[styles.rateLabel, { color: tc.text.muted }]}>Rate this character</Text>
+        <View style={styles.rateStars}>
+          {[1, 2, 3, 4, 5].map(n => (
+            <TouchableOpacity key={n} onPress={() => {
+              Haptics.selectionAsync();
+              rateCard(card.id, n).catch(() => {});
+            }} hitSlop={4}>
+              <Star size={22} color={tc.accent.secondary} fill={n <= Math.round(card.rating) ? tc.accent.secondary : 'transparent'} />
+            </TouchableOpacity>
+          ))}
+        </View>
+      </View>
+
       {/* Similar Characters */}
       {(() => {
         const { newCards } = useCharacterStore.getState();
@@ -262,4 +294,9 @@ const styles = StyleSheet.create({
   similarGenre: { fontSize: 9, textTransform: 'capitalize', marginTop: 2 },
   firstMsgSection: { padding: spacing.lg, borderRadius: borderRadius.lg, borderWidth: 1 },
   firstMsgText: { ...typography.body, lineHeight: 22, fontSize: 13 },
+  portraitBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.sm, paddingVertical: spacing.md, borderRadius: borderRadius.lg, borderWidth: 1, marginBottom: spacing.md },
+  portraitBtnText: { fontSize: 13, fontFamily: fonts.button },
+  rateSection: { alignItems: 'center', marginBottom: spacing.lg, gap: spacing.sm },
+  rateLabel: { fontSize: 11, fontFamily: fonts.body },
+  rateStars: { flexDirection: 'row', gap: spacing.sm },
 });

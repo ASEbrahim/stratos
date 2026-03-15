@@ -15,6 +15,7 @@ import { SwipeIndicator } from '../../components/chat/SwipeIndicator';
 import { DirectorNoteBar } from '../../components/chat/DirectorNoteBar';
 import { EditSheet } from '../../components/chat/EditSheet';
 import { BranchSelector } from '../../components/chat/BranchSelector';
+import { TrainingOptInPopup, useTrainingOptInCheck } from '../../components/chat/TrainingOptIn';
 import { ChevronDown } from 'lucide-react-native';
 import { ChatMessage } from '../../lib/types';
 import { getGenreColor } from '../../constants/genres';
@@ -41,6 +42,7 @@ export default function ChatScreen() {
   const [swipeIndex, setSwipeIndex] = useState(0);
   const [editTarget, setEditTarget] = useState<{ id: string; content: string } | null>(null);
   const [isRegenerating, setIsRegenerating] = useState(false);
+  const { showOptIn, dismiss: dismissOptIn } = useTrainingOptInCheck();
 
   // Persist session when leaving
   useFocusEffect(useCallback(() => { return () => { persistSession().catch(() => {}); }; }, []));
@@ -226,6 +228,9 @@ export default function ChatScreen() {
 
         <ChatInput onSend={handleSendWithNote} disabled={isStreaming} accentColor={accentColor} />
       </KeyboardAvoidingView>
+
+      {/* Training opt-in popup (shown once) */}
+      {showOptIn && <TrainingOptInPopup onDismiss={dismissOptIn} />}
 
       {/* Edit bottom sheet */}
       {editTarget && (
