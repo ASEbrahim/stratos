@@ -79,3 +79,52 @@ export async function incrementStat(key: keyof UserStats, amount = 1): Promise<v
   stats[key] += amount;
   await AsyncStorage.setItem(STATS_KEY, JSON.stringify(stats));
 }
+
+export interface DetailedStats {
+  totalSessions: number;
+  totalMessages: number;
+  totalWords: number;
+  avgSessionLength: number;
+  favoriteGenre: string;
+  longestSession: number;
+  totalCharacters: number;
+}
+
+export async function getDetailedStats(): Promise<DetailedStats> {
+  const sessions = await loadChatSessions();
+  const cards = await getSavedCards();
+  let totalMessages = 0;
+  let totalWords = 0;
+  let longestSession = 0;
+  const genreCounts: Record<string, number> = {};
+
+  for (const s of sessions) {
+    const userMsgs = s.messages.filter(m => m.role === 'user');
+    totalMessages += s.messages.length;
+    for (const m of userMsgs) totalWords += m.content.trim().split(/\s+/).length;
+    if (s.messages.length > longestSession) longestSession = s.messages.length;
+    // Track genre from character name — we don't have genre data in sessions
+  }
+
+  // Try to match session characters to saved cards for genre data
+  const allCards = cards;
+  for (const s of sessions) {
+    const card = allCards.find(c => c.id === s.character_id);
+    if (card?.genre_tags?.[0]) {
+      genreCounts[card.genre_tags[0]] = (genreCounts[card.genre_tags[0]] || 0) + 1;
+    }
+  }
+
+  const favoriteGenre = Object.entries(genreCounts).sort(([, a], [, b]) => b - a)[0]?.[0] ?? 'None yet';
+  const avgSessionLength = sessions.length > 0 ? Math.round(totalMessages / sessions.length) : 0;
+
+  return {
+    totalSessions: sessions.length,
+    totalMessages,
+    totalWords,
+    avgSessionLength,
+    favoriteGenre: favoriteGenre.charAt(0).toUpperCase() + favoriteGenre.slice(1),
+    longestSession,
+    totalCharacters: cards.length,
+  };
+}

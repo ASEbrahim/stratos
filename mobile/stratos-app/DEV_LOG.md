@@ -141,5 +141,8 @@ NEW badge on recent characters, card component now reads from themeStore.
 ## Iteration 47: Active tab dot indicator ✅
 Accent-colored dot below active tab icon.
 
-## Iteration 48: Conversation starters — pre-filled prompts on empty chat
-When starting a new chat, users stare at an empty screen. Adding 3 contextual starter prompts based on the character's personality — reduces friction and teaches users how to engage.
+## Iteration 48: Character intro card at top of new chats ✅
+Shows character avatar, name, and description at the start of new conversations.
+
+## Iteration 49: Profile engagement stats — words typed, favorite genre
+Gamification drives retention. Adding detailed stats to profile: total words typed, average session length, and most-used genre — makes users feel invested in their journey.

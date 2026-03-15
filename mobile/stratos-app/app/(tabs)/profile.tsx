@@ -6,7 +6,7 @@ import * as Haptics from 'expo-haptics';
 import { LogOut, Type, Bell, Server, Shield } from 'lucide-react-native';
 import { useAuthStore } from '../../stores/authStore';
 import { useThemeStore } from '../../stores/themeStore';
-import { getUserStats } from '../../lib/storage';
+import { getDetailedStats, DetailedStats } from '../../lib/storage';
 import { formatCount } from '../../lib/types';
 import { THEMES } from '../../constants/themes';
 import { colors, typography, spacing, borderRadius } from '../../constants/theme';
@@ -16,9 +16,9 @@ export default function ProfileScreen() {
   const router = useRouter();
   const { user, logout } = useAuthStore();
   const { themeId, setTheme, colors: tc, nsfwFilter, setNsfwFilter } = useThemeStore();
-  const [stats, setStats] = useState({ totalSessions: 0, totalMessages: 0, totalCharacters: 0 });
+  const [stats, setStats] = useState<DetailedStats>({ totalSessions: 0, totalMessages: 0, totalWords: 0, avgSessionLength: 0, favoriteGenre: 'None yet', longestSession: 0, totalCharacters: 0 });
 
-  useEffect(() => { getUserStats().then(setStats); }, []);
+  useEffect(() => { getDetailedStats().then(setStats); }, []);
 
   const handleLogout = () => Alert.alert('Sign Out', 'Are you sure?', [{ text: 'Cancel', style: 'cancel' }, { text: 'Sign Out', style: 'destructive', onPress: async () => { await logout(); router.replace('/(auth)/login'); } }]);
 
@@ -41,6 +41,31 @@ export default function ProfileScreen() {
         <View style={[styles.statDiv, { backgroundColor: tc.border.subtle }]} />
         <View style={styles.stat}><Text style={[styles.statVal, { color: tc.text.primary }]}>{formatCount(stats.totalMessages)}</Text><Text style={[styles.statLbl, { color: tc.text.muted }]}>Messages</Text></View>
       </View>
+
+      {/* Detailed Stats */}
+      {(stats.totalWords > 0 || stats.totalSessions > 0) && (
+        <View style={[styles.section, { marginBottom: spacing.md }]}>
+          <Text style={[styles.sectionTitle, { color: tc.text.muted }]}>Your Journey</Text>
+          <View style={[styles.detailStatsGrid, { backgroundColor: tc.bg.secondary, borderRadius: borderRadius.lg }]}>
+            <View style={styles.detailStat}>
+              <Text style={[styles.detailVal, { color: tc.accent.primary }]}>{formatCount(stats.totalWords)}</Text>
+              <Text style={[styles.detailLbl, { color: tc.text.muted }]}>Words Written</Text>
+            </View>
+            <View style={styles.detailStat}>
+              <Text style={[styles.detailVal, { color: tc.accent.primary }]}>{stats.avgSessionLength}</Text>
+              <Text style={[styles.detailLbl, { color: tc.text.muted }]}>Avg Messages</Text>
+            </View>
+            <View style={styles.detailStat}>
+              <Text style={[styles.detailVal, { color: tc.accent.primary }]}>{stats.longestSession}</Text>
+              <Text style={[styles.detailLbl, { color: tc.text.muted }]}>Longest Chat</Text>
+            </View>
+            <View style={styles.detailStat}>
+              <Text style={[styles.detailVal, { color: tc.accent.primary }]}>{stats.favoriteGenre}</Text>
+              <Text style={[styles.detailLbl, { color: tc.text.muted }]}>Top Genre</Text>
+            </View>
+          </View>
+        </View>
+      )}
 
       {/* Theme selector */}
       <View style={styles.section}>
@@ -134,4 +159,8 @@ const styles = StyleSheet.create({
   logoutText: { ...typography.subheading },
   aboutSection: { alignItems: 'center', paddingVertical: spacing.xxl, gap: 4 },
   aboutText: { fontSize: 11 },
+  detailStatsGrid: { flexDirection: 'row', flexWrap: 'wrap', padding: spacing.md },
+  detailStat: { width: '50%', alignItems: 'center', paddingVertical: spacing.md },
+  detailVal: { fontSize: 18, fontWeight: '700', marginBottom: 2 },
+  detailLbl: { fontSize: 10, fontWeight: '500' },
 });
