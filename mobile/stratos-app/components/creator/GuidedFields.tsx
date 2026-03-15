@@ -1,11 +1,13 @@
 import React from 'react';
 import { View, Text, TextInput, StyleSheet } from 'react-native';
-import { colors, typography, spacing, borderRadius } from '../../constants/theme';
+import { useThemeStore } from '../../stores/themeStore';
+import { typography, spacing, borderRadius } from '../../constants/theme';
 
 interface QualityField { key: string; label: string; hint: string; example: string; value: string; onChangeText: (text: string) => void; }
 interface GuidedFieldsProps { fields: QualityField[]; }
 
 export function GuidedFields({ fields }: GuidedFieldsProps) {
+  const tc = useThemeStore(s => s.colors);
   return (
     <View style={styles.container}>
       {fields.map((field, index) => {
@@ -13,11 +15,11 @@ export function GuidedFields({ fields }: GuidedFieldsProps) {
         return (
           <View key={field.key} style={styles.fieldContainer}>
             <View style={styles.labelRow}>
-              <Text style={[styles.indicator, { color: filled ? colors.status.success : colors.text.muted }]}>{filled ? '✓' : `${index + 1}`}</Text>
-              <Text style={styles.label}>{field.label}</Text>
+              <Text style={[styles.indicator, { color: filled ? tc.status.success : tc.text.muted }]}>{filled ? '✓' : `${index + 1}`}</Text>
+              <Text style={[styles.label, { color: tc.text.primary }]}>{field.label}</Text>
             </View>
-            <Text style={styles.hint}>{field.hint}</Text>
-            <TextInput style={styles.input} value={field.value} onChangeText={field.onChangeText} placeholder={field.example} placeholderTextColor={colors.text.muted + '80'} multiline textAlignVertical="top" />
+            <Text style={[styles.hint, { color: tc.text.secondary }]}>{field.hint}</Text>
+            <TextInput style={[styles.input, { backgroundColor: tc.bg.tertiary, borderColor: tc.border.subtle, color: tc.text.primary }]} value={field.value} onChangeText={field.onChangeText} placeholder={field.example} placeholderTextColor={tc.text.muted + '80'} multiline textAlignVertical="top" />
           </View>
         );
       })}
@@ -30,7 +32,7 @@ const styles = StyleSheet.create({
   fieldContainer: { gap: spacing.xs },
   labelRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
   indicator: { ...typography.subheading, fontSize: 14, width: 20, textAlign: 'center' },
-  label: { ...typography.subheading, color: colors.text.primary },
-  hint: { ...typography.caption, color: colors.text.secondary, marginLeft: 28 },
-  input: { backgroundColor: colors.bg.tertiary, borderRadius: borderRadius.md, paddingHorizontal: spacing.lg, paddingVertical: spacing.md, color: colors.text.primary, fontSize: 14, minHeight: 60, borderWidth: 1, borderColor: colors.border.subtle },
+  label: { ...typography.subheading },
+  hint: { ...typography.caption, marginLeft: 28 },
+  input: { borderRadius: borderRadius.md, paddingHorizontal: spacing.lg, paddingVertical: spacing.md, fontSize: 14, minHeight: 60, borderWidth: 1 },
 });
