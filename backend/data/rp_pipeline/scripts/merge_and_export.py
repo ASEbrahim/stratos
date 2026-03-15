@@ -23,16 +23,26 @@ def merge_adapter():
     from transformers import AutoModelForCausalLM, AutoTokenizer
     from peft import PeftModel
 
+    # Disable caching_allocator_warmup (OOMs on 24GB card with 18GB model)
+    import transformers.modeling_utils as _mu
+    _mu.caching_allocator_warmup = lambda *a, **kw: None
+
     tokenizer = AutoTokenizer.from_pretrained(BASE_MODEL_ID, trust_remote_code=True)
     base_model = AutoModelForCausalLM.from_pretrained(
-        BASE_MODEL_ID, torch_dtype=torch.bfloat16, device_map="cpu", trust_remote_code=True)
+        BASE_MODEL_ID, dtype=torch.bfloat16, device_map="cpu",
+        trust_remote_code=True, low_cpu_mem_usage=True)
 
     model = PeftModel.from_pretrained(base_model, str(ADAPTER_PATH))
     model = model.merge_and_unload()
 
     MERGED_PATH.mkdir(parents=True, exist_ok=True)
-    model.save_pretrained(str(MERGED_PATH))
+    # Save in 4GB shards to avoid 2x peak RAM (18GB model + 18GB write buffer)
+    model.save_pretrained(str(MERGED_PATH), max_shard_size="4GB")
     tokenizer.save_pretrained(str(MERGED_PATH))
+
+    # Free RAM before GGUF export
+    del model, base_model
+    import gc; gc.collect()
     logger.info(f"Merged model saved: {MERGED_PATH}")
 
 
