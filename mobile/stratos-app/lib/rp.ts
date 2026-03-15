@@ -109,6 +109,31 @@ export async function getBranches(sessionId: string) {
   return apiFetch<{ branches: any[] }>(`/api/rp/branches/${sessionId}`);
 }
 
+// ── Free-form text-to-image ──
+export async function generateImage(params: {
+  prompt: string;
+  model?: 'flux' | 'pony';
+  width?: number;
+  height?: number;
+  seed?: number;
+  negative_prompt?: string;
+}) {
+  if (USE_MOCKS) {
+    await new Promise(r => setTimeout(r, 5000));
+    return {
+      success: true,
+      image_id: `mock-img-${Date.now()}`,
+      filename: 'mock_generated.png',
+      model: params.model || 'flux',
+      size: `${params.width || 768}x${params.height || 1024}`,
+    };
+  }
+  return apiFetch<{ success: boolean; image_id?: string; error?: string; model?: string; size?: string }>(
+    '/api/image/generate',
+    { method: 'POST', body: JSON.stringify(params) }
+  );
+}
+
 // ── Character portrait generation ──
 export async function generateCharacterPortrait(params: {
   character_name: string;
