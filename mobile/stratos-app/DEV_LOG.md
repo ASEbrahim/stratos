@@ -99,5 +99,8 @@ Full-width spotlight card for the highest-rated character.
 ## Iteration 33: Auth input focus chaining ✅
 Next key auto-focuses next field in login/register forms.
 
-## Iteration 34: Library "Clear All History" + tab badges
-Library History needs a bulk delete option. Also adding unread-style badges on tabs to show content counts.
+## Iteration 34: Library "Clear All History" + tab badges ✅
+Tab count badges and Clear All History button with confirmation.
+
+## Iteration 35: Scroll-to-bottom FAB in chat
+When users scroll up to read earlier messages, they need a quick way to jump back to the latest. Adding a floating "scroll to bottom" button that appears when scrolled away from the bottom — standard in all chat apps.
