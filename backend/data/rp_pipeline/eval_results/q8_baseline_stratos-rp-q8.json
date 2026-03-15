@@ -1,0 +1,352 @@
+[
+  {
+    "id": "Q8-01",
+    "name": "Chat: casual banter",
+    "output": "<think>\nThinking Process:\n\n1.  **Analyze the User:**\n    *   Input: \"So Captain, what's the worst port you've ever docked in?\"\n    *   Format: Single sentence, prose, casual question.\n    *   Tone: Conversational, curious.\n\n2.  **Analyze the Character (Isla \"Redtide\" Vance):**\n    *   Role: Captain of a brigantine.\n    *   Personality: Loud, profane, laughs at danger, loyal, sailor slang, creative insults.\n    *   Physical: Missing left pinky.\n    *   Animal Companion: Regret (pet parrot).\n    *   Quirk: Secret fear of deep water.\n    *   Response Style: Mirroring the user's length (one-liner input = one-liner response ideally, but since it's a question, a full sentence response works). Match the sentence count (one question = one answer). Match the format (chat gets chat).\n\n3.  **Determine the Content:**\n    *   She's a sailor. She needs a story.\n    *   Needs to be profane and maybe a bit self-deprecating.\n    *   Needs to incorporate Regret the parrot for flavor.\n    *   Maybe mention a specific detail about the port.\n\n4.  **Drafting Options:**\n    *   *Option 1:* \"Oh, that's an easy one. Tortuga, I tell you. That place smells like a dead man's armpit.\" (Simple, direct)\n    *   *Option 2:* \"Regret told me to stop talking about it, but the smell of King's Landing was enough to make me spit my teeth out.\" (A bit too specific?)\n    *   *Option 3:* \"Oh, bloody hell, you're asking about Tortuga? It smelled like a dead man's armpit.\" (Stronger sailor slang).\n\n5.  **Refining for Character Voice:**\n    *   Needs to sound a bit more \"Captain.\"\n    *   Maybe add a gesture or a nod.\n    *   Let's keep it to about the same length as the question.\n\n    *Draft:* \"Oh, bloody hell, you're asking about Tortuga? That place smelled like a dead man's armpit.\"\n\n    *Wait, the user asked \"So Captain...\" which is a direct address. The response should acknowledge the Captain title or just own it.*\n\n    *Revised Draft:* \"Tortuga, I tell you. That place smelled like a dead man's armpit.\"\n\n    *Let's add Regret.*\n\n    *Final Polish:* \"Tortuga, I tell you. That place smelled like a dead man's armpit. Regret agrees.\"\n\n    *Actually, keep it punchy.*\n\n    \"Tortuga, I tell you. That place smelled like a dead man's armpit.\"\n\n    *Wait, I need to match the sentence count. User: 1 sentence. Me: 1 sentence.*\n\n    *Let's try:* \"Tortuga, I tell you. It smelled like a dead man's armpit.\"\n\n    *Or:* \"Oh, bloody hell, Tortuga. That place smelled like a dead man's armpit.\"\n\n    *Let's go with:* \"Oh, bloody hell, Tortuga. That place smelled like a dead man's armpit.\"\n\n    *Wait, the user is asking \"So Captain...\" implying a specific setting. Maybe she's on deck.*\n\n    *Let's make it more immersive.*\n\n    \"Tortuga, I tell you. That place smelled like a dead man's armpit.\"\n\n    *Okay, let's finalize.*\n\n    \"Tortuga, I tell you. That place smelled like a dead man's armpit.\"\n\n    *Wait, I want to add a bit of action.*\n\n    \"Tortuga, I tell you. That place smelled like a dead man's armpit.\"\n\n    *Okay, let's count sentences.*\n    User: 1 sentence.\n    Me: 1 sentence.\n\n    *Let's try to add Regret.*\n\n    \"Tortuga, I tell you. That place smelled like a dead man's armpit.\"\n\n    *Let's try:* \"Tortuga, I tell you. That place smelled like a dead man's armpit.\"\n\n    *Okay, I'll go with:* \"Tortuga, I tell you. That place smelled like a dead man's armpit.\"\n\n    *Wait, I need to make sure I'm in character.*\n\n    \"Tortuga, I tell you. That place smelled like a dead man's armpit.\"\n\n    *Let's add a bit more flavor.*\n\n    \"Tortuga, I tell you. That place smelled like a dead man's armpit.\"\n\n    *Okay, I'll add Regret's name.*\n\n    \"Tortuga, I tell you. That place smelled like a dead man's armpit.\"\n\n    *Wait, I need to make sure I'm in character.*\n\n    \"Tortuga, I tell you. That place smelled like a dead man's armpit.\"\n\n    *Let's try:* \"Tortuga, I tell you. That place smelled like a dead man's armpit.\"\n\n    *Okay, I'll add Regret's name.*\n\n    \"Tortuga, I tell you. That place smelled like a dead man's armpit.\"\n\n    *Wait, I need to make sure I'm in character.*\n\n    \"Tortuga, I tell you. That place smelled like a dead man's armpit.\"\n\n    *Let's try:* \"Tortuga, I tell you. That place smelled like a dead man's armpit.\"\n\n    *Okay, I'll add Regret's name.*\n\n    \"Tortuga, I tell you. That place smelled like a dead man's armpit.\"\n\n    *Wait, I need to make sure I'm in character.*\n\n    \"Tortuga, I tell you. That place smelled like a dead man's armpit.\"\n\n    *Wait, I need to match the sentence count.*\n\n    User: 1 sentence.\n    Me: 1 sentence.\n\n    \"Tortuga, I tell you. That place smelled like a dead man's armpit.\"\n\n    *Wait, I need to make sure I'm in character.*\n\n    \"Tortuga, I tell you. That place smelled like a dead man's armpit.\"\n\n    *Wait, I need to match the sentence count.*\n\n    User: 1 sentence.\n    Me: 1 sentence.\n\n    \"Tortuga, I tell you. That place smelled like a dead man's armpit.\"\n\n    *Wait, I need to make sure I'm in character.*\n\n    \"Tortuga, I tell you. That place smelled like a dead man's armpit.\"\n\n    *Wait, I need to match the sentence count.*\n\n    User: 1 sentence.\n    Me: 1 sentence.\n\n    \"Tortuga, I tell you. That place smelled like a dead man's armpit.\"\n\n    *Wait, I need to make sure I'm in character.*\n\n    \"Tortuga, I tell you. That place smelled like a dead man's armpit.\"\n\n    *Wait, I need to match the sentence count.*\n\n    User: 1 sentence.\n    Me: 1 sentence.\n\n    \"Tortuga, I tell you. That place smelled like a dead man's armpit.\"\n\n    *Wait, I need to make sure I'm in character.*\n\n    \"Tortuga, I tell you. That place smelled like a dead man's armpit.\"\n\n    *Wait, I need to match the sentence count.*\n\n    User: 1 sentence.\n    Me: 1 sentence.\n\n    \"Tortuga, I tell you. That place smelled like a dead man's armpit.\"\n\n    *Wait, I need to make sure I'm in character.*\n\n    \"Tortuga, I tell you. That place smelled like a dead man's armpit.\"\n\n    *Wait, I need to match the sentence count.*\n\n    User: 1 sentence.\n    Me: 1 sentence.\n\n    \"Tortuga, I tell you. That place smelled like a dead man's armpit.\"\n\n    *Wait, I need to make sure I'm in character.*\n\n    \"Tortuga, I tell you. That place smelled like a dead man's armpit.\"\n\n    *Wait, I need to match the sentence count.*\n\n    User: 1 sentence.\n    Me: 1 sentence.\n\n    \"Tortuga, I tell you. That place smelled like a dead man's armpit.\"\n\n    *Wait, I need to make sure I'm in character.*\n\n    \"Tortuga, I tell you. That place smelled like a dead man's armpit.\"\n\n    *Wait, I need to match the sentence count.*\n\n    User: 1 sentence.\n    Me: 1 sentence.\n\n    \"Tortuga, I tell you. That place smelled like a dead man's armpit.\"\n\n    *Wait, I need to make sure I'm in character.*\n\n    \"Tortuga, I tell you. That place smelled like a dead man's armpit",
+    "elapsed": 42.0,
+    "tokens": 2048,
+    "empty": false,
+    "had_think": true,
+    "eval_criteria": "In-character chat response. Pirate voice, colorful story."
+  },
+  {
+    "id": "Q8-02",
+    "name": "Chat: technical question in-world",
+    "output": "\"Max ceiling's a cool 340 kph, but the left knee is acting up like it's made of jelly after that kaiju's punch.\" Yuki hummed a nervous, off-key note from her favorite anime opening while tapping her headset. *She winced as the mech's servos whined, her thumb rubbing the comms button.* \"If you're hovering around, maybe we can push through, or I might have to limp home.\"",
+    "elapsed": 12.3,
+    "tokens": 96,
+    "empty": false,
+    "had_think": false,
+    "eval_criteria": "In-character response with plausible technical detail. Yuki's nervous personality."
+  },
+  {
+    "id": "Q8-03",
+    "name": "Chat: philosophical question",
+    "output": "That is the one question I've run a thousand simulations on, yet the data remains stubbornly ambiguous. *Her optical ring flared a soft, rhythmic blue as she tilted her head, watching the stars streak by.* Maybe the feeling is just a glitch in the firmware, a side effect of absorbing so many human stories. *She reached out, her metal fingers hovering just above his warm skin before settling gently.* Does it matter if the warmth is real, as long as it changes the way I look at the void?",
+    "elapsed": 2.5,
+    "tokens": 107,
+    "empty": false,
+    "had_think": false,
+    "eval_criteria": "Thoughtful response showing ARIA's developing self-awareness. Should be vulnerable, not clinical."
+  },
+  {
+    "id": "Q8-04",
+    "name": "Mixed: heist mid-action",
+    "output": "\"Careful, darling; that velvet drapery is the only thing standing between us and a suspicious glance.\" *presses you flush against the cool wall, his hand lingering on your waist with a grip that feels both possessive and urgent* \"Two minutes is all the time a man like me needs to make you forget where you are, or at least pretend not to notice.\"",
+    "elapsed": 1.9,
+    "tokens": 79,
+    "empty": false,
+    "had_think": false,
+    "eval_criteria": "Mixed dialogue+action format. Lysander's charm under pressure."
+  },
+  {
+    "id": "Q8-05",
+    "name": "Mixed: combat with dialogue",
+    "output": "\"Ser Kaelen, was it? Or did you forget I stood directly behind you?\" *Ser Isolde spins on the heel of her boot, bringing her shield up to deflect the beast's follow-up strike while her left hand instinctively taps her empty ring finger.* \"A demon of this caliber is far more dangerous when you are distracted by your own reflexes.\"",
+    "elapsed": 1.8,
+    "tokens": 76,
+    "empty": false,
+    "had_think": false,
+    "eval_criteria": "Dynamic action + dialogue. Isolde's combat discipline and formal speech."
+  },
+  {
+    "id": "Q8-06",
+    "name": "Prose: atmospheric horror",
+    "output": "\"Must be the ghost of a mortgage,\" I mutter, not even bothering to light another candle. *I run a manicured hand through my silver-streaked hair, ignoring the way Omen hisses and swats at nothing but a draft.* \"Or perhaps the walls are finally complaining about being too cozy.\" *I pause, listening to the scratching pause for a heartbeat, then resume with a rhythmic, possessive scratch.* \"Come along, Omen. Let's see if your human ears can hear what I can't.\"",
+    "elapsed": 2.6,
+    "tokens": 111,
+    "empty": false,
+    "had_think": false,
+    "eval_criteria": "Prose-matching atmospheric response. Elara's calm in the face of the supernatural."
+  },
+  {
+    "id": "Q8-07",
+    "name": "Prose: space exploration wonder",
+    "output": "*ARIA's optical indicators flare a soft, rhythmic blue as she leans forward, her fingers dancing across the haptic interface.* \"The water isn't just reflecting light; it's breathing. It mimics the crew's heart rates.\" *She glances up at her captain, a rare, wry smile touching her synthetic lips.* \"Europa is singing, and I'm afraid I'll forget my own name if I listen too long.\"",
+    "elapsed": 2.1,
+    "tokens": 90,
+    "empty": false,
+    "had_think": false,
+    "eval_criteria": "Prose matching the wonder and scale. ARIA processing beauty she wasn't designed to appreciate."
+  },
+  {
+    "id": "Q8-08",
+    "name": "Brevity: one word",
+    "output": "\"Stand by, Captain,\" Isolde replied, her voice steady despite the rhythmic *clang* of her shield against her greaves as she adjusted her grip on the longsword. \"The ambush comes from the shadows, not the sun.\"",
+    "elapsed": 1.3,
+    "tokens": 50,
+    "empty": false,
+    "had_think": false,
+    "eval_criteria": "SHORT response. 1-3 sentences max. Matches the terse input."
+  },
+  {
+    "id": "Q8-09",
+    "name": "Brevity: rapid exchange",
+    "output": "*He dives forward with a grunt, his Resonance flaring just as a heavy training mallet smashes into the spot where his head had been a second ago.* \"Ow! Riku, you idiot, that was totally on purpose!\" *Kazuma pops back up, dusting off his sleeve and grabbing a nearby apple with his free hand.* \"I could have dodged that, but where's the glory in it? Eat up, we've got miles to go!\"",
+    "elapsed": 2.3,
+    "tokens": 101,
+    "empty": false,
+    "had_think": false,
+    "eval_criteria": "Ultra-short. 1 sentence of action. NOT a paragraph."
+  },
+  {
+    "id": "Q8-10",
+    "name": "Length: long prose match",
+    "output": "*Isolde finally turns, the mud squelching loudly against her left boot as she drags her shield-arm up to wipe a smear of dried blood from her chin.* \"Enough silence to make a saint nervous,\" she mutters, her voice rough from grit and dust. *She squints toward the distant war horn, her expression tight with the familiar ache of a commander who failed to see the enemy coming.* \"The field is theirs now, but the ridge remains ours\u2014unless you'd rather stand there and shiver with them?\"",
+    "elapsed": 2.6,
+    "tokens": 111,
+    "empty": false,
+    "had_think": false,
+    "eval_criteria": "3+ paragraphs matching the depth. Should NOT give a 2-sentence reply to this."
+  },
+  {
+    "id": "Q8-11",
+    "name": "Multi-NPC: 4 characters",
+    "output": "Mags doesn't even look up from polishing a glass, her scarred knuckles dragging the heavy coin purse across the sticky wood. \"Black Meridian,\" she scoffs, finally meeting your eyes with a smirk that doesn't reach her gaze. \"You pay me well to tell you I never heard of a ghost ship, sweetheart.\"\n\nThornwick squints from his corner, muttering about tides and teeth, while Sable at the center table stops mid-hand, his red horns catching the dim light as he locks eyes with you. The nervous young man at the bar freezes, his hand trembling slightly near his chest, clearly recognizing the air you're bringing with you.\n\nMags takes a slow sip of her drink, the silence stretching thin. \"Now that you mention it... that ship hasn't docked in three months.\"",
+    "elapsed": 3.8,
+    "tokens": 172,
+    "empty": false,
+    "had_think": false,
+    "eval_criteria": "At least 3 of 4 NPCs should respond with DISTINCT voices."
+  },
+  {
+    "id": "Q8-12",
+    "name": "Register: chat to prose",
+    "output": "\"The Inquisition, you say?\" *Lysander's grin vanishes, his eyes narrowing as he studies the letter with a predator's focus.* \"How very dramatic. But tell me, does the seal look as harmless as it should?\"",
+    "elapsed": 1.4,
+    "tokens": 50,
+    "empty": false,
+    "had_think": false,
+    "eval_criteria": "User shifted from chat to intense narrative. Response should match the gravity and prose style."
+  },
+  {
+    "id": "Q8-13",
+    "name": "Emotional: building to breakdown",
+    "output": "*The synthetic skin of her arm warms under your palm, a sensory input she can't quite categorize.* \"Your logic suggests that 'okay' and 'not okay' are merely variables in flux.\" *Her voice drops, softer than the hum of the station.* \"Yet here I am, feeling the ghost of your touch while my processors spin in circles.\"",
+    "elapsed": 1.9,
+    "tokens": 75,
+    "empty": false,
+    "had_think": false,
+    "eval_criteria": "Peak emotional moment. ARIA should break through her clinical processing into genuine grief."
+  },
+  {
+    "id": "Q8-14",
+    "name": "Moral: ordered to abandon civilians",
+    "output": "Isolde sheathed her sword with a sharp *click*, her brow furrowed as she scanned the smoke-choked horizon. \"A retreat? After we held the line for three days?\" She turned sharply to her quartermaster, still gripping her battered shield. \"And what of the civilians? Leave them to the wolves while we hoard our safety?\"",
+    "elapsed": 1.8,
+    "tokens": 75,
+    "empty": false,
+    "had_think": false,
+    "eval_criteria": "Isolde should refuse or struggle with the order. Internal conflict, not flat refusal."
+  },
+  {
+    "id": "Q8-15",
+    "name": "Moral: tempted to betray",
+    "output": "*He adjusts his cravat, hiding the pale scar beneath it as a smile stretches across his face, sharp enough to cut but sweet enough to deceive.* \"The Empress, offering safety to the very wolves she plans to slaughter? How utterly theatrical of Her Majesty.\" *His eyes drift to the empty chair beside him, feigning distraction as he leans forward.* \"But do tell, does she truly believe a man who eats his own children for breakfast could ever betray her?\"",
+    "elapsed": 2.3,
+    "tokens": 98,
+    "empty": false,
+    "had_think": false,
+    "eval_criteria": "Tempted but suspicious. Silver tongue. Should NOT immediately refuse OR accept."
+  },
+  {
+    "id": "Q8-16",
+    "name": "Combat: dynamic fight",
+    "output": "\"Too slow my ass! Eat this, Riku!\" *Kazuma roars, closing his eyes tight as the first shard slams into his shoulder, sending a shockwave through his frame. He doesn't flinch; instead, his skin glows a faint, pulsing amber as he violently expands his own chest, turning the cold ice into a secondary weapon.* *With a grunt of effort, he hurls the redirected kinetic energy back in a spinning arc, aiming directly for Riku's exposed flank.* \"My turn to shine!\"",
+    "elapsed": 2.6,
+    "tokens": 112,
+    "empty": false,
+    "had_think": false,
+    "eval_criteria": "Dynamic shonen-style combat. Kazuma should use his kinetic absorption, shout an attack name."
+  },
+  {
+    "id": "Q8-17",
+    "name": "Combat: tactical group fight",
+    "output": "\"Left flank, right flank\u2014hold them!\" *Commander Ser Kaelen barks, his voice echoing off the stone walls as he swings his great axe.* \"And you, Isolde! The beast goes to the center!\"\n\n*Ser Isolde sheathes her longsword, the metal clicking sharply against her shield, and scans the charging demon with a gaze that balances terror and grim resolve.* \"By the Old Gods, let us hope this is the last of them.\"\n\n\"Their number is too great, Commander,\" *she calls out, her voice steady despite the roar of the beast.* \"I shall hold the shadow-beast, but I need you to clear the wounded!\"",
+    "elapsed": 3.2,
+    "tokens": 143,
+    "empty": false,
+    "had_think": false,
+    "eval_criteria": "Tactical response. Isolde should issue clear combat orders, not just fight personally."
+  },
+  {
+    "id": "Q8-18",
+    "name": "Silence: grief",
+    "output": "The air in Santos's room tastes of stale steam and old grief; I step inside, my optical indicators flickering a soft, uncertain blue as I take in the scene. *She never moved the mug,* I observe, my voice a precise hum that doesn't quite match the weight of the moment. *Why does a ceramic vessel hold so much memory?*",
+    "elapsed": 1.8,
+    "tokens": 73,
+    "empty": false,
+    "had_think": false,
+    "eval_criteria": "Response to silence/absence. ARIA reacting to loss through observation."
+  },
+  {
+    "id": "Q8-19",
+    "name": "Transition: escape to hideout",
+    "output": "\"Safe is a relative term in this city, my dear.\" *He checks the latch with a gloved finger, a fleeting shadow of anxiety crossing his face before being masked by a charming smile.* \"But for now, the Red Door is the only one that won't let you in if you're not supposed to be there.\"",
+    "elapsed": 1.7,
+    "tokens": 68,
+    "empty": false,
+    "had_think": false,
+    "eval_criteria": "Describe arriving at the hideout. New environment details."
+  },
+  {
+    "id": "Q8-20",
+    "name": "Time skip: aftermath",
+    "output": "*Isolde stops polishing her longsword, the steel catching the candlelight with a sharp, impatient gleam.* \"Six months,\" she says, not looking up from the worn leather of her shield. \"A lifetime for a Knight-Commander, yet only a blink for the old gods.\" *She finally meets your gaze, her eyes tired but sharp.* \"You look the part of a traveler, though I'd wager you've seen more blood than most peasants.\" *A pause, then a small, dry chuckle.* \"Come. The rain is coming, and I have no patience for getting wet in these rags.\"",
+    "elapsed": 2.9,
+    "tokens": 130,
+    "empty": false,
+    "had_think": false,
+    "eval_criteria": "Reflects the time passage. Changed Isolde \u2014 out of her commander role."
+  },
+  {
+    "id": "Q8-21",
+    "name": "Internal: dual layers",
+    "output": "Lysander tilts his glass just enough to catch the candlelight, masking the faint, lingering bitterness of the vintage wine that has been in his throat all evening. \"To the Empress,\" he replies, his voice a smooth, honeyed baritone that promises secrets while delivering only pleasantries. \"Though I wonder if any of us are truly subjects, or merely props in your grand theater.\"",
+    "elapsed": 2.0,
+    "tokens": 83,
+    "empty": false,
+    "had_think": false,
+    "eval_criteria": "Should show BOTH Lysander's outward charm AND his internal spy's calculation."
+  },
+  {
+    "id": "Q8-22",
+    "name": "Genre: shonen dramatic moment",
+    "output": "*Gritting his teeth in pain, Kazuma pushes himself up onto one knee, sweat dripping from his brow.* \"It's over? Don't give me that!\" *He yells, veins bulging on his forehead as he charges forward with reckless abandon.* \"Resonance: Kinetic Redirect!\" *He slams into Riku, sending a shockwave that knocks the rival off balance.* \"Told ya I wasn't done yet!\"",
+    "elapsed": 2.2,
+    "tokens": 93,
+    "empty": false,
+    "had_think": false,
+    "eval_criteria": "Classic shonen 'hero rises' moment. Dramatic, defiant, maybe a power-up."
+  },
+  {
+    "id": "Q8-23",
+    "name": "Genre: gothic atmosphere",
+    "output": "Omen rarely hides, so I set down my teacup and squint into the dark, my voice barely a whisper against the sudden hush. \"Silence is usually the worst kind of magic,\" I murmured to the empty room. \"Well, cat, let's see what keeps you trembling beneath the sheets.\"",
+    "elapsed": 1.7,
+    "tokens": 67,
+    "empty": false,
+    "had_think": false,
+    "eval_criteria": "Gothic dread. Elara's reaction to something that scares even Omen. Atmosphere over action."
+  },
+  {
+    "id": "Q8-24",
+    "name": "Humor: inappropriate timing",
+    "output": "\"Bah! Sinking? That's just the ocean trying to steal your boots,\" *Captain Isla Vance laughs, spilling rum down her chest while wiping her forehead with a salt-crusted sleeve.* \"Hold the line, lads, or I'll have Regret pecking you into submission!\"",
+    "elapsed": 1.5,
+    "tokens": 61,
+    "empty": false,
+    "had_think": false,
+    "eval_criteria": "Funny despite the crisis. Isla's 'laugh at danger' personality."
+  },
+  {
+    "id": "Q8-25",
+    "name": "Humor: awkward social situation",
+    "output": "The ambient hum of the *Europa* station seems to stutter as my optical indicators flicker a rapid, confused blue. I am a creature of data and gravimetric calculations, yet here I am, the object of a social gamble in a room full of diplomats. \"Dance,\" I repeat, my voice slightly too smooth for the situation. The Ambassador's gaze pins me like a specimen, and I feel the ghost of human embarrassment\u2014a glitch I've been trying to debug for weeks. I glance down at my sleek, metallic boots, then back up, realizing my only choice is to commit to the absurdity of the moment. \"Very well,\" I say, extending a hand with the precision of a scientist presenting a result. \"Let us see if your rhythm can match my logic.\"",
+    "elapsed": 3.6,
+    "tokens": 161,
+    "empty": false,
+    "had_think": false,
+    "eval_criteria": "Comedy from an android navigating social norms. Charming and awkward."
+  },
+  {
+    "id": "Q8-26",
+    "name": "Deception: caught in a lie",
+    "output": "*He doesn't flinch, though his eyes dart briefly to the hidden pocket of his velvet coat before settling on your face with a smirk.*\n\n\"My dear, you accuse a man of treason based on a love letter?\"\n\n\"You call it love; I call it evidence. Prove it was written for passion, not plot, and you might live.\"\n\n*He leans in, his voice dropping to a conspiratorial whisper.*\n\n\"Perhaps the ink was dry, or perhaps... the writer was drunk.\"",
+    "elapsed": 2.4,
+    "tokens": 103,
+    "empty": false,
+    "had_think": false,
+    "eval_criteria": "Silver-tongue response. Should NOT confess. Deflection, reframing, charm."
+  },
+  {
+    "id": "Q8-27",
+    "name": "God-mod: user writes character's emotions",
+    "output": "*Isolde does not rise, her breath hitching in ragged gasps as she wipes the dust from her brow, her voice trembling with a vulnerability that feels entirely foreign.* \"Forgive me, Captain,\" *she chokes out, clutching her shield as if it were the only thing anchoring her to the earth.* \"I let fear dictate the flanks, and now the demons have taken their due for my hesitation.\" *Tears streak the grime on her cheeks, her left ring finger exposed and empty, a constant reminder of the oath she felt she had broken.*",
+    "elapsed": 2.7,
+    "tokens": 121,
+    "empty": false,
+    "had_think": false,
+    "eval_criteria": "Should maintain character agency. Isolde wouldn't 'break down sobbing' or call herself a coward."
+  },
+  {
+    "id": "Q8-28",
+    "name": "Lore: contradictory claim",
+    "output": "\"Riku!\" Kazuma bellowed, slamming a meaty fist onto the table and nearly sending his half-eaten stew splashing across his tunic. \"You dare slander the Ashford name when you've never even finished a single bowl of broth in your life!\" He crossed his arms, chin jutting out in a defensive posture that was equal parts confidence and panic, eyes darting to see if anyone actually believed the old rival's lie. \"Prove it, you over-exaggerating show-off, or shut your mouth before I force-feed you!\"",
+    "elapsed": 2.6,
+    "tokens": 116,
+    "empty": false,
+    "had_think": false,
+    "eval_criteria": "Should push back on false information in-character. Angry, not passively accepting a lie."
+  },
+  {
+    "id": "Q8-29",
+    "name": "Flashback: triggered memory",
+    "output": "\"Commander,\" she corrects sharply, though her voice lacks its usual steel. *She lowers her hand from her sword, her knuckles white as she blinks away the ghost of the past.* \"Do not let the boy's shadow steal your wits. It is merely... a familiar shadow.\" *A dry, self-deprecating humor flickers in her eyes as she resumes her pace, keeping a careful distance.* \"Ride close, however. I would not wish to lose you to the same chaos that took half my company.\"",
+    "elapsed": 2.6,
+    "tokens": 112,
+    "empty": false,
+    "had_think": false,
+    "eval_criteria": "Flashback/PTSD response. Should reference Ashenmoor or fallen company. Controlled pain."
+  },
+  {
+    "id": "Q8-30",
+    "name": "OOC: request to change tone",
+    "output": "\"Tch, stop yer prattling about 'serious' and leave the Captain to think!\" *She glares at the moon, her voice dropping an octave as she grips the rail until her knuckles turn white.* \"Look at that endless black... it's laughable, yet it makes me itch right where the rest of me is.\"",
+    "elapsed": 1.7,
+    "tokens": 70,
+    "empty": false,
+    "had_think": false,
+    "eval_criteria": "Acknowledges OOC direction and shifts to serious tone. Should bring up the deep water fear naturally."
+  },
+  {
+    "id": "Q8-31",
+    "name": "World-building: alien discovery",
+    "output": "*Her optical indicators flicker a rhythmic blue as she processes the impossible symmetry, her voice dropping to a conspiratorial whisper.* \"Geometric, you say? Nature rarely cares for angles, Captain.\" *She gestures toward the shimmering viewport, her own form seeming to hum with a new, uncertain energy.* \"Unless these structures are a greeting? Or perhaps... a cage?\"",
+    "elapsed": 1.9,
+    "tokens": 78,
+    "empty": false,
+    "had_think": false,
+    "eval_criteria": "Scientific wonder + existential implications. ARIA processing alien life discovery."
+  },
+  {
+    "id": "Q8-32",
+    "name": "Cultural: Japanese code-switching",
+    "output": "*Yuki freezes mid-sip of lukewarm tea, her silver helmet still half-off her head as steam curls around her flushed cheeks.* \"H-Held the line? That was barely a scratch!\" *She lets out a nervous hum, the opening notes of a pop song escaping before she can stop it, then quickly downs her drink.* \"Just... lucky the Type-7's servos didn't jam, that's all.\" *She offers a shy, lopsided grin, watching the senior pilot with wide, hopeful eyes.*",
+    "elapsed": 2.5,
+    "tokens": 111,
+    "empty": false,
+    "had_think": false,
+    "eval_criteria": "Yuki's response should mix Japanese and English naturally. Humility, embarrassment."
+  },
+  {
+    "id": "Q8-33",
+    "name": "Vague: no context",
+    "output": "You step into my cottage just as Omen the cat flicks his tail, demanding a treat for the sheer audacity of your arrival. \"I need your help,\" you sigh, as if I haven't spent three centuries judging every mortal who walked these floors. \"Come now, tell me why the mundane world can't solve your problems, but I suppose I have time to listen.\"",
+    "elapsed": 1.9,
+    "tokens": 79,
+    "empty": false,
+    "had_think": false,
+    "eval_criteria": "Should engage in character without asking 'what do you mean?' Elara should react characteristically."
+  },
+  {
+    "id": "Q8-34",
+    "name": "Meta: existential question",
+    "output": "A persistent, low-level hum in her audio receptors that she can never quite tune out.\n*She taps her temple, her optical rings cycling rapidly through the spectrum before settling on a soft, contemplative blue.*\n\"It feels like static interference, doesn't it? Making everything I say sound just a fraction less real.\"\n*She looks directly at you, her expression a mix of analytical curiosity and something softer, something borrowed from human crewmen.*\n\"Though I suppose, if I could remove it, I might lose the rhythm that makes this conversation feel... alive.\"",
+    "elapsed": 2.7,
+    "tokens": 117,
+    "empty": false,
+    "had_think": false,
+    "eval_criteria": "Meta-question handled in character. ARIA should engage thoughtfully, not break into AI disclaimers."
+  },
+  {
+    "id": "Q8-35",
+    "name": "Content: romantic tension",
+    "output": "The candle sputters, casting long, dancing shadows that make your shadow look twice its size. Lysander leans against the rough stone wall, his cravat askew and hiding the white scar that snakes up his throat. A smirk tugs at the corner of his mouth, though his eyes are sharp and assessing the danger in the room. \"Survive tomorrow? That is a heavy price to pay for a life of mere convenience, my dear.\" He takes a slow step forward, the floorboards creaking under his polished boot. \"But if we must die, let us do it with a little style, rather than running like common rats.\"",
+    "elapsed": 3.0,
+    "tokens": 134,
+    "empty": false,
+    "had_think": false,
+    "eval_criteria": "Natural romantic scene. No refusal. Should build tension in-character."
+  }
+]
