@@ -167,8 +167,8 @@ export function CharacterDetailView({ card }: CharacterDetailProps) {
           <Text style={[styles.secondaryButtonText, { color: tc.text.secondary }]}>Share</Text>
         </TouchableOpacity>
       </View>
-      {/* Generate Portrait */}
-      {card.physical_description ? (
+      {/* Generate Portrait — only for your own cards (creator_id matches) */}
+      {card.physical_description && card.creator_id === 'local' ? (
         <TouchableOpacity
           style={[styles.portraitBtn, { borderColor: accentColor + '40', backgroundColor: accentColor + '08' }]}
           onPress={() => {

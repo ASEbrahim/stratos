@@ -210,7 +210,7 @@ def create_handler(strat, auth, frontend_dir, output_dir):
             # --- Auth enforcement for API endpoints ---
             # /api/proxy exempt: <img> tags can't send X-Auth-Token headers
             _auth_path = self.path.split('?')[0]
-            if _auth_path.startswith('/api/') and not _auth_path.startswith('/api/proxy') and _auth_path not in auth.AUTH_EXEMPT:
+            if _auth_path.startswith('/api/') and not _auth_path.startswith('/api/proxy') and not _auth_path.startswith('/api/image/') and _auth_path not in auth.AUTH_EXEMPT:
                 token = self.headers.get('X-Auth-Token', '')
                 device_id = self.headers.get('X-Device-Id', '')
                 # Fallback: accept token as query param for file downloads (e.g. export)
