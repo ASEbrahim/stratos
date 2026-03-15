@@ -77,6 +77,9 @@ def main():
     os.environ["ROCR_VISIBLE_DEVICES"] = "0"
     os.environ["CUDA_VISIBLE_DEVICES"] = "0"
     os.environ.pop("TORCH_ROCM_AOTRITON_ENABLE_EXPERIMENTAL", None)
+    # Expandable segments prevents the ROCm allocator from hoarding large contiguous
+    # blocks — reuses memory more efficiently with variable-length sequences
+    os.environ["PYTORCH_HIP_ALLOC_CONF"] = "expandable_segments:True"
 
     if not TRAINING_DATA.exists():
         logger.error(f"Training data not found: {TRAINING_DATA}")
