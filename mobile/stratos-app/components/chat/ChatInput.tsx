@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
 import { Send, Square } from 'lucide-react-native';
 import Animated, { useSharedValue, useAnimatedStyle, withSpring, withSequence, withRepeat, withTiming } from 'react-native-reanimated';
@@ -13,6 +14,7 @@ const AnimatedTouchable = Animated.createAnimatedComponent(TouchableOpacity);
 export function ChatInput({ onSend, disabled = false, accentColor }: ChatInputProps) {
   const [text, setText] = useState('');
   const tc = useThemeStore(s => s.colors);
+  const insets = useSafeAreaInsets();
   const color = accentColor ?? tc.accent.primary;
   const btnScale = useSharedValue(1);
   const btnAnimStyle = useAnimatedStyle(() => ({ transform: [{ scale: btnScale.value }] }));
@@ -30,7 +32,7 @@ export function ChatInput({ onSend, disabled = false, accentColor }: ChatInputPr
   const charCount = text.length;
 
   return (
-    <View style={[styles.container, { backgroundColor: tc.bg.primary, borderTopColor: tc.border.subtle }]}>
+    <View style={[styles.container, { backgroundColor: tc.bg.primary, borderTopColor: tc.border.subtle, paddingBottom: Math.max(insets.bottom, spacing.lg) }]}>
       {charCount > 100 && (
         <Text style={[styles.charCount, { color: charCount > 3500 ? tc.status.error : tc.text.muted }]}>{charCount}/4000</Text>
       )}
@@ -49,7 +51,7 @@ export function ChatInput({ onSend, disabled = false, accentColor }: ChatInputPr
 }
 
 const styles = StyleSheet.create({
-  container: { borderTopWidth: 1, paddingHorizontal: spacing.lg, paddingVertical: spacing.sm, paddingBottom: spacing.lg },
+  container: { borderTopWidth: 1, paddingHorizontal: spacing.lg, paddingVertical: spacing.sm },
   inputRow: { flexDirection: 'row', alignItems: 'flex-end', gap: spacing.sm },
   input: { flex: 1, borderRadius: borderRadius.xl, paddingHorizontal: spacing.lg, paddingVertical: spacing.md, fontSize: 15, maxHeight: 120 },
   sendButton: { width: 40, height: 40, borderRadius: 20, justifyContent: 'center', alignItems: 'center' },

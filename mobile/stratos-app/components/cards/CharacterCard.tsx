@@ -90,29 +90,18 @@ export function CharacterCardComponent({ card, variant = 'grid', featured = fals
           <Image source={{ uri: card.avatar_url }} style={styles.avatarImage} />
         ) : (
           <>
-            {/* Ambient glow behind letter */}
             <View style={[styles.letterGlow, { backgroundColor: accentColor, shadowColor: accentColor }]} />
             <Text style={[styles.avatarLetter, { color: accentColor }]}>{card.name[0]}</Text>
           </>
         )}
-        {/* Quick chat button */}
-        <TouchableOpacity style={[styles.quickChatBtn, { backgroundColor: accentColor + 'CC' }]} onPress={handleQuickChat} activeOpacity={0.8} hitSlop={4} accessibilityLabel={`Quick chat with ${card.name}`} accessibilityRole="button">
-          <MessageCircle size={10} color="#fff" />
-          <Text style={styles.quickChatText}>Chat</Text>
-        </TouchableOpacity>
-        {/* NSFW badge */}
         {card.content_rating === 'nsfw' && <View style={[styles.nsfwBadge, { backgroundColor: tc.nsfw + 'CC' }]}><Text style={styles.nsfwText}>18+</Text></View>}
-        {/* Featured / NEW badge */}
         {featured && <View style={[styles.newBadge, { backgroundColor: accentColor }]}><Text style={styles.newBadgeText}>PICK OF THE DAY</Text></View>}
         {!featured && showNew && card.content_rating !== 'nsfw' && <View style={[styles.newBadge, { backgroundColor: tc.status.success }]}><Text style={styles.newBadgeText}>NEW</Text></View>}
-        {/* Heart animation on double-tap */}
         {showHeart && (
           <Animated.View style={[styles.heartOverlay, heartStyle]}>
             <Heart size={40} color="#fff" fill="#ff4466" />
           </Animated.View>
         )}
-        {/* Gradient overlay at bottom of avatar */}
-        <View style={[styles.avatarGradient, { backgroundColor: tc.bg.secondary }]} />
       </View>
       <View style={styles.info}>
         <Text style={[styles.name, { color: tc.text.primary }]} numberOfLines={1}>{card.name}</Text>
@@ -122,18 +111,15 @@ export function CharacterCardComponent({ card, variant = 'grid', featured = fals
           </View>
           <View style={styles.ratingRow}>
             {Array.from({ length: 5 }, (_, i) => (
-              <Star key={i} size={9} color={i < starCount ? tc.accent.secondary : tc.text.faint} fill={i < starCount ? tc.accent.secondary : 'transparent'} />
+              <Star key={i} size={8} color={i < starCount ? tc.accent.secondary : tc.text.faint} fill={i < starCount ? tc.accent.secondary : 'transparent'} />
             ))}
           </View>
         </View>
-        {card.first_message ? (
-          <Text style={[styles.preview, { color: tc.text.muted }]} numberOfLines={2}>{card.first_message.replace(/\*[^*]+\*/g, '').replace(/\n/g, ' ').trim().slice(0, 80)}</Text>
-        ) : null}
-        <View style={styles.bottomRow}>
-          <MessageCircle size={10} color={tc.text.muted} />
-          <Text style={[styles.sessions, { color: tc.text.muted }]}>{formatCount(card.session_count)} chats</Text>
-        </View>
       </View>
+      <TouchableOpacity style={[styles.quickChatBtn, { backgroundColor: accentColor + '15', borderColor: accentColor + '30' }]} onPress={handleQuickChat} activeOpacity={0.7} accessibilityLabel={`Chat with ${card.name}`} accessibilityRole="button">
+        <MessageCircle size={11} color={accentColor} />
+        <Text style={[styles.quickChatText, { color: accentColor }]}>Chat</Text>
+      </TouchableOpacity>
     </Pressable>
     </Animated.View>
   );
@@ -141,34 +127,27 @@ export function CharacterCardComponent({ card, variant = 'grid', featured = fals
 
 const styles = StyleSheet.create({
   card: { borderRadius: borderRadius.lg, overflow: 'hidden', borderWidth: 1 },
-  avatarContainer: { width: '100%', aspectRatio: 3/4, justifyContent: 'center', alignItems: 'center', position: 'relative' },
+  avatarContainer: { width: '100%', aspectRatio: 1, justifyContent: 'center', alignItems: 'center', position: 'relative' },
   avatarImage: { width: '100%', height: '100%' },
-  avatarLetter: { fontSize: 48, fontWeight: '700', opacity: 0.7 },
+  avatarLetter: { fontSize: 36, fontWeight: '700', opacity: 0.7 },
   letterGlow: {
-    position: 'absolute', width: 80, height: 80, borderRadius: 40,
+    position: 'absolute', width: 60, height: 60, borderRadius: 30,
     opacity: 0.12,
-    shadowOffset: { width: 0, height: 0 }, shadowOpacity: 0.6, shadowRadius: 30, elevation: 3,
+    shadowOffset: { width: 0, height: 0 }, shadowOpacity: 0.6, shadowRadius: 20, elevation: 3,
   },
-  avatarGradient: {
-    position: 'absolute', bottom: 0, left: 0, right: 0, height: 30,
-    opacity: 0.7,
-  },
-  heartOverlay: { position: 'absolute', zIndex: 10, justifyContent: 'center', alignItems: 'center', top: '35%', left: '35%' },
-  quickChatBtn: { position: 'absolute', bottom: spacing.sm + 30, right: spacing.sm, flexDirection: 'row', alignItems: 'center', gap: 3, paddingHorizontal: 8, height: 26, borderRadius: 13, justifyContent: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.3, shadowRadius: 4, elevation: 3 },
-  quickChatText: { fontSize: 10, fontWeight: '700', color: '#fff' },
-  nsfwBadge: { position: 'absolute', top: spacing.sm, right: spacing.sm, paddingHorizontal: spacing.sm, paddingVertical: 2, borderRadius: borderRadius.sm },
-  newBadge: { position: 'absolute', top: spacing.sm, left: spacing.sm, paddingHorizontal: spacing.sm, paddingVertical: 2, borderRadius: borderRadius.sm },
-  newBadgeText: { fontSize: 8, fontWeight: '800', color: '#fff', letterSpacing: 1 },
-  nsfwText: { ...typography.small, color: '#fff', fontWeight: '700' },
-  info: { padding: spacing.md, gap: 4 },
-  name: { ...typography.subheading, fontSize: 14 },
-  metaRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 2 },
-  genrePill: { borderWidth: 1, borderRadius: borderRadius.full, paddingHorizontal: spacing.sm, paddingVertical: 1 },
-  genrePillText: { fontSize: 10, fontWeight: '600' },
+  heartOverlay: { position: 'absolute', zIndex: 10, justifyContent: 'center', alignItems: 'center', top: '30%', left: '30%' },
+  quickChatBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 4, paddingVertical: spacing.sm, borderTopWidth: 1 },
+  quickChatText: { fontSize: 11, fontWeight: '700' },
+  nsfwBadge: { position: 'absolute', top: spacing.xs, right: spacing.xs, paddingHorizontal: 4, paddingVertical: 1, borderRadius: borderRadius.sm },
+  newBadge: { position: 'absolute', top: spacing.xs, left: spacing.xs, paddingHorizontal: 4, paddingVertical: 1, borderRadius: borderRadius.sm },
+  newBadgeText: { fontSize: 7, fontWeight: '800', color: '#fff', letterSpacing: 0.5 },
+  nsfwText: { fontSize: 8, color: '#fff', fontWeight: '700' },
+  info: { padding: spacing.sm, gap: 2 },
+  name: { ...typography.subheading, fontSize: 13 },
+  metaRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  genrePill: { borderWidth: 1, borderRadius: borderRadius.full, paddingHorizontal: spacing.xs, paddingVertical: 1 },
+  genrePillText: { fontSize: 9, fontWeight: '600' },
   ratingRow: { flexDirection: 'row', gap: 1 },
-  bottomRow: { flexDirection: 'row', alignItems: 'center', gap: 3, marginTop: 2 },
-  preview: { ...typography.small, fontSize: 10, lineHeight: 14, marginTop: 2 },
-  sessions: { ...typography.small, fontSize: 10 },
   avatarInitial: { fontSize: 24, fontWeight: '700', opacity: 0.7 },
   avatarGlow: { position: 'absolute', width: '100%', height: '100%', borderRadius: 16 },
   horizontalCard: { width: 120, alignItems: 'center', marginRight: spacing.md },
