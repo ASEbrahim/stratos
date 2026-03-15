@@ -86,6 +86,8 @@ export function CharacterDetailView({ card }: CharacterDetailProps) {
         <Text style={[styles.rating, { color: tc.text.primary }]}>{card.rating.toFixed(1)}</Text>
         <Text style={[styles.separator, { color: tc.text.muted }]}>·</Text>
         <Text style={[styles.sessionCount, { color: tc.text.secondary }]}>{formatCount(card.session_count)} chats</Text>
+        <Text style={[styles.separator, { color: tc.text.muted }]}>·</Text>
+        <Text style={[styles.sessionCount, { color: tc.text.muted }]}>{[card.description, card.personality, card.scenario, card.first_message, card.physical_description, card.speech_pattern, card.emotional_trigger, card.defensive_mechanism, card.vulnerability, card.specific_detail].filter(Boolean).join(' ').split(/\s+/).length} words</Text>
       </View>
       <View style={styles.section}><TagPills tags={card.genre_tags} size="medium" /></View>
       <View style={styles.section}><Text style={[styles.sectionTitle, { color: tc.text.primary }]}>Description</Text><Text style={[styles.sectionBody, { color: tc.text.secondary }]}>{card.description}</Text></View>

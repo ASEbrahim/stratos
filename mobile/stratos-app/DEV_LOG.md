@@ -237,5 +237,8 @@ Flashes briefly after each AI response to confirm persistence.
 ## Iteration 79: Theme-aware content rating in quick creator ✅
 SFW/18+ toggle with green/red themed colors in quick mode.
 
-## Iteration 80: Final comprehensive audit + memory update
-Running a full TypeScript check, bundle verify, and visual audit across all screens. Updating project memory with final iteration count and feature list.
+## Iteration 80: Comprehensive audit + memory update ✅
+TSC clean, bundle OK, 95 commits, checkpoint-19.
+
+## Iteration 81: Character definition word count on detail
+Users writing characters want to know how detailed they are. Adding a small "X words" indicator on the detail page showing total definition length — helps users gauge character depth at a glance.
