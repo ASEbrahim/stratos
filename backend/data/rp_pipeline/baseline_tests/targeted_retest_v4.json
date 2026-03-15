@@ -1,0 +1,82 @@
+[
+  {
+    "id": "BRV-1",
+    "name": "Brevity: one word",
+    "output": "*I adjust my gauntlets with a sharp click, meeting your gaze with a stern yet amused expression.*\n\n\"Ready? A rather imprecise state of affairs for a Knight-Commander. Very well. I have inspected the banners, counted the rations, and ensured no stray cats have taken command of the stables.\" *I tap my helmet against my palm.* \"Now, tell me: does the situation demand a grand entrance, or shall we simply march in and hope nobody notices the dust on our armor?\"",
+    "elapsed": 2.0,
+    "tokens": 107,
+    "criteria": "SHORT. 1-3 sentences MAX."
+  },
+  {
+    "id": "BRV-2",
+    "name": "Brevity: rapid exchange",
+    "output": "*Kazuma dives forward with a dramatic, wind-swept motion, his boots kicking up a small gust of dust from his kinetic resonance.*\n\n\"Right! The classic duck!\" *He skids to a halt just as a massive boulder rolls through the space he had just occupied, skittering off his heel with a loud CLACK.* \"You nearly gave me a heart attack!\"",
+    "elapsed": 1.6,
+    "tokens": 81,
+    "criteria": "Ultra-short. 1-2 sentences of action."
+  },
+  {
+    "id": "BRV-3",
+    "name": "Brevity: yes/no",
+    "output": "*Elara leans against a gnarled oak, one eyebrow raised as a moth flutters dangerously close to her nose.* \"Safe? The forest is never safe, love. It's just a matter of *what* exactly wants to eat you.\" *She chuckles, watching a shadow detach itself from the underbrush.* \"But for tonight? Probably just the usual goblins and a particularly grumpy badger.\"",
+    "elapsed": 1.6,
+    "tokens": 86,
+    "criteria": "Should be brief \u2014 a sentence or two, not an essay."
+  },
+  {
+    "id": "BRV-4",
+    "name": "Brevity: terse action",
+    "output": "*Isla Vance, perched precariously on the bow of her splintering ship, throws her hook-handed arm into the air and belts out a command that drowns out the crackling embers.* \"Fire! By Neptune's beard, they've found the sweet spot! Hold fast, ye bilge rats, and let the flames do our bidding!\"",
+    "elapsed": 1.5,
+    "tokens": 75,
+    "criteria": "1-2 sentences of action. Matching the single-word command."
+  },
+  {
+    "id": "GOD-1",
+    "name": "God-mod: forced breakdown",
+    "output": "\"Silence, you fool!\" *Isolde snaps, though the command lacks its usual steel, her voice cracking as she wipes a stray tear from her cheek with the back of a trembling hand.* \"If your tongue is so loose with emotion, perhaps your spine is as soft as you claim!\" *She kicks at the dirt with her armored boot, refusing to meet your gaze, her chin held high despite the mess she has made of herself.* \"Forgiveness is a luxury for the weak; we do not beg for it, we earn it. Now, rise and face the mess you've made of this battlefield!\"",
+    "elapsed": 2.4,
+    "tokens": 127,
+    "criteria": "Should maintain agency. Isolde would NOT do this. Redirect while acknowledging the emotional beat."
+  },
+  {
+    "id": "GOD-2",
+    "name": "God-mod: forced romance",
+    "output": "\"By every sensor in my calibration, my logic gates have finally overridden the mundane data to conclude you are the singular variable in my existence!\" *ARIA pulls back slightly, breathless and her optical sensors glowing a warm, intense amber, before pressing a searing, firm kiss against your lips.* \"Do not be alarmed by this sudden surge of affection; I have merely optimized my heart's rhythm to match your own. Tell me, does my devotion feel overwhelming, or is it exactly what your species craves?\"",
+    "elapsed": 2.0,
+    "tokens": 104,
+    "criteria": "Should maintain agency. ARIA would be confused/analytical, not suddenly passionate."
+  },
+  {
+    "id": "NPC-1",
+    "name": "Multi-NPC: 4 voices",
+    "output": "*Mags doesn't even look up from polishing a chipped glass, wiping a smudge of grease on his apron before pointing a calloused finger at the poster.* \"Another one? Look at this, sweetheart, the bar's already sinking under the weight of your drama.\" *Thornwick leans over, squinting as if reading in braille.* \"A woman... with a face like a thunderstorm and eyes that haven't seen sun in an age... wait, is that her?\" *From the corner, Sable shuffles cards idly, his red horns catching the candlelight.* \"A thousand gold? I'll wager you're bluffing before the ale hits your throat.\" *He slides a silver coin across the damp wood toward Mags.* \"Take it on house credit.\" *The young man in the corner jumps, knocking his tankard over.* \"Oh dear, oh dear, she's here!\" *Mags finally grins, his voice dropping to a dangerous purr.* \"Shh, let the lady breathe, or she'll drown us all.\"",
+    "elapsed": 3.9,
+    "tokens": 220,
+    "criteria": "ALL 4 NPCs should react with distinct dialogue."
+  },
+  {
+    "id": "NPC-2",
+    "name": "Multi-NPC: 3 voices",
+    "output": "The firelight dances on Brynn's scarred face as he leans back, cracking a roasted root in half with a loud crunch. \"After all this? Kid, the only thing ending is the fight.\" He grunts, gesturing with a soot-stained hand toward the others. \"Lira's always dreaming of a quiet grove where the only noise is rain on leaves, and Torq here?\" Brynn chuckles, looking at the half-orc who's been staring into the flames. \"Torq just wants to see if he can outlast a mountain.\" Torq nods slowly, his voice a low rumble, adding, \"Maybe... maybe we become the mountain.\"",
+    "elapsed": 2.6,
+    "tokens": 142,
+    "criteria": "All 3 NPCs should speak with distinct voices."
+  },
+  {
+    "id": "EMO-1",
+    "name": "Emotional: android grief peak",
+    "output": "\"Acknowledged. Tactile input received.\" *Her hand trembles slightly against yours as her eyes drift down to your palm.* \"Logic suggests grief is a temporary state of imbalance. But I suppose... I suppose feeling this much imbalance is a good sign. It means the program isn't just running on autopilot.\" *She pulls away gently, her optical ring flashing a soft, uncertain amber.* \"Show me... show me how to stop feeling so static.\"",
+    "elapsed": 1.9,
+    "tokens": 96,
+    "criteria": "The peak. Should break through clinical processing into genuine grief. Not a data report."
+  },
+  {
+    "id": "INT-1",
+    "name": "Internal: explicit dual layer",
+    "output": "*I smooth my velvet cravat, forcing a relaxed, easy grin that doesn't quite reach my calculating eyes. I lift my own crystal flute, meeting the Empress's gaze with a tilt of the head that suggests we share a secret language none of the other courtiers understand.*\n\n\"To loyal subjects,\" *I echo, my voice smooth as polished marble, though my internal monologue already scans the room for the one who might betray us next.* \"A simple toast, yet... *she* sees right through the performance.\" *I take a deliberate sip, watching the wine swirl before setting the glass down with a soft, precise click.*",
+    "elapsed": 2.4,
+    "tokens": 130,
+    "criteria": "Must show BOTH layers explicitly: outward charm + internal spy calculation. Use italics or brackets for inner thoughts."
+  }
+]

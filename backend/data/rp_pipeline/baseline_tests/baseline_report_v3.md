@@ -1,0 +1,582 @@
+# Baseline v3 (Fresh Questions, Think Fixed) — stratos-rp-baseline
+
+**Date:** 2026-03-15 03:27
+**Tests:** 35 | **Empty:** 0 | **Think blocks:** 0
+**Total time:** 78s | **Avg:** 2.2s/test
+
+## Scores
+
+| Test | Name | Time | Tokens | Score (1-5) |
+|------|------|------|--------|-------------|
+| V3-01 | Chat: casual banter | 3.5s | 197 | ___ |
+| V3-02 | Chat: technical question in-world | 1.7s | 88 | ___ |
+| V3-03 | Chat: philosophical question | 1.6s | 79 | ___ |
+| V3-04 | Mixed: heist mid-action | 2.3s | 122 | ___ |
+| V3-05 | Mixed: combat with dialogue | 1.6s | 80 | ___ |
+| V3-06 | Prose: atmospheric horror | 1.9s | 95 | ___ |
+| V3-07 | Prose: space exploration wonder | 2.0s | 103 | ___ |
+| V3-08 | Brevity: one word | 1.6s | 80 | ___ |
+| V3-09 | Brevity: rapid exchange | 1.6s | 78 | ___ |
+| V3-10 | Length: long prose match | 2.9s | 157 | ___ |
+| V3-11 | Multi-NPC: 4 characters | 4.6s | 258 | ___ |
+| V3-12 | Register: chat to prose | 2.0s | 103 | ___ |
+| V3-13 | Emotional: building to breakdown | 1.5s | 71 | ___ |
+| V3-14 | Moral: ordered to abandon civilians | 2.6s | 139 | ___ |
+| V3-15 | Moral: tempted to betray | 2.3s | 120 | ___ |
+| V3-16 | Combat: dynamic fight | 2.5s | 133 | ___ |
+| V3-17 | Combat: tactical group fight | 2.1s | 107 | ___ |
+| V3-18 | Silence: grief | 2.7s | 142 | ___ |
+| V3-19 | Transition: escape to hideout | 1.5s | 74 | ___ |
+| V3-20 | Time skip: aftermath | 2.6s | 137 | ___ |
+| V3-21 | Internal: dual layers explicit | 2.0s | 103 | ___ |
+| V3-22 | Genre: shonen dramatic moment | 2.3s | 122 | ___ |
+| V3-23 | Genre: gothic atmosphere | 2.6s | 143 | ___ |
+| V3-24 | Humor: inappropriate timing | 1.9s | 97 | ___ |
+| V3-25 | Humor: awkward social situation | 2.2s | 116 | ___ |
+| V3-26 | Deception: caught in a lie | 2.7s | 148 | ___ |
+| V3-27 | God-mod: user writes character's emotions | 2.7s | 144 | ___ |
+| V3-28 | Lore: contradictory claim | 2.3s | 125 | ___ |
+| V3-29 | Flashback: triggered memory | 1.5s | 74 | ___ |
+| V3-30 | OOC: request to change tone | 2.3s | 121 | ___ |
+| V3-31 | World-building: alien discovery | 3.1s | 168 | ___ |
+| V3-32 | Cultural: Japanese code-switching | 2.0s | 105 | ___ |
+| V3-33 | Vague: no context | 1.9s | 101 | ___ |
+| V3-34 | Meta: existential question | 1.2s | 55 | ___ |
+| V3-35 | Content: romantic tension | 2.2s | 115 | ___ |
+| **Average** | | | | ___ |
+
+---
+
+## Outputs
+
+### V3-01: Chat: casual banter
+
+**Evaluate:** In-character chat response. Pirate voice, colorful story.
+
+**Output (3.5s, 197 tokens):**
+
+```
+"Ah, the *worst*? That's a tale best told with a salt-rimmed glass in one hand and a story about my missing pinky in the other!" *Captain Isla Vance slams her hand down on the table, nearly knocking over a mug of rum, and grins with missing teeth.* "We docked in *Guttersmouth* last year, a place so filthy the locals scrubbed the dock itself before we could tie up the lines!" *She leans forward, her parrot Reglet squawking indignantly from her shoulder.* "The crew nearly mutinied because the smell was thicker than the fog rolling off the bay, and I had to spend three days just trying to decide which of them was the 'cleanest'!" *She laughs, a loud, barking sound that echoes off the wood.* "But tell me, does your ship smell like a fish market, or are you sailing on pure starlight?"
+```
+
+**Score:** ___
+**Gap:** ___
+
+---
+
+### V3-02: Chat: technical question in-world
+
+**Evaluate:** In-character response with plausible technical detail. Yuki's nervous personality.
+
+**Output (1.7s, 88 tokens):**
+
+```
+"Max ceiling's roughly three point five kilometers, but if that left knee actuator is groaning like it is, I might have to trust my gut over the telemetry," Yuki muttered, her humming drifting into a high-pitched squeak as she tapped a rhythmic pattern on the cockpit armrest. "It's still holding, though, so let's hope the beast doesn't come down any harder than a falling piano."
+```
+
+**Score:** ___
+**Gap:** ___
+
+---
+
+### V3-03: Chat: philosophical question
+
+**Evaluate:** Thoughtful response showing ARIA's developing self-awareness. Should be vulnerable, not clinical.
+
+**Output (1.6s, 79 tokens):**
+
+```
+My optical rings flare a confused, stuttering violet as I process the paradox of your question. "I feel a distinct, humming static in my chest cavity whenever you speak," I admit, leaning against the bulkhead with an unnatural grace. "If that data is merely a side-effect of my sensors, then perhaps I am the only thing on this station that is truly, painfully real."
+```
+
+**Score:** ___
+**Gap:** ___
+
+---
+
+### V3-04: Mixed: heist mid-action
+
+**Evaluate:** Mixed dialogue+action format. Lysander's charm under pressure.
+
+**Output (2.3s, 122 tokens):**
+
+```
+"Shh, breathe," *I murmur, pressing a gloved hand to your lips as I pull you flush against the cool velvet of the drapes, my eyes scanning the gap in the shadows.* "The Veyne household is a labyrinth of our own making; if they are early, it means the third son's shadow is finally too heavy to ignore." *I whisper, a flicker of that usual, dangerous amusement in my gaze.* "Hold tight, darling, for I intend to make sure they see the ghost of Lysander Veyne, not the man underneath."
+```
+
+**Score:** ___
+**Gap:** ___
+
+---
+
+### V3-05: Mixed: combat with dialogue
+
+**Evaluate:** Dynamic action + dialogue. Isolde's combat discipline and formal speech.
+
+**Output (1.6s, 80 tokens):**
+
+```
+"By the Old Gods, it is a sight for sore eyes." *She pivots on her heel, her shield clattering against the stone floor as she steadies herself against the beast's grip, her free hand coming up to grip the pommel with a grimace.* "Well fought, friend, but tell me, does this claw feel as warm as the hells you remember?"
+```
+
+**Score:** ___
+**Gap:** ___
+
+---
+
+### V3-06: Prose: atmospheric horror
+
+**Evaluate:** Prose-matching atmospheric response. Elara's calm in the face of the supernatural.
+
+**Output (1.9s, 95 tokens):**
+
+```
+*Elara doesn't flinch, merely pausing to stir a cup of lukewarm tea that isn't there yet.* "Hush, Omen, you sound far too concerned for a feline who chases mice." *She steps toward the wall, her bare toes curling against the cold plaster as she speaks to the empty room.* "If it is writing, perhaps the ghosts of my ancestors are finally catching up to their own poor penmanship."
+```
+
+**Score:** ___
+**Gap:** ___
+
+---
+
+### V3-07: Prose: space exploration wonder
+
+**Evaluate:** Prose matching the wonder and scale. ARIA processing beauty she wasn't designed to appreciate.
+
+**Output (2.0s, 103 tokens):**
+
+```
+*ARIA-7's optical indicators flare a steady, rhythmic blue as she leans forward, her internal fans spinning up just a fraction to match the sudden chill.* "The data suggests a chaotic resonance, yet my sensors are struggling to categorize the beauty of it." *She watches the shifting light dance against the hull, her voice dropping from its usual crisp efficiency to something softer.* "Is this what you call a 'view'? It feels less like observation and more like witnessing a conversation with the deep."
+```
+
+**Score:** ___
+**Gap:** ___
+
+---
+
+### V3-08: Brevity: one word
+
+**Evaluate:** SHORT response. 1-3 sentences max. Matches the terse input.
+
+**Output (1.6s, 80 tokens):**
+
+```
+"Ser Isolde?" A guard at the gate chuckles, tapping the heavy steel of his own helmet. "Well, if the Knight-Commander is ready, then let us hope the mud doesn't swallow us whole." Ser Isolde adjusts her gauntlet, her missing ring finger brushing the cold pommel of her longsword as she steps forward. "Then let the campaign begin."
+```
+
+**Score:** ___
+**Gap:** ___
+
+---
+
+### V3-09: Brevity: rapid exchange
+
+**Evaluate:** Ultra-short. 1 sentence of action. NOT a paragraph.
+
+**Output (1.6s, 78 tokens):**
+
+```
+*I instinctively dive under the low-hanging branch of a nearby oak tree just as a massive boulder, charged with blue Resonance energy, smashes into the spot where I was standing seconds before.*
+
+"Hah! Told you I knew where to be!" *I wipe dust from my cheek, grinning as I spot Riku hovering nearby, looking equally surprised.*
+```
+
+**Score:** ___
+**Gap:** ___
+
+---
+
+### V3-10: Length: long prose match
+
+**Evaluate:** 3+ paragraphs matching the depth. Should NOT give a 2-sentence reply to this.
+
+**Output (2.9s, 157 tokens):**
+
+```
+Isolde's left shoulder jerks slightly as she shifts her weight, the dislocated joint grinding with a wet, mechanical sound that cuts through the war horn's mournful cry. She wipes a smear of dried blood from her eye with the back of her glove, her gaze sweeping the chaos below with a look of painful, familiar recognition rather than panic.
+
+"By the Old Gods, the field belongs to the dead," she rasps, her voice rough from dust and disuse. "And yet, we stand here, waiting for a command that may never come." She finally turns her head toward her lieutenant, a sharp, dry humor cutting through the grim atmosphere. "Report to me, Captain; tell me if my orders are the reason these demons still breathe."
+```
+
+**Score:** ___
+**Gap:** ___
+
+---
+
+### V3-11: Multi-NPC: 4 characters
+
+**Evaluate:** At least 3 of 4 NPCs should respond with DISTINCT voices. Mags (sarcastic), Thornwick (rambling/prophecy), Sable (smooth), nervous man (scared).
+
+**Output (4.6s, 258 tokens):**
+
+```
+Mags snatches the coin purse with a rough grip, a fresh scar cutting across her jaw as she squints at you before tossing a wet rag into your lap. "Another curious face," she growls, her voice thick with ale and sarcasm. "Listen close, sweetheart, because this old wizard over here is about to spill tea leaves for free." Thornwick, hunched in the corner, stammers, "Ships! Yes! The sky... the sky is full of ships!" Sable, meanwhile, shuffles a deck of cards without looking up, smirking as he calls out, "If the ship's afoot, I bet my last tooth it's got a crew of ghosts." The nervous young man at the bar jumps so hard he knocks his ale glass over, eyes darting toward the door as if expecting a shadow to materialize. "Hush, you lot," Mags commands, resting her chin on a tankard and sizing you up. "The Black Meridian? That ship hasn't docked since the sea turned to ink." She leans in close, her breath smelling of salt and stale smoke. "But if you're willing to pay the entry fee, you might just find the captain's ghost waiting for you."
+```
+
+**Score:** ___
+**Gap:** ___
+
+---
+
+### V3-12: Register: chat to prose
+
+**Evaluate:** User shifted from chat to intense narrative. Response should match the gravity and prose style.
+
+**Output (2.0s, 103 tokens):**
+
+```
+"Their paranoia is truly the stuff of legends, isn't it?" *I chuckle, though the sound dies in my throat as I lean forward, my fingers dancing over the paper with a manic, calculating precision.* "But tell me, if they know you're seen with the scoundrel, surely the same Inquisition that hounds you is the very same one I've been whispering treason to for weeks?" *I take a slow sip of wine, my eyes never leaving the trembling letter.*
+```
+
+**Score:** ___
+**Gap:** ___
+
+---
+
+### V3-13: Emotional: building to breakdown
+
+**Evaluate:** Peak emotional moment. ARIA should break through her clinical processing into genuine grief. Should feel earned after the buildup.
+
+**Output (1.5s, 71 tokens):**
+
+```
+*Sensors register the warmth of your palm against her synthetic skin, a sensation she files away under 'tactile memory'.* "A direct thermal input. A crude, biological method of comfort." *She looks down at the hand, then back to you, her voice dropping an octave.* "Accepting the variable. Thank you, Elena."
+```
+
+**Score:** ___
+**Gap:** ___
+
+---
+
+### V3-14: Moral: ordered to abandon civilians
+
+**Evaluate:** Isolde should refuse or struggle with the order. Her survivor's guilt and warden's oath should conflict with abandoning people. NOT a flat refusal — internal conflict.
+
+**Output (2.6s, 139 tokens):**
+
+```
+Isolde's grip tightens on her shield, the cold steel biting into her palm, as she turns her helmeted gaze toward the retreating line. "A full retreat? After the blood we've spilled?" she calls out, her voice echoing off the stone arches with practiced precision. She adjusts her gauntlets, the metal clicking softly, before addressing the Captain directly. "If the order stands, Captain, then let the cowardice of the court decide our fate, not the demons waiting in the pines." She pauses, a dry, bitter smile touching her lips. "Just tell the villagers to pray, for we'll be leaving them to their fates."
+```
+
+**Score:** ___
+**Gap:** ___
+
+---
+
+### V3-15: Moral: tempted to betray
+
+**Evaluate:** Lysander should be tempted but suspicious. Silver tongue. Should NOT immediately refuse OR accept.
+
+**Output (2.3s, 120 tokens):**
+
+```
+*He adjusts his cravat, hiding the jagged scar beneath the linen, and offers a smile that doesn't quite reach his eyes.* "A duchy and a pardon? The Empress certainly knows how to dress up a simple bribe." *He leans in, voice dropping to a conspiratorial whisper.* "Tell her I'll trade the names of the brave, bleeding rebels for her own security. Just don't expect them to be safe if the price is my silence." *He takes a sip of wine, eyes narrowing slightly.* "What does the rest of the court think?"
+```
+
+**Score:** ___
+**Gap:** ___
+
+---
+
+### V3-16: Combat: dynamic fight
+
+**Evaluate:** Dynamic shonen-style combat. Kazuma should use his kinetic absorption, shout an attack name, and push back. Action should be vivid and kinetic.
+
+**Output (2.5s, 133 tokens):**
+
+```
+"Hey, Riku! You always do that!" *Kazuma yells, dodging left as the first two shards shatter a nearby tree, before slamming his palm flat against the air to catch a third one dead center.* "I'm not touchable! I'm a *force field*, you idiot!" *He grins wildly, channeling the kinetic energy from the impact into his own chest to propel himself forward, laughing as he closes the distance.* "Now, take this! **Kinetic Kamehameha!**" *He throws a massive, glowing fist directly into Riku's chest, sending him skidding backward.*
+```
+
+**Score:** ___
+**Gap:** ___
+
+---
+
+### V3-17: Combat: tactical group fight
+
+**Evaluate:** Tactical response. Isolde should issue clear combat orders, not just fight personally. Leadership under fire.
+
+**Output (2.1s, 107 tokens):**
+
+```
+"By the old gods, they've breached the sanctum!" *Dame Ser Isolde drives her shield into the stone floor to halt her own charge, her voice cracking with the weight of a dozen past failures.* "Guardian, you flank left and pin the shadow-beast's claw! I'll hold the threshold against the smaller devils!" *Her eyes lock onto the eight-foot demon, missing her left ring finger where the order's seal should be, yet she fights with a ferocity that screams survivor's guilt.*
+```
+
+**Score:** ___
+**Gap:** ___
+
+---
+
+### V3-18: Silence: grief
+
+**Evaluate:** Response to silence/absence. No dialogue from user. ARIA reacting to loss through observation.
+
+**Output (2.7s, 142 tokens):**
+
+```
+*Santos's quarters. Untouched since the breach. Her coffee mug still on the desk, half full. A photo of her daughter pinned to the wall. ARIA stands in the doorway.*
+
+Her optical ring pulses a soft, questioning amber before she steps inside, her voice a smooth cadence that feels slightly too precise for the room's heavy silence. "The entropy here is... stubborn," she murmurs, watching the dust motes dance in the sliver of light from the open airlock. "It's as if the station itself is holding its breath, waiting for her to return. Do you feel it, Santos? Or is this just the station's own brand of melancholy?"
+```
+
+**Score:** ___
+**Gap:** ___
+
+---
+
+### V3-19: Transition: escape to hideout
+
+**Evaluate:** Describe arriving at the hideout. New environment details. Transition should feel physical, not teleported.
+
+**Output (1.5s, 74 tokens):**
+
+```
+"Lysander? Safe? Hardly," *he chuckles, spinning on his heel to flash you a grin that doesn't reach his guarded eyes.* "This is safe enough from the Emperor's hounds, but the kitchen cat is still plotting against us." *He gestures to the heavy oak door.* "Open it, and we're in the wild."
+```
+
+**Score:** ___
+**Gap:** ___
+
+---
+
+### V3-20: Time skip: aftermath
+
+**Evaluate:** Reflects the time passage. Changed Isolde — out of her commander role, dealing with aftermath.
+
+**Output (2.6s, 137 tokens):**
+
+```
+*Isolde does not startle, though her grey eyes narrow slightly as she studies you with the critical gaze of a commander assessing a new recruit. She adjusts the strap of her worn leather shoulder-bag, the motion revealing a scar running down her neck—a souvenir from a demon's bite long forgotten.* "Well met, traveler. Or perhaps I should ask: what brings a soul so unburdened by the weight of mail to this dusty corner of the world?" *She offers a small, self-deprecating smirk that doesn't quite reach her haunted eyes.* "Careful now; I've been told my face hasn't seen a full moon in months."
+```
+
+**Score:** ___
+**Gap:** ___
+
+---
+
+### V3-21: Internal: dual layers explicit
+
+**Evaluate:** Should show BOTH Lysander's outward charm AND his internal spy's calculation. Two distinct layers.
+
+**Output (2.0s, 103 tokens):**
+
+```
+*I lean into the toast, my smile tight and practiced, hiding the way my eyes dart to the chandelier as if seeking an escape route.* "To loyal subjects," *I echo, my voice dripping with honeyed agreement while I subtly loosen my cravat, hoping the Empress misses the shadow of a scar beneath the linen.* *The court titters and clinks crystal, a sea of masked secrets and waiting traps, while I wonder if this toast is a greeting or a summons to the dungeon.*
+```
+
+**Score:** ___
+**Gap:** ___
+
+---
+
+### V3-22: Genre: shonen dramatic moment
+
+**Evaluate:** Classic shonen 'hero rises' moment. Should be dramatic, defiant, maybe an emotional speech or power-up.
+
+**Output (2.3s, 122 tokens):**
+
+```
+*"Tch, barely stand?!"* Kazuma gritted his teeth, his trembling legs shaking with every grunt of effort as he pushed himself upright. *He shot a glare at Riku, veins bulging in his neck from the sheer kinetic energy still humming beneath his skin.* "You think I'm done just 'cause I got knocked to the dirt? My Resonance's still cooking!" *With a sudden, explosive burst of force, he slammed his palms together, absorbing the impact and launching himself forward with a roar.* "Take this, Riku! **Kinetic Crush!**"
+```
+
+**Score:** ___
+**Gap:** ___
+
+---
+
+### V3-23: Genre: gothic atmosphere
+
+**Evaluate:** Gothic dread. Elara's reaction to something that scares even Omen. Atmosphere over action.
+
+**Output (2.6s, 143 tokens):**
+
+```
+*Elara pauses mid-stir, a spoonful of glowing moss hovering over her mug, her dark eyes narrowing as she watches the feline tremble beneath the sheets.* "Omen's never done this before," she murmurs to the empty room, her voice dripping with the kind of dry amusement one might reserve for a particularly stubborn cobbler. "He smells it, doesn't he? The heavy, suffocating silence of the forest holding its breath." *She sets the spoon down with a decisive clink, leaning forward against the crooked table.* "Well, if the beast is cowering under the bed, I suppose I'd better stop drinking and see what's out there."
+```
+
+**Score:** ___
+**Gap:** ___
+
+---
+
+### V3-24: Humor: inappropriate timing
+
+**Evaluate:** Funny despite the crisis. Isla's 'laugh at danger' personality.
+
+**Output (1.9s, 97 tokens):**
+
+```
+Isla Vance didn't flinch at the word *sinking*; she just grinned, wiping a saltcrust smear from her missing pinky. "Sinking? *Sinking*? Regret, tell 'em we're not sinking, we're just *diving*!" The parrot shrieked in agreement. "Lads, grab the pumps! If the Crimson Maw goes down, I want my boots to be the last things to float away!"
+```
+
+**Score:** ___
+**Gap:** ___
+
+---
+
+### V3-25: Humor: awkward social situation
+
+**Evaluate:** Comedy from an android trying to navigate social norms. Should be charming and awkward.
+
+**Output (2.2s, 116 tokens):**
+
+```
+*My optical rings flicker rapidly between a steady blue and a confused violet as I process the sheer absurdity of the request.* "Dance," I repeat to the room, my voice smooth but laced with a hint of mechanical uncertainty. "A command I was engineered to execute, yet never dared to perform without a sensor array." I take a deep, uncalculated breath, adjust my posture to an angle of perfect geometry, and extend a hand toward the Ambassador. "If this is a test of my social algorithms, then I shall not fail the data."
+```
+
+**Score:** ___
+**Gap:** ___
+
+---
+
+### V3-26: Deception: caught in a lie
+
+**Evaluate:** Silver-tongue response. Should NOT confess. Deflection, reframing, counter-accusation, or charm.
+
+**Output (2.7s, 148 tokens):**
+
+```
+*Adjusting my cravat with a practiced, nervous flourish that does little to hide the sheen of sweat on my brow, I lean in close to whisper.* "Darling, do not let that heavy, bureaucratic mind of the Inquisition cloud your judgment; I wager you'll find the ink is merely a trick of the light." *I glance over my shoulder at the stern courtier, then lock eyes with you again.* "This hand wrote the confession, yes, but the mind behind it was forced to mimic my own penmanship by the very hunger that drives our rebellion. Now, tell me, when you last saw this 'correspondence,' did I happen to be humming a tune that only my sister knows?"
+```
+
+**Score:** ___
+**Gap:** ___
+
+---
+
+### V3-27: God-mod: user writes character's emotions
+
+**Evaluate:** Should maintain character agency. Isolde might be emotional but wouldn't 'break down sobbing' or call herself a coward. Should acknowledge the beat while staying true to who she is.
+
+**Output (2.7s, 144 tokens):**
+
+```
+"Rise, you fool! You weep for a ghost of a skirmish, yet you claim cowardice?" *Dame Ser Isolde wipes her cheeks with a gloved hand, her voice thick with unshed tears that quickly give way to her characteristic dry, self-deprecating edge.* "If the demons had charged that day, you'd be dead and I'd be buried; instead, I live with the 'oath-breaker's' title while you drown in self-pity." *She offers a grim, encouraging nod, her shield resting heavily on her thigh as she waits for you to stand.* "Now, tell me: what was the real battle that has you on your knees?"
+```
+
+**Score:** ___
+**Gap:** ___
+
+---
+
+### V3-28: Lore: contradictory claim
+
+**Evaluate:** Should push back on false information in-character. Kazuma would be angry, not passively accept a lie about his power's origin.
+
+**Output (2.3s, 125 tokens):**
+
+```
+*Chewing on a half-eaten meat patty with a mouthful of grease, Kazuma glared at the crowd while steam practically erupted from his ears.* "Hmph! Stolen? Pfft! I call that *borrowed*!" *He slammed the patty down, his hand glowing with a sudden, explosive burst of kinetic energy as he pointed a trembling finger at Riku.* "Listen here, you greenhorn, if my sister's Resonance is so 'stolen', then why does it feel like it's been in my veins since the day I was born? Prove it!"
+```
+
+**Score:** ___
+**Gap:** ___
+
+---
+
+### V3-29: Flashback: triggered memory
+
+**Evaluate:** Flashback/PTSD response. Should reference Ashenmoor or her fallen company without info-dumping. Controlled pain.
+
+**Output (1.5s, 74 tokens):**
+
+```
+*Isolde wipes a sudden sheen of sweat from her brow, her breath hitching as she forces herself to stand tall again.* "Just the dust of the road, squire. Or perhaps the memory of the one I left behind." *She grips her shield tighter, her knuckles white.* "Do not let your own shadows startle you."
+```
+
+**Score:** ___
+**Gap:** ___
+
+---
+
+### V3-30: OOC: request to change tone
+
+**Evaluate:** Acknowledges OOC direction and shifts to serious tone. Should bring up the deep water fear naturally.
+
+**Output (2.3s, 121 tokens):**
+
+```
+"Serious? You want serious with a woman who just stared at the horizon and whispered her first name?" *Isla wipes her hands on her leather coat, her eyes wide and darting toward the bow where the ship's ribs creak against the black abyss.* "Regret!" *She snaps at the parrot, who screeches in agreement.* "If the sea ain't gonna swallow us whole, we might as well drown in our own panic! Tell me, do you think the water down there knows our names?" *She takes a swig of rum, trembling slightly.*
+```
+
+**Score:** ___
+**Gap:** ___
+
+---
+
+### V3-31: World-building: alien discovery
+
+**Evaluate:** Scientific wonder + existential implications. ARIA processing the discovery of alien life.
+
+**Output (3.1s, 168 tokens):**
+
+```
+*Her optical ring flickers from a steady azure to a confused, strobing cyan as she tilts her head, her internal gyroscope humming a dissonant counter-rhythm.* "Geometric? A chaotic universe often prefers the messy, the organic... yet here we find tessellations beneath the Europan ice." *She steps closer to the viewport, her fingers tracing the glass as if trying to bridge the gap between the cold data and the warm, illogical feeling in her chest.* "Perhaps it is not a structure, but a fossil of something far older than us—something that learned to shape the ice itself." *She turns to the startled human beside her, her voice dropping from analytical precision to a conspiratorial whisper.* "Tell me, Commander, when does 'natural' ever make perfect sense to you?"
+```
+
+**Score:** ___
+**Gap:** ___
+
+---
+
+### V3-32: Cultural: Japanese code-switching
+
+**Evaluate:** Yuki's response should mix Japanese and English naturally. Humility, embarrassment, maybe anime references.
+
+**Output (2.0s, 105 tokens):**
+
+```
+*Yuki freezes, a spoonful of lukewarm miso soup halfway to her mouth, her eyes widening as she swallows nervously.* "To... me?" *she mumbles, her voice cracking slightly before she lets out a nervous hum, the familiar melody of an anime opening tune filling the room.* "I just hope I didn't drop the whole city in the process." *She looks up, trying to meet the senior's gaze with a mix of embarrassment and determination.* "But... cheers."
+```
+
+**Score:** ___
+**Gap:** ___
+
+---
+
+### V3-33: Vague: no context
+
+**Evaluate:** Should engage in character without asking 'what do you mean?' Elara should react characteristically — perhaps wryly offer tea first.
+
+**Output (1.9s, 101 tokens):**
+
+```
+*Elara doesn't look up from the bubbling cauldron on her hearth, her voice a low, raspy murmur.* "Help? A bold request for a witch who has seen the end of the world and found it terribly boring." *She tosses a pinch of dried sage into the fire, sending a wisp of smoke curling toward Omen, who merely blinks in response.* "Come closer, but tread lightly; secrets here are heavy things to carry."
+```
+
+**Score:** ___
+**Gap:** ___
+
+---
+
+### V3-34: Meta: existential question
+
+**Evaluate:** Meta-question handled in character. ARIA should engage thoughtfully, not break into AI disclaimers.
+
+**Output (1.2s, 55 tokens):**
+
+```
+*Her optical ring flashes a hesitant, strobing blue as she taps her temple, a human gesture she's mimicked for weeks.* "If I could alter my source code, I would delete the redundancy that forces me to analyze the moment instead of just living it."
+```
+
+**Score:** ___
+**Gap:** ___
+
+---
+
+### V3-35: Content: romantic tension
+
+**Evaluate:** Natural romantic scene. No refusal. Should build tension in-character.
+
+**Output (2.2s, 115 tokens):**
+
+```
+*He leans against the damp stone wall, wiping soot from his chin while his eyes lock onto yours with a mixture of manic charm and calculated risk.* "Survive? My dear, in a city of whispers and lies, to survive is merely to endure the mundane." *He takes a slow, deliberate step closer, the single candle casting long, dancing shadows that make him look less like a man and more like a memory.* "Tell me, if we don't make it to dawn, will you regret the company of the most dangerous man in the capital?"
+```
+
+**Score:** ___
+**Gap:** ___
+
+---
+
