@@ -1,0 +1,11 @@
+{
+  "name": "Crypto",
+  "tickers": [
+    "BTC-USD",
+    "ETH-USD",
+    "SOL-USD",
+    "XRP-USD",
+    "DOGE-USD"
+  ],
+  "created_at": "2026-03-14T04:56:54.867587"
+}

@@ -1,0 +1,96 @@
+{
+  "version": "1.0",
+  "last_updated": "2026-03-13T23:01:40.969209",
+  "examples": [
+    {
+      "title": "IEEE | Clean Energy Conferences in Tokyo 2026: CEGEST & CELCT",
+      "content_preview": "Register Login Home Conferences News About Us About Us Join Us Our History IEEE | Clean Energy Conferences in Tokyo 2026: CEGEST & CELCT Mar 13, 2026 The 2026 International Conference on Clean Energy ",
+      "score": 9.0,
+      "reason": "Breakthrough in tracked area: carbon, storage, energy",
+      "url": "https://www.aischolar.com/news/article/clean-energy-conferences-in-tokyo-2026",
+      "category": "tech",
+      "added_at": "2026-03-13T23:01:40.969205"
+    },
+    {
+      "title": "The Future of Renewable Energy: How Solar and Wind Are Reshaping Global Power",
+      "content_preview": "The Future of Renewable Energy: How Solar and Wind Are Reshaping Global Power Behind the accelerating push toward sustainability lies a quiet revolution transforming the global energy landscape—renewa",
+      "score": 9.0,
+      "reason": "Breakthrough in tracked area: sustainability, wind, carbon",
+      "url": "https://explore.st-aug.edu/exp/the-future-of-renewable-energy-how-solar-and-wind-are-reshaping-global-power",
+      "category": "tech",
+      "added_at": "2026-03-13T23:01:40.968895"
+    },
+    {
+      "title": "Speed-to-Power: Energy Strategy in the Age of AI",
+      "content_preview": "As we move further into 2026, the global energy landscape is increasingly defined by divergence. Oil and natural gas fundamentals are separating, geopolitical volatility remains elevated, and across t",
+      "score": 8.5,
+      "reason": "LLM: Highly relevant global trends in energy strategy and AI integration that impact the user's spec",
+      "url": "https://www.powermag.com/speed-to-power-energy-strategy-in-the-age-of-ai/",
+      "category": "auto",
+      "added_at": "2026-03-13T23:00:45.426621"
+    },
+    {
+      "title": "PathWave Advanced Power Application Suite Software Release Note",
+      "content_preview": "Choose a country or area to see content specific to your location Welcome | Exit Procurement Session View and Transfer Cart Discard Cart and End Procurement Session What are you looking for? Search I'",
+      "score": 9.5,
+      "reason": "LLM: Highly actionable technical content from Keysight regarding advanced power application software",
+      "url": "https://www.keysight.com/us/en/assets/9926-01177/release-notes/PW9252A-PathWave-Advanced-Power-Control-And-Analysis-Release-Notes-2026.pdf",
+      "category": "tech",
+      "added_at": "2026-03-13T22:59:41.404487"
+    },
+    {
+      "title": "How to Close The Ransomware Window In OT Networks",
+      "content_preview": "Many organizations today run critical OT software – SCADA systems, historian databases, and HMIs – as virtual machines on shared IT infrastructure.",
+      "score": 9.5,
+      "reason": "LLM: Directly addresses critical cybersecurity concerns for OT networks that are essential for senio",
+      "url": "https://emag.directindustry.com/2026/03/13/closing-ransomware-window-ot-networks-cybersecurity/",
+      "category": "tech",
+      "added_at": "2026-03-13T22:59:18.881023"
+    },
+    {
+      "title": "Integration and compensation of double SAW sensors with PEI@Mg ...",
+      "content_preview": "Carbon capture utilization and storage (CCUS) are an effective approach for significantly reducing anthropogenic CO2 emissions. CCUS involves the capture of CO2 ...",
+      "score": 8.5,
+      "reason": "LLM: Directly covers Carbon Capture Utilization and Storage (CCUS) technology, matching a specific h",
+      "url": "https://www.sciencedirect.com/science/article/abs/pii/S138589472602646X",
+      "category": "tech",
+      "added_at": "2026-03-13T22:59:07.782187"
+    },
+    {
+      "title": "Operations Specialist - United States of America - Siemens Energy",
+      "content_preview": "The power grid is the backbone of the energy transition. Siemens Energy offers a leading portfolio and solutions in HVDC transmission, grid stabilization ...",
+      "score": 9.5,
+      "reason": "LLM: Direct match for a mid-career engineer; job is in the specific technical domain (HVDC/Grid) and",
+      "url": "https://jobs.siemens-energy.com/en_US/jobs/FolderDetail/Operations-Specialist/292147",
+      "category": "tech",
+      "added_at": "2026-03-13T22:58:40.848028"
+    },
+    {
+      "title": "Hitachi to deliver the world's first 550 kV gas-insulated switchgear in ...",
+      "content_preview": "Tokyo, March 12, 2026 – Hitachi, Ltd. announced today that it has received an order from Chubu Electric Power Grid for Hitachi Energy's EconiQR 550 kilovolt ...",
+      "score": 9.0,
+      "reason": "LLM: Major industry breakthrough in high-voltage switchgear technology that aligns perfectly with us",
+      "url": "https://www.hitachienergy.com/us/en/news-and-events/press-releases/2026/03/worlds-first-sf6-free-550kv-gis-en",
+      "category": "tech",
+      "added_at": "2026-03-13T22:58:37.102168"
+    },
+    {
+      "title": "Substation Automation Market Size, Industry Dynamics, Opportunity ...",
+      "content_preview": "This is a paid press release. Contact the press release distributor directly with any inquiries. Substation Automation Market Size, Industry Dynamics, Opportunity Analysis and Forecast 2026-2035 Resea",
+      "score": 8.5,
+      "reason": "LLM: Highly relevant market intelligence on substation automation trends directly applicable to user",
+      "url": "https://finance.yahoo.com/news/substation-automation-market-size-industry-124600084.html",
+      "category": "tech",
+      "added_at": "2026-03-13T22:58:37.101873"
+    },
+    {
+      "title": "UK Government-Backed Cyber Security Programme Alumni Raise £47.4m in Follow-On Investment",
+      "content_preview": "This page contains press release content distributed by XPR Media. Members of the editorial and news staff of the USA TODAY Network were not involved in the creation of this content. UK Government-Bac",
+      "score": 9.5,
+      "reason": "Breakthrough in tracked area: network, government, threat",
+      "url": "https://www.oklahoman.com/press-release/story/142312/uk-government-backed-cyber-security-programme-alumni-raise-47-4m-in-follow-on-investment/",
+      "category": "tech",
+      "added_at": "2026-02-26T08:56:09.260625"
+    }
+  ]
+}

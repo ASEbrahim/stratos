@@ -1,5 +1,5 @@
 {
-  "total_count": 1525,
+  "total_count": 1631,
   "daily_counts": {
     "2026-02-24": 123,
     "2026-02-25": 1669,
@@ -12,433 +12,10 @@
     "2026-03-10": 184,
     "2026-03-11": 89,
     "2026-03-12": 79,
-    "2026-03-13": 151
+    "2026-03-13": 237,
+    "2026-03-14": 20
   },
   "last_queries": [
-    {
-      "query": "quantum computing research papers breakthroughs 2024",
-      "time": "2026-03-12T20:05:30.095883"
-    },
-    {
-      "query": "medieval warfare tactics weapons formations knights siege warfare 12th-15th century",
-      "time": "2026-03-12T20:06:34.870645"
-    },
-    {
-      "query": "medieval battle formations shield wall cataphract longbow trebuchet ballista",
-      "time": "2026-03-12T20:06:46.786627"
-    },
-    {
-      "query": "NVIDIA earnings latest",
-      "time": "2026-03-12T20:11:05.954249"
-    },
-    {
-      "query": "NVIDIA NVDA stock price news today March 2026",
-      "time": "2026-03-12T20:13:04.993218"
-    },
-    {
-      "query": "scholarly articles research papers about Kuwait",
-      "time": "2026-03-12T20:13:49.506620"
-    },
-    {
-      "query": "quantum computing research papers breakthroughs 2024 2025",
-      "time": "2026-03-12T20:14:39.242011"
-    },
-    {
-      "query": "oil markets analysis Kuwait GCC 2026 prices supply demand",
-      "time": "2026-03-12T20:14:45.923696"
-    },
-    {
-      "query": "medieval warfare tactics weapons armor formations knights castles siege warfare 12th-15th century",
-      "time": "2026-03-12T20:15:16.111138"
-    },
-    {
-      "query": "current gold price per ounce March 2026",
-      "time": "2026-03-12T20:16:14.524457"
-    },
-    {
-      "query": "NVIDIA latest earnings report Q1 2026 stock performance",
-      "time": "2026-03-12T20:21:57.660785"
-    },
-    {
-      "query": "scholarly articles research papers Kuwait oil energy economy",
-      "time": "2026-03-12T20:23:37.097409"
-    },
-    {
-      "query": "oil price Gulf economic research Kuwait GCC economy 2026",
-      "time": "2026-03-12T20:24:05.415537"
-    },
-    {
-      "query": "quantum computing latest research papers 2025",
-      "time": "2026-03-12T20:24:27.715443"
-    },
-    {
-      "query": "oil markets Kuwait GCC energy sector 2026 analysis",
-      "time": "2026-03-12T20:24:55.361500"
-    },
-    {
-      "query": "medieval warfare tactics equipment formations knights infantry siege weapons",
-      "time": "2026-03-12T20:25:30.649831"
-    },
-    {
-      "query": "medieval battle formations pike square shield wall tactics knights infantry composition armies",
-      "time": "2026-03-12T20:25:42.312570"
-    },
-    {
-      "query": "current gold price per ounce today March 2026",
-      "time": "2026-03-12T20:26:22.973728"
-    },
-    {
-      "query": "current world news global events March 2026",
-      "time": "2026-03-12T20:28:30.304538"
-    },
-    {
-      "query": "oil prices energy markets March 2026 OPEC Kuwait",
-      "time": "2026-03-12T20:28:36.158778"
-    },
-    {
-      "query": "latest developments AI regulation worldwide 2026",
-      "time": "2026-03-12T20:28:49.061224"
-    },
-    {
-      "query": "tech sector vs energy sector performance this week March 2026",
-      "time": "2026-03-12T20:29:15.938060"
-    },
-    {
-      "query": "S&P sector performance March 9-15 2026 technology energy index comparison",
-      "time": "2026-03-12T20:29:20.362652"
-    },
-    {
-      "query": "geopolitical events affecting oil prices March 2026",
-      "time": "2026-03-12T20:31:33.820274"
-    },
-    {
-      "query": "Islamic finance history origins modern applications Kuwait GCC",
-      "time": "2026-03-12T20:31:59.820179"
-    },
-    {
-      "query": "NVIDIA latest earnings report Q1 2026 results",
-      "time": "2026-03-12T20:37:43.048876"
-    },
-    {
-      "query": "scholarly articles research Kuwait oil energy economy",
-      "time": "2026-03-12T20:39:14.029175"
-    },
-    {
-      "query": "oil price Gulf economic research Kuwait GCC investment",
-      "time": "2026-03-12T20:39:32.899152"
-    },
-    {
-      "query": "quantum computing research papers breakthrough 2024",
-      "time": "2026-03-12T20:40:02.273218"
-    },
-    {
-      "query": "oil markets Kuwait GCC 2026 analysis prices trends",
-      "time": "2026-03-12T20:40:32.330069"
-    },
-    {
-      "query": "TSLA Tesla stock price news 2026",
-      "time": "2026-03-12T20:40:38.596449"
-    },
-    {
-      "query": "Kuwait oil production 2026 prices Brent Dubai market analysis",
-      "time": "2026-03-12T20:41:01.726501"
-    },
-    {
-      "query": "medieval warfare tactics equipment formations knights castles siege weapons",
-      "time": "2026-03-12T20:41:31.796557"
-    },
-    {
-      "query": "medieval knight armor weapons crossbow pikemen shield wall tactics battle formations",
-      "time": "2026-03-12T20:41:43.295253"
-    },
-    {
-      "query": "medieval castle design fortifications defenses siege engines trebuchet catapult battering ram",
-      "time": "2026-03-12T20:42:05.949711"
-    },
-    {
-      "query": "medieval warfare infantry archers crossbowmen pikemen shield wall tactics battle",
-      "time": "2026-03-12T20:42:19.402998"
-    },
-    {
-      "query": "current gold spot price XAU USD",
-      "time": "2026-03-12T20:43:06.978003"
-    },
-    {
-      "query": "Kuwait developer news tech",
-      "time": "2026-03-12T20:43:09.789750"
-    },
-    {
-      "query": "NVIDIA stock earnings latest results 2026",
-      "time": "2026-03-12T20:48:31.514427"
-    },
-    {
-      "query": "NVIDIA NVDA stock news price March 2026",
-      "time": "2026-03-12T20:49:42.313489"
-    },
-    {
-      "query": "oil markets analysis Kuwait GCC 2026 energy sector digital oilfield AI",
-      "time": "2026-03-12T20:51:13.114758"
-    },
-    {
-      "query": "Kuwait National Petroleum Strategy oil market 2026 carbon capture digital oilfield",
-      "time": "2026-03-12T20:51:25.218535"
-    },
-    {
-      "query": "recent papers on quantum computing 2024 2025",
-      "time": "2026-03-12T20:51:28.892933"
-    },
-    {
-      "query": "Kuwait oil market price Brent crude 2026 GCC energy investment",
-      "time": "2026-03-12T20:51:44.465515"
-    },
-    {
-      "query": "medieval warfare tactics equipment battles knights castles 12th-15th century",
-      "time": "2026-03-12T20:52:20.084313"
-    },
-    {
-      "query": "medieval knight armor chainmail plate weapons longbow siege engines catapult trebuchet",
-      "time": "2026-03-12T20:52:32.371790"
-    },
-    {
-      "query": "medieval battle tactics formation shield wall archer skirmish siege castle defense 14th century",
-      "time": "2026-03-12T20:52:43.928690"
-    },
-    {
-      "query": "medieval castle siege weapons trebuchet catapult mangonel ballista how they work",
-      "time": "2026-03-12T20:52:58.432217"
-    },
-    {
-      "query": "gold price per ounce today March 2026",
-      "time": "2026-03-12T20:53:51.341255"
-    },
-    {
-      "query": "\"Duolingo Japan\" japanese edtech education 2026",
-      "time": "2026-03-13T09:05:10.392049"
-    },
-    {
-      "query": "\"Bunpro language learning\" japanese edtech education 2026",
-      "time": "2026-03-13T09:05:10.602210"
-    },
-    {
-      "query": "\"EdTech startups Tokyo\" japanese edtech education 2026",
-      "time": "2026-03-13T09:05:11.240909"
-    },
-    {
-      "query": "\"Language learning apps\" japanese edtech education 2026",
-      "time": "2026-03-13T09:05:12.847073"
-    },
-    {
-      "query": "\"Online tutoring platforms\" japanese edtech education 2026",
-      "time": "2026-03-13T09:05:13.206355"
-    },
-    {
-      "query": "\"AI translation tools\" japanese edtech education 2026",
-      "time": "2026-03-13T09:05:13.888530"
-    },
-    {
-      "query": "\"Japanese curriculum standards\" japanese edtech education 2026",
-      "time": "2026-03-13T09:05:14.286561"
-    },
-    {
-      "query": "\"E-learning certification\" japanese edtech education 2026",
-      "time": "2026-03-13T09:05:15.696238"
-    },
-    {
-      "query": "\"WaniKani\" japanese edtech education 2026",
-      "time": "2026-03-13T09:05:16.128324"
-    },
-    {
-      "query": "\"Bunpro\" japanese edtech education 2026",
-      "time": "2026-03-13T09:05:16.573683"
-    },
-    {
-      "query": "\"Tae Kim's Guide to Learning Japanese\" japanese edtech education 2026",
-      "time": "2026-03-13T09:05:18.232982"
-    },
-    {
-      "query": "\"Freelance platforms Japan\" remote work freelancing 2026",
-      "time": "2026-03-13T09:05:20.822400"
-    },
-    {
-      "query": "\"Remote work laws Japan\"  2026",
-      "time": "2026-03-13T09:05:20.908350"
-    },
-    {
-      "query": "\"Digital nomad visas\" remote work freelancing 2026",
-      "time": "2026-03-13T09:05:21.124204"
-    },
-    {
-      "query": "\"Gig economy trends\" remote work freelancing 2026",
-      "time": "2026-03-13T09:05:22.338847"
-    },
-    {
-      "query": "\"Virtual collaboration tools\" remote work freelancing 2026",
-      "time": "2026-03-13T09:05:23.518560"
-    },
-    {
-      "query": "\"Contractor tax guides\" remote work freelancing 2026",
-      "time": "2026-03-13T09:05:23.536903"
-    },
-    {
-      "query": "\"Side hustle opportunities\" remote work freelancing 2026",
-      "time": "2026-03-13T09:05:23.866895"
-    },
-    {
-      "query": "\"Global remote jobs\" remote work freelancing 2026",
-      "time": "2026-03-13T09:05:24.399064"
-    },
-    {
-      "query": "\"Upwork Japan\" remote work freelancing 2026",
-      "time": "2026-03-13T09:05:24.880430"
-    },
-    {
-      "query": "\"Fiverr Japan\" remote work freelancing 2026",
-      "time": "2026-03-13T09:05:25.561089"
-    },
-    {
-      "query": "\"Freelancers Union Japan\" remote work freelancing 2026",
-      "time": "2026-03-13T09:05:26.213676"
-    },
-    {
-      "query": "\"JLPT exam updates\" language learning courses 2026",
-      "time": "2026-03-13T09:05:28.569985"
-    },
-    {
-      "query": "\"Online Japanese courses\" language learning courses 2026",
-      "time": "2026-03-13T09:05:28.799872"
-    },
-    {
-      "query": "\"Workshop schedules Tokyo\" language learning courses 2026",
-      "time": "2026-03-13T09:05:29.315443"
-    },
-    {
-      "query": "\"Seminars for translators\" language learning courses 2026",
-      "time": "2026-03-13T09:05:29.921350"
-    },
-    {
-      "query": "\"Certification programs\" language learning courses 2026",
-      "time": "2026-03-13T09:05:31.305946"
-    },
-    {
-      "query": "\"Immersion programs Japan\" language learning courses 2026",
-      "time": "2026-03-13T09:05:32.040157"
-    },
-    {
-      "query": "\"Podcast language learning\" technology 2026",
-      "time": "2026-03-13T09:05:32.419291"
-    },
-    {
-      "query": "\"Translation software training\" language learning courses 2026",
-      "time": "2026-03-13T09:05:32.981294"
-    },
-    {
-      "query": "\"JLPT Nihongo Kyoiku Center\" language learning courses 2026",
-      "time": "2026-03-13T09:05:34.687009"
-    },
-    {
-      "query": "\"Nihon University Language Center\" language learning courses 2026",
-      "time": "2026-03-13T09:05:34.837469"
-    },
-    {
-      "query": "\"Tokyo Metropolitan University Japanese Course\" language learning courses 2026",
-      "time": "2026-03-13T09:05:35.535270"
-    },
-    {
-      "query": "\"Manga publishing trends\" japanese culture content 2026",
-      "time": "2026-03-13T09:05:38.182564"
-    },
-    {
-      "query": "\"Anime localization news\" japanese culture content 2026",
-      "time": "2026-03-13T09:05:38.208718"
-    },
-    {
-      "query": "\"J-Pop translation rights\" japanese culture content 2026",
-      "time": "2026-03-13T09:05:38.606925"
-    },
-    {
-      "query": "\"Cultural event coverage\" japanese culture content 2026",
-      "time": "2026-03-13T09:05:40.480200"
-    },
-    {
-      "query": "\"Tourism language guides\" japanese culture content 2026",
-      "time": "2026-03-13T09:05:40.584480"
-    },
-    {
-      "query": "\"Subtitling industry updates\" japanese culture content 2026",
-      "time": "2026-03-13T09:05:41.015021"
-    },
-    {
-      "query": "\"Localization best practices\" japanese culture content 2026",
-      "time": "2026-03-13T09:05:42.778235"
-    },
-    {
-      "query": "\"Regional dialects Japan\" japanese culture content 2026",
-      "time": "2026-03-13T09:05:43.490935"
-    },
-    {
-      "query": "\"Kadokawa Corporation\" japanese culture content 2026",
-      "time": "2026-03-13T09:05:43.677553"
-    },
-    {
-      "query": "\"Shueisha Localization Team\" japanese culture content 2026",
-      "time": "2026-03-13T09:05:44.077781"
-    },
-    {
-      "query": "\"Aniplex Dubbing Department\" japanese culture content 2026",
-      "time": "2026-03-13T09:05:44.818814"
-    },
-    {
-      "query": "\"CAT tools updates\" translation technology tools 2026",
-      "time": "2026-03-13T09:05:47.038308"
-    },
-    {
-      "query": "\"Neural machine translation\" translation technology tools 2026",
-      "time": "2026-03-13T09:05:47.379705"
-    },
-    {
-      "query": "\"Glossary management systems\" translation technology tools 2026",
-      "time": "2026-03-13T09:05:47.725646"
-    },
-    {
-      "query": "\"Termbase software\" translation technology tools 2026",
-      "time": "2026-03-13T09:05:48.377728"
-    },
-    {
-      "query": "\"AI proofreading tools\" translation technology tools 2026",
-      "time": "2026-03-13T09:05:49.467580"
-    },
-    {
-      "query": "\"Cloud translation platforms\" translation technology tools 2026",
-      "time": "2026-03-13T09:05:50.323280"
-    },
-    {
-      "query": "\"Quality assurance metrics\" translation technology tools 2026",
-      "time": "2026-03-13T09:05:50.519736"
-    },
-    {
-      "query": "\"Project management apps\" translation technology tools 2026",
-      "time": "2026-03-13T09:05:51.558957"
-    },
-    {
-      "query": "\"MemoQ\" translation technology tools 2026",
-      "time": "2026-03-13T09:05:51.651798"
-    },
-    {
-      "query": "\"Trados Studio\" translation technology tools 2026",
-      "time": "2026-03-13T09:05:52.579793"
-    },
-    {
-      "query": "\"Smartcat\" translation technology tools 2026",
-      "time": "2026-03-13T09:05:52.705422"
-    },
-    {
-      "query": "\"Translation rate trends\" freelance market insights 2026",
-      "time": "2026-03-13T09:05:53.917718"
-    },
-    {
-      "query": "\"Client acquisition tips\" freelance market insights 2026",
-      "time": "2026-03-13T09:05:53.952365"
-    },
     {
       "query": "\"Portfolio building advice\" freelance market insights 2026",
       "time": "2026-03-13T09:05:54.228070"
@@ -814,6 +391,430 @@
     {
       "query": "Japanese language learning curriculum structure 2026 beginner intermediate advanced",
       "time": "2026-03-13T11:22:35.287112"
+    },
+    {
+      "query": "\"KIPIC\" Kuwait hiring OR careers OR recruitment 2026",
+      "time": "2026-03-13T22:56:30.945502"
+    },
+    {
+      "query": "\"KIPIC\" kuwait electrical employers Kuwait careers 2026",
+      "time": "2026-03-13T22:56:31.042872"
+    },
+    {
+      "query": "\"Ministry of Electricity\" Kuwait hiring OR careers OR recruitment 2026",
+      "time": "2026-03-13T22:56:31.462407"
+    },
+    {
+      "query": "\"Ministry of Electricity\" kuwait electrical employers Kuwait careers 2026",
+      "time": "2026-03-13T22:56:31.848936"
+    },
+    {
+      "query": "\"KPC Power\" Kuwait hiring OR careers OR recruitment 2026",
+      "time": "2026-03-13T22:56:32.284846"
+    },
+    {
+      "query": "\"KPC Power\" kuwait electrical employers Kuwait careers 2026",
+      "time": "2026-03-13T22:56:32.661996"
+    },
+    {
+      "query": "\"Zain Kuwait Network\" Kuwait hiring OR careers OR recruitment 2026",
+      "time": "2026-03-13T22:56:32.984825"
+    },
+    {
+      "query": "\"Zain Kuwait Network\" kuwait electrical employers Kuwait careers 2026",
+      "time": "2026-03-13T22:56:34.769277"
+    },
+    {
+      "query": "\"Ooredoo Engineering\" Kuwait hiring OR careers OR recruitment 2026",
+      "time": "2026-03-13T22:56:35.421470"
+    },
+    {
+      "query": "\"Ooredoo Engineering\" kuwait electrical employers Kuwait careers 2026",
+      "time": "2026-03-13T22:56:35.821510"
+    },
+    {
+      "query": "\"Nakheel Projects\" Kuwait hiring OR careers OR recruitment 2026",
+      "time": "2026-03-13T22:56:37.350388"
+    },
+    {
+      "query": "\"Nakheel Projects\" kuwait electrical employers Kuwait careers 2026",
+      "time": "2026-03-13T22:56:38.064227"
+    },
+    {
+      "query": "power grid stability oil gas energy tech 2026",
+      "time": "2026-03-13T22:56:40.817406"
+    },
+    {
+      "query": "substation automation oil gas energy tech 2026",
+      "time": "2026-03-13T22:56:41.000079"
+    },
+    {
+      "query": "\"HVDC transmission\" oil gas energy tech 2026",
+      "time": "2026-03-13T22:56:41.324892"
+    },
+    {
+      "query": "industrial motor control oil gas energy tech 2026",
+      "time": "2026-03-13T22:56:42.126783"
+    },
+    {
+      "query": "renewable integration oil gas energy tech 2026",
+      "time": "2026-03-13T22:56:42.970645"
+    },
+    {
+      "query": "smart metering systems oil gas energy tech 2026",
+      "time": "2026-03-13T22:56:43.213842"
+    },
+    {
+      "query": "energy efficiency standards oil gas energy tech 2026",
+      "time": "2026-03-13T22:56:43.219960"
+    },
+    {
+      "query": "\"Offshore platform power systems\" oil gas energy tech 2026",
+      "time": "2026-03-13T22:56:44.244331"
+    },
+    {
+      "query": "\"Gas-to-liquids (GTL) energy recovery\" technology 2026",
+      "time": "2026-03-13T22:56:44.304189"
+    },
+    {
+      "query": "\"Pipeline leak detection algorithms\" oil gas energy tech 2026",
+      "time": "2026-03-13T22:56:44.550211"
+    },
+    {
+      "query": "\"Flare gas recovery tech\" technology 2026",
+      "time": "2026-03-13T22:56:46.778631"
+    },
+    {
+      "query": "\"Carbon capture utilization and storage\" oil gas energy tech 2026",
+      "time": "2026-03-13T22:56:46.960223"
+    },
+    {
+      "query": "\"SCADA systems\" software iot systems 2026",
+      "time": "2026-03-13T22:56:48.908914"
+    },
+    {
+      "query": "\"PLC programming\" software iot systems 2026",
+      "time": "2026-03-13T22:56:49.384559"
+    },
+    {
+      "query": "industrial cybersecurity software iot systems 2026",
+      "time": "2026-03-13T22:56:49.451341"
+    },
+    {
+      "query": "\"IoT sensor networks\" software iot systems 2026",
+      "time": "2026-03-13T22:56:49.884458"
+    },
+    {
+      "query": "power management software software iot systems 2026",
+      "time": "2026-03-13T22:56:50.370356"
+    },
+    {
+      "query": "\"predictive maintenance AI\" software iot systems 2026",
+      "time": "2026-03-13T22:56:51.123521"
+    },
+    {
+      "query": "\"Siemens MindSphere\" software iot systems 2026",
+      "time": "2026-03-13T22:56:51.308035"
+    },
+    {
+      "query": "digital twin modeling software iot systems 2026",
+      "time": "2026-03-13T22:56:51.487334"
+    },
+    {
+      "query": "\"GE Digital Predix\" software iot systems 2026",
+      "time": "2026-03-13T22:56:52.081857"
+    },
+    {
+      "query": "\"PTC ThingWorx\" software iot systems 2026",
+      "time": "2026-03-13T22:56:52.601915"
+    },
+    {
+      "query": "\"Bentley Systems OpenRoads\" software iot systems 2026",
+      "time": "2026-03-13T22:56:52.822519"
+    },
+    {
+      "query": "\"AVEVA System Platform\" software iot systems 2026",
+      "time": "2026-03-13T22:56:53.741568"
+    },
+    {
+      "query": "\"solar PV engineering\" renewables sustainability 2026",
+      "time": "2026-03-13T22:56:55.473158"
+    },
+    {
+      "query": "wind turbine tech renewables sustainability 2026",
+      "time": "2026-03-13T22:56:56.243995"
+    },
+    {
+      "query": "battery storage systems renewables sustainability 2026",
+      "time": "2026-03-13T22:56:56.649714"
+    },
+    {
+      "query": "green hydrogen projects renewables sustainability 2026",
+      "time": "2026-03-13T22:56:58.648434"
+    },
+    {
+      "query": "sustainable grid design renewables sustainability 2026",
+      "time": "2026-03-13T22:56:58.893604"
+    },
+    {
+      "query": "carbon capture tech renewables sustainability 2026",
+      "time": "2026-03-13T22:56:59.099761"
+    },
+    {
+      "query": "\"Oman Solar Project partnerships\" renewables sustainability 2026",
+      "time": "2026-03-13T22:56:59.981106"
+    },
+    {
+      "query": "\"Saudi Green Initiative collaborations\" renewables sustainability 2026",
+      "time": "2026-03-13T22:57:00.251639"
+    },
+    {
+      "query": "energy policy updates renewables sustainability 2026",
+      "time": "2026-03-13T22:57:00.270226"
+    },
+    {
+      "query": "\"Desalination energy integration\" renewables sustainability 2026",
+      "time": "2026-03-13T22:57:01.582334"
+    },
+    {
+      "query": "\"Grid-scale battery BMS software\" renewables sustainability 2026",
+      "time": "2026-03-13T22:57:02.738568"
+    },
+    {
+      "query": "\"Floating solar farm design tools\" renewables sustainability 2026",
+      "time": "2026-03-13T22:57:02.930505"
+    },
+    {
+      "query": "\"PE license Kuwait\" professional development hiring OR jobs 2026",
+      "time": "2026-03-13T22:57:05.489101"
+    },
+    {
+      "query": "\"IEEE certifications\" professional development hiring OR jobs 2026",
+      "time": "2026-03-13T22:57:05.691751"
+    },
+    {
+      "query": "\"NCEES exams\" professional development hiring OR jobs 2026",
+      "time": "2026-03-13T22:57:05.793424"
+    },
+    {
+      "query": "online engineering courses professional development hiring OR jobs 2026",
+      "time": "2026-03-13T22:57:06.883126"
+    },
+    {
+      "query": "hands-on lab skills professional development hiring OR jobs 2026",
+      "time": "2026-03-13T22:57:07.857787"
+    },
+    {
+      "query": "\"leadership training\" professional development hiring OR jobs 2026",
+      "time": "2026-03-13T22:57:08.306485"
+    },
+    {
+      "query": "\"technical writing\" professional development hiring OR jobs 2026",
+      "time": "2026-03-13T22:57:08.362129"
+    },
+    {
+      "query": "\"PEC (Professional Engineers Council) Kuwait membership\"  hiring OR jobs 2026",
+      "time": "2026-03-13T22:57:09.154945"
+    },
+    {
+      "query": "\"PEAK certification program\" professional development hiring OR jobs 2026",
+      "time": "2026-03-13T22:57:10.109787"
+    },
+    {
+      "query": "\"Six Sigma Green Belt for engineers\" professional development hiring OR jobs 2026",
+      "time": "2026-03-13T22:57:10.577178"
+    },
+    {
+      "query": "\"Project Management Professional\"  hiring OR jobs 2026",
+      "time": "2026-03-13T22:57:11.712616"
+    },
+    {
+      "query": "\"Certified Energy Manager\" professional development hiring OR jobs 2026",
+      "time": "2026-03-13T22:57:12.759166"
+    },
+    {
+      "query": "\"IEEE standards updates\" industry global 2026",
+      "time": "2026-03-13T22:57:13.738690"
+    },
+    {
+      "query": "\"IEC regulations\" industry global 2026",
+      "time": "2026-03-13T22:57:14.023430"
+    },
+    {
+      "query": "power market trends industry global 2026",
+      "time": "2026-03-13T22:57:15.339965"
+    },
+    {
+      "query": "grid modernization news industry global 2026",
+      "time": "2026-03-13T22:57:15.374999"
+    },
+    {
+      "query": "electrical safety alerts industry global 2026",
+      "time": "2026-03-13T22:57:15.862264"
+    },
+    {
+      "query": "\"component shortages\" industry global 2026",
+      "time": "2026-03-13T22:57:16.584347"
+    },
+    {
+      "query": "\"IEA World Energy Outlook reports\" industry global 2026",
+      "time": "2026-03-13T22:57:17.288767"
+    },
+    {
+      "query": "global energy crisis  2026",
+      "time": "2026-03-13T22:57:17.390065"
+    },
+    {
+      "query": "\"IRENA renewable capacity stats\" industry global 2026",
+      "time": "2026-03-13T22:57:17.581068"
+    },
+    {
+      "query": "\"NREL grid integration studies\" industry global 2026",
+      "time": "2026-03-13T22:57:18.539569"
+    },
+    {
+      "query": "\"CIGRE technical committee publications\" industry global 2026",
+      "time": "2026-03-13T22:57:19.825938"
+    },
+    {
+      "query": "\"World Bank energy sector reviews\" industry global 2026",
+      "time": "2026-03-13T22:57:20.059843"
+    },
+    {
+      "query": "site:kockw.com careers OR recruitment OR \"fresh graduate\"",
+      "time": "2026-03-13T22:57:22.417357"
+    },
+    {
+      "query": "site:knpc.com recruitment OR careers OR \"fresh graduate\"",
+      "time": "2026-03-13T22:57:22.741473"
+    },
+    {
+      "query": "site:kipic.com.kw careers OR recruitment",
+      "time": "2026-03-13T22:57:22.940050"
+    },
+    {
+      "query": "site:kpc.com.kw careers OR recruitment OR \"fresh graduate\"",
+      "time": "2026-03-13T22:57:23.384359"
+    },
+    {
+      "query": "Kuwait oil sector \"fresh graduate\" recruitment announcement 2026",
+      "time": "2026-03-13T22:57:23.973118"
+    },
+    {
+      "query": "Kuwait oil sector \"admin circular\" hiring Kuwaiti nationals",
+      "time": "2026-03-13T22:57:24.891199"
+    },
+    {
+      "query": "\"\u0627\u0644\u0642\u0637\u0627\u0639 \u0627\u0644\u0646\u0641\u0637\u064a\" \u062a\u0648\u0638\u064a\u0641 \u062e\u0631\u064a\u062c\u064a\u0646 \u0627\u0644\u0643\u0648\u064a\u062a",
+      "time": "2026-03-13T22:57:25.023541"
+    },
+    {
+      "query": "\"KOC\" OR \"KNPC\" OR \"KIPIC\" \"fresh graduate\" program Kuwait",
+      "time": "2026-03-13T22:57:25.925707"
+    },
+    {
+      "query": "NVIDIA NVDA analyst reports firm analysis 2026",
+      "time": "2026-03-13T23:21:36.343526"
+    },
+    {
+      "query": "NVIDIA NVDA analyst report summary 2026",
+      "time": "2026-03-13T23:21:52.971283"
+    },
+    {
+      "query": "NVIDIA GPU sales China revenue impact 2026 analyst report",
+      "time": "2026-03-13T23:22:21.865605"
+    },
+    {
+      "query": "\"\u0627\u0644\u0642\u0631\u0622\u0646 \u0627\u0644\u0643\u0631\u064a\u0645\" \u0633\u0648\u0631\u0629 \u0627\u0644\u062a\u062d\u0631\u064a\u0645: \u0627\u0644\u0622\u064a\u0629 11",
+      "time": "2026-03-13T23:30:59.601679"
+    },
+    {
+      "query": "\"\u062d\u062f\u064a\u062b \u0646\u0628\u0648\u064a (\u063a\u064a\u0631 \u0645\u0648\u062b\u0642 \u0641\u064a \u0627\u0644\u0645\u0635\u0627\u062f\u0631 \u0627\u0644\u0645\u0639\u062a\u0645\u062f\u0629)\"",
+      "time": "2026-03-13T23:31:00.818959"
+    },
+    {
+      "query": "\"\u062d\u062f\u064a\u062b \u0625\u0645\u0627\u0645\u064a (\u063a\u064a\u0631 \u0645\u0648\u062b\u0642 \u0641\u064a \u0627\u0644\u0645\u0635\u0627\u062f\u0631 \u0627\u0644\u0645\u0639\u062a\u0645\u062f\u0629)\"",
+      "time": "2026-03-13T23:31:02.106085"
+    },
+    {
+      "query": "\"\u0631\u0648\u0649 \u0627\u0644\u0634\u064a\u062e \u0627\u0644\u0635\u062f\u0648\u0642 \u0641\u064a \u0645\u0639\u0627\u0646\u064a \u0627\u0644\u0627\u062e\u0628\u0627\u0631\"",
+      "time": "2026-03-14T00:07:15.738628"
+    },
+    {
+      "query": "\"\u0641\u064a\u0645\u0627 \u0631\u0648\u0649 \u0628\u0639\u0636 \u0627\u0647\u0644 \u0627\u0644\u0633\u0646\u0647 \u0645\u0645\u0646 \u062f\u062e\u0644 \u0627\u0644\u0627\u0646\u0635\u0627\u0641 \u0627\u0644\u0649 \u0639\u0642\u0644\u0647 \u0641\u0633\u064a\u0644\u0647 \u0641\u064a \u0642\u0644\u0645\u0647\"",
+      "time": "2026-03-14T00:07:17.062320"
+    },
+    {
+      "query": "\"\u0627\u0628\u0646 \u0634\u0647\u0631\u0647 \u0634\u0648\u0628 \u0641\u064a \u0627\u0644\u0645\u0646\u0627\u0642\u0628\"",
+      "time": "2026-03-14T00:07:18.251536"
+    },
+    {
+      "query": "history doesn't repeat itself but it sure does rhyme",
+      "time": "2026-03-14T00:53:15.621652"
+    },
+    {
+      "query": "More money has been lost waiting for a crash than any crash.",
+      "time": "2026-03-14T03:01:47.114752"
+    },
+    {
+      "query": "Kuwait weather today",
+      "time": "2026-03-14T11:45:05.375314"
+    },
+    {
+      "query": "Bitcoin price movements today latest news",
+      "time": "2026-03-14T11:45:17.898744"
+    },
+    {
+      "query": "Boursa Kuwait CFA Institute Research Challenge sponsorship implications",
+      "time": "2026-03-14T11:46:05.434868"
+    },
+    {
+      "query": "Kuwait Oman petrochemical plant DQIM project implications",
+      "time": "2026-03-14T11:46:06.525985"
+    },
+    {
+      "query": "CFA Institute Research Challenge Kuwait past years history previous sponsorships",
+      "time": "2026-03-14T11:46:29.408146"
+    },
+    {
+      "query": "S&P 500 performance today March 14 2026",
+      "time": "2026-03-14T11:47:12.130322"
+    },
+    {
+      "query": "current major stock indices prices S&P 500 Nasdaq Dow Jones today",
+      "time": "2026-03-14T11:47:53.309512"
+    },
+    {
+      "query": "NVDA stock news sentiment March 2026",
+      "time": "2026-03-14T11:48:57.097938"
+    },
+    {
+      "query": "NVIDIA stock news AI chip market 2026 March",
+      "time": "2026-03-14T11:49:54.697318"
+    },
+    {
+      "query": "anime news updates 2026 March",
+      "time": "2026-03-14T11:50:15.125660"
+    },
+    {
+      "query": "history of the Roman Empire timeline key events",
+      "time": "2026-03-14T11:50:24.882817"
+    },
+    {
+      "query": "NVIDIA NVDA stock price surge March 2026 news",
+      "time": "2026-03-14T11:51:19.944586"
+    },
+    {
+      "query": "global epidemic outbreak pandemic 2024 2025 current events",
+      "time": "2026-03-14T11:58:02.255004"
+    },
+    {
+      "query": "game engine development trends 2024 2025 Unity Unreal",
+      "time": "2026-03-14T11:58:03.216120"
+    },
+    {
+      "query": "Apple stock price today AAPL",
+      "time": "2026-03-14T11:59:28.700395"
     }
   ]
 }
