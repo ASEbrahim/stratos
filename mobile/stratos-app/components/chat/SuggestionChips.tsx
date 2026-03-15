@@ -1,9 +1,10 @@
 import React, { useEffect } from 'react';
-import { ScrollView, TouchableOpacity, Text, StyleSheet } from 'react-native';
+import { View, TouchableOpacity, Text, StyleSheet } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import Animated, { useSharedValue, useAnimatedStyle, withDelay, withTiming, withSpring } from 'react-native-reanimated';
 import { Suggestion } from '../../lib/types';
 import { typography, spacing, borderRadius } from '../../constants/theme';
+import { fonts } from '../../constants/fonts';
 import { useThemeStore } from '../../stores/themeStore';
 
 interface SuggestionChipsProps { suggestions: Suggestion[]; onSelect: (prompt: string) => void; accentColor?: string; }
@@ -32,7 +33,7 @@ function AnimatedChip({ suggestion, index, color, onSelect }: { suggestion: Sugg
   return (
     <Animated.View style={animStyle}>
       <TouchableOpacity style={[styles.chip, { borderColor: color + '40', backgroundColor: color + '10' }]} onPress={handlePress} activeOpacity={0.7}>
-        <Text style={[styles.chipText, { color }]} numberOfLines={1}>{suggestion.label}</Text>
+        <Text style={[styles.chipText, { color }]}>{suggestion.label}</Text>
       </TouchableOpacity>
     </Animated.View>
   );
@@ -43,16 +44,16 @@ export function SuggestionChips({ suggestions, onSelect, accentColor }: Suggesti
   const tc = useThemeStore(s => s.colors);
   const color = accentColor ?? tc.accent.primary;
   return (
-    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
+    <View style={styles.container}>
       {suggestions.map((s, i) => (
         <AnimatedChip key={`${s.label}-${i}`} suggestion={s} index={i} color={color} onSelect={onSelect} />
       ))}
-    </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { paddingHorizontal: spacing.lg, paddingVertical: spacing.sm, gap: spacing.sm },
-  chip: { paddingHorizontal: spacing.md, paddingVertical: spacing.sm, borderRadius: borderRadius.full, borderWidth: 1 },
-  chipText: { ...typography.caption, fontWeight: '500' },
+  container: { flexDirection: 'row', flexWrap: 'wrap', paddingHorizontal: spacing.lg, paddingVertical: spacing.sm, gap: spacing.sm },
+  chip: { paddingHorizontal: spacing.lg, paddingVertical: spacing.md, borderRadius: borderRadius.lg, borderWidth: 1 },
+  chipText: { fontSize: 13, fontFamily: fonts.body },
 });
