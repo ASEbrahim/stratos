@@ -8,12 +8,12 @@ export interface Genre {
 }
 
 export const GENRES: Genre[] = [
+  { id: 'anime', label: 'Anime', emoji: '🌸', color: colors.accent.anime },
   { id: 'fantasy', label: 'Fantasy', emoji: '⚔️', color: colors.accent.fantasy },
   { id: 'scifi', label: 'Sci-Fi', emoji: '🚀', color: colors.accent.scifi },
   { id: 'romance', label: 'Romance', emoji: '💕', color: colors.accent.romance },
   { id: 'horror', label: 'Horror', emoji: '👻', color: colors.accent.horror },
   { id: 'modern', label: 'Modern', emoji: '🌆', color: colors.accent.modern },
-  { id: 'anime', label: 'Anime', emoji: '🌸', color: colors.accent.anime },
   { id: 'historical', label: 'Historical', emoji: '📜', color: colors.accent.historical },
 ];
 
