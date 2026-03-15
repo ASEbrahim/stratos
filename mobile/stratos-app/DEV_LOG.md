@@ -65,3 +65,9 @@ Gaming option buttons stagger-animate in with spring. Scenario cards use themeSt
 
 ## Iteration 22: Card press animation + theme-aware Header ✅
 Character cards spring-scale on press (0.96x) for tactile feel. Header component uses themeStore.
+
+## Iteration 23: Theme-aware CharacterDetail ✅
+All text, backgrounds, and accents in character detail read from themeStore.
+
+## Iteration 24: Character count in grid header ✅
+Grid header shows character count next to title (e.g. "Characters (6)").

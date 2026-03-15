@@ -138,7 +138,7 @@ export default function DiscoverScreen() {
           })}
         </ScrollView>
         <View style={styles.gridHeader}>
-          <Text style={[styles.sectionTitle, { color: tc.text.primary }]}>{searchQuery.trim() ? 'Search Results' : 'Characters'}</Text>
+          <Text style={[styles.sectionTitle, { color: tc.text.primary }]}>{searchQuery.trim() ? 'Search Results' : 'Characters'} <Text style={{ color: tc.text.muted, fontSize: 14 }}>({displayCards.length})</Text></Text>
           {!searchQuery.trim() && (
             <View style={styles.sortRow}>
               {(['popular', 'newest', 'rating'] as const).map(s => (
