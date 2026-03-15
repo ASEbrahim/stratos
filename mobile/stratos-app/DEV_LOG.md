@@ -138,5 +138,8 @@ Pulsing green dot on avatar in chat header.
 ## Iteration 46: "NEW" badge + theme-aware CharacterCard ✅
 NEW badge on recent characters, card component now reads from themeStore.
 
-## Iteration 47: Animated tab bar with active indicator
-The bottom tab bar is functional but plain. Adding an animated active indicator bar that slides between tabs — a premium touch that all polished apps have (Spotify, Instagram).
+## Iteration 47: Active tab dot indicator ✅
+Accent-colored dot below active tab icon.
+
+## Iteration 48: Conversation starters — pre-filled prompts on empty chat
+When starting a new chat, users stare at an empty screen. Adding 3 contextual starter prompts based on the character's personality — reduces friction and teaches users how to engage.
