@@ -807,8 +807,11 @@ class Database:
 
     def get_published_cards(self, genre: str = None, sort: str = 'trending',
                             limit: int = 20, offset: int = 0) -> list:
-        query = "SELECT c.*, COALESCE(s.total_sessions, 0) as sessions, COALESCE(s.avg_rating, 0) as avg_rating_val " \
+        query = "SELECT c.*, COALESCE(s.total_sessions, 0) as sessions, COALESCE(s.avg_rating, 0) as avg_rating_val, " \
+                "COALESCE(p.name, u.display_name, 'Unknown') as creator_name " \
                 "FROM character_cards c LEFT JOIN character_card_stats s ON c.id = s.card_id " \
+                "LEFT JOIN profiles p ON c.creator_profile_id = p.id " \
+                "LEFT JOIN users u ON p.user_id = u.id " \
                 "WHERE c.is_published = TRUE"
         params = []
         if genre:

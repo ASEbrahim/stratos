@@ -515,12 +515,38 @@ def handle_post(handler, strat, auth, path) -> bool:
 
 
 def handle_get(handler, strat, auth, path) -> bool:
-    """Handle GET requests for /api/rp/* endpoints."""
+    """Handle GET requests for /api/rp/* and /api/scenarios/* endpoints."""
 
-    if not path.startswith("/api/rp/"):
+    if not path.startswith("/api/rp/") and not path.startswith("/api/scenarios"):
         return False
 
     db = strat.db
+
+    profile_id = getattr(handler, '_profile_id', 0)
+
+    # ── GET /api/scenarios ──
+    if path == "/api/scenarios":
+        rows = db.conn.execute(
+            "SELECT * FROM scenarios WHERE profile_id = ? ORDER BY updated_at DESC",
+            (profile_id,)
+        ).fetchall()
+        json_response(handler, {"scenarios": [dict(r) for r in rows]})
+        return True
+
+    # ── GET /api/scenarios/<id> ──
+    if path.startswith("/api/scenarios/"):
+        parts = path.split("/")
+        scenario_id = parts[3] if len(parts) > 3 else ""
+        if scenario_id:
+            row = db.conn.execute("SELECT * FROM scenarios WHERE id = ?", (scenario_id,)).fetchone()
+            if row:
+                json_response(handler, dict(row))
+            else:
+                error_response(handler, "Scenario not found", 404)
+            return True
+
+    if not path.startswith("/api/rp/"):
+        return False
 
     # ── GET /api/rp/history/<session_id> ──
     if path.startswith("/api/rp/history/"):

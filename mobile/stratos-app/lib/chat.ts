@@ -33,7 +33,7 @@ export async function streamMessage(
       if (line.startsWith('data: ')) {
         try {
           const data = JSON.parse(line.slice(6));
-          if (data.content) onChunk(data.content);
+          if (data.content || data.token) onChunk(data.content || data.token);
           if (data.done) onDone();
         } catch { /* partial */ }
       }
