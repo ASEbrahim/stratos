@@ -15,8 +15,8 @@ interface ThemeState {
 }
 
 export const useThemeStore = create<ThemeState>((set) => ({
-  themeId: 'arcane',
-  colors: getTheme('arcane').colors,
+  themeId: 'nebula',
+  colors: getTheme('nebula').colors,
   nsfwFilter: true,
   setTheme: (id) => {
     const theme = getTheme(id);

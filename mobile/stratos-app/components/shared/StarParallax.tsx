@@ -1,258 +1,213 @@
 /**
- * StarParallax — Multi-theme particle system
+ * StarParallax — Native animated star field
  *
- * Adapts to current theme colors (Arcane, Sakura, Nebula, Cosmos, Noir).
- * Stars + motes + shooting stars, all driven by a single SharedValue (t).
- * Optimized for mobile: reduced particle count, no canvas, pure Reanimated.
- * pointerEvents="none" — children receive all touches.
+ * Uses Reanimated withRepeat/withTiming for smooth GPU-driven animations.
+ * No frame callbacks, no manual time tracking. Stars twinkle and drift
+ * using native driver animations for best performance.
  */
-import React, { useEffect, useMemo, useState } from 'react';
-import { View, StyleSheet, Dimensions, LayoutChangeEvent } from 'react-native';
+import React, { useMemo } from 'react';
+import { View, StyleSheet, Dimensions } from 'react-native';
 import Animated, {
-  useSharedValue, useAnimatedStyle, useFrameCallback, SharedValue,
+  useSharedValue, useAnimatedStyle, withRepeat, withTiming, withDelay,
+  withSequence, Easing, FadeIn,
 } from 'react-native-reanimated';
 import { useThemeStore } from '../../stores/themeStore';
-import { colors as defaultColors } from '../../constants/theme';
 import type { ThemeColors } from '../../constants/themes';
+import { useEffect } from 'react';
 
-const STAR_COUNT = 35;
-const MOTE_COUNT = 12;
-const SHOOTING_INTERVAL = 8000;
-const DRIFT_SPEED = 0.12;
-
-interface StarData {
-  startX: number; startY: number; radius: number; baseAlpha: number;
-  speed: number; phase: number; cr: number; cg: number; cb: number;
-}
-
-interface MoteData {
-  startX: number; startY: number; size: number; baseAlpha: number;
-  fallSpeed: number; swayFreq: number; swayAmp: number; spinSpeed: number;
-  phase: number; cr: number; cg: number; cb: number;
-  spiralR: number; spiralSpeed: number;
-}
+const { width: W, height: H } = Dimensions.get('window');
 
 function rand(a: number, b: number) { return a + Math.random() * (b - a); }
 
-function pickStarColor(c: ThemeColors) {
+function pickColor(c: ThemeColors): { r: number; g: number; b: number } {
   const r = Math.random();
   if (r < 0.35) return c.star.color1;
   if (r < 0.65) return c.star.color2;
   return c.star.color3;
 }
 
-function pickMoteColor(c: ThemeColors) {
-  const p = [c.petal.pink, c.petal.lightPink, c.petal.blush, c.petal.lavender];
-  return p[Math.floor(Math.random() * p.length)];
-}
+// ─── Twinkling Star ───
+function TwinkleStar({ x, y, size, color, delay }: {
+  x: number; y: number; size: number; color: string; delay: number;
+}) {
+  const opacity = useSharedValue(0.1);
+  const translateY = useSharedValue(0);
 
-function genStars(w: number, h: number, c: ThemeColors): StarData[] {
-  return Array.from({ length: STAR_COUNT }, () => {
-    const col = pickStarColor(c);
-    return {
-      startX: Math.random() * w, startY: Math.random() * h, radius: rand(0.8, 2.0),
-      baseAlpha: rand(0.15, 0.50), speed: rand(0.03, 0.15), phase: rand(0, Math.PI * 2),
-      cr: col.r, cg: col.g, cb: col.b,
-    };
-  });
-}
+  useEffect(() => {
+    // Twinkle: fade in/out with random timing
+    opacity.value = withDelay(delay, withRepeat(
+      withSequence(
+        withTiming(rand(0.4, 0.9), { duration: rand(1500, 3000), easing: Easing.inOut(Easing.sin) }),
+        withTiming(rand(0.05, 0.2), { duration: rand(1500, 3000), easing: Easing.inOut(Easing.sin) }),
+      ), -1, true
+    ));
+    // Gentle upward drift
+    translateY.value = withDelay(delay, withRepeat(
+      withTiming(-rand(15, 40), { duration: rand(8000, 15000), easing: Easing.linear }),
+      -1, false
+    ));
+  }, []);
 
-function genMotes(w: number, h: number, c: ThemeColors): MoteData[] {
-  return Array.from({ length: MOTE_COUNT }, () => {
-    const col = pickMoteColor(c);
-    return {
-      startX: rand(w * 0.1, w * 0.9), startY: rand(-h * 0.2, h * 0.6),
-      size: rand(3, 6), baseAlpha: rand(0.18, 0.45), fallSpeed: rand(0.2, 0.5),
-      swayFreq: rand(0.4, 1.0), swayAmp: rand(12, 30), spinSpeed: rand(0.01, 0.03),
-      phase: rand(0, Math.PI * 2), cr: col.r, cg: col.g, cb: col.b,
-      spiralR: rand(6, 20), spiralSpeed: rand(0.4, 1.2),
-    };
-  });
-}
-
-// ─── Star ───
-function Star({ data, t, h }: { data: StarData; t: SharedValue<number>; h: number }) {
-  const d = useMemo(() => Object.freeze({ ...data }), []);
-
-  const style = useAnimatedStyle(() => {
-    const time = t.value;
-    let y = d.startY - (time * DRIFT_SPEED * d.speed * 60);
-    const totalH = h + 20;
-    y = ((y % totalH) + totalH) % totalH - 10;
-    const x = d.startX + Math.sin(time * d.speed * 0.5 + d.phase) * 6;
-    const alpha = d.baseAlpha * (0.6 + 0.4 * Math.sin(time * 1.5 + d.phase));
-    return {
-      transform: [{ translateX: x }, { translateY: y }],
-      opacity: alpha,
-    };
-  });
+  const style = useAnimatedStyle(() => ({
+    opacity: opacity.value,
+    transform: [{ translateY: translateY.value }],
+  }));
 
   return (
     <Animated.View style={[{
-      position: 'absolute', width: d.radius * 2, height: d.radius * 2, borderRadius: d.radius,
-      backgroundColor: `rgb(${d.cr},${d.cg},${d.cb})`,
-      shadowColor: `rgb(${d.cr},${d.cg},${d.cb})`,
-      shadowOffset: { width: 0, height: 0 }, shadowOpacity: 0.5, shadowRadius: d.radius * 1.5,
+      position: 'absolute', left: x, top: y,
+      width: size, height: size, borderRadius: size / 2,
+      backgroundColor: color,
+      shadowColor: color,
+      shadowOffset: { width: 0, height: 0 },
+      shadowOpacity: 0.7,
+      shadowRadius: size * 2,
       elevation: 1,
     }, style]} />
   );
 }
 
-// ─── Mote (theme-adaptive particle — hex for Arcane, petal for Sakura, orb for others) ───
-function Mote({ data, t, w, h }: { data: MoteData; t: SharedValue<number>; w: number; h: number }) {
-  const d = useMemo(() => Object.freeze({ ...data }), []);
+// ─── Floating Orb (soft glow particle) ───
+function FloatingOrb({ x, y, size, color, delay }: {
+  x: number; y: number; size: number; color: string; delay: number;
+}) {
+  const opacity = useSharedValue(0);
+  const translateX = useSharedValue(0);
+  const translateY = useSharedValue(0);
+  const scale = useSharedValue(0.6);
 
-  const style = useAnimatedStyle(() => {
-    const time = t.value;
-    const age = (time * 30 + d.phase * 100) % 200;
-    const sp = Math.min(age / 80, 1);
-    const sf = 1 - sp;
-    const sX = Math.cos(time * d.spiralSpeed + d.phase) * d.spiralR * sf;
-    const sY = Math.sin(time * d.spiralSpeed + d.phase) * d.spiralR * sf * 0.6;
-    const wind = Math.sin(time * 0.3 + d.phase) * 0.3;
-    const dX = (-0.4 - wind) * sp;
-    const fY = d.fallSpeed * sp;
-    const swX = Math.sin(time * d.swayFreq + d.phase) * d.swayAmp * sp * 0.3;
-    let x = d.startX + sX + dX * time * 20 + swX;
-    let y = d.startY + sY + fY * time * 20;
-    y = ((y % (h + 40)) + (h + 40)) % (h + 40) - 20;
-    x = ((x % (w + 40)) + (w + 40)) % (w + 40) - 20;
-    const rot = time * d.spinSpeed * 60 + d.phase;
-    const pulse = 0.7 + 0.3 * Math.sin(time * 2 + d.phase);
-    const scale = sp < 1 ? pulse : 0.85 + 0.15 * pulse;
-    const alpha = d.baseAlpha * (1 - sp * 0.15) * pulse;
-    return {
-      transform: [
-        { translateX: x }, { translateY: y },
-        { rotate: `${rot}rad` }, { scaleX: scale }, { scaleY: scale },
-      ],
-      opacity: alpha,
-    };
-  });
+  useEffect(() => {
+    opacity.value = withDelay(delay, withRepeat(
+      withSequence(
+        withTiming(rand(0.15, 0.35), { duration: rand(3000, 5000), easing: Easing.inOut(Easing.quad) }),
+        withTiming(0.05, { duration: rand(3000, 5000), easing: Easing.inOut(Easing.quad) }),
+      ), -1, true
+    ));
+    translateX.value = withDelay(delay, withRepeat(
+      withSequence(
+        withTiming(rand(-20, 20), { duration: rand(5000, 9000), easing: Easing.inOut(Easing.sin) }),
+        withTiming(rand(-20, 20), { duration: rand(5000, 9000), easing: Easing.inOut(Easing.sin) }),
+      ), -1, true
+    ));
+    translateY.value = withDelay(delay, withRepeat(
+      withTiming(-rand(30, 60), { duration: rand(10000, 18000), easing: Easing.inOut(Easing.sin) }),
+      -1, false
+    ));
+    scale.value = withDelay(delay, withRepeat(
+      withSequence(
+        withTiming(rand(0.8, 1.2), { duration: rand(4000, 7000), easing: Easing.inOut(Easing.sin) }),
+        withTiming(rand(0.5, 0.8), { duration: rand(4000, 7000), easing: Easing.inOut(Easing.sin) }),
+      ), -1, true
+    ));
+  }, []);
+
+  const style = useAnimatedStyle(() => ({
+    opacity: opacity.value,
+    transform: [
+      { translateX: translateX.value },
+      { translateY: translateY.value },
+      { scale: scale.value },
+    ],
+  }));
 
   return (
-    <Animated.View style={[{ position: 'absolute', width: d.size * 2, height: d.size * 2 }, style]}>
-      <View style={{
-        position: 'absolute', width: d.size * 1.4, height: d.size * 1.4,
-        left: d.size * 0.3, top: d.size * 0.3,
-        transform: [{ rotate: '45deg' }],
-        backgroundColor: `rgba(${d.cr},${d.cg},${d.cb},0.5)`,
-        borderRadius: d.size * 0.25,
-        shadowColor: `rgb(${d.cr},${d.cg},${d.cb})`,
-        shadowOffset: { width: 0, height: 0 }, shadowOpacity: 0.4, shadowRadius: 4, elevation: 1,
-      }} />
-    </Animated.View>
+    <Animated.View style={[{
+      position: 'absolute', left: x, top: y,
+      width: size, height: size, borderRadius: size / 2,
+      backgroundColor: color,
+      shadowColor: color,
+      shadowOffset: { width: 0, height: 0 },
+      shadowOpacity: 0.5,
+      shadowRadius: size,
+      elevation: 1,
+    }, style]} />
   );
 }
 
 // ─── Shooting Star ───
-function Shooter({ t, w, h, c }: { t: SharedValue<number>; w: number; h: number; c: ThemeColors }) {
-  const shootX = useSharedValue(0);
-  const shootY = useSharedValue(0);
-  const shootAngle = useSharedValue(0.5);
-  const shootSpeed = useSharedValue(8);
-  const shootLen = useSharedValue(35);
-  const shootSpawn = useSharedValue(-999);
-
-  const { r, g, b } = c.star.color1;
+function ShootingStar({ color, delay }: { color: string; delay: number }) {
+  const x = useSharedValue(rand(0, W * 0.6));
+  const y = useSharedValue(rand(0, H * 0.3));
+  const opacity = useSharedValue(0);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      shootX.value = rand(0, w * 0.7);
-      shootY.value = rand(0, h * 0.35);
-      shootAngle.value = rand(0.25, 0.75);
-      shootSpeed.value = rand(5, 12);
-      shootLen.value = rand(25, 50);
-      shootSpawn.value = t.value;
-    }, SHOOTING_INTERVAL + rand(0, 4000));
+    const animate = () => {
+      const startX = rand(0, W * 0.6);
+      const startY = rand(0, H * 0.3);
+      x.value = startX;
+      y.value = startY;
+
+      opacity.value = withDelay(delay, withSequence(
+        withTiming(0.9, { duration: 150, easing: Easing.out(Easing.quad) }),
+        withTiming(0, { duration: 600, easing: Easing.in(Easing.quad) }),
+      ));
+      x.value = withDelay(delay, withTiming(startX + rand(100, 200), { duration: 750, easing: Easing.out(Easing.quad) }));
+      y.value = withDelay(delay, withTiming(startY + rand(60, 120), { duration: 750, easing: Easing.out(Easing.quad) }));
+    };
+
+    animate();
+    const interval = setInterval(animate, rand(6000, 12000));
     return () => clearInterval(interval);
-  }, [w, h]);
+  }, []);
 
-  const headStyle = useAnimatedStyle(() => {
-    const elapsed = t.value - shootSpawn.value;
-    const life = Math.max(0, 1 - elapsed * 0.8);
-    if (life <= 0) return { opacity: 0 };
-    const dist = elapsed * shootSpeed.value * 60;
-    const x = shootX.value + Math.cos(shootAngle.value) * dist;
-    const y = shootY.value + Math.sin(shootAngle.value) * dist;
-    return {
-      transform: [{ translateX: x }, { translateY: y }],
-      opacity: life * 0.85,
-    };
-  });
-
-  const tailStyle = useAnimatedStyle(() => {
-    const elapsed = t.value - shootSpawn.value;
-    const life = Math.max(0, 1 - elapsed * 0.8);
-    if (life <= 0) return { opacity: 0, width: 0 };
-    const dist = elapsed * shootSpeed.value * 60;
-    const x = shootX.value + Math.cos(shootAngle.value) * dist;
-    const y = shootY.value + Math.sin(shootAngle.value) * dist;
-    const len = shootLen.value;
-    const angle = shootAngle.value;
-    return {
-      transform: [
-        { translateX: x - Math.cos(angle) * len },
-        { translateY: y - Math.sin(angle) * len },
-        { rotate: `${angle}rad` },
-      ],
-      opacity: life * 0.4,
-      width: len,
-    };
-  });
+  const style = useAnimatedStyle(() => ({
+    opacity: opacity.value,
+    transform: [{ translateX: x.value }, { translateY: y.value }, { rotate: '35deg' }],
+  }));
 
   return (
-    <>
-      <Animated.View style={[{
-        position: 'absolute', height: 1.5, borderRadius: 1,
-        backgroundColor: `rgb(${r},${g},${b})`,
-      }, tailStyle]} />
-      <Animated.View style={[{
-        position: 'absolute', width: 3, height: 3, borderRadius: 1.5,
-        backgroundColor: '#fff',
-        shadowColor: '#fff', shadowOffset: { width: 0, height: 0 },
-        shadowOpacity: 0.8, shadowRadius: 3, elevation: 2,
-      }, headStyle]} />
-    </>
+    <Animated.View style={[{
+      position: 'absolute', width: 40, height: 1.5, borderRadius: 1,
+      backgroundColor: color,
+      shadowColor: '#fff',
+      shadowOffset: { width: 0, height: 0 },
+      shadowOpacity: 0.8,
+      shadowRadius: 4,
+      elevation: 2,
+    }, style]} />
   );
+}
+
+// ─── Generate star/orb data ───
+function generateField(count: number, orbCount: number, c: ThemeColors) {
+  const stars = Array.from({ length: count }, () => {
+    const col = pickColor(c);
+    return {
+      x: rand(0, W), y: rand(0, H),
+      size: rand(1.5, 3.5),
+      color: `rgb(${col.r},${col.g},${col.b})`,
+      delay: rand(0, 3000),
+    };
+  });
+  const orbs = Array.from({ length: orbCount }, () => {
+    const col = pickColor(c);
+    return {
+      x: rand(W * 0.1, W * 0.9), y: rand(H * 0.1, H * 0.8),
+      size: rand(6, 14),
+      color: `rgba(${col.r},${col.g},${col.b},0.4)`,
+      delay: rand(0, 5000),
+    };
+  });
+  const shootColor = `rgb(${c.star.color1.r},${c.star.color1.g},${c.star.color1.b})`;
+  return { stars, orbs, shootColor };
 }
 
 // ─── Full StarParallax (auth screens) ───
 export function StarParallax({ children }: { children?: React.ReactNode }) {
-  const themeColors = useThemeStore(s => s.colors);
-  const [layout, setLayout] = useState({
-    w: Dimensions.get('window').width,
-    h: Dimensions.get('window').height,
-  });
-  const t = useSharedValue(0);
-
-  const stars = useMemo(() => genStars(layout.w, layout.h, themeColors), [layout.w, layout.h, themeColors]);
-  const motes = useMemo(() => genMotes(layout.w, layout.h, themeColors), [layout.w, layout.h, themeColors]);
-
-  useFrameCallback(fi => {
-    if (fi.timeSincePreviousFrame) t.value += fi.timeSincePreviousFrame / 1000;
-  });
+  const tc = useThemeStore(s => s.colors);
+  const { stars, orbs, shootColor } = useMemo(() => generateField(40, 8, tc), [tc]);
 
   return (
-    <View
-      style={[localStyles.container, { backgroundColor: themeColors.bg.primary }]}
-      onLayout={(e: LayoutChangeEvent) => {
-        const { width: w, height: h } = e.nativeEvent.layout;
-        if (w > 0) setLayout({ w, h });
-      }}
-    >
-      <View style={[localStyles.glow, { shadowColor: themeColors.glow.top, shadowOffset: { width: 0, height: -100 } }]} />
-      <View style={[localStyles.glow, { shadowColor: themeColors.glow.bottom, shadowOffset: { width: 0, height: 100 } }]} />
+    <View style={[localStyles.container, { backgroundColor: tc.bg.primary }]}>
+      {/* Ambient glow */}
+      <View style={[localStyles.glowTop, { backgroundColor: tc.glow.top }]} />
+      <View style={[localStyles.glowBottom, { backgroundColor: tc.glow.bottom }]} />
 
       <View style={StyleSheet.absoluteFill} pointerEvents="none">
-        {stars.map((d, i) => <Star key={`s${i}`} data={d} t={t} h={layout.h} />)}
-      </View>
-      <View style={StyleSheet.absoluteFill} pointerEvents="none">
-        {motes.map((d, i) => <Mote key={`m${i}`} data={d} t={t} w={layout.w} h={layout.h} />)}
-      </View>
-      <View style={StyleSheet.absoluteFill} pointerEvents="none">
-        <Shooter t={t} w={layout.w} h={layout.h} c={themeColors} />
-        <Shooter t={t} w={layout.w} h={layout.h} c={themeColors} />
+        {stars.map((s, i) => <TwinkleStar key={`s${i}`} {...s} />)}
+        {orbs.map((o, i) => <FloatingOrb key={`o${i}`} {...o} />)}
+        <ShootingStar color={shootColor} delay={2000} />
+        <ShootingStar color={shootColor} delay={8000} />
       </View>
 
       {children}
@@ -260,43 +215,34 @@ export function StarParallax({ children }: { children?: React.ReactNode }) {
   );
 }
 
-// ─── Lightweight ambient background ───
+// ─── Lightweight ambient background (discover etc) ───
 export function StarParallaxBg() {
-  const themeColors = useThemeStore(s => s.colors);
-  const [layout, setLayout] = useState({
-    w: Dimensions.get('window').width,
-    h: Dimensions.get('window').height,
-  });
-  const t = useSharedValue(0);
-
-  const stars = useMemo(() => genStars(layout.w, layout.h, themeColors).slice(0, 16), [layout.w, layout.h, themeColors]);
-  const motes = useMemo(() => genMotes(layout.w, layout.h, themeColors).slice(0, 5), [layout.w, layout.h, themeColors]);
-
-  useFrameCallback(fi => {
-    if (fi.timeSincePreviousFrame) t.value += fi.timeSincePreviousFrame / 1000;
-  });
+  const tc = useThemeStore(s => s.colors);
+  const { stars, orbs, shootColor } = useMemo(() => generateField(20, 4, tc), [tc]);
 
   return (
-    <View
-      style={[StyleSheet.absoluteFill, { backgroundColor: themeColors.bg.primary }]}
+    <Animated.View
+      entering={FadeIn.duration(800)}
+      style={[StyleSheet.absoluteFill, { backgroundColor: tc.bg.primary }]}
       pointerEvents="none"
-      onLayout={(e: LayoutChangeEvent) => {
-        const { width: w, height: h } = e.nativeEvent.layout;
-        if (w > 0) setLayout({ w, h });
-      }}
     >
-      <View style={[localStyles.glow, { shadowColor: themeColors.glow.top, shadowOffset: { width: 0, height: -100 } }]} />
-      <View style={[localStyles.glow, { shadowColor: themeColors.glow.bottom, shadowOffset: { width: 0, height: 100 } }]} />
-      {stars.map((d, i) => <Star key={`bs${i}`} data={d} t={t} h={layout.h} />)}
-      {motes.map((d, i) => <Mote key={`bm${i}`} data={d} t={t} w={layout.w} h={layout.h} />)}
-    </View>
+      <View style={[localStyles.glowTop, { backgroundColor: tc.glow.top }]} />
+      <View style={[localStyles.glowBottom, { backgroundColor: tc.glow.bottom }]} />
+      {stars.map((s, i) => <TwinkleStar key={`bs${i}`} {...s} />)}
+      {orbs.map((o, i) => <FloatingOrb key={`bo${i}`} {...o} />)}
+      <ShootingStar color={shootColor} delay={3000} />
+    </Animated.View>
   );
 }
 
 const localStyles = StyleSheet.create({
   container: { flex: 1 },
-  glow: {
-    ...StyleSheet.absoluteFillObject, backgroundColor: 'transparent',
-    shadowOpacity: 1, shadowRadius: 200,
+  glowTop: {
+    position: 'absolute', top: 0, left: 0, right: 0, height: 200,
+    opacity: 0.6,
+  },
+  glowBottom: {
+    position: 'absolute', bottom: 0, left: 0, right: 0, height: 200,
+    opacity: 0.4,
   },
 });
