@@ -162,5 +162,8 @@ Filters My Characters, Saved, and History tabs by name/description.
 ## Iteration 54: "Seen ✓" read receipts + typing status in header ✅
 Read receipts under user messages, "typing..." subtitle in header during streaming. checkpoint-13.
 
-## Iteration 55: Loading spinner on send button during streaming
-The send button just disables during streaming with no visual feedback. Adding an animated spinner to show the AI is processing — much clearer UX than a dimmed button.
+## Iteration 55: Loading spinner on send button ✅
+ActivityIndicator replaces send icon during streaming.
+
+## Iteration 56: Expandable quality elements on character detail
+The quality score badges are compact but users want to read the full text of speech patterns, triggers, etc. Adding an expandable "Character Depth" section that shows all 6 quality elements in full.

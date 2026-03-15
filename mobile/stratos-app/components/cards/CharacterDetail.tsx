@@ -25,6 +25,7 @@ export function CharacterDetailView({ card }: CharacterDetailProps) {
   const { saveToLibrary, removeFromLibrary } = useCharacterStore();
   const [saved, setSaved] = useState(false);
   const [existingSession, setExistingSession] = useState<ChatSession | null>(null);
+  const [showDepth, setShowDepth] = useState(false);
   const accentColor = getGenreColor(card.genre_tags[0] ?? 'default');
   const btnScale = useSharedValue(1);
   const btnAnimStyle = useAnimatedStyle(() => ({ transform: [{ scale: btnScale.value }] }));
@@ -78,7 +79,25 @@ export function CharacterDetailView({ card }: CharacterDetailProps) {
       <View style={styles.section}><Text style={[styles.sectionTitle, { color: tc.text.primary }]}>Description</Text><Text style={[styles.sectionBody, { color: tc.text.secondary }]}>{card.description}</Text></View>
       {card.personality && <View style={styles.section}><Text style={[styles.sectionTitle, { color: tc.text.primary }]}>Personality</Text><Text style={[styles.sectionBody, { color: tc.text.secondary }]}>{card.personality}</Text></View>}
       {card.scenario && <View style={styles.section}><Text style={[styles.sectionTitle, { color: tc.text.primary }]}>Scenario</Text><Text style={[styles.sectionBody, { color: tc.text.secondary }]}>{card.scenario}</Text></View>}
-      <View style={styles.section}><Text style={[styles.sectionTitle, { color: tc.text.primary }]}>Quality Elements</Text><QualityScore card={card} showElements size="large" /></View>
+      <View style={styles.section}>
+        <Text style={[styles.sectionTitle, { color: tc.text.primary }]}>Quality Elements</Text>
+        <QualityScore card={card} showElements size="large" />
+        {(card.speech_pattern || card.emotional_trigger || card.defensive_mechanism || card.vulnerability || card.specific_detail || card.physical_description) && (
+          <TouchableOpacity style={[styles.depthToggle, { borderColor: accentColor + '30' }]} onPress={() => setShowDepth(!showDepth)} activeOpacity={0.7}>
+            <Text style={[styles.depthToggleText, { color: accentColor }]}>{showDepth ? 'Hide Details' : 'Show Character Depth'}</Text>
+          </TouchableOpacity>
+        )}
+        {showDepth && (
+          <View style={styles.depthGrid}>
+            {card.physical_description && <DepthItem label="Appearance" value={card.physical_description} tc={tc} />}
+            {card.speech_pattern && <DepthItem label="Speech Pattern" value={card.speech_pattern} tc={tc} />}
+            {card.emotional_trigger && <DepthItem label="Emotional Triggers" value={card.emotional_trigger} tc={tc} />}
+            {card.defensive_mechanism && <DepthItem label="Defenses" value={card.defensive_mechanism} tc={tc} />}
+            {card.vulnerability && <DepthItem label="Vulnerability" value={card.vulnerability} tc={tc} />}
+            {card.specific_detail && <DepthItem label="Signature Detail" value={card.specific_detail} tc={tc} />}
+          </View>
+        )}
+      </View>
       <Animated.View style={btnAnimStyle}>
         {existingSession ? (
           <>
@@ -118,6 +137,15 @@ export function CharacterDetailView({ card }: CharacterDetailProps) {
   );
 }
 
+function DepthItem({ label, value, tc }: { label: string; value: string; tc: any }) {
+  return (
+    <View style={{ marginBottom: spacing.md }}>
+      <Text style={{ fontSize: 10, fontWeight: '700', color: tc.text.muted, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 3 }}>{label}</Text>
+      <Text style={{ fontSize: 13, color: tc.text.secondary, lineHeight: 19 }}>{value}</Text>
+    </View>
+  );
+}
+
 function formatRelativeTime(iso: string): string {
   const diff = Date.now() - new Date(iso).getTime();
   const mins = Math.floor(diff / 60000);
@@ -153,4 +181,7 @@ const styles = StyleSheet.create({
   newSessionText: { ...typography.caption, fontWeight: '600' },
   reportBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.xs, paddingVertical: spacing.lg, marginTop: spacing.lg },
   reportText: { ...typography.small },
+  depthToggle: { paddingVertical: spacing.sm, marginTop: spacing.sm, borderRadius: borderRadius.sm, borderWidth: 1, alignItems: 'center' },
+  depthToggleText: { fontSize: 12, fontWeight: '600' },
+  depthGrid: { marginTop: spacing.md },
 });
