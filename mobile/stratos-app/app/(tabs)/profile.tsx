@@ -1,15 +1,21 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { LogOut, Moon, Type, Bell, Server, Shield } from 'lucide-react-native';
 import { useAuthStore } from '../../stores/authStore';
+import { getUserStats } from '../../lib/storage';
+import { formatCount } from '../../lib/types';
 import { colors, typography, spacing, borderRadius } from '../../constants/theme';
 
 export default function ProfileScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const { user, logout } = useAuthStore();
+  const [stats, setStats] = useState({ totalSessions: 0, totalMessages: 0, totalCharacters: 0 });
+
+  useEffect(() => { getUserStats().then(setStats); }, []);
+
   const handleLogout = () => Alert.alert('Sign Out', 'Are you sure?', [{ text: 'Cancel', style: 'cancel' }, { text: 'Sign Out', style: 'destructive', onPress: async () => { await logout(); router.replace('/(auth)/login'); } }]);
   return (
     <ScrollView style={[styles.container, { paddingTop: insets.top }]}>
@@ -19,11 +25,11 @@ export default function ProfileScreen() {
         <Text style={styles.email}>{user?.email ?? ''}</Text>
       </View>
       <View style={styles.statsRow}>
-        <View style={styles.stat}><Text style={styles.statVal}>0</Text><Text style={styles.statLbl}>Sessions</Text></View>
+        <View style={styles.stat}><Text style={styles.statVal}>{formatCount(stats.totalSessions)}</Text><Text style={styles.statLbl}>Sessions</Text></View>
         <View style={styles.statDiv} />
-        <View style={styles.stat}><Text style={styles.statVal}>0</Text><Text style={styles.statLbl}>Characters</Text></View>
+        <View style={styles.stat}><Text style={styles.statVal}>{formatCount(stats.totalCharacters)}</Text><Text style={styles.statLbl}>Characters</Text></View>
         <View style={styles.statDiv} />
-        <View style={styles.stat}><Text style={styles.statVal}>0</Text><Text style={styles.statLbl}>Messages</Text></View>
+        <View style={styles.stat}><Text style={styles.statVal}>{formatCount(stats.totalMessages)}</Text><Text style={styles.statLbl}>Messages</Text></View>
       </View>
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Settings</Text>

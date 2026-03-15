@@ -1,22 +1,48 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
 import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
-import { Star, BookmarkPlus } from 'lucide-react-native';
+import * as Haptics from 'expo-haptics';
+import { Star, BookmarkPlus, BookmarkCheck } from 'lucide-react-native';
 import { CharacterCard, formatCount } from '../../lib/types';
 import { TagPills } from './TagPills';
 import { QualityScore } from './QualityScore';
 import { useChatStore } from '../../stores/chatStore';
+import { useCharacterStore } from '../../stores/characterStore';
+import { isCardSaved } from '../../lib/storage';
 import { colors, typography, spacing, borderRadius } from '../../constants/theme';
 import { getGenreColor } from '../../constants/genres';
+import Animated, { useSharedValue, useAnimatedStyle, withSpring, withSequence } from 'react-native-reanimated';
 
 interface CharacterDetailProps { card: CharacterCard; }
 
 export function CharacterDetailView({ card }: CharacterDetailProps) {
   const router = useRouter();
   const startSession = useChatStore((s) => s.startSession);
+  const { saveToLibrary, removeFromLibrary } = useCharacterStore();
+  const [saved, setSaved] = useState(false);
   const accentColor = getGenreColor(card.genre_tags[0] ?? 'default');
-  const handleStartChat = () => { startSession(card, 'roleplay'); router.push(`/chat/${card.id}`); };
+  const btnScale = useSharedValue(1);
+  const btnAnimStyle = useAnimatedStyle(() => ({ transform: [{ scale: btnScale.value }] }));
+
+  useEffect(() => { isCardSaved(card.id).then(setSaved); }, [card.id]);
+
+  const handleStartChat = () => {
+    btnScale.value = withSequence(withSpring(0.95, { damping: 15 }), withSpring(1, { damping: 10 }));
+    startSession(card, 'roleplay');
+    router.push(`/chat/${card.id}`);
+  };
+
+  const handleToggleSave = async () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    if (saved) {
+      await removeFromLibrary(card.id);
+      setSaved(false);
+    } else {
+      await saveToLibrary(card);
+      setSaved(true);
+    }
+  };
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
@@ -36,11 +62,14 @@ export function CharacterDetailView({ card }: CharacterDetailProps) {
       {card.personality && <View style={styles.section}><Text style={styles.sectionTitle}>Personality</Text><Text style={styles.sectionBody}>{card.personality}</Text></View>}
       {card.scenario && <View style={styles.section}><Text style={styles.sectionTitle}>Scenario</Text><Text style={styles.sectionBody}>{card.scenario}</Text></View>}
       <View style={styles.section}><Text style={styles.sectionTitle}>Quality Elements</Text><QualityScore card={card} showElements size="large" /></View>
-      <TouchableOpacity style={[styles.primaryButton, { backgroundColor: accentColor }]} onPress={handleStartChat} activeOpacity={0.8}>
-        <Text style={styles.primaryButtonText}>Start Conversation</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.secondaryButton} activeOpacity={0.7}>
-        <BookmarkPlus size={18} color={colors.text.secondary} /><Text style={styles.secondaryButtonText}>Save to Library</Text>
+      <Animated.View style={btnAnimStyle}>
+        <TouchableOpacity style={[styles.primaryButton, { backgroundColor: accentColor }]} onPress={handleStartChat} activeOpacity={0.8}>
+          <Text style={styles.primaryButtonText}>Start Conversation</Text>
+        </TouchableOpacity>
+      </Animated.View>
+      <TouchableOpacity style={[styles.secondaryButton, saved && { borderColor: colors.status.success + '60', backgroundColor: colors.status.success + '10' }]} onPress={handleToggleSave} activeOpacity={0.7}>
+        {saved ? <BookmarkCheck size={18} color={colors.status.success} /> : <BookmarkPlus size={18} color={colors.text.secondary} />}
+        <Text style={[styles.secondaryButtonText, saved && { color: colors.status.success }]}>{saved ? 'Saved' : 'Save to Library'}</Text>
       </TouchableOpacity>
       <View style={{ height: spacing.xxl }} />
     </ScrollView>

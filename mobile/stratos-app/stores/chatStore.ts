@@ -1,6 +1,7 @@
 import { create } from 'zustand';
-import { ChatMessage, CharacterCard, Suggestion } from '../lib/types';
+import { ChatMessage, ChatSession, CharacterCard, Suggestion } from '../lib/types';
 import { streamMessage, getSuggestions, createMessageId } from '../lib/chat';
+import { saveChatSession, loadChatSessions, getChatSession, incrementStat } from '../lib/storage';
 
 interface ChatState {
   sessionId: string | null;
@@ -11,15 +12,19 @@ interface ChatState {
   isStreaming: boolean;
   streamingContent: string;
   isLoadingSuggestions: boolean;
+  recentSessions: ChatSession[];
   startSession: (character: CharacterCard, persona?: 'roleplay' | 'gaming') => void;
+  resumeSession: (session: ChatSession) => void;
   sendMessage: (content: string) => Promise<void>;
   loadSuggestions: () => Promise<void>;
+  loadRecentSessions: () => Promise<void>;
   clearSession: () => void;
+  persistSession: () => Promise<void>;
 }
 
 export const useChatStore = create<ChatState>((set, get) => ({
   sessionId: null, character: null, persona: 'roleplay', messages: [], suggestions: [],
-  isStreaming: false, streamingContent: '', isLoadingSuggestions: false,
+  isStreaming: false, streamingContent: '', isLoadingSuggestions: false, recentSessions: [],
   startSession: (character, persona = 'roleplay') => {
     const sessionId = `session-${character.id}-${Date.now()}`;
     const messages: ChatMessage[] = [];
@@ -27,6 +32,16 @@ export const useChatStore = create<ChatState>((set, get) => ({
       messages.push({ id: createMessageId(), role: 'assistant', content: character.first_message, timestamp: new Date().toISOString() });
     }
     set({ sessionId, character, persona, messages, suggestions: [], isStreaming: false, streamingContent: '' });
+    incrementStat('totalSessions').catch(() => {});
+  },
+  resumeSession: (session: ChatSession) => {
+    set({
+      sessionId: session.id,
+      character: { id: session.character_id, name: session.character_name, avatar_url: session.character_avatar } as CharacterCard,
+      persona: session.persona,
+      messages: session.messages,
+      suggestions: [], isStreaming: false, streamingContent: '',
+    });
   },
   sendMessage: async (content) => {
     const { sessionId, character, persona, messages } = get();
@@ -39,6 +54,8 @@ export const useChatStore = create<ChatState>((set, get) => ({
       () => {
         const assistantMessage: ChatMessage = { id: createMessageId(), role: 'assistant', content: accumulated, timestamp: new Date().toISOString() };
         set((state) => ({ messages: [...state.messages, assistantMessage], isStreaming: false, streamingContent: '' }));
+        incrementStat('totalMessages', 2).catch(() => {}); // user + assistant
+        get().persistSession();
         get().loadSuggestions();
       },
     );
@@ -53,5 +70,29 @@ export const useChatStore = create<ChatState>((set, get) => ({
       set({ suggestions, isLoadingSuggestions: false });
     } catch { set({ isLoadingSuggestions: false }); }
   },
-  clearSession: () => { set({ sessionId: null, character: null, messages: [], suggestions: [], isStreaming: false, streamingContent: '' }); },
+  loadRecentSessions: async () => {
+    try {
+      const sessions = await loadChatSessions();
+      set({ recentSessions: sessions });
+    } catch {}
+  },
+  clearSession: () => {
+    get().persistSession();
+    set({ sessionId: null, character: null, messages: [], suggestions: [], isStreaming: false, streamingContent: '' });
+  },
+  persistSession: async () => {
+    const { sessionId, character, persona, messages } = get();
+    if (!sessionId || !character || messages.length === 0) return;
+    const session: ChatSession = {
+      id: sessionId,
+      character_id: character.id,
+      character_name: character.name,
+      character_avatar: character.avatar_url,
+      persona,
+      messages,
+      created_at: messages[0]?.timestamp ?? new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    };
+    await saveChatSession(session);
+  },
 }));

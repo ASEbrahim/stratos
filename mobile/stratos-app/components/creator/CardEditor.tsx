@@ -1,22 +1,34 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, ScrollView, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
+import * as Haptics from 'expo-haptics';
+import * as DocumentPicker from 'expo-document-picker';
+import { Upload } from 'lucide-react-native';
 import { CharacterCardCreate, getQualityScore } from '../../lib/types';
 import { createCharacter } from '../../lib/characters';
+import { parseTavernCard } from '../../lib/tavern-import';
+import { incrementStat } from '../../lib/storage';
 import { GuidedFields } from './GuidedFields';
+import { AvatarPicker } from './AvatarPicker';
 import { GENRES } from '../../constants/genres';
+import { FEATURES } from '../../constants/config';
 import { colors, typography, spacing, borderRadius } from '../../constants/theme';
+import Animated, { useSharedValue, useAnimatedStyle, withSpring, withSequence } from 'react-native-reanimated';
 
 export function CardEditor() {
   const router = useRouter();
   const [mode, setMode] = useState<'quick' | 'advanced'>('quick');
   const [saving, setSaving] = useState(false);
+  const [importing, setImporting] = useState(false);
   const [card, setCard] = useState<CharacterCardCreate>({
     name: '', description: '', personality: '', scenario: '', first_message: '',
     physical_description: '', speech_pattern: '', emotional_trigger: '',
     defensive_mechanism: '', vulnerability: '', specific_detail: '',
     genre_tags: [], content_rating: 'sfw', avatar_url: '',
   });
+
+  const saveBtnScale = useSharedValue(1);
+  const saveBtnAnimStyle = useAnimatedStyle(() => ({ transform: [{ scale: saveBtnScale.value }] }));
 
   const update = (key: keyof CharacterCardCreate, value: string | string[]) => setCard(prev => ({ ...prev, [key]: value }));
   const toggleGenre = (id: string) => setCard(prev => ({
@@ -29,11 +41,38 @@ export function CardEditor() {
   const handleSave = async () => {
     if (!card.name.trim()) { Alert.alert('Missing Name', 'Give your character a name.'); return; }
     setSaving(true);
+    saveBtnScale.value = withSequence(withSpring(0.95, { damping: 15 }), withSpring(1, { damping: 10 }));
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     try {
       await createCharacter(card);
+      await incrementStat('totalCharacters');
       Alert.alert('Created!', 'Your character has been created.', [{ text: 'OK', onPress: () => router.back() }]);
     } catch { Alert.alert('Error', 'Failed to create character.'); }
     finally { setSaving(false); }
+  };
+
+  const handleImportTavern = async () => {
+    try {
+      setImporting(true);
+      // Use file picker for PNG files
+      const result = await DocumentPicker.getDocumentAsync({
+        type: 'image/png',
+        copyToCacheDirectory: true,
+      });
+      if (result.canceled || !result.assets?.[0]) { setImporting(false); return; }
+      const parsed = await parseTavernCard(result.assets[0].uri);
+      if (!parsed) {
+        Alert.alert('Import Failed', 'No TavernCard V2 data found in this PNG. Make sure it\'s a valid character card file.');
+        setImporting(false);
+        return;
+      }
+      setCard(parsed);
+      setMode('advanced'); // Show all imported fields
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      Alert.alert('Imported!', `"${parsed.name}" loaded. Review and edit before saving.`);
+    } catch {
+      Alert.alert('Error', 'Failed to import card file.');
+    } finally { setImporting(false); }
   };
 
   return (
@@ -48,10 +87,25 @@ export function CardEditor() {
         </TouchableOpacity>
       </View>
 
+      {/* TavernCard import */}
+      {FEATURES.enableTavernImport && (
+        <TouchableOpacity style={styles.importBtn} onPress={handleImportTavern} disabled={importing} activeOpacity={0.7}>
+          <Upload size={16} color={colors.accent.primary} />
+          <Text style={styles.importText}>{importing ? 'Importing...' : 'Import TavernCard V2'}</Text>
+        </TouchableOpacity>
+      )}
+
       {/* Quality indicator */}
       <View style={[styles.qualityBanner, { borderColor: qualityColor + '40' }]}>
         <Text style={[styles.qualityLabel, { color: qualityColor }]}>{quality.label} ({quality.score}/6 elements)</Text>
       </View>
+
+      {/* Avatar picker */}
+      <AvatarPicker
+        avatarUri={card.avatar_url}
+        onPick={(uri) => update('avatar_url', uri)}
+        onClear={() => update('avatar_url', '')}
+      />
 
       <Text style={styles.fieldLabel}>Name *</Text>
       <TextInput style={styles.input} value={card.name} onChangeText={v => update('name', v)} placeholder="Character name" placeholderTextColor={colors.text.muted} />
@@ -105,9 +159,11 @@ export function CardEditor() {
         </View>
       </View>
 
-      <TouchableOpacity style={[styles.saveBtn, saving && { opacity: 0.6 }]} onPress={handleSave} disabled={saving}>
-        <Text style={styles.saveBtnText}>{saving ? 'Creating...' : 'Create Character'}</Text>
-      </TouchableOpacity>
+      <Animated.View style={saveBtnAnimStyle}>
+        <TouchableOpacity style={[styles.saveBtn, saving && { opacity: 0.6 }]} onPress={handleSave} disabled={saving}>
+          <Text style={styles.saveBtnText}>{saving ? 'Creating...' : 'Create Character'}</Text>
+        </TouchableOpacity>
+      </Animated.View>
       <View style={{ height: spacing.xxl }} />
     </ScrollView>
   );
@@ -135,6 +191,8 @@ const styles = StyleSheet.create({
   ratingRow: { marginTop: spacing.lg },
   ratingToggle: { flexDirection: 'row', gap: spacing.sm, marginTop: spacing.sm },
   ratingOpt: { paddingHorizontal: spacing.xl, paddingVertical: spacing.sm, borderRadius: borderRadius.md, borderWidth: 1, borderColor: colors.border.subtle },
+  importBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.sm, paddingVertical: spacing.md, borderRadius: borderRadius.md, borderWidth: 1, borderColor: colors.accent.primary + '40', backgroundColor: colors.accent.primary + '08', marginBottom: spacing.lg },
+  importText: { ...typography.caption, color: colors.accent.primary, fontWeight: '600' },
   saveBtn: { backgroundColor: colors.accent.primary, paddingVertical: spacing.lg, borderRadius: borderRadius.lg, alignItems: 'center', marginTop: spacing.xxl },
   saveBtnText: { ...typography.subheading, color: '#fff' },
 });

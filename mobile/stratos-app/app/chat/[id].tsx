@@ -1,6 +1,7 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useCallback } from 'react';
 import { View, FlatList, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useFocusEffect } from 'expo-router';
 import * as Haptics from 'expo-haptics';
 import { useChatStore } from '../../stores/chatStore';
 import { SessionHeader } from '../../components/chat/SessionHeader';
@@ -16,8 +17,11 @@ export default function ChatScreen() {
   const insets = useSafeAreaInsets();
   const listRef = useRef<FlatList>(null);
   const prevStreamRef = useRef(false);
-  const { character, messages, suggestions, isStreaming, streamingContent, sendMessage } = useChatStore();
-  const accentColor = character ? getGenreColor(character.genre_tags[0] ?? 'default') : undefined;
+  const { character, messages, suggestions, isStreaming, streamingContent, sendMessage, persistSession } = useChatStore();
+  const accentColor = character ? getGenreColor(character.genre_tags?.[0] ?? 'default') : undefined;
+
+  // Persist session when leaving the screen
+  useFocusEffect(useCallback(() => { return () => { persistSession(); }; }, []));
 
   useEffect(() => { if (isStreaming && !prevStreamRef.current) Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium); prevStreamRef.current = isStreaming; }, [isStreaming]);
   useEffect(() => { if (messages.length > 0) setTimeout(() => listRef.current?.scrollToEnd({ animated: true }), 100); }, [messages.length, streamingContent]);
