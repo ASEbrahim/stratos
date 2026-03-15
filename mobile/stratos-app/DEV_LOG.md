@@ -240,5 +240,8 @@ SFW/18+ toggle with green/red themed colors in quick mode.
 ## Iteration 80: Comprehensive audit + memory update ✅
 TSC clean, bundle OK, 95 commits, checkpoint-19.
 
-## Iteration 81: Character definition word count on detail
-Users writing characters want to know how detailed they are. Adding a small "X words" indicator on the detail page showing total definition length — helps users gauge character depth at a glance.
+## Iteration 81: Character word count on detail ✅
+Total word count of all character definition fields shown in meta row.
+
+## Iteration 82: Discover header with app logo
+The discover screen has no branding at the top. Adding a small "StratOS" text logo header — establishes brand identity and feels more like a real app.

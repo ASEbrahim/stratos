@@ -56,6 +56,10 @@ export default function DiscoverScreen() {
     <View style={[styles.container, { paddingTop: insets.top, backgroundColor: tc.bg.primary }]}>
       <StarParallaxBg />
       <ScrollView style={styles.scroll} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={tc.accent.primary} />}>
+        <View style={styles.brandRow}>
+          <Text style={[styles.brandText, { color: tc.accent.primary }]}>StratOS</Text>
+          <Text style={[styles.brandSub, { color: tc.text.muted }]}>Characters</Text>
+        </View>
         <View style={styles.searchRow}>
           <View style={[styles.searchBox, { backgroundColor: tc.bg.tertiary, flex: 1 }]}>
             <Search size={18} color={tc.text.muted} />
@@ -216,7 +220,10 @@ export default function DiscoverScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1 },
   scroll: { flex: 1 },
-  searchRow: { flexDirection: 'row', alignItems: 'center', marginHorizontal: spacing.lg, marginTop: spacing.md, marginBottom: spacing.lg, gap: spacing.sm },
+  brandRow: { flexDirection: 'row', alignItems: 'baseline', paddingHorizontal: spacing.lg, paddingTop: spacing.md, gap: spacing.sm },
+  brandText: { fontSize: 22, fontWeight: '800', letterSpacing: -0.5 },
+  brandSub: { fontSize: 12, fontWeight: '500' },
+  searchRow: { flexDirection: 'row', alignItems: 'center', marginHorizontal: spacing.lg, marginTop: spacing.sm, marginBottom: spacing.lg, gap: spacing.sm },
   searchBox: { flexDirection: 'row', alignItems: 'center', borderRadius: borderRadius.lg, paddingHorizontal: spacing.lg, gap: spacing.sm },
   shuffleBtn: { width: 44, height: 44, borderRadius: borderRadius.lg, justifyContent: 'center', alignItems: 'center' },
   searchInput: { flex: 1, paddingVertical: spacing.md, fontSize: 15 },
