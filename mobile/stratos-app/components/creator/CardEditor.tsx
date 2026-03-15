@@ -131,16 +131,6 @@ export function CardEditor() {
         })}
       </View>
 
-      <Text style={[styles.fieldLabel, { color: tc.text.primary }]}>Content Rating</Text>
-      <View style={styles.contentRatingRow}>
-        <TouchableOpacity style={[styles.contentRatingBtn, { backgroundColor: card.content_rating === 'sfw' ? tc.status.success + '20' : tc.bg.tertiary, borderColor: card.content_rating === 'sfw' ? tc.status.success + '60' : tc.border.subtle }]} onPress={() => { update('content_rating', 'sfw'); Haptics.selectionAsync(); }} accessibilityLabel={`SFW rating${card.content_rating === 'sfw' ? ', selected' : ''}`} accessibilityRole="button">
-          <Text style={{ color: card.content_rating === 'sfw' ? tc.status.success : tc.text.muted, fontSize: 13, fontWeight: '600' }}>SFW</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={[styles.contentRatingBtn, { backgroundColor: card.content_rating === 'nsfw' ? tc.nsfw + '20' : tc.bg.tertiary, borderColor: card.content_rating === 'nsfw' ? tc.nsfw + '60' : tc.border.subtle }]} onPress={() => { update('content_rating', 'nsfw'); Haptics.selectionAsync(); }} accessibilityLabel={`NSFW rating${card.content_rating === 'nsfw' ? ', selected' : ''}`} accessibilityRole="button">
-          <Text style={{ color: card.content_rating === 'nsfw' ? tc.nsfw : tc.text.muted, fontSize: 13, fontWeight: '600' }}>18+</Text>
-        </TouchableOpacity>
-      </View>
-
       <Text style={[styles.fieldLabel, { color: tc.text.primary }]}>Description</Text>
       <TextInput style={[styles.input, styles.multiline, { backgroundColor: tc.bg.tertiary, color: tc.text.primary, borderColor: tc.border.subtle }]} value={card.description} onChangeText={v => update('description', v)} placeholder="Who is this character?" placeholderTextColor={tc.text.muted} multiline textAlignVertical="top" accessibilityLabel="Character description" />
       <WordCount text={card.description} />
