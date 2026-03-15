@@ -174,5 +174,8 @@ Toggle shows all 6 quality elements in full text format.
 ## Iteration 58: Keyboard dismiss on scroll ✅
 Keyboard auto-dismisses when dragging chat messages. checkpoint-14.
 
-## Iteration 59: Animated empty state illustrations
-Empty states on Library tabs are plain text. Adding themed illustrations (emoji + descriptive text) that match the active theme — makes the app feel more alive when there's no content.
+## Iteration 59: Animated empty states with icons ✅
+Spring-animated emoji icons + fade-in text on empty states.
+
+## Iteration 60: "Random Character" shuffle button on discover
+Users in a browsing mood want serendipity. Adding a shuffle button that picks a random character and navigates to their detail page — fun, low-friction discovery mechanic.

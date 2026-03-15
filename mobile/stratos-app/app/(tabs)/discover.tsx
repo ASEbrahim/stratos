@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, TextInput, StyleSheet, RefreshControl } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Search } from 'lucide-react-native';
+import { Search, Shuffle } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useCharacterStore } from '../../stores/characterStore';
@@ -56,9 +56,21 @@ export default function DiscoverScreen() {
     <View style={[styles.container, { paddingTop: insets.top, backgroundColor: tc.bg.primary }]}>
       <StarParallaxBg />
       <ScrollView style={styles.scroll} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={tc.accent.primary} />}>
-        <View style={[styles.searchBox, { backgroundColor: tc.bg.tertiary }]}>
-          <Search size={18} color={tc.text.muted} />
-          <TextInput style={[styles.searchInput, { color: tc.text.primary }]} value={searchQuery} onChangeText={handleSearch} placeholder="Search characters..." placeholderTextColor={tc.text.muted} />
+        <View style={styles.searchRow}>
+          <View style={[styles.searchBox, { backgroundColor: tc.bg.tertiary, flex: 1 }]}>
+            <Search size={18} color={tc.text.muted} />
+            <TextInput style={[styles.searchInput, { color: tc.text.primary }]} value={searchQuery} onChangeText={handleSearch} placeholder="Search characters..." placeholderTextColor={tc.text.muted} />
+          </View>
+          {newCards.length > 0 && (
+            <TouchableOpacity style={[styles.shuffleBtn, { backgroundColor: tc.accent.primary + '15' }]} onPress={() => {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+              const all = filterNsfw(newCards);
+              const pick = all[Math.floor(Math.random() * all.length)];
+              if (pick) router.push(`/character/${pick.id}`);
+            }} activeOpacity={0.7}>
+              <Shuffle size={18} color={tc.accent.primary} />
+            </TouchableOpacity>
+          )}
         </View>
         {isLoading && trending.length === 0 && <DiscoverSkeleton />}
         {/* Featured Character Spotlight */}
@@ -200,7 +212,9 @@ export default function DiscoverScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1 },
   scroll: { flex: 1 },
-  searchBox: { flexDirection: 'row', alignItems: 'center', borderRadius: borderRadius.lg, paddingHorizontal: spacing.lg, marginHorizontal: spacing.lg, marginTop: spacing.md, marginBottom: spacing.lg, gap: spacing.sm },
+  searchRow: { flexDirection: 'row', alignItems: 'center', marginHorizontal: spacing.lg, marginTop: spacing.md, marginBottom: spacing.lg, gap: spacing.sm },
+  searchBox: { flexDirection: 'row', alignItems: 'center', borderRadius: borderRadius.lg, paddingHorizontal: spacing.lg, gap: spacing.sm },
+  shuffleBtn: { width: 44, height: 44, borderRadius: borderRadius.lg, justifyContent: 'center', alignItems: 'center' },
   searchInput: { flex: 1, paddingVertical: spacing.md, fontSize: 15 },
   sectionHdr: { paddingHorizontal: spacing.lg, marginTop: spacing.lg, marginBottom: spacing.md },
   sectionTitle: { ...typography.heading },
