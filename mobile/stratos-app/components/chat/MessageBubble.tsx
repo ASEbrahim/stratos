@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import * as Haptics from 'expo-haptics';
+import * as Clipboard from 'expo-clipboard';
 import Animated, { useSharedValue, useAnimatedStyle, withSpring, FadeIn } from 'react-native-reanimated';
 import { ChatMessage } from '../../lib/types';
 import { typography, spacing, borderRadius } from '../../constants/theme';
@@ -29,8 +30,10 @@ export function MessageBubble({ message, accentColor }: MessageBubbleProps) {
   const handleLongPress = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     Alert.alert('Message', undefined, [
-      { text: 'Copy Text', onPress: () => {} },
-      { text: 'Regenerate', onPress: () => {}, style: 'default' },
+      { text: 'Copy Text', onPress: async () => {
+        await Clipboard.setStringAsync(message.content);
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      }},
       { text: 'Cancel', style: 'cancel' },
     ]);
   };

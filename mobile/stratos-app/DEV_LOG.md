@@ -150,5 +150,8 @@ Shows character avatar, name, and description at the start of new conversations.
 ## Iteration 50: Double-tap to bookmark with heart animation ✅
 Double-tap saves to library with animated heart burst. checkpoint-12 tagged.
 
-## Iteration 51: Character card creator name linkable + "by @creator" on Popular cards
-Popular This Week cards don't show the creator. Adding creator attribution — users want to know who made their favorite characters.
+## Iteration 51: Creator attribution + rating on Popular cards ✅
+"by @creator" and star rating on Popular This Week. Now shows 5 cards.
+
+## Iteration 52: Message copy to clipboard
+The long-press "Copy Text" option doesn't actually copy. Wiring up Clipboard API so users can actually copy message text — essential for sharing quotes from RP sessions.
