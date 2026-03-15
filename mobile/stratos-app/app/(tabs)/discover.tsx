@@ -24,7 +24,14 @@ export default function DiscoverScreen() {
 
   useEffect(() => { loadTrending(); loadNew(); getScenarios().then(setScenarios); }, []);
   const onRefresh = useCallback(async () => { setRefreshing(true); await Promise.all([loadTrending(), loadNew(), getScenarios().then(setScenarios)]); setRefreshing(false); }, []);
-  const handleSearch = (text: string) => { setSearchQuery(text); if (text.trim()) search(text.trim(), selectedGenre ?? undefined); };
+  const searchTimer = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+  const handleSearch = (text: string) => {
+    setSearchQuery(text);
+    if (searchTimer.current) clearTimeout(searchTimer.current);
+    searchTimer.current = setTimeout(() => {
+      if (text.trim()) search(text.trim(), selectedGenre ?? undefined);
+    }, 300);
+  };
   const displayCards = searchQuery.trim() ? useCharacterStore.getState().searchResults : (selectedGenre ? newCards.filter(c => c.genre_tags.includes(selectedGenre)) : newCards);
 
   return (
@@ -72,7 +79,15 @@ export default function DiscoverScreen() {
           })}
         </ScrollView>
         <View style={styles.sectionHdr}><Text style={[styles.sectionTitle, { color: tc.text.primary }]}>{searchQuery.trim() ? 'Search Results' : 'New Characters'}</Text></View>
-        <View style={styles.grid}>{displayCards.map(c => <CharacterCardComponent key={c.id} card={c} />)}</View>
+        {displayCards.length === 0 && searchQuery.trim() ? (
+          <View style={styles.emptySearch}>
+            <Text style={[styles.emptyIcon]}>🔍</Text>
+            <Text style={[styles.emptyTitle, { color: tc.text.secondary }]}>No characters found</Text>
+            <Text style={[styles.emptySubtitle, { color: tc.text.muted }]}>Try a different search term or browse by genre</Text>
+          </View>
+        ) : (
+          <View style={styles.grid}>{displayCards.map(c => <CharacterCardComponent key={c.id} card={c} />)}</View>
+        )}
         <View style={{ height: spacing.xxl }} />
       </ScrollView>
     </View>
@@ -91,6 +106,10 @@ const styles = StyleSheet.create({
   genreChip: { paddingHorizontal: spacing.md, paddingVertical: spacing.sm, borderRadius: borderRadius.full, borderWidth: 1 },
   genreText: { ...typography.caption },
   grid: { flexDirection: 'row', flexWrap: 'wrap', paddingHorizontal: spacing.lg, gap: spacing.lg },
+  emptySearch: { alignItems: 'center', paddingVertical: spacing.xxl * 2, paddingHorizontal: spacing.xxl },
+  emptyIcon: { fontSize: 40, marginBottom: spacing.md },
+  emptyTitle: { ...typography.subheading, marginBottom: spacing.xs },
+  emptySubtitle: { ...typography.caption, textAlign: 'center' },
   welcomeCard: { marginHorizontal: spacing.lg, marginBottom: spacing.md, padding: spacing.lg, borderRadius: borderRadius.lg, borderWidth: 1 },
   welcomeTitle: { ...typography.subheading, marginBottom: spacing.xs },
   welcomeBody: { ...typography.caption, lineHeight: 18 },

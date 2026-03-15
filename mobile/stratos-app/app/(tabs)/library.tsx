@@ -8,11 +8,13 @@ import { useChatStore } from '../../stores/chatStore';
 import { CharacterCardComponent } from '../../components/cards/CharacterCard';
 import { EmptyState } from '../../components/shared/EmptyState';
 import { ChatSession } from '../../lib/types';
+import { useThemeStore } from '../../stores/themeStore';
 import { colors, typography, spacing, borderRadius } from '../../constants/theme';
 
 export default function LibraryScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
+  const tc = useThemeStore(s => s.colors);
   const { myCards, savedCards, loadMyCards, loadSaved } = useCharacterStore();
   const { recentSessions, loadRecentSessions, resumeSession } = useChatStore();
   const [tab, setTab] = useState<'mine' | 'saved' | 'history'>('mine');
@@ -27,8 +29,8 @@ export default function LibraryScreen() {
   const cards = tab === 'mine' ? myCards : savedCards;
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top }]}>
-      <Text style={styles.title}>Library</Text>
+    <View style={[styles.container, { paddingTop: insets.top, backgroundColor: tc.bg.primary }]}>
+      <Text style={[styles.title, { color: tc.text.primary }]}>Library</Text>
       <View style={styles.tabs}>
         <TouchableOpacity style={[styles.tab, tab === 'mine' && styles.tabActive]} onPress={() => setTab('mine')}><Text style={[styles.tabText, tab === 'mine' && styles.tabTextActive]}>My Characters</Text></TouchableOpacity>
         <TouchableOpacity style={[styles.tab, tab === 'saved' && styles.tabActive]} onPress={() => setTab('saved')}><Text style={[styles.tabText, tab === 'saved' && styles.tabTextActive]}>Saved</Text></TouchableOpacity>
