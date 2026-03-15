@@ -3,7 +3,7 @@ import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Alert, Share } fr
 import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 import * as Haptics from 'expo-haptics';
-import { Star, BookmarkPlus, BookmarkCheck, Flag, Share2, Wand2, StarIcon } from 'lucide-react-native';
+import { Star, BookmarkPlus, BookmarkCheck, Flag, Share2, Wand2, StarIcon, Pencil } from 'lucide-react-native';
 import { CharacterCard, formatCount } from '../../lib/types';
 import { TagPills } from './TagPills';
 import { QualityScore } from './QualityScore';
@@ -159,6 +159,15 @@ export function CharacterDetailView({ card }: CharacterDetailProps) {
           {saved ? <BookmarkCheck size={18} color={tc.status.success} /> : <BookmarkPlus size={18} color={tc.text.secondary} />}
           <Text style={[styles.secondaryButtonText, { color: tc.text.secondary }, saved && { color: tc.status.success }]}>{saved ? 'Saved' : 'Save'}</Text>
         </TouchableOpacity>
+        {saved && (
+          <TouchableOpacity style={[styles.secondaryButton, { flex: 1, borderColor: accentColor + '40' }]} onPress={() => {
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+            router.push({ pathname: '/(tabs)/create', params: { editCard: JSON.stringify(card) } });
+          }} activeOpacity={0.7} accessibilityLabel={`Edit ${card.name}`} accessibilityRole="button">
+            <Pencil size={18} color={accentColor} />
+            <Text style={[styles.secondaryButtonText, { color: accentColor }]}>Edit</Text>
+          </TouchableOpacity>
+        )}
         <TouchableOpacity style={[styles.secondaryButton, { flex: 1, borderColor: tc.border.medium }]} onPress={async () => {
           Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
           await Share.share({ message: `Check out ${card.name} on StratOS!\n\n"${card.description}"\n\n${card.genre_tags.map(t => `#${t}`).join(' ')} · ${card.rating.toFixed(1)} rating` });

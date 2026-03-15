@@ -27,13 +27,33 @@ function WordCount({ text }: { text: string }) {
   return <Text style={{ fontSize: 9, color: tc.text.muted, textAlign: 'right', marginTop: 2 }}>{words} words · {text.length} chars</Text>;
 }
 
-export function CardEditor() {
+interface CardEditorProps {
+  initialCard?: import('../../lib/types').CharacterCard;
+}
+
+export function CardEditor({ initialCard }: CardEditorProps) {
   const router = useRouter();
   const tc = useThemeStore(s => s.colors);
-  const [mode, setMode] = useState<'quick' | 'advanced'>('quick');
+  const isEditing = !!initialCard;
+  const [mode, setMode] = useState<'quick' | 'advanced'>(isEditing ? 'advanced' : 'quick');
   const [saving, setSaving] = useState(false);
   const [importing, setImporting] = useState(false);
-  const [card, setCard] = useState<CharacterCardCreate>({
+  const [card, setCard] = useState<CharacterCardCreate>(initialCard ? {
+    name: initialCard.name,
+    description: initialCard.description || initialCard.personality || '',
+    personality: initialCard.personality,
+    scenario: initialCard.scenario,
+    first_message: initialCard.first_message,
+    physical_description: initialCard.physical_description,
+    speech_pattern: initialCard.speech_pattern,
+    emotional_trigger: initialCard.emotional_trigger,
+    defensive_mechanism: initialCard.defensive_mechanism,
+    vulnerability: initialCard.vulnerability,
+    specific_detail: initialCard.specific_detail,
+    genre_tags: initialCard.genre_tags || [],
+    content_rating: initialCard.content_rating || 'sfw',
+    avatar_url: initialCard.avatar_url || '',
+  } : {
     name: '', description: '', personality: '', scenario: '', first_message: '',
     physical_description: '', speech_pattern: '', emotional_trigger: '',
     defensive_mechanism: '', vulnerability: '', specific_detail: '',
@@ -60,13 +80,31 @@ export function CardEditor() {
     saveBtnScale.value = withSequence(withSpring(0.95, { damping: 15 }), withSpring(1, { damping: 10 }));
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     try {
-      await createCharacter(card);
-      await incrementStat('totalCharacters');
-      // Reload stores so Library and Discover show the new card
-      loadMyCards().catch(() => {});
-      loadNew().catch(() => {});
-      Alert.alert('Created!', 'Your character has been created.', [{ text: 'OK', onPress: () => router.back() }]);
-    } catch { Alert.alert('Error', 'Failed to create character.'); }
+      if (isEditing && initialCard) {
+        // Update existing card via API
+        const { apiFetch } = await import('../../lib/api');
+        await apiFetch(`/api/cards/${initialCard.id}`, {
+          method: 'PUT',
+          body: JSON.stringify({
+            name: card.name, personality: card.personality, scenario: card.scenario,
+            first_message: card.first_message, physical_description: card.physical_description,
+            speech_pattern: card.speech_pattern, emotional_trigger: card.emotional_trigger,
+            defensive_mechanism: card.defensive_mechanism, vulnerability: card.vulnerability,
+            specific_detail: card.specific_detail, genre_tags: card.genre_tags,
+            content_rating: card.content_rating,
+          }),
+        });
+        loadMyCards().catch(() => {});
+        loadNew().catch(() => {});
+        Alert.alert('Updated!', 'Character has been updated.', [{ text: 'OK', onPress: () => router.back() }]);
+      } else {
+        await createCharacter(card);
+        await incrementStat('totalCharacters');
+        loadMyCards().catch(() => {});
+        loadNew().catch(() => {});
+        Alert.alert('Created!', 'Your character has been created.', [{ text: 'OK', onPress: () => router.back() }]);
+      }
+    } catch { Alert.alert('Error', isEditing ? 'Failed to update character.' : 'Failed to create character.'); }
     finally { setSaving(false); }
   };
 
@@ -268,8 +306,8 @@ export function CardEditor() {
       ) : null}
 
       <Animated.View style={saveBtnAnimStyle}>
-        <TouchableOpacity style={[styles.saveBtn, { backgroundColor: tc.accent.primary }, saving && { opacity: 0.6 }]} onPress={handleSave} disabled={saving} accessibilityLabel={saving ? 'Creating character' : 'Create character'} accessibilityRole="button">
-          <Text style={styles.saveBtnText}>{saving ? 'Creating...' : 'Create Character'}</Text>
+        <TouchableOpacity style={[styles.saveBtn, { backgroundColor: tc.accent.primary }, saving && { opacity: 0.6 }]} onPress={handleSave} disabled={saving} accessibilityLabel={saving ? (isEditing ? 'Saving changes' : 'Creating character') : (isEditing ? 'Save changes' : 'Create character')} accessibilityRole="button">
+          <Text style={styles.saveBtnText}>{saving ? (isEditing ? 'Saving...' : 'Creating...') : (isEditing ? 'Save Changes' : 'Create Character')}</Text>
         </TouchableOpacity>
       </Animated.View>
 
