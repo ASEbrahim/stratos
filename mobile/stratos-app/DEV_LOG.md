@@ -195,5 +195,8 @@ Keyboard listener scrolls to latest message.
 ## Iteration 65: SFW/18+ content rating badge on detail ✅
 Content rating badge next to character name.
 
-## Iteration 66: Theme-aware SuggestionChips + tag pills cleanup
-SuggestionChips still imports static `colors`. Making it fully theme-aware and cleaning up any remaining static color imports in chat components.
+## Iteration 66: Theme-aware SuggestionChips + TagPills ✅
+Removed static color imports from both components. checkpoint-16, memory updated.
+
+## Iteration 67: "Time away" notification on resumed chats
+When resuming a conversation, show "You were away for 2h" at the top — gives context and makes the AI interaction feel more real, like a friend you're reconnecting with.

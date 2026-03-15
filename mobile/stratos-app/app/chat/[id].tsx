@@ -68,16 +68,20 @@ export default function ChatScreen() {
             </View>
           );
         }} keyExtractor={item => item.id} contentContainerStyle={styles.msgList} showsVerticalScrollIndicator={false}
-          ListHeaderComponent={character && messages.length <= 2 ? (
-            <View style={[styles.charIntro, { backgroundColor: (accentColor ?? tc.accent.primary) + '08', borderColor: (accentColor ?? tc.accent.primary) + '20' }]}>
-              <View style={[styles.charIntroAvatar, { backgroundColor: (accentColor ?? tc.accent.primary) + '15' }]}>
-                <Text style={[styles.charIntroLetter, { color: accentColor ?? tc.accent.primary }]}>{character.name[0]}</Text>
+          ListHeaderComponent={character ? (
+            messages.length <= 2 ? (
+              <View style={[styles.charIntro, { backgroundColor: (accentColor ?? tc.accent.primary) + '08', borderColor: (accentColor ?? tc.accent.primary) + '20' }]}>
+                <View style={[styles.charIntroAvatar, { backgroundColor: (accentColor ?? tc.accent.primary) + '15' }]}>
+                  <Text style={[styles.charIntroLetter, { color: accentColor ?? tc.accent.primary }]}>{character.name[0]}</Text>
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={[styles.charIntroName, { color: tc.text.primary }]}>{character.name}</Text>
+                  <Text style={[styles.charIntroDesc, { color: tc.text.secondary }]} numberOfLines={2}>{character.description}</Text>
+                </View>
               </View>
-              <View style={{ flex: 1 }}>
-                <Text style={[styles.charIntroName, { color: tc.text.primary }]}>{character.name}</Text>
-                <Text style={[styles.charIntroDesc, { color: tc.text.secondary }]} numberOfLines={2}>{character.description}</Text>
-              </View>
-            </View>
+            ) : messages.length > 2 ? (
+              <Text style={[styles.resumeBanner, { color: tc.text.muted }]}>Conversation resumed · {messages.length} messages</Text>
+            ) : null
           ) : null}
           onScroll={(e) => { const y = e.nativeEvent.contentOffset.y; const h = e.nativeEvent.contentSize.height - e.nativeEvent.layoutMeasurement.height; setShowScrollBtn(h - y > 200); }}
           scrollEventThrottle={100}
@@ -117,4 +121,5 @@ const styles = StyleSheet.create({
   charIntroName: { fontSize: 13, fontWeight: '700', marginBottom: 2 },
   charIntroDesc: { fontSize: 11, lineHeight: 15 },
   seenText: { fontSize: 9, textAlign: 'right', paddingRight: spacing.lg, marginTop: 2 },
+  resumeBanner: { fontSize: 10, textAlign: 'center', paddingVertical: spacing.sm, marginBottom: spacing.sm },
 });
