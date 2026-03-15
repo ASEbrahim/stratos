@@ -92,17 +92,19 @@ def main():
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
 
-    # Load bf16, spill to CPU RAM when VRAM is full (device_map="auto" handles this)
-    # Model is ~18GB bf16 — won't fit entirely in 24GB VRAM with optimizer states,
-    # so let accelerate split layers between GPU and CPU automatically.
+    # Load bf16 with explicit GPU memory cap.
+    # Model is ~18GB bf16. device_map="auto" puts too much on GPU (22GB+),
+    # leaving no headroom for activation peaks on longer sequences.
+    # Cap at 18GB GPU → ~6GB left for activations/gradients → rest spills to CPU.
     model = AutoModelForCausalLM.from_pretrained(
         BASE_MODEL_ID,
         dtype=torch.bfloat16,
         device_map="auto",
+        max_memory={0: "18GiB", "cpu": "20GiB"},
         trust_remote_code=True,
         low_cpu_mem_usage=True,
     )
-    logger.info(f"Model loaded with auto device map (GPU + CPU offload)")
+    logger.info(f"Model loaded with auto device map (GPU capped at 18GiB, rest on CPU)")
 
     lora_config = LoraConfig(
         r=args.rank,
