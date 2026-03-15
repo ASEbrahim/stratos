@@ -30,7 +30,7 @@ from routes.generate import handle_generate_profile
 from routes.wizard import handle_wizard_preselect, handle_wizard_tab_suggest, handle_wizard_rv_items
 from routes.helpers import json_response, error_response
 from routes.config import handle_config_save
-from routes import feeds, media, data_endpoints, controls, youtube_endpoints, persona_data, dev_endpoints, rp_chat, image_gen
+from routes import feeds, media, data_endpoints, controls, youtube_endpoints, persona_data, dev_endpoints, rp_chat, image_gen, character_cards
 from email_service import EmailService
 
 logger = logging.getLogger("STRAT_OS")
@@ -220,6 +220,7 @@ def create_handler(strat, auth, frontend_dir, output_dir):
 
             if rp_chat.handle_get(self, strat, auth, clean_path): return
             if image_gen.handle_get(self, strat, auth, clean_path): return
+            if character_cards.handle_get(self, strat, auth, clean_path): return
             if controls.handle_get(self, strat, auth, clean_path): return
             if feeds.handle_get(self, strat, auth, clean_path): return
             if youtube_endpoints.handle_get(self, strat, auth, clean_path): return
@@ -534,6 +535,7 @@ def create_handler(strat, auth, frontend_dir, output_dir):
 
             if rp_chat.handle_post(self, strat, auth, clean_path): return
             if image_gen.handle_post(self, strat, auth, clean_path): return
+            if character_cards.handle_post(self, strat, auth, clean_path): return
             if controls.handle_post(self, strat, auth, clean_path): return
             if feeds.handle_post(self, strat, auth, clean_path): return
             if youtube_endpoints.handle_post(self, strat, auth, clean_path): return
@@ -576,6 +578,7 @@ def create_handler(strat, auth, frontend_dir, output_dir):
             clean_path = self.path.split('?')[0]
 
             if image_gen.handle_delete(self, strat, auth, clean_path): return
+            if character_cards.handle_delete(self, strat, auth, clean_path): return
             if youtube_endpoints.handle_delete(self, strat, auth, clean_path): return
             if persona_data.handle_delete(self, strat, auth, clean_path): return
             if media.handle_delete(self, strat, auth, clean_path): return
