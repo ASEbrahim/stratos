@@ -3,7 +3,7 @@ import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Alert, Share } fr
 import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 import * as Haptics from 'expo-haptics';
-import { Star, BookmarkPlus, BookmarkCheck, Flag, Share2, Wand2, StarIcon, Pencil } from 'lucide-react-native';
+import { Star, BookmarkPlus, BookmarkCheck, Flag, Share2, Wand2, StarIcon, Pencil, Copy } from 'lucide-react-native';
 import { CharacterCard, formatCount } from '../../lib/types';
 import { TagPills } from './TagPills';
 import { QualityScore } from './QualityScore';
@@ -168,12 +168,14 @@ export function CharacterDetailView({ card }: CharacterDetailProps) {
             <Text style={[styles.secondaryButtonText, { color: accentColor }]}>Edit</Text>
           </TouchableOpacity>
         )}
-        <TouchableOpacity style={[styles.secondaryButton, { flex: 1, borderColor: tc.border.medium }]} onPress={async () => {
+        <TouchableOpacity style={[styles.secondaryButton, { flex: 1, borderColor: tc.border.medium }]} onPress={() => {
           Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-          await Share.share({ message: `Check out ${card.name} on StratOS!\n\n"${card.description}"\n\n${card.genre_tags.map(t => `#${t}`).join(' ')} · ${card.rating.toFixed(1)} rating` });
-        }} activeOpacity={0.7} accessibilityLabel={`Share ${card.name}`} accessibilityRole="button">
-          <Share2 size={18} color={tc.text.secondary} />
-          <Text style={[styles.secondaryButtonText, { color: tc.text.secondary }]}>Share</Text>
+          // Clone card into Create screen for editing as your own copy
+          const clone = { ...card, name: `${card.name} (Copy)` };
+          router.push({ pathname: '/(tabs)/create', params: { editCard: JSON.stringify(clone) } });
+        }} activeOpacity={0.7} accessibilityLabel={`Copy ${card.name} to edit`} accessibilityRole="button">
+          <Copy size={18} color={tc.text.secondary} />
+          <Text style={[styles.secondaryButtonText, { color: tc.text.secondary }]}>Copy</Text>
         </TouchableOpacity>
       </View>
       {/* Generate Portrait — only for your own cards (creator_id matches) */}

@@ -273,16 +273,17 @@ export function CardEditor({ initialCard }: CardEditorProps) {
         </View>
       </View>
 
-      {/* Generate Image button */}
-      {card.name.trim() && card.physical_description?.trim() ? (
+      {/* Generate Image button — shows when name is filled (uses description or personality as fallback) */}
+      {card.name.trim() ? (
         <TouchableOpacity
           style={[styles.genImageBtn, { borderColor: tc.accent.secondary + '40', backgroundColor: tc.accent.secondary + '08' }, generatingImage && { opacity: 0.6 }]}
           onPress={async () => {
             setGeneratingImage(true);
             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
             try {
+              const desc = card.physical_description?.trim() || card.personality?.trim() || card.description?.trim() || card.name;
               const result = await generateCharacterPortrait({
-                character_name: card.name, physical_description: card.physical_description,
+                character_name: card.name, physical_description: desc,
                 style: 'anime',
               });
               if (result.success && result.image_id) {

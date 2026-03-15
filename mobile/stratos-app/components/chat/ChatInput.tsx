@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator, Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
 import { Send, Square } from 'lucide-react-native';
@@ -16,6 +16,7 @@ export function ChatInput({ onSend, disabled = false, accentColor }: ChatInputPr
   const [text, setText] = useState('');
   const tc = useThemeStore(s => s.colors);
   const insets = useSafeAreaInsets();
+  const containerRef = useRef<View>(null);
   const color = accentColor ?? tc.accent.primary;
   const btnScale = useSharedValue(1);
   const btnAnimStyle = useAnimatedStyle(() => ({ transform: [{ scale: btnScale.value }] }));
@@ -33,12 +34,21 @@ export function ChatInput({ onSend, disabled = false, accentColor }: ChatInputPr
   const charCount = text.length;
 
   return (
-    <View style={[styles.container, { backgroundColor: tc.bg.primary, borderTopColor: tc.border.subtle, paddingBottom: Math.max(insets.bottom, spacing.lg) }]}>
+    <View ref={containerRef} style={[styles.container, { backgroundColor: tc.bg.primary, borderTopColor: tc.border.subtle, paddingBottom: Math.max(insets.bottom, spacing.lg) }]}>
       {charCount > 100 && (
         <Text style={[styles.charCount, { color: charCount > 3500 ? tc.status.error : tc.text.muted }]}>{charCount}/4000</Text>
       )}
       <View style={styles.inputRow}>
-        <TextInput style={[styles.input, { backgroundColor: tc.bg.tertiary, color: tc.text.primary }]} value={text} onChangeText={setText} placeholder="Type your action..." placeholderTextColor={tc.text.muted} multiline maxLength={4000} editable={!disabled} onSubmitEditing={handleSend} blurOnSubmit={false} accessibilityLabel="Message input" accessibilityHint="Type your message to the character" />
+        <TextInput style={[styles.input, { backgroundColor: tc.bg.tertiary, color: tc.text.primary }]} value={text} onChangeText={setText} placeholder="Type your action..." placeholderTextColor={tc.text.muted} multiline maxLength={4000} editable={!disabled} onSubmitEditing={handleSend} blurOnSubmit={false} accessibilityLabel="Message input" accessibilityHint="Type your message to the character"
+          onFocus={() => {
+            // On web/mobile browser: scroll input into view when keyboard appears
+            if (Platform.OS === 'web') {
+              setTimeout(() => {
+                try { (containerRef.current as any)?.scrollIntoView?.({ behavior: 'smooth', block: 'end' }); } catch {}
+              }, 300);
+            }
+          }}
+        />
         <AnimatedTouchable style={[styles.sendButton, { backgroundColor: disabled ? color + '60' : active ? color : tc.bg.elevated }, btnAnimStyle]} onPress={handleSend} disabled={!active && !disabled} activeOpacity={0.7} accessibilityLabel={disabled ? 'AI is responding' : 'Send message'} accessibilityRole="button">
           {disabled ? (
             <ActivityIndicator size={16} color="#fff" />
