@@ -111,5 +111,8 @@ Trust & safety report with confirmation dialog.
 ## Iteration 37: More mock characters for variety ✅
 10 mock characters total — Sci-Fi captain, tattoo artist, vampire, rogue AI.
 
-## Iteration 38: Theme-aware MessageBubble + StreamingBubble
-Chat bubbles use hardcoded colors from the static theme file, ignoring the user's active theme. This is the last major un-themed component — making it theme-aware completes true 100% coverage.
+## Iteration 38: Theme-aware MessageBubble + StreamingBubble ✅
+Chat bubbles now read from themeStore — true 100% theme coverage.
+
+## Iteration 39: Enhanced prose formatting — bold, quotes, combined markup
+RP chat needs rich text: `**bold**` for emphasis, `> quotes` for narration, and combined `***bold italic***`. Character.AI and SillyTavern both render these — we should too.

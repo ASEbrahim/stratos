@@ -65,21 +65,44 @@ export function MessageBubble({ message, accentColor }: MessageBubbleProps) {
 function renderFormattedText(text: string, isUser: boolean, tc: any) {
   const textColor = tc.text.primary;
   const italicColor = tc.text.secondary;
+  const quoteColor = tc.accent.primary;
   return text.split('\n\n').map((para, pi) => (
     <View key={pi} style={pi > 0 ? { marginTop: spacing.md } : undefined}>
-      {para.split('\n').map((line, li) => <Text key={li} style={[isUser ? styles.userText : styles.assistantText, { color: textColor }]}>{renderLine(line, italicColor)}</Text>)}
+      {para.split('\n').map((line, li) => {
+        const isQuote = line.startsWith('> ');
+        const displayLine = isQuote ? line.slice(2) : line;
+        if (isQuote) {
+          return (
+            <View key={li} style={{ flexDirection: 'row', marginVertical: 2 }}>
+              <View style={{ width: 3, backgroundColor: quoteColor + '60', borderRadius: 2, marginRight: spacing.sm }} />
+              <Text style={[isUser ? styles.userText : styles.assistantText, { color: italicColor, fontStyle: 'italic', flex: 1 }]}>{renderLine(displayLine, italicColor)}</Text>
+            </View>
+          );
+        }
+        return <Text key={li} style={[isUser ? styles.userText : styles.assistantText, { color: textColor }]}>{renderLine(displayLine, italicColor)}</Text>;
+      })}
     </View>
   ));
 }
 
 function renderLine(line: string, italicColor: string) {
+  // Process markup: ***bold italic***, **bold**, *italic*
   const parts: React.ReactNode[] = [];
-  const regex = /\*([^*]+)\*/g;
+  const regex = /(\*{3})([^*]+)\1|(\*{2})([^*]+)\3|(\*)([^*]+)\5/g;
   let lastIndex = 0;
   let match: RegExpExecArray | null;
   while ((match = regex.exec(line)) !== null) {
     if (match.index > lastIndex) parts.push(<Text key={`t-${lastIndex}`}>{line.slice(lastIndex, match.index)}</Text>);
-    parts.push(<Text key={`a-${match.index}`} style={{ fontStyle: 'italic', color: italicColor }}>{match[1]}</Text>);
+    if (match[1] === '***') {
+      // bold italic
+      parts.push(<Text key={`bi-${match.index}`} style={{ fontWeight: '700', fontStyle: 'italic', color: italicColor }}>{match[2]}</Text>);
+    } else if (match[3] === '**') {
+      // bold
+      parts.push(<Text key={`b-${match.index}`} style={{ fontWeight: '700' }}>{match[4]}</Text>);
+    } else {
+      // italic
+      parts.push(<Text key={`i-${match.index}`} style={{ fontStyle: 'italic', color: italicColor }}>{match[6]}</Text>);
+    }
     lastIndex = match.index + match[0].length;
   }
   if (lastIndex < line.length) parts.push(<Text key={`r-${lastIndex}`}>{line.slice(lastIndex)}</Text>);
