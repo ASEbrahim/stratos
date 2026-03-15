@@ -21,5 +21,8 @@ Gaming session, character detail, and gaming scenarios screens now use themeStor
 ## Iteration 7: "Continue Conversation" on character detail ✅
 Competitor apps (Character.AI, Chai, Janitor AI) show a "Continue" button when you have an active session with a character. Adding this to CharacterDetail so users can resume where they left off instead of always starting fresh.
 
-## Iteration 8: Search debounce + empty search state + library theme-awareness
+## Iteration 8: Search debounce + empty search state + library theme-awareness ✅
 Search currently fires on every keystroke. Adding 300ms debounce, a proper "No results" empty state, and making the library screen theme-aware.
+
+## Iteration 9: Add Personality field + theme-aware create screen ✅
+The character creator was missing the Personality field entirely. Also made the create screen theme-aware.

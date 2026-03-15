@@ -125,6 +125,9 @@ export function CardEditor() {
       <Text style={styles.fieldLabel}>Description</Text>
       <TextInput style={[styles.input, styles.multiline]} value={card.description} onChangeText={v => update('description', v)} placeholder="Who is this character?" placeholderTextColor={colors.text.muted} multiline textAlignVertical="top" />
 
+      <Text style={styles.fieldLabel}>Personality</Text>
+      <TextInput style={[styles.input, styles.multiline]} value={card.personality} onChangeText={v => update('personality', v)} placeholder="How does your character act and speak?" placeholderTextColor={colors.text.muted} multiline textAlignVertical="top" />
+
       <Text style={styles.fieldLabel}>First Message</Text>
       <Text style={styles.fieldHint}>Sets the tone for every conversation — the most important field.</Text>
       <TextInput style={[styles.input, styles.multilineLg]} value={card.first_message} onChangeText={v => update('first_message', v)} placeholder="What does your character say or do first?" placeholderTextColor={colors.text.muted} multiline textAlignVertical="top" />
