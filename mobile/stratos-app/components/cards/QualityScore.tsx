@@ -1,13 +1,15 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { CharacterCard, getQualityScore } from '../../lib/types';
-import { colors, typography, spacing, borderRadius } from '../../constants/theme';
+import { useThemeStore } from '../../stores/themeStore';
+import { typography, spacing, borderRadius } from '../../constants/theme';
 
 interface QualityScoreProps { card: CharacterCard; showElements?: boolean; size?: 'small' | 'large'; }
 
 export function QualityScore({ card, showElements = false, size = 'small' }: QualityScoreProps) {
+  const tc = useThemeStore(s => s.colors);
   const quality = getQualityScore(card);
-  const color = colors.quality[quality.level];
+  const color = tc.quality[quality.level];
   if (size === 'small') {
     return (
       <View style={[styles.badge, { borderColor: color + '60' }]}>
@@ -24,8 +26,8 @@ export function QualityScore({ card, showElements = false, size = 'small' }: Qua
         <View style={styles.elements}>
           {quality.elements.map((el) => (
             <View key={el.name} style={styles.element}>
-              <Text style={[styles.elementCheck, { color: el.filled ? colors.status.success : colors.text.muted }]}>{el.filled ? '✓' : '✗'}</Text>
-              <Text style={[styles.elementName, { color: el.filled ? colors.text.primary : colors.text.muted }]}>{el.name}</Text>
+              <Text style={[styles.elementCheck, { color: el.filled ? tc.status.success : tc.text.muted }]}>{el.filled ? '✓' : '✗'}</Text>
+              <Text style={[styles.elementName, { color: el.filled ? tc.text.primary : tc.text.muted }]}>{el.name}</Text>
             </View>
           ))}
         </View>
