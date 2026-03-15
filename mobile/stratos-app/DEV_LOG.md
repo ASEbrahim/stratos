@@ -153,5 +153,8 @@ Double-tap saves to library with animated heart burst. checkpoint-12 tagged.
 ## Iteration 51: Creator attribution + rating on Popular cards ✅
 "by @creator" and star rating on Popular This Week. Now shows 5 cards.
 
-## Iteration 52: Message copy to clipboard
-The long-press "Copy Text" option doesn't actually copy. Wiring up Clipboard API so users can actually copy message text — essential for sharing quotes from RP sessions.
+## Iteration 52: Working copy-to-clipboard on messages ✅
+Long-press → Copy now uses expo-clipboard with haptic confirmation.
+
+## Iteration 53: Search bar in Library
+Library has no search — with many saved characters, users need to find specific ones quickly. Adding a search bar that filters across all tabs.

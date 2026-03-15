@@ -1,8 +1,8 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Alert, RefreshControl } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Alert, RefreshControl, TextInput } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { MessageCircle, Clock, Trash2 } from 'lucide-react-native';
+import { MessageCircle, Clock, Trash2, Search } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 import { deleteChatSession } from '../../lib/storage';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -23,6 +23,7 @@ export default function LibraryScreen() {
   const { recentSessions, loadRecentSessions, resumeSession } = useChatStore();
   const [tab, setTab] = useState<'mine' | 'saved' | 'history'>('mine');
   const [refreshing, setRefreshing] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => { loadMyCards(); loadSaved(); loadRecentSessions(); }, []);
   const onRefresh = useCallback(async () => { setRefreshing(true); await Promise.all([loadMyCards(), loadSaved(), loadRecentSessions()]); setRefreshing(false); }, []);
@@ -54,11 +55,18 @@ export default function LibraryScreen() {
     ]);
   };
 
-  const cards = tab === 'mine' ? myCards : savedCards;
+  const rawCards = tab === 'mine' ? myCards : savedCards;
+  const q = searchQuery.toLowerCase().trim();
+  const cards = q ? rawCards.filter(c => c.name.toLowerCase().includes(q) || c.description.toLowerCase().includes(q)) : rawCards;
+  const filteredSessions = q ? recentSessions.filter(s => s.character_name.toLowerCase().includes(q)) : recentSessions;
 
   return (
     <View style={[styles.container, { paddingTop: insets.top, backgroundColor: tc.bg.primary }]}>
       <Text style={[styles.title, { color: tc.text.primary }]}>Library</Text>
+      <View style={[styles.searchBox, { backgroundColor: tc.bg.tertiary }]}>
+        <Search size={16} color={tc.text.muted} />
+        <TextInput style={[styles.searchInput, { color: tc.text.primary }]} value={searchQuery} onChangeText={setSearchQuery} placeholder="Search library..." placeholderTextColor={tc.text.muted} />
+      </View>
       <View style={styles.tabs}>
         <TouchableOpacity style={[styles.tab, { backgroundColor: tc.bg.tertiary }, tab === 'mine' && { backgroundColor: tc.accent.primary + '20' }]} onPress={() => { Haptics.selectionAsync(); setTab('mine'); }}>
           <Text style={[styles.tabText, { color: tc.text.muted }, tab === 'mine' && { color: tc.accent.primary }]}>My Characters{myCards.length > 0 ? ` (${myCards.length})` : ''}</Text>
@@ -71,14 +79,14 @@ export default function LibraryScreen() {
         </TouchableOpacity>
       </View>
       {tab === 'history' ? (
-        recentSessions.length === 0 ? (
+        filteredSessions.length === 0 ? (
           <EmptyState title="No conversations yet" subtitle="Start a chat from Discover to see it here." />
         ) : (
           <ScrollView contentContainerStyle={styles.sessionList} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={tc.accent.primary} />}>
             <TouchableOpacity style={styles.clearAllBtn} onPress={handleClearAllHistory}>
               <Text style={[styles.clearAllText, { color: tc.status.error }]}>Clear All History</Text>
             </TouchableOpacity>
-            {recentSessions.map(s => (
+            {filteredSessions.map(s => (
               <Animated.View key={s.id} exiting={FadeOut.duration(200)} layout={Layout.springify()}>
                 <TouchableOpacity style={[styles.sessionCard, { backgroundColor: tc.bg.secondary }]} onPress={() => handleResumeSession(s)} onLongPress={() => handleDeleteSession(s)} delayLongPress={500} activeOpacity={0.7}>
                   <View style={[styles.sessionAvatar, { backgroundColor: tc.accent.primary + '15' }]}>
@@ -127,7 +135,9 @@ function formatRelativeTime(iso: string): string {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  title: { ...typography.display, paddingHorizontal: spacing.lg, paddingTop: spacing.lg, paddingBottom: spacing.md },
+  title: { ...typography.display, paddingHorizontal: spacing.lg, paddingTop: spacing.lg, paddingBottom: spacing.sm },
+  searchBox: { flexDirection: 'row', alignItems: 'center', borderRadius: borderRadius.lg, paddingHorizontal: spacing.md, marginHorizontal: spacing.lg, marginBottom: spacing.md, gap: spacing.sm },
+  searchInput: { flex: 1, paddingVertical: spacing.sm, fontSize: 14 },
   tabs: { flexDirection: 'row', paddingHorizontal: spacing.lg, gap: spacing.sm, marginBottom: spacing.lg },
   tab: { paddingVertical: spacing.sm, paddingHorizontal: spacing.lg, borderRadius: borderRadius.full },
   tabText: { ...typography.subheading, fontSize: 14 },
