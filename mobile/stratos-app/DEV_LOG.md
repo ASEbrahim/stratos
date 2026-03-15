@@ -135,5 +135,8 @@ Selection haptics on genre filters, sort toggles, library tab switches.
 ## Iteration 45: Online status indicator in chat header ✅
 Pulsing green dot on avatar in chat header.
 
-## Iteration 46: "NEW" badge on recently added characters
-Characters added in the last 30 days get a glowing "NEW" badge on their card — drives discovery and makes the catalog feel actively curated.
+## Iteration 46: "NEW" badge + theme-aware CharacterCard ✅
+NEW badge on recent characters, card component now reads from themeStore.
+
+## Iteration 47: Animated tab bar with active indicator
+The bottom tab bar is functional but plain. Adding an animated active indicator bar that slides between tabs — a premium touch that all polished apps have (Spotify, Instagram).
