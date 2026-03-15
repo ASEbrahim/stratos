@@ -11,7 +11,7 @@ import { getGenreColor } from '../../constants/genres';
 import { getDetailedStats, DetailedStats } from '../../lib/storage';
 import { formatCount } from '../../lib/types';
 import { THEMES } from '../../constants/themes';
-import { colors, typography, spacing, borderRadius } from '../../constants/theme';
+import { typography, spacing, borderRadius } from '../../constants/theme';
 
 export default function ProfileScreen() {
   const insets = useSafeAreaInsets();
