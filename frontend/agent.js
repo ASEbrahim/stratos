@@ -775,7 +775,7 @@ function appendAgentMessage(role, content) {
                 <i data-lucide="bot" class="w-3.5 h-3.5 text-emerald-400"></i>
             </div>
             <div class="flex-1 min-w-0">
-                <div class="agent-response text-xs leading-relaxed" style="color:var(--text-body,#cbd5e1);">${content}</div>
+                <div class="agent-response text-xs leading-relaxed" style="color:var(--text-body,#cbd5e1);">${content}</div><!-- content is pre-sanitized via formatAgentText() which HTML-escapes before markdown formatting -->
                 <div class="flex items-center gap-2 mt-1 agent-msg-actions">
                     <span class="text-[9px]" style="color:var(--text-muted); opacity:0.4;">${time}</span>
                     <button onclick="_copyAgentMessage(this)" class="p-0.5 rounded" title="Copy message">
