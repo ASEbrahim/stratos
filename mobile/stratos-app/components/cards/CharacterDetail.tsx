@@ -110,6 +110,22 @@ export function CharacterDetailView({ card }: CharacterDetailProps) {
           </View>
         )}
       </View>
+      {card.first_message && (
+        <View style={[styles.section, styles.firstMsgSection, { backgroundColor: tc.bg.tertiary, borderColor: tc.border.subtle }]}>
+          <Text style={[styles.sectionTitle, { color: tc.text.primary, marginBottom: spacing.sm }]}>Opening Line</Text>
+          <Text style={[styles.firstMsgText, { color: tc.text.secondary }]}>
+            {card.first_message.split('\n').slice(0, 4).map((line, i) => {
+              const cleaned = line.replace(/\*{3}([^*]+)\*{3}/g, '$1').replace(/\*{2}([^*]+)\*{2}/g, '$1');
+              const isAction = /^\*[^*]+\*$/.test(line.trim());
+              return (
+                <Text key={i} style={isAction ? { fontStyle: 'italic', color: tc.text.muted } : undefined}>
+                  {i > 0 ? '\n' : ''}{cleaned}
+                </Text>
+              );
+            })}
+          </Text>
+        </View>
+      )}
       <Animated.View style={btnAnimStyle}>
         {existingSession ? (
           <>
@@ -235,4 +251,6 @@ const styles = StyleSheet.create({
   similarLetter: { fontSize: 20, fontWeight: '700', opacity: 0.7 },
   similarName: { fontSize: 11, fontWeight: '600', textAlign: 'center' },
   similarGenre: { fontSize: 9, textTransform: 'capitalize', marginTop: 2 },
+  firstMsgSection: { padding: spacing.lg, borderRadius: borderRadius.lg, borderWidth: 1 },
+  firstMsgText: { ...typography.body, lineHeight: 22, fontSize: 13 },
 });

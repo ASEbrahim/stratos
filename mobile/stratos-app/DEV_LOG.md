@@ -213,5 +213,8 @@ Labels on input, send, back, and menu buttons. checkpoint-17.
 ## Iteration 71: "Top Characters" showcase on profile ✅
 Top 3 most-chatted characters with avatars and message counts.
 
-## Iteration 72: "Similar Characters" recommendations on detail
-When viewing a character, show 3 similar characters based on genre — helps users discover related content and reduces bounce from the detail screen.
+## Iteration 72: "Similar Characters" on detail ✅
+Genre-matched similar characters at bottom of detail screen.
+
+## Iteration 73: First message preview with prose formatting on detail
+The first message is the character's hook — but it's only shown as plain text on cards. On the detail screen, show a formatted preview with italics, bold, and blockquotes so users can truly evaluate the character's writing quality before chatting.
