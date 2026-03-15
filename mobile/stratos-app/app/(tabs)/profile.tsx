@@ -6,6 +6,8 @@ import * as Haptics from 'expo-haptics';
 import { LogOut, Type, Bell, Server, Shield } from 'lucide-react-native';
 import { useAuthStore } from '../../stores/authStore';
 import { useThemeStore } from '../../stores/themeStore';
+import { useChatStore } from '../../stores/chatStore';
+import { getGenreColor } from '../../constants/genres';
 import { getDetailedStats, DetailedStats } from '../../lib/storage';
 import { formatCount } from '../../lib/types';
 import { THEMES } from '../../constants/themes';
@@ -16,9 +18,10 @@ export default function ProfileScreen() {
   const router = useRouter();
   const { user, logout } = useAuthStore();
   const { themeId, setTheme, colors: tc, nsfwFilter, setNsfwFilter } = useThemeStore();
+  const { recentSessions, loadRecentSessions, resumeSession } = useChatStore();
   const [stats, setStats] = useState<DetailedStats>({ totalSessions: 0, totalMessages: 0, totalWords: 0, avgSessionLength: 0, favoriteGenre: 'None yet', longestSession: 0, totalCharacters: 0 });
 
-  useEffect(() => { getDetailedStats().then(setStats); }, []);
+  useEffect(() => { getDetailedStats().then(setStats); loadRecentSessions(); }, []);
 
   const handleLogout = () => Alert.alert('Sign Out', 'Are you sure?', [{ text: 'Cancel', style: 'cancel' }, { text: 'Sign Out', style: 'destructive', onPress: async () => { await logout(); router.replace('/(auth)/login'); } }]);
 
@@ -63,6 +66,27 @@ export default function ProfileScreen() {
               <Text style={[styles.detailVal, { color: tc.accent.primary }]}>{stats.favoriteGenre}</Text>
               <Text style={[styles.detailLbl, { color: tc.text.muted }]}>Top Genre</Text>
             </View>
+          </View>
+        </View>
+      )}
+
+      {/* Top Characters */}
+      {recentSessions.length > 0 && (
+        <View style={[styles.section, { marginBottom: spacing.md }]}>
+          <Text style={[styles.sectionTitle, { color: tc.text.muted }]}>Top Characters</Text>
+          <View style={styles.topCharsRow}>
+            {recentSessions
+              .sort((a, b) => b.messages.length - a.messages.length)
+              .slice(0, 3)
+              .map(s => (
+                <TouchableOpacity key={s.id} style={styles.topChar} onPress={() => { resumeSession(s); router.push(`/chat/${s.character_id}`); }} activeOpacity={0.7}>
+                  <View style={[styles.topCharAvatar, { backgroundColor: tc.accent.primary + '15' }]}>
+                    <Text style={[styles.topCharLetter, { color: tc.accent.primary }]}>{s.character_name[0]}</Text>
+                  </View>
+                  <Text style={[styles.topCharName, { color: tc.text.primary }]} numberOfLines={1}>{s.character_name.split(' ')[0]}</Text>
+                  <Text style={[styles.topCharMsgs, { color: tc.text.muted }]}>{s.messages.length} msgs</Text>
+                </TouchableOpacity>
+              ))}
           </View>
         </View>
       )}
@@ -163,4 +187,10 @@ const styles = StyleSheet.create({
   detailStat: { width: '50%', alignItems: 'center', paddingVertical: spacing.md },
   detailVal: { fontSize: 18, fontWeight: '700', marginBottom: 2 },
   detailLbl: { fontSize: 10, fontWeight: '500' },
+  topCharsRow: { flexDirection: 'row', justifyContent: 'space-around', paddingVertical: spacing.md },
+  topChar: { alignItems: 'center', width: 80 },
+  topCharAvatar: { width: 50, height: 50, borderRadius: 25, justifyContent: 'center', alignItems: 'center', marginBottom: spacing.xs },
+  topCharLetter: { fontSize: 20, fontWeight: '700' },
+  topCharName: { fontSize: 12, fontWeight: '600', textAlign: 'center' },
+  topCharMsgs: { fontSize: 9, marginTop: 2 },
 });

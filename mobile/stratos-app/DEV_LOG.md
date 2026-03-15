@@ -207,5 +207,8 @@ Featured card rotates daily using day-of-year hash.
 ## Iteration 69: Theme-aware Skeleton shimmer ✅
 Skeleton uses themeStore colors. ErrorBoundary kept static (class component fallback).
 
-## Iteration 70: Accessibility labels on key elements
-Production apps need accessibility. Adding accessibilityLabel and accessibilityRole to key interactive elements: tab bar, search, send button, cards, and navigation buttons.
+## Iteration 70: Accessibility labels on chat elements ✅
+Labels on input, send, back, and menu buttons. checkpoint-17.
+
+## Iteration 71: "Top Characters" showcase on profile
+Profile shows stats but no personality. Adding a "Top Characters" section that shows the user's 3 most-chatted characters — makes the profile feel personal and gives a quick way to resume favorites.
