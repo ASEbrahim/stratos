@@ -108,5 +108,8 @@ Floating scroll-to-bottom button in chat when scrolled up.
 ## Iteration 36: Report Character button on detail ✅
 Trust & safety report with confirmation dialog.
 
-## Iteration 37: More mock characters for variety
-6 mock characters isn't enough to feel like a real app. Adding 4 more with diverse genres to fill out the grid and make discovery feel richer.
+## Iteration 37: More mock characters for variety ✅
+10 mock characters total — Sci-Fi captain, tattoo artist, vampire, rogue AI.
+
+## Iteration 38: Theme-aware MessageBubble + StreamingBubble
+Chat bubbles use hardcoded colors from the static theme file, ignoring the user's active theme. This is the last major un-themed component — making it theme-aware completes true 100% coverage.
