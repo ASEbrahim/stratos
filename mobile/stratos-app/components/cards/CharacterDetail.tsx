@@ -14,7 +14,7 @@ import { ChatSession } from '../../lib/types';
 import { useThemeStore } from '../../stores/themeStore';
 import { colors, typography, spacing, borderRadius } from '../../constants/theme';
 import { getGenreColor } from '../../constants/genres';
-import Animated, { useSharedValue, useAnimatedStyle, withSpring, withSequence } from 'react-native-reanimated';
+import Animated, { useSharedValue, useAnimatedStyle, withSpring, withSequence, withRepeat, withTiming } from 'react-native-reanimated';
 
 interface CharacterDetailProps { card: CharacterCard; }
 
@@ -29,6 +29,11 @@ export function CharacterDetailView({ card }: CharacterDetailProps) {
   const accentColor = getGenreColor(card.genre_tags[0] ?? 'default');
   const btnScale = useSharedValue(1);
   const btnAnimStyle = useAnimatedStyle(() => ({ transform: [{ scale: btnScale.value }] }));
+  const ctaPulse = useSharedValue(1);
+  useEffect(() => {
+    ctaPulse.value = withRepeat(withSequence(withTiming(1.02, { duration: 1500 }), withTiming(1, { duration: 1500 })), -1, false);
+  }, []);
+  const ctaStyle = useAnimatedStyle(() => ({ transform: [{ scale: ctaPulse.value }] }));
 
   useEffect(() => {
     isCardSaved(card.id).then(setSaved);
@@ -140,9 +145,11 @@ export function CharacterDetailView({ card }: CharacterDetailProps) {
             </TouchableOpacity>
           </>
         ) : (
-          <TouchableOpacity style={[styles.primaryButton, { backgroundColor: accentColor }]} onPress={handleStartChat} activeOpacity={0.8}>
-            <Text style={styles.primaryButtonText}>Start Conversation</Text>
-          </TouchableOpacity>
+          <Animated.View style={ctaStyle}>
+            <TouchableOpacity style={[styles.primaryButton, { backgroundColor: accentColor }]} onPress={handleStartChat} activeOpacity={0.8}>
+              <Text style={styles.primaryButtonText}>Start Conversation</Text>
+            </TouchableOpacity>
+          </Animated.View>
         )}
       </Animated.View>
       <View style={styles.actionRow}>

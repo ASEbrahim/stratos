@@ -261,5 +261,8 @@ Genre-specific emoji and text when no characters match the filter.
 ## Iteration 87: Animated brand header entrance ✅
 FadeInDown spring animation on "StratOS Characters" header.
 
-## Iteration 88: "Created X ago" timestamp on character detail
-Users want to know how established a character is. Adding creation date in relative format — older characters with high ratings feel more trustworthy.
+## Iteration 88: Creation date on character detail ✅
+"by @creator · Created Xd ago" in the creator line.
+
+## Iteration 89: Pulse animation on "Start Conversation" CTA
+The main CTA button on character detail should be attention-grabbing. Adding a subtle pulse glow animation that catches the eye and encourages the user to start chatting.
