@@ -67,7 +67,7 @@ export default function DiscoverScreen() {
         <View style={styles.searchRow}>
           <View style={[styles.searchBox, { backgroundColor: tc.bg.tertiary, flex: 1 }]}>
             <Search size={18} color={tc.text.muted} />
-            <TextInput style={[styles.searchInput, { color: tc.text.primary }]} value={searchQuery} onChangeText={handleSearch} placeholder="Search characters..." placeholderTextColor={tc.text.muted} />
+            <TextInput style={[styles.searchInput, { color: tc.text.primary }]} value={searchQuery} onChangeText={handleSearch} placeholder="Search characters..." placeholderTextColor={tc.text.muted} accessibilityLabel="Search characters" accessibilityRole="search" />
           </View>
           {newCards.length > 0 && (
             <TouchableOpacity style={[styles.shuffleBtn, { backgroundColor: tc.accent.primary + '15' }]} onPress={() => {
@@ -75,7 +75,7 @@ export default function DiscoverScreen() {
               const all = filterNsfw(newCards);
               const pick = all[Math.floor(Math.random() * all.length)];
               if (pick) router.push(`/character/${pick.id}`);
-            }} activeOpacity={0.7}>
+            }} activeOpacity={0.7} accessibilityLabel="Shuffle random character" accessibilityRole="button">
               <Shuffle size={18} color={tc.accent.primary} />
             </TouchableOpacity>
           )}
@@ -90,7 +90,7 @@ export default function DiscoverScreen() {
           if (!featured) return null;
           const fc = getGenreColor(featured.genre_tags[0] ?? 'default');
           return (
-            <TouchableOpacity style={[styles.spotlightCard, { borderColor: fc + '30' }]} onPress={() => router.push(`/character/${featured.id}`)} activeOpacity={0.8}>
+            <TouchableOpacity style={[styles.spotlightCard, { borderColor: fc + '30' }]} onPress={() => router.push(`/character/${featured.id}`)} activeOpacity={0.8} accessibilityLabel={`Character of the day: ${featured.name}`} accessibilityRole="button">
               <View style={[styles.spotlightAvatar, { backgroundColor: fc + '15' }]}>
                 <Text style={[styles.spotlightLetter, { color: fc }]}>{featured.name[0]}</Text>
               </View>
@@ -112,7 +112,7 @@ export default function DiscoverScreen() {
               <Text style={[styles.recentLabel, { color: tc.text.muted }]}>Continue</Text>
               <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.recentScroll}>
                 {recentSessions.slice(0, 8).map(s => (
-                  <TouchableOpacity key={s.id} style={styles.recentItem} onPress={() => { resumeSession(s); router.push(`/chat/${s.character_id}`); }} activeOpacity={0.7}>
+                  <TouchableOpacity key={s.id} style={styles.recentItem} onPress={() => { resumeSession(s); router.push(`/chat/${s.character_id}`); }} activeOpacity={0.7} accessibilityLabel={`Continue chat with ${s.character_name}`} accessibilityRole="button">
                     <View style={[styles.recentAvatar, { backgroundColor: tc.accent.primary + '15', borderColor: tc.accent.primary + '30' }]}>
                       <Text style={[styles.recentLetter, { color: tc.accent.primary }]}>{s.character_name[0]}</Text>
                       {s.messages.length > 1 && (
@@ -138,7 +138,7 @@ export default function DiscoverScreen() {
               {trending.slice(0, 5).map(c => {
                 const gc = getGenreColor(c.genre_tags[0] ?? 'default');
                 return (
-                  <TouchableOpacity key={`pop-${c.id}`} style={[styles.popularCard, { borderColor: gc + '25' }]} onPress={() => router.push(`/character/${c.id}`)} activeOpacity={0.7}>
+                  <TouchableOpacity key={`pop-${c.id}`} style={[styles.popularCard, { borderColor: gc + '25' }]} onPress={() => router.push(`/character/${c.id}`)} activeOpacity={0.7} accessibilityLabel={`Popular character: ${c.name} by ${c.creator_name}`} accessibilityRole="button">
                     <View style={[styles.popularAvatar, { backgroundColor: gc + '15' }]}>
                       <Text style={[styles.popularLetter, { color: gc }]}>{c.name[0]}</Text>
                     </View>
@@ -156,7 +156,7 @@ export default function DiscoverScreen() {
           </>
         )}
         {showWelcome && !searchQuery.trim() && (
-          <TouchableOpacity style={[styles.welcomeCard, { backgroundColor: tc.accent.primary + '10', borderColor: tc.accent.primary + '25' }]} onPress={() => setShowWelcome(false)} activeOpacity={0.8}>
+          <TouchableOpacity style={[styles.welcomeCard, { backgroundColor: tc.accent.primary + '10', borderColor: tc.accent.primary + '25' }]} onPress={() => setShowWelcome(false)} activeOpacity={0.8} accessibilityLabel="Dismiss welcome message" accessibilityRole="button">
             <Text style={[styles.welcomeTitle, { color: tc.text.primary }]}>Welcome to StratOS</Text>
             <Text style={[styles.welcomeBody, { color: tc.text.secondary }]}>Discover AI characters for immersive roleplay and interactive gaming. Tap a character to start a conversation.</Text>
           </TouchableOpacity>
@@ -178,13 +178,13 @@ export default function DiscoverScreen() {
           </>
         )}
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.genreScroll}>
-          <TouchableOpacity style={[styles.genreChip, { borderColor: tc.border.subtle, backgroundColor: tc.bg.secondary }, !selectedGenre && { backgroundColor: tc.accent.primary + '20', borderColor: tc.accent.primary }]} onPress={() => { Haptics.selectionAsync(); setGenre(null); }}>
+          <TouchableOpacity style={[styles.genreChip, { borderColor: tc.border.subtle, backgroundColor: tc.bg.secondary }, !selectedGenre && { backgroundColor: tc.accent.primary + '20', borderColor: tc.accent.primary }]} onPress={() => { Haptics.selectionAsync(); setGenre(null); }} accessibilityLabel={`Filter by all genres${!selectedGenre ? ', selected' : ''}`} accessibilityRole="button">
             <Text style={[styles.genreText, { color: tc.text.secondary }, !selectedGenre && { color: tc.accent.primary }]}>All</Text>
           </TouchableOpacity>
           {GENRES.map(g => {
             const a = selectedGenre === g.id;
             return (
-              <TouchableOpacity key={g.id} style={[styles.genreChip, { borderColor: tc.border.subtle, backgroundColor: tc.bg.secondary }, a && { backgroundColor: g.color + '20', borderColor: g.color }]} onPress={() => { Haptics.selectionAsync(); setGenre(a ? null : g.id); }}>
+              <TouchableOpacity key={g.id} style={[styles.genreChip, { borderColor: tc.border.subtle, backgroundColor: tc.bg.secondary }, a && { backgroundColor: g.color + '20', borderColor: g.color }]} onPress={() => { Haptics.selectionAsync(); setGenre(a ? null : g.id); }} accessibilityLabel={`Filter by ${g.label}${a ? ', selected' : ''}`} accessibilityRole="button">
                 <Text style={[styles.genreText, { color: tc.text.secondary }, a && { color: g.color }]}>{g.emoji} {g.label}</Text>
               </TouchableOpacity>
             );
@@ -195,7 +195,7 @@ export default function DiscoverScreen() {
           {!searchQuery.trim() && (
             <View style={styles.sortRow}>
               {(['popular', 'newest', 'rating'] as const).map(s => (
-                <TouchableOpacity key={s} onPress={() => { Haptics.selectionAsync(); setSortBy(s); }} style={[styles.sortChip, sortBy === s && { backgroundColor: tc.accent.primary + '15' }]}>
+                <TouchableOpacity key={s} onPress={() => { Haptics.selectionAsync(); setSortBy(s); }} style={[styles.sortChip, sortBy === s && { backgroundColor: tc.accent.primary + '15' }]} accessibilityLabel={`Sort by ${s === 'popular' ? 'popular' : s === 'newest' ? 'newest' : 'top rated'}${sortBy === s ? ', selected' : ''}`} accessibilityRole="button">
                   <Text style={[styles.sortText, { color: sortBy === s ? tc.accent.primary : tc.text.muted }]}>{s === 'popular' ? 'Popular' : s === 'newest' ? 'New' : 'Top Rated'}</Text>
                 </TouchableOpacity>
               ))}
@@ -218,7 +218,7 @@ export default function DiscoverScreen() {
         <View style={{ height: spacing.xxl }} />
       </ScrollView>
       {showScrollTop && (
-        <TouchableOpacity style={[styles.scrollTopFab, { backgroundColor: tc.bg.elevated, borderColor: tc.border.subtle }]} onPress={() => scrollRef.current?.scrollTo({ y: 0, animated: true })} activeOpacity={0.8}>
+        <TouchableOpacity style={[styles.scrollTopFab, { backgroundColor: tc.bg.elevated, borderColor: tc.border.subtle }]} onPress={() => scrollRef.current?.scrollTo({ y: 0, animated: true })} activeOpacity={0.8} accessibilityLabel="Scroll to top" accessibilityRole="button">
           <ChevronUp size={18} color={tc.text.secondary} />
         </TouchableOpacity>
       )}

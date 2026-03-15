@@ -31,7 +31,7 @@ export function CharacterCardComponent({ card, variant = 'grid' }: CharacterCard
 
   if (variant === 'horizontal') {
     return (
-      <TouchableOpacity style={styles.horizontalCard} onPress={() => router.push(`/character/${card.id}`)} activeOpacity={0.7}>
+      <TouchableOpacity style={styles.horizontalCard} onPress={() => router.push(`/character/${card.id}`)} activeOpacity={0.7} accessibilityLabel={`View ${card.name}, ${genreLabel} character`} accessibilityRole="button">
         <View style={[styles.horizontalAvatar, { backgroundColor: accentColor + '15', borderColor: accentColor + '25', borderWidth: 1 }]}>
           {card.avatar_url ? (
             <Image source={{ uri: card.avatar_url }} style={styles.horizontalAvatarImage} />
@@ -82,6 +82,8 @@ export function CharacterCardComponent({ card, variant = 'grid' }: CharacterCard
       onPress={handlePress}
       onPressIn={() => { cardScale.value = withSpring(0.96, { damping: 15 }); }}
       onPressOut={() => { cardScale.value = withSpring(1, { damping: 10 }); }}
+      accessibilityLabel={`${card.name}, ${genreLabel} character, ${card.rating.toFixed(1)} stars, ${formatCount(card.session_count)} chats`}
+      accessibilityRole="button"
     >
       <View style={[styles.avatarContainer, { backgroundColor: accentColor + '08' }]}>
         {card.avatar_url ? (
@@ -94,7 +96,7 @@ export function CharacterCardComponent({ card, variant = 'grid' }: CharacterCard
           </>
         )}
         {/* Quick chat button */}
-        <TouchableOpacity style={[styles.quickChatBtn, { backgroundColor: accentColor + 'CC' }]} onPress={handleQuickChat} activeOpacity={0.8} hitSlop={4}>
+        <TouchableOpacity style={[styles.quickChatBtn, { backgroundColor: accentColor + 'CC' }]} onPress={handleQuickChat} activeOpacity={0.8} hitSlop={4} accessibilityLabel={`Quick chat with ${card.name}`} accessibilityRole="button">
           <MessageCircle size={12} color="#fff" />
         </TouchableOpacity>
         {/* NSFW badge */}

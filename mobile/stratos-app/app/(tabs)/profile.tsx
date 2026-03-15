@@ -79,7 +79,7 @@ export default function ProfileScreen() {
               .sort((a, b) => b.messages.length - a.messages.length)
               .slice(0, 3)
               .map(s => (
-                <TouchableOpacity key={s.id} style={styles.topChar} onPress={() => { resumeSession(s); router.push(`/chat/${s.character_id}`); }} activeOpacity={0.7}>
+                <TouchableOpacity key={s.id} style={styles.topChar} onPress={() => { resumeSession(s); router.push(`/chat/${s.character_id}`); }} activeOpacity={0.7} accessibilityLabel={`Resume chat with ${s.character_name}, ${s.messages.length} messages`} accessibilityRole="button">
                   <View style={[styles.topCharAvatar, { backgroundColor: tc.accent.primary + '15' }]}>
                     <Text style={[styles.topCharLetter, { color: tc.accent.primary }]}>{s.character_name[0]}</Text>
                   </View>
@@ -107,6 +107,8 @@ export default function ProfileScreen() {
                 ]}
                 onPress={() => handleThemeChange(theme.id)}
                 activeOpacity={0.7}
+                accessibilityLabel={`${theme.label} theme${active ? ', selected' : ''}`}
+                accessibilityRole="button"
               >
                 <View style={[styles.themePreview, { backgroundColor: theme.colors.bg.primary }]}>
                   <View style={[styles.themeAccentDot, { backgroundColor: theme.colors.accent.primary }]} />
@@ -123,7 +125,7 @@ export default function ProfileScreen() {
 
       <View style={styles.section}>
         <Text style={[styles.sectionTitle, { color: tc.text.muted }]}>Settings</Text>
-        <TouchableOpacity style={[styles2.item, { borderBottomColor: tc.border.subtle }]} activeOpacity={0.6} onPress={() => { setNsfwFilter(!nsfwFilter); Haptics.selectionAsync(); }}>
+        <TouchableOpacity style={[styles2.item, { borderBottomColor: tc.border.subtle }]} activeOpacity={0.6} onPress={() => { setNsfwFilter(!nsfwFilter); Haptics.selectionAsync(); }} accessibilityLabel={`Content filter: ${nsfwFilter ? 'SFW only' : 'all content'}`} accessibilityRole="button">
           <Shield size={20} color={tc.text.secondary} />
           <Text style={[styles2.label, { color: tc.text.primary }]}>Content Filter</Text>
           <Text style={[styles2.value, { color: nsfwFilter ? tc.status.success : tc.status.error }]}>{nsfwFilter ? 'SFW Only' : 'All Content'}</Text>
@@ -132,7 +134,7 @@ export default function ProfileScreen() {
         <SettingsItem icon={<Bell size={20} color={tc.text.secondary} />} label="Notifications" value="On" tc={tc} />
         <SettingsItem icon={<Server size={20} color={tc.text.secondary} />} label="API Server" value="Default" tc={tc} />
       </View>
-      <TouchableOpacity style={[styles.logoutBtn, { borderColor: tc.status.error + '40' }]} onPress={handleLogout}>
+      <TouchableOpacity style={[styles.logoutBtn, { borderColor: tc.status.error + '40' }]} onPress={handleLogout} accessibilityLabel="Sign out" accessibilityRole="button">
         <LogOut size={18} color={tc.status.error} /><Text style={[styles.logoutText, { color: tc.status.error }]}>Sign Out</Text>
       </TouchableOpacity>
       <View style={styles.aboutSection}>
@@ -146,7 +148,7 @@ export default function ProfileScreen() {
 
 function SettingsItem({ icon, label, value, tc }: { icon: React.ReactNode; label: string; value: string; tc: any }) {
   return (
-    <TouchableOpacity style={[styles2.item, { borderBottomColor: tc.border.subtle }]} activeOpacity={0.6}>
+    <TouchableOpacity style={[styles2.item, { borderBottomColor: tc.border.subtle }]} activeOpacity={0.6} accessibilityLabel={`${label}: ${value}`} accessibilityRole="button">
       {icon}<Text style={[styles2.label, { color: tc.text.primary }]}>{label}</Text><Text style={[styles2.value, { color: tc.text.muted }]}>{value}</Text>
     </TouchableOpacity>
   );

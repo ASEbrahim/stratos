@@ -54,7 +54,7 @@ export function AvatarPicker({ avatarUri, onPick, onClear, accentColor }: Avatar
     return (
       <View style={styles.previewContainer}>
         <Image source={{ uri: avatarUri }} style={styles.preview} />
-        <TouchableOpacity style={styles.clearBtn} onPress={onClear}>
+        <TouchableOpacity style={styles.clearBtn} onPress={onClear} accessibilityLabel="Remove avatar" accessibilityRole="button">
           <X size={16} color={tc.text.primary} />
         </TouchableOpacity>
       </View>
@@ -68,11 +68,11 @@ export function AvatarPicker({ avatarUri, onPick, onClear, accentColor }: Avatar
         <Text style={[styles.label, { color: tc.text.muted }]}>Character Avatar</Text>
       </View>
       <View style={styles.buttonRow}>
-        <TouchableOpacity style={[styles.pickBtn, { borderColor: accent + '40', backgroundColor: tc.bg.tertiary }]} onPress={pickImage}>
+        <TouchableOpacity style={[styles.pickBtn, { borderColor: accent + '40', backgroundColor: tc.bg.tertiary }]} onPress={pickImage} accessibilityLabel="Pick avatar from gallery" accessibilityRole="button">
           <ImageIcon size={16} color={accent} />
           <Text style={[styles.pickText, { color: accent }]}>Gallery</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={[styles.pickBtn, { borderColor: accent + '40', backgroundColor: tc.bg.tertiary }]} onPress={takePhoto}>
+        <TouchableOpacity style={[styles.pickBtn, { borderColor: accent + '40', backgroundColor: tc.bg.tertiary }]} onPress={takePhoto} accessibilityLabel="Take avatar photo with camera" accessibilityRole="button">
           <Camera size={16} color={accent} />
           <Text style={[styles.pickText, { color: accent }]}>Camera</Text>
         </TouchableOpacity>

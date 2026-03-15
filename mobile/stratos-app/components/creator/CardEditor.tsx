@@ -88,17 +88,17 @@ export function CardEditor() {
     <ScrollView style={[styles.container, { backgroundColor: tc.bg.primary }]} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
       {/* Mode toggle */}
       <View style={[styles.modeToggle, { backgroundColor: tc.bg.tertiary }]}>
-        <TouchableOpacity style={[styles.modeBtn, mode === 'quick' && { backgroundColor: tc.bg.elevated }]} onPress={() => setMode('quick')}>
+        <TouchableOpacity style={[styles.modeBtn, mode === 'quick' && { backgroundColor: tc.bg.elevated }]} onPress={() => setMode('quick')} accessibilityLabel={`Quick mode${mode === 'quick' ? ', selected' : ''}`} accessibilityRole="button">
           <Text style={[styles.modeText, { color: tc.text.muted }, mode === 'quick' && { color: tc.text.primary }]}>Quick</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={[styles.modeBtn, mode === 'advanced' && { backgroundColor: tc.bg.elevated }]} onPress={() => setMode('advanced')}>
+        <TouchableOpacity style={[styles.modeBtn, mode === 'advanced' && { backgroundColor: tc.bg.elevated }]} onPress={() => setMode('advanced')} accessibilityLabel={`Advanced mode${mode === 'advanced' ? ', selected' : ''}`} accessibilityRole="button">
           <Text style={[styles.modeText, { color: tc.text.muted }, mode === 'advanced' && { color: tc.text.primary }]}>Advanced</Text>
         </TouchableOpacity>
       </View>
 
       {/* TavernCard import */}
       {FEATURES.enableTavernImport && (
-        <TouchableOpacity style={[styles.importBtn, { borderColor: tc.accent.primary + '40', backgroundColor: tc.accent.primary + '08' }]} onPress={handleImportTavern} disabled={importing} activeOpacity={0.7}>
+        <TouchableOpacity style={[styles.importBtn, { borderColor: tc.accent.primary + '40', backgroundColor: tc.accent.primary + '08' }]} onPress={handleImportTavern} disabled={importing} activeOpacity={0.7} accessibilityLabel={importing ? 'Importing TavernCard' : 'Import TavernCard V2'} accessibilityRole="button">
           <Upload size={16} color={tc.accent.primary} />
           <Text style={[styles.importText, { color: tc.accent.primary }]}>{importing ? 'Importing...' : 'Import TavernCard V2'}</Text>
         </TouchableOpacity>
@@ -117,14 +117,14 @@ export function CardEditor() {
       />
 
       <Text style={[styles.fieldLabel, { color: tc.text.primary }]}>Name *</Text>
-      <TextInput style={[styles.input, { backgroundColor: tc.bg.tertiary, color: tc.text.primary, borderColor: tc.border.subtle }]} value={card.name} onChangeText={v => update('name', v)} placeholder="Character name" placeholderTextColor={tc.text.muted} />
+      <TextInput style={[styles.input, { backgroundColor: tc.bg.tertiary, color: tc.text.primary, borderColor: tc.border.subtle }]} value={card.name} onChangeText={v => update('name', v)} placeholder="Character name" placeholderTextColor={tc.text.muted} accessibilityLabel="Character name" />
 
       <Text style={[styles.fieldLabel, { color: tc.text.primary }]}>Genre</Text>
       <View style={styles.genreGrid}>
         {GENRES.map(g => {
           const sel = card.genre_tags.includes(g.id);
           return (
-            <TouchableOpacity key={g.id} style={[styles.genreChip, { backgroundColor: sel ? g.color + '20' : tc.bg.tertiary, borderColor: sel ? g.color + '60' : tc.border.subtle }]} onPress={() => toggleGenre(g.id)}>
+            <TouchableOpacity key={g.id} style={[styles.genreChip, { backgroundColor: sel ? g.color + '20' : tc.bg.tertiary, borderColor: sel ? g.color + '60' : tc.border.subtle }]} onPress={() => toggleGenre(g.id)} accessibilityLabel={`${g.label} genre${sel ? ', selected' : ''}`} accessibilityRole="button">
               <Text style={{ color: sel ? g.color : tc.text.secondary, fontSize: 13 }}>{g.emoji} {g.label}</Text>
             </TouchableOpacity>
           );
@@ -133,29 +133,29 @@ export function CardEditor() {
 
       <Text style={[styles.fieldLabel, { color: tc.text.primary }]}>Content Rating</Text>
       <View style={styles.contentRatingRow}>
-        <TouchableOpacity style={[styles.contentRatingBtn, { backgroundColor: card.content_rating === 'sfw' ? tc.status.success + '20' : tc.bg.tertiary, borderColor: card.content_rating === 'sfw' ? tc.status.success + '60' : tc.border.subtle }]} onPress={() => { update('content_rating', 'sfw'); Haptics.selectionAsync(); }}>
+        <TouchableOpacity style={[styles.contentRatingBtn, { backgroundColor: card.content_rating === 'sfw' ? tc.status.success + '20' : tc.bg.tertiary, borderColor: card.content_rating === 'sfw' ? tc.status.success + '60' : tc.border.subtle }]} onPress={() => { update('content_rating', 'sfw'); Haptics.selectionAsync(); }} accessibilityLabel={`SFW rating${card.content_rating === 'sfw' ? ', selected' : ''}`} accessibilityRole="button">
           <Text style={{ color: card.content_rating === 'sfw' ? tc.status.success : tc.text.muted, fontSize: 13, fontWeight: '600' }}>SFW</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={[styles.contentRatingBtn, { backgroundColor: card.content_rating === 'nsfw' ? tc.nsfw + '20' : tc.bg.tertiary, borderColor: card.content_rating === 'nsfw' ? tc.nsfw + '60' : tc.border.subtle }]} onPress={() => { update('content_rating', 'nsfw'); Haptics.selectionAsync(); }}>
+        <TouchableOpacity style={[styles.contentRatingBtn, { backgroundColor: card.content_rating === 'nsfw' ? tc.nsfw + '20' : tc.bg.tertiary, borderColor: card.content_rating === 'nsfw' ? tc.nsfw + '60' : tc.border.subtle }]} onPress={() => { update('content_rating', 'nsfw'); Haptics.selectionAsync(); }} accessibilityLabel={`NSFW rating${card.content_rating === 'nsfw' ? ', selected' : ''}`} accessibilityRole="button">
           <Text style={{ color: card.content_rating === 'nsfw' ? tc.nsfw : tc.text.muted, fontSize: 13, fontWeight: '600' }}>18+</Text>
         </TouchableOpacity>
       </View>
 
       <Text style={[styles.fieldLabel, { color: tc.text.primary }]}>Description</Text>
-      <TextInput style={[styles.input, styles.multiline, { backgroundColor: tc.bg.tertiary, color: tc.text.primary, borderColor: tc.border.subtle }]} value={card.description} onChangeText={v => update('description', v)} placeholder="Who is this character?" placeholderTextColor={tc.text.muted} multiline textAlignVertical="top" />
+      <TextInput style={[styles.input, styles.multiline, { backgroundColor: tc.bg.tertiary, color: tc.text.primary, borderColor: tc.border.subtle }]} value={card.description} onChangeText={v => update('description', v)} placeholder="Who is this character?" placeholderTextColor={tc.text.muted} multiline textAlignVertical="top" accessibilityLabel="Character description" />
       <WordCount text={card.description} />
 
       <Text style={[styles.fieldLabel, { color: tc.text.primary }]}>Personality</Text>
-      <TextInput style={[styles.input, styles.multiline, { backgroundColor: tc.bg.tertiary, color: tc.text.primary, borderColor: tc.border.subtle }]} value={card.personality} onChangeText={v => update('personality', v)} placeholder="How does your character act and speak?" placeholderTextColor={tc.text.muted} multiline textAlignVertical="top" />
+      <TextInput style={[styles.input, styles.multiline, { backgroundColor: tc.bg.tertiary, color: tc.text.primary, borderColor: tc.border.subtle }]} value={card.personality} onChangeText={v => update('personality', v)} placeholder="How does your character act and speak?" placeholderTextColor={tc.text.muted} multiline textAlignVertical="top" accessibilityLabel="Character personality" />
       <WordCount text={card.personality} />
 
       <Text style={[styles.fieldLabel, { color: tc.text.primary }]}>First Message</Text>
       <Text style={[styles.fieldHint, { color: tc.text.secondary }]}>Sets the tone for every conversation — the most important field.</Text>
-      <TextInput style={[styles.input, styles.multilineLg, { backgroundColor: tc.bg.tertiary, color: tc.text.primary, borderColor: tc.border.subtle }]} value={card.first_message} onChangeText={v => update('first_message', v)} placeholder="What does your character say or do first?" placeholderTextColor={tc.text.muted} multiline textAlignVertical="top" />
+      <TextInput style={[styles.input, styles.multilineLg, { backgroundColor: tc.bg.tertiary, color: tc.text.primary, borderColor: tc.border.subtle }]} value={card.first_message} onChangeText={v => update('first_message', v)} placeholder="What does your character say or do first?" placeholderTextColor={tc.text.muted} multiline textAlignVertical="top" accessibilityLabel="First message" />
       <WordCount text={card.first_message} />
 
       <Text style={[styles.fieldLabel, { color: tc.text.primary }]}>Scenario</Text>
-      <TextInput style={[styles.input, styles.multiline, { backgroundColor: tc.bg.tertiary, color: tc.text.primary, borderColor: tc.border.subtle }]} value={card.scenario} onChangeText={v => update('scenario', v)} placeholder="The starting situation" placeholderTextColor={tc.text.muted} multiline textAlignVertical="top" />
+      <TextInput style={[styles.input, styles.multiline, { backgroundColor: tc.bg.tertiary, color: tc.text.primary, borderColor: tc.border.subtle }]} value={card.scenario} onChangeText={v => update('scenario', v)} placeholder="The starting situation" placeholderTextColor={tc.text.muted} multiline textAlignVertical="top" accessibilityLabel="Scenario" />
       <WordCount text={card.scenario} />
 
       {mode === 'advanced' && (
@@ -176,17 +176,17 @@ export function CardEditor() {
       <View style={styles.ratingRow}>
         <Text style={[styles.fieldLabel, { color: tc.text.primary }]}>Content Rating</Text>
         <View style={styles.contentRatingRow}>
-          <TouchableOpacity style={[styles.ratingOpt, card.content_rating === 'sfw' && { backgroundColor: tc.status.success + '20', borderColor: tc.status.success }]} onPress={() => update('content_rating', 'sfw')}>
+          <TouchableOpacity style={[styles.ratingOpt, card.content_rating === 'sfw' && { backgroundColor: tc.status.success + '20', borderColor: tc.status.success }]} onPress={() => update('content_rating', 'sfw')} accessibilityLabel={`SFW content rating${card.content_rating === 'sfw' ? ', selected' : ''}`} accessibilityRole="button">
             <Text style={{ color: card.content_rating === 'sfw' ? tc.status.success : tc.text.muted }}>SFW</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={[styles.ratingOpt, card.content_rating === 'nsfw' && { backgroundColor: tc.nsfw + '20', borderColor: tc.nsfw }]} onPress={() => update('content_rating', 'nsfw')}>
+          <TouchableOpacity style={[styles.ratingOpt, card.content_rating === 'nsfw' && { backgroundColor: tc.nsfw + '20', borderColor: tc.nsfw }]} onPress={() => update('content_rating', 'nsfw')} accessibilityLabel={`NSFW content rating${card.content_rating === 'nsfw' ? ', selected' : ''}`} accessibilityRole="button">
             <Text style={{ color: card.content_rating === 'nsfw' ? tc.nsfw : tc.text.muted }}>NSFW</Text>
           </TouchableOpacity>
         </View>
       </View>
 
       <Animated.View style={saveBtnAnimStyle}>
-        <TouchableOpacity style={[styles.saveBtn, { backgroundColor: tc.accent.primary }, saving && { opacity: 0.6 }]} onPress={handleSave} disabled={saving}>
+        <TouchableOpacity style={[styles.saveBtn, { backgroundColor: tc.accent.primary }, saving && { opacity: 0.6 }]} onPress={handleSave} disabled={saving} accessibilityLabel={saving ? 'Creating character' : 'Create character'} accessibilityRole="button">
           <Text style={styles.saveBtnText}>{saving ? 'Creating...' : 'Create Character'}</Text>
         </TouchableOpacity>
       </Animated.View>

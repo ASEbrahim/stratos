@@ -102,7 +102,7 @@ export function CharacterDetailView({ card }: CharacterDetailProps) {
         <Text style={[styles.sectionTitle, { color: tc.text.primary }]}>Quality Elements</Text>
         <QualityScore card={card} showElements size="large" />
         {(card.speech_pattern || card.emotional_trigger || card.defensive_mechanism || card.vulnerability || card.specific_detail || card.physical_description) && (
-          <TouchableOpacity style={[styles.depthToggle, { borderColor: accentColor + '30' }]} onPress={() => setShowDepth(!showDepth)} activeOpacity={0.7}>
+          <TouchableOpacity style={[styles.depthToggle, { borderColor: accentColor + '30' }]} onPress={() => setShowDepth(!showDepth)} activeOpacity={0.7} accessibilityLabel={showDepth ? 'Hide character depth details' : 'Show character depth details'} accessibilityRole="button">
             <Text style={[styles.depthToggleText, { color: accentColor }]}>{showDepth ? 'Hide Details' : 'Show Character Depth'}</Text>
           </TouchableOpacity>
         )}
@@ -136,31 +136,31 @@ export function CharacterDetailView({ card }: CharacterDetailProps) {
       <Animated.View style={btnAnimStyle}>
         {existingSession ? (
           <>
-            <TouchableOpacity style={[styles.primaryButton, { backgroundColor: accentColor }]} onPress={handleContinueChat} activeOpacity={0.8}>
+            <TouchableOpacity style={[styles.primaryButton, { backgroundColor: accentColor }]} onPress={handleContinueChat} activeOpacity={0.8} accessibilityLabel={`Continue conversation with ${card.name}`} accessibilityRole="button">
               <Text style={styles.primaryButtonText}>Continue Conversation</Text>
             </TouchableOpacity>
             <Text style={[styles.sessionHint, { color: tc.text.muted }]}>{existingSession.messages.length} messages · last active {formatRelativeTime(existingSession.updated_at)}</Text>
-            <TouchableOpacity style={[styles.newSessionBtn, { borderColor: accentColor + '40' }]} onPress={handleStartChat} activeOpacity={0.7}>
+            <TouchableOpacity style={[styles.newSessionBtn, { borderColor: accentColor + '40' }]} onPress={handleStartChat} activeOpacity={0.7} accessibilityLabel={`Start new session with ${card.name}`} accessibilityRole="button">
               <Text style={[styles.newSessionText, { color: accentColor }]}>Start New Session</Text>
             </TouchableOpacity>
           </>
         ) : (
           <Animated.View style={ctaStyle}>
-            <TouchableOpacity style={[styles.primaryButton, { backgroundColor: accentColor }]} onPress={handleStartChat} activeOpacity={0.8}>
+            <TouchableOpacity style={[styles.primaryButton, { backgroundColor: accentColor }]} onPress={handleStartChat} activeOpacity={0.8} accessibilityLabel={`Start conversation with ${card.name}`} accessibilityRole="button">
               <Text style={styles.primaryButtonText}>Start Conversation</Text>
             </TouchableOpacity>
           </Animated.View>
         )}
       </Animated.View>
       <View style={styles.actionRow}>
-        <TouchableOpacity style={[styles.secondaryButton, { flex: 1, borderColor: tc.border.medium }, saved && { borderColor: tc.status.success + '60', backgroundColor: tc.status.success + '10' }]} onPress={handleToggleSave} activeOpacity={0.7}>
+        <TouchableOpacity style={[styles.secondaryButton, { flex: 1, borderColor: tc.border.medium }, saved && { borderColor: tc.status.success + '60', backgroundColor: tc.status.success + '10' }]} onPress={handleToggleSave} activeOpacity={0.7} accessibilityLabel={saved ? `Remove ${card.name} from library` : `Save ${card.name} to library`} accessibilityRole="button">
           {saved ? <BookmarkCheck size={18} color={tc.status.success} /> : <BookmarkPlus size={18} color={tc.text.secondary} />}
           <Text style={[styles.secondaryButtonText, { color: tc.text.secondary }, saved && { color: tc.status.success }]}>{saved ? 'Saved' : 'Save'}</Text>
         </TouchableOpacity>
         <TouchableOpacity style={[styles.secondaryButton, { flex: 1, borderColor: tc.border.medium }]} onPress={async () => {
           Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
           await Share.share({ message: `Check out ${card.name} on StratOS!\n\n"${card.description}"\n\n${card.genre_tags.map(t => `#${t}`).join(' ')} · ${card.rating.toFixed(1)} rating` });
-        }} activeOpacity={0.7}>
+        }} activeOpacity={0.7} accessibilityLabel={`Share ${card.name}`} accessibilityRole="button">
           <Share2 size={18} color={tc.text.secondary} />
           <Text style={[styles.secondaryButtonText, { color: tc.text.secondary }]}>Share</Text>
         </TouchableOpacity>
@@ -179,7 +179,7 @@ export function CharacterDetailView({ card }: CharacterDetailProps) {
               {similar.map(c => {
                 const gc = getGenreColor(c.genre_tags[0] ?? 'default');
                 return (
-                  <TouchableOpacity key={c.id} style={styles.similarCard} onPress={() => router.push(`/character/${c.id}`)} activeOpacity={0.7}>
+                  <TouchableOpacity key={c.id} style={styles.similarCard} onPress={() => router.push(`/character/${c.id}`)} activeOpacity={0.7} accessibilityLabel={`View similar character ${c.name}`} accessibilityRole="button">
                     <View style={[styles.similarAvatar, { backgroundColor: gc + '15' }]}>
                       <Text style={[styles.similarLetter, { color: gc }]}>{c.name[0]}</Text>
                     </View>
@@ -192,7 +192,7 @@ export function CharacterDetailView({ card }: CharacterDetailProps) {
           </View>
         );
       })()}
-      <TouchableOpacity style={styles.reportBtn} onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); Alert.alert('Report Character', 'Report this character for inappropriate content?', [{ text: 'Cancel', style: 'cancel' }, { text: 'Report', style: 'destructive', onPress: () => Alert.alert('Reported', 'Thank you for your report. We will review this character.') }]); }} activeOpacity={0.7}>
+      <TouchableOpacity style={styles.reportBtn} onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); Alert.alert('Report Character', 'Report this character for inappropriate content?', [{ text: 'Cancel', style: 'cancel' }, { text: 'Report', style: 'destructive', onPress: () => Alert.alert('Reported', 'Thank you for your report. We will review this character.') }]); }} activeOpacity={0.7} accessibilityLabel={`Report ${card.name}`} accessibilityRole="button">
         <Flag size={12} color={tc.text.muted} />
         <Text style={[styles.reportText, { color: tc.text.muted }]}>Report Character</Text>
       </TouchableOpacity>

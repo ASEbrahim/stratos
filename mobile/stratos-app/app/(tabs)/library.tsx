@@ -69,16 +69,16 @@ export default function LibraryScreen() {
       <Text style={[styles.title, { color: tc.text.primary }]}>Library</Text>
       <View style={[styles.searchBox, { backgroundColor: tc.bg.tertiary }]}>
         <Search size={16} color={tc.text.muted} />
-        <TextInput style={[styles.searchInput, { color: tc.text.primary }]} value={searchQuery} onChangeText={setSearchQuery} placeholder="Search library..." placeholderTextColor={tc.text.muted} />
+        <TextInput style={[styles.searchInput, { color: tc.text.primary }]} value={searchQuery} onChangeText={setSearchQuery} placeholder="Search library..." placeholderTextColor={tc.text.muted} accessibilityLabel="Search library" accessibilityRole="search" />
       </View>
       <View style={styles.tabs}>
-        <TouchableOpacity style={[styles.tab, { backgroundColor: tc.bg.tertiary }, tab === 'mine' && { backgroundColor: tc.accent.primary + '20' }]} onPress={() => { Haptics.selectionAsync(); setTab('mine'); }}>
+        <TouchableOpacity style={[styles.tab, { backgroundColor: tc.bg.tertiary }, tab === 'mine' && { backgroundColor: tc.accent.primary + '20' }]} onPress={() => { Haptics.selectionAsync(); setTab('mine'); }} accessibilityLabel={`My Characters tab${tab === 'mine' ? ', selected' : ''}`} accessibilityRole="button">
           <Text style={[styles.tabText, { color: tc.text.muted }, tab === 'mine' && { color: tc.accent.primary }]}>My Characters{myCards.length > 0 ? ` (${myCards.length})` : ''}</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={[styles.tab, { backgroundColor: tc.bg.tertiary }, tab === 'saved' && { backgroundColor: tc.accent.primary + '20' }]} onPress={() => { Haptics.selectionAsync(); setTab('saved'); }}>
+        <TouchableOpacity style={[styles.tab, { backgroundColor: tc.bg.tertiary }, tab === 'saved' && { backgroundColor: tc.accent.primary + '20' }]} onPress={() => { Haptics.selectionAsync(); setTab('saved'); }} accessibilityLabel={`Saved tab${tab === 'saved' ? ', selected' : ''}`} accessibilityRole="button">
           <Text style={[styles.tabText, { color: tc.text.muted }, tab === 'saved' && { color: tc.accent.primary }]}>Saved{savedCards.length > 0 ? ` (${savedCards.length})` : ''}</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={[styles.tab, { backgroundColor: tc.bg.tertiary }, tab === 'history' && { backgroundColor: tc.accent.primary + '20' }]} onPress={() => { Haptics.selectionAsync(); setTab('history'); }}>
+        <TouchableOpacity style={[styles.tab, { backgroundColor: tc.bg.tertiary }, tab === 'history' && { backgroundColor: tc.accent.primary + '20' }]} onPress={() => { Haptics.selectionAsync(); setTab('history'); }} accessibilityLabel={`History tab${tab === 'history' ? ', selected' : ''}`} accessibilityRole="button">
           <Text style={[styles.tabText, { color: tc.text.muted }, tab === 'history' && { color: tc.accent.primary }]}>History{recentSessions.length > 0 ? ` (${recentSessions.length})` : ''}</Text>
         </TouchableOpacity>
       </View>
@@ -87,12 +87,12 @@ export default function LibraryScreen() {
           <EmptyState title="No conversations yet" subtitle="Start a chat from Discover to see it here." />
         ) : (
           <ScrollView contentContainerStyle={styles.sessionList} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={tc.accent.primary} />}>
-            <TouchableOpacity style={styles.clearAllBtn} onPress={handleClearAllHistory}>
+            <TouchableOpacity style={styles.clearAllBtn} onPress={handleClearAllHistory} accessibilityLabel="Clear all chat history" accessibilityRole="button">
               <Text style={[styles.clearAllText, { color: tc.status.error }]}>Clear All History</Text>
             </TouchableOpacity>
             {filteredSessions.map(s => (
               <Animated.View key={s.id} exiting={FadeOut.duration(200)} layout={Layout.springify()}>
-                <TouchableOpacity style={[styles.sessionCard, { backgroundColor: tc.bg.secondary }]} onPress={() => handleResumeSession(s)} onLongPress={() => handleDeleteSession(s)} delayLongPress={500} activeOpacity={0.7}>
+                <TouchableOpacity style={[styles.sessionCard, { backgroundColor: tc.bg.secondary }]} onPress={() => handleResumeSession(s)} onLongPress={() => handleDeleteSession(s)} delayLongPress={500} activeOpacity={0.7} accessibilityLabel={`Resume chat with ${s.character_name}, ${s.messages.length} messages`} accessibilityRole="button">
                   <View style={[styles.sessionAvatar, { backgroundColor: tc.accent.primary + '15' }]}>
                     <MessageCircle size={20} color={tc.accent.primary} />
                   </View>
@@ -107,7 +107,7 @@ export default function LibraryScreen() {
                       <Text style={[styles.sessionMsgCount, { color: tc.text.muted }]}>{s.messages.length} msgs · ~{Math.max(1, Math.round(s.messages.length * 0.8))}min</Text>
                     </View>
                   </View>
-                  <TouchableOpacity onPress={() => handleDeleteSession(s)} style={styles.deleteBtn} hitSlop={8}>
+                  <TouchableOpacity onPress={() => handleDeleteSession(s)} style={styles.deleteBtn} hitSlop={8} accessibilityLabel={`Delete chat with ${s.character_name}`} accessibilityRole="button">
                     <Trash2 size={14} color={tc.status.error + '80'} />
                   </TouchableOpacity>
                 </TouchableOpacity>
