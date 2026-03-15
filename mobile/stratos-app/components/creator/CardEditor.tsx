@@ -125,7 +125,7 @@ export function CardEditor() {
           const sel = card.genre_tags.includes(g.id);
           return (
             <TouchableOpacity key={g.id} style={[styles.genreChip, { backgroundColor: sel ? g.color + '20' : tc.bg.tertiary, borderColor: sel ? g.color + '60' : tc.border.subtle }]} onPress={() => toggleGenre(g.id)} accessibilityLabel={`${g.label} genre${sel ? ', selected' : ''}`} accessibilityRole="button">
-              <Text style={{ color: sel ? g.color : tc.text.secondary, fontSize: 12 }} numberOfLines={1}>{g.emoji} {g.label}</Text>
+              <Text style={{ color: sel ? g.color : tc.text.secondary, fontSize: 12, fontWeight: '600' }} numberOfLines={1}>{g.label}</Text>
             </TouchableOpacity>
           );
         })}

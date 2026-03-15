@@ -87,7 +87,7 @@ export default function DiscoverScreen() {
             const a = selectedGenre === g.id;
             return (
               <TouchableOpacity key={g.id} style={[styles.genreChip, { borderColor: tc.border.subtle, backgroundColor: tc.bg.secondary }, a && { backgroundColor: g.color + '20', borderColor: g.color }]} onPress={() => { Haptics.selectionAsync(); setGenre(a ? null : g.id); }} accessibilityLabel={`Filter by ${g.label}${a ? ', selected' : ''}`} accessibilityRole="button">
-                <Text style={[styles.genreText, { color: tc.text.secondary }, a && { color: g.color }]}>{g.emoji} {g.label}</Text>
+                <Text style={[styles.genreText, { color: tc.text.secondary }, a && { color: g.color }]}>{g.label}</Text>
               </TouchableOpacity>
             );
           })}
@@ -144,8 +144,8 @@ const styles = StyleSheet.create({
   container: { flex: 1 },
   scroll: { flex: 1 },
   brandRow: { alignItems: 'center', paddingTop: spacing.sm },
-  brandText: { fontSize: 24, fontWeight: '900', letterSpacing: 2, textTransform: 'uppercase' },
-  brandAccent: { fontWeight: '400', letterSpacing: 0 },
+  brandText: { fontSize: 22, fontWeight: '800', letterSpacing: 1 },
+  brandAccent: { fontWeight: '300' },
   searchRow: { flexDirection: 'row', alignItems: 'center', marginHorizontal: spacing.md, marginTop: spacing.sm, marginBottom: spacing.xs, gap: spacing.sm },
   searchBox: { flexDirection: 'row', alignItems: 'center', borderRadius: borderRadius.lg, paddingHorizontal: spacing.md, gap: spacing.sm },
   shuffleBtn: { width: 38, height: 38, borderRadius: borderRadius.md, justifyContent: 'center', alignItems: 'center' },
@@ -154,8 +154,8 @@ const styles = StyleSheet.create({
   sectionTitle: { ...typography.heading },
   hScroll: { paddingHorizontal: spacing.md },
   genreScroll: { paddingHorizontal: spacing.md, gap: spacing.xs, paddingVertical: spacing.xs },
-  genreChip: { paddingHorizontal: spacing.sm, paddingVertical: 4, borderRadius: borderRadius.full, borderWidth: 1 },
-  genreText: { fontSize: 11 },
+  genreChip: { paddingHorizontal: spacing.md, paddingVertical: 6, borderRadius: 20, borderWidth: 1 },
+  genreText: { fontSize: 12, fontWeight: '600' },
   grid: { flexDirection: 'row', flexWrap: 'wrap', paddingHorizontal: spacing.md, gap: spacing.sm },
   scenarioGrid: { paddingHorizontal: spacing.lg, gap: spacing.md },
   emptySearch: { alignItems: 'center', paddingVertical: spacing.xxl * 2, paddingHorizontal: spacing.xxl },
