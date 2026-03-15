@@ -1,7 +1,8 @@
 import React, { useEffect } from 'react';
 import { View, StyleSheet } from 'react-native';
 import Animated, { useSharedValue, useAnimatedStyle, withRepeat, withTiming, Easing } from 'react-native-reanimated';
-import { colors, spacing, borderRadius } from '../../constants/theme';
+import { useThemeStore } from '../../stores/themeStore';
+import { spacing, borderRadius } from '../../constants/theme';
 
 interface SkeletonProps {
   width: number | string;
@@ -11,6 +12,7 @@ interface SkeletonProps {
 }
 
 export function Skeleton({ width, height, borderRadius: br = borderRadius.md, style }: SkeletonProps) {
+  const tc = useThemeStore(s => s.colors);
   const shimmer = useSharedValue(0.3);
 
   useEffect(() => {
@@ -28,16 +30,15 @@ export function Skeleton({ width, height, borderRadius: br = borderRadius.md, st
   return (
     <Animated.View style={[{
       width: width as any, height, borderRadius: br,
-      backgroundColor: colors.bg.elevated,
+      backgroundColor: tc.bg.elevated,
     }, animStyle, style]} />
   );
 }
 
-// Pre-built skeleton layouts
-
 export function SkeletonCard() {
+  const tc = useThemeStore(s => s.colors);
   return (
-    <View style={skStyles.card}>
+    <View style={[skStyles.card, { backgroundColor: tc.bg.secondary, borderColor: tc.border.subtle }]}>
       <Skeleton width="100%" height={120} borderRadius={borderRadius.lg} />
       <View style={skStyles.cardInfo}>
         <Skeleton width="70%" height={14} />
@@ -94,7 +95,7 @@ export function DiscoverSkeleton() {
 
 const skStyles = StyleSheet.create({
   container: { paddingTop: spacing.md },
-  card: { width: '47%', backgroundColor: colors.bg.secondary, borderRadius: borderRadius.lg, overflow: 'hidden', borderWidth: 1, borderColor: colors.border.subtle },
+  card: { width: '47%', borderRadius: borderRadius.lg, overflow: 'hidden', borderWidth: 1 },
   cardInfo: { padding: spacing.md, gap: 6 },
   cardMeta: { flexDirection: 'row', justifyContent: 'space-between' },
   hCard: { width: 120, alignItems: 'center', marginRight: spacing.md },

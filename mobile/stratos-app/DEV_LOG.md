@@ -201,5 +201,8 @@ Removed static color imports from both components. checkpoint-16, memory updated
 ## Iteration 67: "Conversation resumed" banner ✅
 Shows message count when resuming an existing chat session.
 
-## Iteration 68: "Character of the Day" rotation on featured card
-The featured spotlight always shows the same highest-rated character. Adding daily rotation using day-of-year hash so users see a different featured character each day — drives engagement.
+## Iteration 68: "Character of the Day" daily rotation ✅
+Featured card rotates daily using day-of-year hash.
+
+## Iteration 69: Theme-aware Skeleton + ErrorBoundary
+Last hardcoded components — Skeleton shimmer and ErrorBoundary still import static colors. Making them theme-aware completes the cleanup.
