@@ -1,7 +1,7 @@
 import React from 'react';
 import { View } from 'react-native';
 import { Tabs } from 'expo-router';
-import { Compass, BookOpen, PlusCircle, User } from 'lucide-react-native';
+import { Compass, MessageSquare, BookOpen, PlusCircle, User } from 'lucide-react-native';
 import { useThemeStore } from '../../stores/themeStore';
 import { typography } from '../../constants/theme';
 
@@ -25,6 +25,7 @@ export default function TabsLayout() {
       tabBarLabelStyle: { ...typography.small, fontSize: 10 },
     }}>
       <Tabs.Screen name="discover" options={{ title: 'Discover', tabBarIcon: ({ color, size, focused }) => <TabIcon Icon={Compass} color={color} size={size} focused={focused} accentColor={tc.accent.primary} /> }} />
+      <Tabs.Screen name="chats" options={{ title: 'Chats', tabBarIcon: ({ color, size, focused }) => <TabIcon Icon={MessageSquare} color={color} size={size} focused={focused} accentColor={tc.accent.primary} /> }} />
       <Tabs.Screen name="library" options={{ title: 'Library', tabBarIcon: ({ color, size, focused }) => <TabIcon Icon={BookOpen} color={color} size={size} focused={focused} accentColor={tc.accent.primary} /> }} />
       <Tabs.Screen name="create" options={{ title: 'Create', tabBarIcon: ({ color, size, focused }) => <TabIcon Icon={PlusCircle} color={color} size={size} focused={focused} accentColor={tc.accent.primary} /> }} />
       <Tabs.Screen name="profile" options={{ title: 'Profile', tabBarIcon: ({ color, size, focused }) => <TabIcon Icon={User} color={color} size={size} focused={focused} accentColor={tc.accent.primary} /> }} />
