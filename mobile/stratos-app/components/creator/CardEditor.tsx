@@ -15,6 +15,12 @@ import { FEATURES } from '../../constants/config';
 import { colors, typography, spacing, borderRadius } from '../../constants/theme';
 import Animated, { useSharedValue, useAnimatedStyle, withSpring, withSequence } from 'react-native-reanimated';
 
+function WordCount({ text }: { text: string }) {
+  if (!text.trim()) return null;
+  const words = text.trim().split(/\s+/).length;
+  return <Text style={{ fontSize: 9, color: colors.text.muted, textAlign: 'right', marginTop: 2 }}>{words} words · {text.length} chars</Text>;
+}
+
 export function CardEditor() {
   const router = useRouter();
   const [mode, setMode] = useState<'quick' | 'advanced'>('quick');
@@ -124,16 +130,20 @@ export function CardEditor() {
 
       <Text style={styles.fieldLabel}>Description</Text>
       <TextInput style={[styles.input, styles.multiline]} value={card.description} onChangeText={v => update('description', v)} placeholder="Who is this character?" placeholderTextColor={colors.text.muted} multiline textAlignVertical="top" />
+      <WordCount text={card.description} />
 
       <Text style={styles.fieldLabel}>Personality</Text>
       <TextInput style={[styles.input, styles.multiline]} value={card.personality} onChangeText={v => update('personality', v)} placeholder="How does your character act and speak?" placeholderTextColor={colors.text.muted} multiline textAlignVertical="top" />
+      <WordCount text={card.personality} />
 
       <Text style={styles.fieldLabel}>First Message</Text>
       <Text style={styles.fieldHint}>Sets the tone for every conversation — the most important field.</Text>
       <TextInput style={[styles.input, styles.multilineLg]} value={card.first_message} onChangeText={v => update('first_message', v)} placeholder="What does your character say or do first?" placeholderTextColor={colors.text.muted} multiline textAlignVertical="top" />
+      <WordCount text={card.first_message} />
 
       <Text style={styles.fieldLabel}>Scenario</Text>
       <TextInput style={[styles.input, styles.multiline]} value={card.scenario} onChangeText={v => update('scenario', v)} placeholder="The starting situation" placeholderTextColor={colors.text.muted} multiline textAlignVertical="top" />
+      <WordCount text={card.scenario} />
 
       {mode === 'advanced' && (
         <>

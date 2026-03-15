@@ -87,5 +87,8 @@ Character cards fade/slide in with staggered delays when the grid first renders.
 ## Iteration 29: Offline banner component ✅
 Network-aware banner in root layout, animated slide.
 
-## Iteration 30: Final polish pass + memory update
-Double-checking all screens compile, bundle builds, no runtime errors. Updating project memory with mobile app status.
+## Iteration 30: Final polish pass + memory update ✅
+All screens verified, zero errors, project memory updated.
+
+## Iteration 31: Word counter on creator fields + creator improvements
+The character creator lacks feedback on field lengths. Adding word counters to multi-line fields (description, personality, first message, scenario) to help users write the right amount.
