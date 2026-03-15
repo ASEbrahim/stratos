@@ -147,5 +147,8 @@ Shows character avatar, name, and description at the start of new conversations.
 ## Iteration 49: Profile engagement stats ✅
 "Your Journey" section: words written, avg messages, longest chat, top genre.
 
-## Iteration 50: Double-tap to bookmark on character cards
-Instagram proved double-tap is the most intuitive mobile gesture. Adding double-tap on character cards in the grid to save/bookmark — with a heart animation burst.
+## Iteration 50: Double-tap to bookmark with heart animation ✅
+Double-tap saves to library with animated heart burst. checkpoint-12 tagged.
+
+## Iteration 51: Character card creator name linkable + "by @creator" on Popular cards
+Popular This Week cards don't show the creator. Adding creator attribution — users want to know who made their favorite characters.

@@ -112,7 +112,7 @@ export default function DiscoverScreen() {
               <Text style={[styles.sectionTitle, { color: tc.text.primary }]}>Popular This Week</Text>
             </View>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.popularScroll}>
-              {trending.slice(0, 3).map(c => {
+              {trending.slice(0, 5).map(c => {
                 const gc = getGenreColor(c.genre_tags[0] ?? 'default');
                 return (
                   <TouchableOpacity key={`pop-${c.id}`} style={[styles.popularCard, { borderColor: gc + '25' }]} onPress={() => router.push(`/character/${c.id}`)} activeOpacity={0.7}>
@@ -121,8 +121,9 @@ export default function DiscoverScreen() {
                     </View>
                     <View style={styles.popularInfo}>
                       <Text style={[styles.popularName, { color: tc.text.primary }]} numberOfLines={1}>{c.name}</Text>
+                      <Text style={[styles.popularCreator, { color: tc.text.muted }]}>by @{c.creator_name}</Text>
                       <Text style={[styles.popularDesc, { color: tc.text.secondary }]} numberOfLines={2}>{c.description}</Text>
-                      <Text style={[styles.popularStat, { color: gc }]}>{formatCount(c.session_count)} chats</Text>
+                      <Text style={[styles.popularStat, { color: gc }]}>{formatCount(c.session_count)} chats · {c.rating.toFixed(1)}★</Text>
                     </View>
                   </TouchableOpacity>
                 );
@@ -240,6 +241,7 @@ const styles = StyleSheet.create({
   popularLetter: { fontSize: 22, fontWeight: '700', opacity: 0.7 },
   popularInfo: { flex: 1, justifyContent: 'center', gap: 2 },
   popularName: { ...typography.subheading, fontSize: 14 },
+  popularCreator: { fontSize: 9, marginBottom: 2 },
   popularDesc: { ...typography.small, lineHeight: 15, fontSize: 10 },
   popularStat: { ...typography.small, fontSize: 10, fontWeight: '600', marginTop: 2 },
   welcomeCard: { marginHorizontal: spacing.lg, marginBottom: spacing.md, padding: spacing.lg, borderRadius: borderRadius.lg, borderWidth: 1 },
