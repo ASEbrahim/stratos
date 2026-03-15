@@ -138,6 +138,7 @@ def handle_post(handler, strat, auth, path) -> bool:
             genre_tags=json.dumps(data.get("genre_tags", [])),
             content_rating=data.get("content_rating", "sfw"),
             quality_elements_count=quality,
+            is_published=True,
         )
 
         json_response(handler, {"ok": True, "card_id": card_id, "quality_elements": quality})
