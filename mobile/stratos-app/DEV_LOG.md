@@ -171,5 +171,8 @@ Toggle shows all 6 quality elements in full text format.
 ## Iteration 57: Play badge on gaming scenario cards ✅
 "Play" button badge with accent color on scenario cards in discover.
 
-## Iteration 58: Keyboard dismiss on scroll + return key sends in chat
-Two missing chat UX basics: keyboard should dismiss when scrolling messages, and pressing Return on a single-line message should send it instead of inserting a newline.
+## Iteration 58: Keyboard dismiss on scroll ✅
+Keyboard auto-dismisses when dragging chat messages. checkpoint-14.
+
+## Iteration 59: Animated empty state illustrations
+Empty states on Library tabs are plain text. Adding themed illustrations (emoji + descriptive text) that match the active theme — makes the app feel more alive when there's no content.
