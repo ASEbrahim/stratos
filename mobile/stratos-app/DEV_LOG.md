@@ -231,5 +231,8 @@ Subtle accent-colored left border on AI messages for character identity.
 ## Iteration 77: Success haptic on AI response completion ✅
 Haptic notification when streaming finishes.
 
-## Iteration 78: Auto-save indicator in chat
-Users worry about losing chat data. Adding a subtle "Auto-saved ✓" indicator that flashes briefly after each message exchange — reassures users their conversation is persisted.
+## Iteration 78: "Auto-saved ✓" indicator in chat ✅
+Flashes briefly after each AI response to confirm persistence.
+
+## Iteration 79: Content rating selector in character creator
+The creator defaults to SFW but gives no way to change it. Adding a SFW/NSFW toggle so creators can properly tag their content — critical for the content filter system to work correctly.

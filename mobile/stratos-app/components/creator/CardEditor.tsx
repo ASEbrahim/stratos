@@ -131,6 +131,16 @@ export function CardEditor() {
         })}
       </View>
 
+      <Text style={styles.fieldLabel}>Content Rating</Text>
+      <View style={styles.contentRatingRow}>
+        <TouchableOpacity style={[styles.contentRatingBtn, { backgroundColor: card.content_rating === 'sfw' ? tc.status.success + '20' : tc.bg.tertiary, borderColor: card.content_rating === 'sfw' ? tc.status.success + '60' : tc.border.subtle }]} onPress={() => { update('content_rating', 'sfw'); Haptics.selectionAsync(); }}>
+          <Text style={{ color: card.content_rating === 'sfw' ? tc.status.success : tc.text.muted, fontSize: 13, fontWeight: '600' }}>SFW</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={[styles.contentRatingBtn, { backgroundColor: card.content_rating === 'nsfw' ? tc.nsfw + '20' : tc.bg.tertiary, borderColor: card.content_rating === 'nsfw' ? tc.nsfw + '60' : tc.border.subtle }]} onPress={() => { update('content_rating', 'nsfw'); Haptics.selectionAsync(); }}>
+          <Text style={{ color: card.content_rating === 'nsfw' ? tc.nsfw : tc.text.muted, fontSize: 13, fontWeight: '600' }}>18+</Text>
+        </TouchableOpacity>
+      </View>
+
       <Text style={styles.fieldLabel}>Description</Text>
       <TextInput style={[styles.input, styles.multiline]} value={card.description} onChangeText={v => update('description', v)} placeholder="Who is this character?" placeholderTextColor={colors.text.muted} multiline textAlignVertical="top" />
       <WordCount text={card.description} />
@@ -165,7 +175,7 @@ export function CardEditor() {
 
       <View style={styles.ratingRow}>
         <Text style={styles.fieldLabel}>Content Rating</Text>
-        <View style={styles.ratingToggle}>
+        <View style={styles.contentRatingRow}>
           <TouchableOpacity style={[styles.ratingOpt, card.content_rating === 'sfw' && { backgroundColor: colors.sfw + '20', borderColor: colors.sfw }]} onPress={() => update('content_rating', 'sfw')}>
             <Text style={{ color: card.content_rating === 'sfw' ? colors.sfw : colors.text.muted }}>SFW</Text>
           </TouchableOpacity>
@@ -202,6 +212,8 @@ const styles = StyleSheet.create({
   multilineLg: { minHeight: 140, textAlignVertical: 'top' },
   genreGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
   genreChip: { paddingHorizontal: spacing.md, paddingVertical: spacing.sm, borderRadius: borderRadius.full, borderWidth: 1 },
+  contentRatingRow: { flexDirection: 'row', gap: spacing.sm, marginBottom: spacing.md },
+  contentRatingBtn: { flex: 1, paddingVertical: spacing.md, borderRadius: borderRadius.md, borderWidth: 1, alignItems: 'center' },
   divider: { height: 1, backgroundColor: colors.border.subtle, marginVertical: spacing.xl },
   sectionTitle: { ...typography.heading, color: colors.text.primary, marginBottom: spacing.lg },
   ratingRow: { marginTop: spacing.lg },
