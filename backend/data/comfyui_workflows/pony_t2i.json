@@ -1,41 +1,49 @@
 {
-  "_note": "Pony V7 is AuraFlow-based. Check CivitAI for current ComfyUI workflow before using. Loader nodes may need adjustment.",
   "1": {
-    "class_type": "CheckpointLoaderSimple",
+    "class_type": "UNETLoader",
     "inputs": {
-      "ckpt_name": "pony-v7-base.safetensors"
+      "unet_name": "pony-v7-base.safetensors",
+      "weight_dtype": "default"
     }
   },
   "2": {
-    "class_type": "CLIPTextEncode",
+    "class_type": "DualCLIPLoaderGGUF",
     "inputs": {
-      "text": "PROMPT_PLACEHOLDER",
-      "clip": ["1", 1]
+      "clip_name1": "clip_l.safetensors",
+      "clip_name2": "t5-v1_1-xxl-encoder-Q8_0.gguf",
+      "type": "flux"
     }
   },
   "3": {
     "class_type": "CLIPTextEncode",
     "inputs": {
-      "text": "NEGATIVE_PLACEHOLDER",
-      "clip": ["1", 1]
+      "text": "PROMPT_PLACEHOLDER",
+      "clip": ["2", 0]
     }
   },
   "4": {
-    "class_type": "EmptyLatentImage",
+    "class_type": "CLIPTextEncode",
+    "inputs": {
+      "text": "NEGATIVE_PLACEHOLDER",
+      "clip": ["2", 0]
+    }
+  },
+  "5": {
+    "class_type": "EmptySD3LatentImage",
     "inputs": {
       "width": 832,
       "height": 1216,
       "batch_size": 1
     }
   },
-  "5": {
+  "6": {
     "class_type": "KSampler",
     "inputs": {
       "model": ["1", 0],
-      "positive": ["2", 0],
-      "negative": ["3", 0],
-      "latent_image": ["4", 0],
-      "seed": -1,
+      "positive": ["3", 0],
+      "negative": ["4", 0],
+      "latent_image": ["5", 0],
+      "seed": 0,
       "steps": 30,
       "cfg": 6.0,
       "sampler_name": "euler_ancestral",
@@ -43,17 +51,23 @@
       "denoise": 1.0
     }
   },
-  "6": {
-    "class_type": "VAEDecode",
+  "7": {
+    "class_type": "VAELoader",
     "inputs": {
-      "samples": ["5", 0],
-      "vae": ["1", 2]
+      "vae_name": "ae.safetensors"
     }
   },
-  "7": {
+  "8": {
+    "class_type": "VAEDecode",
+    "inputs": {
+      "samples": ["6", 0],
+      "vae": ["7", 0]
+    }
+  },
+  "9": {
     "class_type": "SaveImage",
     "inputs": {
-      "images": ["6", 0],
+      "images": ["8", 0],
       "filename_prefix": "stratos_pony"
     }
   }

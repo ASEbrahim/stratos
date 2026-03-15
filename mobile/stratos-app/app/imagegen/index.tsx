@@ -55,8 +55,8 @@ export default function ImageGenScreen() {
       } else {
         const s = SIZES[size];
         result = await generateImage({
-          prompt: nsfw ? `score_9, score_8_up, score_7_up, ${prompt.trim()}, rating_explicit` : prompt.trim(),
-          model: nsfw ? 'pony' : 'flux',
+          prompt: nsfw ? `nsfw, explicit, ${prompt.trim()}, detailed, high quality` : prompt.trim(),
+          model: 'flux',
           width: s.w,
           height: s.h,
         });
@@ -147,16 +147,16 @@ export default function ImageGenScreen() {
             style={[styles.modelBtn, !nsfw && { backgroundColor: tc.accent.primary + '20' }]}
             onPress={() => { setNsfw(false); Haptics.selectionAsync(); }}
           >
-            <Text style={[styles.chipText, { color: !nsfw ? tc.accent.primary : tc.text.muted }]}>FLUX (SFW)</Text>
+            <Text style={[styles.chipText, { color: !nsfw ? tc.accent.primary : tc.text.muted }]}>SFW</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.modelBtn, nsfw && { backgroundColor: tc.status.error + '20' }]}
             onPress={() => { setNsfw(true); Haptics.selectionAsync(); }}
           >
-            <Text style={[styles.chipText, { color: nsfw ? tc.status.error : tc.text.muted }]}>Pony V7 (NSFW)</Text>
+            <Text style={[styles.chipText, { color: nsfw ? tc.status.error : tc.text.muted }]}>NSFW</Text>
           </TouchableOpacity>
         </View>
-        {nsfw && <Text style={[styles.nsfwNote, { color: tc.text.muted }]}>Pony V7 understands booru tags, explicit content terms, and anime-specific anatomy. Quality tags (score_9, etc.) are auto-prepended.</Text>}
+        {nsfw && <Text style={[styles.nsfwNote, { color: tc.text.muted }]}>NSFW mode enabled. Describe what you want explicitly. FLUX handles most content. Pony V7 support coming soon for booru-tagged anime.</Text>}
 
         {/* Generate button */}
         <TouchableOpacity

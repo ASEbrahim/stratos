@@ -162,12 +162,12 @@ def generate_image(prompt: str, negative_prompt: str = "", model: str = "flux",
         workflow = _load_workflow("pony_t2i")
         steps = steps or 30
         negative_prompt = negative_prompt or PONY_NEGATIVE
-        workflow["2"]["inputs"]["text"] = prompt
-        workflow["3"]["inputs"]["text"] = negative_prompt
-        workflow["4"]["inputs"]["width"] = width
-        workflow["4"]["inputs"]["height"] = height
-        workflow["5"]["inputs"]["seed"] = seed if seed >= 0 else int(time.time()) % 2**32
-        workflow["5"]["inputs"]["steps"] = steps
+        workflow["3"]["inputs"]["text"] = prompt      # CLIPTextEncode positive
+        workflow["4"]["inputs"]["text"] = negative_prompt  # CLIPTextEncode negative
+        workflow["5"]["inputs"]["width"] = width       # EmptySD3LatentImage
+        workflow["5"]["inputs"]["height"] = height
+        workflow["6"]["inputs"]["seed"] = seed if seed >= 0 else int(time.time()) % 2**32
+        workflow["6"]["inputs"]["steps"] = steps       # KSampler
     else:
         workflow = _load_workflow("flux_t2i")
         steps = steps or 4
