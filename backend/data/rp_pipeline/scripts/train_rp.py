@@ -29,7 +29,7 @@ OUTPUT_DIR = PIPELINE_DIR / "training_output"
 LORA_R = 16
 LORA_ALPHA = 32
 LORA_DROPOUT = 0.05
-MAX_SEQ_LENGTH = 2048
+MAX_SEQ_LENGTH = 1024
 LEARNING_RATE = 5e-6
 BATCH_SIZE = 1
 GRADIENT_ACCUMULATION = 16
@@ -115,13 +115,23 @@ def main():
 
     model = get_peft_model(model, lora_config)
 
-    # PEFT meta device fix (from scorer V2.2 experience)
-    if hasattr(model, 'hf_device_map'):
-        del model.hf_device_map
-
+    # Verify DoRA is applied: trainable should be ~0.3% of total (~30M of 9B)
     trainable = sum(p.numel() for p in model.parameters() if p.requires_grad)
     total = sum(p.numel() for p in model.parameters())
-    logger.info(f"Parameters: {total:,} total, {trainable:,} trainable ({100*trainable/total:.2f}%)")
+    pct = 100 * trainable / total
+    logger.info(f"Parameters: {total:,} total, {trainable:,} trainable ({pct:.2f}%)")
+
+    if pct > 5.0:
+        logger.error(f"ABORT: {pct:.1f}% params trainable — DoRA/PEFT not applied correctly!")
+        logger.error(f"Expected ~0.3% (~30M), got {trainable:,}. Full model is unfrozen.")
+        sys.exit(1)
+
+    if trainable < 1_000_000:
+        logger.error(f"ABORT: Only {trainable:,} trainable params — suspiciously low, check LoRA targets.")
+        sys.exit(1)
+
+    logger.info(f"DoRA verified: {trainable/1e6:.1f}M trainable params — OK")
+    model.print_trainable_parameters()
 
     from trl import SFTTrainer, SFTConfig
 
