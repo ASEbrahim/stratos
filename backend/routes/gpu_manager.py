@@ -121,9 +121,9 @@ def _start_comfyui():
     try:
         _comfyui_process = subprocess.Popen(
             ["python3", "main.py", "--listen", "127.0.0.1", "--port", "8188",
-             "--cpu-text-encoder", "--preview-method", "auto"],
+             "--preview-method", "auto"],
             cwd=COMFYUI_DIR,
-            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+            stdout=open("/tmp/comfyui.log", "w"), stderr=subprocess.STDOUT,
         )
     except Exception as e:
         logger.error(f"Failed to start ComfyUI: {e}")

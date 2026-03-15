@@ -11,5 +11,4 @@ cd ~/Downloads/StratOS/StratOS1/tools/ComfyUI
 python3 main.py \
     --listen 127.0.0.1 \
     --port 8188 \
-    --cpu-text-encoder \
     --preview-method auto
