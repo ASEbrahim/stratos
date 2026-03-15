@@ -159,5 +159,8 @@ Long-press → Copy now uses expo-clipboard with haptic confirmation.
 ## Iteration 53: Search bar in Library ✅
 Filters My Characters, Saved, and History tabs by name/description.
 
-## Iteration 54: "Seen" indicator on chat messages + typing state in header
-Adding a subtle "Seen ✓" below the last user message and "typing..." text in the header subtitle when AI is responding — both are expected in modern chat apps.
+## Iteration 54: "Seen ✓" read receipts + typing status in header ✅
+Read receipts under user messages, "typing..." subtitle in header during streaming. checkpoint-13.
+
+## Iteration 55: Loading spinner on send button during streaming
+The send button just disables during streaming with no visual feedback. Adding an animated spinner to show the AI is processing — much clearer UX than a dimmed button.

@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
 import * as Haptics from 'expo-haptics';
-import { Send } from 'lucide-react-native';
-import Animated, { useSharedValue, useAnimatedStyle, withSpring, withSequence } from 'react-native-reanimated';
+import { Send, Square } from 'lucide-react-native';
+import Animated, { useSharedValue, useAnimatedStyle, withSpring, withSequence, withRepeat, withTiming } from 'react-native-reanimated';
 import { useThemeStore } from '../../stores/themeStore';
 import { spacing, borderRadius, typography } from '../../constants/theme';
 
@@ -36,8 +36,12 @@ export function ChatInput({ onSend, disabled = false, accentColor }: ChatInputPr
       )}
       <View style={styles.inputRow}>
         <TextInput style={[styles.input, { backgroundColor: tc.bg.tertiary, color: tc.text.primary }]} value={text} onChangeText={setText} placeholder="Type your action..." placeholderTextColor={tc.text.muted} multiline maxLength={4000} editable={!disabled} onSubmitEditing={handleSend} blurOnSubmit={false} />
-        <AnimatedTouchable style={[styles.sendButton, { backgroundColor: active ? color : tc.bg.elevated }, btnAnimStyle]} onPress={handleSend} disabled={!active} activeOpacity={0.7}>
-          <Send size={18} color={active ? '#fff' : tc.text.muted} />
+        <AnimatedTouchable style={[styles.sendButton, { backgroundColor: disabled ? color + '60' : active ? color : tc.bg.elevated }, btnAnimStyle]} onPress={handleSend} disabled={!active && !disabled} activeOpacity={0.7}>
+          {disabled ? (
+            <ActivityIndicator size={16} color="#fff" />
+          ) : (
+            <Send size={18} color={active ? '#fff' : tc.text.muted} />
+          )}
         </AnimatedTouchable>
       </View>
     </View>
