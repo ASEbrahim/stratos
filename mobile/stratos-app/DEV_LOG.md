@@ -84,5 +84,8 @@ Quality score badges use themeStore quality colors.
 ## Iteration 28: Staggered card animations on discover grid ✅
 Character cards fade/slide in with staggered delays when the grid first renders.
 
-## Iteration 29: Offline banner component
-Mobile apps need to gracefully handle network loss. Adding a "No Connection" banner that appears when offline — standard in all production apps.
+## Iteration 29: Offline banner component ✅
+Network-aware banner in root layout, animated slide.
+
+## Iteration 30: Final polish pass + memory update
+Double-checking all screens compile, bundle builds, no runtime errors. Updating project memory with mobile app status.
