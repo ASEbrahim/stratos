@@ -216,5 +216,8 @@ Top 3 most-chatted characters with avatars and message counts.
 ## Iteration 72: "Similar Characters" on detail ✅
 Genre-matched similar characters at bottom of detail screen.
 
-## Iteration 73: First message preview with prose formatting on detail
-The first message is the character's hook — but it's only shown as plain text on cards. On the detail screen, show a formatted preview with italics, bold, and blockquotes so users can truly evaluate the character's writing quality before chatting.
+## Iteration 73: "Opening Line" formatted preview on detail ✅
+First message rendered with action text styling on character detail.
+
+## Iteration 74: Message timestamp formatting improvement
+Chat timestamps currently show 12h time but no date context. Adding relative time display ("just now", "2m ago", "yesterday") for better context without cluttering the UI.

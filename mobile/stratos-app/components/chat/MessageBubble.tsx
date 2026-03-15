@@ -12,10 +12,20 @@ interface MessageBubbleProps { message: ChatMessage; accentColor?: string; }
 function formatTime(iso: string): string {
   try {
     const d = new Date(iso);
+    const now = new Date();
+    const diffMs = now.getTime() - d.getTime();
+    const diffMin = Math.floor(diffMs / 60000);
     const h = d.getHours();
     const m = d.getMinutes().toString().padStart(2, '0');
-    const ampm = h >= 12 ? 'PM' : 'AM';
-    return `${h % 12 || 12}:${m} ${ampm}`;
+    const time = `${h % 12 || 12}:${m} ${h >= 12 ? 'PM' : 'AM'}`;
+
+    if (diffMin < 1) return 'just now';
+    if (diffMin < 60) return `${diffMin}m ago`;
+    if (d.toDateString() === now.toDateString()) return time;
+    const yesterday = new Date(now);
+    yesterday.setDate(yesterday.getDate() - 1);
+    if (d.toDateString() === yesterday.toDateString()) return `Yesterday ${time}`;
+    return `${d.getMonth() + 1}/${d.getDate()} ${time}`;
   } catch { return ''; }
 }
 
