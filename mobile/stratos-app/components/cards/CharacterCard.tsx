@@ -11,7 +11,7 @@ import { useCharacterStore } from '../../stores/characterStore';
 import { typography, spacing, borderRadius } from '../../constants/theme';
 import { getGenreColor } from '../../constants/genres';
 import { useThemeStore } from '../../stores/themeStore';
-const CARD_WIDTH = (Dimensions.get('window').width - spacing.lg * 3) / 2;
+const CARD_WIDTH = (Dimensions.get('window').width - spacing.md * 2 - spacing.sm) / 2;
 
 interface CharacterCardProps { card: CharacterCardType; variant?: 'grid' | 'horizontal'; featured?: boolean; }
 
@@ -127,7 +127,7 @@ export function CharacterCardComponent({ card, variant = 'grid', featured = fals
 
 const styles = StyleSheet.create({
   card: { borderRadius: borderRadius.lg, overflow: 'hidden', borderWidth: 1 },
-  avatarContainer: { width: '100%', aspectRatio: 1, justifyContent: 'center', alignItems: 'center', position: 'relative' },
+  avatarContainer: { width: '100%', aspectRatio: 1.1, justifyContent: 'center', alignItems: 'center', position: 'relative' },
   avatarImage: { width: '100%', height: '100%' },
   avatarLetter: { fontSize: 36, fontWeight: '700', opacity: 0.7 },
   letterGlow: {
@@ -136,14 +136,14 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 0 }, shadowOpacity: 0.6, shadowRadius: 20, elevation: 3,
   },
   heartOverlay: { position: 'absolute', zIndex: 10, justifyContent: 'center', alignItems: 'center', top: '30%', left: '30%' },
-  quickChatBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 4, paddingVertical: spacing.sm, borderTopWidth: 1 },
-  quickChatText: { fontSize: 11, fontWeight: '700' },
+  quickChatBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 3, paddingVertical: spacing.xs, borderTopWidth: 1 },
+  quickChatText: { fontSize: 10, fontWeight: '700' },
   nsfwBadge: { position: 'absolute', top: spacing.xs, right: spacing.xs, paddingHorizontal: 4, paddingVertical: 1, borderRadius: borderRadius.sm },
   newBadge: { position: 'absolute', top: spacing.xs, left: spacing.xs, paddingHorizontal: 4, paddingVertical: 1, borderRadius: borderRadius.sm },
   newBadgeText: { fontSize: 7, fontWeight: '800', color: '#fff', letterSpacing: 0.5 },
   nsfwText: { fontSize: 8, color: '#fff', fontWeight: '700' },
-  info: { padding: spacing.sm, gap: 2 },
-  name: { ...typography.subheading, fontSize: 13 },
+  info: { paddingHorizontal: spacing.xs, paddingVertical: spacing.xs, gap: 1 },
+  name: { ...typography.subheading, fontSize: 12 },
   metaRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   genrePill: { borderWidth: 1, borderRadius: borderRadius.full, paddingHorizontal: spacing.xs, paddingVertical: 1 },
   genrePillText: { fontSize: 9, fontWeight: '600' },
