@@ -56,10 +56,10 @@ export default function DiscoverScreen() {
     <View style={[styles.container, { paddingTop: insets.top, backgroundColor: tc.bg.primary }]}>
       <StarParallaxBg />
       <ScrollView style={styles.scroll} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={tc.accent.primary} />}>
-        <View style={styles.brandRow}>
+        <Animated.View entering={FadeInDown.duration(400).springify().damping(16)} style={styles.brandRow}>
           <Text style={[styles.brandText, { color: tc.accent.primary }]}>StratOS</Text>
           <Text style={[styles.brandSub, { color: tc.text.muted }]}>Characters</Text>
-        </View>
+        </Animated.View>
         <View style={styles.searchRow}>
           <View style={[styles.searchBox, { backgroundColor: tc.bg.tertiary, flex: 1 }]}>
             <Search size={18} color={tc.text.muted} />

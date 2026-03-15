@@ -255,5 +255,8 @@ Total word count of all character definition fields shown in meta row.
 ## Iteration 85: Milestone 100 commit — visual audit ✅
 All screens verified at 100 commits. checkpoint-20.
 
-## Iteration 86: Genre-specific empty search results
-When searching for a genre with no results, showing genre-themed empty states instead of the generic "No characters found" — more helpful and contextual.
+## Iteration 86: Contextual empty states with genre emoji ✅
+Genre-specific emoji and text when no characters match the filter.
+
+## Iteration 87: Animated brand header entrance on discover
+The brand header should make an entrance. Adding a fade-in + slide animation when the discover screen first loads — sets the tone for a premium app experience.
