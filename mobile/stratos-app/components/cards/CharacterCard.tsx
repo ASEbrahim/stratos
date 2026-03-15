@@ -1,8 +1,9 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Dimensions, Pressable } from 'react-native';
 import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 import { Star, MessageCircle } from 'lucide-react-native';
+import Animated, { useSharedValue, useAnimatedStyle, withSpring } from 'react-native-reanimated';
 import { CharacterCard as CharacterCardType, formatCount } from '../../lib/types';
 import { useChatStore } from '../../stores/chatStore';
 import { colors, typography, spacing, borderRadius } from '../../constants/theme';
@@ -39,9 +40,17 @@ export function CharacterCardComponent({ card, variant = 'grid' }: CharacterCard
   }
 
   const starCount = Math.round(card.rating);
+  const cardScale = useSharedValue(1);
+  const cardAnimStyle = useAnimatedStyle(() => ({ transform: [{ scale: cardScale.value }] }));
 
   return (
-    <TouchableOpacity style={[styles.card, { width: CARD_WIDTH }]} onPress={() => router.push(`/character/${card.id}`)} activeOpacity={0.7}>
+    <Animated.View style={[{ width: CARD_WIDTH }, cardAnimStyle]}>
+    <Pressable
+      style={[styles.card]}
+      onPress={() => router.push(`/character/${card.id}`)}
+      onPressIn={() => { cardScale.value = withSpring(0.96, { damping: 15 }); }}
+      onPressOut={() => { cardScale.value = withSpring(1, { damping: 10 }); }}
+    >
       <View style={[styles.avatarContainer, { backgroundColor: accentColor + '08' }]}>
         {card.avatar_url ? (
           <Image source={{ uri: card.avatar_url }} style={styles.avatarImage} />
@@ -81,7 +90,8 @@ export function CharacterCardComponent({ card, variant = 'grid' }: CharacterCard
           <Text style={styles.sessions}>{formatCount(card.session_count)} chats</Text>
         </View>
       </View>
-    </TouchableOpacity>
+    </Pressable>
+    </Animated.View>
   );
 }
 

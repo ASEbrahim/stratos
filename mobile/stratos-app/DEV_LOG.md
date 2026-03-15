@@ -62,3 +62,6 @@ Stat bar with icons, colors, HP fill bar. Option buttons with staggered spring a
 
 ## Iteration 21: Animated option buttons + theme-aware scenario cards ✅
 Gaming option buttons stagger-animate in with spring. Scenario cards use themeStore colors.
+
+## Iteration 22: Card press animation + theme-aware Header ✅
+Character cards spring-scale on press (0.96x) for tactile feel. Header component uses themeStore.
