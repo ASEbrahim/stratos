@@ -20,6 +20,7 @@ interface ChatState {
   loadRecentSessions: () => Promise<void>;
   clearSession: () => void;
   persistSession: () => Promise<void>;
+  regenerateLastMessage: () => Promise<void>;
 }
 
 export const useChatStore = create<ChatState>((set, get) => ({
@@ -94,5 +95,29 @@ export const useChatStore = create<ChatState>((set, get) => ({
       updated_at: new Date().toISOString(),
     };
     await saveChatSession(session);
+  },
+  regenerateLastMessage: async () => {
+    const { sessionId, character, persona, messages } = get();
+    if (!sessionId || messages.length < 2) return;
+    // Find the last user message
+    let lastUserIdx = -1;
+    for (let i = messages.length - 1; i >= 0; i--) {
+      if (messages[i].role === 'user') { lastUserIdx = i; break; }
+    }
+    if (lastUserIdx < 0) return;
+    // Remove everything after the last user message
+    const trimmed = messages.slice(0, lastUserIdx + 1);
+    const userContent = messages[lastUserIdx].content;
+    set({ messages: trimmed, isStreaming: true, streamingContent: '', suggestions: [] });
+    let accumulated = '';
+    await streamMessage(sessionId, userContent, persona, character,
+      (chunk) => { accumulated += chunk; set({ streamingContent: accumulated }); },
+      () => {
+        const assistantMessage: ChatMessage = { id: createMessageId(), role: 'assistant', content: accumulated, timestamp: new Date().toISOString() };
+        set((state) => ({ messages: [...state.messages, assistantMessage], isStreaming: false, streamingContent: '' }));
+        get().persistSession();
+        get().loadSuggestions();
+      },
+    );
   },
 }));

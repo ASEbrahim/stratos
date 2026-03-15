@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useCallback } from 'react';
-import { View, FlatList, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, FlatList, StyleSheet, KeyboardAvoidingView, Platform, TouchableOpacity } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useFocusEffect } from 'expo-router';
 import * as Haptics from 'expo-haptics';
@@ -9,6 +9,7 @@ import { MessageBubble, StreamingBubble } from '../../components/chat/MessageBub
 import { TypingIndicator } from '../../components/chat/TypingIndicator';
 import { SuggestionChips } from '../../components/chat/SuggestionChips';
 import { ChatInput } from '../../components/chat/ChatInput';
+import { RefreshCw } from 'lucide-react-native';
 import { ChatMessage } from '../../lib/types';
 import { getGenreColor } from '../../constants/genres';
 import { useThemeStore } from '../../stores/themeStore';
@@ -19,7 +20,7 @@ export default function ChatScreen() {
   const listRef = useRef<FlatList>(null);
   const prevStreamRef = useRef(false);
   const tc = useThemeStore(s => s.colors);
-  const { character, messages, suggestions, isStreaming, streamingContent, sendMessage, persistSession, startSession, clearSession } = useChatStore();
+  const { character, messages, suggestions, isStreaming, streamingContent, sendMessage, persistSession, startSession, clearSession, regenerateLastMessage } = useChatStore();
   const accentColor = character ? getGenreColor(character.genre_tags?.[0] ?? 'default') : undefined;
 
   // Persist session when leaving the screen
@@ -39,7 +40,15 @@ export default function ChatScreen() {
       />
       <KeyboardAvoidingView style={styles.chatArea} behavior={Platform.OS === 'ios' ? 'padding' : undefined} keyboardVerticalOffset={insets.top}>
         <FlatList ref={listRef} data={messages} renderItem={({ item }: { item: ChatMessage }) => <MessageBubble message={item} accentColor={accentColor} />} keyExtractor={item => item.id} contentContainerStyle={styles.msgList} showsVerticalScrollIndicator={false}
-          ListFooterComponent={<View>{isStreaming && streamingContent ? <StreamingBubble content={streamingContent} accentColor={accentColor} /> : isStreaming ? <TypingIndicator /> : null}</View>} />
+          ListFooterComponent={<View>
+            {isStreaming && streamingContent ? <StreamingBubble content={streamingContent} accentColor={accentColor} /> : isStreaming ? <TypingIndicator /> : null}
+            {!isStreaming && messages.length > 1 && messages[messages.length - 1]?.role === 'assistant' && (
+              <TouchableOpacity style={styles.regenBtn} onPress={regenerateLastMessage} activeOpacity={0.7}>
+                <RefreshCw size={12} color={tc.text.muted} />
+                <Text style={[styles.regenText, { color: tc.text.muted }]}>Regenerate</Text>
+              </TouchableOpacity>
+            )}
+          </View>} />
         <SuggestionChips suggestions={suggestions} onSelect={p => sendMessage(p)} accentColor={accentColor} />
         <ChatInput onSend={sendMessage} disabled={isStreaming} accentColor={accentColor} />
       </KeyboardAvoidingView>
@@ -51,4 +60,6 @@ const styles = StyleSheet.create({
   container: { flex: 1 },
   chatArea: { flex: 1 },
   msgList: { paddingVertical: spacing.md },
+  regenBtn: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: spacing.lg, paddingVertical: spacing.sm, marginTop: spacing.xs },
+  regenText: { fontSize: 11, fontWeight: '500' },
 });
