@@ -26,3 +26,6 @@ Search currently fires on every keystroke. Adding 300ms debounce, a proper "No r
 
 ## Iteration 9: Add Personality field + theme-aware create screen ✅
 The character creator was missing the Personality field entirely. Also made the create screen theme-aware.
+
+## Iteration 10: Gaming scenarios theme-aware + auth screens theme-aware
+Completing the theme system across remaining screens that still use hardcoded colors: gaming scenarios browser and auth (login/register).
