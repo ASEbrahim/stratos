@@ -117,5 +117,8 @@ Chat bubbles now read from themeStore — true 100% theme coverage.
 ## Iteration 39: Enhanced prose formatting — bold, quotes, combined markup ✅
 `**bold**`, `***bold italic***`, `> blockquotes` with accent-colored sidebar.
 
-## Iteration 40: Share character via native share sheet
-Every social app has sharing. Adding a share button on character detail that opens the OS share sheet with a formatted character description — lets users share characters they love.
+## Iteration 40: Share character via native share sheet ✅
+Share button + fixed hardcoded colors on detail screen buttons.
+
+## Iteration 41: Swipe-to-delete on library history sessions
+Long-press delete is hidden UX. Swipe-to-reveal-delete is the standard mobile pattern (iMessage, WhatsApp, etc) — more discoverable and satisfying.
