@@ -105,5 +105,8 @@ Tab count badges and Clear All History button with confirmation.
 ## Iteration 35: Scroll-to-bottom FAB in chat ✅
 Floating scroll-to-bottom button in chat when scrolled up.
 
-## Iteration 36: Report option on character detail + chat streaming indicator
-Adding trust & safety "Report" option to character detail's save button area. Also adding a visual streaming indicator on the send button while AI is responding.
+## Iteration 36: Report Character button on detail ✅
+Trust & safety report with confirmation dialog.
+
+## Iteration 37: More mock characters for variety
+6 mock characters isn't enough to feel like a real app. Adding 4 more with diverse genres to fill out the grid and make discovery feel richer.
