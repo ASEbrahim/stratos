@@ -69,7 +69,7 @@ def main():
         sys.exit(1)
 
     gpu_name = torch.cuda.get_device_name(0)
-    gpu_mem = torch.cuda.get_device_properties(0).total_mem / 1024**3
+    gpu_mem = torch.cuda.get_device_properties(0).total_memory / 1024**3
     logger.info(f"GPU: {gpu_name} ({gpu_mem:.1f} GB)")
 
     os.environ["ROCR_VISIBLE_DEVICES"] = "0"
@@ -91,12 +91,17 @@ def main():
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
 
+    # Load bf16, spill to CPU RAM when VRAM is full (device_map="auto" handles this)
+    # Model is ~18GB bf16 — won't fit entirely in 24GB VRAM with optimizer states,
+    # so let accelerate split layers between GPU and CPU automatically.
     model = AutoModelForCausalLM.from_pretrained(
         BASE_MODEL_ID,
-        torch_dtype=torch.bfloat16,
+        dtype=torch.bfloat16,
         device_map="auto",
         trust_remote_code=True,
+        low_cpu_mem_usage=True,
     )
+    logger.info(f"Model loaded with auto device map (GPU + CPU offload)")
 
     lora_config = LoraConfig(
         r=args.rank,
@@ -113,7 +118,6 @@ def main():
     # PEFT meta device fix (from scorer V2.2 experience)
     if hasattr(model, 'hf_device_map'):
         del model.hf_device_map
-    model = model.to("cuda:0")
 
     trainable = sum(p.numel() for p in model.parameters() if p.requires_grad)
     total = sum(p.numel() for p in model.parameters())
