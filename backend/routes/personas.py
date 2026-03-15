@@ -565,6 +565,7 @@ PERSONA_TOOLS = {
     'market': ['manage_watchlist', 'search_feed', 'web_search'],
     'scholarly': ['search_insights', 'list_channels', 'get_video_summary', 'search_narrations', 'search_files', 'read_document', 'web_search', 'read_url'],
     'gaming': ['search_files', 'read_document', 'import_canon_world'],
+    'roleplay': ['search_files', 'read_document', 'import_canon_world'],
     'anime': [],
     'tcg': [],
 }
@@ -576,6 +577,7 @@ PERSONA_GREETINGS = {
     'anime': "Anime mode is coming soon! For now, I can chat about anime and manga.",
     'tcg': "TCG mode is coming soon! For now, I can chat about trading card games.",
     'gaming': "Ready for adventure. Describe your world or load a scenario to begin.",
+    'roleplay': "Roleplay mode active. Describe a character or set the scene, and I'll match your style.",
 }
 
 
@@ -839,8 +841,9 @@ def _pack_context(persona_name: str, strat, output_file: str,
     """
     sections = []
 
-    # Gaming persona: skip real-world profile, use selective file loading
-    if persona_name == 'gaming':
+    # Gaming and Roleplay personas: skip real-world profile, use selective file loading
+    # Roleplay reuses the gaming scenario/entity infrastructure with its own persona name
+    if persona_name in ('gaming', 'roleplay'):
         scenario_path = _get_scenario_path(strat, profile_id)
         if scenario_path:
             # New file-based selective loading

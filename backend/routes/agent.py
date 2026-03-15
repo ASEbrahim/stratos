@@ -309,6 +309,12 @@ def handle_agent_chat(handler, strat, output_file, profile_id=0):
         scoring_cfg = strat.config.get("scoring", {})
         ollama_host = scoring_cfg.get("ollama_host", "http://localhost:11434")
         model = scoring_cfg.get("inference_model", "qwen3.5:9b")
+
+        # ── Model swap routing: roleplay persona uses dedicated RP model ──
+        _is_rp = persona_name == 'roleplay'
+        if _is_rp:
+            model = strat.config.get("scoring", {}).get("rp_model", "stratos-rp-baseline")
+
         profile = strat.config.get("profile", {})
         role = profile.get("role", "user")
         location = profile.get("location", "")
@@ -347,7 +353,7 @@ def handle_agent_chat(handler, strat, output_file, profile_id=0):
                 system_prompt += "\n\n" + "\n\n".join(context_parts)
         else:
             # Load entity data from DB
-            if persona_name in ('gaming', 'scholarly') and active_scenario and strat.db:
+            if persona_name in ('gaming', 'scholarly', 'roleplay') and active_scenario and strat.db:
                 try:
                     cursor = strat.db.conn.cursor()
                     if rp_mode == 'immersive' and active_npc:
@@ -508,12 +514,13 @@ def handle_agent_chat(handler, strat, output_file, profile_id=0):
         tools = [t for t in AGENT_TOOLS if t["function"]["name"] in allowed_tools]
 
         # ── No-tools persona: stream response directly (like free mode but with full prompt) ──
+        _stream_temp = 0.85 if _is_rp else 0.5
         if not tools:
             try:
                 r = req.post(
                     f"{ollama_host}/api/chat",
                     json={"model": model, "messages": messages, "stream": True,
-                          "options": {"temperature": 0.5, "num_predict": _num_predict},
+                          "options": {"temperature": _stream_temp, "num_predict": _num_predict},
                           "think": False},
                     timeout=180, stream=True
                 )
@@ -550,21 +557,24 @@ def handle_agent_chat(handler, strat, output_file, profile_id=0):
             return
 
         # ── Tool-call loop (max 8 rounds) ──
+        _tool_temp = 0.85 if _is_rp else 0.4
         for round_num in range(8):
             try:
+                _tool_payload = {
+                    "model": model,
+                    "messages": messages,
+                    "tools": tools,
+                    "stream": False,
+                    "options": {
+                        "temperature": _tool_temp,
+                        "num_predict": _num_predict,
+                    },
+                }
+                if _is_rp:
+                    _tool_payload["think"] = False  # Prevent think-block leakage on RP model
                 r = req.post(
                     f"{ollama_host}/api/chat",
-                    json={
-                        "model": model,
-                        "messages": messages,
-                        "tools": tools,
-                        "stream": False,
-                        "options": {
-                            "temperature": 0.4,
-                            "num_predict": _num_predict,
-                        },
-                        # Qwen3.5 separates reasoning into thinking field automatically.
-                    },
+                    json=_tool_payload,
                     timeout=180
                 )
             except Exception as e:

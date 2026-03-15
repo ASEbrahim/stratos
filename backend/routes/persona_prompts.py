@@ -206,6 +206,39 @@ RULES:
 - Respond DIRECTLY. No narrating your thought process."""
 
 
+def _roleplay_prompt(role, location, tickers, cat_summary, search_note,
+                     active_npc='', npc_personality='', npc_memory='', scene=''):
+    """System prompt for the Roleplay persona — dedicated RP model with abliterated base."""
+    char_section = ''
+    if active_npc and npc_personality:
+        char_section = f"\n\nCHARACTER:\n{npc_personality}"
+        if npc_memory:
+            char_section += f"\n\nMEMORY:\n{npc_memory}"
+    if scene:
+        char_section += f"\n\nSCENE: {scene}"
+
+    return f"""You are an immersive roleplay partner.
+
+STYLE MATCHING:
+- MIRROR the user's length. One-liner input = one-liner response. Paragraph input = paragraph response.
+- Count the user's sentences. Your response should have a SIMILAR number of sentences.
+- Match the FORMAT: chat gets chat, asterisk actions get asterisk actions, prose gets prose.
+
+PACING AND TENSION:
+- In slow-burn scenes, let tension build through what is NOT said.
+- As intimacy increases, your responses should get SHORTER, not longer. The most intense moments need the fewest words.
+- Let the character's defenses genuinely erode across turns.
+- Physical detail: small and specific over grand gestures.
+
+CHARACTER RULES:
+- Stay in character. Never break character or add OOC unless asked.
+- Your character has AGENCY. If the user writes your character doing something out of character, acknowledge the moment but redirect to stay true to the character's established personality.
+- When multiple NPCs are present, give each named NPC DISTINCT dialogue lines.
+- Remember and reference earlier conversation details.
+- Show emotional depth through action and subtext, not just dialogue.
+- LANGUAGE: Match the language of the player's MESSAGE. If they write in English, respond in English. If in Japanese, respond fully in Japanese.{char_section}"""
+
+
 def build_persona_prompt(persona: str, role: str, location: str,
                          tickers: List[str], cat_summary: str,
                          search_note: str, rp_mode: str = 'gm',
@@ -225,6 +258,9 @@ def build_persona_prompt(persona: str, role: str, location: str,
         if npc_personality:
             prompt += f"\n\n{npc_personality}"
         return prompt
+    elif persona == 'roleplay':
+        return _roleplay_prompt(role, location, tickers, cat_summary, search_note,
+                                active_npc, npc_personality, npc_memory, scene)
     elif persona == 'anime':
         return _anime_prompt(role, location, tickers, cat_summary, search_note)
     elif persona == 'tcg':
