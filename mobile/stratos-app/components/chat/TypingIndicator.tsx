@@ -1,9 +1,13 @@
 import React, { useEffect } from 'react';
-import { View, StyleSheet } from 'react-native';
-import Animated, { useSharedValue, useAnimatedStyle, withRepeat, withTiming, withDelay, withSequence } from 'react-native-reanimated';
-import { colors, spacing, borderRadius } from '../../constants/theme';
+import { View, Text, StyleSheet } from 'react-native';
+import Animated, { useSharedValue, useAnimatedStyle, withRepeat, withTiming, withDelay, withSequence, FadeIn } from 'react-native-reanimated';
+import { useThemeStore } from '../../stores/themeStore';
+import { spacing, borderRadius, typography } from '../../constants/theme';
 
-export function TypingIndicator() {
+interface TypingIndicatorProps { characterName?: string; }
+
+export function TypingIndicator({ characterName }: TypingIndicatorProps) {
+  const tc = useThemeStore(s => s.colors);
   const dot1 = useSharedValue(0);
   const dot2 = useSharedValue(0);
   const dot3 = useSharedValue(0);
@@ -15,14 +19,20 @@ export function TypingIndicator() {
   const s2 = useAnimatedStyle(() => ({ opacity: 0.3 + dot2.value * 0.7, transform: [{ translateY: -dot2.value * 4 }] }));
   const s3 = useAnimatedStyle(() => ({ opacity: 0.3 + dot3.value * 0.7, transform: [{ translateY: -dot3.value * 4 }] }));
   return (
-    <View style={styles.container}><View style={styles.bubble}>
-      <Animated.View style={[styles.dot, s1]} /><Animated.View style={[styles.dot, s2]} /><Animated.View style={[styles.dot, s3]} />
-    </View></View>
+    <Animated.View entering={FadeIn.duration(200)} style={styles.container}>
+      {characterName && <Text style={[styles.label, { color: tc.text.muted }]}>{characterName} is typing</Text>}
+      <View style={[styles.bubble, { backgroundColor: tc.bg.tertiary }]}>
+        <Animated.View style={[styles.dot, { backgroundColor: tc.text.muted }, s1]} />
+        <Animated.View style={[styles.dot, { backgroundColor: tc.text.muted }, s2]} />
+        <Animated.View style={[styles.dot, { backgroundColor: tc.text.muted }, s3]} />
+      </View>
+    </Animated.View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flexDirection: 'row', paddingHorizontal: spacing.lg, paddingVertical: spacing.sm },
-  bubble: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs, backgroundColor: colors.bg.tertiary, paddingHorizontal: spacing.lg, paddingVertical: spacing.md, borderRadius: borderRadius.lg, borderTopLeftRadius: borderRadius.sm },
-  dot: { width: 8, height: 8, borderRadius: 4, backgroundColor: colors.text.muted },
+  container: { paddingHorizontal: spacing.lg, paddingVertical: spacing.sm },
+  label: { ...typography.small, fontSize: 10, marginBottom: 4, marginLeft: spacing.xs },
+  bubble: { flexDirection: 'row', alignItems: 'center', alignSelf: 'flex-start', gap: spacing.xs, paddingHorizontal: spacing.lg, paddingVertical: spacing.md, borderRadius: borderRadius.lg, borderTopLeftRadius: borderRadius.sm },
+  dot: { width: 8, height: 8, borderRadius: 4 },
 });

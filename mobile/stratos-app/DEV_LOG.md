@@ -45,5 +45,8 @@ Added horizontal "Popular This Week" cards at the top of discover — wider form
 ## Iteration 15: "Recently Chatted" quick-access row on discover ✅
 Character.AI shows your recent chats at the top for instant resume. Added avatar circles for quick resume.
 
-## Iteration 16: Working NSFW filter + quick-chat button on cards
-NSFW filter in profile is currently cosmetic. Making it functional — persisted to AsyncStorage, filters cards in discover. Also adding a small chat icon overlay on character cards for quick-start without opening detail.
+## Iteration 16: Working NSFW filter + quick-chat button on cards ✅
+NSFW filter in profile now functional. Quick-chat buttons on cards.
+
+## Iteration 17: Typing indicator with character name + theme-aware ✅
+Typing indicator now shows "{Name} is typing" label and uses theme colors. Fades in with animation.

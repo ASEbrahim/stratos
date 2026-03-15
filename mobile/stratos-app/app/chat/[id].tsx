@@ -41,7 +41,7 @@ export default function ChatScreen() {
       <KeyboardAvoidingView style={styles.chatArea} behavior={Platform.OS === 'ios' ? 'padding' : undefined} keyboardVerticalOffset={insets.top}>
         <FlatList ref={listRef} data={messages} renderItem={({ item }: { item: ChatMessage }) => <MessageBubble message={item} accentColor={accentColor} />} keyExtractor={item => item.id} contentContainerStyle={styles.msgList} showsVerticalScrollIndicator={false}
           ListFooterComponent={<View>
-            {isStreaming && streamingContent ? <StreamingBubble content={streamingContent} accentColor={accentColor} /> : isStreaming ? <TypingIndicator /> : null}
+            {isStreaming && streamingContent ? <StreamingBubble content={streamingContent} accentColor={accentColor} /> : isStreaming ? <TypingIndicator characterName={character?.name} /> : null}
             {!isStreaming && messages.length > 1 && messages[messages.length - 1]?.role === 'assistant' && (
               <TouchableOpacity style={styles.regenBtn} onPress={regenerateLastMessage} activeOpacity={0.7}>
                 <RefreshCw size={12} color={tc.text.muted} />
