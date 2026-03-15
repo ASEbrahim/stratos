@@ -1,13 +1,13 @@
 // Font families loaded in _layout.tsx
-// Comfortaa: round, geometric — used for headings, logos, buttons
+// Quicksand: round, modern — used for headings, logos, buttons
 // Poppins: clean geometric — used for body text, labels
 
 export const fonts = {
-  // Comfortaa — round/geometric headings
-  heading: 'Comfortaa_700Bold',
-  headingBold: 'Comfortaa_700Bold',
-  logo: 'Comfortaa_700Bold',
-  button: 'Comfortaa_600SemiBold',
+  // Quicksand — round/modern headings
+  heading: 'Quicksand_700Bold',
+  headingBold: 'Quicksand_700Bold',
+  logo: 'Quicksand_700Bold',
+  button: 'Quicksand_600SemiBold',
 
   // Poppins — clean/modern body
   body: 'Poppins_400Regular',

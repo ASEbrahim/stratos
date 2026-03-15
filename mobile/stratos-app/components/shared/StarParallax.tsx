@@ -125,45 +125,54 @@ function FloatingOrb({ x, y, size, color, delay }: {
 }
 
 // ─── Shooting Star ───
-function ShootingStar({ color, delay }: { color: string; delay: number }) {
-  const x = useSharedValue(rand(0, W * 0.6));
-  const y = useSharedValue(rand(0, H * 0.3));
+function ShootingStar({ color, minInterval, maxInterval }: { color: string; minInterval: number; maxInterval: number }) {
+  const x = useSharedValue(-100);
+  const y = useSharedValue(-100);
   const opacity = useSharedValue(0);
+  const rotation = useSharedValue(30);
 
   useEffect(() => {
+    let timeout: ReturnType<typeof setTimeout>;
     const animate = () => {
-      const startX = rand(0, W * 0.6);
-      const startY = rand(0, H * 0.3);
+      const startX = rand(W * 0.05, W * 0.7);
+      const startY = rand(H * 0.05, H * 0.5);
+      const angle = rand(25, 50);
+      const travel = rand(80, 180);
+      const duration = rand(500, 900);
+
       x.value = startX;
       y.value = startY;
+      rotation.value = angle;
 
-      opacity.value = withDelay(delay, withSequence(
-        withTiming(0.9, { duration: 150, easing: Easing.out(Easing.quad) }),
-        withTiming(0, { duration: 600, easing: Easing.in(Easing.quad) }),
-      ));
-      x.value = withDelay(delay, withTiming(startX + rand(100, 200), { duration: 750, easing: Easing.out(Easing.quad) }));
-      y.value = withDelay(delay, withTiming(startY + rand(60, 120), { duration: 750, easing: Easing.out(Easing.quad) }));
+      opacity.value = withSequence(
+        withTiming(rand(0.4, 0.7), { duration: 100, easing: Easing.out(Easing.quad) }),
+        withTiming(0, { duration: duration, easing: Easing.in(Easing.quad) }),
+      );
+      const rad = (angle * Math.PI) / 180;
+      x.value = withTiming(startX + Math.cos(rad) * travel, { duration: duration, easing: Easing.out(Easing.quad) });
+      y.value = withTiming(startY + Math.sin(rad) * travel, { duration: duration, easing: Easing.out(Easing.quad) });
+
+      timeout = setTimeout(animate, rand(minInterval, maxInterval));
     };
 
-    animate();
-    const interval = setInterval(animate, rand(6000, 12000));
-    return () => clearInterval(interval);
+    timeout = setTimeout(animate, rand(2000, 6000));
+    return () => clearTimeout(timeout);
   }, []);
 
   const style = useAnimatedStyle(() => ({
     opacity: opacity.value,
-    transform: [{ translateX: x.value }, { translateY: y.value }, { rotate: '35deg' }],
+    transform: [{ translateX: x.value }, { translateY: y.value }, { rotate: `${rotation.value}deg` }],
   }));
 
   return (
     <Animated.View style={[{
-      position: 'absolute', width: 40, height: 1.5, borderRadius: 1,
+      position: 'absolute', width: 30, height: 1, borderRadius: 0.5,
       backgroundColor: color,
-      shadowColor: '#fff',
+      shadowColor: color,
       shadowOffset: { width: 0, height: 0 },
-      shadowOpacity: 0.8,
-      shadowRadius: 4,
-      elevation: 2,
+      shadowOpacity: 0.5,
+      shadowRadius: 3,
+      elevation: 1,
     }, style]} />
   );
 }
@@ -206,8 +215,8 @@ export function StarParallax({ children }: { children?: React.ReactNode }) {
       <View style={StyleSheet.absoluteFill} pointerEvents="none">
         {stars.map((s, i) => <TwinkleStar key={`s${i}`} {...s} />)}
         {orbs.map((o, i) => <FloatingOrb key={`o${i}`} {...o} />)}
-        <ShootingStar color={shootColor} delay={2000} />
-        <ShootingStar color={shootColor} delay={8000} />
+        <ShootingStar color={shootColor} minInterval={8000} maxInterval={15000} />
+        <ShootingStar color={shootColor} minInterval={12000} maxInterval={20000} />
       </View>
 
       {children}
@@ -230,7 +239,7 @@ export function StarParallaxBg() {
       <View style={[localStyles.glowBottom, { backgroundColor: tc.glow.bottom }]} />
       {stars.map((s, i) => <TwinkleStar key={`bs${i}`} {...s} />)}
       {orbs.map((o, i) => <FloatingOrb key={`bo${i}`} {...o} />)}
-      <ShootingStar color={shootColor} delay={3000} />
+      <ShootingStar color={shootColor} minInterval={10000} maxInterval={18000} />
     </Animated.View>
   );
 }
