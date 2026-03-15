@@ -117,21 +117,15 @@ export async function generateImage(params: {
   height?: number;
   seed?: number;
   negative_prompt?: string;
-}) {
-  if (USE_MOCKS) {
-    await new Promise(r => setTimeout(r, 5000));
-    return {
-      success: true,
-      image_id: `mock-img-${Date.now()}`,
-      filename: 'mock_generated.png',
-      model: params.model || 'flux',
-      size: `${params.width || 768}x${params.height || 1024}`,
-    };
+}): Promise<{ success: boolean; image_id?: string; error?: string }> {
+  try {
+    return await apiFetch<{ success: boolean; image_id?: string; error?: string }>(
+      '/api/image/generate',
+      { method: 'POST', body: JSON.stringify(params) }
+    );
+  } catch {
+    return { success: false, error: 'Image generation unavailable — ComfyUI is not running. Start it with: bash tools/start_comfyui.sh (requires stopping Ollama first)' };
   }
-  return apiFetch<{ success: boolean; image_id?: string; error?: string; model?: string; size?: string }>(
-    '/api/image/generate',
-    { method: 'POST', body: JSON.stringify(params) }
-  );
 }
 
 // ── Character portrait generation ──
@@ -142,15 +136,15 @@ export async function generateCharacterPortrait(params: {
   style?: 'anime' | 'realistic' | 'illustration';
   nsfw?: boolean;
   character_card_id?: string;
-}) {
-  if (USE_MOCKS) {
-    await new Promise(r => setTimeout(r, 3000));
-    return { success: true, image_id: `mock-img-${Date.now()}` };
+}): Promise<{ success: boolean; image_id?: string; error?: string }> {
+  try {
+    return await apiFetch<{ success: boolean; image_id?: string; error?: string }>(
+      '/api/image/character-portrait',
+      { method: 'POST', body: JSON.stringify(params) }
+    );
+  } catch {
+    return { success: false, error: 'Image generation unavailable — ComfyUI is not running. Ollama and ComfyUI cannot share the GPU simultaneously.' };
   }
-  return apiFetch<{ success: boolean; image_id?: string; error?: string }>(
-    '/api/image/character-portrait',
-    { method: 'POST', body: JSON.stringify(params) }
-  );
 }
 
 // ── Get image URL ──
