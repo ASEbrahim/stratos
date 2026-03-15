@@ -258,5 +258,8 @@ All screens verified at 100 commits. checkpoint-20.
 ## Iteration 86: Contextual empty states with genre emoji ✅
 Genre-specific emoji and text when no characters match the filter.
 
-## Iteration 87: Animated brand header entrance on discover
-The brand header should make an entrance. Adding a fade-in + slide animation when the discover screen first loads — sets the tone for a premium app experience.
+## Iteration 87: Animated brand header entrance ✅
+FadeInDown spring animation on "StratOS Characters" header.
+
+## Iteration 88: "Created X ago" timestamp on character detail
+Users want to know how established a character is. Adding creation date in relative format — older characters with high ratings feel more trustworthy.

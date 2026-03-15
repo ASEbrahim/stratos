@@ -80,7 +80,7 @@ export function CharacterDetailView({ card }: CharacterDetailProps) {
           <Text style={[styles.ratingBadgeText, { color: card.content_rating === 'nsfw' ? tc.nsfw : tc.status.success }]}>{card.content_rating === 'nsfw' ? '18+' : 'SFW'}</Text>
         </View>
       </View>
-      <Text style={[styles.creator, { color: tc.text.secondary }]}>by @{card.creator_name}</Text>
+      <Text style={[styles.creator, { color: tc.text.secondary }]}>by @{card.creator_name} · Created {formatRelativeTime(card.created_at)}</Text>
       <View style={styles.ratingRow}>
         <Star size={14} color={tc.accent.secondary} fill={tc.accent.secondary} />
         <Text style={[styles.rating, { color: tc.text.primary }]}>{card.rating.toFixed(1)}</Text>
