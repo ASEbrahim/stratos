@@ -37,9 +37,11 @@ export default function LibraryScreen() {
     Alert.alert('Clear All History', `Delete all ${recentSessions.length} conversations?`, [
       { text: 'Cancel', style: 'cancel' },
       { text: 'Clear All', style: 'destructive', onPress: async () => {
-        await AsyncStorage.removeItem('stratos_chat_sessions');
-        loadRecentSessions();
-        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+        try {
+          await AsyncStorage.removeItem('stratos_chat_sessions');
+          loadRecentSessions();
+          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+        } catch { Alert.alert('Error', 'Failed to clear history.'); }
       }},
     ]);
   };
@@ -49,8 +51,10 @@ export default function LibraryScreen() {
     Alert.alert('Delete Session', `Delete conversation with ${session.character_name}?`, [
       { text: 'Cancel', style: 'cancel' },
       { text: 'Delete', style: 'destructive', onPress: async () => {
-        await deleteChatSession(session.id);
-        loadRecentSessions();
+        try {
+          await deleteChatSession(session.id);
+          loadRecentSessions();
+        } catch { Alert.alert('Error', 'Failed to delete session.'); }
       }},
     ]);
   };

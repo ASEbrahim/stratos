@@ -26,13 +26,13 @@ export default function ChatScreen() {
   const accentColor = character ? getGenreColor(character.genre_tags?.[0] ?? 'default') : undefined;
 
   // Persist session when leaving the screen
-  useFocusEffect(useCallback(() => { return () => { persistSession(); }; }, []));
+  useFocusEffect(useCallback(() => { return () => { persistSession().catch(() => {}); }; }, []));
 
   useEffect(() => {
     if (isStreaming && !prevStreamRef.current) Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     if (!isStreaming && prevStreamRef.current) {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-      persistSession();
+      persistSession().catch(() => {});
       setShowSaved(true);
       setTimeout(() => setShowSaved(false), 2000);
     }

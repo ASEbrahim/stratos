@@ -56,8 +56,8 @@ export const useChatStore = create<ChatState>((set, get) => ({
         const assistantMessage: ChatMessage = { id: createMessageId(), role: 'assistant', content: accumulated, timestamp: new Date().toISOString() };
         set((state) => ({ messages: [...state.messages, assistantMessage], isStreaming: false, streamingContent: '' }));
         incrementStat('totalMessages', 2).catch(() => {}); // user + assistant
-        get().persistSession();
-        get().loadSuggestions();
+        get().persistSession().catch(() => {});
+        get().loadSuggestions().catch(() => {});
       },
     );
   },
@@ -78,7 +78,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
     } catch {}
   },
   clearSession: () => {
-    get().persistSession();
+    get().persistSession().catch(() => {});
     set({ sessionId: null, character: null, messages: [], suggestions: [], isStreaming: false, streamingContent: '' });
   },
   persistSession: async () => {
@@ -115,8 +115,8 @@ export const useChatStore = create<ChatState>((set, get) => ({
       () => {
         const assistantMessage: ChatMessage = { id: createMessageId(), role: 'assistant', content: accumulated, timestamp: new Date().toISOString() };
         set((state) => ({ messages: [...state.messages, assistantMessage], isStreaming: false, streamingContent: '' }));
-        get().persistSession();
-        get().loadSuggestions();
+        get().persistSession().catch(() => {});
+        get().loadSuggestions().catch(() => {});
       },
     );
   },

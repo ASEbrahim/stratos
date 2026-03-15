@@ -33,8 +33,8 @@ export default function DiscoverScreen() {
   const [showScrollTop, setShowScrollTop] = useState(false);
   const scrollRef = React.useRef<ScrollView>(null);
 
-  useEffect(() => { loadTrending(); loadNew(); getScenarios().then(setScenarios); loadRecentSessions(); }, []);
-  const onRefresh = useCallback(async () => { setRefreshing(true); await Promise.all([loadTrending(), loadNew(), getScenarios().then(setScenarios)]); setRefreshing(false); }, []);
+  useEffect(() => { loadTrending(); loadNew(); getScenarios().then(setScenarios).catch(() => {}); loadRecentSessions(); }, []);
+  const onRefresh = useCallback(async () => { setRefreshing(true); try { await Promise.all([loadTrending(), loadNew(), getScenarios().then(setScenarios)]); } catch {} setRefreshing(false); }, []);
   const searchTimer = React.useRef<ReturnType<typeof setTimeout> | null>(null);
   const handleSearch = (text: string) => {
     setSearchQuery(text);
