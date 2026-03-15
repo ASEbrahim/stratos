@@ -156,10 +156,7 @@ def main():
         weight_decay=0.01,
         max_grad_norm=1.0,
         logging_steps=5,
-        save_strategy="steps",
-        save_steps=200,
-        save_total_limit=2,
-        save_only_model=True,
+        save_strategy="no",
         bf16=True,
         fp16=False,
         optim="adamw_torch",
@@ -170,11 +167,31 @@ def main():
         max_steps=args.max_steps,
     )
 
+    from transformers import TrainerCallback
+
+    class PEFTCheckpointCallback(TrainerCallback):
+        """Save PEFT adapter every N steps without triggering full model serialization."""
+        def __init__(self, save_steps=200):
+            self.save_steps = save_steps
+
+        def on_step_end(self, args, state, control, model=None, **kwargs):
+            if state.global_step > 0 and state.global_step % self.save_steps == 0:
+                ckpt_dir = OUTPUT_DIR / f"checkpoint-{state.global_step}"
+                ckpt_dir.mkdir(parents=True, exist_ok=True)
+                model.save_pretrained(str(ckpt_dir))
+                logger.info(f"PEFT checkpoint saved: {ckpt_dir}")
+                # Clean old checkpoints, keep last 2
+                ckpts = sorted(OUTPUT_DIR.glob("checkpoint-*"), key=lambda p: int(p.name.split("-")[1]))
+                for old in ckpts[:-2]:
+                    import shutil
+                    shutil.rmtree(old)
+
     trainer = SFTTrainer(
         model=model,
         processing_class=tokenizer,
         train_dataset=conversations,
         args=training_args,
+        callbacks=[PEFTCheckpointCallback(save_steps=200)],
     )
 
     logger.info(f"\nStarting training:")
