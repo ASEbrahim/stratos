@@ -20,6 +20,7 @@ export default function ChatScreen() {
   const listRef = useRef<FlatList>(null);
   const prevStreamRef = useRef(false);
   const [showScrollBtn, setShowScrollBtn] = useState(false);
+  const [showSaved, setShowSaved] = useState(false);
   const tc = useThemeStore(s => s.colors);
   const { character, messages, suggestions, isStreaming, streamingContent, sendMessage, persistSession, startSession, clearSession, regenerateLastMessage } = useChatStore();
   const accentColor = character ? getGenreColor(character.genre_tags?.[0] ?? 'default') : undefined;
@@ -29,7 +30,12 @@ export default function ChatScreen() {
 
   useEffect(() => {
     if (isStreaming && !prevStreamRef.current) Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    if (!isStreaming && prevStreamRef.current) Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    if (!isStreaming && prevStreamRef.current) {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      persistSession();
+      setShowSaved(true);
+      setTimeout(() => setShowSaved(false), 2000);
+    }
     prevStreamRef.current = isStreaming;
   }, [isStreaming]);
   useEffect(() => { if (messages.length > 0) setTimeout(() => listRef.current?.scrollToEnd({ animated: true }), 100); }, [messages.length, streamingContent]);
@@ -105,6 +111,7 @@ export default function ChatScreen() {
             <ChevronDown size={18} color={tc.text.secondary} />
           </TouchableOpacity>
         )}
+        {showSaved && <Text style={[styles.savedText, { color: tc.status.success }]}>Auto-saved ✓</Text>}
         <SuggestionChips suggestions={suggestions} onSelect={p => sendMessage(p)} accentColor={accentColor} />
         <ChatInput onSend={sendMessage} disabled={isStreaming} accentColor={accentColor} />
       </KeyboardAvoidingView>
@@ -126,4 +133,5 @@ const styles = StyleSheet.create({
   charIntroDesc: { fontSize: 11, lineHeight: 15 },
   seenText: { fontSize: 9, textAlign: 'right', paddingRight: spacing.lg, marginTop: 2 },
   resumeBanner: { fontSize: 10, textAlign: 'center', paddingVertical: spacing.sm, marginBottom: spacing.sm },
+  savedText: { fontSize: 9, textAlign: 'center', paddingVertical: 3, fontWeight: '600' },
 });

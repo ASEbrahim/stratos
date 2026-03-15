@@ -228,5 +228,8 @@ All screens verified. checkpoint-18, 90 commits.
 ## Iteration 76: Genre-colored left border on assistant messages ✅
 Subtle accent-colored left border on AI messages for character identity.
 
-## Iteration 77: Haptic feedback on message send success
-The send button has haptics on press, but not on successful message delivery. Adding a success haptic when the AI finishes responding — gives a satisfying "task complete" feeling.
+## Iteration 77: Success haptic on AI response completion ✅
+Haptic notification when streaming finishes.
+
+## Iteration 78: Auto-save indicator in chat
+Users worry about losing chat data. Adding a subtle "Auto-saved ✓" indicator that flashes briefly after each message exchange — reassures users their conversation is persisted.
