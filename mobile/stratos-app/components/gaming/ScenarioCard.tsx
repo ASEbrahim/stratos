@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Star } from 'lucide-react-native';
+import { Star, Play } from 'lucide-react-native';
 import { GamingScenario, formatCount } from '../../lib/types';
 import { useThemeStore } from '../../stores/themeStore';
 import { typography, spacing, borderRadius } from '../../constants/theme';
@@ -21,6 +21,10 @@ export function ScenarioCard({ scenario, variant = 'full' }: ScenarioCardProps) 
         </View>
         <Text style={[styles.horizontalName, { color: tc.text.primary }]} numberOfLines={1}>{scenario.name}</Text>
         <Text style={[styles.horizontalGenre, { color: accentColor }]}>{scenario.subgenre}</Text>
+        <View style={[styles.playBadge, { backgroundColor: accentColor + '20' }]}>
+          <Play size={8} color={accentColor} fill={accentColor} />
+          <Text style={[styles.playText, { color: accentColor }]}>Play</Text>
+        </View>
       </TouchableOpacity>
     );
   }
@@ -54,4 +58,6 @@ const styles = StyleSheet.create({
   iconText: { fontSize: 24 },
   horizontalName: { ...typography.caption, fontWeight: '600', textAlign: 'center', marginBottom: 2 },
   horizontalGenre: { ...typography.small },
+  playBadge: { flexDirection: 'row', alignItems: 'center', gap: 3, paddingHorizontal: spacing.sm, paddingVertical: 2, borderRadius: borderRadius.full, marginTop: spacing.xs },
+  playText: { fontSize: 9, fontWeight: '700' },
 });

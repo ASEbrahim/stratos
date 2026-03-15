@@ -165,5 +165,8 @@ Read receipts under user messages, "typing..." subtitle in header during streami
 ## Iteration 55: Loading spinner on send button ✅
 ActivityIndicator replaces send icon during streaming.
 
-## Iteration 56: Expandable quality elements on character detail
-The quality score badges are compact but users want to read the full text of speech patterns, triggers, etc. Adding an expandable "Character Depth" section that shows all 6 quality elements in full.
+## Iteration 56: Expandable "Character Depth" on detail ✅
+Toggle shows all 6 quality elements in full text format.
+
+## Iteration 57: Gaming scenarios quick-start from discover
+The gaming scenarios section on discover only shows cards that navigate to a browser. Adding a quick-start button so users can jump directly into a gaming session from the card.
