@@ -7,6 +7,7 @@ import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useCharacterStore } from '../../stores/characterStore';
 import { useChatStore } from '../../stores/chatStore';
 import { useThemeStore } from '../../stores/themeStore';
+import { THEMES } from '../../constants/themes';
 import { CharacterCardComponent } from '../../components/cards/CharacterCard';
 import { ScenarioCard } from '../../components/gaming/ScenarioCard';
 import { StarParallaxBg } from '../../components/shared/StarParallax';
@@ -23,7 +24,7 @@ import { fonts } from '../../constants/fonts';
 export default function DiscoverScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
-  const tc = useThemeStore(s => s.colors);
+  const { colors: tc, themeId, setTheme } = useThemeStore();
   const { trending, newCards, selectedGenre, isLoading, loadTrending, loadNew, setGenre, search } = useCharacterStore();
   const { recentSessions, loadRecentSessions, resumeSession } = useChatStore();
   const [scenarios, setScenarios] = useState<GamingScenario[]>([]);
@@ -61,7 +62,17 @@ export default function DiscoverScreen() {
         onScroll={(e) => setShowScrollTop(e.nativeEvent.contentOffset.y > 600)}
         scrollEventThrottle={200}>
         <Animated.View entering={FadeInDown.duration(400).springify().damping(16)} style={styles.brandRow}>
+          {THEMES.slice(0, 2).map(t => (
+            <TouchableOpacity key={t.id} onPress={() => { Haptics.selectionAsync(); setTheme(t.id); }} activeOpacity={0.7} style={[styles.themeDot, { backgroundColor: t.colors.accent.primary + (themeId === t.id ? 'FF' : '30'), borderColor: themeId === t.id ? t.colors.accent.primary : 'transparent' }]} accessibilityLabel={`${t.label} theme`} accessibilityRole="button">
+              <Text style={styles.themeDotIcon}>{t.icon}</Text>
+            </TouchableOpacity>
+          ))}
           <Text style={[styles.brandText, { color: tc.accent.primary, textShadowColor: tc.accent.primary + '40', textShadowOffset: { width: 0, height: 0 }, textShadowRadius: 12 }]}>Strat<Text style={[styles.brandAccent, { color: tc.text.primary }]}>OS</Text></Text>
+          {THEMES.slice(2, 4).map(t => (
+            <TouchableOpacity key={t.id} onPress={() => { Haptics.selectionAsync(); setTheme(t.id); }} activeOpacity={0.7} style={[styles.themeDot, { backgroundColor: t.colors.accent.primary + (themeId === t.id ? 'FF' : '30'), borderColor: themeId === t.id ? t.colors.accent.primary : 'transparent' }]} accessibilityLabel={`${t.label} theme`} accessibilityRole="button">
+              <Text style={styles.themeDotIcon}>{t.icon}</Text>
+            </TouchableOpacity>
+          ))}
         </Animated.View>
         <View style={styles.searchRow}>
           <View style={[styles.searchBox, { backgroundColor: tc.bg.tertiary, flex: 1 }]}>
@@ -144,9 +155,11 @@ export default function DiscoverScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1 },
   scroll: { flex: 1 },
-  brandRow: { alignItems: 'center', paddingTop: spacing.sm },
+  brandRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingTop: spacing.sm, gap: spacing.md },
   brandText: { fontSize: 26, fontFamily: fonts.logo, letterSpacing: 2 },
   brandAccent: { fontFamily: fonts.bodyLight, letterSpacing: 0 },
+  themeDot: { width: 28, height: 28, borderRadius: 14, justifyContent: 'center', alignItems: 'center', borderWidth: 1.5 },
+  themeDotIcon: { fontSize: 12 },
   searchRow: { flexDirection: 'row', alignItems: 'center', marginHorizontal: spacing.md, marginTop: spacing.sm, marginBottom: spacing.xs, gap: spacing.sm },
   searchBox: { flexDirection: 'row', alignItems: 'center', borderRadius: borderRadius.lg, paddingHorizontal: spacing.md, gap: spacing.sm },
   shuffleBtn: { width: 38, height: 38, borderRadius: borderRadius.md, justifyContent: 'center', alignItems: 'center' },

@@ -81,8 +81,8 @@ export function CharacterCardComponent({ card, variant = 'grid', featured = fals
     <Pressable
       style={[styles.card, { backgroundColor: tc.bg.secondary, borderColor: tc.border.subtle }]}
       onPress={handlePress}
-      onPressIn={() => { cardScale.value = withSpring(0.96, { damping: 15 }); }}
-      onPressOut={() => { cardScale.value = withSpring(1, { damping: 10 }); }}
+      onPressIn={() => { cardScale.value = withSpring(0.98, { damping: 20 }); }}
+      onPressOut={() => { cardScale.value = withSpring(1, { damping: 15 }); }}
       accessibilityLabel={`${card.name}, ${genreLabel} character, ${card.rating.toFixed(1)} stars, ${formatCount(card.session_count)} chats`}
       accessibilityRole="button"
     >
