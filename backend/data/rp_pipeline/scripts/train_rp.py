@@ -101,7 +101,7 @@ def main():
         BASE_MODEL_ID,
         dtype=torch.bfloat16,
         device_map="auto",
-        max_memory={0: "15GiB", "cpu": "24GiB"},
+        max_memory={0: "18GiB", "cpu": "20GiB"},
         trust_remote_code=True,
         low_cpu_mem_usage=True,
     )
