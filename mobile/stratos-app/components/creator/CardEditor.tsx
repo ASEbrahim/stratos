@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, ScrollView, TouchableOpacity, StyleSheet, Alert, Modal, ActivityIndicator } from 'react-native';
-import { Image } from 'expo-image';
+import { View, Text, TextInput, ScrollView, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import * as Haptics from 'expo-haptics';
 import * as DocumentPicker from 'expo-document-picker';
@@ -17,7 +16,6 @@ import { typography, spacing, borderRadius } from '../../constants/theme';
 import { fonts } from '../../constants/fonts';
 import { useThemeStore } from '../../stores/themeStore';
 import { useCharacterStore } from '../../stores/characterStore';
-import { generateCharacterPortrait, getImageUrl } from '../../lib/rp';
 import Animated, { useSharedValue, useAnimatedStyle, withSpring, withSequence } from 'react-native-reanimated';
 
 function WordCount({ text }: { text: string }) {
@@ -61,8 +59,6 @@ export function CardEditor({ initialCard }: CardEditorProps) {
   });
 
   const { loadMyCards, loadNew } = useCharacterStore();
-  const [generatingImage, setGeneratingImage] = useState(false);
-  const [previewImageId, setPreviewImageId] = useState<string | null>(null);
   const saveBtnScale = useSharedValue(1);
   const saveBtnAnimStyle = useAnimatedStyle(() => ({ transform: [{ scale: saveBtnScale.value }] }));
 
@@ -273,36 +269,19 @@ export function CardEditor({ initialCard }: CardEditorProps) {
         </View>
       </View>
 
-      {/* Generate Image button — shows when name is filled (uses description or personality as fallback) */}
+      {/* Generate Image button — navigates to full image gen screen with NSFW toggle */}
       {card.name.trim() ? (
         <TouchableOpacity
-          style={[styles.genImageBtn, { borderColor: tc.accent.secondary + '40', backgroundColor: tc.accent.secondary + '08' }, generatingImage && { opacity: 0.6 }]}
-          onPress={async () => {
-            setGeneratingImage(true);
-            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-            try {
-              const desc = card.physical_description?.trim() || card.personality?.trim() || card.description?.trim() || card.name;
-              const result = await generateCharacterPortrait({
-                character_name: card.name, physical_description: desc,
-                style: 'anime',
-              });
-              if (result.success && result.image_id) {
-                setPreviewImageId(result.image_id);
-                Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-              } else {
-                Alert.alert('Generation Failed', result.error || 'Could not generate image');
-              }
-            } catch { Alert.alert('Error', 'Image generation unavailable'); }
-            finally { setGeneratingImage(false); }
+          style={[styles.genImageBtn, { borderColor: tc.accent.secondary + '40', backgroundColor: tc.accent.secondary + '08' }]}
+          onPress={() => {
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+            const desc = card.physical_description?.trim() || card.personality?.trim() || card.description?.trim() || card.name;
+            router.push({ pathname: '/imagegen', params: { name: card.name, description: desc } });
           }}
-          disabled={generatingImage}
           activeOpacity={0.7}
         >
-          {generatingImage ? (
-            <><ActivityIndicator size={14} color={tc.accent.secondary} /><Text style={[styles.genImageText, { color: tc.accent.secondary }]}>Generating... ~30-60s</Text></>
-          ) : (
-            <><Wand2 size={14} color={tc.accent.secondary} /><Text style={[styles.genImageText, { color: tc.accent.secondary }]}>Generate Character Image</Text></>
-          )}
+          <Wand2 size={14} color={tc.accent.secondary} />
+          <Text style={[styles.genImageText, { color: tc.accent.secondary }]}>Generate Character Image</Text>
         </TouchableOpacity>
       ) : null}
 
@@ -311,18 +290,6 @@ export function CardEditor({ initialCard }: CardEditorProps) {
           <Text style={styles.saveBtnText}>{saving ? (isEditing ? 'Saving...' : 'Creating...') : (isEditing ? 'Save Changes' : 'Create Character')}</Text>
         </TouchableOpacity>
       </Animated.View>
-
-      {/* Image preview popup */}
-      {previewImageId && (
-        <Modal visible transparent animationType="fade" onRequestClose={() => setPreviewImageId(null)}>
-          <TouchableOpacity style={styles.previewOverlay} activeOpacity={1} onPress={() => setPreviewImageId(null)}>
-            <View style={[styles.previewCard, { backgroundColor: tc.bg.primary, borderColor: tc.border.subtle }]}>
-              <Image source={{ uri: getImageUrl(previewImageId) }} style={styles.previewImage} contentFit="contain" />
-              <Text style={[styles.previewHint, { color: tc.text.muted }]}>Tap anywhere to close</Text>
-            </View>
-          </TouchableOpacity>
-        </Modal>
-      )}
 
       <View style={{ height: spacing.xxl }} />
     </ScrollView>

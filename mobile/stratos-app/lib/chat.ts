@@ -31,29 +31,46 @@ export async function streamMessage(
       }),
     });
     if (!response.ok) {
-      // API failed — fall back to mock
+      console.warn('[chat] API returned', response.status, '— falling back to mock');
       await mockStream(message, persona, characterCard, onChunk, onDone);
       return;
     }
+
+    // Try ReadableStream first (modern browsers), fall back to text() parsing
     const reader = response.body?.getReader();
-    const decoder = new TextDecoder();
-    if (!reader) { onDone(); return; }
-    let buffer = '';
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) { onDone(); break; }
-      buffer += decoder.decode(value, { stream: true });
-      const lines = buffer.split('\n');
-      buffer = lines.pop() ?? '';
+    if (reader) {
+      const decoder = new TextDecoder();
+      let buffer = '';
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) { onDone(); break; }
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop() ?? '';
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            try {
+              const data = JSON.parse(line.slice(6));
+              if (data.content || data.token) onChunk(data.content || data.token);
+              if (data.done) { onDone(); return; }
+            } catch { /* partial */ }
+          }
+        }
+      }
+    } else {
+      // Fallback: read full response as text and parse SSE lines
+      console.warn('[chat] ReadableStream not available, using text fallback');
+      const text = await response.text();
+      const lines = text.split('\n');
       for (const line of lines) {
         if (line.startsWith('data: ')) {
           try {
             const data = JSON.parse(line.slice(6));
             if (data.content || data.token) onChunk(data.content || data.token);
-            if (data.done) onDone();
           } catch { /* partial */ }
         }
       }
+      onDone();
     }
   } catch {
     // Network error — fall back to mock
