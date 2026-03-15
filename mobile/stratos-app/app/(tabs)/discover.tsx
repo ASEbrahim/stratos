@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, TextInput, StyleSheet, RefreshControl } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Search, Shuffle } from 'lucide-react-native';
+import { Search, Shuffle, ChevronUp } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useCharacterStore } from '../../stores/characterStore';
@@ -30,6 +30,8 @@ export default function DiscoverScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [showWelcome, setShowWelcome] = useState(true);
   const [sortBy, setSortBy] = useState<'popular' | 'newest' | 'rating'>('popular');
+  const [showScrollTop, setShowScrollTop] = useState(false);
+  const scrollRef = React.useRef<ScrollView>(null);
 
   useEffect(() => { loadTrending(); loadNew(); getScenarios().then(setScenarios); loadRecentSessions(); }, []);
   const onRefresh = useCallback(async () => { setRefreshing(true); await Promise.all([loadTrending(), loadNew(), getScenarios().then(setScenarios)]); setRefreshing(false); }, []);
@@ -55,7 +57,9 @@ export default function DiscoverScreen() {
   return (
     <View style={[styles.container, { paddingTop: insets.top, backgroundColor: tc.bg.primary }]}>
       <StarParallaxBg />
-      <ScrollView style={styles.scroll} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={tc.accent.primary} />}>
+      <ScrollView ref={scrollRef} style={styles.scroll} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={tc.accent.primary} />}
+        onScroll={(e) => setShowScrollTop(e.nativeEvent.contentOffset.y > 600)}
+        scrollEventThrottle={200}>
         <Animated.View entering={FadeInDown.duration(400).springify().damping(16)} style={styles.brandRow}>
           <Text style={[styles.brandText, { color: tc.accent.primary }]}>StratOS</Text>
           <Text style={[styles.brandSub, { color: tc.text.muted }]}>Characters</Text>
@@ -213,6 +217,11 @@ export default function DiscoverScreen() {
         )}
         <View style={{ height: spacing.xxl }} />
       </ScrollView>
+      {showScrollTop && (
+        <TouchableOpacity style={[styles.scrollTopFab, { backgroundColor: tc.bg.elevated, borderColor: tc.border.subtle }]} onPress={() => scrollRef.current?.scrollTo({ y: 0, animated: true })} activeOpacity={0.8}>
+          <ChevronUp size={18} color={tc.text.secondary} />
+        </TouchableOpacity>
+      )}
     </View>
   );
 }
@@ -273,4 +282,5 @@ const styles = StyleSheet.create({
   welcomeCard: { marginHorizontal: spacing.lg, marginBottom: spacing.md, padding: spacing.lg, borderRadius: borderRadius.lg, borderWidth: 1 },
   welcomeTitle: { ...typography.subheading, marginBottom: spacing.xs },
   welcomeBody: { ...typography.caption, lineHeight: 18 },
+  scrollTopFab: { position: 'absolute', right: spacing.lg, bottom: 80, width: 36, height: 36, borderRadius: 18, justifyContent: 'center', alignItems: 'center', borderWidth: 1, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.3, shadowRadius: 4, elevation: 4 },
 });

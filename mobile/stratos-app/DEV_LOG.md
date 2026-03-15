@@ -264,5 +264,8 @@ FadeInDown spring animation on "StratOS Characters" header.
 ## Iteration 88: Creation date on character detail ✅
 "by @creator · Created Xd ago" in the creator line.
 
-## Iteration 89: Pulse animation on "Start Conversation" CTA
-The main CTA button on character detail should be attention-grabbing. Adding a subtle pulse glow animation that catches the eye and encourages the user to start chatting.
+## Iteration 89: Pulse animation on CTA button ✅
+Subtle breathing pulse on "Start Conversation" button.
+
+## Iteration 90: Scroll-to-top FAB on discover
+Like the scroll-to-bottom in chat, discover needs a scroll-to-top button when users scroll far down. Saves them from scrolling all the way back to search or featured.
