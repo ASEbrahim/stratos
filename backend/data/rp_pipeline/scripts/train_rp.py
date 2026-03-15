@@ -58,6 +58,7 @@ def main():
     parser.add_argument("--max-steps", type=int, default=-1)
     parser.add_argument("--rank", type=int, default=LORA_R)
     parser.add_argument("--seq-length", type=int, default=MAX_SEQ_LENGTH)
+    parser.add_argument("--resume", action="store_true", help="Resume from latest checkpoint")
     args = parser.parse_args()
 
     logger.info("=" * 60)
@@ -100,7 +101,7 @@ def main():
         BASE_MODEL_ID,
         dtype=torch.bfloat16,
         device_map="auto",
-        max_memory={0: "18GiB", "cpu": "20GiB"},
+        max_memory={0: "15GiB", "cpu": "24GiB"},
         trust_remote_code=True,
         low_cpu_mem_usage=True,
     )
@@ -152,7 +153,9 @@ def main():
         weight_decay=0.01,
         max_grad_norm=1.0,
         logging_steps=5,
-        save_strategy="epoch",
+        save_strategy="steps",
+        save_steps=200,
+        save_total_limit=2,
         bf16=True,
         fp16=False,
         optim="adamw_torch",
@@ -179,7 +182,16 @@ def main():
     logger.info(f"  Target modules: {TARGET_MODULES}")
 
     start = time.time()
-    result = trainer.train()
+    resume_ckpt = None
+    if args.resume:
+        # Find latest checkpoint
+        ckpts = sorted(OUTPUT_DIR.glob("checkpoint-*"), key=lambda p: int(p.name.split("-")[1]))
+        if ckpts:
+            resume_ckpt = str(ckpts[-1])
+            logger.info(f"Resuming from checkpoint: {resume_ckpt}")
+        else:
+            logger.warning("--resume passed but no checkpoints found, starting fresh")
+    result = trainer.train(resume_from_checkpoint=resume_ckpt)
     elapsed = time.time() - start
 
     logger.info(f"\nTraining complete in {elapsed/3600:.1f} hours")
