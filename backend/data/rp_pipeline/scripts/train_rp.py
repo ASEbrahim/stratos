@@ -159,6 +159,7 @@ def main():
         save_strategy="steps",
         save_steps=200,
         save_total_limit=2,
+        save_only_model=True,
         bf16=True,
         fp16=False,
         optim="adamw_torch",
