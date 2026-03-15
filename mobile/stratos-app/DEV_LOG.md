@@ -6,5 +6,8 @@ Character cards are the first thing users see but currently show just a plain le
 ## Iteration 2: Theme-aware bottom tabs + discover background ✅
 The bottom tab bar and discover screen use hardcoded Arcane colors, ignoring the user's theme choice. Making tabs and discover theme-aware ensures the entire app feels cohesive when switching themes.
 
-## Iteration 3: Skeleton loading shimmer + onboarding card
+## Iteration 3: Skeleton loading shimmer + onboarding card ✅
 When the discover screen loads, there's a blank gap before mock data arrives. Adding skeleton placeholders with a shimmer animation makes the app feel instant. Also adding a "Welcome" card for first-time users pointing them toward featured characters.
+
+## Iteration 4: Chat message polish — animations, timestamps, long-press ✅
+Messages now fade in with Reanimated entering animation, tapping reveals timestamps, and long-press shows a context menu (Copy/Regenerate). These are standard features in Character.AI and Chai that users expect.
