@@ -144,5 +144,8 @@ Accent-colored dot below active tab icon.
 ## Iteration 48: Character intro card at top of new chats ✅
 Shows character avatar, name, and description at the start of new conversations.
 
-## Iteration 49: Profile engagement stats — words typed, favorite genre
-Gamification drives retention. Adding detailed stats to profile: total words typed, average session length, and most-used genre — makes users feel invested in their journey.
+## Iteration 49: Profile engagement stats ✅
+"Your Journey" section: words written, avg messages, longest chat, top genre.
+
+## Iteration 50: Double-tap to bookmark on character cards
+Instagram proved double-tap is the most intuitive mobile gesture. Adding double-tap on character cards in the grid to save/bookmark — with a heart animation burst.

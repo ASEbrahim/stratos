@@ -1,11 +1,13 @@
-import React from 'react';
+import React, { useRef, useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Dimensions, Pressable } from 'react-native';
 import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
-import { Star, MessageCircle } from 'lucide-react-native';
-import Animated, { useSharedValue, useAnimatedStyle, withSpring } from 'react-native-reanimated';
+import * as Haptics from 'expo-haptics';
+import { Star, MessageCircle, Heart } from 'lucide-react-native';
+import Animated, { useSharedValue, useAnimatedStyle, withSpring, withSequence, withTiming, FadeIn, FadeOut } from 'react-native-reanimated';
 import { CharacterCard as CharacterCardType, formatCount } from '../../lib/types';
 import { useChatStore } from '../../stores/chatStore';
+import { useCharacterStore } from '../../stores/characterStore';
 import { typography, spacing, borderRadius } from '../../constants/theme';
 import { getGenreColor } from '../../constants/genres';
 import { useThemeStore } from '../../stores/themeStore';
@@ -49,12 +51,35 @@ export function CharacterCardComponent({ card, variant = 'grid' }: CharacterCard
   const starCount = Math.round(card.rating);
   const cardScale = useSharedValue(1);
   const cardAnimStyle = useAnimatedStyle(() => ({ transform: [{ scale: cardScale.value }] }));
+  const lastTap = useRef(0);
+  const [showHeart, setShowHeart] = useState(false);
+  const heartScale = useSharedValue(0);
+  const heartStyle = useAnimatedStyle(() => ({ transform: [{ scale: heartScale.value }], opacity: heartScale.value > 0.1 ? 1 : 0 }));
+  const { saveToLibrary } = useCharacterStore();
+
+  const handlePress = () => {
+    const now = Date.now();
+    if (now - lastTap.current < 300) {
+      // Double tap — save/bookmark
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      saveToLibrary(card);
+      setShowHeart(true);
+      heartScale.value = withSequence(withSpring(1.2, { damping: 8 }), withTiming(1, { duration: 100 }), withTiming(0, { duration: 400 }));
+      setTimeout(() => setShowHeart(false), 800);
+    } else {
+      // Single tap — navigate
+      setTimeout(() => {
+        if (Date.now() - lastTap.current >= 300) router.push(`/character/${card.id}`);
+      }, 300);
+    }
+    lastTap.current = now;
+  };
 
   return (
     <Animated.View style={[{ width: CARD_WIDTH }, cardAnimStyle]}>
     <Pressable
       style={[styles.card, { backgroundColor: tc.bg.secondary, borderColor: tc.border.subtle }]}
-      onPress={() => router.push(`/character/${card.id}`)}
+      onPress={handlePress}
       onPressIn={() => { cardScale.value = withSpring(0.96, { damping: 15 }); }}
       onPressOut={() => { cardScale.value = withSpring(1, { damping: 10 }); }}
     >
@@ -76,6 +101,12 @@ export function CharacterCardComponent({ card, variant = 'grid' }: CharacterCard
         {card.content_rating === 'nsfw' && <View style={[styles.nsfwBadge, { backgroundColor: tc.nsfw + 'CC' }]}><Text style={styles.nsfwText}>18+</Text></View>}
         {/* NEW badge */}
         {showNew && card.content_rating !== 'nsfw' && <View style={[styles.newBadge, { backgroundColor: tc.status.success }]}><Text style={styles.newBadgeText}>NEW</Text></View>}
+        {/* Heart animation on double-tap */}
+        {showHeart && (
+          <Animated.View style={[styles.heartOverlay, heartStyle]}>
+            <Heart size={40} color="#fff" fill="#ff4466" />
+          </Animated.View>
+        )}
         {/* Gradient overlay at bottom of avatar */}
         <View style={[styles.avatarGradient, { backgroundColor: tc.bg.secondary }]} />
       </View>
@@ -118,6 +149,7 @@ const styles = StyleSheet.create({
     position: 'absolute', bottom: 0, left: 0, right: 0, height: 30,
     opacity: 0.7,
   },
+  heartOverlay: { position: 'absolute', zIndex: 10, justifyContent: 'center', alignItems: 'center', top: '35%', left: '35%' },
   quickChatBtn: { position: 'absolute', bottom: spacing.sm + 30, right: spacing.sm, width: 28, height: 28, borderRadius: 14, justifyContent: 'center', alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.3, shadowRadius: 4, elevation: 3 },
   nsfwBadge: { position: 'absolute', top: spacing.sm, right: spacing.sm, paddingHorizontal: spacing.sm, paddingVertical: 2, borderRadius: borderRadius.sm },
   newBadge: { position: 'absolute', top: spacing.sm, left: spacing.sm, paddingHorizontal: spacing.sm, paddingVertical: 2, borderRadius: borderRadius.sm },
