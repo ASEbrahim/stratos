@@ -622,6 +622,284 @@ class Database:
         except Exception as e:
             logger.error(f"Failed to save ui_state for profile {profile_id}: {e}")
 
+    # =========================================================================
+    # RP MESSAGES & BRANCHING
+    # =========================================================================
+
+    MAX_BRANCH_DEPTH = 15
+
+    def insert_rp_message(self, session_id: str, profile_id: int, branch_id: str,
+                          turn_number: int, role: str, content: str, **kwargs) -> int:
+        """Insert an RP message and return its ID."""
+        cols = ['session_id', 'profile_id', 'branch_id', 'turn_number', 'role', 'content']
+        vals = [session_id, profile_id, branch_id, turn_number, role, content]
+        for k in ['model_version', 'character_card_id', 'persona', 'response_tokens',
+                   'response_ms', 'swipe_group_id', 'was_selected', 'director_note',
+                   'parent_branch_id', 'branch_point_turn', 'is_active']:
+            if k in kwargs:
+                cols.append(k)
+                vals.append(kwargs[k])
+        placeholders = ','.join(['?'] * len(vals))
+        col_str = ','.join(cols)
+        cursor = self.conn.execute(
+            f"INSERT INTO rp_messages ({col_str}) VALUES ({placeholders})", vals
+        )
+        self._commit()
+        return cursor.lastrowid
+
+    def get_full_branch_conversation(self, session_id: str, branch_id: str = 'main') -> list:
+        """Reconstruct full conversation by walking the parent branch chain.
+
+        Branches store only their new messages after the branch point.
+        Parent messages are fetched recursively up the chain.
+        Enforces MAX_BRANCH_DEPTH to prevent runaway queries.
+        """
+        messages = []
+        current_branch = branch_id
+        depth = 0
+
+        while current_branch and depth < self.MAX_BRANCH_DEPTH:
+            # Get branch metadata
+            branch_meta = self.conn.execute(
+                "SELECT DISTINCT parent_branch_id, branch_point_turn FROM rp_messages "
+                "WHERE session_id = ? AND branch_id = ? LIMIT 1",
+                (session_id, current_branch)
+            ).fetchone()
+
+            if current_branch == 'main' or not branch_meta or not branch_meta['parent_branch_id']:
+                # Root branch — get all messages
+                rows = self.conn.execute(
+                    "SELECT * FROM rp_messages WHERE session_id = ? AND branch_id = ? "
+                    "AND was_selected = TRUE ORDER BY turn_number",
+                    (session_id, current_branch)
+                ).fetchall()
+                messages = [dict(r) for r in rows] + messages
+                break
+            else:
+                # Child branch — get messages after branch point
+                branch_point = branch_meta['branch_point_turn'] or 0
+                rows = self.conn.execute(
+                    "SELECT * FROM rp_messages WHERE session_id = ? AND branch_id = ? "
+                    "AND turn_number > ? AND was_selected = TRUE ORDER BY turn_number",
+                    (session_id, current_branch, branch_point)
+                ).fetchall()
+                messages = [dict(r) for r in rows] + messages
+                current_branch = branch_meta['parent_branch_id']
+                depth += 1
+
+        return messages
+
+    def get_rp_branches(self, session_id: str) -> list:
+        """List all branches for a session with metadata."""
+        rows = self.conn.execute("""
+            SELECT branch_id, parent_branch_id, branch_point_turn,
+                   COUNT(*) as turn_count,
+                   MIN(created_at) as created_at,
+                   MAX(is_active) as is_active
+            FROM rp_messages
+            WHERE session_id = ? AND was_selected = TRUE
+            GROUP BY branch_id
+            ORDER BY MIN(created_at)
+        """, (session_id,)).fetchall()
+        return [dict(r) for r in rows]
+
+    def create_branch(self, session_id: str, from_branch: str, at_turn: int,
+                      new_branch_id: str) -> dict:
+        """Create a new branch by reference. Does NOT copy parent messages.
+
+        Returns: {"branch_id": str} or {"error": str}
+        """
+        # Check depth
+        depth = 0
+        check_branch = from_branch
+        while check_branch and check_branch != 'main' and depth < self.MAX_BRANCH_DEPTH + 1:
+            row = self.conn.execute(
+                "SELECT DISTINCT parent_branch_id FROM rp_messages "
+                "WHERE session_id = ? AND branch_id = ? LIMIT 1",
+                (session_id, check_branch)
+            ).fetchone()
+            if not row or not row['parent_branch_id']:
+                break
+            check_branch = row['parent_branch_id']
+            depth += 1
+
+        if depth >= self.MAX_BRANCH_DEPTH:
+            return {"error": f"Maximum branch depth ({self.MAX_BRANCH_DEPTH}) exceeded"}
+
+        return {"branch_id": new_branch_id}
+
+    # =========================================================================
+    # RP EDITS
+    # =========================================================================
+
+    def insert_rp_edit(self, message_id: int, session_id: str, original: str,
+                       edited: str, category: str = None, reason: str = None,
+                       card_id: str = None):
+        """Record an edit on an AI response (DPO training pair)."""
+        self.conn.execute(
+            "INSERT INTO rp_edits (message_id, session_id, original_content, edited_content, "
+            "edit_delta_category, edit_reason, character_card_id) VALUES (?, ?, ?, ?, ?, ?, ?)",
+            (message_id, session_id, original, edited, category, reason, card_id)
+        )
+        # Update the message content to the edited version
+        self.conn.execute(
+            "UPDATE rp_messages SET content = ? WHERE id = ?", (edited, message_id)
+        )
+        self._commit()
+
+    def get_edits_for_session(self, session_id: str) -> list:
+        rows = self.conn.execute(
+            "SELECT * FROM rp_edits WHERE session_id = ? ORDER BY created_at", (session_id,)
+        ).fetchall()
+        return [dict(r) for r in rows]
+
+    # =========================================================================
+    # RP FEEDBACK
+    # =========================================================================
+
+    def insert_rp_feedback(self, message_id: int, profile_id: int, feedback_type: str):
+        """Record thumbs up/down. Idempotent (UNIQUE constraint)."""
+        self.conn.execute(
+            "INSERT OR REPLACE INTO rp_feedback (message_id, profile_id, feedback_type) "
+            "VALUES (?, ?, ?)", (message_id, profile_id, feedback_type)
+        )
+        self._commit()
+
+    def get_feedback_for_session(self, session_id: str) -> dict:
+        """Returns: {"thumbs_up": int, "thumbs_down": int}"""
+        rows = self.conn.execute("""
+            SELECT f.feedback_type, COUNT(*) as cnt
+            FROM rp_feedback f JOIN rp_messages m ON f.message_id = m.id
+            WHERE m.session_id = ?
+            GROUP BY f.feedback_type
+        """, (session_id,)).fetchall()
+        result = {"thumbs_up": 0, "thumbs_down": 0}
+        for r in rows:
+            if r['feedback_type'] in result:
+                result[r['feedback_type']] = r['cnt']
+        return result
+
+    # =========================================================================
+    # CHARACTER CARDS
+    # =========================================================================
+
+    def insert_character_card(self, card_id: str, creator_id: int, name: str, **fields):
+        """Create a new character card."""
+        cols = ['id', 'creator_profile_id', 'name']
+        vals = [card_id, creator_id, name]
+        allowed = ['physical_description', 'speech_pattern', 'emotional_trigger',
+                    'defensive_mechanism', 'vulnerability', 'specific_detail',
+                    'personality', 'scenario', 'first_message', 'example_dialogues',
+                    'genre_tags', 'content_rating', 'avatar_image_path', 'is_published',
+                    'quality_elements_count', 'imported_from', 'tavern_card_raw']
+        for k in allowed:
+            if k in fields:
+                cols.append(k)
+                vals.append(fields[k])
+        placeholders = ','.join(['?'] * len(vals))
+        col_str = ','.join(cols)
+        self.conn.execute(f"INSERT INTO character_cards ({col_str}) VALUES ({placeholders})", vals)
+        self._commit()
+
+    def get_character_card(self, card_id: str) -> Optional[dict]:
+        row = self.conn.execute("SELECT * FROM character_cards WHERE id = ?", (card_id,)).fetchone()
+        return dict(row) if row else None
+
+    def get_published_cards(self, genre: str = None, sort: str = 'trending',
+                            limit: int = 20, offset: int = 0) -> list:
+        query = "SELECT c.*, COALESCE(s.total_sessions, 0) as sessions, COALESCE(s.avg_rating, 0) as avg_rating_val " \
+                "FROM character_cards c LEFT JOIN character_card_stats s ON c.id = s.card_id " \
+                "WHERE c.is_published = TRUE"
+        params = []
+        if genre:
+            query += " AND c.genre_tags LIKE ?"
+            params.append(f'%{genre}%')
+        if sort == 'trending':
+            query += " ORDER BY COALESCE(s.total_sessions, 0) DESC"
+        elif sort == 'newest':
+            query += " ORDER BY c.created_at DESC"
+        elif sort == 'top_rated':
+            query += " ORDER BY COALESCE(s.avg_rating, 0) DESC"
+        query += " LIMIT ? OFFSET ?"
+        params.extend([limit, offset])
+        rows = self.conn.execute(query, params).fetchall()
+        return [dict(r) for r in rows]
+
+    def update_character_card(self, card_id: str, **fields):
+        if not fields:
+            return
+        sets = []
+        vals = []
+        for k, v in fields.items():
+            sets.append(f"{k} = ?")
+            vals.append(v)
+        sets.append("updated_at = CURRENT_TIMESTAMP")
+        vals.append(card_id)
+        self.conn.execute(f"UPDATE character_cards SET {','.join(sets)} WHERE id = ?", vals)
+        self._commit()
+
+    def publish_character_card(self, card_id: str):
+        self.conn.execute("UPDATE character_cards SET is_published = TRUE, updated_at = CURRENT_TIMESTAMP WHERE id = ?", (card_id,))
+        self._commit()
+
+    def rate_character_card(self, card_id: str, profile_id: int, rating: int):
+        self.conn.execute(
+            "INSERT OR REPLACE INTO character_card_ratings (card_id, profile_id, rating) VALUES (?, ?, ?)",
+            (card_id, profile_id, rating)
+        )
+        # Update avg rating in stats
+        self.conn.execute("""
+            INSERT INTO character_card_stats (card_id, total_ratings, avg_rating)
+            VALUES (?, 1, ?)
+            ON CONFLICT(card_id) DO UPDATE SET
+                total_ratings = (SELECT COUNT(*) FROM character_card_ratings WHERE card_id = ?),
+                avg_rating = (SELECT AVG(rating) FROM character_card_ratings WHERE card_id = ?),
+                updated_at = CURRENT_TIMESTAMP
+        """, (card_id, rating, card_id, card_id))
+        self._commit()
+
+    # =========================================================================
+    # GENERATED IMAGES
+    # =========================================================================
+
+    def insert_generated_image(self, image_id: str, profile_id: int, prompt: str,
+                               model: str, width: int, height: int, filename: str,
+                               filepath: str, **kwargs):
+        cols = ['id', 'profile_id', 'prompt', 'model', 'width', 'height', 'filename', 'file_path']
+        vals = [image_id, profile_id, prompt, model, width, height, filename, filepath]
+        for k in ['negative_prompt', 'seed', 'steps', 'character_card_id', 'session_id']:
+            if k in kwargs:
+                cols.append(k)
+                vals.append(kwargs[k])
+        placeholders = ','.join(['?'] * len(vals))
+        col_str = ','.join(cols)
+        self.conn.execute(f"INSERT INTO generated_images ({col_str}) VALUES ({placeholders})", vals)
+        self._commit()
+
+    def get_user_images(self, profile_id: int, limit: int = 20) -> list:
+        rows = self.conn.execute(
+            "SELECT * FROM generated_images WHERE profile_id = ? ORDER BY created_at DESC LIMIT ?",
+            (profile_id, limit)
+        ).fetchall()
+        return [dict(r) for r in rows]
+
+    # =========================================================================
+    # PRIVACY / CONSENT
+    # =========================================================================
+
+    def set_training_opt_in(self, profile_id: int, opted_in: bool):
+        self.conn.execute(
+            "UPDATE profiles SET training_data_opt_in = ? WHERE id = ?",
+            (opted_in, profile_id)
+        )
+        self._commit()
+
+    def get_training_opt_in(self, profile_id: int) -> bool:
+        row = self.conn.execute(
+            "SELECT training_data_opt_in FROM profiles WHERE id = ?", (profile_id,)
+        ).fetchone()
+        return bool(row['training_data_opt_in']) if row else False
+
     def close(self):
         """Close all per-thread database connections."""
         with self._conn_track_lock:

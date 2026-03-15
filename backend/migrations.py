@@ -649,6 +649,195 @@ def migration_026(cursor):
             pass  # Column already exists
 
 
+# -- Migration 027: RP expansion — messages, edits, feedback, cards, images, scores --
+@migration
+def migration_027(cursor):
+    """Create tables for RP interaction layer, character cards, image gen, and data pipeline."""
+
+    # ── RP Message System ──
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS rp_messages (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            session_id TEXT NOT NULL,
+            profile_id INTEGER NOT NULL,
+            branch_id TEXT NOT NULL DEFAULT 'main',
+            parent_branch_id TEXT DEFAULT NULL,
+            branch_point_turn INTEGER DEFAULT NULL,
+            turn_number INTEGER NOT NULL,
+            role TEXT NOT NULL CHECK(role IN ('system', 'user', 'assistant')),
+            content TEXT NOT NULL,
+            model_version TEXT,
+            character_card_id TEXT,
+            persona TEXT DEFAULT 'roleplay',
+            response_tokens INTEGER,
+            response_ms INTEGER,
+            is_active BOOLEAN DEFAULT TRUE,
+            swipe_group_id TEXT DEFAULT NULL,
+            was_selected BOOLEAN DEFAULT TRUE,
+            director_note TEXT DEFAULT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_rp_msg_session ON rp_messages(session_id, branch_id, turn_number)")
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_rp_msg_profile ON rp_messages(profile_id)")
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_rp_msg_swipe ON rp_messages(swipe_group_id)")
+
+    # ── User Edits on AI Responses (DPO training pairs) ──
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS rp_edits (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            message_id INTEGER NOT NULL REFERENCES rp_messages(id),
+            session_id TEXT NOT NULL,
+            original_content TEXT NOT NULL,
+            edited_content TEXT NOT NULL,
+            edit_delta_category TEXT DEFAULT NULL,
+            edit_reason TEXT DEFAULT NULL,
+            character_card_id TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_rp_edits_session ON rp_edits(session_id)")
+
+    # ── Director's Note / Steering Suggestions ──
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS rp_suggestions (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            message_id INTEGER NOT NULL REFERENCES rp_messages(id),
+            session_id TEXT NOT NULL,
+            suggestion_text TEXT NOT NULL,
+            was_followed BOOLEAN DEFAULT NULL,
+            user_continued BOOLEAN DEFAULT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+
+    # ── User Feedback (thumbs up/down) ──
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS rp_feedback (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            message_id INTEGER NOT NULL REFERENCES rp_messages(id),
+            profile_id INTEGER NOT NULL,
+            feedback_type TEXT NOT NULL CHECK(feedback_type IN ('thumbs_up', 'thumbs_down')),
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE(message_id, profile_id)
+        )
+    """)
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_rp_feedback_message ON rp_feedback(message_id)")
+
+    # ── Character Cards ──
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS character_cards (
+            id TEXT PRIMARY KEY,
+            creator_profile_id INTEGER NOT NULL,
+            name TEXT NOT NULL,
+            physical_description TEXT DEFAULT '',
+            speech_pattern TEXT DEFAULT '',
+            emotional_trigger TEXT DEFAULT '',
+            defensive_mechanism TEXT DEFAULT '',
+            vulnerability TEXT DEFAULT '',
+            specific_detail TEXT DEFAULT '',
+            personality TEXT DEFAULT '',
+            scenario TEXT DEFAULT '',
+            first_message TEXT DEFAULT '',
+            example_dialogues TEXT DEFAULT '',
+            genre_tags TEXT DEFAULT '[]',
+            content_rating TEXT DEFAULT 'sfw' CHECK(content_rating IN ('sfw', 'nsfw')),
+            avatar_image_path TEXT DEFAULT NULL,
+            is_published BOOLEAN DEFAULT FALSE,
+            quality_elements_count INTEGER DEFAULT 0,
+            imported_from TEXT DEFAULT NULL,
+            tavern_card_raw TEXT DEFAULT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_cards_creator ON character_cards(creator_profile_id)")
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_cards_published ON character_cards(is_published, quality_elements_count DESC)")
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_cards_genre ON character_cards(genre_tags)")
+
+    # ── Character Card Community Stats ──
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS character_card_stats (
+            card_id TEXT PRIMARY KEY REFERENCES character_cards(id),
+            total_sessions INTEGER DEFAULT 0,
+            avg_session_turns REAL DEFAULT 0,
+            avg_session_duration_s REAL DEFAULT 0,
+            total_ratings INTEGER DEFAULT 0,
+            avg_rating REAL DEFAULT 0,
+            thumbs_up_count INTEGER DEFAULT 0,
+            thumbs_down_count INTEGER DEFAULT 0,
+            regeneration_rate REAL DEFAULT 0,
+            edit_rate REAL DEFAULT 0,
+            abandonment_rate REAL DEFAULT 0,
+            quality_elements_filled INTEGER DEFAULT 0,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+
+    # ── Character Card Ratings ──
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS character_card_ratings (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            card_id TEXT NOT NULL REFERENCES character_cards(id),
+            profile_id INTEGER NOT NULL,
+            rating INTEGER NOT NULL CHECK(rating BETWEEN 1 AND 5),
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE(card_id, profile_id)
+        )
+    """)
+
+    # ── Generated Images ──
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS generated_images (
+            id TEXT PRIMARY KEY,
+            profile_id INTEGER NOT NULL,
+            prompt TEXT NOT NULL,
+            negative_prompt TEXT DEFAULT '',
+            model TEXT NOT NULL,
+            width INTEGER NOT NULL,
+            height INTEGER NOT NULL,
+            seed INTEGER,
+            steps INTEGER,
+            filename TEXT NOT NULL,
+            file_path TEXT NOT NULL,
+            character_card_id TEXT DEFAULT NULL,
+            session_id TEXT DEFAULT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_images_profile ON generated_images(profile_id)")
+
+    # ── Conversation Quality Scores (nightly batch) ──
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS rp_conversation_scores (
+            session_id TEXT PRIMARY KEY,
+            profile_id INTEGER,
+            total_turns INTEGER,
+            session_duration_s REAL,
+            quality_score REAL DEFAULT 0.5,
+            avg_length_ratio REAL,
+            godmod_detected_count INTEGER DEFAULT 0,
+            register_mismatch_count INTEGER DEFAULT 0,
+            repetition_avg REAL DEFAULT 0,
+            correction_count INTEGER DEFAULT 0,
+            thumbs_up_count INTEGER DEFAULT 0,
+            thumbs_down_count INTEGER DEFAULT 0,
+            regeneration_count INTEGER DEFAULT 0,
+            edit_count INTEGER DEFAULT 0,
+            character_card_id TEXT,
+            model_version TEXT,
+            persona TEXT,
+            scored_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+
+    # ── Privacy opt-in on profiles ──
+    try:
+        cursor.execute("ALTER TABLE profiles ADD COLUMN training_data_opt_in BOOLEAN DEFAULT FALSE")
+    except Exception:
+        pass  # Column already exists
+
+
 # =========================================================================
 # Migration runner
 # =========================================================================
