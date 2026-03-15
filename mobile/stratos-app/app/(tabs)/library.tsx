@@ -100,7 +100,7 @@ export default function LibraryScreen() {
                     <View style={styles.sessionMeta}>
                       <Clock size={10} color={tc.text.muted} />
                       <Text style={[styles.sessionTime, { color: tc.text.muted }]}>{formatRelativeTime(s.updated_at)}</Text>
-                      <Text style={[styles.sessionMsgCount, { color: tc.text.muted }]}>{s.messages.length} msgs</Text>
+                      <Text style={[styles.sessionMsgCount, { color: tc.text.muted }]}>{s.messages.length} msgs · ~{Math.max(1, Math.round(s.messages.length * 0.8))}min</Text>
                     </View>
                   </View>
                   <TouchableOpacity onPress={() => handleDeleteSession(s)} style={styles.deleteBtn} hitSlop={8}>

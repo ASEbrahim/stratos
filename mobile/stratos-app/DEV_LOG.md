@@ -243,5 +243,8 @@ TSC clean, bundle OK, 95 commits, checkpoint-19.
 ## Iteration 81: Character word count on detail ✅
 Total word count of all character definition fields shown in meta row.
 
-## Iteration 82: Discover header with app logo
-The discover screen has no branding at the top. Adding a small "StratOS" text logo header — establishes brand identity and feels more like a real app.
+## Iteration 82: StratOS brand header on discover ✅
+"StratOS Characters" header with accent-colored brand text.
+
+## Iteration 83: Session duration on library history cards
+History cards show message count and time ago, but not session duration. Adding estimated duration based on message count — helps users pick which sessions to resume.
