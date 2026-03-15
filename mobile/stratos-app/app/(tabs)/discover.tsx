@@ -104,49 +104,6 @@ export default function DiscoverScreen() {
             </TouchableOpacity>
           );
         })()}
-        {/* Popular This Week — curated picks */}
-        {!searchQuery.trim() && trending.length > 0 && (
-          <>
-            <View style={styles.sectionHdr}>
-              <Text style={[styles.sectionTitle, { color: tc.text.primary }]}>Popular This Week</Text>
-            </View>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.popularScroll}>
-              {trending.slice(0, 5).map(c => {
-                const gc = getGenreColor(c.genre_tags[0] ?? 'default');
-                return (
-                  <TouchableOpacity key={`pop-${c.id}`} style={[styles.popularCard, { borderColor: gc + '25' }]} onPress={() => router.push(`/character/${c.id}`)} activeOpacity={0.7} accessibilityLabel={`Popular character: ${c.name} by ${c.creator_name}`} accessibilityRole="button">
-                    <View style={[styles.popularAvatar, { backgroundColor: gc + '15' }]}>
-                      <Text style={[styles.popularLetter, { color: gc }]}>{c.name[0]}</Text>
-                    </View>
-                    <View style={styles.popularInfo}>
-                      <Text style={[styles.popularName, { color: tc.text.primary }]} numberOfLines={1}>{c.name}</Text>
-                      <Text style={[styles.popularCreator, { color: tc.text.muted }]}>by @{c.creator_name}</Text>
-                      <Text style={[styles.popularDesc, { color: tc.text.secondary }]} numberOfLines={2}>{c.description}</Text>
-                      {c.first_message && <Text style={[styles.popularQuote, { color: tc.text.muted }]} numberOfLines={1}>"{c.first_message.replace(/\*[^*]+\*/g, '').replace(/\n/g, ' ').trim().slice(0, 60)}"</Text>}
-                      <Text style={[styles.popularStat, { color: gc }]}>{formatCount(c.session_count)} chats · {c.rating.toFixed(1)}★</Text>
-                    </View>
-                  </TouchableOpacity>
-                );
-              })}
-            </ScrollView>
-          </>
-        )}
-        {!searchQuery.trim() && trending.length > 0 && (
-          <>
-            <View style={styles.sectionHdr}><Text style={[styles.sectionTitle, { color: tc.text.primary }]}>Trending</Text></View>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.hScroll}>
-              {trending.slice(0, 10).map(c => <CharacterCardComponent key={c.id} card={c} variant="horizontal" />)}
-            </ScrollView>
-          </>
-        )}
-        {!searchQuery.trim() && scenarios.length > 0 && (
-          <>
-            <View style={styles.sectionHdr}><Text style={[styles.sectionTitle, { color: tc.text.primary }]}>Gaming Scenarios</Text></View>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.hScroll}>
-              {scenarios.map(s => <ScenarioCard key={s.id} scenario={s} variant="horizontal" />)}
-            </ScrollView>
-          </>
-        )}
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.genreScroll}>
           <TouchableOpacity style={[styles.genreChip, { borderColor: tc.border.subtle, backgroundColor: tc.bg.secondary }, !selectedGenre && { backgroundColor: tc.accent.primary + '20', borderColor: tc.accent.primary }]} onPress={() => { Haptics.selectionAsync(); setGenre(null); }} accessibilityLabel={`Filter by all genres${!selectedGenre ? ', selected' : ''}`} accessibilityRole="button">
             <Text style={[styles.genreText, { color: tc.text.secondary }, !selectedGenre && { color: tc.accent.primary }]}>All</Text>
@@ -184,6 +141,14 @@ export default function DiscoverScreen() {
               <CharacterCardComponent card={c} />
             </Animated.View>
           ))}</View>
+        )}
+        {!searchQuery.trim() && scenarios.length > 0 && (
+          <>
+            <View style={[styles.sectionHdr, { marginTop: spacing.xl }]}><Text style={[styles.sectionTitle, { color: tc.text.primary }]}>Gaming Scenarios</Text></View>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.hScroll}>
+              {scenarios.map(s => <ScenarioCard key={s.id} scenario={s} variant="horizontal" />)}
+            </ScrollView>
+          </>
         )}
         <View style={{ height: spacing.xxl }} />
       </ScrollView>
@@ -230,15 +195,5 @@ const styles = StyleSheet.create({
   sortRow: { flexDirection: 'row', gap: 2 },
   sortChip: { paddingHorizontal: spacing.sm, paddingVertical: 3, borderRadius: borderRadius.sm },
   sortText: { fontSize: 10, fontWeight: '600' },
-  popularScroll: { paddingHorizontal: spacing.lg, gap: spacing.md },
-  popularCard: { width: 280, flexDirection: 'row', backgroundColor: 'rgba(255,255,255,0.03)', borderRadius: borderRadius.lg, padding: spacing.md, borderWidth: 1, gap: spacing.md },
-  popularAvatar: { width: 56, height: 56, borderRadius: borderRadius.md, justifyContent: 'center', alignItems: 'center' },
-  popularLetter: { fontSize: 22, fontWeight: '700', opacity: 0.7 },
-  popularInfo: { flex: 1, justifyContent: 'center', gap: 2 },
-  popularName: { ...typography.subheading, fontSize: 14 },
-  popularCreator: { fontSize: 9, marginBottom: 2 },
-  popularDesc: { ...typography.small, lineHeight: 15, fontSize: 10 },
-  popularQuote: { ...typography.small, fontSize: 9, fontStyle: 'italic', lineHeight: 13, marginTop: 2 },
-  popularStat: { ...typography.small, fontSize: 10, fontWeight: '600', marginTop: 2 },
   scrollTopFab: { position: 'absolute', right: spacing.lg, bottom: 80, width: 36, height: 36, borderRadius: 18, justifyContent: 'center', alignItems: 'center', borderWidth: 1, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.3, shadowRadius: 4, elevation: 4 },
 });
