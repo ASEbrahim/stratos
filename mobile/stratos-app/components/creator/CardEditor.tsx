@@ -12,7 +12,7 @@ import { GuidedFields } from './GuidedFields';
 import { AvatarPicker } from './AvatarPicker';
 import { GENRES } from '../../constants/genres';
 import { FEATURES } from '../../constants/config';
-import { colors, typography, spacing, borderRadius } from '../../constants/theme';
+import { typography, spacing, borderRadius } from '../../constants/theme';
 import { useThemeStore } from '../../stores/themeStore';
 import Animated, { useSharedValue, useAnimatedStyle, withSpring, withSequence } from 'react-native-reanimated';
 
@@ -85,22 +85,22 @@ export function CardEditor() {
   };
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+    <ScrollView style={[styles.container, { backgroundColor: tc.bg.primary }]} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
       {/* Mode toggle */}
-      <View style={styles.modeToggle}>
-        <TouchableOpacity style={[styles.modeBtn, mode === 'quick' && styles.modeBtnActive]} onPress={() => setMode('quick')}>
-          <Text style={[styles.modeText, mode === 'quick' && styles.modeTextActive]}>Quick</Text>
+      <View style={[styles.modeToggle, { backgroundColor: tc.bg.tertiary }]}>
+        <TouchableOpacity style={[styles.modeBtn, mode === 'quick' && { backgroundColor: tc.bg.elevated }]} onPress={() => setMode('quick')}>
+          <Text style={[styles.modeText, { color: tc.text.muted }, mode === 'quick' && { color: tc.text.primary }]}>Quick</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={[styles.modeBtn, mode === 'advanced' && styles.modeBtnActive]} onPress={() => setMode('advanced')}>
-          <Text style={[styles.modeText, mode === 'advanced' && styles.modeTextActive]}>Advanced</Text>
+        <TouchableOpacity style={[styles.modeBtn, mode === 'advanced' && { backgroundColor: tc.bg.elevated }]} onPress={() => setMode('advanced')}>
+          <Text style={[styles.modeText, { color: tc.text.muted }, mode === 'advanced' && { color: tc.text.primary }]}>Advanced</Text>
         </TouchableOpacity>
       </View>
 
       {/* TavernCard import */}
       {FEATURES.enableTavernImport && (
-        <TouchableOpacity style={styles.importBtn} onPress={handleImportTavern} disabled={importing} activeOpacity={0.7}>
-          <Upload size={16} color={colors.accent.primary} />
-          <Text style={styles.importText}>{importing ? 'Importing...' : 'Import TavernCard V2'}</Text>
+        <TouchableOpacity style={[styles.importBtn, { borderColor: tc.accent.primary + '40', backgroundColor: tc.accent.primary + '08' }]} onPress={handleImportTavern} disabled={importing} activeOpacity={0.7}>
+          <Upload size={16} color={tc.accent.primary} />
+          <Text style={[styles.importText, { color: tc.accent.primary }]}>{importing ? 'Importing...' : 'Import TavernCard V2'}</Text>
         </TouchableOpacity>
       )}
 
@@ -116,22 +116,22 @@ export function CardEditor() {
         onClear={() => update('avatar_url', '')}
       />
 
-      <Text style={styles.fieldLabel}>Name *</Text>
-      <TextInput style={styles.input} value={card.name} onChangeText={v => update('name', v)} placeholder="Character name" placeholderTextColor={colors.text.muted} />
+      <Text style={[styles.fieldLabel, { color: tc.text.primary }]}>Name *</Text>
+      <TextInput style={[styles.input, { backgroundColor: tc.bg.tertiary, color: tc.text.primary, borderColor: tc.border.subtle }]} value={card.name} onChangeText={v => update('name', v)} placeholder="Character name" placeholderTextColor={tc.text.muted} />
 
-      <Text style={styles.fieldLabel}>Genre</Text>
+      <Text style={[styles.fieldLabel, { color: tc.text.primary }]}>Genre</Text>
       <View style={styles.genreGrid}>
         {GENRES.map(g => {
           const sel = card.genre_tags.includes(g.id);
           return (
-            <TouchableOpacity key={g.id} style={[styles.genreChip, { backgroundColor: sel ? g.color + '20' : colors.bg.tertiary, borderColor: sel ? g.color + '60' : colors.border.subtle }]} onPress={() => toggleGenre(g.id)}>
-              <Text style={{ color: sel ? g.color : colors.text.secondary, fontSize: 13 }}>{g.emoji} {g.label}</Text>
+            <TouchableOpacity key={g.id} style={[styles.genreChip, { backgroundColor: sel ? g.color + '20' : tc.bg.tertiary, borderColor: sel ? g.color + '60' : tc.border.subtle }]} onPress={() => toggleGenre(g.id)}>
+              <Text style={{ color: sel ? g.color : tc.text.secondary, fontSize: 13 }}>{g.emoji} {g.label}</Text>
             </TouchableOpacity>
           );
         })}
       </View>
 
-      <Text style={styles.fieldLabel}>Content Rating</Text>
+      <Text style={[styles.fieldLabel, { color: tc.text.primary }]}>Content Rating</Text>
       <View style={styles.contentRatingRow}>
         <TouchableOpacity style={[styles.contentRatingBtn, { backgroundColor: card.content_rating === 'sfw' ? tc.status.success + '20' : tc.bg.tertiary, borderColor: card.content_rating === 'sfw' ? tc.status.success + '60' : tc.border.subtle }]} onPress={() => { update('content_rating', 'sfw'); Haptics.selectionAsync(); }}>
           <Text style={{ color: card.content_rating === 'sfw' ? tc.status.success : tc.text.muted, fontSize: 13, fontWeight: '600' }}>SFW</Text>
@@ -141,27 +141,27 @@ export function CardEditor() {
         </TouchableOpacity>
       </View>
 
-      <Text style={styles.fieldLabel}>Description</Text>
-      <TextInput style={[styles.input, styles.multiline]} value={card.description} onChangeText={v => update('description', v)} placeholder="Who is this character?" placeholderTextColor={colors.text.muted} multiline textAlignVertical="top" />
+      <Text style={[styles.fieldLabel, { color: tc.text.primary }]}>Description</Text>
+      <TextInput style={[styles.input, styles.multiline, { backgroundColor: tc.bg.tertiary, color: tc.text.primary, borderColor: tc.border.subtle }]} value={card.description} onChangeText={v => update('description', v)} placeholder="Who is this character?" placeholderTextColor={tc.text.muted} multiline textAlignVertical="top" />
       <WordCount text={card.description} />
 
-      <Text style={styles.fieldLabel}>Personality</Text>
-      <TextInput style={[styles.input, styles.multiline]} value={card.personality} onChangeText={v => update('personality', v)} placeholder="How does your character act and speak?" placeholderTextColor={colors.text.muted} multiline textAlignVertical="top" />
+      <Text style={[styles.fieldLabel, { color: tc.text.primary }]}>Personality</Text>
+      <TextInput style={[styles.input, styles.multiline, { backgroundColor: tc.bg.tertiary, color: tc.text.primary, borderColor: tc.border.subtle }]} value={card.personality} onChangeText={v => update('personality', v)} placeholder="How does your character act and speak?" placeholderTextColor={tc.text.muted} multiline textAlignVertical="top" />
       <WordCount text={card.personality} />
 
-      <Text style={styles.fieldLabel}>First Message</Text>
-      <Text style={styles.fieldHint}>Sets the tone for every conversation — the most important field.</Text>
-      <TextInput style={[styles.input, styles.multilineLg]} value={card.first_message} onChangeText={v => update('first_message', v)} placeholder="What does your character say or do first?" placeholderTextColor={colors.text.muted} multiline textAlignVertical="top" />
+      <Text style={[styles.fieldLabel, { color: tc.text.primary }]}>First Message</Text>
+      <Text style={[styles.fieldHint, { color: tc.text.secondary }]}>Sets the tone for every conversation — the most important field.</Text>
+      <TextInput style={[styles.input, styles.multilineLg, { backgroundColor: tc.bg.tertiary, color: tc.text.primary, borderColor: tc.border.subtle }]} value={card.first_message} onChangeText={v => update('first_message', v)} placeholder="What does your character say or do first?" placeholderTextColor={tc.text.muted} multiline textAlignVertical="top" />
       <WordCount text={card.first_message} />
 
-      <Text style={styles.fieldLabel}>Scenario</Text>
-      <TextInput style={[styles.input, styles.multiline]} value={card.scenario} onChangeText={v => update('scenario', v)} placeholder="The starting situation" placeholderTextColor={colors.text.muted} multiline textAlignVertical="top" />
+      <Text style={[styles.fieldLabel, { color: tc.text.primary }]}>Scenario</Text>
+      <TextInput style={[styles.input, styles.multiline, { backgroundColor: tc.bg.tertiary, color: tc.text.primary, borderColor: tc.border.subtle }]} value={card.scenario} onChangeText={v => update('scenario', v)} placeholder="The starting situation" placeholderTextColor={tc.text.muted} multiline textAlignVertical="top" />
       <WordCount text={card.scenario} />
 
       {mode === 'advanced' && (
         <>
-          <View style={styles.divider} />
-          <Text style={styles.sectionTitle}>Quality Elements</Text>
+          <View style={[styles.divider, { backgroundColor: tc.border.subtle }]} />
+          <Text style={[styles.sectionTitle, { color: tc.text.primary }]}>Quality Elements</Text>
           <GuidedFields fields={[
             { key: 'physical_description', label: 'Physical Description', hint: 'What do they look like? One unique detail.', example: 'Tall, clouded left eye...', value: card.physical_description, onChangeText: v => update('physical_description', v) },
             { key: 'speech_pattern', label: 'Speech Pattern', hint: 'How do they talk?', example: 'Formal, archaic...', value: card.speech_pattern, onChangeText: v => update('speech_pattern', v) },
@@ -174,19 +174,19 @@ export function CardEditor() {
       )}
 
       <View style={styles.ratingRow}>
-        <Text style={styles.fieldLabel}>Content Rating</Text>
+        <Text style={[styles.fieldLabel, { color: tc.text.primary }]}>Content Rating</Text>
         <View style={styles.contentRatingRow}>
-          <TouchableOpacity style={[styles.ratingOpt, card.content_rating === 'sfw' && { backgroundColor: colors.sfw + '20', borderColor: colors.sfw }]} onPress={() => update('content_rating', 'sfw')}>
-            <Text style={{ color: card.content_rating === 'sfw' ? colors.sfw : colors.text.muted }}>SFW</Text>
+          <TouchableOpacity style={[styles.ratingOpt, card.content_rating === 'sfw' && { backgroundColor: tc.status.success + '20', borderColor: tc.status.success }]} onPress={() => update('content_rating', 'sfw')}>
+            <Text style={{ color: card.content_rating === 'sfw' ? tc.status.success : tc.text.muted }}>SFW</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={[styles.ratingOpt, card.content_rating === 'nsfw' && { backgroundColor: colors.nsfw + '20', borderColor: colors.nsfw }]} onPress={() => update('content_rating', 'nsfw')}>
-            <Text style={{ color: card.content_rating === 'nsfw' ? colors.nsfw : colors.text.muted }}>NSFW</Text>
+          <TouchableOpacity style={[styles.ratingOpt, card.content_rating === 'nsfw' && { backgroundColor: tc.nsfw + '20', borderColor: tc.nsfw }]} onPress={() => update('content_rating', 'nsfw')}>
+            <Text style={{ color: card.content_rating === 'nsfw' ? tc.nsfw : tc.text.muted }}>NSFW</Text>
           </TouchableOpacity>
         </View>
       </View>
 
       <Animated.View style={saveBtnAnimStyle}>
-        <TouchableOpacity style={[styles.saveBtn, saving && { opacity: 0.6 }]} onPress={handleSave} disabled={saving}>
+        <TouchableOpacity style={[styles.saveBtn, { backgroundColor: tc.accent.primary }, saving && { opacity: 0.6 }]} onPress={handleSave} disabled={saving}>
           <Text style={styles.saveBtnText}>{saving ? 'Creating...' : 'Create Character'}</Text>
         </TouchableOpacity>
       </Animated.View>
@@ -196,31 +196,31 @@ export function CardEditor() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.bg.primary },
+  container: { flex: 1 },
   content: { padding: spacing.lg },
-  modeToggle: { flexDirection: 'row', backgroundColor: colors.bg.tertiary, borderRadius: borderRadius.lg, padding: 3, marginBottom: spacing.lg },
+  modeToggle: { flexDirection: 'row', borderRadius: borderRadius.lg, padding: 3, marginBottom: spacing.lg },
   modeBtn: { flex: 1, paddingVertical: spacing.sm, alignItems: 'center', borderRadius: borderRadius.md },
-  modeBtnActive: { backgroundColor: colors.bg.elevated },
-  modeText: { ...typography.subheading, fontSize: 14, color: colors.text.muted },
-  modeTextActive: { color: colors.text.primary },
+  modeBtnActive: {},
+  modeText: { ...typography.subheading, fontSize: 14 },
+  modeTextActive: {},
   qualityBanner: { borderWidth: 1, borderRadius: borderRadius.md, padding: spacing.md, alignItems: 'center', marginBottom: spacing.lg },
   qualityLabel: { ...typography.subheading, fontSize: 14 },
-  fieldLabel: { ...typography.subheading, color: colors.text.primary, marginBottom: spacing.xs, marginTop: spacing.lg },
-  fieldHint: { ...typography.caption, color: colors.text.secondary, marginBottom: spacing.sm },
-  input: { backgroundColor: colors.bg.tertiary, borderRadius: borderRadius.md, paddingHorizontal: spacing.lg, paddingVertical: spacing.md, color: colors.text.primary, fontSize: 15, borderWidth: 1, borderColor: colors.border.subtle },
+  fieldLabel: { ...typography.subheading, marginBottom: spacing.xs, marginTop: spacing.lg },
+  fieldHint: { ...typography.caption, marginBottom: spacing.sm },
+  input: { borderRadius: borderRadius.md, paddingHorizontal: spacing.lg, paddingVertical: spacing.md, fontSize: 15, borderWidth: 1 },
   multiline: { minHeight: 80, textAlignVertical: 'top' },
   multilineLg: { minHeight: 140, textAlignVertical: 'top' },
   genreGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
   genreChip: { paddingHorizontal: spacing.md, paddingVertical: spacing.sm, borderRadius: borderRadius.full, borderWidth: 1 },
   contentRatingRow: { flexDirection: 'row', gap: spacing.sm, marginBottom: spacing.md },
   contentRatingBtn: { flex: 1, paddingVertical: spacing.md, borderRadius: borderRadius.md, borderWidth: 1, alignItems: 'center' },
-  divider: { height: 1, backgroundColor: colors.border.subtle, marginVertical: spacing.xl },
-  sectionTitle: { ...typography.heading, color: colors.text.primary, marginBottom: spacing.lg },
+  divider: { height: 1, marginVertical: spacing.xl },
+  sectionTitle: { ...typography.heading, marginBottom: spacing.lg },
   ratingRow: { marginTop: spacing.lg },
   ratingToggle: { flexDirection: 'row', gap: spacing.sm, marginTop: spacing.sm },
-  ratingOpt: { paddingHorizontal: spacing.xl, paddingVertical: spacing.sm, borderRadius: borderRadius.md, borderWidth: 1, borderColor: colors.border.subtle },
-  importBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.sm, paddingVertical: spacing.md, borderRadius: borderRadius.md, borderWidth: 1, borderColor: colors.accent.primary + '40', backgroundColor: colors.accent.primary + '08', marginBottom: spacing.lg },
-  importText: { ...typography.caption, color: colors.accent.primary, fontWeight: '600' },
-  saveBtn: { backgroundColor: colors.accent.primary, paddingVertical: spacing.lg, borderRadius: borderRadius.lg, alignItems: 'center', marginTop: spacing.xxl },
+  ratingOpt: { paddingHorizontal: spacing.xl, paddingVertical: spacing.sm, borderRadius: borderRadius.md, borderWidth: 1 },
+  importBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.sm, paddingVertical: spacing.md, borderRadius: borderRadius.md, borderWidth: 1, marginBottom: spacing.lg },
+  importText: { ...typography.caption, fontWeight: '600' },
+  saveBtn: { paddingVertical: spacing.lg, borderRadius: borderRadius.lg, alignItems: 'center', marginTop: spacing.xxl },
   saveBtnText: { ...typography.subheading, color: '#fff' },
 });

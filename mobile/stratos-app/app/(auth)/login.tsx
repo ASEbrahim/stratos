@@ -6,12 +6,14 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useAuthStore } from '../../stores/authStore';
+import { useThemeStore } from '../../stores/themeStore';
 import { StarParallax } from '../../components/shared/StarParallax';
-import { colors, typography, spacing, borderRadius } from '../../constants/theme';
+import { typography, spacing, borderRadius } from '../../constants/theme';
 
 export default function LoginScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const tc = useThemeStore(s => s.colors);
   const { login, isLoading } = useAuthStore();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -42,17 +44,17 @@ export default function LoginScreen() {
           showsVerticalScrollIndicator={false}
         >
           <View style={styles.header}>
-            <Text style={styles.logo}>StratOS</Text>
-            <Text style={styles.subtitle}>Strategic Intelligence Platform</Text>
+            <Text style={[styles.logo, { color: tc.text.primary, textShadowColor: tc.accent.primary + '59' }]}>StratOS</Text>
+            <Text style={[styles.subtitle, { color: tc.text.muted }]}>Strategic Intelligence Platform</Text>
           </View>
 
           <View style={styles.form}>
             <TextInput
-              style={styles.input}
+              style={[styles.input, { color: tc.text.primary, borderColor: tc.accent.primary + '25' }]}
               value={email}
               onChangeText={setEmail}
               placeholder="Email"
-              placeholderTextColor={colors.text.muted}
+              placeholderTextColor={tc.text.muted}
               keyboardType="email-address"
               autoCapitalize="none"
               autoCorrect={false}
@@ -61,18 +63,18 @@ export default function LoginScreen() {
             />
             <TextInput
               ref={passwordRef}
-              style={styles.input}
+              style={[styles.input, { color: tc.text.primary, borderColor: tc.accent.primary + '25' }]}
               value={password}
               onChangeText={setPassword}
               placeholder="Password"
-              placeholderTextColor={colors.text.muted}
+              placeholderTextColor={tc.text.muted}
               secureTextEntry
               returnKeyType="go"
               onSubmitEditing={handleLogin}
             />
 
             <TouchableOpacity
-              style={[styles.button, isLoading && styles.buttonDisabled]}
+              style={[styles.button, { backgroundColor: tc.accent.primary, shadowColor: tc.accent.primary }, isLoading && styles.buttonDisabled]}
               onPress={handleLogin}
               disabled={isLoading}
               activeOpacity={0.8}
@@ -86,9 +88,9 @@ export default function LoginScreen() {
               style={styles.linkButton}
               onPress={() => router.push('/(auth)/register')}
             >
-              <Text style={styles.linkText}>
+              <Text style={[styles.linkText, { color: tc.text.secondary }]}>
                 Don't have an account?{' '}
-                <Text style={styles.linkHL}>Sign Up</Text>
+                <Text style={{ color: tc.accent.primary, fontWeight: '600' }}>Sign Up</Text>
               </Text>
             </TouchableOpacity>
           </View>
@@ -99,78 +101,16 @@ export default function LoginScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  scrollContent: {
-    flexGrow: 1,
-    justifyContent: 'center',
-    padding: spacing.xxl,
-  },
-  header: {
-    alignItems: 'center',
-    marginBottom: 48,
-  },
-  logo: {
-    fontSize: 40,
-    fontWeight: '800',
-    color: colors.text.primary,
-    letterSpacing: -1.5,
-    textShadowColor: 'rgba(79, 168, 212, 0.35)',
-    textShadowOffset: { width: 0, height: 0 },
-    textShadowRadius: 24,
-  },
-  subtitle: {
-    ...typography.caption,
-    color: colors.text.muted,
-    marginTop: spacing.sm,
-    letterSpacing: 2,
-    textTransform: 'uppercase',
-  },
-  form: {
-    gap: spacing.lg,
-  },
-  input: {
-    backgroundColor: 'rgba(21, 24, 40, 0.75)',
-    borderRadius: borderRadius.lg,
-    paddingHorizontal: spacing.xl,
-    paddingVertical: 18,
-    color: colors.text.primary,
-    fontSize: 16,
-    borderWidth: 1,
-    borderColor: 'rgba(79, 168, 212, 0.15)',
-  },
-  button: {
-    backgroundColor: colors.accent.primary,
-    paddingVertical: 18,
-    borderRadius: borderRadius.lg,
-    alignItems: 'center',
-    marginTop: spacing.sm,
-    shadowColor: colors.accent.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.4,
-    shadowRadius: 12,
-    elevation: 8,
-  },
-  buttonDisabled: {
-    opacity: 0.5,
-  },
-  buttonText: {
-    fontSize: 17,
-    fontWeight: '700',
-    color: '#fff',
-    letterSpacing: 0.3,
-  },
-  linkButton: {
-    alignItems: 'center',
-    paddingVertical: spacing.lg,
-  },
-  linkText: {
-    ...typography.body,
-    color: colors.text.secondary,
-  },
-  linkHL: {
-    color: colors.accent.primary,
-    fontWeight: '600',
-  },
+  container: { flex: 1 },
+  scrollContent: { flexGrow: 1, justifyContent: 'center', padding: spacing.xxl },
+  header: { alignItems: 'center', marginBottom: 48 },
+  logo: { fontSize: 40, fontWeight: '800', letterSpacing: -1.5, textShadowOffset: { width: 0, height: 0 }, textShadowRadius: 24 },
+  subtitle: { ...typography.caption, marginTop: spacing.sm, letterSpacing: 2, textTransform: 'uppercase' },
+  form: { gap: spacing.lg },
+  input: { backgroundColor: 'rgba(21, 24, 40, 0.75)', borderRadius: borderRadius.lg, paddingHorizontal: spacing.xl, paddingVertical: 18, fontSize: 16, borderWidth: 1 },
+  button: { paddingVertical: 18, borderRadius: borderRadius.lg, alignItems: 'center', marginTop: spacing.sm, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.4, shadowRadius: 12, elevation: 8 },
+  buttonDisabled: { opacity: 0.5 },
+  buttonText: { fontSize: 17, fontWeight: '700', color: '#fff', letterSpacing: 0.3 },
+  linkButton: { alignItems: 'center', paddingVertical: spacing.lg },
+  linkText: { ...typography.body },
 });

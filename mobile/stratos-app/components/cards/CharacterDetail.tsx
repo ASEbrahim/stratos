@@ -12,7 +12,7 @@ import { useCharacterStore } from '../../stores/characterStore';
 import { isCardSaved, loadChatSessions } from '../../lib/storage';
 import { ChatSession } from '../../lib/types';
 import { useThemeStore } from '../../stores/themeStore';
-import { colors, typography, spacing, borderRadius } from '../../constants/theme';
+import { typography, spacing, borderRadius } from '../../constants/theme';
 import { getGenreColor } from '../../constants/genres';
 import Animated, { useSharedValue, useAnimatedStyle, withSpring, withSequence, withRepeat, withTiming } from 'react-native-reanimated';
 
@@ -139,7 +139,7 @@ export function CharacterDetailView({ card }: CharacterDetailProps) {
             <TouchableOpacity style={[styles.primaryButton, { backgroundColor: accentColor }]} onPress={handleContinueChat} activeOpacity={0.8}>
               <Text style={styles.primaryButtonText}>Continue Conversation</Text>
             </TouchableOpacity>
-            <Text style={styles.sessionHint}>{existingSession.messages.length} messages · last active {formatRelativeTime(existingSession.updated_at)}</Text>
+            <Text style={[styles.sessionHint, { color: tc.text.muted }]}>{existingSession.messages.length} messages · last active {formatRelativeTime(existingSession.updated_at)}</Text>
             <TouchableOpacity style={[styles.newSessionBtn, { borderColor: accentColor + '40' }]} onPress={handleStartChat} activeOpacity={0.7}>
               <Text style={[styles.newSessionText, { color: accentColor }]}>Start New Session</Text>
             </TouchableOpacity>
@@ -221,7 +221,7 @@ function formatRelativeTime(iso: string): string {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.bg.primary },
+  container: { flex: 1 },
   content: { padding: spacing.lg },
   avatarContainer: { width: '100%', aspectRatio: 1, borderRadius: borderRadius.xl, justifyContent: 'center', alignItems: 'center', marginBottom: spacing.lg, overflow: 'hidden' },
   avatar: { width: '100%', height: '100%' },
@@ -233,20 +233,20 @@ const styles = StyleSheet.create({
   name: { ...typography.display, flex: 1 },
   ratingBadge: { paddingHorizontal: spacing.sm, paddingVertical: 2, borderRadius: borderRadius.sm },
   ratingBadgeText: { fontSize: 10, fontWeight: '800', letterSpacing: 0.5 },
-  creator: { ...typography.body, color: colors.text.secondary, marginBottom: spacing.sm },
+  creator: { ...typography.body, marginBottom: spacing.sm },
   ratingRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs, marginBottom: spacing.lg },
-  rating: { ...typography.body, color: colors.text.primary, fontWeight: '600' },
-  separator: { ...typography.body, color: colors.text.muted },
-  sessionCount: { ...typography.body, color: colors.text.secondary },
+  rating: { ...typography.body, fontWeight: '600' },
+  separator: { ...typography.body },
+  sessionCount: { ...typography.body },
   section: { marginBottom: spacing.xl },
-  sectionTitle: { ...typography.subheading, color: colors.text.primary, marginBottom: spacing.sm },
-  sectionBody: { ...typography.body, color: colors.text.secondary, lineHeight: 24 },
+  sectionTitle: { ...typography.subheading, marginBottom: spacing.sm },
+  sectionBody: { ...typography.body, lineHeight: 24 },
   primaryButton: { paddingVertical: spacing.lg, borderRadius: borderRadius.lg, alignItems: 'center', marginBottom: spacing.md },
   primaryButtonText: { ...typography.subheading, color: '#fff' },
   actionRow: { flexDirection: 'row', gap: spacing.sm, marginBottom: spacing.sm },
   secondaryButton: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.sm, paddingVertical: spacing.lg, borderRadius: borderRadius.lg, borderWidth: 1 },
   secondaryButtonText: { ...typography.subheading },
-  sessionHint: { ...typography.small, color: colors.text.muted, textAlign: 'center', marginTop: spacing.xs, marginBottom: spacing.sm },
+  sessionHint: { ...typography.small, textAlign: 'center', marginTop: spacing.xs, marginBottom: spacing.sm },
   newSessionBtn: { paddingVertical: spacing.md, borderRadius: borderRadius.lg, borderWidth: 1, alignItems: 'center', marginBottom: spacing.md },
   newSessionText: { ...typography.caption, fontWeight: '600' },
   reportBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.xs, paddingVertical: spacing.lg, marginTop: spacing.lg },

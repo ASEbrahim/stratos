@@ -3,7 +3,8 @@ import { View, Text, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
 import { Camera, Image as ImageIcon, X } from 'lucide-react-native';
-import { colors, typography, spacing, borderRadius } from '../../constants/theme';
+import { useThemeStore } from '../../stores/themeStore';
+import { typography, spacing, borderRadius } from '../../constants/theme';
 
 interface AvatarPickerProps {
   avatarUri: string;
@@ -12,7 +13,10 @@ interface AvatarPickerProps {
   accentColor?: string;
 }
 
-export function AvatarPicker({ avatarUri, onPick, onClear, accentColor = colors.accent.primary }: AvatarPickerProps) {
+export function AvatarPicker({ avatarUri, onPick, onClear, accentColor }: AvatarPickerProps) {
+  const tc = useThemeStore(s => s.colors);
+  const accent = accentColor ?? tc.accent.primary;
+
   const pickImage = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== 'granted') {
@@ -51,7 +55,7 @@ export function AvatarPicker({ avatarUri, onPick, onClear, accentColor = colors.
       <View style={styles.previewContainer}>
         <Image source={{ uri: avatarUri }} style={styles.preview} />
         <TouchableOpacity style={styles.clearBtn} onPress={onClear}>
-          <X size={16} color={colors.text.primary} />
+          <X size={16} color={tc.text.primary} />
         </TouchableOpacity>
       </View>
     );
@@ -59,18 +63,18 @@ export function AvatarPicker({ avatarUri, onPick, onClear, accentColor = colors.
 
   return (
     <View style={styles.container}>
-      <View style={[styles.placeholder, { borderColor: accentColor + '30' }]}>
-        <ImageIcon size={32} color={colors.text.muted} />
-        <Text style={styles.label}>Character Avatar</Text>
+      <View style={[styles.placeholder, { borderColor: accent + '30', backgroundColor: tc.bg.tertiary }]}>
+        <ImageIcon size={32} color={tc.text.muted} />
+        <Text style={[styles.label, { color: tc.text.muted }]}>Character Avatar</Text>
       </View>
       <View style={styles.buttonRow}>
-        <TouchableOpacity style={[styles.pickBtn, { borderColor: accentColor + '40' }]} onPress={pickImage}>
-          <ImageIcon size={16} color={accentColor} />
-          <Text style={[styles.pickText, { color: accentColor }]}>Gallery</Text>
+        <TouchableOpacity style={[styles.pickBtn, { borderColor: accent + '40', backgroundColor: tc.bg.tertiary }]} onPress={pickImage}>
+          <ImageIcon size={16} color={accent} />
+          <Text style={[styles.pickText, { color: accent }]}>Gallery</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={[styles.pickBtn, { borderColor: accentColor + '40' }]} onPress={takePhoto}>
-          <Camera size={16} color={accentColor} />
-          <Text style={[styles.pickText, { color: accentColor }]}>Camera</Text>
+        <TouchableOpacity style={[styles.pickBtn, { borderColor: accent + '40', backgroundColor: tc.bg.tertiary }]} onPress={takePhoto}>
+          <Camera size={16} color={accent} />
+          <Text style={[styles.pickText, { color: accent }]}>Camera</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -82,16 +86,14 @@ const styles = StyleSheet.create({
   placeholder: {
     width: '100%', aspectRatio: 1, maxHeight: 200,
     borderRadius: borderRadius.xl, borderWidth: 1, borderStyle: 'dashed',
-    backgroundColor: colors.bg.tertiary,
     justifyContent: 'center', alignItems: 'center', gap: spacing.sm,
     marginBottom: spacing.sm,
   },
-  label: { ...typography.caption, color: colors.text.muted },
+  label: { ...typography.caption },
   buttonRow: { flexDirection: 'row', gap: spacing.sm },
   pickBtn: {
     flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.sm,
     paddingVertical: spacing.md, borderRadius: borderRadius.md, borderWidth: 1,
-    backgroundColor: colors.bg.tertiary,
   },
   pickText: { ...typography.caption, fontWeight: '600' },
   previewContainer: { position: 'relative', marginBottom: spacing.lg },
