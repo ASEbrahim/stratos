@@ -1,0 +1,140 @@
+import React, { useState } from 'react';
+import { View, Text, TextInput, ScrollView, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import { useRouter } from 'expo-router';
+import { CharacterCardCreate, getQualityScore } from '../../lib/types';
+import { createCharacter } from '../../lib/characters';
+import { GuidedFields } from './GuidedFields';
+import { GENRES } from '../../constants/genres';
+import { colors, typography, spacing, borderRadius } from '../../constants/theme';
+
+export function CardEditor() {
+  const router = useRouter();
+  const [mode, setMode] = useState<'quick' | 'advanced'>('quick');
+  const [saving, setSaving] = useState(false);
+  const [card, setCard] = useState<CharacterCardCreate>({
+    name: '', description: '', personality: '', scenario: '', first_message: '',
+    physical_description: '', speech_pattern: '', emotional_trigger: '',
+    defensive_mechanism: '', vulnerability: '', specific_detail: '',
+    genre_tags: [], content_rating: 'sfw', avatar_url: '',
+  });
+
+  const update = (key: keyof CharacterCardCreate, value: string | string[]) => setCard(prev => ({ ...prev, [key]: value }));
+  const toggleGenre = (id: string) => setCard(prev => ({
+    ...prev, genre_tags: prev.genre_tags.includes(id) ? prev.genre_tags.filter(g => g !== id) : [...prev.genre_tags, id],
+  }));
+
+  const quality = getQualityScore(card);
+  const qualityColor = colors.quality[quality.level];
+
+  const handleSave = async () => {
+    if (!card.name.trim()) { Alert.alert('Missing Name', 'Give your character a name.'); return; }
+    setSaving(true);
+    try {
+      await createCharacter(card);
+      Alert.alert('Created!', 'Your character has been created.', [{ text: 'OK', onPress: () => router.back() }]);
+    } catch { Alert.alert('Error', 'Failed to create character.'); }
+    finally { setSaving(false); }
+  };
+
+  return (
+    <ScrollView style={styles.container} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+      {/* Mode toggle */}
+      <View style={styles.modeToggle}>
+        <TouchableOpacity style={[styles.modeBtn, mode === 'quick' && styles.modeBtnActive]} onPress={() => setMode('quick')}>
+          <Text style={[styles.modeText, mode === 'quick' && styles.modeTextActive]}>Quick</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={[styles.modeBtn, mode === 'advanced' && styles.modeBtnActive]} onPress={() => setMode('advanced')}>
+          <Text style={[styles.modeText, mode === 'advanced' && styles.modeTextActive]}>Advanced</Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* Quality indicator */}
+      <View style={[styles.qualityBanner, { borderColor: qualityColor + '40' }]}>
+        <Text style={[styles.qualityLabel, { color: qualityColor }]}>{quality.label} ({quality.score}/6 elements)</Text>
+      </View>
+
+      <Text style={styles.fieldLabel}>Name *</Text>
+      <TextInput style={styles.input} value={card.name} onChangeText={v => update('name', v)} placeholder="Character name" placeholderTextColor={colors.text.muted} />
+
+      <Text style={styles.fieldLabel}>Genre</Text>
+      <View style={styles.genreGrid}>
+        {GENRES.map(g => {
+          const sel = card.genre_tags.includes(g.id);
+          return (
+            <TouchableOpacity key={g.id} style={[styles.genreChip, { backgroundColor: sel ? g.color + '20' : colors.bg.tertiary, borderColor: sel ? g.color + '60' : colors.border.subtle }]} onPress={() => toggleGenre(g.id)}>
+              <Text style={{ color: sel ? g.color : colors.text.secondary, fontSize: 13 }}>{g.emoji} {g.label}</Text>
+            </TouchableOpacity>
+          );
+        })}
+      </View>
+
+      <Text style={styles.fieldLabel}>Description</Text>
+      <TextInput style={[styles.input, styles.multiline]} value={card.description} onChangeText={v => update('description', v)} placeholder="Who is this character?" placeholderTextColor={colors.text.muted} multiline textAlignVertical="top" />
+
+      <Text style={styles.fieldLabel}>First Message</Text>
+      <Text style={styles.fieldHint}>Sets the tone for every conversation — the most important field.</Text>
+      <TextInput style={[styles.input, styles.multilineLg]} value={card.first_message} onChangeText={v => update('first_message', v)} placeholder="What does your character say or do first?" placeholderTextColor={colors.text.muted} multiline textAlignVertical="top" />
+
+      <Text style={styles.fieldLabel}>Scenario</Text>
+      <TextInput style={[styles.input, styles.multiline]} value={card.scenario} onChangeText={v => update('scenario', v)} placeholder="The starting situation" placeholderTextColor={colors.text.muted} multiline textAlignVertical="top" />
+
+      {mode === 'advanced' && (
+        <>
+          <View style={styles.divider} />
+          <Text style={styles.sectionTitle}>Quality Elements</Text>
+          <GuidedFields fields={[
+            { key: 'physical_description', label: 'Physical Description', hint: 'What do they look like? One unique detail.', example: 'Tall, clouded left eye...', value: card.physical_description, onChangeText: v => update('physical_description', v) },
+            { key: 'speech_pattern', label: 'Speech Pattern', hint: 'How do they talk?', example: 'Formal, archaic...', value: card.speech_pattern, onChangeText: v => update('speech_pattern', v) },
+            { key: 'emotional_trigger', label: 'Emotional Trigger', hint: 'What sets them off?', example: 'Any mention of cowardice...', value: card.emotional_trigger, onChangeText: v => update('emotional_trigger', v) },
+            { key: 'defensive_mechanism', label: 'Defensive Mechanism', hint: 'How do they protect themselves?', example: 'Deflects with formality...', value: card.defensive_mechanism, onChangeText: v => update('defensive_mechanism', v) },
+            { key: 'vulnerability', label: 'Vulnerability', hint: 'The crack in the armor?', example: 'Children playing...', value: card.vulnerability, onChangeText: v => update('vulnerability', v) },
+            { key: 'specific_detail', label: 'Specific Detail', hint: 'One concrete, grounding detail.', example: 'Traces sigil when anxious...', value: card.specific_detail, onChangeText: v => update('specific_detail', v) },
+          ]} />
+        </>
+      )}
+
+      <View style={styles.ratingRow}>
+        <Text style={styles.fieldLabel}>Content Rating</Text>
+        <View style={styles.ratingToggle}>
+          <TouchableOpacity style={[styles.ratingOpt, card.content_rating === 'sfw' && { backgroundColor: colors.sfw + '20', borderColor: colors.sfw }]} onPress={() => update('content_rating', 'sfw')}>
+            <Text style={{ color: card.content_rating === 'sfw' ? colors.sfw : colors.text.muted }}>SFW</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={[styles.ratingOpt, card.content_rating === 'nsfw' && { backgroundColor: colors.nsfw + '20', borderColor: colors.nsfw }]} onPress={() => update('content_rating', 'nsfw')}>
+            <Text style={{ color: card.content_rating === 'nsfw' ? colors.nsfw : colors.text.muted }}>NSFW</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+
+      <TouchableOpacity style={[styles.saveBtn, saving && { opacity: 0.6 }]} onPress={handleSave} disabled={saving}>
+        <Text style={styles.saveBtnText}>{saving ? 'Creating...' : 'Create Character'}</Text>
+      </TouchableOpacity>
+      <View style={{ height: spacing.xxl }} />
+    </ScrollView>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: colors.bg.primary },
+  content: { padding: spacing.lg },
+  modeToggle: { flexDirection: 'row', backgroundColor: colors.bg.tertiary, borderRadius: borderRadius.lg, padding: 3, marginBottom: spacing.lg },
+  modeBtn: { flex: 1, paddingVertical: spacing.sm, alignItems: 'center', borderRadius: borderRadius.md },
+  modeBtnActive: { backgroundColor: colors.bg.elevated },
+  modeText: { ...typography.subheading, fontSize: 14, color: colors.text.muted },
+  modeTextActive: { color: colors.text.primary },
+  qualityBanner: { borderWidth: 1, borderRadius: borderRadius.md, padding: spacing.md, alignItems: 'center', marginBottom: spacing.lg },
+  qualityLabel: { ...typography.subheading, fontSize: 14 },
+  fieldLabel: { ...typography.subheading, color: colors.text.primary, marginBottom: spacing.xs, marginTop: spacing.lg },
+  fieldHint: { ...typography.caption, color: colors.text.secondary, marginBottom: spacing.sm },
+  input: { backgroundColor: colors.bg.tertiary, borderRadius: borderRadius.md, paddingHorizontal: spacing.lg, paddingVertical: spacing.md, color: colors.text.primary, fontSize: 15, borderWidth: 1, borderColor: colors.border.subtle },
+  multiline: { minHeight: 80, textAlignVertical: 'top' },
+  multilineLg: { minHeight: 140, textAlignVertical: 'top' },
+  genreGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
+  genreChip: { paddingHorizontal: spacing.md, paddingVertical: spacing.sm, borderRadius: borderRadius.full, borderWidth: 1 },
+  divider: { height: 1, backgroundColor: colors.border.subtle, marginVertical: spacing.xl },
+  sectionTitle: { ...typography.heading, color: colors.text.primary, marginBottom: spacing.lg },
+  ratingRow: { marginTop: spacing.lg },
+  ratingToggle: { flexDirection: 'row', gap: spacing.sm, marginTop: spacing.sm },
+  ratingOpt: { paddingHorizontal: spacing.xl, paddingVertical: spacing.sm, borderRadius: borderRadius.md, borderWidth: 1, borderColor: colors.border.subtle },
+  saveBtn: { backgroundColor: colors.accent.primary, paddingVertical: spacing.lg, borderRadius: borderRadius.lg, alignItems: 'center', marginTop: spacing.xxl },
+  saveBtnText: { ...typography.subheading, color: '#fff' },
+});
