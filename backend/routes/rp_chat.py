@@ -27,6 +27,7 @@ from routes.helpers import (
     json_response, error_response, read_json_body,
     start_sse, sse_event, strip_think_blocks,
 )
+from routes.gpu_manager import ensure_ollama
 
 logger = logging.getLogger("rp_chat")
 
@@ -279,6 +280,11 @@ def handle_post(handler, strat, auth, path) -> bool:
             model = select_rp_model(session_id, strat.config)
         else:
             model = scoring_cfg.get("inference_model", "qwen3.5:9b")
+
+        # Ensure Ollama is running (swaps from ComfyUI if needed)
+        if not ensure_ollama():
+            error_response(handler, "Failed to start Ollama", 503)
+            return True
 
         # Stream response
         start_sse(handler)

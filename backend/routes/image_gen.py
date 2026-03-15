@@ -26,6 +26,7 @@ from pathlib import Path
 import requests
 
 from routes.helpers import json_response, error_response, read_json_body
+from routes.gpu_manager import ensure_comfyui
 
 logger = logging.getLogger("image_gen")
 
@@ -151,7 +152,11 @@ def character_to_image_prompt(card: dict, style: str = "anime", nsfw: bool = Fal
 def generate_image(prompt: str, negative_prompt: str = "", model: str = "flux",
                    width: int = 768, height: int = 1024, seed: int = -1,
                    steps: int | None = None) -> dict:
-    """Generate an image via ComfyUI. Returns result dict."""
+    """Generate an image via ComfyUI. Auto-swaps GPU from Ollama if needed."""
+
+    # Ensure ComfyUI is running (swaps from Ollama if needed)
+    if not ensure_comfyui():
+        return {"success": False, "error": "Failed to start ComfyUI. Check GPU availability."}
 
     if model == "pony":
         workflow = _load_workflow("pony_t2i")
