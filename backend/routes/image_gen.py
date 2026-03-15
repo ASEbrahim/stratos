@@ -2,14 +2,20 @@
 Image Generation Service for StratOS.
 
 Routes image generation requests to ComfyUI running in API mode.
-Supports two models:
-- FLUX.1-schnell Q8: All SFW content (4 steps, ~5-10s)
-- Pony Diffusion V7: NSFW/explicit content only (30 steps, ~20-30s)
+Single model: CHROMA (8.9B, Flux.1-schnell based, natively uncensored).
+Handles both SFW and NSFW content without model switching.
+
+CHROMA: https://huggingface.co/lodestones/Chroma
+- Apache 2.0 license
+- 4-step generation (schnell-based), CFG ~3.5
+- Natural language prompts, supports existing Flux LoRAs
+- Uses same VAE (ae.safetensors) and T5-XXL encoder as FLUX
 
 ComfyUI must be running: python main.py --listen 127.0.0.1 --port 8188
+Requires custom node: ComfyUI_FluxMod
 
 Endpoints:
-  POST /api/image/generate            — Free-form text-to-image
+  POST /api/image/generate            — Text-to-image
   POST /api/image/character-portrait  — Generate from character card fields
   GET  /api/image/<image_id>          — Serve generated image
   GET  /api/image/gallery             — User's generation history
@@ -35,18 +41,7 @@ WORKFLOW_DIR = Path(__file__).parent.parent / "data" / "comfyui_workflows"
 OUTPUT_DIR = Path(__file__).parent.parent / "data" / "generated_images"
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
-PONY_NEGATIVE = (
-    "worst quality, low quality, blurry, deformed, bad anatomy, "
-    "bad hands, extra fingers, missing fingers, watermark, signature, "
-    "text, username, artist name"
-)
-
-
-def select_image_model(style: str, nsfw: bool) -> str:
-    """Route to appropriate model. FLUX for SFW, Pony for NSFW only."""
-    if nsfw:
-        return "pony"
-    return "flux"
+DEFAULT_NEGATIVE = "worst quality, low quality, blurry, watermark, text, signature"
 
 
 def _load_workflow(name: str) -> dict:
@@ -55,24 +50,6 @@ def _load_workflow(name: str) -> dict:
         raise FileNotFoundError(f"Workflow not found: {path}")
     with open(path) as f:
         return json.load(f)
-
-
-def _ensure_comfyui_ready() -> bool:
-    """Check if ComfyUI is running."""
-    try:
-        r = requests.get(f"{COMFYUI_HOST}/system_stats", timeout=3)
-        return r.status_code == 200
-    except Exception:
-        return False
-
-
-def _check_ollama_running() -> bool:
-    """Check if Ollama is running (VRAM conflict)."""
-    try:
-        r = requests.get("http://localhost:11434/api/tags", timeout=2)
-        return r.status_code == 200
-    except Exception:
-        return False
 
 
 def _queue_prompt(workflow: dict) -> str:
@@ -122,13 +99,11 @@ def _download_image(filename: str) -> bytes | None:
         return None
 
 
-def character_to_image_prompt(card: dict, style: str = "anime", nsfw: bool = False) -> str:
-    """Build optimized image prompt from character card fields."""
+def character_to_image_prompt(card: dict, style: str = "anime") -> str:
+    """Build image prompt from character card fields. Works for all content types."""
     parts = []
 
-    if nsfw:
-        parts.append("score_9, score_8_up, score_7_up")
-    elif style == "anime":
+    if style == "anime":
         parts.append("masterpiece, best quality, highly detailed anime illustration")
     elif style == "realistic":
         parts.append("masterpiece, photorealistic, highly detailed photograph")
@@ -143,39 +118,28 @@ def character_to_image_prompt(card: dict, style: str = "anime", nsfw: bool = Fal
 
     parts.append("sharp focus, detailed eyes, detailed face")
 
-    if nsfw:
-        parts.append("rating_explicit")
-
     return ", ".join(parts)
 
 
-def generate_image(prompt: str, negative_prompt: str = "", model: str = "flux",
-                   width: int = 768, height: int = 1024, seed: int = -1,
-                   steps: int | None = None) -> dict:
-    """Generate an image via ComfyUI. Auto-swaps GPU from Ollama if needed."""
+def generate_image(prompt: str, negative_prompt: str = "",
+                   width: int = 1024, height: int = 1024, seed: int = -1,
+                   steps: int = 4) -> dict:
+    """Generate an image via CHROMA through ComfyUI. Auto-swaps GPU from Ollama if needed."""
 
     # Ensure ComfyUI is running (swaps from Ollama if needed)
     if not ensure_comfyui():
         return {"success": False, "error": "Failed to start ComfyUI. Check GPU availability."}
 
-    if model == "pony":
-        workflow = _load_workflow("pony_t2i")
-        steps = steps or 30
-        negative_prompt = negative_prompt or PONY_NEGATIVE
-        workflow["3"]["inputs"]["text"] = prompt      # CLIPTextEncode positive
-        workflow["4"]["inputs"]["text"] = negative_prompt  # CLIPTextEncode negative
-        workflow["5"]["inputs"]["width"] = width       # EmptySD3LatentImage
-        workflow["5"]["inputs"]["height"] = height
-        workflow["6"]["inputs"]["seed"] = seed if seed >= 0 else int(time.time()) % 2**32
-        workflow["6"]["inputs"]["steps"] = steps       # KSampler
-    else:
-        workflow = _load_workflow("flux_t2i")
-        steps = steps or 4
-        workflow["4"]["inputs"]["text"] = prompt
-        workflow["6"]["inputs"]["width"] = width
-        workflow["6"]["inputs"]["height"] = height
-        workflow["7"]["inputs"]["seed"] = seed if seed >= 0 else int(time.time()) % 2**32
-        workflow["7"]["inputs"]["steps"] = steps
+    workflow = _load_workflow("chroma_t2i")
+    negative_prompt = negative_prompt or DEFAULT_NEGATIVE
+
+    # Inject params into workflow
+    workflow["3"]["inputs"]["text"] = prompt               # CLIPTextEncode
+    workflow["4"]["inputs"]["width"] = width                # EmptySD3LatentImage
+    workflow["4"]["inputs"]["height"] = height
+    workflow["5"]["inputs"]["seed"] = seed if seed >= 0 else int(time.time()) % 2**32
+    workflow["5"]["inputs"]["steps"] = steps                # KSampler
+    workflow["5"]["inputs"]["cfg"] = 3.5
 
     prompt_id = _queue_prompt(workflow)
     if not prompt_id:
@@ -203,13 +167,13 @@ def generate_image(prompt: str, negative_prompt: str = "", model: str = "flux",
         "filename": local_filename,
         "path": str(local_path),
         "prompt": prompt,
-        "model": model,
+        "model": "chroma",
         "size": f"{width}x{height}",
     }
 
 
 # ═══════════════════════════════════════════════════════════
-# Route handlers (module pattern matching server.py dispatch)
+# Route handlers
 # ═══════════════════════════════════════════════════════════
 
 def handle_post(handler, strat, auth, path) -> bool:
@@ -227,21 +191,17 @@ def handle_post(handler, strat, auth, path) -> bool:
             error_response(handler, "Prompt required", 400)
             return True
 
-        model = data.get("model", "flux")
-        width = min(max(data.get("width", 768), 512), 1536)
+        width = min(max(data.get("width", 1024), 512), 1536)
         height = min(max(data.get("height", 1024), 512), 1536)
         seed = data.get("seed", -1)
-        steps = data.get("steps")
+        steps = data.get("steps", 4)
         negative = data.get("negative_prompt", "")
 
-        if model not in ("flux", "pony"):
-            model = "flux"
-
-        result = generate_image(prompt, negative, model, width, height, seed, steps)
+        result = generate_image(prompt, negative, width, height, seed, steps)
 
         if result["success"]:
             db.insert_generated_image(
-                result["image_id"], profile_id, prompt, model, width, height,
+                result["image_id"], profile_id, prompt, "chroma", width, height,
                 result["filename"], result["path"],
                 seed=seed, steps=steps
             )
@@ -255,9 +215,7 @@ def handle_post(handler, strat, auth, path) -> bool:
         data = read_json_body(handler)
         name = data.get("character_name", "")
         description = data.get("physical_description", "")
-        scenario = data.get("scenario", "")
         style = data.get("style", "anime")
-        nsfw = data.get("nsfw", False)
         card_id = data.get("character_card_id")
 
         if not description:
@@ -265,16 +223,15 @@ def handle_post(handler, strat, auth, path) -> bool:
             return True
 
         prompt = character_to_image_prompt(
-            {"name": name, "physical_description": description, "scenario": scenario},
-            style=style, nsfw=nsfw,
+            {"name": name, "physical_description": description},
+            style=style,
         )
-        model = select_image_model(style, nsfw)
 
-        result = generate_image(prompt, model=model, width=768, height=1024)
+        result = generate_image(prompt, width=768, height=1024)
 
         if result["success"]:
             db.insert_generated_image(
-                result["image_id"], profile_id, prompt, model, 768, 1024,
+                result["image_id"], profile_id, prompt, "chroma", 768, 1024,
                 result["filename"], result["path"],
                 character_card_id=card_id
             )

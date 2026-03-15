@@ -109,10 +109,9 @@ export async function getBranches(sessionId: string) {
   return apiFetch<{ branches: any[] }>(`/api/rp/branches/${sessionId}`);
 }
 
-// ── Free-form text-to-image ──
+// ── Free-form text-to-image (CHROMA — single model, SFW+NSFW) ──
 export async function generateImage(params: {
   prompt: string;
-  model?: 'flux' | 'pony';
   width?: number;
   height?: number;
   seed?: number;

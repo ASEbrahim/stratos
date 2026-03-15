@@ -28,7 +28,6 @@ export default function ImageGenScreen() {
   const [prompt, setPrompt] = useState(params.description || '');
   const [style, setStyle] = useState<Style>('anime');
   const [size, setSize] = useState<Size>('portrait');
-  const [nsfw, setNsfw] = useState(false);
   const [generating, setGenerating] = useState(false);
   const [imageId, setImageId] = useState<string | null>(null);
   const [error, setError] = useState('');
@@ -49,14 +48,12 @@ export default function ImageGenScreen() {
           character_name: params.name!,
           physical_description: params.description!,
           style,
-          nsfw,
           character_card_id: params.card_id,
         });
       } else {
         const s = SIZES[size];
         result = await generateImage({
-          prompt: nsfw ? `nsfw, explicit, ${prompt.trim()}, detailed, high quality` : prompt.trim(),
-          model: 'flux',
+          prompt: prompt.trim(),
           width: s.w,
           height: s.h,
         });
@@ -141,23 +138,6 @@ export default function ImageGenScreen() {
           </>
         )}
 
-        {/* Model toggle */}
-        <View style={[styles.modelToggle, { borderColor: tc.border.subtle }]}>
-          <TouchableOpacity
-            style={[styles.modelBtn, !nsfw && { backgroundColor: tc.accent.primary + '20' }]}
-            onPress={() => { setNsfw(false); Haptics.selectionAsync(); }}
-          >
-            <Text style={[styles.chipText, { color: !nsfw ? tc.accent.primary : tc.text.muted }]}>SFW</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.modelBtn, nsfw && { backgroundColor: tc.status.error + '20' }]}
-            onPress={() => { setNsfw(true); Haptics.selectionAsync(); }}
-          >
-            <Text style={[styles.chipText, { color: nsfw ? tc.status.error : tc.text.muted }]}>NSFW</Text>
-          </TouchableOpacity>
-        </View>
-        {nsfw && <Text style={[styles.nsfwNote, { color: tc.text.muted }]}>NSFW mode enabled. Describe what you want explicitly. FLUX handles most content. Pony V7 support coming soon for booru-tagged anime.</Text>}
-
         {/* Generate button */}
         <TouchableOpacity
           style={[styles.generateBtn, { backgroundColor: tc.accent.primary }, generating && { opacity: 0.6 }]}
@@ -219,9 +199,6 @@ const styles = StyleSheet.create({
   chipRow: { flexDirection: 'row', gap: spacing.sm, flexWrap: 'wrap' },
   chip: { paddingHorizontal: spacing.lg, paddingVertical: spacing.sm, borderRadius: borderRadius.full, borderWidth: 1 },
   chipText: { fontSize: 13, fontFamily: fonts.button },
-  modelToggle: { flexDirection: 'row', borderRadius: borderRadius.lg, borderWidth: 1, overflow: 'hidden', marginTop: spacing.lg },
-  modelBtn: { flex: 1, paddingVertical: spacing.md, alignItems: 'center' },
-  nsfwNote: { fontSize: 10, fontFamily: fonts.body, lineHeight: 15, marginTop: spacing.xs },
   generateBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.sm, paddingVertical: spacing.lg, borderRadius: borderRadius.lg, marginTop: spacing.lg },
   generateText: { fontSize: 16, fontFamily: fonts.heading, color: '#fff' },
   error: { fontSize: 13, fontFamily: fonts.body, textAlign: 'center', marginTop: spacing.md },
