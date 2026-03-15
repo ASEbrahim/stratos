@@ -1,15 +1,17 @@
 import React from 'react';
 import { Tabs } from 'expo-router';
 import { Compass, BookOpen, PlusCircle, User } from 'lucide-react-native';
-import { colors, typography } from '../../constants/theme';
+import { useThemeStore } from '../../stores/themeStore';
+import { typography } from '../../constants/theme';
 
 export default function TabsLayout() {
+  const tc = useThemeStore(s => s.colors);
   return (
     <Tabs screenOptions={{
       headerShown: false,
-      tabBarStyle: { backgroundColor: colors.bg.secondary, borderTopColor: colors.border.subtle, borderTopWidth: 1, height: 60, paddingBottom: 8, paddingTop: 4 },
-      tabBarActiveTintColor: colors.accent.primary,
-      tabBarInactiveTintColor: colors.text.muted,
+      tabBarStyle: { backgroundColor: tc.bg.secondary, borderTopColor: tc.border.subtle, borderTopWidth: 1, height: 60, paddingBottom: 8, paddingTop: 4 },
+      tabBarActiveTintColor: tc.accent.primary,
+      tabBarInactiveTintColor: tc.text.muted,
       tabBarLabelStyle: { ...typography.small, fontSize: 10 },
     }}>
       <Tabs.Screen name="discover" options={{ title: 'Discover', tabBarIcon: ({ color, size }) => <Compass size={size} color={color} /> }} />
