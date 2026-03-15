@@ -316,7 +316,6 @@ export const MOCK_SUGGESTIONS: Suggestion[] = [
   { label: 'Sit down', prompt: '*settles into the chair across from them, studying their face*' },
 ];
 
-let _nextId = 100;
 export function generateId(): string {
-  return `mock-${++_nextId}`;
+  return `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
 }
