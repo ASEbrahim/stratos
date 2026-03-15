@@ -11,12 +11,14 @@ import { SuggestionChips } from '../../components/chat/SuggestionChips';
 import { ChatInput } from '../../components/chat/ChatInput';
 import { ChatMessage } from '../../lib/types';
 import { getGenreColor } from '../../constants/genres';
-import { colors, spacing } from '../../constants/theme';
+import { useThemeStore } from '../../stores/themeStore';
+import { spacing } from '../../constants/theme';
 
 export default function ChatScreen() {
   const insets = useSafeAreaInsets();
   const listRef = useRef<FlatList>(null);
   const prevStreamRef = useRef(false);
+  const tc = useThemeStore(s => s.colors);
   const { character, messages, suggestions, isStreaming, streamingContent, sendMessage, persistSession } = useChatStore();
   const accentColor = character ? getGenreColor(character.genre_tags?.[0] ?? 'default') : undefined;
 
@@ -27,7 +29,7 @@ export default function ChatScreen() {
   useEffect(() => { if (messages.length > 0) setTimeout(() => listRef.current?.scrollToEnd({ animated: true }), 100); }, [messages.length, streamingContent]);
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top }]}>
+    <View style={[styles.container, { paddingTop: insets.top, backgroundColor: tc.bg.primary }]}>
       <SessionHeader characterName={character?.name ?? 'Chat'} accentColor={accentColor} />
       <KeyboardAvoidingView style={styles.chatArea} behavior={Platform.OS === 'ios' ? 'padding' : undefined} keyboardVerticalOffset={insets.top}>
         <FlatList ref={listRef} data={messages} renderItem={({ item }: { item: ChatMessage }) => <MessageBubble message={item} accentColor={accentColor} />} keyExtractor={item => item.id} contentContainerStyle={styles.msgList} showsVerticalScrollIndicator={false}
@@ -40,7 +42,7 @@ export default function ChatScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.bg.primary },
+  container: { flex: 1 },
   chatArea: { flex: 1 },
   msgList: { paddingVertical: spacing.md },
 });

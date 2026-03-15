@@ -11,3 +11,6 @@ When the discover screen loads, there's a blank gap before mock data arrives. Ad
 
 ## Iteration 4: Chat message polish — animations, timestamps, long-press ✅
 Messages now fade in with Reanimated entering animation, tapping reveals timestamps, and long-press shows a context menu (Copy/Regenerate). These are standard features in Character.AI and Chai that users expect.
+
+## Iteration 5: Theme-aware chat screen + session header ✅
+Chat screen background, session header, and input all now respond to the active theme. This completes the theme integration across all major screens.
