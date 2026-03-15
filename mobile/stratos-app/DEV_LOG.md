@@ -249,5 +249,8 @@ Total word count of all character definition fields shown in meta row.
 ## Iteration 83: Estimated session duration on history cards ✅
 "~Xmin" estimate based on message count.
 
-## Iteration 84: Create tab character count + tips
-Showing how many characters the user has created in the Create tab header, plus a tip about what makes a good character — encourages quality creation.
+## Iteration 84: Create tab character count + Header subtitle ✅
+"X created" subtitle on Create header. Header component now supports subtitles.
+
+## Iteration 85: Milestone 100 commit — visual audit across all themes
+100th commit celebration. Running full visual verification across Arcane, Sakura, Nebula, Cosmos, and Noir themes to ensure everything looks perfect.
