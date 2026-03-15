@@ -225,5 +225,8 @@ First message rendered with action text styling on character detail.
 ## Iteration 75: Visual verification + DEV_LOG cleanup ✅
 All screens verified. checkpoint-18, 90 commits.
 
-## Iteration 76: Genre-colored message bubbles for assistant
-Assistant messages currently all use the same neutral background. Tinting them with a subtle genre color makes the chat feel more immersive and tied to the character — different characters feel visually distinct.
+## Iteration 76: Genre-colored left border on assistant messages ✅
+Subtle accent-colored left border on AI messages for character identity.
+
+## Iteration 77: Haptic feedback on message send success
+The send button has haptics on press, but not on successful message delivery. Adding a success haptic when the AI finishes responding — gives a satisfying "task complete" feeling.

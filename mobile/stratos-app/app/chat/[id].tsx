@@ -27,7 +27,11 @@ export default function ChatScreen() {
   // Persist session when leaving the screen
   useFocusEffect(useCallback(() => { return () => { persistSession(); }; }, []));
 
-  useEffect(() => { if (isStreaming && !prevStreamRef.current) Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium); prevStreamRef.current = isStreaming; }, [isStreaming]);
+  useEffect(() => {
+    if (isStreaming && !prevStreamRef.current) Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    if (!isStreaming && prevStreamRef.current) Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    prevStreamRef.current = isStreaming;
+  }, [isStreaming]);
   useEffect(() => { if (messages.length > 0) setTimeout(() => listRef.current?.scrollToEnd({ animated: true }), 100); }, [messages.length, streamingContent]);
   // Auto-scroll when keyboard opens
   useEffect(() => {
