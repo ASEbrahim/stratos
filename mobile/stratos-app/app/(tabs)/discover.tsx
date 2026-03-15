@@ -7,6 +7,7 @@ import { useThemeStore } from '../../stores/themeStore';
 import { CharacterCardComponent } from '../../components/cards/CharacterCard';
 import { ScenarioCard } from '../../components/gaming/ScenarioCard';
 import { StarParallaxBg } from '../../components/shared/StarParallax';
+import { DiscoverSkeleton } from '../../components/shared/Skeleton';
 import { GENRES } from '../../constants/genres';
 import { GamingScenario } from '../../lib/types';
 import { getScenarios } from '../../lib/gaming';
@@ -15,10 +16,11 @@ import { typography, spacing, borderRadius } from '../../constants/theme';
 export default function DiscoverScreen() {
   const insets = useSafeAreaInsets();
   const tc = useThemeStore(s => s.colors);
-  const { trending, newCards, selectedGenre, loadTrending, loadNew, setGenre, search } = useCharacterStore();
+  const { trending, newCards, selectedGenre, isLoading, loadTrending, loadNew, setGenre, search } = useCharacterStore();
   const [scenarios, setScenarios] = useState<GamingScenario[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [refreshing, setRefreshing] = useState(false);
+  const [showWelcome, setShowWelcome] = useState(true);
 
   useEffect(() => { loadTrending(); loadNew(); getScenarios().then(setScenarios); }, []);
   const onRefresh = useCallback(async () => { setRefreshing(true); await Promise.all([loadTrending(), loadNew(), getScenarios().then(setScenarios)]); setRefreshing(false); }, []);
@@ -33,7 +35,14 @@ export default function DiscoverScreen() {
           <Search size={18} color={tc.text.muted} />
           <TextInput style={[styles.searchInput, { color: tc.text.primary }]} value={searchQuery} onChangeText={handleSearch} placeholder="Search characters..." placeholderTextColor={tc.text.muted} />
         </View>
-        {!searchQuery.trim() && (
+        {isLoading && trending.length === 0 && <DiscoverSkeleton />}
+        {showWelcome && !searchQuery.trim() && (
+          <TouchableOpacity style={[styles.welcomeCard, { backgroundColor: tc.accent.primary + '10', borderColor: tc.accent.primary + '25' }]} onPress={() => setShowWelcome(false)} activeOpacity={0.8}>
+            <Text style={[styles.welcomeTitle, { color: tc.text.primary }]}>Welcome to StratOS</Text>
+            <Text style={[styles.welcomeBody, { color: tc.text.secondary }]}>Discover AI characters for immersive roleplay and interactive gaming. Tap a character to start a conversation.</Text>
+          </TouchableOpacity>
+        )}
+        {!searchQuery.trim() && trending.length > 0 && (
           <>
             <View style={styles.sectionHdr}><Text style={[styles.sectionTitle, { color: tc.text.primary }]}>Trending</Text></View>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.hScroll}>
@@ -82,4 +91,7 @@ const styles = StyleSheet.create({
   genreChip: { paddingHorizontal: spacing.md, paddingVertical: spacing.sm, borderRadius: borderRadius.full, borderWidth: 1 },
   genreText: { ...typography.caption },
   grid: { flexDirection: 'row', flexWrap: 'wrap', paddingHorizontal: spacing.lg, gap: spacing.lg },
+  welcomeCard: { marginHorizontal: spacing.lg, marginBottom: spacing.md, padding: spacing.lg, borderRadius: borderRadius.lg, borderWidth: 1 },
+  welcomeTitle: { ...typography.subheading, marginBottom: spacing.xs },
+  welcomeBody: { ...typography.caption, lineHeight: 18 },
 });
