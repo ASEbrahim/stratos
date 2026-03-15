@@ -88,8 +88,8 @@ export function CardEditor() {
     <ScrollView style={[styles.container, { backgroundColor: tc.bg.primary }]} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
       {/* Mode toggle */}
       <View style={[styles.modeToggle, { backgroundColor: tc.bg.tertiary }]}>
-        <TouchableOpacity style={[styles.modeBtn, mode === 'quick' && { backgroundColor: tc.bg.elevated }]} onPress={() => setMode('quick')} accessibilityLabel={`Quick mode${mode === 'quick' ? ', selected' : ''}`} accessibilityRole="button">
-          <Text style={[styles.modeText, { color: tc.text.muted }, mode === 'quick' && { color: tc.text.primary }]}>Quick</Text>
+        <TouchableOpacity style={[styles.modeBtn, mode === 'quick' && { backgroundColor: tc.bg.elevated }]} onPress={() => setMode('quick')} accessibilityLabel={`Simple mode${mode === 'quick' ? ', selected' : ''}`} accessibilityRole="button">
+          <Text style={[styles.modeText, { color: tc.text.muted }, mode === 'quick' && { color: tc.text.primary }]}>Simple</Text>
         </TouchableOpacity>
         <TouchableOpacity style={[styles.modeBtn, mode === 'advanced' && { backgroundColor: tc.bg.elevated }]} onPress={() => setMode('advanced')} accessibilityLabel={`Advanced mode${mode === 'advanced' ? ', selected' : ''}`} accessibilityRole="button">
           <Text style={[styles.modeText, { color: tc.text.muted }, mode === 'advanced' && { color: tc.text.primary }]}>Advanced</Text>
@@ -256,7 +256,7 @@ const styles = StyleSheet.create({
   contentRatingBtn: { flex: 1, paddingVertical: spacing.md, borderRadius: borderRadius.md, borderWidth: 1, alignItems: 'center' },
   divider: { height: 1, marginVertical: spacing.lg },
   sectionTitle: { ...typography.subheading, fontSize: 13, textTransform: 'uppercase', letterSpacing: 1, marginTop: spacing.lg, marginBottom: spacing.xs },
-  importBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.sm, paddingVertical: spacing.md, borderRadius: borderRadius.md, borderWidth: 1, marginTop: spacing.lg },
+  importBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.sm, paddingVertical: spacing.md, borderRadius: borderRadius.md, borderWidth: 1, marginBottom: spacing.lg },
   ratingRow: { marginTop: spacing.lg },
   ratingToggle: { flexDirection: 'row', gap: spacing.sm, marginTop: spacing.sm },
   ratingOpt: { paddingHorizontal: spacing.xl, paddingVertical: spacing.sm, borderRadius: borderRadius.md, borderWidth: 1 },
