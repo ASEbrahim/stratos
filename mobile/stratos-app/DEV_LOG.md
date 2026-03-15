@@ -204,5 +204,8 @@ Shows message count when resuming an existing chat session.
 ## Iteration 68: "Character of the Day" daily rotation ✅
 Featured card rotates daily using day-of-year hash.
 
-## Iteration 69: Theme-aware Skeleton + ErrorBoundary
-Last hardcoded components — Skeleton shimmer and ErrorBoundary still import static colors. Making them theme-aware completes the cleanup.
+## Iteration 69: Theme-aware Skeleton shimmer ✅
+Skeleton uses themeStore colors. ErrorBoundary kept static (class component fallback).
+
+## Iteration 70: Accessibility labels on key elements
+Production apps need accessibility. Adding accessibilityLabel and accessibilityRole to key interactive elements: tab bar, search, send button, cards, and navigation buttons.

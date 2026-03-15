@@ -38,7 +38,7 @@ export function SessionHeader({ characterName, accentColor, characterId, isTypin
 
   return (
     <View style={[styles.container, { backgroundColor: tc.bg.primary, borderBottomColor: tc.border.subtle }]}>
-      <TouchableOpacity onPress={() => router.back()} style={styles.backButton}><ChevronLeft size={24} color={tc.text.primary} /></TouchableOpacity>
+      <TouchableOpacity onPress={() => router.back()} style={styles.backButton} accessibilityLabel="Go back" accessibilityRole="button"><ChevronLeft size={24} color={tc.text.primary} /></TouchableOpacity>
       <View style={styles.center}>
         <View>
           <View style={[styles.avatar, { backgroundColor: color + '20' }]}><Text style={[styles.avatarText, { color }]}>{characterName[0]}</Text></View>
@@ -49,7 +49,7 @@ export function SessionHeader({ characterName, accentColor, characterId, isTypin
           {isTyping && <Text style={[styles.typingText, { color: tc.status.success }]}>typing...</Text>}
         </View>
       </View>
-      <TouchableOpacity style={styles.menuButton} onPress={handleMenu}><MoreVertical size={20} color={tc.text.secondary} /></TouchableOpacity>
+      <TouchableOpacity style={styles.menuButton} onPress={handleMenu} accessibilityLabel="Chat options menu" accessibilityRole="button"><MoreVertical size={20} color={tc.text.secondary} /></TouchableOpacity>
     </View>
   );
 }

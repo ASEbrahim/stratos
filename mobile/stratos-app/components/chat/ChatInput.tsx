@@ -35,8 +35,8 @@ export function ChatInput({ onSend, disabled = false, accentColor }: ChatInputPr
         <Text style={[styles.charCount, { color: charCount > 3500 ? tc.status.error : tc.text.muted }]}>{charCount}/4000</Text>
       )}
       <View style={styles.inputRow}>
-        <TextInput style={[styles.input, { backgroundColor: tc.bg.tertiary, color: tc.text.primary }]} value={text} onChangeText={setText} placeholder="Type your action..." placeholderTextColor={tc.text.muted} multiline maxLength={4000} editable={!disabled} onSubmitEditing={handleSend} blurOnSubmit={false} />
-        <AnimatedTouchable style={[styles.sendButton, { backgroundColor: disabled ? color + '60' : active ? color : tc.bg.elevated }, btnAnimStyle]} onPress={handleSend} disabled={!active && !disabled} activeOpacity={0.7}>
+        <TextInput style={[styles.input, { backgroundColor: tc.bg.tertiary, color: tc.text.primary }]} value={text} onChangeText={setText} placeholder="Type your action..." placeholderTextColor={tc.text.muted} multiline maxLength={4000} editable={!disabled} onSubmitEditing={handleSend} blurOnSubmit={false} accessibilityLabel="Message input" accessibilityHint="Type your message to the character" />
+        <AnimatedTouchable style={[styles.sendButton, { backgroundColor: disabled ? color + '60' : active ? color : tc.bg.elevated }, btnAnimStyle]} onPress={handleSend} disabled={!active && !disabled} activeOpacity={0.7} accessibilityLabel={disabled ? 'AI is responding' : 'Send message'} accessibilityRole="button">
           {disabled ? (
             <ActivityIndicator size={16} color="#fff" />
           ) : (
