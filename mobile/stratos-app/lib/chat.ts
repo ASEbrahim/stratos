@@ -13,36 +13,49 @@ export async function streamMessage(
     await mockStream(message, persona, characterCard, onChunk, onDone);
     return;
   }
-  const token = await getToken();
-  const response = await fetch(`${API_BASE}/api/rp/chat`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-    body: JSON.stringify({
-      content: message,
-      persona,
-      session_id: sessionId,
-      character_card_id: characterCard?.id || undefined,
-    }),
-  });
-  const reader = response.body?.getReader();
-  const decoder = new TextDecoder();
-  if (!reader) { onDone(); return; }
-  let buffer = '';
-  while (true) {
-    const { done, value } = await reader.read();
-    if (done) { onDone(); break; }
-    buffer += decoder.decode(value, { stream: true });
-    const lines = buffer.split('\n');
-    buffer = lines.pop() ?? '';
-    for (const line of lines) {
-      if (line.startsWith('data: ')) {
-        try {
-          const data = JSON.parse(line.slice(6));
-          if (data.content || data.token) onChunk(data.content || data.token);
-          if (data.done) onDone();
-        } catch { /* partial */ }
+  try {
+    const token = await getToken();
+    const response = await fetch(`${API_BASE}/api/rp/chat`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { 'X-Auth-Token': token } : {}),
+      },
+      body: JSON.stringify({
+        content: message,
+        persona,
+        session_id: sessionId,
+        character_card_id: characterCard?.id || undefined,
+      }),
+    });
+    if (!response.ok) {
+      // API failed — fall back to mock
+      await mockStream(message, persona, characterCard, onChunk, onDone);
+      return;
+    }
+    const reader = response.body?.getReader();
+    const decoder = new TextDecoder();
+    if (!reader) { onDone(); return; }
+    let buffer = '';
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) { onDone(); break; }
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split('\n');
+      buffer = lines.pop() ?? '';
+      for (const line of lines) {
+        if (line.startsWith('data: ')) {
+          try {
+            const data = JSON.parse(line.slice(6));
+            if (data.content || data.token) onChunk(data.content || data.token);
+            if (data.done) onDone();
+          } catch { /* partial */ }
+        }
       }
     }
+  } catch {
+    // Network error — fall back to mock
+    await mockStream(message, persona, characterCard, onChunk, onDone);
   }
 }
 

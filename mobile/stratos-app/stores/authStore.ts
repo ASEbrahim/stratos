@@ -27,7 +27,14 @@ export const useAuthStore = create<AuthState>((set) => ({
   logout: async () => { await auth.logout(); set({ user: null, isAuthenticated: false }); },
   checkAuth: async () => {
     set({ isLoading: true });
-    try { const user = await auth.getProfile(); set({ user, isAuthenticated: !!user, isLoading: false }); }
-    catch { set({ user: null, isAuthenticated: false, isLoading: false }); }
+    try {
+      const user = await auth.getProfile();
+      // Auth is optional — app works without login (anonymous/local mode)
+      // Login unlocks sync, cloud backup, and premium features
+      set({ user, isAuthenticated: !!user, isLoading: false });
+    } catch {
+      // No auth = anonymous mode. App still works with local data + mock fallbacks.
+      set({ user: null, isAuthenticated: false, isLoading: false });
+    }
   },
 }));

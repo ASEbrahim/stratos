@@ -1,4 +1,4 @@
-export const USE_MOCKS = true;
+export const USE_MOCKS = false;
 
 const DEV_API_BASE = 'http://192.168.0.148:8080';
 const PROD_API_BASE = 'https://api.stratos.app';
