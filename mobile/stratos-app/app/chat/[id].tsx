@@ -290,7 +290,7 @@ const styles = StyleSheet.create({
   msgList: { paddingVertical: spacing.md },
   msgActions: { flexDirection: 'row', alignItems: 'center' },
   editBtn: { padding: 4, marginLeft: 4 },
-  scrollFab: { position: 'absolute', right: spacing.lg, bottom: 140, width: 36, height: 36, borderRadius: 18, justifyContent: 'center', alignItems: 'center', borderWidth: 1, zIndex: 10, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.3, shadowRadius: 4, elevation: 4 },
+  scrollFab: { position: 'absolute', right: spacing.lg, bottom: 180, width: 36, height: 36, borderRadius: 18, justifyContent: 'center', alignItems: 'center', borderWidth: 1, zIndex: 10, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.3, shadowRadius: 4, elevation: 4 },
   charIntro: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, marginHorizontal: spacing.lg, marginBottom: spacing.md, padding: spacing.md, borderRadius: 12, borderWidth: 1 },
   charIntroAvatar: { width: 40, height: 40, borderRadius: 20, justifyContent: 'center', alignItems: 'center' },
   charIntroLetter: { fontSize: 18, fontFamily: fonts.heading },

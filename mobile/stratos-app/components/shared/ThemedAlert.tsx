@@ -31,19 +31,17 @@ export function ThemedAlert({ visible, title, message, buttons, onDismiss }: The
             <View style={[styles.container, { backgroundColor: tc.bg.elevated, borderColor: tc.border.subtle }]}>
               <Text style={[styles.title, { color: tc.text.primary }]}>{title}</Text>
               {message ? <Text style={[styles.message, { color: tc.text.secondary }]}>{message}</Text> : null}
-              <View style={[styles.buttonRow, alertButtons.length === 1 && { justifyContent: 'center' }]}>
-                {alertButtons.map((btn, i) => {
-                  const isCancel = btn.style === 'cancel';
+              <View style={[styles.buttonRow, alertButtons.length > 3 && styles.buttonColumn, alertButtons.length === 1 && { justifyContent: 'center' }]}>
+                {alertButtons.filter(b => b.style !== 'cancel').map((btn, i) => {
                   const isDestructive = btn.style === 'destructive';
                   return (
                     <TouchableOpacity
                       key={i}
                       style={[
                         styles.button,
-                        alertButtons.length > 1 && { flex: 1 },
+                        alertButtons.length <= 3 && alertButtons.length > 1 && { flex: 1 },
                         isDestructive && { backgroundColor: tc.status.error + '15' },
-                        isCancel && { backgroundColor: tc.bg.tertiary },
-                        !isCancel && !isDestructive && { backgroundColor: tc.accent.primary + '15' },
+                        !isDestructive && { backgroundColor: tc.accent.primary + '10' },
                       ]}
                       onPress={() => { btn.onPress?.(); onDismiss(); }}
                       activeOpacity={0.7}
@@ -51,8 +49,7 @@ export function ThemedAlert({ visible, title, message, buttons, onDismiss }: The
                       <Text style={[
                         styles.buttonText,
                         isDestructive && { color: tc.status.error },
-                        isCancel && { color: tc.text.muted },
-                        !isCancel && !isDestructive && { color: tc.accent.primary },
+                        !isDestructive && { color: tc.accent.primary },
                       ]}>
                         {btn.text}
                       </Text>
@@ -60,6 +57,18 @@ export function ThemedAlert({ visible, title, message, buttons, onDismiss }: The
                   );
                 })}
               </View>
+              {/* Cancel button always at bottom, full width */}
+              {alertButtons.some(b => b.style === 'cancel') && (
+                <TouchableOpacity
+                  style={[styles.cancelButton, { backgroundColor: tc.bg.tertiary }]}
+                  onPress={onDismiss}
+                  activeOpacity={0.7}
+                >
+                  <Text style={[styles.buttonText, { color: tc.text.muted }]}>
+                    {alertButtons.find(b => b.style === 'cancel')?.text ?? 'Cancel'}
+                  </Text>
+                </TouchableOpacity>
+              )}
             </View>
           </TouchableWithoutFeedback>
         </View>
@@ -105,6 +114,8 @@ const styles = StyleSheet.create({
   title: { fontSize: 18, fontFamily: fonts.heading, textAlign: 'center' },
   message: { fontSize: 14, fontFamily: fonts.body, textAlign: 'center', lineHeight: 20 },
   buttonRow: { flexDirection: 'row', gap: spacing.sm, marginTop: spacing.sm },
+  buttonColumn: { flexDirection: 'column' },
   button: { paddingVertical: spacing.md, paddingHorizontal: spacing.lg, borderRadius: borderRadius.lg, alignItems: 'center' },
+  cancelButton: { paddingVertical: spacing.md, borderRadius: borderRadius.lg, alignItems: 'center' },
   buttonText: { fontSize: 15, fontFamily: fonts.heading },
 });
