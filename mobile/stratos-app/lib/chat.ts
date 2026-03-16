@@ -3,9 +3,20 @@ import { API_BASE } from '../constants/config';
 import { getToken, getDeviceId } from './api';
 import { ChatMessage, CharacterCard, Suggestion } from './types';
 import { MOCK_SUGGESTIONS, generateId } from './mock';
+import { parseSSEStream } from './sse';
+import { reportError } from './utils';
 
 // Formatting hint injected for cards missing speech_pattern
 const FORMAT_HINT = '[OOC: Use *asterisks* for actions and "quotes" for speech. CRITICAL: Keep response length proportional to input — if user sends 1-3 words, reply with 1-2 short sentences MAX. Never repeat or echo the user\'s words back. Never over-write.]';
+
+// Active AbortController for current stream — exposed for cancellation
+let _activeAbort: AbortController | null = null;
+
+/** Cancel the currently active stream (if any). */
+export function cancelStream(): void {
+  _activeAbort?.abort();
+  _activeAbort = null;
+}
 
 export async function streamMessage(
   sessionId: string, message: string, persona: 'roleplay' | 'gaming',
@@ -17,10 +28,13 @@ export async function streamMessage(
     await mockStream(message, persona, characterCard, onChunk, onDone);
     return;
   }
+
+  const abort = new AbortController();
+  _activeAbort = abort;
+
   try {
     const token = await getToken();
     const deviceId = await getDeviceId();
-    // Inject formatting hint for cards without speech_pattern
     const needsHint = persona === 'roleplay' && characterCard && !characterCard.speech_pattern?.trim();
     const content = needsHint ? `${message}\n\n${FORMAT_HINT}` : message;
     const response = await fetch(`${API_BASE}/api/rp/chat`, {
@@ -39,53 +53,34 @@ export async function streamMessage(
         ...(directorNote ? { director_note: directorNote } : {}),
         ...(sessionContext ? { session_context: sessionContext } : {}),
       }),
+      signal: abort.signal,
     });
+
     if (!response.ok) {
       const body = await response.text().catch(() => '');
-      console.error(`[chat] API error ${response.status}: ${body} — falling back to mock`);
-      await mockStream(message, persona, characterCard, onChunk, onDone);
+      const errorMsg = `API error ${response.status}: ${body}`;
+      reportError('streamMessage', new Error(errorMsg));
+      onChunk(`\n\n*[Connection error — server returned ${response.status}. Try again.]*`);
+      onDone();
       return;
     }
 
-    // Try ReadableStream first (modern browsers), fall back to text() parsing
-    const reader = response.body?.getReader();
-    if (reader) {
-      const decoder = new TextDecoder();
-      let buffer = '';
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) { onDone(); break; }
-        buffer += decoder.decode(value, { stream: true });
-        const lines = buffer.split('\n');
-        buffer = lines.pop() ?? '';
-        for (const line of lines) {
-          if (line.startsWith('data: ')) {
-            try {
-              const data = JSON.parse(line.slice(6));
-              if (data.content || data.token) onChunk(data.content || data.token);
-              if (data.done) { onDone(); return; }
-            } catch { /* partial */ }
-          }
-        }
-      }
-    } else {
-      // Fallback: read full response as text and parse SSE lines
-      console.warn('[chat] ReadableStream not available, using text fallback');
-      const text = await response.text();
-      const lines = text.split('\n');
-      for (const line of lines) {
-        if (line.startsWith('data: ')) {
-          try {
-            const data = JSON.parse(line.slice(6));
-            if (data.content || data.token) onChunk(data.content || data.token);
-          } catch { /* partial */ }
-        }
-      }
-      onDone();
-    }
+    await parseSSEStream(response, {
+      onToken: onChunk,
+      onComplete: onDone,
+      onError: (err) => {
+        reportError('streamMessage:sse', err);
+        onChunk(`\n\n*[${err.message}]*`);
+        onDone();
+      },
+    }, abort.signal);
   } catch (err) {
-    console.error('[chat] Network error — falling back to mock:', err);
-    await mockStream(message, persona, characterCard, onChunk, onDone);
+    if (abort.signal.aborted) { onDone(); return; }
+    reportError('streamMessage', err);
+    onChunk('\n\n*[Connection lost — check your server and try again.]*');
+    onDone();
+  } finally {
+    if (_activeAbort === abort) _activeAbort = null;
   }
 }
 
@@ -102,6 +97,10 @@ export async function streamRegenerate(
     await mockStream('regenerate', persona, characterCard, onChunk, onDone);
     return;
   }
+
+  const abort = new AbortController();
+  _activeAbort = abort;
+
   try {
     const token = await getToken();
     const deviceId = await getDeviceId();
@@ -118,44 +117,29 @@ export async function streamRegenerate(
         character_card_id: characterCard?.id || undefined,
         persona,
       }),
+      signal: abort.signal,
     });
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
-    const reader = response.body?.getReader();
-    if (reader) {
-      const decoder = new TextDecoder();
-      let buffer = '';
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) { onDone(); break; }
-        buffer += decoder.decode(value, { stream: true });
-        const lines = buffer.split('\n');
-        buffer = lines.pop() ?? '';
-        for (const line of lines) {
-          if (line.startsWith('data: ')) {
-            try {
-              const data = JSON.parse(line.slice(6));
-              if (data.content || data.token) onChunk(data.content || data.token);
-              if (data.done) { onDone(); return; }
-            } catch { /* partial */ }
-          }
-        }
-      }
-    } else {
-      const text = await response.text();
-      for (const line of text.split('\n')) {
-        if (line.startsWith('data: ')) {
-          try {
-            const data = JSON.parse(line.slice(6));
-            if (data.content || data.token) onChunk(data.content || data.token);
-          } catch { /* partial */ }
-        }
-      }
+    if (!response.ok) {
+      reportError('streamRegenerate', new Error(`HTTP ${response.status}`));
       onDone();
+      return;
     }
+
+    await parseSSEStream(response, {
+      onToken: onChunk,
+      onComplete: onDone,
+      onError: (err) => {
+        reportError('streamRegenerate:sse', err);
+        onDone();
+      },
+    }, abort.signal);
   } catch (err) {
-    console.error('[chat] Regenerate network error:', err);
-    onDone(); // Signal done even on error so UI doesn't hang
+    if (abort.signal.aborted) { onDone(); return; }
+    reportError('streamRegenerate', err);
+    onDone();
+  } finally {
+    if (_activeAbort === abort) _activeAbort = null;
   }
 }
 
@@ -189,7 +173,6 @@ async function mockStream(
 }
 
 function pickRPResponse(msg: string, name: string, char: CharacterCard | null): string {
-  // Check for greetings
   if (msg.match(/\b(hi|hello|hey|greetings|good morning|good evening)\b/)) {
     return [
       `*${name} inclines their head slightly, a measured gesture that reveals nothing and promises everything.*\n\n"You have a way of appearing at interesting moments," *they say, a trace of warmth beneath the careful tone.* "I wasn't expecting company — but I find I don't mind it."`,
@@ -197,9 +180,7 @@ function pickRPResponse(msg: string, name: string, char: CharacterCard | null): 
     ][Math.floor(Math.random() * 2)];
   }
 
-  // Check for questions
   if (msg.includes('?') || msg.match(/\b(who|what|where|when|why|how|tell me|explain)\b/)) {
-    const topic = char?.personality ? ` ${char.personality.split('.')[0].toLowerCase()}.` : '';
     return [
       `*${name} pauses, weighing how much truth to offer and how much to keep behind their teeth.*\n\n"That's not a simple question," *they say slowly.* "But I suppose you already knew that, or you wouldn't have asked."\n\n*They lean back, eyes distant for a moment.* "What I can tell you is this — things are rarely what they seem here. Least of all me."`,
       `*Something shifts behind ${name}'s expression — a flicker of the person beneath the performance.*\n\n"You want to know?" *A pause. Then, quieter:* "Most people don't actually want the answer. They want the version that lets them sleep at night."\n\n*They study you, as if deciding which version you can handle.* "But you... you might be different."`,
@@ -207,7 +188,6 @@ function pickRPResponse(msg: string, name: string, char: CharacterCard | null): 
     ][Math.floor(Math.random() * 3)];
   }
 
-  // Check for actions (asterisks or action words)
   if (msg.includes('*') || msg.match(/\b(walk|move|go|take|grab|draw|reach|look|turn|sit|stand|run|fight|attack)\b/)) {
     return [
       `*${name}'s eyes track your movement with the precision of someone who has learned the hard way never to let their guard down completely.*\n\n*For a beat, neither of you moves. The air between you hums with something unspoken — tension, maybe. Or recognition.*\n\n"Interesting," *they murmur, more to themselves than to you.* "Most people hesitate. You didn't."`,
@@ -215,12 +195,10 @@ function pickRPResponse(msg: string, name: string, char: CharacterCard | null): 
     ][Math.floor(Math.random() * 2)];
   }
 
-  // Check for emotional content
   if (msg.match(/\b(feel|love|hate|miss|afraid|scared|angry|sad|happy|sorry|forgive|trust)\b/)) {
     return `*The word hangs in the air between you, and you watch something move across ${name}'s face — not quite pain, not quite relief, but the complicated space between them.*\n\n*When they finally speak, their voice is rougher than before.* "You say that like it's easy. Like the word doesn't cost anything."\n\n*A breath. Their hands find something to hold onto — an anchor against whatever tide is pulling at them.* "It does. Trust me, it does."`;
   }
 
-  // Default — character-aware
   const speechHint = char?.speech_pattern ? ` Their voice carries ${char.speech_pattern.split('.')[0].toLowerCase()}.` : '';
   return [
     `*${name} is quiet for a long moment — not the awkward silence of someone with nothing to say, but the deliberate silence of someone choosing their words like a surgeon choosing instruments.*\n\n"I've been thinking about what you said," *they admit.${speechHint}* "And I'm not sure you realize what you've set in motion."\n\n*They look at you — really look at you — and something behind their careful composure shifts.* "But we're here now. So let's see where this goes."`,
@@ -239,7 +217,6 @@ function pickGamingResponse(msg: string): string {
   if (msg.match(/\b3\b/) || msg.match(/sortie|attack|strike|charge/)) {
     return `Under cover of darkness, you lead forty of your best fighters through the siege tunnels. The enemy camp sprawls before you — cook fires, supply wagons, sleeping soldiers.\n\nYour scout whispers: "The commander's tent is to the north. Supply depot is east. Siege engine workshop is south."\n\nYou have the element of surprise, but not for long.\n\n1. Strike the commander's tent — cut off the head\n2. Burn the supply depot — starve them out\n3. Destroy the siege engines — buy time for the walls\n4. Split into three teams and hit all targets at once`;
   }
-  // Default gaming response
   return `The situation evolves rapidly. Your forces hold their position, watching and waiting for your next command.\n\nA messenger arrives, out of breath: "Reports from the western watchtower — dust clouds on the horizon. Could be reinforcements... ours or theirs. We won't know for an hour."\n\nYour advisors look to you.\n\n1. Send fast riders to identify the approaching force\n2. Prepare defenses assuming they're hostile\n3. Send a signal fire to any allied forces in the region\n4. Use this distraction to launch an offensive`;
 }
 
@@ -272,7 +249,8 @@ export async function getSuggestions(
     if (!response.ok) return [];
     const data = await response.json();
     return data.suggestions || data || [];
-  } catch {
+  } catch (err) {
+    reportError('getSuggestions', err);
     return [];
   }
 }
