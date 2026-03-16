@@ -119,7 +119,8 @@ def get_ollama_host() -> str:
     try:
         cfg = _load_yaml(CONFIG_PATH)
         return cfg.get("scoring", {}).get("ollama_host", OLLAMA_HOST)
-    except Exception:
+    except Exception as e:
+        logger.warning(f"Failed to read ollama_host from config, using default: {e}")
         return OLLAMA_HOST
 
 
@@ -129,8 +130,14 @@ def get_ollama_host() -> str:
 def _load_history() -> Dict:
     """Load model history from JSON, creating it if necessary."""
     if HISTORY_PATH.exists():
-        with open(HISTORY_PATH) as f:
-            return json.load(f)
+        try:
+            with open(HISTORY_PATH) as f:
+                data = json.load(f)
+            if isinstance(data, dict) and "entries" in data:
+                return data
+            logger.warning(f"Corrupt model history (unexpected structure), resetting")
+        except (json.JSONDecodeError, OSError) as e:
+            logger.error(f"Failed to load model history: {e}")
     return {"entries": [], "current_model": get_current_model()}
 
 
@@ -542,8 +549,8 @@ def cmd_register(args: argparse.Namespace) -> None:
         # Clean up temp Modelfile
         try:
             os.unlink(modelfile_path)
-        except OSError:
-            pass
+        except OSError as e:
+            logger.debug(f"Failed to clean up temp Modelfile {modelfile_path}: {e}")
 
     # Verify model is now available
     if not model_exists_in_ollama(model_name, host):

@@ -6,11 +6,21 @@ Gracefully degrades when SMTP is not configured.
 """
 
 import logging
+import re
 import smtplib
+from html import escape as html_escape
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
 logger = logging.getLogger("STRAT_OS")
+
+# Strict email regex (no newlines, no injection chars)
+_EMAIL_RE = re.compile(r'^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$')
+
+
+def _sanitize_header(value: str) -> str:
+    """Strip characters that could enable email header injection."""
+    return value.replace('\r', '').replace('\n', '').replace('\x00', '').strip()
 
 
 class EmailService:
@@ -28,9 +38,16 @@ class EmailService:
         if not self.is_configured():
             raise RuntimeError("SMTP not configured")
 
+        # Validate and sanitize to prevent header injection
+        to_email = _sanitize_header(to_email)
+        subject = _sanitize_header(subject)
+
+        if not _EMAIL_RE.match(to_email):
+            raise ValueError(f"Invalid email address: {to_email!r}")
+
         msg = MIMEMultipart("alternative")
         msg["Subject"] = subject
-        msg["From"] = self._config.get("smtp_user")
+        msg["From"] = _sanitize_header(self._config.get("smtp_user", ""))
         msg["To"] = to_email
         msg.attach(MIMEText(html_body, "html"))
 
@@ -39,16 +56,20 @@ class EmailService:
         user = self._config["smtp_user"]
         password = self._config.get("smtp_password", "")
 
-        with smtplib.SMTP(host, port, timeout=10) as server:
-            server.starttls()
-            server.login(user, password)
-            server.send_message(msg)
-
-        logger.info(f"Email sent to {to_email}: {subject}")
+        try:
+            with smtplib.SMTP(host, port, timeout=10) as server:
+                server.starttls()
+                server.login(user, password)
+                server.send_message(msg)
+            logger.info(f"Email sent to {to_email}: {subject}")
+        except smtplib.SMTPException as e:
+            logger.error(f"SMTP error sending to {to_email}: {e}")
+            raise
 
     def send_verification(self, email: str, code: str, display_name: str = ""):
         """Send a verification code email."""
-        name = display_name or email.split("@")[0]
+        name = html_escape(display_name or email.split("@")[0])
+        code = html_escape(code)
         subject = f"StratOS — Verification Code: {code}"
         body = f"""
         <div style="font-family: -apple-system, sans-serif; max-width: 480px; margin: 0 auto; padding: 32px;">
@@ -69,7 +90,8 @@ class EmailService:
 
     def send_login_code(self, email: str, code: str, display_name: str = ""):
         """Send a one-time login code email."""
-        name = display_name or email.split("@")[0]
+        name = html_escape(display_name or email.split("@")[0])
+        code = html_escape(code)
         subject = f"StratOS — Login Code: {code}"
         body = f"""
         <div style="font-family: -apple-system, sans-serif; max-width: 480px; margin: 0 auto; padding: 32px;">
@@ -90,7 +112,8 @@ class EmailService:
 
     def send_reset_code(self, email: str, code: str, display_name: str = ""):
         """Send a password reset code email."""
-        name = display_name or email.split("@")[0]
+        name = html_escape(display_name or email.split("@")[0])
+        code = html_escape(code)
         subject = f"StratOS — Password Reset Code: {code}"
         body = f"""
         <div style="font-family: -apple-system, sans-serif; max-width: 480px; margin: 0 auto; padding: 32px;">

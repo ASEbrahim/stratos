@@ -73,19 +73,41 @@ def validate_url(url: str) -> tuple:
     if not hostname:
         return False, "No hostname in URL"
 
-    # Block obvious localhost aliases
-    if hostname in ("localhost", "0.0.0.0", "[::1]"):
+    # Block localhost aliases (with and without brackets)
+    _localhost_aliases = {"localhost", "0.0.0.0", "[::1]", "::1", "[0:0:0:0:0:0:0:1]"}
+    if hostname.lower() in _localhost_aliases:
         return False, "Blocked: localhost"
 
-    # 3. DNS resolution — resolve BEFORE connecting to prevent DNS rebinding
+    # Block userinfo in URL (http://evil@internal/) — urlparse allows it
+    if parsed.username is not None:
+        return False, "Blocked: URL contains userinfo"
+
+    # 3. Try to parse hostname as raw IP — catches hex (0x7f000001),
+    #    octal (0177.0.0.1), and decimal (2130706433) bypass attempts.
+    #    Python's ipaddress handles these forms.
+    bare_host = hostname.strip("[]")  # strip IPv6 brackets
+    try:
+        direct_addr = ipaddress.ip_address(bare_host)
+        for network in _BLOCKED_NETWORKS:
+            if direct_addr in network:
+                return False, f"Blocked: IP {bare_host} is in a private range"
+    except ValueError:
+        pass  # Not a literal IP — will be resolved via DNS below
+
+    # 4. DNS resolution — resolve BEFORE connecting to prevent DNS rebinding
     try:
         addr_infos = socket.getaddrinfo(hostname, parsed.port or 80, proto=socket.IPPROTO_TCP)
     except socket.gaierror:
+        logger.warning(f"URL validation: DNS resolution failed for {hostname}")
         return False, f"DNS resolution failed for {hostname}"
+
+    if not addr_infos:
+        return False, f"DNS returned no results for {hostname}"
 
     for family, type_, proto, canonname, sockaddr in addr_infos:
         ip = sockaddr[0]
         if _is_private_ip(ip):
+            logger.warning(f"URL validation: {hostname} resolves to private IP {ip}")
             return False, f"Blocked: {hostname} resolves to private IP {ip}"
 
     return True, None

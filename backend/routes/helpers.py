@@ -5,7 +5,13 @@ JSON response helpers, auth validation, LLM output cleaning.
 
 import json
 import gzip
+import logging
 import re
+
+logger = logging.getLogger("STRAT_OS")
+
+# Maximum request body size: 10 MB
+_MAX_BODY_SIZE = 10 * 1024 * 1024
 
 
 # ═══════════════════════════════════════════════════════════
@@ -201,16 +207,28 @@ def error_response(handler, message, status=400):
 
 def read_json_body(handler) -> dict:
     """Read and parse JSON from request body. Returns {} on empty/invalid body."""
-    content_length = int(handler.headers.get('Content-Length', 0))
+    try:
+        content_length = int(handler.headers.get('Content-Length', 0))
+    except (ValueError, TypeError):
+        logger.warning("read_json_body: invalid Content-Length header")
+        return {}
     if content_length == 0:
         return {}
-    raw = handler.rfile.read(content_length)
-    text = raw.decode('utf-8').strip()
+    if content_length > _MAX_BODY_SIZE:
+        logger.warning(f"read_json_body: body too large ({content_length} bytes, max {_MAX_BODY_SIZE})")
+        return {}
+    try:
+        raw = handler.rfile.read(content_length)
+        text = raw.decode('utf-8').strip()
+    except (UnicodeDecodeError, OSError) as e:
+        logger.warning(f"read_json_body: failed to read/decode body: {e}")
+        return {}
     if not text:
         return {}
     try:
         return json.loads(text)
-    except (json.JSONDecodeError, UnicodeDecodeError):
+    except json.JSONDecodeError as e:
+        logger.warning(f"read_json_body: invalid JSON: {e}")
         return {}
 
 

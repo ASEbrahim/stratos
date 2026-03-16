@@ -16,6 +16,23 @@ logger = logging.getLogger("STRAT_OS")
 _BASE = Path(__file__).parent / "data" / "users"
 
 
+def _safe_filename(filename: str) -> str:
+    """Validate filename to prevent path traversal.
+
+    Rejects any filename containing path separators, parent-directory
+    references, or null bytes.  Returns the basename only.
+    """
+    if not filename:
+        raise ValueError("Empty filename")
+    # Strip directory components — only the leaf name is allowed
+    name = Path(filename).name
+    if name != filename:
+        raise ValueError(f"Path traversal attempt blocked: {filename!r}")
+    if '..' in name or '\x00' in name:
+        raise ValueError(f"Invalid filename: {filename!r}")
+    return name
+
+
 def get_path(user_id: int) -> Path:
     """Get the data directory path for a user."""
     return _BASE / str(user_id)
@@ -34,14 +51,20 @@ def append_jsonl(user_id: int, filename: str, data: dict):
     if user_id <= 0:
         return
     try:
+        safe_name = _safe_filename(filename)
         p = get_path(user_id)
         if not p.exists():
             ensure_dir(user_id)
-        filepath = p / filename
+        filepath = p / safe_name
+        # Final safeguard: resolved path must be under _BASE
+        if not filepath.resolve().is_relative_to(_BASE.resolve()):
+            raise ValueError(f"Path escape blocked: {filepath}")
         with open(filepath, "a", encoding="utf-8") as f:
             f.write(json.dumps(data, default=str) + "\n")
+    except ValueError as e:
+        logger.warning(f"user_data append_jsonl({user_id}, {filename}): {e}")
     except Exception as e:
-        logger.debug(f"user_data append_jsonl({user_id}, {filename}): {e}")
+        logger.error(f"user_data append_jsonl({user_id}, {filename}): {e}")
 
 
 def write_json(user_id: int, filename: str, data: dict):
@@ -49,15 +72,20 @@ def write_json(user_id: int, filename: str, data: dict):
     if user_id <= 0:
         return
     try:
+        safe_name = _safe_filename(filename)
         p = get_path(user_id)
         if not p.exists():
             ensure_dir(user_id)
-        filepath = p / filename
-        filepath.parent.mkdir(parents=True, exist_ok=True)
+        filepath = p / safe_name
+        # Final safeguard: resolved path must be under _BASE
+        if not filepath.resolve().is_relative_to(_BASE.resolve()):
+            raise ValueError(f"Path escape blocked: {filepath}")
         with open(filepath, "w", encoding="utf-8") as f:
             json.dump(data, f, indent=2, default=str)
+    except ValueError as e:
+        logger.warning(f"user_data write_json({user_id}, {filename}): {e}")
     except Exception as e:
-        logger.debug(f"user_data write_json({user_id}, {filename}): {e}")
+        logger.error(f"user_data write_json({user_id}, {filename}): {e}")
 
 
 def get_user_id_for_profile(db, profile_id: int) -> int:
@@ -69,5 +97,6 @@ def get_user_id_for_profile(db, profile_id: int) -> int:
         cursor.execute("SELECT user_id FROM profiles WHERE id = ?", (profile_id,))
         row = cursor.fetchone()
         return row[0] if row else 0
-    except Exception:
+    except Exception as e:
+        logger.error(f"get_user_id_for_profile({profile_id}): {e}")
         return 0
