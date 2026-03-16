@@ -296,6 +296,13 @@ AGENT_TOOLS = [
 
 def execute_tool(tool_name, args, strat, profile_id=0, persona=''):
     """Execute a tool call and return the result string."""
+    # Input validation: limit string argument lengths to prevent abuse
+    MAX_ARG_LEN = 2000
+    if isinstance(args, dict):
+        for k, v in args.items():
+            if isinstance(v, str) and len(v) > MAX_ARG_LEN:
+                args[k] = v[:MAX_ARG_LEN]
+                logger.warning(f"Tool {tool_name}: arg '{k}' truncated to {MAX_ARG_LEN} chars")
     try:
         if tool_name == "web_search":
             return _tool_web_search(args, strat)
@@ -595,8 +602,8 @@ def _save_tickers(strat, symbols, profile_id=0):
     try:
         from fetchers.market import MarketFetcher
         strat.market_fetcher = MarketFetcher(strat.config.get("market", {}))
-    except Exception:
-        pass
+    except Exception as e:
+        logger.debug(f"MarketFetcher re-init failed after ticker save: {e}")
 
 
 def _save_categories(strat, categories, profile_id=0):

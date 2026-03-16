@@ -47,7 +47,8 @@ def _build_news_context(strat, output_file: str, include_market: bool = True) ->
                     f"({it.get('source','')}, {it.get('category',it.get('root',''))}) "
                     f"— {str(it.get('summary',''))[:200]}"
                 )
-            except Exception:
+            except Exception as e:
+                logger.debug(f"News context: skipping malformed item: {e}")
                 continue
         news_context = "\n".join(lines)
 
@@ -79,7 +80,8 @@ def _build_news_context(strat, output_file: str, include_market: bool = True) ->
                             parts.append(f"  {k}: ${p:.2f} ({c:+.2f}%){hl}{trend}")
                     if parts:
                         mlines.append(f"{name} ({sym}):\n" + "\n".join(parts[:3]))
-                except Exception:
+                except Exception as e:
+                    logger.debug(f"News context: skipping malformed market entry: {e}")
                     continue
             if mlines:
                 ts = scraped.get("timestamps", {}).get("market", "")
@@ -321,7 +323,10 @@ def _load_scenario_json(scenario_path: str, relative_path: str) -> Optional[dict
         full_path = os.path.join(scenario_path, relative_path)
         with open(full_path, 'r') as f:
             return json.load(f)
-    except Exception:
+    except (FileNotFoundError, OSError):
+        return None
+    except json.JSONDecodeError as e:
+        logger.warning(f"Scenario JSON parse error in {relative_path}: {e}")
         return None
 
 
@@ -336,6 +341,14 @@ def _enforce_context_budget(parts: list, budget_tokens: int) -> str:
     core_text = '\n\n'.join(t for t, _ in core)
     core_tokens = est_tokens(core_text)
     remaining = budget_tokens - core_tokens
+
+    # Edge case: core alone exceeds budget — truncate core and skip conditionals
+    if remaining <= 0:
+        if core_text.strip():
+            max_core_words = int(budget_tokens / 1.3)
+            words = core_text.split()
+            return ' '.join(words[:max(max_core_words, 20)]) + '\n...(core truncated)'
+        return ''
 
     included = [core_text] if core_text.strip() else []
     for text, label in conditional:
@@ -517,7 +530,8 @@ def _build_market_context(strat, output_file: str) -> str:
                         sym_parts.append(f"  {k}: ${p:.2f} ({c:+.2f}%){hl}{trend}")
                 if sym_parts:
                     mlines.append(f"{name} ({sym}):\n" + "\n".join(sym_parts))
-            except Exception:
+            except Exception as e:
+                logger.debug(f"Market context: skipping malformed entry: {e}")
                 continue
         if mlines:
             ts = scraped.get("timestamps", {}).get("market", "")
@@ -630,8 +644,8 @@ def _get_persona_custom_context(strat, profile_id: int, persona: str) -> str:
             content = dict(row).get('content', '')
             if content.strip():
                 return f"## Custom Instructions\n{content.strip()}"
-    except Exception:
-        pass
+    except Exception as e:
+        logger.debug(f"Custom context load failed for persona '{persona}': {e}")
     return ""
 
 
@@ -652,7 +666,8 @@ def _get_preference_signals(strat, profile_id: int, persona: str) -> str:
         for s in signals:
             lines.append(f"- {s['signal_type']}: {s['signal_key']} (importance: {s['signal_weight']:.1f})")
         return "\n".join(lines)
-    except Exception:
+    except Exception as e:
+        logger.debug(f"Preference signals load failed: {e}")
         return ""
 
 
@@ -673,7 +688,8 @@ def _get_recent_feed(strat, profile_id: int, limit: int = 10) -> str:
         for a in articles:
             lines.append(f"- [{a['score']:.1f}] {a['title']} ({a['source']}, {a['category']})")
         return "\n".join(lines)
-    except Exception:
+    except Exception as e:
+        logger.debug(f"Recent feed load failed: {e}")
         return ""
 
 
@@ -695,7 +711,8 @@ def _get_feedback_summary(strat, profile_id: int) -> str:
             score_str = f" (rated {r['user_score']:.0f})" if r.get('user_score') else ""
             lines.append(f"- {r['title']}{score_str}")
         return "\n".join(lines)
-    except Exception:
+    except Exception as e:
+        logger.debug(f"Feedback summary load failed: {e}")
         return ""
 
 
@@ -717,7 +734,8 @@ def _get_file_summaries(strat, profile_id: int, persona: str) -> str:
             suffix = f": {preview}..." if preview else ""
             lines.append(f"- {f['filename']} ({f['file_type']}){suffix}")
         return "\n".join(lines)
-    except Exception:
+    except Exception as e:
+        logger.debug(f"File summaries load failed: {e}")
         return ""
 
 
@@ -759,7 +777,8 @@ def _get_youtube_knowledge(strat, profile_id: int) -> str:
                                 content = parsed.get('summary', str(parsed))[:200]
                             else:
                                 content = str(content)[:200]
-                        except Exception:
+                        except Exception as e:
+                            logger.debug(f"YouTube summary parse failed: {e}")
                             content = str(content)[:200]
                         lines.append(f"  Summary: {content}...")
         return "\n".join(lines)
@@ -798,12 +817,13 @@ def _get_active_scenario(strat, profile_id: int) -> str:
                             parts.append(f"- {c.get('name', '???')}: {c.get('description', '')[:100]}")
                         else:
                             parts.append(f"- {str(c)[:100]}")
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"Scenario characters parse failed: {e}")
         if s.get('state_md'):
             parts.append(f"\n### Current State\n{s['state_md'][:1000]}")
         return "\n".join(parts)
-    except Exception:
+    except Exception as e:
+        logger.debug(f"Active scenario load failed: {e}")
         return ""
 
 
@@ -923,8 +943,8 @@ def _load_state_md(strat, profile_id: int, persona_name: str) -> str:
         state = cc.get_state(profile_id, persona_name)
         if state.strip():
             return f"PERSONA STATE:\n{state[:2000]}"
-    except Exception:
-        pass
+    except Exception as e:
+        logger.debug(f"State.md load failed for {persona_name}: {e}")
     return ""
 
 

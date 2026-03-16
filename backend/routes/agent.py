@@ -35,8 +35,8 @@ def handle_agent_status(handler, strat):
         if r.status_code == 200:
             models = [m.get("name", "") for m in r.json().get("models", [])]
             available = any(model.split(":")[0] in m for m in models)
-    except Exception:
-        pass
+    except Exception as e:
+        logger.debug(f"Agent status: Ollama check failed: {e}")
     from processors.stt import STTProcessor
     stt_ok, stt_msg = STTProcessor.is_available()
     json_response(handler, {"available": available, "model": model, "host": ollama_host,
@@ -155,7 +155,12 @@ def _generate_gaming_suggestions(handler, ollama_host, model, user_msg, agent_re
 
 def _update_entity_memory(db, ollama_host, model, profile_id, persona, scenario, entity_name, user_msg, ai_response):
     """Background LLM call to update an entity's memory after an interaction.
-    Called in a daemon thread — must not block the response stream."""
+    Called in a daemon thread — must not block the response stream.
+
+    Thread safety note: SQLite cursor creation from db.conn is serialized by the GIL
+    and db._commit() uses an internal lock. This is safe for WAL-mode SQLite as long as
+    only short-lived cursors are used (no long-held cursor references across awaits).
+    """
     try:
         cursor = db.conn.cursor()
         cursor.execute(
@@ -306,6 +311,15 @@ def handle_agent_chat(handler, strat, output_file, profile_id=0):
         if not user_msg:
             raise ValueError("Empty message")
 
+        # ── Input validation: enforce size limits ──
+        MAX_MSG_LEN = 50_000  # ~12K tokens
+        MAX_HISTORY_TURNS = 50
+        if len(user_msg) > MAX_MSG_LEN:
+            user_msg = user_msg[:MAX_MSG_LEN]
+            logger.warning(f"Agent chat: user message truncated to {MAX_MSG_LEN} chars")
+        if len(history) > MAX_HISTORY_TURNS:
+            history = history[-MAX_HISTORY_TURNS:]
+
         scoring_cfg = strat.config.get("scoring", {})
         ollama_host = scoring_cfg.get("ollama_host", "http://localhost:11434")
         model = scoring_cfg.get("inference_model", "qwen3.5:9b")
@@ -427,8 +441,8 @@ def handle_agent_chat(handler, strat, output_file, profile_id=0):
                     try:
                         results = strat.db.search_news_history(kw, days=14, limit=5, profile_id=profile_id)
                         search_results.extend(results)
-                    except Exception:
-                        pass
+                    except Exception as e:
+                        logger.debug(f"Agent: history search failed for '{kw}': {e}")
                 if search_results:
                     seen, unique = set(), []
                     for r in search_results:
@@ -448,6 +462,7 @@ def handle_agent_chat(handler, strat, output_file, profile_id=0):
             system_prompt += "\n\nBREVITY: Keep responses short and conversational — 2-4 sentences max unless the user asks for detail. No headers, no bullet lists, no markdown formatting unless specifically asked. Reply like a knowledgeable friend in a chat app."
 
         # ── Free chat mode: no tools, simple system prompt ──
+        # TODO: consolidate with scorer_base._call_ollama — agent.py has its own streaming impl
         if free_mode:
             free_system = f"You are a helpful AI assistant. The user is a {role} in {location}. Be conversational, helpful, and concise."
             messages = [{"role": "system", "content": free_system}]
@@ -655,13 +670,16 @@ def handle_agent_chat(handler, strat, output_file, profile_id=0):
                                          persona_name, profile_id, rp_mode, active_npc, active_scenario)
                     sse_event(handler, {"done": True})
                     return
-        except Exception:
-            pass
+        except Exception as e:
+            logger.warning(f"Agent: final forced response failed: {e}")
         sse_event(handler, {"error": "Max tool rounds exceeded — try a simpler question"})
 
+    except ValueError as e:
+        logger.warning(f"Agent chat validation error: {e}")
+        error_response(handler, str(e), 400)
     except Exception as e:
         logger.error(f"Agent chat error: {e}")
-        error_response(handler, "Internal server error")
+        error_response(handler, "Internal server error", 500)
 
 
 # ═══════════════════════════════════════════════════════════
@@ -681,6 +699,8 @@ def handle_ask(handler, strat, output_dir):
         item_category = body.get("category", "")
         if not question:
             raise ValueError("No question")
+        if len(question) > 10_000:
+            question = question[:10_000]
 
         article_ctx = f"Title: {item_title}\nURL: {item_url}\nCategory: {item_category}\nScore: {item_score} — {item_reason}\nSummary: {item_summary}\nContent: {(item_content or item_summary)[:2000]}"
         prompt = f"News signal:\n\n{article_ctx}\n\nQuestion: {question}"
@@ -742,6 +762,10 @@ def handle_file_assist(handler, strat):
         instruction = body.get("instruction", "").strip()
         if not content:
             raise ValueError("No content")
+        MAX_FILE_ASSIST_LEN = 100_000
+        if len(content) > MAX_FILE_ASSIST_LEN:
+            content = content[:MAX_FILE_ASSIST_LEN]
+            logger.warning(f"file-assist: content truncated to {MAX_FILE_ASSIST_LEN} chars")
 
         # Action-specific system prompts and user prompts
         word_count = len(content.split())
@@ -986,7 +1010,9 @@ def _build_agent_context(strat, output_file):
         for it in top:
             try:
                 lines.append(f"[{float(it.get('score',0)):.1f}] {it.get('title','')} ({it.get('source','')}, {it.get('category',it.get('root',''))}) — {str(it.get('summary',''))[:200]}")
-            except Exception: continue
+            except Exception as e:
+                logger.debug(f"Agent context: skipping malformed news item: {e}")
+                continue
         news_context = "\n".join(lines)
 
         market = scraped.get("market", {})
@@ -1015,7 +1041,9 @@ def _build_agent_context(strat, output_file):
                         parts.append(f"  {k}: ${p:.2f} ({c:+.2f}%){hl}{trend}")
                 if parts:
                     mlines.append(f"{name} ({sym}):\n" + "\n".join(parts[:3]))  # Top 3 timeframes
-            except Exception: continue
+            except Exception as e:
+                logger.debug(f"Agent context: skipping malformed market entry: {e}")
+                continue
         if mlines:
             ts = scraped.get("timestamps", {}).get("market", "")
             ts_label = f" (as of {ts[:16].replace('T',' ')})" if ts else ""
