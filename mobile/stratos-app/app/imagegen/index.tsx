@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, TextInput, ScrollView, TouchableOpacity, StyleSheet, ActivityIndicator, Alert, Dimensions, Platform, Linking } from 'react-native';
+import { View, Text, TextInput, ScrollView, TouchableOpacity, StyleSheet, ActivityIndicator, Alert, Dimensions, Platform } from 'react-native';
 import { Image } from 'expo-image';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -134,8 +134,8 @@ export default function ImageGenScreen() {
     try {
       const uri = getImageUrl(imageId);
       if (Platform.OS === 'web') {
-        // Open image URL directly — user can right-click save or browser will download
-        await Linking.openURL(uri);
+        // Open image in new tab — user can right-click save
+        window.open(uri, '_blank');
       } else {
         // Native: use expo-file-system + expo-media-library
         const { cacheDirectory, downloadAsync } = await import('expo-file-system/legacy');
@@ -165,14 +165,17 @@ export default function ImageGenScreen() {
     if (!imageId || !params.card_id) return;
     setSettingAvatar(true);
     try {
-      await apiFetch(`/api/cards/${params.card_id}/avatar`, {
-        method: 'POST',
-        body: JSON.stringify({ image_id: imageId }),
+      await apiFetch(`/api/cards/${params.card_id}`, {
+        method: 'PUT',
+        body: JSON.stringify({ avatar_image_path: imageId }),
       });
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       Alert.alert('Avatar Set', `${params.name}'s portrait has been updated.`);
-    } catch {
-      Alert.alert('Error', 'Failed to set avatar.');
+    } catch (e: any) {
+      const msg = e?.message?.includes('403') || e?.status === 403
+        ? 'You can only set avatars on your own characters.'
+        : 'Failed to set avatar. Make sure the server is running.';
+      Alert.alert('Error', msg);
     }
     setSettingAvatar(false);
   };
