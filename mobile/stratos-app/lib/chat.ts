@@ -41,7 +41,8 @@ export async function streamMessage(
       }),
     });
     if (!response.ok) {
-      console.warn('[chat] API returned', response.status, '— falling back to mock');
+      const body = await response.text().catch(() => '');
+      console.error(`[chat] API error ${response.status}: ${body} — falling back to mock`);
       await mockStream(message, persona, characterCard, onChunk, onDone);
       return;
     }
@@ -82,8 +83,8 @@ export async function streamMessage(
       }
       onDone();
     }
-  } catch {
-    // Network error — fall back to mock
+  } catch (err) {
+    console.error('[chat] Network error — falling back to mock:', err);
     await mockStream(message, persona, characterCard, onChunk, onDone);
   }
 }
@@ -152,7 +153,8 @@ export async function streamRegenerate(
       }
       onDone();
     }
-  } catch {
+  } catch (err) {
+    console.error('[chat] Regenerate network error:', err);
     onDone(); // Signal done even on error so UI doesn't hang
   }
 }
