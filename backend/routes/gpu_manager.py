@@ -38,24 +38,34 @@ def _comfyui_running() -> bool:
         return False
 
 
+def _unload_ollama_models():
+    """Unload all Ollama models from VRAM via API (no sudo needed)."""
+    try:
+        r = requests.get(f"{OLLAMA_HOST}/api/ps", timeout=3)
+        if r.status_code == 200:
+            for model in r.json().get("models", []):
+                name = model.get("name", "")
+                if name:
+                    logger.info(f"Unloading Ollama model: {name}")
+                    requests.post(f"{OLLAMA_HOST}/api/generate",
+                                  json={"model": name, "keep_alive": 0}, timeout=10)
+    except Exception as e:
+        logger.warning(f"Could not unload Ollama models via API: {e}")
+
+
 def _stop_ollama():
-    """Stop Ollama to free GPU."""
+    """Stop Ollama to free GPU. Uses API to unload models first, then kills process."""
     logger.info("Stopping Ollama...")
+    # Unload all models via API (frees VRAM without sudo)
+    _unload_ollama_models()
+    time.sleep(2)
+    # Kill the process (no systemctl — avoids polkit auth popup)
     try:
-        subprocess.run(["ollama", "stop"], timeout=5, capture_output=True)
-    except Exception:
-        pass
-    # Kill any loaded models to free VRAM
-    try:
-        subprocess.run(["systemctl", "stop", "ollama"], timeout=10, capture_output=True)
-    except Exception:
-        pass
-    try:
-        subprocess.run(["pkill", "-f", "ollama"], timeout=5, capture_output=True)
+        subprocess.run(["pkill", "-f", "ollama serve"], timeout=5, capture_output=True)
     except Exception:
         pass
     # Wait for VRAM to free
-    time.sleep(3)
+    time.sleep(2)
     logger.info("Ollama stopped")
 
 
