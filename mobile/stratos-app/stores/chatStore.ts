@@ -100,70 +100,43 @@ export const useChatStore = create<ChatState>((set, get) => ({
   regenerateLastMessage: async () => {
     const { sessionId, character, persona, messages } = get();
     if (!sessionId || messages.length < 2) return;
-    // Remove the last assistant message from display
+    // Keep the old message as fallback in case regenerate fails
     const lastIdx = messages.length - 1;
     if (messages[lastIdx].role !== 'assistant') return;
+    const oldMessage = messages[lastIdx];
     const trimmed = messages.slice(0, lastIdx);
     set({ messages: trimmed, isStreaming: true, streamingContent: '', suggestions: [] });
 
-    // Stream from the regenerate (swipe) endpoint directly
-    // It deactivates the old response and generates a fresh one — no duplicate user messages
+    // Use the same streamMessage function for consistency
+    // The backend's /api/rp/chat will see the conversation history
+    // WITHOUT the last assistant message (since we just inserted it as turn N
+    // and it's the latest), so it generates a fresh response
+    const lastUser = trimmed.filter(m => m.role === 'user').pop();
+    if (!lastUser) {
+      // Restore old message if no user message found
+      set({ messages, isStreaming: false });
+      return;
+    }
+
+    let accumulated = '';
     try {
-      const { getToken, getDeviceId } = await import('../lib/api');
-      const { API_BASE } = await import('../constants/config');
-      const token = await getToken();
-      const deviceId = await getDeviceId();
-      const response = await fetch(`${API_BASE}/api/rp/regenerate`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Device-Id': deviceId,
-          ...(token ? { 'X-Auth-Token': token } : {}),
-        },
-        body: JSON.stringify({
-          session_id: sessionId,
-          branch_id: 'main',
-          character_card_id: character?.id,
-          persona,
-        }),
-      });
-
-      let accumulated = '';
-      const reader = response.body?.getReader();
-      if (reader) {
-        const decoder = new TextDecoder();
-        let buffer = '';
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-          buffer += decoder.decode(value, { stream: true });
-          const lines = buffer.split('\n');
-          buffer = lines.pop() ?? '';
-          for (const line of lines) {
-            if (line.startsWith('data: ')) {
-              try {
-                const data = JSON.parse(line.slice(6));
-                if (data.content || data.token) {
-                  accumulated += data.content || data.token;
-                  set({ streamingContent: accumulated });
-                }
-                if (data.done) break;
-              } catch { /* partial JSON */ }
-            }
+      await streamMessage(sessionId, lastUser.content, persona, character,
+        (chunk) => { accumulated += chunk; set({ streamingContent: accumulated }); },
+        () => {
+          if (accumulated) {
+            const assistantMessage: ChatMessage = { id: createMessageId(), role: 'assistant', content: accumulated, timestamp: new Date().toISOString() };
+            set((state) => ({ messages: [...state.messages, assistantMessage], isStreaming: false, streamingContent: '' }));
+          } else {
+            // Restore old message if generation returned empty
+            set({ messages, isStreaming: false, streamingContent: '' });
           }
-        }
-      }
-
-      if (accumulated) {
-        const assistantMessage: ChatMessage = { id: createMessageId(), role: 'assistant', content: accumulated, timestamp: new Date().toISOString() };
-        set((state) => ({ messages: [...state.messages, assistantMessage], isStreaming: false, streamingContent: '' }));
-      } else {
-        set({ isStreaming: false, streamingContent: '' });
-      }
-      get().persistSession().catch(() => {});
-      get().loadSuggestions().catch(() => {});
+          get().persistSession().catch(() => {});
+          get().loadSuggestions().catch(() => {});
+        },
+      );
     } catch {
-      set({ isStreaming: false, streamingContent: '' });
+      // Restore old message on error
+      set({ messages, isStreaming: false, streamingContent: '' });
     }
   },
 }));

@@ -1,8 +1,9 @@
 # StratOS Mobile — Functional Requirements Specification
 
 ## Document Info
-- **Version**: 1.0
-- **Date**: March 15, 2026
+- **Version**: 2.0
+- **Date**: March 16, 2026
+- **Last session**: CHROMA image gen, tiered memory, chat quality fixes
 - **Platform**: React Native + Expo 54 + TypeScript
 - **Backend**: Python HTTP server (port 8080), SQLite, Ollama LLM
 
@@ -92,11 +93,13 @@
 - Maximum depth: 15 levels
 
 ### 3.5 Director's Note
-- **Endpoint**: `POST /api/rp/director-note`
-- Collapsible bar above chat input
-- Guides AI's next response ("keep it short", "make her hesitant")
+- **Endpoint**: `POST /api/rp/director-note` (storage), sent inline via `/api/rp/chat` `director_note` field
+- Collapsible bar above chat input (DirectorNoteBar component)
+- Guides AI's next response ("keep it short", "make her hesitant", "make her angry")
+- Shows "Will apply to your next message" hint when note is active
 - After use: note shown grayed out with "Reuse" button (not silently cleared)
 - Single-use by default, reusable on tap
+- Injected as system message: `DIRECTOR'S NOTE (this turn only): {note}`
 
 ### 3.6 Feedback
 - **Endpoint**: `POST /api/rp/feedback`
@@ -147,37 +150,80 @@
 ## 5. Image Generation
 
 ### 5.1 Free-form Text-to-Image
-- **Endpoint**: `POST /api/image/generate`
-- Prompt text input
+- **Endpoint**: `POST /api/image/generate` (accepts `prompt`, `width`, `height`, `steps`, `seed`, `negative_prompt`)
+- Prompt text input with style prefix (anime/realistic/illustration prepended automatically)
 - Style selector: Anime / Realistic / Illustration
+- Quality selector: Fast (8 steps ~30s) / Balanced (12 steps ~45s) / Quality (28 steps ~90s)
 - Size selector: Portrait (768×1024) / Square (1024×1024) / Landscape (1024×768)
-- Loading state with estimated time (~5-30 seconds)
-- Generated image display
+- Dynamic model badge shows selected quality + estimated time
+- Seed control under Advanced toggle (random seed button)
+- Loading state with estimated generation time
 
 ### 5.2 Character Portrait
-- **Endpoint**: `POST /api/image/character-portrait`
-- Auto-constructs prompt from character card fields
-- One-tap from character detail page
-- Model routing: SFW → FLUX, NSFW → Pony V7
+- Both character mode and free-form use `POST /api/image/generate` (prompt built client-side)
+- Style prefix + physical_description + character name assembled into prompt
+- Quality modes apply to both character portraits and free-form
+- "Set as Avatar" button: `PUT /api/cards/:id` with `{ avatar_image_path: imageId }`
+- Only shows for characters with `card_id` param present
 
-### 5.3 Backend Requirements
-- ComfyUI in API mode on port 8188
-- FLUX.1-schnell Q8 GGUF (~12GB)
-- Pony Diffusion V7 for NSFW (~6.5GB)
-- Cannot coexist with Ollama in 24GB VRAM
+### 5.3 Image Gallery
+- **Endpoint**: `GET /api/image/gallery`
+- 3-column grid of recent generations (20 max)
+- Tap to preview, long-press to delete
+- Reloads every time gallery section is opened
+
+### 5.4 Save & Delete
+- **Save**: Share API on web, expo-media-library on native
+- **Delete**: `DELETE /api/image/:id` with existence check
+- **Endpoint**: `GET /api/image/:id` for serving images
+
+### 5.5 Backend: CHROMA Model
+- Single model: **CHROMA** (chroma-unlocked-v50.safetensors, 17GB fp16)
+- Natively uncensored — handles SFW + NSFW without model switching
+- ComfyUI workflow: UNETLoader + KSampler, cfg 4.0, beta scheduler, euler sampler
+- Text encoders: CLIP-L + T5-XXL (Q8 GGUF)
+- ~26s per image (cached), ~90s cold start
+- Cannot coexist with Ollama — gpu_manager auto-swaps via API (no sudo)
+- Old FLUX + Pony V7 models deleted
 
 ---
 
-## 6. Privacy & Consent
+## 6. Tiered Memory System
 
-### 6.1 Training Data Opt-In
+### 6.1 Architecture
+Three-tier persistent memory for cross-session RP chat context:
+- **Tier 1 — Facts**: permanent key-value pairs (name, traits, items, injuries). Regex extraction on every message (instant). LLM extraction deferred until NUM_PARALLEL > 1.
+- **Tier 2 — Recent Conversation**: sliding window from `rp_messages` table. Fills remaining token budget. No summarization.
+- **Tier 3 — Arc Summaries**: relationship state checkpoints (not plot summaries). Triggered on scene transitions or every 25 messages. Deferred until NUM_PARALLEL > 1.
+
+### 6.2 Context Injection
+- `build_rp_context(session_id, db, character_card_id, token_budget=4000)` assembles all tiers
+- Injected into system prompt before conversation history
+- Returns debug dict: `{"tier1": N, "tier3": N, "tier2": N, "total": N}`
+- Cross-session: facts from previous sessions with same character carry over
+
+### 6.3 Database
+- Table: `rp_session_context` (migration 028)
+- Columns: `id, session_id, tier, category, key, value, turn_number, updated_at`
+- Methods: `upsert_rp_context`, `get_rp_context`, `get_rp_context_for_character`
+
+### 6.4 Auto-fill Formatting
+- Cards without `speech_pattern` get OOC formatting hint at chat time
+- New cards auto-fill `speech_pattern` via `fillCardDefaults()` in `lib/characters.ts`
+- Includes: asterisk actions, quote dialogue, proportional length, anti-echo
+
+---
+
+## 7. Privacy & Consent
+
+### 7.1 Training Data Opt-In
 - One-time popup on first RP chat access
 - Tracked via AsyncStorage (`training_opt_in_prompted`)
 - Accept → anonymous data included in training pipeline
 - Decline → data excluded from aggregation
 - Changeable in Settings
 
-### 6.2 Data Pipeline
+### 7.2 Data Pipeline
 - Nightly quality scorer (3 AM cron)
 - Monthly SFT/DPO data export
 - Only opted-in users included

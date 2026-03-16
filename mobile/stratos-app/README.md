@@ -25,11 +25,21 @@ A standalone character roleplay and interactive fiction app built with React Nat
 - **Rate characters** with 5-star ratings
 - **Save to library** for offline access
 
-### Image Generation
-- **Text-to-image** with FLUX.1-schnell (SFW) and Pony V7 (NSFW)
-- **Character portraits** auto-generated from card descriptions
+### Image Generation (CHROMA)
+- **Single model**: CHROMA (chroma-unlocked-v50, natively uncensored SFW+NSFW)
+- **3 quality modes**: Fast (8 steps ~30s), Balanced (12 steps ~45s), Quality (28 steps ~90s)
+- **Character portraits** with "Set as Avatar" button
+- **Image gallery** with tap-to-preview, long-press-to-delete
 - Style selector: Anime / Realistic / Illustration
 - Size selector: Portrait / Square / Landscape
+- Seed control under Advanced toggle
+
+### Persistent Memory
+- **Tiered memory system** for cross-session context
+- Tier 1: permanent facts (name, traits, items) via regex extraction
+- Tier 2: sliding conversation window
+- Tier 3: relationship arc summaries (deferred)
+- **Auto-fill formatting** for cards without speech_pattern
 
 ### Gaming Mode
 - **Interactive scenarios** with stat bars and branching choices
@@ -50,7 +60,7 @@ A standalone character roleplay and interactive fiction app built with React Nat
 - **Animation**: React Native Reanimated
 - **Fonts**: @expo-google-fonts/quicksand, @expo-google-fonts/poppins
 - **Backend**: Python HTTP server, SQLite, Ollama LLM inference
-- **Image Gen**: ComfyUI (FLUX + Pony V7)
+- **Image Gen**: ComfyUI + CHROMA (single model, SFW+NSFW)
 - **Training**: DoRA fine-tuning, DPO from user edits/swipes
 
 ## Getting Started
