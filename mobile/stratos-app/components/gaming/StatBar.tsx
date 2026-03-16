@@ -1,12 +1,12 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-import { Heart, Sword, Brain, Users } from 'lucide-react-native';
+import { View, Text, StyleSheet, DimensionValue } from 'react-native';
+import { Heart, Sword, Brain, Users, LucideIcon } from 'lucide-react-native';
 import { useThemeStore } from '../../stores/themeStore';
 import { typography, spacing, borderRadius } from '../../constants/theme';
 
 interface StatBarProps { stats: Record<string, number>; accentColor?: string; }
 
-const STAT_ICONS: Record<string, any> = {
+const STAT_ICONS: Record<string, LucideIcon> = {
   hp: Heart, strength: Sword, wisdom: Brain, charisma: Users,
   technical: Brain, perception: Brain, composure: Heart,
   sanity: Brain, courage: Heart,
@@ -39,7 +39,7 @@ export const StatBar = React.memo(function StatBar({ stats, accentColor }: StatB
             <Text style={[styles.value, { color }]}>{value}</Text>
             {isHp && (
               <View style={[styles.hpBarBg, { backgroundColor: tc.bg.tertiary }]}>
-                <View style={[styles.hpBarFill, { backgroundColor: color, width: `${pct * 100}%` as any }]} />
+                <View style={[styles.hpBarFill, { backgroundColor: color, width: `${pct * 100}%` as DimensionValue }]} />
               </View>
             )}
           </View>

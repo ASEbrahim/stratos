@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, DimensionValue } from 'react-native';
 import { CharacterCard, getQualityScore } from '../../lib/types';
 import { useThemeStore } from '../../stores/themeStore';
 import { typography, spacing, borderRadius } from '../../constants/theme';
@@ -43,7 +43,7 @@ const styles = StyleSheet.create({
   labelBadge: { alignSelf: 'flex-start', borderWidth: 1, borderRadius: borderRadius.full, paddingHorizontal: spacing.md, paddingVertical: spacing.xs },
   labelText: { ...typography.subheading, fontSize: 14 },
   elements: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
-  element: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs, width: '45%' as any },
+  element: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs, width: '45%' as DimensionValue },
   elementCheck: { ...typography.body, fontSize: 14 },
   elementName: { ...typography.caption },
 });

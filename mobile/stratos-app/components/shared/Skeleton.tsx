@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, ViewStyle, StyleProp, DimensionValue } from 'react-native';
 import Animated, { useSharedValue, useAnimatedStyle, withRepeat, withTiming, Easing } from 'react-native-reanimated';
 import { useThemeStore } from '../../stores/themeStore';
 import { spacing, borderRadius } from '../../constants/theme';
@@ -8,7 +8,7 @@ interface SkeletonProps {
   width: number | string;
   height: number;
   borderRadius?: number;
-  style?: any;
+  style?: StyleProp<ViewStyle>;
 }
 
 export function Skeleton({ width, height, borderRadius: br = borderRadius.md, style }: SkeletonProps) {
@@ -29,7 +29,7 @@ export function Skeleton({ width, height, borderRadius: br = borderRadius.md, st
 
   return (
     <Animated.View style={[{
-      width: width as any, height, borderRadius: br,
+      width: width as DimensionValue, height, borderRadius: br,
       backgroundColor: tc.bg.elevated,
     }, animStyle, style]} />
   );

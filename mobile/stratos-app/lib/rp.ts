@@ -9,6 +9,36 @@ import { apiFetch, getToken, getDeviceId } from './api';
 import { API_BASE, USE_MOCKS } from '../constants/config';
 import { reportError } from './utils';
 
+/** A branch in the conversation tree. */
+export interface Branch {
+  id: string;
+  parent_branch_id: string | null;
+  branch_point_turn: number | null;
+  turn_count: number;
+  created_at: string;
+  is_active: boolean;
+}
+
+/** A message as returned by the history endpoint. */
+export interface HistoryMessage {
+  id: number;
+  role: 'user' | 'assistant' | 'system';
+  content: string;
+  timestamp: string;
+  swipe_group_id?: string;
+  branch_id?: string;
+}
+
+/** An image in the gallery. */
+export interface GalleryImage {
+  id: string;
+  prompt: string;
+  model: string;
+  width: number;
+  height: number;
+  created_at: string;
+}
+
 // ── Swipe: regenerate last assistant message ──
 export async function regenerateMessage(
   sessionId: string, branchId: string = 'main', cardId?: string
@@ -104,15 +134,15 @@ export async function getHistory(sessionId: string, branchId: string = 'main') {
   return apiFetch<{
     session_id: string;
     branch_id: string;
-    messages: any[];
-    branches: any[];
+    messages: HistoryMessage[];
+    branches: Branch[];
   }>(`/api/rp/history/${sessionId}?branch=${branchId}`);
 }
 
 // ── List branches ──
 export async function getBranches(sessionId: string) {
   if (USE_MOCKS) return { branches: [{ id: 'main', parent_branch_id: null, turn_count: 0, is_active: true }] };
-  return apiFetch<{ branches: any[] }>(`/api/rp/branches/${sessionId}`);
+  return apiFetch<{ branches: Branch[] }>(`/api/rp/branches/${sessionId}`);
 }
 
 // ── Free-form text-to-image (CHROMA — single model, SFW+NSFW) ──
@@ -171,7 +201,7 @@ export function getImageUrl(imageId: string): string {
 // ── Image gallery ──
 export async function getImageGallery() {
   if (USE_MOCKS) return { images: [] };
-  return apiFetch<{ images: any[] }>('/api/image/gallery');
+  return apiFetch<{ images: GalleryImage[] }>('/api/image/gallery');
 }
 
 // ── Delete image ──

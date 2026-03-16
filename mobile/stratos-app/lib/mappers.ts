@@ -8,10 +8,44 @@
 import { CharacterCard } from './types';
 import { safeParse, buildUrl } from './utils';
 
+/** Shape of a character card as returned by the backend API. */
+export interface BackendCard {
+  id: string;
+  name?: string;
+  personality?: string;
+  description?: string;
+  scenario?: string;
+  first_message?: string;
+  physical_description?: string;
+  speech_pattern?: string;
+  emotional_trigger?: string;
+  defensive_mechanism?: string;
+  vulnerability?: string;
+  specific_detail?: string;
+  genre_tags?: string | string[];
+  content_rating?: string;
+  avatar_image_path?: string;
+  avatar_url?: string;
+  creator_profile_id?: string | number;
+  creator_id?: string | number;
+  creator_name?: string;
+  is_published?: boolean;
+  is_public?: boolean;
+  sessions?: number;
+  session_count?: number;
+  avg_rating_val?: number;
+  avg_rating?: number;
+  rating?: number;
+  total_ratings?: number;
+  rating_count?: number;
+  created_at?: string;
+  updated_at?: string;
+}
+
 /**
  * Map a backend character card response to mobile CharacterCard interface.
  */
-export function mapCardFromBackend(raw: any): CharacterCard {
+export function mapCardFromBackend(raw: BackendCard): CharacterCard {
   return {
     id: raw.id,
     name: raw.name || '',
@@ -26,7 +60,7 @@ export function mapCardFromBackend(raw: any): CharacterCard {
     vulnerability: raw.vulnerability || '',
     specific_detail: raw.specific_detail || '',
     genre_tags: typeof raw.genre_tags === 'string' ? safeParse(raw.genre_tags, []) : (raw.genre_tags || []),
-    content_rating: raw.content_rating || 'sfw',
+    content_rating: (raw.content_rating === 'nsfw' ? 'nsfw' : 'sfw') as 'sfw' | 'nsfw',
     avatar_url: raw.avatar_image_path ? buildUrl(`/api/image/${raw.avatar_image_path}`) : (raw.avatar_url || ''),
     creator_id: String(raw.creator_profile_id || raw.creator_id || ''),
     creator_name: raw.creator_name || 'Unknown',
@@ -42,6 +76,6 @@ export function mapCardFromBackend(raw: any): CharacterCard {
 /**
  * Map an array of backend cards.
  */
-export function mapCardsFromBackend(raw: any[]): CharacterCard[] {
+export function mapCardsFromBackend(raw: BackendCard[]): CharacterCard[] {
   return raw.map(mapCardFromBackend);
 }

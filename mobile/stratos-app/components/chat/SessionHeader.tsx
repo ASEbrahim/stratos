@@ -8,6 +8,12 @@ import { useThemeStore } from '../../stores/themeStore';
 import { typography, spacing } from '../../constants/theme';
 import { fonts } from '../../constants/fonts';
 
+export interface MenuAction {
+  text: string;
+  style?: 'cancel' | 'default' | 'destructive';
+  onPress?: () => void;
+}
+
 interface SessionHeaderProps {
   characterName: string;
   accentColor?: string;
@@ -16,7 +22,7 @@ interface SessionHeaderProps {
   onNewSession?: () => void;
   onClearHistory?: () => void;
   onExportChat?: () => void;
-  onMenuOpen?: (actions: { text: string; style?: string; onPress?: () => void }[]) => void;
+  onMenuOpen?: (actions: MenuAction[]) => void;
 }
 
 export function SessionHeader({ characterName, accentColor, characterId, isTyping, onNewSession, onClearHistory, onExportChat, onMenuOpen }: SessionHeaderProps) {
@@ -29,7 +35,7 @@ export function SessionHeader({ characterName, accentColor, characterId, isTypin
 
   const handleMenu = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    const actions: any[] = [];
+    const actions: MenuAction[] = [];
     if (characterId) actions.push({ text: 'Character Info', onPress: () => router.push(`/character/${characterId}`) });
     if (onNewSession) actions.push({ text: 'New Session', onPress: onNewSession });
     if (onExportChat) actions.push({ text: 'Export Chat', onPress: onExportChat });

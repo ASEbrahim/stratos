@@ -9,7 +9,7 @@ import { Header } from '../../components/shared/Header';
 import { useThemeStore } from '../../stores/themeStore';
 import { typography, spacing, borderRadius } from '../../constants/theme';
 import { fonts } from '../../constants/fonts';
-import { generateImage, generateCharacterPortrait, getImageUrl, getImageGallery, deleteImage } from '../../lib/rp';
+import { generateImage, generateCharacterPortrait, getImageUrl, getImageGallery, deleteImage, GalleryImage } from '../../lib/rp';
 import { apiFetch } from '../../lib/api';
 import { reportError } from '../../lib/utils';
 
@@ -33,15 +33,6 @@ const SCREEN_WIDTH = Dimensions.get('window').width;
 const GALLERY_COLS = 3;
 const GALLERY_GAP = 4;
 const GALLERY_THUMB = (SCREEN_WIDTH - spacing.lg * 2 - GALLERY_GAP * (GALLERY_COLS - 1)) / GALLERY_COLS;
-
-interface GalleryImage {
-  id: string;
-  prompt: string;
-  model: string;
-  width: number;
-  height: number;
-  created_at: string;
-}
 
 export default function ImageGenScreen() {
   const insets = useSafeAreaInsets();
@@ -129,8 +120,8 @@ export default function ImageGenScreen() {
       } else {
         setError(result.error || 'Generation failed');
       }
-    } catch (e: any) {
-      setError(e.message || 'Connection failed — is the server running?');
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : 'Connection failed — is the server running?');
     } finally {
       setGenerating(false);
     }
@@ -189,8 +180,9 @@ export default function ImageGenScreen() {
       });
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       Alert.alert('Avatar Set', `${params.name}'s portrait has been updated.`);
-    } catch (e: any) {
-      const msg = e?.message?.includes('403') || e?.status === 403
+    } catch (e: unknown) {
+      const isApiError = e instanceof Error && 'status' in e;
+      const msg = (e instanceof Error && e.message?.includes('403')) || (isApiError && (e as { status: number }).status === 403)
         ? 'You can only set avatars on your own characters.'
         : 'Failed to set avatar. Make sure the server is running.';
       Alert.alert('Error', msg);

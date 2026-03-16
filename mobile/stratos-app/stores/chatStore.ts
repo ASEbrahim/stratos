@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { ChatMessage, ChatSession, CharacterCard, Suggestion } from '../lib/types';
 import { streamMessage, streamRegenerate, getSuggestions, createMessageId } from '../lib/chat';
 import { saveChatSession, loadChatSessions, getChatSession, incrementStat } from '../lib/storage';
+import { Config } from '../constants/config';
 import { reportError } from '../lib/utils';
 
 interface ChatState {
@@ -113,7 +114,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
           reportError('persistSession', err);
         }
         resolve();
-      }, 500);
+      }, Config.PERSIST_DEBOUNCE_MS);
     });
   },
   regenerateLastMessage: async () => {

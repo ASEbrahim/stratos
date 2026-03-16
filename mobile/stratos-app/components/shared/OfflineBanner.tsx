@@ -24,6 +24,7 @@ export function OfflineBanner() {
       return () => { window.removeEventListener('online', handleOnline); window.removeEventListener('offline', handleOffline); };
     }
     // On native, would use @react-native-community/netinfo
+    return undefined;
   }, []);
 
   useEffect(() => {

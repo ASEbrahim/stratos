@@ -6,6 +6,7 @@ import Animated, { useSharedValue, useAnimatedStyle, withSpring, FadeIn } from '
 import { ChatMessage } from '../../lib/types';
 import { typography, spacing, borderRadius } from '../../constants/theme';
 import { useThemeStore } from '../../stores/themeStore';
+import type { ThemeColors } from '../../constants/themes';
 import { fonts } from '../../constants/fonts';
 
 interface MessageBubbleProps { message: ChatMessage; accentColor?: string; }
@@ -78,7 +79,7 @@ export const MessageBubble = React.memo(function MessageBubble({ message, accent
   );
 });
 
-function renderFormattedText(text: string, isUser: boolean, tc: any) {
+function renderFormattedText(text: string, isUser: boolean, tc: ThemeColors) {
   const textColor = tc.text.primary;
   const italicColor = tc.text.secondary;
   const quoteColor = tc.accent.primary;

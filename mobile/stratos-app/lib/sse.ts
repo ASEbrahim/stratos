@@ -3,10 +3,11 @@
  * Used by streamMessage() and streamRegenerate() in chat.ts.
  */
 
+import { Config } from '../constants/config';
 import { reportError } from './utils';
 
-const TOTAL_TIMEOUT_MS = 60_000;
-const STALL_TIMEOUT_MS = 30_000;
+const TOTAL_TIMEOUT_MS = Config.STREAM_TIMEOUT_MS;
+const STALL_TIMEOUT_MS = Config.STALL_TIMEOUT_MS;
 
 export interface SSECallbacks {
   onToken: (text: string) => void;

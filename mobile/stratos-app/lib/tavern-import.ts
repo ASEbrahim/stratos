@@ -9,7 +9,7 @@ import { reportError } from './utils';
 export async function parseTavernCard(uri: string): Promise<CharacterCardCreate | null> {
   try {
     // Read file as base64
-    const fileBase64 = await FileSystem.readAsStringAsync(uri, { encoding: 'base64' as any });
+    const fileBase64 = await FileSystem.readAsStringAsync(uri, { encoding: 'base64' });
     const bytes = base64ToBytes(fileBase64);
 
     // PNG signature: 137 80 78 71 13 10 26 10

@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { CharacterCard } from '../../lib/types';
 import { QualityScore } from './QualityScore';
 import { useThemeStore } from '../../stores/themeStore';
+import type { ThemeColors } from '../../constants/themes';
 import { typography, spacing, borderRadius } from '../../constants/theme';
 
 interface CharacterDepthSectionProps {
@@ -12,7 +13,7 @@ interface CharacterDepthSectionProps {
   onToggleDepth: () => void;
 }
 
-function DepthItem({ label, value, tc }: { label: string; value: string; tc: any }) {
+function DepthItem({ label, value, tc }: { label: string; value: string; tc: ThemeColors }) {
   return (
     <View style={{ marginBottom: spacing.md }}>
       <Text style={{ fontSize: 10, fontWeight: '700', color: tc.text.muted, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 3 }}>{label}</Text>

@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useCallback, useState } from 'react';
-import { View, Text, FlatList, StyleSheet, KeyboardAvoidingView, Platform, TouchableOpacity, Share, Keyboard, Modal, TextInput, TouchableWithoutFeedback } from 'react-native';
+import { View, Text, FlatList, StyleSheet, KeyboardAvoidingView, Platform, TouchableOpacity, Share, Keyboard, Modal, TextInput, TouchableWithoutFeedback, NativeSyntheticEvent, NativeScrollEvent } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useFocusEffect } from 'expo-router';
 import * as Haptics from 'expo-haptics';
@@ -12,6 +12,8 @@ import { BranchSelector } from '../../components/chat/BranchSelector';
 import { EditSheet } from '../../components/chat/EditSheet';
 import { TrainingOptInPopup, useTrainingOptInCheck } from '../../components/chat/TrainingOptIn';
 import { ChatMessage } from '../../lib/types';
+import type { Branch } from '../../lib/rp';
+import type { BackendCard } from '../../lib/mappers';
 import { getGenreColor } from '../../constants/genres';
 import { useThemeStore } from '../../stores/themeStore';
 import { reportError } from '../../lib/utils';
@@ -31,7 +33,7 @@ export default function ChatScreen() {
   // ── RP Expansion state ──
   const [directorNote, setDirectorNote] = useState('');
   const [lastUsedNote, setLastUsedNote] = useState('');
-  const [branches, setBranches] = useState<any[]>([{ id: 'main', parent_branch_id: null, turn_count: 0, is_active: true }]);
+  const [branches, setBranches] = useState<Branch[]>([{ id: 'main', parent_branch_id: null, branch_point_turn: null, turn_count: 0, created_at: new Date().toISOString(), is_active: true }]);
   const [currentBranch, setCurrentBranch] = useState('main');
   const [swipeCount, setSwipeCount] = useState(0);
   const [swipeIndex, setSwipeIndex] = useState(0);
@@ -121,7 +123,7 @@ export default function ChatScreen() {
     try {
       const { apiFetch } = await import('../../lib/api');
       const { mapCardFromBackend } = await import('../../lib/mappers');
-      const raw = await apiFetch<any>(`/api/cards/${character.id}`);
+      const raw = await apiFetch<BackendCard>(`/api/cards/${character.id}`);
       const updated = mapCardFromBackend(raw);
       useChatStore.setState({ character: updated });
       showAlert('Updated', `${updated.name}'s card has been refreshed. Changes will apply to the next message.`);
@@ -146,7 +148,7 @@ export default function ChatScreen() {
     setEditTarget(msg);
   }, []);
 
-  const handleScroll = useCallback((e: any) => {
+  const handleScroll = useCallback((e: NativeSyntheticEvent<NativeScrollEvent>) => {
     const y = e.nativeEvent.contentOffset.y;
     const h = e.nativeEvent.contentSize.height - e.nativeEvent.layoutMeasurement.height;
     setShowScrollBtn(h - y > 200);
@@ -184,11 +186,7 @@ export default function ChatScreen() {
           const clearIdx = actions.findIndex(a => a.style === 'destructive');
           const enriched = [...actions];
           enriched.splice(clearIdx >= 0 ? clearIdx : actions.length - 1, 0, ...extraActions);
-          showAlert(character?.name ?? 'Chat', undefined, enriched.map(a => ({
-            text: a.text,
-            style: a.style as any,
-            onPress: a.onPress,
-          })));
+          showAlert(character?.name ?? 'Chat', undefined, enriched);
         }}
       />
 

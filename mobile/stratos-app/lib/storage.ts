@@ -1,5 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ChatSession, CharacterCard } from './types';
+import { Config } from '../constants/config';
 import { reportError } from './utils';
 
 const SESSIONS_KEY = 'stratos_chat_sessions';
@@ -13,8 +14,8 @@ export async function saveChatSession(session: ChatSession): Promise<void> {
   const idx = sessions.findIndex(s => s.id === session.id);
   if (idx >= 0) sessions[idx] = session;
   else sessions.unshift(session);
-  // Keep max 50 sessions
-  const trimmed = sessions.slice(0, 50);
+  // Keep max sessions
+  const trimmed = sessions.slice(0, Config.MAX_CHAT_SESSIONS);
   await AsyncStorage.setItem(SESSIONS_KEY, JSON.stringify(trimmed));
 }
 

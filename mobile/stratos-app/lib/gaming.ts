@@ -7,7 +7,7 @@ import { reportError } from './utils';
 export async function getScenarios(): Promise<GamingScenario[]> {
   if (USE_MOCKS) { await new Promise(r => setTimeout(r, 400)); return MOCK_SCENARIOS; }
   try {
-    const { scenarios } = await apiFetch<{ scenarios: any[] }>('/api/scenarios');
+    const { scenarios } = await apiFetch<{ scenarios: GamingScenario[] }>('/api/scenarios');
     return scenarios;
   } catch (err) {
     reportError('getScenarios', err);

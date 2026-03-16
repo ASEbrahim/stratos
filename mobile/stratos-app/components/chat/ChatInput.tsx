@@ -44,7 +44,7 @@ export function ChatInput({ onSend, disabled = false, accentColor }: ChatInputPr
             // On web/mobile browser: scroll input into view when keyboard appears
             if (Platform.OS === 'web') {
               setTimeout(() => {
-                try { (containerRef.current as any)?.scrollIntoView?.({ behavior: 'smooth', block: 'end' }); } catch {}
+                try { (containerRef.current as unknown as HTMLElement | null)?.scrollIntoView?.({ behavior: 'smooth', block: 'end' }); } catch {}
               }, 300);
             }
           }}

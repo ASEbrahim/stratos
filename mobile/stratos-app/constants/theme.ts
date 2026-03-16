@@ -1,5 +1,6 @@
-// StratOS Mobile — Default theme constants (Arcane)
-// For dynamic theming, use useThemeStore().colors instead of these statics
+// StratOS Mobile — Static theme constants (spacing, typography, borderRadius)
+// For dynamic colors, use useThemeStore().colors instead of these statics
+// The `colors` export below is only used as a static fallback by genres.ts
 
 export const colors = {
   bg: {

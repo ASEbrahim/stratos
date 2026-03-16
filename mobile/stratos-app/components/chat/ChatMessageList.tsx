@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, FlatList, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, StyleSheet, NativeSyntheticEvent, NativeScrollEvent } from 'react-native';
 import { Pencil, RefreshCw, ChevronDown } from 'lucide-react-native';
 import { MessageBubble, StreamingBubble } from './MessageBubble';
 import { TypingIndicator } from './TypingIndicator';
@@ -22,7 +22,7 @@ interface ChatMessageListProps {
   onEditUser: (msg: { id: string; content: string; isUser: boolean }) => void;
   onEditAssistant: (msg: { id: string; content: string }) => void;
   onRegenerate: () => void;
-  onScroll: (e: any) => void;
+  onScroll: (e: NativeSyntheticEvent<NativeScrollEvent>) => void;
   onScrollToEnd: () => void;
 }
 

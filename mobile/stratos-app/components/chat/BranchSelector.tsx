@@ -5,15 +5,7 @@ import { GitBranch, ChevronDown, X } from 'lucide-react-native';
 import { useThemeStore } from '../../stores/themeStore';
 import { spacing, borderRadius } from '../../constants/theme';
 import { fonts } from '../../constants/fonts';
-
-interface Branch {
-  id: string;
-  parent_branch_id: string | null;
-  branch_point_turn: number | null;
-  turn_count: number;
-  created_at: string;
-  is_active: boolean;
-}
+import type { Branch } from '../../lib/rp';
 
 interface BranchSelectorProps {
   branches: Branch[];

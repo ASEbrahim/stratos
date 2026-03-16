@@ -10,7 +10,7 @@ import { useChatStore } from '../../stores/chatStore';
 import { getGenreColor } from '../../constants/genres';
 import { getDetailedStats, DetailedStats } from '../../lib/storage';
 import { formatCount } from '../../lib/types';
-import { THEMES } from '../../constants/themes';
+import { THEMES, ThemeColors } from '../../constants/themes';
 import { typography, spacing, borderRadius } from '../../constants/theme';
 import { fonts } from '../../constants/fonts';
 
@@ -147,7 +147,7 @@ export default function ProfileScreen() {
   );
 }
 
-function SettingsItem({ icon, label, value, tc }: { icon: React.ReactNode; label: string; value: string; tc: any }) {
+function SettingsItem({ icon, label, value, tc }: { icon: React.ReactNode; label: string; value: string; tc: ThemeColors }) {
   return (
     <TouchableOpacity style={[styles2.item, { borderBottomColor: tc.border.subtle }]} activeOpacity={0.6} accessibilityLabel={`${label}: ${value}`} accessibilityRole="button">
       {icon}<Text style={[styles2.label, { color: tc.text.primary }]}>{label}</Text><Text style={[styles2.value, { color: tc.text.muted }]}>{value}</Text>

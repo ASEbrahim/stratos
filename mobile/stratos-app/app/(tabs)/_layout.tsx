@@ -2,12 +2,12 @@ import React from 'react';
 import { View } from 'react-native';
 import { Tabs } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Compass, MessageSquare, BookOpen, PlusCircle, User } from 'lucide-react-native';
+import { Compass, MessageSquare, BookOpen, PlusCircle, User, LucideIcon } from 'lucide-react-native';
 import { useThemeStore } from '../../stores/themeStore';
 import { typography } from '../../constants/theme';
 import { fonts } from '../../constants/fonts';
 
-function TabIcon({ Icon, color, size, focused, accentColor }: { Icon: any; color: string; size: number; focused: boolean; accentColor: string }) {
+function TabIcon({ Icon, color, size, focused, accentColor }: { Icon: LucideIcon; color: string; size: number; focused: boolean; accentColor: string }) {
   return (
     <View style={{ alignItems: 'center' }}>
       <Icon size={size} color={color} />
