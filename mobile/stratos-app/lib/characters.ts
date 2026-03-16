@@ -7,7 +7,7 @@ import { MOCK_CHARACTERS, generateId } from './mock';
 let mockLibrary: CharacterCard[] = [];
 
 // Default formatting instructions for cards that don't specify speech_pattern
-const DEFAULT_SPEECH_PATTERN = 'Use *asterisks* for actions/narration and "quotes" for dialogue. Mix prose with action beats. Match response length to the user\'s message length — short inputs get short replies.';
+const DEFAULT_SPEECH_PATTERN = 'Use *asterisks* for actions/narration and "quotes" for dialogue. Mix prose with action beats. Keep response length proportional — short inputs (1-3 words) get 1-2 sentences max. Never over-write.';
 
 /**
  * Auto-fill empty advanced fields with sensible defaults.

@@ -5,7 +5,7 @@ import { ChatMessage, CharacterCard, Suggestion } from './types';
 import { MOCK_SUGGESTIONS, generateId } from './mock';
 
 // Formatting hint injected for cards missing speech_pattern
-const FORMAT_HINT = '[Format: Use *asterisks* for actions/narration and "quotes" for dialogue. Match response length to input length — short messages get short replies.]';
+const FORMAT_HINT = '[OOC: Use *asterisks* for actions and "quotes" for speech. CRITICAL: Keep response length proportional to input — if user sends 1-3 words, reply with 1-2 short sentences MAX. Never over-write.]';
 
 export async function streamMessage(
   sessionId: string, message: string, persona: 'roleplay' | 'gaming',
