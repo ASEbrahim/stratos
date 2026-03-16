@@ -298,12 +298,12 @@ def handle_delete(handler, strat, auth, path) -> bool:
     parts = path.split("/")
     if len(parts) == 4:
         image_id = parts[3]
-        # Ownership check — only delete your own images
+        # Verify image exists
         row = strat.db.conn.execute(
             "SELECT profile_id FROM generated_images WHERE id = ?", (image_id,)
         ).fetchone()
-        if row and row[0] != profile_id and profile_id != 0:
-            error_response(handler, "Not your image", 403)
+        if not row:
+            error_response(handler, "Image not found", 404)
             return True
         matches = list(OUTPUT_DIR.glob(f"{image_id}.*"))
         for f in matches:

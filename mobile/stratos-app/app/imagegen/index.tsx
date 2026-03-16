@@ -126,8 +126,14 @@ export default function ImageGenScreen() {
     try {
       const uri = getImageUrl(imageId);
       if (Platform.OS === 'web') {
-        // Browser: open image in new tab for right-click save
-        window.open(uri, '_blank');
+        // Browser: trigger download via anchor element
+        const a = document.createElement('a');
+        a.href = uri;
+        a.download = `stratos_${imageId}.png`;
+        a.target = '_blank';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
         setSaving(false);
         return;
       }

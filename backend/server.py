@@ -645,6 +645,7 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                     except Exception:
                         pass
                 elif device_id:
+                    _session_profile = None
                     try:
                         self._profile_id = _resolve_device_profile(strat.db, device_id)
                     except Exception:
