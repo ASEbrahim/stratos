@@ -20,7 +20,7 @@ const STAT_COLORS: Record<string, string> = {
   courage: '#e8b931',
 };
 
-export function StatBar({ stats, accentColor }: StatBarProps) {
+export const StatBar = React.memo(function StatBar({ stats, accentColor }: StatBarProps) {
   const tc = useThemeStore(s => s.colors);
   return (
     <View style={[styles.container, { backgroundColor: tc.bg.secondary, borderBottomColor: tc.border.subtle }]}>
@@ -47,7 +47,7 @@ export function StatBar({ stats, accentColor }: StatBarProps) {
       })}
     </View>
   );
-}
+});
 
 const styles = StyleSheet.create({
   container: { flexDirection: 'row', borderBottomWidth: 1, paddingVertical: spacing.sm, paddingHorizontal: spacing.lg, gap: spacing.lg },

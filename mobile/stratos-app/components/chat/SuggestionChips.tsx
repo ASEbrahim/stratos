@@ -39,7 +39,7 @@ function AnimatedChip({ suggestion, index, color, onSelect }: { suggestion: Sugg
   );
 }
 
-export function SuggestionChips({ suggestions, onSelect, accentColor }: SuggestionChipsProps) {
+export const SuggestionChips = React.memo(function SuggestionChips({ suggestions, onSelect, accentColor }: SuggestionChipsProps) {
   if (suggestions.length === 0) return null;
   const tc = useThemeStore(s => s.colors);
   const color = accentColor ?? tc.accent.primary;
@@ -50,7 +50,7 @@ export function SuggestionChips({ suggestions, onSelect, accentColor }: Suggesti
       ))}
     </View>
   );
-}
+});
 
 const styles = StyleSheet.create({
   container: { flexDirection: 'row', flexWrap: 'wrap', paddingHorizontal: spacing.lg, paddingVertical: spacing.sm, gap: spacing.sm },

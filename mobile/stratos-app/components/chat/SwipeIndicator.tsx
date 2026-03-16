@@ -16,7 +16,7 @@ interface SwipeIndicatorProps {
   accentColor?: string;
 }
 
-export function SwipeIndicator({
+export const SwipeIndicator = React.memo(function SwipeIndicator({
   currentIndex, totalCount, onPrev, onNext, onRegenerate, isRegenerating, accentColor,
 }: SwipeIndicatorProps) {
   const tc = useThemeStore(s => s.colors);
@@ -51,7 +51,7 @@ export function SwipeIndicator({
       </TouchableOpacity>
     </View>
   );
-}
+});
 
 const styles = StyleSheet.create({
   container: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, paddingLeft: spacing.lg, marginTop: 2 },

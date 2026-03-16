@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -76,7 +76,7 @@ export default function ProfileScreen() {
         <View style={[styles.section, { marginBottom: spacing.md }]}>
           <Text style={[styles.sectionTitle, { color: tc.text.muted }]}>Top Characters</Text>
           <View style={styles.topCharsRow}>
-            {recentSessions
+            {[...recentSessions]
               .sort((a, b) => b.messages.length - a.messages.length)
               .slice(0, 3)
               .map(s => (

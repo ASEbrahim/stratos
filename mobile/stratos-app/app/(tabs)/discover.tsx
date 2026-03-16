@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, TextInput, StyleSheet, RefreshControl } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Search, Shuffle, ChevronUp } from 'lucide-react-native';
@@ -53,7 +53,7 @@ export default function DiscoverScreen() {
     else if (sortBy === 'rating') sorted.sort((a, b) => b.rating - a.rating);
     return sorted;
   };
-  const displayCards = sortCards(filterNsfw(searchQuery.trim() ? searchResults : (selectedGenre ? newCards.filter(c => c.genre_tags.includes(selectedGenre)) : newCards)));
+  const displayCards = useMemo(() => sortCards(filterNsfw(searchQuery.trim() ? searchResults : (selectedGenre ? newCards.filter(c => c.genre_tags.includes(selectedGenre)) : newCards))), [searchQuery, searchResults, selectedGenre, newCards, sortBy, nsfwFilter]);
 
   return (
     <View style={[styles.container, { paddingTop: insets.top, backgroundColor: tc.bg.primary }]}>

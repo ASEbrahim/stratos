@@ -98,6 +98,8 @@ export async function createCharacter(data: CharacterCardCreate): Promise<Charac
       created_at: new Date().toISOString(), updated_at: new Date().toISOString(),
     };
     mockLibrary.push(card);
+    const MAX_MOCK_LIBRARY = 200;
+    if (mockLibrary.length > MAX_MOCK_LIBRARY) mockLibrary = mockLibrary.slice(-MAX_MOCK_LIBRARY);
     return card;
   }
   try {
@@ -122,6 +124,8 @@ export async function createCharacter(data: CharacterCardCreate): Promise<Charac
       created_at: new Date().toISOString(), updated_at: new Date().toISOString(),
     };
     mockLibrary.push(card);
+    const MAX_MOCK_LIBRARY = 200;
+    if (mockLibrary.length > MAX_MOCK_LIBRARY) mockLibrary = mockLibrary.slice(-MAX_MOCK_LIBRARY);
     return card;
   }
 }

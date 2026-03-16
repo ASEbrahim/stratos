@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import * as Clipboard from 'expo-clipboard';
@@ -30,11 +30,13 @@ function formatTime(iso: string): string {
   } catch { return ''; }
 }
 
-export function MessageBubble({ message, accentColor }: MessageBubbleProps) {
+export const MessageBubble = React.memo(function MessageBubble({ message, accentColor }: MessageBubbleProps) {
   const isUser = message.role === 'user';
   const isSystem = message.role === 'system';
   const [showTime, setShowTime] = useState(false);
   const tc = useThemeStore(s => s.colors);
+
+  const formattedContent = useMemo(() => renderFormattedText(message.content, isUser, tc), [message.content, isUser, tc]);
 
   if (isSystem) return <View style={styles.systemContainer}><Text style={[styles.systemText, { color: tc.text.muted }]}>{message.content}</Text></View>;
 
@@ -67,14 +69,14 @@ export function MessageBubble({ message, accentColor }: MessageBubbleProps) {
         activeOpacity={0.9}
         delayLongPress={400}
       >
-        {renderFormattedText(message.content, isUser, tc)}
+        {formattedContent}
       </TouchableOpacity>
       {showTime && message.timestamp && (
         <Text style={[styles.timestamp, { color: tc.text.muted }, isUser ? styles.timestampRight : styles.timestampLeft]}>{formatTime(message.timestamp)}</Text>
       )}
     </Animated.View>
   );
-}
+});
 
 function renderFormattedText(text: string, isUser: boolean, tc: any) {
   const textColor = tc.text.primary;
@@ -123,14 +125,14 @@ function renderLine(line: string, italicColor: string) {
   return parts.length === 0 ? line : parts;
 }
 
-export function StreamingBubble({ content, accentColor }: { content: string; accentColor?: string }) {
+export const StreamingBubble = React.memo(function StreamingBubble({ content, accentColor }: { content: string; accentColor?: string }) {
   const tc = useThemeStore(s => s.colors);
   return (
     <Animated.View entering={FadeIn.duration(150)} style={[styles.container, styles.assistantContainer]}>
       <View style={[styles.assistantBubble, { backgroundColor: tc.bg.tertiary, borderColor: tc.border.subtle }]}>{renderFormattedText(content, false, tc)}</View>
     </Animated.View>
   );
-}
+});
 
 const styles = StyleSheet.create({
   container: { paddingHorizontal: spacing.lg, paddingVertical: spacing.xs },

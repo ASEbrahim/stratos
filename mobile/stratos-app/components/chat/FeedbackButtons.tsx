@@ -11,7 +11,7 @@ interface FeedbackButtonsProps {
   accentColor?: string;
 }
 
-export function FeedbackButtons({ messageId, accentColor }: FeedbackButtonsProps) {
+export const FeedbackButtons = React.memo(function FeedbackButtons({ messageId, accentColor }: FeedbackButtonsProps) {
   const tc = useThemeStore(s => s.colors);
   const accent = accentColor ?? tc.accent.primary;
   const [selected, setSelected] = useState<'up' | 'down' | null>(null);
@@ -45,7 +45,7 @@ export function FeedbackButtons({ messageId, accentColor }: FeedbackButtonsProps
       </TouchableOpacity>
     </View>
   );
-}
+});
 
 const styles = StyleSheet.create({
   container: { flexDirection: 'row', gap: 4, paddingLeft: spacing.lg, marginTop: 2 },

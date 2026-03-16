@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, TextInput, StyleSheet, RefreshControl, Alert } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -25,17 +25,22 @@ export default function ChatsScreen() {
   // loadRecentSessions called once in root _layout.tsx
   const onRefresh = useCallback(async () => { setRefreshing(true); await loadRecentSessions(); setRefreshing(false); }, []);
 
-  const q = searchQuery.toLowerCase().trim();
-  const filtered = q ? recentSessions.filter(s => s.character_name.toLowerCase().includes(q)) : recentSessions;
+  const filtered = useMemo(() => {
+    const q = searchQuery.toLowerCase().trim();
+    return q ? recentSessions.filter(s => s.character_name.toLowerCase().includes(q)) : recentSessions;
+  }, [searchQuery, recentSessions]);
 
   // Group by time: Today, Yesterday, Earlier
-  const now = new Date();
-  const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
-  const yesterdayStart = todayStart - 86400000;
-
-  const today = filtered.filter(s => new Date(s.updated_at).getTime() >= todayStart);
-  const yesterday = filtered.filter(s => { const t = new Date(s.updated_at).getTime(); return t >= yesterdayStart && t < todayStart; });
-  const earlier = filtered.filter(s => new Date(s.updated_at).getTime() < yesterdayStart);
+  const { today, yesterday, earlier } = useMemo(() => {
+    const now = new Date();
+    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+    const yesterdayStart = todayStart - 86400000;
+    return {
+      today: filtered.filter(s => new Date(s.updated_at).getTime() >= todayStart),
+      yesterday: filtered.filter(s => { const t = new Date(s.updated_at).getTime(); return t >= yesterdayStart && t < todayStart; }),
+      earlier: filtered.filter(s => new Date(s.updated_at).getTime() < yesterdayStart),
+    };
+  }, [filtered]);
 
   const handleResume = (session: ChatSession) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);

@@ -20,7 +20,7 @@ function isNew(dateStr: string): boolean {
   return Date.now() - new Date(dateStr).getTime() < 30 * 24 * 60 * 60 * 1000;
 }
 
-export function CharacterCardComponent({ card, variant = 'grid', featured = false }: CharacterCardProps) {
+export const CharacterCardComponent = React.memo(function CharacterCardComponent({ card, variant = 'grid', featured = false }: CharacterCardProps) {
   const router = useRouter();
   const startSession = useChatStore(s => s.startSession);
   const tc = useThemeStore(s => s.colors);
@@ -117,7 +117,7 @@ export function CharacterCardComponent({ card, variant = 'grid', featured = fals
     </Pressable>
     </Animated.View>
   );
-}
+});
 
 const styles = StyleSheet.create({
   card: { borderRadius: borderRadius.lg, overflow: 'hidden', borderWidth: 1 },
