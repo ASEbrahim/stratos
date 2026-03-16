@@ -1,6 +1,10 @@
 """
 STRAT_OS - Adaptive Profile Scorer
 ====================================
+CRITICAL: The system/user/assistant message format here must be
+CHARACTER-FOR-CHARACTER identical to export_training.py. Any divergence
+breaks model performance. See _build_llm_prompt_v2() and _build_batch_prompt().
+
 A profile-adaptive scorer that builds relevance rules dynamically from the
 user's categories, keywords, role, and context — fully dynamic,
 no hardcoded role or location assumptions.
@@ -167,7 +171,8 @@ def _extract_domain(item: Dict[str, Any]) -> str:
         parsed = urlparse(url)
         domain = parsed.netloc.lower().replace('www.', '')
         return domain
-    except Exception:
+    except Exception as e:
+        logger.debug(f"Failed to extract domain from URL '{url[:80]}': {e}")
         return ''
 
 

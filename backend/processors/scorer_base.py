@@ -9,9 +9,11 @@ ScorerBase class with shared Ollama client, score parsing, calibration.
 """
 
 import collections
+import fcntl
 import json
 import logging
 import re
+import threading
 import time as _time
 import requests
 from pathlib import Path
@@ -471,6 +473,9 @@ class ScoringMemory:
     """
     DEFAULT_DIR = Path(__file__).parent.parent / "data"
 
+    # Hard cap on memory.json examples to prevent unbounded growth
+    MAX_ENTRIES_CAP = 50
+
     def __init__(self, memory_path=None, max_examples=10, min_score=8.5, db=None, profile_id=0):
         if memory_path:
             self.memory_path = memory_path
@@ -478,12 +483,13 @@ class ScoringMemory:
             self.memory_path = self.DEFAULT_DIR / f"memory_{profile_id}.json"
         else:
             self.memory_path = self.DEFAULT_DIR / "memory.json"
-        self.max_examples = max_examples
+        self.max_examples = min(max_examples, self.MAX_ENTRIES_CAP)
         self.min_score = min_score
         self.db = db  # Database reference for feedback loop
         self.profile_id = profile_id
         self._feedback_cache = None
         self._feedback_cache_time = None
+        self._lock = threading.Lock()
         self._ensure_file_exists()
 
     def _ensure_file_exists(self):
@@ -500,15 +506,31 @@ class ScoringMemory:
     def _load(self):
         try:
             with open(self.memory_path, 'r', encoding='utf-8') as f:
-                return json.load(f)
-        except (json.JSONDecodeError, FileNotFoundError):
+                fcntl.flock(f, fcntl.LOCK_SH)
+                try:
+                    data = json.load(f)
+                finally:
+                    fcntl.flock(f, fcntl.LOCK_UN)
+                # Enforce max entries cap on load (repairs files that grew before cap existed)
+                examples = data.get("examples", [])
+                if len(examples) > self.MAX_ENTRIES_CAP:
+                    data["examples"] = examples[:self.MAX_ENTRIES_CAP]
+                return data
+        except (json.JSONDecodeError, FileNotFoundError) as e:
+            logger.debug(f"ScoringMemory load fallback ({type(e).__name__}): {self.memory_path}")
             return {"version": "1.0", "last_updated": "", "examples": []}
 
     def _save(self, data):
         data["last_updated"] = datetime.now().isoformat()
+        # Enforce cap before writing
+        data["examples"] = data.get("examples", [])[:self.MAX_ENTRIES_CAP]
         self.memory_path.parent.mkdir(parents=True, exist_ok=True)
         with open(self.memory_path, 'w', encoding='utf-8') as f:
-            json.dump(data, f, indent=2, ensure_ascii=False)
+            fcntl.flock(f, fcntl.LOCK_EX)
+            try:
+                json.dump(data, f, indent=2, ensure_ascii=False)
+            finally:
+                fcntl.flock(f, fcntl.LOCK_UN)
 
     def get_examples(self, category=None, count=3):
         examples = self._load().get("examples", [])
@@ -521,23 +543,24 @@ class ScoringMemory:
         url = item.get("url", "")
         if score < self.min_score or not url:
             return False
-        data = self._load()
-        examples = data.get("examples", [])
-        if any(e.get("url") == url for e in examples):
-            return False
-        content = item.get("content", "") or item.get("summary", "")
-        examples.insert(0, {
-            "title": item.get("title", "")[:100],
-            "content_preview": content[:200],
-            "score": score,
-            "reason": item.get("score_reason", "")[:100],
-            "url": url,
-            "category": category or "",
-            "added_at": datetime.now().isoformat()
-        })
-        data["examples"] = examples[:self.max_examples]
-        self._save(data)
-        return True
+        with self._lock:
+            data = self._load()
+            examples = data.get("examples", [])
+            if any(e.get("url") == url for e in examples):
+                return False
+            content = item.get("content", "") or item.get("summary", "")
+            examples.insert(0, {
+                "title": item.get("title", "")[:100],
+                "content_preview": content[:200],
+                "score": score,
+                "reason": item.get("score_reason", "")[:100],
+                "url": url,
+                "category": category or "",
+                "added_at": datetime.now().isoformat()
+            })
+            data["examples"] = examples[:self.max_examples]
+            self._save(data)
+            return True
 
     def format_for_prompt(self, count=3):
         examples = self.get_examples(count)
@@ -749,9 +772,16 @@ class ScorerBase:
                     model_base in base_names or
                     f"{self.model}:latest" in full_names
                 )
+                if not self._available:
+                    logger.warning(f"Scorer model '{self.model}' not found in Ollama. Available: {', '.join(full_names[:10])}")
             else:
+                logger.warning(f"Ollama /api/tags returned HTTP {response.status_code}")
                 self._available = False
-        except Exception:
+        except requests.exceptions.ConnectionError:
+            logger.warning(f"Ollama connection refused at {self.host} — is Ollama running?")
+            self._available = False
+        except Exception as e:
+            logger.warning(f"Ollama availability check failed: {e}")
             self._available = False
         return self._available
 
@@ -781,6 +811,7 @@ class ScorerBase:
                 stream=True
             )
             if response.status_code != 200:
+                logger.warning(f"Ollama /api/generate returned HTTP {response.status_code} for model '{self.model}'")
                 return None, ""
 
             full_text = []
@@ -812,6 +843,7 @@ class ScorerBase:
                             done_received = True
                             break
                     except json.JSONDecodeError:
+                        logger.debug(f"Malformed JSON chunk from Ollama (chunk #{chunk_count}): {line[:120]}")
                         continue
             except requests.exceptions.ReadTimeout:
                 elapsed = _time.time() - call_start
@@ -856,8 +888,12 @@ class ScorerBase:
                 self._stats['truncated'] = self._stats.get('truncated', 0) + 1
 
             return clean, think_block
+        except requests.exceptions.ConnectionError as e:
+            logger.warning(f"Ollama connection refused at {self.host} — is Ollama running? {e}")
+        except requests.exceptions.Timeout as e:
+            logger.warning(f"Ollama connect timeout (10s) for model '{self.model}': {e}")
         except Exception as e:
-            logger.debug(f"Ollama call failed: {e}")
+            logger.warning(f"Ollama call failed unexpectedly: {type(e).__name__}: {e}")
         return None, ""
 
     def _calibrate_score(self, raw_score: float) -> float:
