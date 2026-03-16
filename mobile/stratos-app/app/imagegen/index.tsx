@@ -11,6 +11,7 @@ import { typography, spacing, borderRadius } from '../../constants/theme';
 import { fonts } from '../../constants/fonts';
 import { generateImage, generateCharacterPortrait, getImageUrl, getImageGallery, deleteImage } from '../../lib/rp';
 import { apiFetch } from '../../lib/api';
+import { reportError } from '../../lib/utils';
 
 type Style = 'anime' | 'realistic' | 'illustration';
 type Size = 'portrait' | 'square' | 'landscape';
@@ -70,7 +71,7 @@ export default function ImageGenScreen() {
     try {
       const res = await getImageGallery();
       setGallery(res.images || []);
-    } catch { /* ignore */ }
+    } catch (err) { reportError('ImageGen:loadGallery', err); }
     setGalleryLoading(false);
   }, []);
 
@@ -142,12 +143,14 @@ export default function ImageGenScreen() {
       // Share API works on modern browsers and Expo web
       try {
         await Share.share({ message: uri, title: 'Save Image' });
-      } catch {
+      } catch (err) {
+        reportError('ImageGen:handleSaveToDevice:share', err);
         // Fallback: copy URL to clipboard
         try {
           await navigator.clipboard.writeText(uri);
           Alert.alert('Link Copied', 'Image URL copied to clipboard. Paste in browser to save.');
-        } catch {
+        } catch (err2) {
+          reportError('ImageGen:handleSaveToDevice:clipboard', err2);
           Alert.alert('Image URL', uri);
         }
       }
@@ -169,7 +172,8 @@ export default function ImageGenScreen() {
       await MediaLibrary.saveToLibraryAsync(download.uri);
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       Alert.alert('Saved', 'Image saved to your photo library.');
-    } catch {
+    } catch (err) {
+      reportError('ImageGen:handleSaveToDevice:native', err);
       Alert.alert('Error', 'Failed to save image.');
     }
     setSaving(false);
@@ -204,7 +208,7 @@ export default function ImageGenScreen() {
             if (imageId === id) setImageId(null);
             setGallery(prev => prev.filter(img => img.id !== id));
             Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
-          } catch { Alert.alert('Error', 'Failed to delete image.'); }
+          } catch (err) { reportError('ImageGen:handleDeleteImage', err); Alert.alert('Error', 'Failed to delete image.'); }
         },
       },
     ]);

@@ -27,7 +27,7 @@ function formatTime(iso: string): string {
     yesterday.setDate(yesterday.getDate() - 1);
     if (d.toDateString() === yesterday.toDateString()) return `Yesterday ${time}`;
     return `${d.getMonth() + 1}/${d.getDate()} ${time}`;
-  } catch { return ''; }
+  } catch { return ''; } // formatTime — invalid date is not an error worth logging
 }
 
 export const MessageBubble = React.memo(function MessageBubble({ message, accentColor }: MessageBubbleProps) {

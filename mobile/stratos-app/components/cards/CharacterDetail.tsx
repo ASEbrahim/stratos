@@ -15,6 +15,7 @@ import { useThemeStore } from '../../stores/themeStore';
 import { typography, spacing, borderRadius } from '../../constants/theme';
 import { getGenreColor } from '../../constants/genres';
 import { rateCard } from '../../lib/rp';
+import { reportError } from '../../lib/utils';
 import { fonts } from '../../constants/fonts';
 import Animated, { useSharedValue, useAnimatedStyle, withSpring, withSequence, withRepeat, withTiming } from 'react-native-reanimated';
 
@@ -142,7 +143,7 @@ export function CharacterDetailView({ card }: CharacterDetailProps) {
           {[1, 2, 3, 4, 5].map(n => (
             <TouchableOpacity key={n} onPress={() => {
               Haptics.selectionAsync();
-              rateCard(card.id, n).catch(() => {});
+              rateCard(card.id, n).catch(err => reportError('CharacterDetail:rateCard', err));
             }} hitSlop={4}>
               <Star size={22} color={tc.accent.secondary} fill={n <= Math.round(card.rating) ? tc.accent.secondary : 'transparent'} />
             </TouchableOpacity>

@@ -14,6 +14,7 @@ import { TrainingOptInPopup, useTrainingOptInCheck } from '../../components/chat
 import { ChatMessage } from '../../lib/types';
 import { getGenreColor } from '../../constants/genres';
 import { useThemeStore } from '../../stores/themeStore';
+import { reportError } from '../../lib/utils';
 import { spacing } from '../../constants/theme';
 import { fonts } from '../../constants/fonts';
 
@@ -42,13 +43,13 @@ export default function ChatScreen() {
   const { alert: showAlert, AlertComponent } = useThemedAlert();
 
   // Persist session when leaving
-  useFocusEffect(useCallback(() => { return () => { persistSession().catch(() => {}); }; }, []));
+  useFocusEffect(useCallback(() => { return () => { persistSession().catch(err => reportError('ChatScreen:onBlur:persistSession', err)); }; }, []));
 
   useEffect(() => {
     if (isStreaming && !prevStreamRef.current) Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     if (!isStreaming && prevStreamRef.current) {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-      persistSession().catch(() => {});
+      persistSession().catch(err => reportError('ChatScreen:streamEnd:persistSession', err));
       setShowSaved(true);
       setTimeout(() => setShowSaved(false), 2000);
       // Track director's note usage

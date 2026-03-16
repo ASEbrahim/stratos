@@ -6,6 +6,7 @@ import { useThemeStore } from '../../stores/themeStore';
 import { spacing, borderRadius } from '../../constants/theme';
 import { fonts } from '../../constants/fonts';
 import { setTrainingOptIn } from '../../lib/rp';
+import { reportError } from '../../lib/utils';
 
 const OPT_IN_KEY = 'training_opt_in_prompted';
 
@@ -35,14 +36,14 @@ export function TrainingOptInPopup({ onDismiss }: TrainingOptInProps) {
 
   const handleAccept = async () => {
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-    try { await setTrainingOptIn(true); } catch { /* silent */ }
+    try { await setTrainingOptIn(true); } catch (err) { reportError('TrainingOptIn:accept', err); }
     await AsyncStorage.setItem(OPT_IN_KEY, 'accepted');
     onDismiss();
   };
 
   const handleDecline = async () => {
     Haptics.selectionAsync();
-    try { await setTrainingOptIn(false); } catch { /* silent */ }
+    try { await setTrainingOptIn(false); } catch (err) { reportError('TrainingOptIn:decline', err); }
     await AsyncStorage.setItem(OPT_IN_KEY, 'declined');
     onDismiss();
   };

@@ -7,6 +7,7 @@
 
 import { apiFetch, getToken, getDeviceId } from './api';
 import { API_BASE, USE_MOCKS } from '../constants/config';
+import { reportError } from './utils';
 
 // ── Swipe: regenerate last assistant message ──
 export async function regenerateMessage(
@@ -132,7 +133,8 @@ export async function generateImage(params: {
       '/api/image/generate',
       { method: 'POST', body: JSON.stringify(params) }
     );
-  } catch {
+  } catch (err) {
+    reportError('generateImage', err);
     return { success: false, error: 'Image generation unavailable — ComfyUI is not running.' };
   }
 }
@@ -155,7 +157,8 @@ export async function generateCharacterPortrait(params: {
       '/api/image/character-portrait',
       { method: 'POST', body: JSON.stringify(params) }
     );
-  } catch {
+  } catch (err) {
+    reportError('generateCharacterPortrait', err);
     return { success: false, error: 'Image generation unavailable — ComfyUI is not running.' };
   }
 }

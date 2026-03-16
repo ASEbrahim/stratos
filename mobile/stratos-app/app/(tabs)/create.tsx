@@ -7,6 +7,7 @@ import { CardEditor } from '../../components/creator/CardEditor';
 import { useThemeStore } from '../../stores/themeStore';
 import { useCharacterStore } from '../../stores/characterStore';
 import { CharacterCard } from '../../lib/types';
+import { reportError } from '../../lib/utils';
 
 export default function CreateScreen() {
   const insets = useSafeAreaInsets();
@@ -19,13 +20,13 @@ export default function CreateScreen() {
   // Parse edit card from params (passed from character detail "Edit" button)
   let editCard: CharacterCard | undefined;
   if (params.editCard) {
-    try { editCard = JSON.parse(params.editCard); } catch {}
+    try { editCard = JSON.parse(params.editCard); } catch (err) { reportError('CreateScreen:parseEditCard', err); }
   }
 
   // Parse copied card — pre-fills form but creates NEW (no initialCard = no isEditing)
   let prefillCard: CharacterCard | undefined;
   if (params.newCard && !editCard) {
-    try { prefillCard = JSON.parse(params.newCard); } catch {}
+    try { prefillCard = JSON.parse(params.newCard); } catch (err) { reportError('CreateScreen:parsePrefillCard', err); }
   }
 
   return (

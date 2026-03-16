@@ -1,5 +1,6 @@
 import * as FileSystem from 'expo-file-system';
 import { TavernCardV2, CharacterCardCreate } from './types';
+import { reportError } from './utils';
 
 /**
  * Parse a TavernCard V2 PNG file and extract the embedded character data.
@@ -44,7 +45,8 @@ export async function parseTavernCard(uri: string): Promise<CharacterCardCreate 
     }
 
     return null; // No chara tEXt chunk found
-  } catch {
+  } catch (err) {
+    reportError('parseTavernCard', err);
     return null;
   }
 }
@@ -117,7 +119,8 @@ function readUint32(bytes: Uint8Array, offset: number): number {
 function bytesToString(bytes: Uint8Array): string {
   try {
     return new TextDecoder('utf-8').decode(bytes);
-  } catch {
+  } catch (err) {
+    reportError('bytesToString', err);
     // Fallback for environments without TextDecoder
     let str = '';
     for (let i = 0; i < bytes.length; i++) str += String.fromCharCode(bytes[i]);

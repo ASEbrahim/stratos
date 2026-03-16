@@ -7,6 +7,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useAuthStore } from '../../stores/authStore';
 import { useThemeStore } from '../../stores/themeStore';
+import { reportError } from '../../lib/utils';
 import { StarParallax } from '../../components/shared/StarParallax';
 import { typography, spacing, borderRadius } from '../../constants/theme';
 
@@ -33,7 +34,8 @@ export default function RegisterScreen() {
     try {
       await register(name.trim(), email.trim(), password);
       router.replace('/(tabs)/discover');
-    } catch {
+    } catch (err) {
+      reportError('RegisterScreen:handleRegister', err);
       Alert.alert('Registration Failed', 'Please try again.');
     }
   };

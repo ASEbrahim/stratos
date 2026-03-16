@@ -6,6 +6,7 @@ import { useThemeStore } from '../../stores/themeStore';
 import { spacing, borderRadius } from '../../constants/theme';
 import { fonts } from '../../constants/fonts';
 import { editMessage } from '../../lib/rp';
+import { reportError } from '../../lib/utils';
 
 const EDIT_REASONS = [
   { id: 'voice', label: 'Voice' },
@@ -40,7 +41,8 @@ export function EditSheet({ visible, messageId, originalContent, onClose, onSave
       await editMessage(parseInt(messageId) || 0, content.trim(), reason || undefined);
       onSaved(content.trim());
       onClose();
-    } catch {
+    } catch (err) {
+      reportError('EditSheet:handleSave', err);
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
     } finally {
       setSaving(false);

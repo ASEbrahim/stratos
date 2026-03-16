@@ -2,6 +2,7 @@ import * as SecureStore from 'expo-secure-store';
 import { Platform } from 'react-native';
 import { API_BASE } from '../constants/config';
 import { AuthError, ApiError } from './types';
+import { reportError } from './utils';
 
 const TOKEN_KEY = 'stratos_auth_token';
 const DEVICE_ID_KEY = 'stratos_device_id';
@@ -23,7 +24,7 @@ export async function getDeviceId(): Promise<string> {
       id = await SecureStore.getItemAsync(DEVICE_ID_KEY);
     }
     if (id) { _cachedDeviceId = id; return id; }
-  } catch {}
+  } catch (err) { reportError('getDeviceId:read', err); }
 
   // Generate new device ID
   const id = `device-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
@@ -33,7 +34,7 @@ export async function getDeviceId(): Promise<string> {
     } else {
       await SecureStore.setItemAsync(DEVICE_ID_KEY, id);
     }
-  } catch {}
+  } catch (err) { reportError('getDeviceId:write', err); }
   _cachedDeviceId = id;
   return id;
 }
@@ -46,7 +47,8 @@ export async function getToken(): Promise<string | null> {
       return localStorage.getItem(TOKEN_KEY);
     }
     return await SecureStore.getItemAsync(TOKEN_KEY);
-  } catch {
+  } catch (err) {
+    reportError('getToken', err);
     return null;
   }
 }

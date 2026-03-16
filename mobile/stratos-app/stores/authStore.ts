@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { User } from '../lib/types';
 import * as auth from '../lib/auth';
+import { reportError } from '../lib/utils';
 
 interface AuthState {
   user: User | null;
@@ -32,7 +33,8 @@ export const useAuthStore = create<AuthState>((set) => ({
       // Auth is optional — app works without login (anonymous/local mode)
       // Login unlocks sync, cloud backup, and premium features
       set({ user, isAuthenticated: !!user, isLoading: false });
-    } catch {
+    } catch (err) {
+      reportError('checkAuth', err);
       // No auth = anonymous mode. App still works with local data + mock fallbacks.
       set({ user: null, isAuthenticated: false, isLoading: false });
     }

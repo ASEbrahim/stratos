@@ -3,6 +3,7 @@ import { apiFetch } from './api';
 import { CharacterCard, CharacterCardCreate } from './types';
 import { mapCardFromBackend, mapCardsFromBackend } from './mappers';
 import { MOCK_CHARACTERS, generateId } from './mock';
+import { reportError } from './utils';
 
 let mockLibrary: CharacterCard[] = [];
 
@@ -29,7 +30,8 @@ export async function getTrendingCharacters(): Promise<CharacterCard[]> {
   try {
     const { cards } = await apiFetch<{ cards: any[] }>('/api/cards/trending');
     return cards.length > 0 ? mapCardsFromBackend(cards) : MOCK_CHARACTERS.slice(0, 5);
-  } catch {
+  } catch (err) {
+    reportError('getTrendingCharacters', err);
     return [...MOCK_CHARACTERS].sort((a, b) => b.session_count - a.session_count);
   }
 }
@@ -43,7 +45,8 @@ export async function getNewCharacters(page = 1): Promise<CharacterCard[]> {
     const offset = (page - 1) * 20;
     const { cards } = await apiFetch<{ cards: any[] }>(`/api/cards/browse?sort=newest&offset=${offset}`);
     return cards.length > 0 ? mapCardsFromBackend(cards) : MOCK_CHARACTERS;
-  } catch {
+  } catch (err) {
+    reportError('getNewCharacters', err);
     return [...MOCK_CHARACTERS].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
   }
 }
@@ -65,7 +68,8 @@ export async function searchCharacters(query: string, genre?: string): Promise<C
     if (genre) params.set('genre', genre);
     const { cards } = await apiFetch<{ cards: any[] }>(`/api/cards/search?${params}`);
     return mapCardsFromBackend(cards);
-  } catch {
+  } catch (err) {
+    reportError('searchCharacters', err);
     let results = MOCK_CHARACTERS;
     if (genre) results = results.filter(c => c.genre_tags.includes(genre));
     if (query) { const q = query.toLowerCase(); results = results.filter(c => c.name.toLowerCase().includes(q)); }
@@ -83,7 +87,8 @@ export async function getCharacter(id: string): Promise<CharacterCard | null> {
   try {
     const raw = await apiFetch<any>(`/api/cards/${id}`);
     return mapCardFromBackend(raw);
-  } catch {
+  } catch (err) {
+    reportError('getCharacter', err);
     return mockMatch ?? null;
   }
 }
@@ -116,7 +121,8 @@ export async function createCharacter(data: CharacterCardCreate): Promise<Charac
     });
     const card = await getCharacter(result.card_id);
     return card!;
-  } catch {
+  } catch (err) {
+    reportError('createCharacter', err);
     // Fallback to local creation
     const card: CharacterCard = {
       ...data, id: generateId(), creator_id: 'local', creator_name: 'You',
@@ -135,7 +141,8 @@ export async function getSavedCharacters(): Promise<CharacterCard[]> {
   try {
     const { cards } = await apiFetch<{ cards: any[] }>('/api/cards/my');
     return mapCardsFromBackend(cards);
-  } catch {
+  } catch (err) {
+    reportError('getSavedCharacters', err);
     return mockLibrary;
   }
 }
@@ -145,7 +152,8 @@ export async function getMyCharacters(): Promise<CharacterCard[]> {
   try {
     const { cards } = await apiFetch<{ cards: any[] }>('/api/cards/my');
     return mapCardsFromBackend(cards);
-  } catch {
+  } catch (err) {
+    reportError('getMyCharacters', err);
     return mockLibrary;
   }
 }

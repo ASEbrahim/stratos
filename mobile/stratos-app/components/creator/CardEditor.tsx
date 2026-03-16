@@ -8,6 +8,7 @@ import { CharacterCardCreate } from '../../lib/types';
 import { createCharacter } from '../../lib/characters';
 import { parseTavernCard } from '../../lib/tavern-import';
 import { incrementStat } from '../../lib/storage';
+import { reportError } from '../../lib/utils';
 import { AvatarPicker } from './AvatarPicker';
 import { SimpleEditor } from './SimpleEditor';
 import { AdvancedEditor } from './AdvancedEditor';
@@ -83,17 +84,17 @@ export function CardEditor({ initialCard, prefillData }: CardEditorProps) {
             content_rating: card.content_rating,
           }),
         });
-        loadMyCards().catch(() => {});
-        loadNew().catch(() => {});
+        loadMyCards().catch(err => reportError('CardEditor:loadMyCards', err));
+        loadNew().catch(err => reportError('CardEditor:loadNew', err));
         showAlert('Updated!', 'Character has been updated.', [{ text: 'OK', onPress: () => router.back() }]);
       } else {
         await createCharacter(card);
         await incrementStat('totalCharacters');
-        loadMyCards().catch(() => {});
-        loadNew().catch(() => {});
+        loadMyCards().catch(err => reportError('CardEditor:loadMyCards', err));
+        loadNew().catch(err => reportError('CardEditor:loadNew', err));
         showAlert('Created!', 'Your character has been created.', [{ text: 'OK', onPress: () => router.back() }]);
       }
-    } catch { showAlert('Error', isEditing ? 'Failed to update character.' : 'Failed to create character.'); }
+    } catch (err) { reportError('CardEditor:handleSave', err); showAlert('Error', isEditing ? 'Failed to update character.' : 'Failed to create character.'); }
     finally { setSaving(false); }
   };
 
@@ -115,7 +116,8 @@ export function CardEditor({ initialCard, prefillData }: CardEditorProps) {
       setMode('advanced'); // Show all imported fields
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       showAlert('Imported!', `"${parsed.name}" loaded. Review and edit before saving.`);
-    } catch {
+    } catch (err) {
+      reportError('CardEditor:handleImportTavern', err);
       showAlert('Error', 'Failed to import card file.');
     } finally { setImporting(false); }
   };

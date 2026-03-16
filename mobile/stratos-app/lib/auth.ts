@@ -2,6 +2,7 @@ import { USE_MOCKS } from '../constants/config';
 import { apiFetch, setToken, clearToken, getToken } from './api';
 import { AuthResponse, User } from './types';
 import { MOCK_USER } from './mock';
+import { reportError } from './utils';
 
 export async function login(email: string, password: string): Promise<AuthResponse> {
   if (USE_MOCKS) {
@@ -39,7 +40,8 @@ export async function getProfile(): Promise<User | null> {
   if (USE_MOCKS) return MOCK_USER;
   try {
     return await apiFetch<User>('/api/auth/me');
-  } catch {
+  } catch (err) {
+    reportError('getProfile', err);
     return null;
   }
 }

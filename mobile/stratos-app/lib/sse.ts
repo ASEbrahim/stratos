@@ -3,6 +3,8 @@
  * Used by streamMessage() and streamRegenerate() in chat.ts.
  */
 
+import { reportError } from './utils';
+
 const TOTAL_TIMEOUT_MS = 60_000;
 const STALL_TIMEOUT_MS = 30_000;
 
@@ -92,6 +94,6 @@ export async function parseSSEStream(
   } finally {
     cleanup();
     // Ensure reader is always cancelled
-    try { reader?.cancel(); } catch { /* already closed */ }
+    try { reader?.cancel(); } catch (err) { reportError('parseSSEStream:readerCancel', err); }
   }
 }

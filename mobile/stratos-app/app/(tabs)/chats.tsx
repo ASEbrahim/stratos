@@ -7,6 +7,7 @@ import * as Haptics from 'expo-haptics';
 import { deleteChatSession } from '../../lib/storage';
 import { useChatStore } from '../../stores/chatStore';
 import { useThemeStore } from '../../stores/themeStore';
+import { reportError } from '../../lib/utils';
 import { EmptyState } from '../../components/shared/EmptyState';
 import { ChatSession } from '../../lib/types';
 import { getGenreColor } from '../../constants/genres';
@@ -56,7 +57,7 @@ export default function ChatsScreen() {
         try {
           await deleteChatSession(session.id);
           loadRecentSessions();
-        } catch { Alert.alert('Error', 'Failed to delete.'); }
+        } catch (err) { reportError('ChatsScreen:handleDelete', err); Alert.alert('Error', 'Failed to delete.'); }
       }},
     ]);
   };

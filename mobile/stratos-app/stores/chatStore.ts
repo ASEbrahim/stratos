@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { ChatMessage, ChatSession, CharacterCard, Suggestion } from '../lib/types';
 import { streamMessage, streamRegenerate, getSuggestions, createMessageId } from '../lib/chat';
 import { saveChatSession, loadChatSessions, getChatSession, incrementStat } from '../lib/storage';
+import { reportError } from '../lib/utils';
 
 interface ChatState {
   sessionId: string | null;
@@ -25,6 +26,8 @@ interface ChatState {
   regenerateLastMessage: () => Promise<void>;
 }
 
+let _persistTimer: ReturnType<typeof setTimeout> | null = null;
+
 export const useChatStore = create<ChatState>((set, get) => ({
   sessionId: null, character: null, persona: 'roleplay', sessionContext: '', messages: [], suggestions: [],
   isStreaming: false, streamingContent: '', isLoadingSuggestions: false, recentSessions: [],
@@ -35,7 +38,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
       messages.push({ id: createMessageId(), role: 'assistant', content: character.first_message, timestamp: new Date().toISOString() });
     }
     set({ sessionId, character, persona, sessionContext: '', messages, suggestions: [], isStreaming: false, streamingContent: '' });
-    incrementStat('totalSessions').catch(() => {});
+    incrementStat('totalSessions').catch(err => reportError('startSession:incrementStat', err));
   },
   setSessionContext: (context) => set({ sessionContext: context }),
   resumeSession: (session: ChatSession) => {
@@ -59,9 +62,9 @@ export const useChatStore = create<ChatState>((set, get) => ({
       () => {
         const assistantMessage: ChatMessage = { id: createMessageId(), role: 'assistant', content: accumulated, timestamp: new Date().toISOString() };
         set((state) => ({ messages: [...state.messages, assistantMessage], isStreaming: false, streamingContent: '' }));
-        incrementStat('totalMessages', 2).catch(() => {}); // user + assistant
-        get().persistSession().catch(() => {});
-        get().loadSuggestions().catch(() => {});
+        incrementStat('totalMessages', 2).catch(err => reportError('sendMessage:incrementStat', err));
+        get().persistSession().catch(err => reportError('sendMessage:persistSession', err));
+        get().loadSuggestions().catch(err => reportError('sendMessage:loadSuggestions', err));
       },
       directorNote, sessionContext || undefined,
     );
@@ -74,33 +77,44 @@ export const useChatStore = create<ChatState>((set, get) => ({
       const lastMessage = messages[messages.length - 1]?.content ?? '';
       const suggestions = await getSuggestions(sessionId, persona, lastMessage);
       set({ suggestions, isLoadingSuggestions: false });
-    } catch { set({ isLoadingSuggestions: false }); }
+    } catch (err) { reportError('loadSuggestions', err); set({ isLoadingSuggestions: false }); }
   },
   loadRecentSessions: async () => {
     try {
       const sessions = await loadChatSessions();
       set({ recentSessions: sessions });
-    } catch {}
+    } catch (err) { reportError('loadRecentSessions', err); }
   },
   clearSession: () => {
-    get().persistSession().catch(() => {});
+    get().persistSession().catch(err => reportError('clearSession:persistSession', err));
     set({ sessionId: null, character: null, messages: [], suggestions: [], isStreaming: false, streamingContent: '' });
   },
-  persistSession: async () => {
-    const { sessionId, character, persona, sessionContext, messages } = get();
-    if (!sessionId || !character || messages.length === 0) return;
-    const session: ChatSession = {
-      id: sessionId,
-      character_id: character.id,
-      character_name: character.name,
-      character_avatar: character.avatar_url,
-      persona,
-      session_context: sessionContext || undefined,
-      messages,
-      created_at: messages[0]?.timestamp ?? new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    };
-    await saveChatSession(session);
+  persistSession: () => {
+    return new Promise<void>((resolve) => {
+      if (_persistTimer) clearTimeout(_persistTimer);
+      _persistTimer = setTimeout(async () => {
+        _persistTimer = null;
+        const { sessionId, character, persona, sessionContext, messages } = get();
+        if (!sessionId || !character || messages.length === 0) { resolve(); return; }
+        const session: ChatSession = {
+          id: sessionId,
+          character_id: character.id,
+          character_name: character.name,
+          character_avatar: character.avatar_url,
+          persona,
+          session_context: sessionContext || undefined,
+          messages,
+          created_at: messages[0]?.timestamp ?? new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        };
+        try {
+          await saveChatSession(session);
+        } catch (err) {
+          reportError('persistSession', err);
+        }
+        resolve();
+      }, 500);
+    });
   },
   regenerateLastMessage: async () => {
     const { sessionId, character, persona, messages, isStreaming } = get();
@@ -124,11 +138,12 @@ export const useChatStore = create<ChatState>((set, get) => ({
             // Restore original if empty response
             set({ messages: originalMessages, isStreaming: false, streamingContent: '' });
           }
-          get().persistSession().catch(() => {});
-          get().loadSuggestions().catch(() => {});
+          get().persistSession().catch(err => reportError('regenerate:persistSession', err));
+          get().loadSuggestions().catch(err => reportError('regenerate:loadSuggestions', err));
         },
       );
-    } catch {
+    } catch (err) {
+      reportError('regenerateLastMessage', err);
       // Restore original on error
       set({ messages: originalMessages, isStreaming: false, streamingContent: '' });
     }

@@ -5,6 +5,7 @@ import { ThumbsUp, ThumbsDown } from 'lucide-react-native';
 import { useThemeStore } from '../../stores/themeStore';
 import { spacing } from '../../constants/theme';
 import { sendFeedback } from '../../lib/rp';
+import { reportError } from '../../lib/utils';
 
 interface FeedbackButtonsProps {
   messageId: string;
@@ -22,7 +23,7 @@ export const FeedbackButtons = React.memo(function FeedbackButtons({ messageId, 
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     try {
       await sendFeedback(parseInt(messageId) || 0, type === 'up' ? 'thumbs_up' : 'thumbs_down');
-    } catch { /* silent */ }
+    } catch (err) { reportError('FeedbackButtons:sendFeedback', err); }
   };
 
   return (

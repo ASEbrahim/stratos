@@ -1,5 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ChatSession, CharacterCard } from './types';
+import { reportError } from './utils';
 
 const SESSIONS_KEY = 'stratos_chat_sessions';
 const SAVED_CARDS_KEY = 'stratos_saved_cards';
@@ -20,7 +21,7 @@ export async function saveChatSession(session: ChatSession): Promise<void> {
 export async function loadChatSessions(): Promise<ChatSession[]> {
   const raw = await AsyncStorage.getItem(SESSIONS_KEY);
   if (!raw) return [];
-  try { return JSON.parse(raw); } catch { return []; }
+  try { return JSON.parse(raw); } catch (err) { reportError('loadChatSessions:parse', err); return []; }
 }
 
 export async function deleteChatSession(sessionId: string): Promise<void> {
@@ -52,7 +53,7 @@ export async function removeSavedCard(cardId: string): Promise<void> {
 export async function getSavedCards(): Promise<CharacterCard[]> {
   const raw = await AsyncStorage.getItem(SAVED_CARDS_KEY);
   if (!raw) return [];
-  try { return JSON.parse(raw); } catch { return []; }
+  try { return JSON.parse(raw); } catch (err) { reportError('getSavedCards:parse', err); return []; }
 }
 
 export async function isCardSaved(cardId: string): Promise<boolean> {
@@ -71,7 +72,7 @@ interface UserStats {
 export async function getUserStats(): Promise<UserStats> {
   const raw = await AsyncStorage.getItem(STATS_KEY);
   if (!raw) return { totalSessions: 0, totalMessages: 0, totalCharacters: 0 };
-  try { return JSON.parse(raw); } catch { return { totalSessions: 0, totalMessages: 0, totalCharacters: 0 }; }
+  try { return JSON.parse(raw); } catch (err) { reportError('getUserStats:parse', err); return { totalSessions: 0, totalMessages: 0, totalCharacters: 0 }; }
 }
 
 export async function incrementStat(key: keyof UserStats, amount = 1): Promise<void> {

@@ -18,6 +18,7 @@ import { getScenarios } from '../../lib/gaming';
 import { useRouter } from 'expo-router';
 import { getGenreColor } from '../../constants/genres';
 import { formatCount } from '../../lib/types';
+import { reportError } from '../../lib/utils';
 import { typography, spacing, borderRadius } from '../../constants/theme';
 import { fonts } from '../../constants/fonts';
 
@@ -34,8 +35,8 @@ export default function DiscoverScreen() {
   const [showScrollTop, setShowScrollTop] = useState(false);
   const scrollRef = React.useRef<ScrollView>(null);
 
-  useEffect(() => { loadTrending(); loadNew(); getScenarios().then(setScenarios).catch(() => {}); }, []);
-  const onRefresh = useCallback(async () => { setRefreshing(true); try { await Promise.all([loadTrending(), loadNew(), getScenarios().then(setScenarios)]); } catch {} setRefreshing(false); }, []);
+  useEffect(() => { loadTrending(); loadNew(); getScenarios().then(setScenarios).catch(err => reportError('DiscoverScreen:getScenarios', err)); }, []);
+  const onRefresh = useCallback(async () => { setRefreshing(true); try { await Promise.all([loadTrending(), loadNew(), getScenarios().then(setScenarios)]); } catch (err) { reportError('DiscoverScreen:onRefresh', err); } setRefreshing(false); }, []);
   const searchTimer = React.useRef<ReturnType<typeof setTimeout> | null>(null);
   const handleSearch = (text: string) => {
     setSearchQuery(text);

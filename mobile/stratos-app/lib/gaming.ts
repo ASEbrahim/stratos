@@ -2,13 +2,15 @@ import { USE_MOCKS } from '../constants/config';
 import { apiFetch } from './api';
 import { GamingScenario } from './types';
 import { MOCK_SCENARIOS } from './mock';
+import { reportError } from './utils';
 
 export async function getScenarios(): Promise<GamingScenario[]> {
   if (USE_MOCKS) { await new Promise(r => setTimeout(r, 400)); return MOCK_SCENARIOS; }
   try {
     const { scenarios } = await apiFetch<{ scenarios: any[] }>('/api/scenarios');
     return scenarios;
-  } catch {
+  } catch (err) {
+    reportError('getScenarios', err);
     return [];
   }
 }
@@ -17,7 +19,8 @@ export async function getScenario(id: string): Promise<GamingScenario | null> {
   if (USE_MOCKS) { await new Promise(r => setTimeout(r, 200)); return MOCK_SCENARIOS.find(s => s.id === id) ?? null; }
   try {
     return await apiFetch<GamingScenario>(`/api/scenarios/${id}`);
-  } catch {
+  } catch (err) {
+    reportError('getScenario', err);
     return null;
   }
 }
@@ -27,7 +30,8 @@ export async function startGamingSession(scenarioId: string): Promise<string> {
   try {
     const result = await apiFetch<{ session_id: string }>(`/api/scenarios/${scenarioId}/start`, { method: 'POST' });
     return result.session_id;
-  } catch {
+  } catch (err) {
+    reportError('startGamingSession', err);
     return `gaming-session-${scenarioId}-${Date.now()}`;
   }
 }

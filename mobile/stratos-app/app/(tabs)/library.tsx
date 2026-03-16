@@ -7,6 +7,7 @@ import * as Haptics from 'expo-haptics';
 import { deleteChatSession } from '../../lib/storage';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useCharacterStore } from '../../stores/characterStore';
+import { reportError } from '../../lib/utils';
 import { useChatStore } from '../../stores/chatStore';
 import { CharacterCardComponent } from '../../components/cards/CharacterCard';
 import { EmptyState } from '../../components/shared/EmptyState';
@@ -42,7 +43,7 @@ export default function LibraryScreen() {
           await AsyncStorage.removeItem('stratos_chat_sessions');
           loadRecentSessions();
           Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-        } catch { Alert.alert('Error', 'Failed to clear history.'); }
+        } catch (err) { reportError('LibraryScreen:clearAllHistory', err); Alert.alert('Error', 'Failed to clear history.'); }
       }},
     ]);
   };
@@ -55,7 +56,7 @@ export default function LibraryScreen() {
         try {
           await deleteChatSession(session.id);
           loadRecentSessions();
-        } catch { Alert.alert('Error', 'Failed to delete session.'); }
+        } catch (err) { reportError('LibraryScreen:deleteSession', err); Alert.alert('Error', 'Failed to delete session.'); }
       }},
     ]);
   };
