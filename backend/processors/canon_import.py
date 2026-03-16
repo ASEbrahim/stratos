@@ -118,7 +118,8 @@ class FandomFetcher:
             data = self._get({"action": "query", "titles": "Main_Page"})
             pages = data.get("query", {}).get("pages", {})
             return "-1" not in pages
-        except Exception:
+        except Exception as e:
+            logger.warning(f"Wiki existence check failed for {self.wiki}: {e}")
             return False
 
     def search_pages(self, query, limit=10):
@@ -128,7 +129,8 @@ class FandomFetcher:
             if isinstance(data, list) and len(data) >= 2:
                 return data[1]  # list of page titles
             return []
-        except Exception:
+        except Exception as e:
+            logger.warning(f"Page search failed for '{query}' on {self.wiki}: {e}")
             return []
 
     def get_category_members(self, category, limit=20):
@@ -139,7 +141,8 @@ class FandomFetcher:
                 "cmtitle": category, "cmlimit": limit, "cmtype": "page"
             })
             return [m['title'] for m in data.get("query", {}).get("categorymembers", [])]
-        except Exception:
+        except Exception as e:
+            logger.warning(f"Category members fetch failed for '{category}' on {self.wiki}: {e}")
             return []
 
     def get_page_wikitext(self, title):
@@ -281,13 +284,16 @@ def resolve_franchise(name, serper_search_fn=None):
 
     # 3. Try slugified name directly as fandom subdomain
     slug = re.sub(r'[^a-z0-9]', '', key)
+    if not slug:
+        logger.warning(f"Franchise resolution: empty slug for '{name}'")
+        return None
     fetcher = FandomFetcher(slug)
     try:
         fetcher.fetch_count = 0  # don't count validation against import budget
         if fetcher.wiki_exists():
             return {"wiki": slug, "full_name": name.title(), "genre": "RPG"}
-    except Exception:
-        pass
+    except Exception as e:
+        logger.warning(f"Franchise slug resolution failed for '{slug}': {e}")
 
     # 4. Web search fallback
     if serper_search_fn:
@@ -389,12 +395,17 @@ def run_canon_import(ollama_host, model, scenario_path, franchise_info, progress
     franchise = franchise_info['full_name']
     genre = franchise_info.get('genre', 'RPG')
 
+    # Validate scenario_path exists and is a directory
+    if not os.path.isdir(scenario_path):
+        logger.error(f"Canon import: scenario_path is not a directory: {scenario_path}")
+        return False
+
     def _report(pass_num, pass_name, status):
         if progress_callback:
             try:
                 progress_callback(pass_num, pass_name, status)
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"Progress callback error: {e}")
 
     fetcher = FandomFetcher(wiki_sub)
 
@@ -415,8 +426,8 @@ def run_canon_import(ollama_host, model, scenario_path, franchise_info, progress
                     "fetched_at": datetime.now().isoformat(),
                     "content": content[:10000],
                 }, f, indent=2, ensure_ascii=False)
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug(f"Failed to cache source for '{page_title}': {e}")
 
     # ─── PASS 0: Discovery ───
     logger.info(f"Canon import pass 0: Discovery for {franchise} ({wiki_sub}.fandom.com)")

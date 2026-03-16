@@ -27,6 +27,8 @@ class OCRProcessor:
         self.host = config.get("scoring", {}).get("ollama_host", "http://localhost:11434")
         self._session = requests.Session()
 
+    MAX_FILE_SIZE = 50_000_000  # 50MB
+
     def is_available(self) -> bool:
         """Check if the OCR model is loaded in Ollama."""
         try:
@@ -34,8 +36,8 @@ class OCRProcessor:
             if r.status_code == 200:
                 models = [m.get("name", "") for m in r.json().get("models", [])]
                 return any(OCR_MODEL.split(":")[0].lower() in m.lower() for m in models)
-        except Exception:
-            pass
+        except Exception as e:
+            logger.warning(f"OCR availability check failed: {e}")
         return False
 
     def extract_text(self, file_path: str) -> Optional[str]:
@@ -47,7 +49,13 @@ class OCRProcessor:
         Returns:
             Extracted text or None on failure
         """
-        path = Path(file_path)
+        path = Path(file_path).resolve()
+
+        # Path traversal guard: reject paths outside expected directories
+        if '..' in str(path):
+            logger.error(f"OCR: path traversal rejected: {file_path}")
+            return None
+
         if not path.exists():
             logger.error(f"OCR: file not found: {file_path}")
             return None
@@ -59,7 +67,7 @@ class OCRProcessor:
 
         try:
             # Guard against oversized files (50MB limit)
-            if path.stat().st_size > 50_000_000:
+            if path.stat().st_size > self.MAX_FILE_SIZE:
                 logger.warning(f"OCR: file too large ({path.stat().st_size} bytes)")
                 return None
 
@@ -104,6 +112,13 @@ class OCRProcessor:
 
     def extract_text_from_bytes(self, data: bytes, filename: str = "image") -> Optional[str]:
         """Extract text from raw image bytes."""
+        if not data:
+            logger.warning("OCR: empty data provided")
+            return None
+        if len(data) > self.MAX_FILE_SIZE:
+            logger.warning(f"OCR: data too large ({len(data)} bytes, max {self.MAX_FILE_SIZE})")
+            return None
+
         b64_image = base64.b64encode(data).decode('utf-8')
         try:
             resp = self._session.post(
@@ -126,7 +141,14 @@ class OCRProcessor:
                 text = resp.json().get("message", {}).get("content", "").strip()
                 if text:
                     logger.info(f"OCR: extracted {len(text)} chars from {filename}")
-                return text
+                    return text
+                return None
+            else:
+                logger.error(f"OCR: Ollama returned {resp.status_code} for {filename}")
+                return None
+        except requests.RequestException as e:
+            logger.error(f"OCR request failed for {filename}: {e}")
+            return None
         except Exception as e:
-            logger.error(f"OCR error: {e}")
+            logger.error(f"OCR error for {filename}: {e}")
         return None

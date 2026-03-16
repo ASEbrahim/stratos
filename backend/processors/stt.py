@@ -4,15 +4,18 @@ import os
 import time
 import tempfile
 import logging
+import threading
 
 logger = logging.getLogger(__name__)
+
+ALLOWED_AUDIO_MIME_PREFIXES = ('audio/', 'video/webm', 'application/ogg', 'application/octet-stream')
 
 
 class STTProcessor:
     """Singleton processor — model loads once, reuses for all requests."""
 
     _model = None
-    _model_loading = False
+    _model_lock = threading.Lock()
 
     MODEL_NAME = "large-v3-turbo"
     DEVICE = "cpu"
@@ -23,31 +26,28 @@ class STTProcessor:
 
     @classmethod
     def _ensure_model(cls):
-        """Lazy-load the whisper model on first use."""
+        """Lazy-load the whisper model on first use (thread-safe)."""
         if cls._model is not None:
             return cls._model
 
-        if cls._model_loading:
-            for _ in range(60):
-                time.sleep(1)
-                if cls._model is not None:
-                    return cls._model
-            raise RuntimeError("Model loading timed out")
+        with cls._model_lock:
+            # Double-check after acquiring lock
+            if cls._model is not None:
+                return cls._model
 
-        cls._model_loading = True
-        try:
-            logger.info(f"Loading faster-whisper model: {cls.MODEL_NAME} (first use)")
-            from faster_whisper import WhisperModel
-            cls._model = WhisperModel(
-                cls.MODEL_NAME,
-                device=cls.DEVICE,
-                compute_type=cls.COMPUTE_TYPE
-            )
-            logger.info("faster-whisper model loaded successfully")
-            return cls._model
-        except Exception as e:
-            cls._model_loading = False
-            raise RuntimeError(f"Failed to load whisper model: {e}")
+            try:
+                logger.info(f"Loading faster-whisper model: {cls.MODEL_NAME} (first use)")
+                from faster_whisper import WhisperModel
+                cls._model = WhisperModel(
+                    cls.MODEL_NAME,
+                    device=cls.DEVICE,
+                    compute_type=cls.COMPUTE_TYPE
+                )
+                logger.info("faster-whisper model loaded successfully")
+                return cls._model
+            except Exception as e:
+                logger.error(f"Failed to load whisper model: {e}")
+                raise RuntimeError(f"Failed to load whisper model: {e}")
 
     @classmethod
     def transcribe(cls, audio_bytes, language_hint=None):
@@ -62,6 +62,9 @@ class STTProcessor:
             dict with text, language, language_probability, duration_seconds,
             processing_seconds
         """
+        if not isinstance(audio_bytes, (bytes, bytearray)):
+            raise ValueError("audio_bytes must be bytes")
+
         if len(audio_bytes) > cls.MAX_AUDIO_BYTES:
             raise ValueError(f"Audio too large: {len(audio_bytes)} bytes (max {cls.MAX_AUDIO_BYTES})")
 
@@ -73,6 +76,7 @@ class STTProcessor:
         # Save to temp file — faster-whisper reads from file path.
         # faster-whisper uses PyAV internally, so it can read WebM/OGG/WAV directly.
         suffix = '.webm'
+        tmp_path = None
         with tempfile.NamedTemporaryFile(suffix=suffix, delete=False) as tmp:
             tmp.write(audio_bytes)
             tmp_path = tmp.name
@@ -108,10 +112,11 @@ class STTProcessor:
             }
 
         finally:
-            try:
-                os.unlink(tmp_path)
-            except OSError:
-                pass
+            if tmp_path:
+                try:
+                    os.unlink(tmp_path)
+                except OSError as e:
+                    logger.warning(f"STT: failed to clean up temp file {tmp_path}: {e}")
 
     @classmethod
     def is_available(cls):
@@ -128,5 +133,6 @@ class STTProcessor:
         try:
             cls._ensure_model()
             return True
-        except Exception:
+        except Exception as e:
+            logger.error(f"STT preload failed: {e}")
             return False

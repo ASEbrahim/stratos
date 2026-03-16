@@ -290,13 +290,19 @@ class EdgeTTSEngine:
                 return buf.getvalue()
 
             start = time.time()
+            loop = None
             try:
                 loop = asyncio.new_event_loop()
                 mp3_data = loop.run_until_complete(_generate())
-                loop.close()
             except Exception as e:
                 logger.error(f"Edge-TTS stream failed: {e}")
                 return None, None
+            finally:
+                if loop is not None:
+                    try:
+                        loop.close()
+                    except Exception:
+                        pass
 
             if not mp3_data:
                 return None, None
@@ -341,9 +347,14 @@ class TTSProcessor:
     @classmethod
     def synthesize(cls, text, voice=None, language=None, speed=1.0):
         """Synthesize speech with automatic engine selection."""
+        if not isinstance(text, str) or not text.strip():
+            return {"error": "No text provided"}
+
+        speed = max(0.5, min(2.0, float(speed)))
         start_time = time.time()
 
         if len(text) > cls.MAX_TEXT_LENGTH:
+            logger.info(f"TTS: text truncated from {len(text)} to {cls.MAX_TEXT_LENGTH} chars")
             text = text[:cls.MAX_TEXT_LENGTH]
 
         text = cls._clean_text_for_tts(text)

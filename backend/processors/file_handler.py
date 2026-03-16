@@ -56,8 +56,16 @@ class FileHandler:
         Returns:
             File metadata dict or None on failure
         """
+        if not isinstance(data, (bytes, bytearray)):
+            logger.error("save_file: data must be bytes")
+            return None
+
         if len(data) > MAX_FILE_SIZE:
             logger.warning(f"File too large: {len(data)} bytes (max {MAX_FILE_SIZE})")
+            return None
+
+        if not filename or not filename.strip():
+            logger.warning("save_file: empty filename")
             return None
 
         # Sanitize filename: strip directory components, then scrub chars
@@ -155,8 +163,12 @@ class FileHandler:
             )
             if result.returncode == 0 and result.stdout:
                 return result.stdout.decode('utf-8', errors='replace')[:50000]
-        except (FileNotFoundError, subprocess.TimeoutExpired):
-            pass
+        except FileNotFoundError:
+            logger.debug("pdftotext not installed, trying PyMuPDF fallback")
+        except subprocess.TimeoutExpired:
+            logger.warning(f"pdftotext timed out for {path}")
+        except Exception as e:
+            logger.warning(f"pdftotext failed for {path}: {e}")
 
         # Fallback: try PyMuPDF if available
         try:
@@ -261,8 +273,12 @@ class FileHandler:
             if not row:
                 return False
 
-            # Delete from filesystem
-            path = Path(row['file_path'])
+            # Delete from filesystem — verify path is within user directory
+            path = Path(row['file_path']).resolve()
+            user_dir = self._user_dir(profile_id).resolve()
+            if not str(path).startswith(str(user_dir)):
+                logger.error(f"Path traversal blocked on delete: {path} outside {user_dir}")
+                return False
             if path.exists():
                 path.unlink()
 
