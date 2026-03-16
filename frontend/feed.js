@@ -536,7 +536,8 @@ function renderFeed() {
                     <div class="grid grid-cols-2 lg:grid-cols-3 gap-2">`;
                 showVids.forEach(item => {
                     const age = timeAgo(item.timestamp);
-                    const embedId = item.embed_id || '';
+                    const rawEmbedId = item.embed_id || '';
+                    const embedId = /^[\w-]+$/.test(rawEmbedId) ? rawEmbedId : '';
                     const thumb = item.thumbnail || '';
                     if (embedId && item.embed_type === 'youtube') {
                         // Grid card, click expands to full row and plays
@@ -593,7 +594,8 @@ function renderFeed() {
                     <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">`;
                 showStreams.forEach(item => {
                     const age = timeAgo(item.timestamp);
-                    const embedId = item.embed_id || '';
+                    const rawTwitchId = item.embed_id || '';
+                    const embedId = /^[\w-]+$/.test(rawTwitchId) ? rawTwitchId : '';
                     if (embedId && item.embed_type === 'twitch') {
                         html += `<div class="group rounded-xl overflow-hidden" style="background:rgba(30,41,59,0.5);border:1px solid rgba(88,28,135,0.3);">
                             <div class="media-player-slot relative aspect-video cursor-pointer"
