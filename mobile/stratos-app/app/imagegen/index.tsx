@@ -126,14 +126,17 @@ export default function ImageGenScreen() {
     try {
       const uri = getImageUrl(imageId);
       if (Platform.OS === 'web') {
-        // Browser: trigger download via anchor element
+        // Fetch as blob to bypass cross-origin download restriction
+        const res = await fetch(uri);
+        const blob = await res.blob();
+        const blobUrl = URL.createObjectURL(blob);
         const a = document.createElement('a');
-        a.href = uri;
+        a.href = blobUrl;
         a.download = `stratos_${imageId}.png`;
-        a.target = '_blank';
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
+        URL.revokeObjectURL(blobUrl);
         setSaving(false);
         return;
       }
