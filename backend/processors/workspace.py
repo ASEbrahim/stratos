@@ -393,7 +393,8 @@ def get_workspace_stats(strat, profile_id: int) -> Dict[str, Any]:
         stats["youtube_videos"] = cursor.fetchone()[0]
         cursor.execute("SELECT COUNT(*) FROM video_insights WHERE profile_id = ?", (profile_id,))
         stats["video_insights"] = cursor.fetchone()[0]
-    except Exception:
+    except Exception as e:
+        logger.debug(f"Workspace stats: youtube tables not available: {e}")
         stats["youtube_channels"] = 0
         stats["youtube_videos"] = 0
         stats["video_insights"] = 0
@@ -402,14 +403,16 @@ def get_workspace_stats(strat, profile_id: int) -> Dict[str, Any]:
     try:
         cursor.execute("SELECT COUNT(*) FROM user_preference_signals WHERE profile_id = ?", (profile_id,))
         stats["preference_signals"] = cursor.fetchone()[0]
-    except Exception:
+    except Exception as e:
+        logger.debug(f"Workspace stats: preference_signals table not available: {e}")
         stats["preference_signals"] = 0
 
     # Uploaded files
     try:
         cursor.execute("SELECT COUNT(*) FROM user_files WHERE profile_id = ?", (profile_id,))
         stats["uploaded_files"] = cursor.fetchone()[0]
-    except Exception:
+    except Exception as e:
+        logger.debug(f"Workspace stats: user_files table not available: {e}")
         stats["uploaded_files"] = 0
 
     # News items & feedback

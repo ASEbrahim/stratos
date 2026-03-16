@@ -117,8 +117,8 @@ class ContextCompressor:
             row = cursor.fetchone()
             if row:
                 user_ctx = dict(row).get('content', '')[:500]
-        except Exception:
-            pass
+        except Exception as e:
+            logger.warning(f"Failed to read user context for state update: {e}")
 
         system = f"""You are a context summarizer. Update the STATE document for the {persona_name} persona.
 
@@ -193,7 +193,8 @@ Keep it under 500 words. Use markdown headers. Be factual, not creative."""
                             for msg in entry.get("messages", []):
                                 if msg.get("role") in ("user", "assistant"):
                                     all_text.append(f"{msg['role'].upper()}: {msg.get('content', '')[:300]}")
-                except Exception:
+                except Exception as e:
+                    logger.warning(f"Error reading conversation log {log_file} during compression: {e}")
                     continue
 
         if not all_text:

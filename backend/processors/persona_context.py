@@ -46,6 +46,9 @@ class PersonaContextManager:
 
     def _context_dir(self, profile_id: int, persona_name: str) -> Path:
         """Get or create the context directory for a persona."""
+        # Validate persona_name to prevent path traversal
+        if not persona_name or '..' in persona_name or '/' in persona_name or '\\' in persona_name:
+            raise ValueError(f"Invalid persona name: {persona_name!r}")
         d = self.base_dir / str(profile_id) / "context" / persona_name
         d.mkdir(parents=True, exist_ok=True)
         return d
@@ -179,6 +182,10 @@ class PersonaContextManager:
     def revert_to_version(self, profile_id: int, persona_name: str,
                           version_filename: str) -> bool:
         """Revert system_context to a specific version."""
+        # Validate filename to prevent path traversal
+        if not version_filename or '/' in version_filename or '\\' in version_filename or '..' in version_filename:
+            logger.warning(f"Invalid version filename rejected: {version_filename!r}")
+            return False
         ctx_dir = self._context_dir(profile_id, persona_name)
         version_path = ctx_dir / "_versions" / version_filename
         if not version_path.exists():
@@ -229,7 +236,8 @@ class PersonaContextManager:
 
         try:
             return target.read_text(encoding='utf-8', errors='replace')[:50000]
-        except Exception:
+        except Exception as e:
+            logger.error(f"Read file error ({target}): {e}")
             return None
 
     def write_file(self, profile_id: int, persona_name: str,
@@ -294,14 +302,18 @@ class PersonaContextManager:
         """Search across all persona contexts for a profile (UI-only, not agent tool)."""
         if not self.db:
             return []
+        if not query or not query.strip():
+            return []
         try:
             cursor = self.db.conn.cursor()
+            # Escape LIKE wildcards in user input to prevent unintended pattern matching
+            safe_query = query.replace('%', '\\%').replace('_', '\\_')
             cursor.execute(
                 """SELECT persona_name, context_key, content, updated_at
                    FROM persona_context
-                   WHERE profile_id = ? AND content LIKE ?
+                   WHERE profile_id = ? AND content LIKE ? ESCAPE '\\'
                    ORDER BY updated_at DESC""",
-                (profile_id, f'%{query}%')
+                (profile_id, f'%{safe_query}%')
             )
             results = []
             for row in cursor.fetchall():

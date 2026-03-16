@@ -279,7 +279,7 @@ Respond with ONLY valid JSON — no markdown, no backticks:
                     logger.info(f"Entity enrichment: added {added} items across categories")
 
     except Exception as e:
-        logger.debug(f"Entity enrichment pass failed (non-critical): {e}")
+        logger.warning(f"Entity enrichment pass failed (non-critical): {e}")
 
     return categories
 

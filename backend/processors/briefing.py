@@ -149,7 +149,8 @@ Do NOT include items just because they scored high — they must be relevant to 
         try:
             response = self._session.get(f"{self.host}/api/tags", timeout=5)
             self._available = response.status_code == 200
-        except Exception:
+        except Exception as e:
+            logger.debug(f"Ollama availability check failed: {e}")
             self._available = False
         
         return self._available
@@ -285,8 +286,8 @@ Respond in this JSON format:
         if response:
             try:
                 return json.loads(extract_json(response))
-            except (json.JSONDecodeError, ValueError):
-                pass
+            except (json.JSONDecodeError, ValueError) as e:
+                logger.warning(f"Critical alert JSON parse failed: {e}")
         
         return {
             "headline": item.get("title", "Critical Alert"),
