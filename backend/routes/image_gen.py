@@ -146,7 +146,7 @@ def generate_image(prompt: str, negative_prompt: str = "",
     if not prompt_id:
         return {"success": False, "error": "Failed to queue. Is ComfyUI running?"}
 
-    filename = _poll_result(prompt_id, timeout=120)
+    filename = _poll_result(prompt_id, timeout=300)  # First gen can take ~150s (model load + 28 steps)
     if not filename:
         return {"success": False, "error": "Generation timed out."}
 
