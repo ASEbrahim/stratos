@@ -145,8 +145,8 @@ def handle_get(handler, strat, auth, path):
                         'method': srow['resolution_method'],
                         'confidence': srow['confidence'],
                     }
-            except Exception:
-                pass  # Table may not exist yet (pre-migration)
+            except Exception as e:
+                logger.debug(f"narration_sources query failed (table may not exist): {e}")
 
             # Attach resolved URLs to narration items
             if resolved_sources:
@@ -477,59 +477,69 @@ def handle_post(handler, strat, auth, path):
             queued = 0
 
             def _extract_all_background():
+                import sqlite3 as _sq
                 nonlocal queued
-                for video in videos:
-                    vid_id = video['id']
-                    transcript = video['transcript_text']
-                    title = video['title'] or ''
-                    lang = video.get('transcript_language') or 'en'
-                    # Check which lenses already exist for this video
-                    cur = strat.db.conn.cursor()
-                    cur.execute(
-                        "SELECT DISTINCT lens_name FROM video_insights WHERE video_id = ? AND profile_id = ?",
-                        (vid_id, handler._profile_id)
-                    )
-                    existing = {row['lens_name'] for row in cur.fetchall()}
-                    for lens_name in channel_lenses:
-                        if lens_name in existing or lens_name not in AVAILABLE_LENSES or lens_name == 'transcript':
-                            continue
-                        try:
-                            result = extract_lens(
-                                transcript, lens_name, title,
-                                yt.ollama_host, yt.inference_model,
-                                target_language=lang if lang != 'en' else 'en',
-                            )
-                            if result:
-                                cur.execute(
-                                    """INSERT INTO video_insights
-                                       (video_id, profile_id, lens_name, content, language)
-                                       VALUES (?, ?, ?, ?, ?)""",
-                                    (vid_id, handler._profile_id, lens_name,
-                                     json.dumps(result, ensure_ascii=False), lang if lang != 'en' else 'en')
+                _profile = handler._profile_id
+                _db_path = str(strat.db.db_path)
+                # Use independent DB connection for thread safety
+                bg_conn = _sq.connect(_db_path)
+                bg_conn.execute("PRAGMA busy_timeout = 5000")
+                bg_conn.row_factory = _sq.Row
+                try:
+                    for video in videos:
+                        vid_id = video['id']
+                        transcript = video['transcript_text']
+                        title = video['title'] or ''
+                        lang = video.get('transcript_language') or 'en'
+                        # Check which lenses already exist for this video
+                        cur = bg_conn.cursor()
+                        cur.execute(
+                            "SELECT DISTINCT lens_name FROM video_insights WHERE video_id = ? AND profile_id = ?",
+                            (vid_id, _profile)
+                        )
+                        existing = {row['lens_name'] for row in cur.fetchall()}
+                        for lens_name in channel_lenses:
+                            if lens_name in existing or lens_name not in AVAILABLE_LENSES or lens_name == 'transcript':
+                                continue
+                            try:
+                                result = extract_lens(
+                                    transcript, lens_name, title,
+                                    yt.ollama_host, yt.inference_model,
+                                    target_language=lang if lang != 'en' else 'en',
                                 )
-                                strat.db._commit()
-                                logger.info(f"Extract-all: '{lens_name}' for video {vid_id} ({title[:40]})")
-                                # Trigger source resolution for narrations
-                                if lens_name == 'narrations':
-                                    try:
-                                        from processors.source_resolver import resolve_sources_async
-                                        narration_list = result if isinstance(result, list) else []
-                                        if narration_list:
-                                            resolve_sources_async(
-                                                vid_id, handler._profile_id,
-                                                narration_list, strat.db, strat.config,
-                                                sse_manager=strat.sse if hasattr(strat, 'sse') else None,
-                                            )
-                                    except Exception as e:
-                                        logger.debug(f"Extract-all source resolution failed: {e}")
-                        except Exception as e:
-                            logger.error(f"Extract-all: lens '{lens_name}' failed for video {vid_id}: {e}")
-                # Broadcast completion
-                if hasattr(strat, 'sse') and strat.sse:
-                    strat.sse.broadcast('extract_all_complete', {
-                        'channel_id': ch_id,
-                    })
-                logger.info(f"Extract-all complete for channel {ch_id}: processed {len(videos)} videos")
+                                if result:
+                                    cur.execute(
+                                        """INSERT INTO video_insights
+                                           (video_id, profile_id, lens_name, content, language)
+                                           VALUES (?, ?, ?, ?, ?)""",
+                                        (vid_id, _profile, lens_name,
+                                         json.dumps(result, ensure_ascii=False), lang if lang != 'en' else 'en')
+                                    )
+                                    bg_conn.commit()
+                                    logger.info(f"Extract-all: '{lens_name}' for video {vid_id} ({title[:40]})")
+                                    # Trigger source resolution for narrations
+                                    if lens_name == 'narrations':
+                                        try:
+                                            from processors.source_resolver import resolve_sources_async
+                                            narration_list = result if isinstance(result, list) else []
+                                            if narration_list:
+                                                resolve_sources_async(
+                                                    vid_id, _profile,
+                                                    narration_list, strat.db, strat.config,
+                                                    sse_manager=strat.sse if hasattr(strat, 'sse') else None,
+                                                )
+                                        except Exception as e:
+                                            logger.debug(f"Extract-all source resolution failed: {e}")
+                            except Exception as e:
+                                logger.error(f"Extract-all: lens '{lens_name}' failed for video {vid_id}: {e}")
+                    # Broadcast completion
+                    if hasattr(strat, 'sse') and strat.sse:
+                        strat.sse.broadcast('extract_all_complete', {
+                            'channel_id': ch_id,
+                        })
+                    logger.info(f"Extract-all complete for channel {ch_id}: processed {len(videos)} videos")
+                finally:
+                    bg_conn.close()
 
             # Count how many video-lens pairs will be extracted
             cursor_check = strat.db.conn.cursor()
@@ -589,6 +599,8 @@ def handle_post(handler, strat, auth, path):
         _send_json(handler, {"ok": True, "status": "extracting"})
 
         def _extract_in_background():
+            import sqlite3 as _sq
+            _db_path = str(strat.db.db_path)
             try:
                 from processors.lenses import extract_lens
                 insight = extract_lens(
@@ -600,23 +612,26 @@ def handle_post(handler, strat, auth, path):
                     final = insight
                     if mode == 'merge' and existing_content is not None:
                         final = _merge_lens_content(lens_name, existing_content, insight)
-                    cur = strat.db.conn.cursor()
-                    if mode in ('replace', 'merge') and existing_content is not None:
-                        cur.execute(
-                            """UPDATE video_insights SET content = ?
-                               WHERE video_id = ? AND profile_id = ? AND lens_name = ? AND language = ?""",
-                            (json.dumps(final, ensure_ascii=False),
-                             video['id'], video['profile_id'], lens_name, language)
-                        )
-                    else:
-                        cur.execute(
-                            """INSERT INTO video_insights
-                               (video_id, profile_id, lens_name, content, language)
-                               VALUES (?, ?, ?, ?, ?)""",
-                            (video['id'], video['profile_id'], lens_name,
-                             json.dumps(final, ensure_ascii=False), language)
-                        )
-                    strat.db._commit()
+                    # Use independent DB connection for thread safety
+                    with _sq.connect(_db_path) as bg_conn:
+                        bg_conn.execute("PRAGMA busy_timeout = 5000")
+                        cur = bg_conn.cursor()
+                        if mode in ('replace', 'merge') and existing_content is not None:
+                            cur.execute(
+                                """UPDATE video_insights SET content = ?
+                                   WHERE video_id = ? AND profile_id = ? AND lens_name = ? AND language = ?""",
+                                (json.dumps(final, ensure_ascii=False),
+                                 video['id'], video['profile_id'], lens_name, language)
+                            )
+                        else:
+                            cur.execute(
+                                """INSERT INTO video_insights
+                                   (video_id, profile_id, lens_name, content, language)
+                                   VALUES (?, ?, ?, ?, ?)""",
+                                (video['id'], video['profile_id'], lens_name,
+                                 json.dumps(final, ensure_ascii=False), language)
+                            )
+                        bg_conn.commit()
                     if hasattr(strat, 'sse') and strat.sse:
                         strat.sse.broadcast('lens_extracted', {
                             'video_id': video['id'],
@@ -737,8 +752,8 @@ def handle_post(handler, strat, auth, path):
                         _c.execute("PRAGMA busy_timeout = 5000")
                         _c.execute("UPDATE youtube_videos SET status = 'failed' WHERE id = ?", (video['id'],))
                         _c.commit()
-                except Exception:
-                    pass
+                except Exception as e2:
+                    logger.error(f"Failed to mark video as failed: {e2}")
                 if hasattr(strat, 'sse') and strat.sse:
                     strat.sse.broadcast('youtube_processing', {
                         'video_id': video['video_id'],

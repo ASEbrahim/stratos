@@ -24,9 +24,32 @@ from pathlib import Path
 from typing import Dict, Any, List, Optional, Tuple
 from xml.etree import ElementTree
 
+import html
 import requests
 
 logger = logging.getLogger(__name__)
+
+# Strict validation patterns for YouTube IDs
+_VALID_VIDEO_ID = re.compile(r'^[\w-]{11}$')
+_VALID_CHANNEL_ID = re.compile(r'^UC[\w-]{22}$')
+
+
+def _validate_video_id(video_id: str) -> bool:
+    """Validate a YouTube video ID (11 alphanumeric/dash/underscore chars)."""
+    return bool(_VALID_VIDEO_ID.match(video_id))
+
+
+def _validate_channel_id(channel_id: str) -> bool:
+    """Validate a YouTube channel ID (UC + 22 chars)."""
+    return bool(_VALID_CHANNEL_ID.match(channel_id))
+
+
+def _sanitize_transcript(text: str) -> str:
+    """Sanitize transcript text to prevent stored XSS.
+
+    HTML-escapes dangerous characters while preserving readability.
+    """
+    return html.escape(text, quote=False)
 
 # ═══════════════════════════════════════════════════════════
 # CHANNEL MANAGEMENT
@@ -136,6 +159,11 @@ def fetch_channel_videos(channel_id: str, limit: int = 15) -> List[Dict[str, Any
     Tries RSS feed first, falls back to yt-dlp if RSS fails.
     Returns list of dicts with: video_id, title, published_at, link
     """
+    # Validate channel_id before using in URLs/subprocess
+    if not _VALID_CHANNEL_ID.match(channel_id) and channel_id != '__singles__':
+        logger.warning(f"Invalid channel ID format: {channel_id}")
+        return []
+
     videos = []
 
     # Strategy 1: YouTube RSS feed (fast, free)
@@ -211,29 +239,38 @@ def get_transcript(video_id: str, preferred_lang: str = 'ar',
     'lyrics-lrclib'/'youtube-api'/'supadata'/'whisper-turbo'/'whisper-v3'.
     Raises RuntimeError if all tiers fail.
     """
+    # Validate video_id before any external calls
+    if not _validate_video_id(video_id):
+        raise RuntimeError(f"Invalid video ID format: {video_id}")
+
     # Tier 0: Lyrics lookup for music videos
     if video_title:
         text, method, lang = _tier0_lyrics(video_id, video_title, channel_name)
         if text:
-            return text, method, lang
+            return _sanitize_transcript(text), method, lang
 
     # Tier 1: youtube-transcript-api
     text, method, lang = _tier1_youtube_api(video_id, preferred_lang)
     if text:
-        return text, method, lang
+        return _sanitize_transcript(text), method, lang
 
     # Tier 2: Supadata API
     if supadata_key:
         text, method, lang = _tier2_supadata(video_id, supadata_key, preferred_lang)
         if text:
-            return text, method, lang
+            return _sanitize_transcript(text), method, lang
 
     # Tier 3: faster-whisper
     text, method, lang = _tier3_whisper(video_id, whisper_model)
     if text:
-        return text, method, lang
+        return _sanitize_transcript(text), method, lang
 
     raise RuntimeError(f"All transcript tiers failed for video {video_id}")
+
+
+def _sanitize_and_return(text: str, method: str, lang: str) -> Tuple[str, str, str]:
+    """Sanitize transcript text before returning to callers."""
+    return _sanitize_transcript(text), method, lang
 
 
 def _parse_artist_track(title: str, channel_name: str = '') -> Tuple[str, str]:
@@ -789,6 +826,9 @@ class YouTubeProcessor:
         """
         if not self.db:
             return None
+        if not _validate_video_id(video_id):
+            logger.warning(f"Invalid video ID: {video_id}")
+            return None
         lenses = lenses or ['transcript']
 
         try:
@@ -957,7 +997,8 @@ class YouTubeProcessor:
                             'published_at': v['published_at'],
                             'status': 'pending',
                         })
-                except Exception:
+                except Exception as e:
+                    logger.debug(f"Failed to insert video {v.get('video_id', '?')}: {e}")
                     continue
 
             # Update last_checked
@@ -1020,8 +1061,8 @@ class YouTubeProcessor:
             lang_row = cursor.fetchone()
             if lang_row:
                 channel_lang = lang_row[0]
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug(f"Channel language hint lookup failed: {e}")
         # Also check title for CJK characters to hint language
         if not channel_lang:
             title = video.get('title', '')
@@ -1034,8 +1075,8 @@ class YouTubeProcessor:
         try:
             _ch_row = cursor.execute("SELECT name FROM youtube_channels WHERE id = ?", (video.get('channel_id'),)).fetchone()
             if _ch_row: _ch_name = _ch_row[0]
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug(f"Channel name lookup failed: {e}")
 
         # Step 1: Transcribe (Tier 0 lyrics → Tier 1 API → Tier 2 Supadata → Tier 3 Whisper)
         self._update_status(video_db_id, 'transcribing')
@@ -1197,6 +1238,8 @@ class YouTubeProcessor:
         if not self.db:
             return []
         cursor = self.db.conn.cursor()
+        # Escape LIKE wildcards in user query to prevent wildcard injection
+        safe_query = query.replace('%', '\\%').replace('_', '\\_')
         if lens_name:
             cursor.execute(
                 """SELECT i.*, v.title as video_title, v.video_id as yt_video_id,
@@ -1204,9 +1247,9 @@ class YouTubeProcessor:
                    FROM video_insights i
                    JOIN youtube_videos v ON i.video_id = v.id
                    JOIN youtube_channels c ON v.channel_id = c.id
-                   WHERE i.profile_id = ? AND i.lens_name = ? AND i.content LIKE ?
+                   WHERE i.profile_id = ? AND i.lens_name = ? AND i.content LIKE ? ESCAPE '\\'
                    ORDER BY i.created_at DESC LIMIT ?""",
-                (profile_id, lens_name, f'%{query}%', limit)
+                (profile_id, lens_name, f'%{safe_query}%', limit)
             )
         else:
             cursor.execute(
@@ -1215,9 +1258,9 @@ class YouTubeProcessor:
                    FROM video_insights i
                    JOIN youtube_videos v ON i.video_id = v.id
                    JOIN youtube_channels c ON v.channel_id = c.id
-                   WHERE i.profile_id = ? AND i.content LIKE ?
+                   WHERE i.profile_id = ? AND i.content LIKE ? ESCAPE '\\'
                    ORDER BY i.created_at DESC LIMIT ?""",
-                (profile_id, f'%{query}%', limit)
+                (profile_id, f'%{safe_query}%', limit)
             )
         results = []
         for row in cursor.fetchall():

@@ -211,5 +211,5 @@ def _notify(sse_manager, event: dict):
             event_type = event.get('type', 'youtube_processing')
             payload = {k: v for k, v in event.items() if k != 'type'}
             sse_manager.broadcast(event_type, payload)
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug(f"SSE notification failed: {e}")

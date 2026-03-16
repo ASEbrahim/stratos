@@ -264,69 +264,91 @@ def resolve_sources_async(
     Stores results in narration_sources table. Fires SSE on completion.
     Max 3 Serper queries per video to control API costs.
     """
+    # Get DB path for thread-safe independent connection
+    db_path = str(db.db_path) if hasattr(db, 'db_path') else None
+    if not db_path:
+        logger.warning("Source resolver: no db_path available, cannot run async resolution")
+        return
+
     def _run():
-        cursor = db.conn.cursor()
+        import sqlite3
         serper_client = None
         serper_queries_used = 0
         max_serper_queries = 3
         resolved_count = 0
 
-        for narration in narrations:
-            text = narration.get('narration_text', '')
-            source = narration.get('source_claimed', '')
-            ref = narration.get('source_reference', '')
-            if not text:
-                continue
+        # Use independent DB connection — never share db.conn across threads
+        try:
+            conn = sqlite3.connect(db_path)
+            conn.execute("PRAGMA busy_timeout = 5000")
+            conn.row_factory = sqlite3.Row
+            cursor = conn.cursor()
+        except Exception as e:
+            logger.error(f"Source resolver: failed to open DB: {e}")
+            return
 
-            nar_hash = _hash_narration(text)
+        try:
+            for narration in narrations:
+                text = narration.get('narration_text', '')
+                source = narration.get('source_claimed', '')
+                ref = narration.get('source_reference', '')
+                if not text:
+                    continue
 
-            # Check if already resolved in DB
-            cursor.execute(
-                "SELECT resolved_url FROM narration_sources "
-                "WHERE video_id = ? AND profile_id = ? AND narration_hash = ?",
-                (video_id, profile_id, nar_hash)
-            )
-            if cursor.fetchone():
-                continue  # Already cached
+                nar_hash = _hash_narration(text)
 
-            # Strategy A: pattern matching (free, sync)
-            result = resolve_source(source, ref, text)
+                # Check if already resolved in DB
+                cursor.execute(
+                    "SELECT resolved_url FROM narration_sources "
+                    "WHERE video_id = ? AND profile_id = ? AND narration_hash = ?",
+                    (video_id, profile_id, nar_hash)
+                )
+                if cursor.fetchone():
+                    continue  # Already cached
 
-            # Strategy B: Serper search (if A failed and budget remains)
-            if not result and serper_queries_used < max_serper_queries:
-                if serper_client is None:
+                # Strategy A: pattern matching (free, sync)
+                result = resolve_source(source, ref, text)
+
+                # Strategy B: Serper search (if A failed and budget remains)
+                if not result and serper_queries_used < max_serper_queries:
+                    if serper_client is None:
+                        try:
+                            from fetchers.serper_search import get_serper_client
+                            serper_client = get_serper_client(config)
+                        except Exception as e:
+                            logger.debug(f"Serper client unavailable: {e}")
+                            serper_client = False  # Mark as unavailable
+                    if serper_client:
+                        result = _resolve_via_search(source, ref, text, serper_client)
+                        serper_queries_used += 1
+
+                if result:
                     try:
-                        from fetchers.serper_search import get_serper_client
-                        serper_client = get_serper_client(config)
-                    except Exception:
-                        serper_client = False  # Mark as unavailable
-                if serper_client:
-                    result = _resolve_via_search(source, ref, text, serper_client)
-                    serper_queries_used += 1
+                        cursor.execute(
+                            """INSERT OR REPLACE INTO narration_sources
+                               (video_id, profile_id, narration_hash, source_claimed,
+                                source_reference, resolved_url, resolution_method, confidence)
+                               VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
+                            (video_id, profile_id, nar_hash, source, ref,
+                             result['url'], result['method'], result['confidence'])
+                        )
+                        conn.commit()
+                        resolved_count += 1
+                    except Exception as e:
+                        logger.error(f"Failed to store resolved source: {e}")
 
-            if result:
-                try:
-                    cursor.execute(
-                        """INSERT OR REPLACE INTO narration_sources
-                           (video_id, profile_id, narration_hash, source_claimed,
-                            source_reference, resolved_url, resolution_method, confidence)
-                           VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
-                        (video_id, profile_id, nar_hash, source, ref,
-                         result['url'], result['method'], result['confidence'])
-                    )
-                    db._commit()
-                    resolved_count += 1
-                except Exception as e:
-                    logger.error(f"Failed to store resolved source: {e}")
-
-        if resolved_count > 0 and sse_manager:
-            sse_manager.broadcast('narration_resolved', {
-                'video_id': video_id,
-                'resolved_count': resolved_count,
-            })
-            logger.info(
-                f"Source resolver: {resolved_count} narrations resolved for video {video_id} "
-                f"({serper_queries_used} Serper queries used)"
-            )
+            if resolved_count > 0 and sse_manager:
+                sse_manager.broadcast('narration_resolved', {
+                    'video_id': video_id,
+                    'resolved_count': resolved_count,
+                })
+                logger.info(
+                    f"Source resolver: {resolved_count} narrations resolved for video {video_id} "
+                    f"({serper_queries_used} Serper queries used)"
+                )
+        except Exception as e:
+            logger.error(f"Source resolver thread error: {e}")
+        finally:
+            conn.close()
 
     threading.Thread(target=_run, daemon=True).start()
