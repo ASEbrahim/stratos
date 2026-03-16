@@ -16,6 +16,7 @@ import { OfflineBanner } from '../components/shared/OfflineBanner';
 export default function RootLayout() {
   const { isLoading, checkAuth } = useAuthStore();
   const { colors: tc, loadTheme } = useThemeStore();
+  const loadRecentSessions = useChatStore(s => s.loadRecentSessions);
 
   const [fontsLoaded] = useFonts({
     Nunito_400Regular, Nunito_600SemiBold, Nunito_700Bold, Nunito_800ExtraBold, Nunito_900Black,
@@ -23,7 +24,7 @@ export default function RootLayout() {
     Quicksand_400Regular, Quicksand_500Medium, Quicksand_600SemiBold, Quicksand_700Bold,
   });
 
-  useEffect(() => { checkAuth(); loadTheme(); useChatStore.getState().loadRecentSessions(); }, []);
+  useEffect(() => { checkAuth(); loadTheme(); loadRecentSessions(); }, []);
 
   if (isLoading || !fontsLoaded) return <LoadingScreen />;
   return (

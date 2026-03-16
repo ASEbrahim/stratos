@@ -50,7 +50,10 @@ class SSEManager:
                 try:
                     wfile.write(msg.encode())
                     wfile.flush()
-                except Exception:
+                except (BrokenPipeError, ConnectionResetError, OSError):
+                    dead.append(wfile)
+                except Exception as e:
+                    logger.warning(f"SSE broadcast unexpected error: {e}")
                     dead.append(wfile)
             for d in dead:
                 self._clients = [(w, p) for w, p in self._clients if w is not d]
