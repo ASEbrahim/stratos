@@ -62,6 +62,35 @@ logging.getLogger().addHandler(_file_handler)
 
 logger = logging.getLogger("STRAT_OS")
 
+# ═══ Named Constants (Issue #8: replace magic numbers) ═══════════════
+SCHEDULER_JOIN_TIMEOUT_SECS = 5
+BRIEFING_DEFAULT_TIMEOUT_SECS = 30
+DB_CLEANUP_EVERY_N_SCANS = 10
+DB_CLEANUP_MAX_AGE_DAYS = 30
+SHADOW_SAMPLE_EVERY_NTH = 5
+SHADOW_SAMPLE_MAX = 20
+SSE_PROGRESS_EVERY_NTH = 2
+SCORE_HIGH_THRESHOLD = 7.0
+SCORE_MEDIUM_LOW = 5.0
+SCORE_CRITICAL_THRESHOLD = 9.0
+DEFAULT_CACHE_MARKET_TTL = 60
+DEFAULT_CACHE_NEWS_TTL = 900
+DEFAULT_FALLBACK_SCORE = 3.0
+DEFAULT_FAST_BUFFER = 30
+DEFAULT_FAST_MINIMUM = 45
+DEFAULT_SLOW_MULTIPLIER = 3
+DEFAULT_SLOW_BUFFER = 60
+DEFAULT_MAX_NEWS_ITEMS = 50
+DEFAULT_RETENTION_THRESHOLD = 8.0
+DEFAULT_RETENTION_MAX_AGE_HOURS = 24
+DEFAULT_RETENTION_MAX_ITEMS = 20
+DEFAULT_SCHEDULER_INTERVAL_MIN = 30
+DEFAULT_DISTILL_HOURS = 168
+DEFAULT_DISTILL_LIMIT = 200
+DEFAULT_DISTILL_THRESHOLD = 2.0
+INITIAL_SCAN_DELAY_SECS = 2
+SCAN_CANCEL_WAIT_SECS = 10
+
 
 class StratOS:
     """
@@ -92,8 +121,8 @@ class StratOS:
         try:
             from processors.tts import load_persona_voices_from_config
             load_persona_voices_from_config(self.config)
-        except Exception:
-            pass  # TTS not critical for startup
+        except Exception as e:
+            logger.debug(f"TTS persona voice loading skipped (not critical): {e}")
 
         # Initialize database (resolve relative paths against backend dir)
         db_path = self.config.get("system", {}).get("database_file", "strat_os.db")
@@ -188,17 +217,21 @@ class StratOS:
         If a different profile is currently loaded, switch to the
         requested one from the in-memory cache.  If not cached (e.g. after
         server restart), load the config_overlay from DB and cache it.
+
+        Thread-safe: the entire check-and-switch is serialized via _config_lock
+        to prevent two threads from racing on different profiles.
         """
-        if not profile_name or self.active_profile == profile_name:
+        if not profile_name:
             return
-        if profile_name not in self._profile_configs:
-            # Not cached — try loading from DB (handles server restart)
-            self._load_profile_from_db(profile_name)
-        if profile_name not in self._profile_configs:
-            return  # Still not found — give up
         with self._config_lock:
             if self.active_profile == profile_name:
-                return  # Another thread already switched
+                return  # Already active (or switched by another thread)
+            if profile_name not in self._profile_configs:
+                # Not cached — try loading from DB (handles server restart)
+                self._load_profile_from_db(profile_name)
+            if profile_name not in self._profile_configs:
+                logger.warning(f"Profile '{profile_name}' not found in cache or DB, skipping switch")
+                return  # Still not found — give up
             self.config = copy.deepcopy(self._profile_configs[profile_name])
             self.active_profile = profile_name
             # Update active_profile_id from DB
@@ -208,8 +241,8 @@ class StratOS:
                 ).fetchone()
                 if row:
                     self.active_profile_id = row[0]
-            except Exception:
-                pass
+            except Exception as e:
+                logger.warning(f"Failed to resolve profile_id for '{profile_name}': {e}")
             logger.info(f"Profile switched to: {profile_name} (id={self.active_profile_id})")
 
     def _load_profile_from_db(self, profile_name: str):
@@ -373,7 +406,11 @@ class StratOS:
         """Internal scan implementation (called with _scan_lock held)."""
         # Use explicit profile_id if provided (from HTTP handler),
         # otherwise fall back to global (for background scheduler).
-        _scan_pid = profile_id if profile_id is not None else self.active_profile_id
+        if profile_id is not None:
+            _scan_pid = profile_id
+        else:
+            with self._config_lock:
+                _scan_pid = self.active_profile_id
         self._scan_cancelled.clear()
         self._snapshot_previous_articles()  # Snapshot before any writes
         self.scan_status["is_scanning"] = True
@@ -405,7 +442,7 @@ class StratOS:
         self.briefing_gen = BriefingGenerator(self.config)  # Rebuild briefing with new profile/context
 
         logger.info("=" * 60)
-        logger.info("Starting intelligence scan...")
+        logger.info(f"Starting intelligence scan (profile_id={_scan_pid})...")
         start_time = time.time()
 
         try:
@@ -414,7 +451,7 @@ class StratOS:
             self.scan_status["progress"] = "Fetching market data..."
             self.sse_broadcast("scan", {"status": "market", "progress": "Fetching market data..."}, profile_id=_scan_pid)
             logger.info("[1/6] Fetching market data...")
-            cache_ttl = self.config.get("cache", {}).get("market_ttl_seconds", 60)
+            cache_ttl = self.config.get("cache", {}).get("market_ttl_seconds", DEFAULT_CACHE_MARKET_TTL)
             market_data, market_alerts = self.market_fetcher.fetch_all(cache_ttl_seconds=cache_ttl)
 
             # Save market snapshots to DB
@@ -428,7 +465,7 @@ class StratOS:
             self.scan_status["progress"] = "Fetching news articles..."
             self.sse_broadcast("scan", {"status": "news", "progress": "Fetching news articles..."}, profile_id=_scan_pid)
             logger.info("[2/6] Fetching news...")
-            cache_ttl = self.config.get("cache", {}).get("news_ttl_seconds", 900)
+            cache_ttl = self.config.get("cache", {}).get("news_ttl_seconds", DEFAULT_CACHE_NEWS_TTL)
             news_items = self.news_fetcher.fetch_all(cache_ttl_seconds=cache_ttl)
             news_dicts = [item.to_dict() for item in news_items]
 
@@ -460,14 +497,14 @@ class StratOS:
                 self.scan_status["scored"] = current
                 self.scan_status["total"] = total
                 self.scan_status["progress"] = f"AI scoring {current}/{total} articles..."
-                if current % 2 == 0 or current == total:
+                if current % SSE_PROGRESS_EVERY_NTH == 0 or current == total:
                     self.sse_broadcast("scan", {"status": "scoring", "progress": f"AI scoring {current}/{total} articles...", "scored": current, "total": total}, profile_id=_scan_pid)
 
             # === TWO-PASS SCORING ===
             timeout_cfg = self.config.get("scoring", {}).get("timeout", {})
-            fallback_score = self.config.get("scoring", {}).get("fallback_score", 3.0)
-            fast_buffer = timeout_cfg.get("fast_buffer", 30)
-            fast_minimum = timeout_cfg.get("fast_minimum", 45)
+            fallback_score = self.config.get("scoring", {}).get("fallback_score", DEFAULT_FALLBACK_SCORE)
+            fast_buffer = timeout_cfg.get("fast_buffer", DEFAULT_FAST_BUFFER)
+            fast_minimum = timeout_cfg.get("fast_minimum", DEFAULT_FAST_MINIMUM)
             pass1_timeout = self.scorer.scoring_timer.fast_timeout(buffer=fast_buffer, minimum=fast_minimum)
 
             logger.info(f"[Pass 1] Scoring {total_items} items (timeout={pass1_timeout:.0f}s, "
@@ -483,8 +520,8 @@ class StratOS:
             logger.info(f"[Pass 1] Complete: {len(scored_items)} scored, {len(deferred_items)} deferred")
 
             # Update score breakdown in scan_status
-            _high = sum(1 for i in scored_items if i.get('score', 0) >= 7.0)
-            _med = sum(1 for i in scored_items if 5.0 < i.get('score', 0) < 7.0)
+            _high = sum(1 for i in scored_items if i.get('score', 0) >= SCORE_HIGH_THRESHOLD)
+            _med = sum(1 for i in scored_items if SCORE_MEDIUM_LOW < i.get('score', 0) < SCORE_HIGH_THRESHOLD)
             self.scan_status["high"] = _high
             self.scan_status["medium"] = _med
 
@@ -527,8 +564,8 @@ class StratOS:
 
             # === PASS 2: Retry deferred articles with longer timeout ===
             if deferred_items and not self._scan_cancelled.is_set():
-                slow_mult = timeout_cfg.get("slow_multiplier", 3)
-                slow_buf = timeout_cfg.get("slow_buffer", 60)
+                slow_mult = timeout_cfg.get("slow_multiplier", DEFAULT_SLOW_MULTIPLIER)
+                slow_buf = timeout_cfg.get("slow_buffer", DEFAULT_SLOW_BUFFER)
                 pass2_timeout = self.scorer.scoring_timer.slow_timeout(multiplier=slow_mult, buffer=slow_buf)
 
                 logger.info(f"[Pass 2] Retrying {len(deferred_items)} deferred items (timeout={pass2_timeout:.0f}s)")
@@ -609,14 +646,14 @@ class StratOS:
             self._spawn_deferred_briefing(market_data, market_alerts, scored_items, discoveries, profile_id=_scan_pid)
 
             elapsed = time.time() - start_time
-            logger.info(f"Scan complete in {elapsed:.1f}s")
+            logger.info(f"Scan complete in {elapsed:.1f}s (profile_id={_scan_pid})")
             logger.info("=" * 60)
 
             # Save scan log entry
-            critical = sum(1 for i in scored_items if i.get('score', 0) >= 9.0)
-            high = sum(1 for i in scored_items if 7.0 <= i.get('score', 0) < 9.0)
-            medium = sum(1 for i in scored_items if 5.0 < i.get('score', 0) < 7.0)
-            noise = sum(1 for i in scored_items if i.get('score', 0) <= 5.0)
+            critical = sum(1 for i in scored_items if i.get('score', 0) >= SCORE_CRITICAL_THRESHOLD)
+            high = sum(1 for i in scored_items if SCORE_HIGH_THRESHOLD <= i.get('score', 0) < SCORE_CRITICAL_THRESHOLD)
+            medium = sum(1 for i in scored_items if SCORE_MEDIUM_LOW < i.get('score', 0) < SCORE_HIGH_THRESHOLD)
+            noise = sum(1 for i in scored_items if i.get('score', 0) <= SCORE_MEDIUM_LOW)
             retained_count = getattr(self, '_last_retained_count', 0)
             scan_id = self.db.save_scan_log({
                 'started_at': datetime.fromtimestamp(start_time).isoformat(),
@@ -641,7 +678,7 @@ class StratOS:
 
             # Broadcast critical signals for push notifications (profile-scoped)
             for item in scored_items:
-                if item.get('score', 0) >= 9.0:
+                if item.get('score', 0) >= SCORE_CRITICAL_THRESHOLD:
                     self.sse_broadcast("critical_signal", {
                         "title": item.get('title', ''),
                         "score": item.get('score', 0),
@@ -655,9 +692,9 @@ class StratOS:
 
             # Periodic DB cleanup — every 10th scan
             self._scan_count += 1
-            if self._scan_count % 10 == 0:
+            if self._scan_count % DB_CLEANUP_EVERY_N_SCANS == 0:
                 logger.info(f"Running periodic DB cleanup (scan #{self._scan_count})...")
-                self.db.cleanup_old_data(days=30, profile_id=_scan_pid)
+                self.db.cleanup_old_data(days=DB_CLEANUP_MAX_AGE_DAYS, profile_id=_scan_pid)
 
             # Auto-distillation — every N scans (if API key configured)
             distill_every = self.config.get("distillation", {}).get("auto_every", 0)
@@ -696,8 +733,8 @@ class StratOS:
                 shadow = AdaptiveScorer(self.config, db=self.db)
                 shadow_name = 'AdaptiveScorer-shadow'
 
-                # Sample every 5th item, max 20
-                sampled = scored_items[::5][:20]
+                # Sample every Nth item, capped
+                sampled = scored_items[::SHADOW_SAMPLE_EVERY_NTH][:SHADOW_SAMPLE_MAX]
                 if not sampled:
                     return
 
@@ -729,15 +766,13 @@ class StratOS:
                 logger.info(f"Shadow scoring complete: {len(sampled)} items compared")
 
             except Exception as e:
-                logger.warning(f"Shadow scoring failed: {e}")
+                logger.error(f"Shadow scoring thread crashed (profile_id={profile_id}): {e}", exc_info=True)
 
-        thread = threading.Thread(target=_shadow_worker, daemon=True)
+        thread = threading.Thread(target=_shadow_worker, daemon=True, name="shadow-scoring")
         thread.start()
 
     def _run_auto_distillation(self):
         """Run distillation in background thread after a scan completes."""
-        import threading
-
         def _distill_worker():
             try:
                 from distill import get_api_key, run_distillation
@@ -752,9 +787,9 @@ class StratOS:
                 db_path = str(Path(__file__).parent / "strat_os.db")
 
                 distill_cfg = self.config.get("distillation", {})
-                hours = distill_cfg.get("hours", 168)
-                limit = distill_cfg.get("limit", 200)
-                threshold = distill_cfg.get("threshold", 2.0)
+                hours = distill_cfg.get("hours", DEFAULT_DISTILL_HOURS)
+                limit = distill_cfg.get("limit", DEFAULT_DISTILL_LIMIT)
+                threshold = distill_cfg.get("threshold", DEFAULT_DISTILL_THRESHOLD)
 
                 logger.info(f"Auto-distillation starting ({limit} items, last {hours}h)...")
                 run_distillation(
@@ -769,9 +804,9 @@ class StratOS:
                 logger.info("Auto-distillation completed")
 
             except Exception as e:
-                logger.warning(f"Auto-distillation failed: {e}")
+                logger.error(f"Auto-distillation thread crashed: {e}", exc_info=True)
 
-        thread = threading.Thread(target=_distill_worker, daemon=True)
+        thread = threading.Thread(target=_distill_worker, daemon=True, name="auto-distill")
         thread.start()
 
     def run_market_refresh(self, profile_id=None) -> Dict[str, Any]:
@@ -784,7 +819,11 @@ class StratOS:
             logger.info("Skipping market refresh — news scan in progress")
             return {}
 
-        _scan_pid = profile_id if profile_id is not None else self.active_profile_id
+        if profile_id is not None:
+            _scan_pid = profile_id
+        else:
+            with self._config_lock:
+                _scan_pid = self.active_profile_id
 
         self.scan_status["is_scanning"] = True
         self.scan_status["stage"] = "market"
@@ -835,10 +874,23 @@ class StratOS:
                     output["timestamps"] = {}
                 output["timestamps"]["market"] = datetime.now().isoformat()
 
-                # Write back (inline, lock already held)
-                with open(self.output_file, "w") as f:
-                    json.dump(output, f, indent=2)
-            logger.info(f"Output written to {self.output_file}")
+                # Atomic write (inline, lock already held)
+                import tempfile
+                out_path = self.output_file
+                tmp_fd, tmp_path = tempfile.mkstemp(
+                    dir=str(out_path.parent), suffix=".tmp", prefix=".market_"
+                )
+                try:
+                    with os.fdopen(tmp_fd, "w") as f:
+                        json.dump(output, f, indent=2)
+                    os.replace(tmp_path, str(out_path))
+                except Exception:
+                    try:
+                        os.unlink(tmp_path)
+                    except OSError:
+                        pass
+                    raise
+            logger.info(f"Output written to {self.output_file} (market refresh, profile_id={_scan_pid})")
 
             elapsed = time.time() - start_time
             logger.info(f"Market refresh complete in {elapsed:.1f}s")
@@ -881,7 +933,11 @@ class StratOS:
         """Internal news refresh implementation (called with _scan_lock held)."""
         # Use explicit profile_id if provided (from HTTP handler),
         # otherwise fall back to global (for background scheduler).
-        _scan_pid = profile_id if profile_id is not None else self.active_profile_id
+        if profile_id is not None:
+            _scan_pid = profile_id
+        else:
+            with self._config_lock:
+                _scan_pid = self.active_profile_id
         self._scan_cancelled.clear()
         self._snapshot_previous_articles()  # Snapshot before any writes
         self.scan_status["is_scanning"] = True
@@ -896,7 +952,7 @@ class StratOS:
         self.sse_broadcast("scan", {"status": "news", "progress": "Fetching news..."}, profile_id=_scan_pid)
 
         logger.info("=" * 60)
-        logger.info("Refreshing news and intelligence...")
+        logger.info(f"Refreshing news and intelligence (profile_id={_scan_pid})...")
         start_time = time.time()
 
         try:
@@ -954,14 +1010,14 @@ class StratOS:
                 self.scan_status["scored"] = current
                 self.scan_status["total"] = total
                 self.scan_status["progress"] = f"AI scoring {current}/{total} articles..."
-                if current % 2 == 0 or current == total:
+                if current % SSE_PROGRESS_EVERY_NTH == 0 or current == total:
                     self.sse_broadcast("scan", {"status": "scoring", "progress": f"AI scoring {current}/{total} articles...", "scored": current, "total": total}, profile_id=_scan_pid)
 
             # === TWO-PASS SCORING ===
             timeout_cfg = self.config.get("scoring", {}).get("timeout", {})
-            fallback_score = self.config.get("scoring", {}).get("fallback_score", 3.0)
-            fast_buffer = timeout_cfg.get("fast_buffer", 30)
-            fast_minimum = timeout_cfg.get("fast_minimum", 45)
+            fallback_score = self.config.get("scoring", {}).get("fallback_score", DEFAULT_FALLBACK_SCORE)
+            fast_buffer = timeout_cfg.get("fast_buffer", DEFAULT_FAST_BUFFER)
+            fast_minimum = timeout_cfg.get("fast_minimum", DEFAULT_FAST_MINIMUM)
             pass1_timeout = self.scorer.scoring_timer.fast_timeout(buffer=fast_buffer, minimum=fast_minimum)
 
             logger.info(f"[Pass 1] Scoring {total_items} items (timeout={pass1_timeout:.0f}s, "
@@ -977,8 +1033,8 @@ class StratOS:
             logger.info(f"[Pass 1] Complete: {len(scored_items)} scored, {len(deferred_items)} deferred")
 
             # Update score breakdown
-            _high = sum(1 for i in scored_items if i.get('score', 0) >= 7.0)
-            _med = sum(1 for i in scored_items if 5.0 < i.get('score', 0) < 7.0)
+            _high = sum(1 for i in scored_items if i.get('score', 0) >= SCORE_HIGH_THRESHOLD)
+            _med = sum(1 for i in scored_items if SCORE_MEDIUM_LOW < i.get('score', 0) < SCORE_HIGH_THRESHOLD)
             self.scan_status["high"] = _high
             self.scan_status["medium"] = _med
 
@@ -1021,8 +1077,8 @@ class StratOS:
 
             # === PASS 2: Retry deferred articles with longer timeout ===
             if deferred_items and not self._scan_cancelled.is_set():
-                slow_mult = timeout_cfg.get("slow_multiplier", 3)
-                slow_buf = timeout_cfg.get("slow_buffer", 60)
+                slow_mult = timeout_cfg.get("slow_multiplier", DEFAULT_SLOW_MULTIPLIER)
+                slow_buf = timeout_cfg.get("slow_buffer", DEFAULT_SLOW_BUFFER)
                 pass2_timeout = self.scorer.scoring_timer.slow_timeout(multiplier=slow_mult, buffer=slow_buf)
 
                 logger.info(f"[Pass 2] Retrying {len(deferred_items)} deferred items (timeout={pass2_timeout:.0f}s)")
@@ -1100,14 +1156,14 @@ class StratOS:
             self._spawn_deferred_briefing(market_data, market_alerts, scored_items, discoveries, profile_id=_scan_pid)
 
             elapsed = time.time() - start_time
-            logger.info(f"News refresh complete in {elapsed:.1f}s")
+            logger.info(f"News refresh complete in {elapsed:.1f}s (profile_id={_scan_pid})")
             logger.info("=" * 60)
 
             # Save scan log entry
-            critical = sum(1 for i in scored_items if i.get('score', 0) >= 9.0)
-            high = sum(1 for i in scored_items if 7.0 <= i.get('score', 0) < 9.0)
-            medium = sum(1 for i in scored_items if 5.0 < i.get('score', 0) < 7.0)
-            noise = sum(1 for i in scored_items if i.get('score', 0) <= 5.0)
+            critical = sum(1 for i in scored_items if i.get('score', 0) >= SCORE_CRITICAL_THRESHOLD)
+            high = sum(1 for i in scored_items if SCORE_HIGH_THRESHOLD <= i.get('score', 0) < SCORE_CRITICAL_THRESHOLD)
+            medium = sum(1 for i in scored_items if SCORE_MEDIUM_LOW < i.get('score', 0) < SCORE_HIGH_THRESHOLD)
+            noise = sum(1 for i in scored_items if i.get('score', 0) <= SCORE_MEDIUM_LOW)
             retained_count = getattr(self, '_last_retained_count', 0)
             scan_id = self.db.save_scan_log({
                 'started_at': datetime.fromtimestamp(start_time).isoformat(),
@@ -1131,7 +1187,7 @@ class StratOS:
 
             # Broadcast critical signals for push notifications (profile-scoped)
             for item in scored_items:
-                if item.get('score', 0) >= 9.0:
+                if item.get('score', 0) >= SCORE_CRITICAL_THRESHOLD:
                     self.sse_broadcast("critical_signal", {
                         "title": item.get('title', ''),
                         "score": item.get('score', 0),
@@ -1192,8 +1248,8 @@ class StratOS:
                     try:
                         pattern = re.compile(r'\b' + re.escape(kw_lower) + r'\b', re.IGNORECASE)
                         matchers.append(lambda text, p=pattern: bool(p.search(text)))
-                    except re.error:
-                        pass
+                    except re.error as e:
+                        logger.debug(f"Invalid regex for keyword '{kw_lower}': {e}")
                 elif len(words) <= 2:
                     # 1-2 significant words: substring match (safe for longer terms)
                     matchers.append(lambda text, k=kw_lower: k in text)
@@ -1300,7 +1356,7 @@ class StratOS:
             try:
                 if self._scan_cancelled.is_set():
                     return
-                logger.info("Deferred briefing: generating...")
+                logger.info(f"Deferred briefing: generating (profile_id={profile_id})...")
                 self.sse_broadcast("scan", {"status": "briefing", "progress": "Generating briefing..."}, profile_id=profile_id)
                 briefing = self.briefing_gen.generate_briefing(
                     market_data=market_data,
@@ -1313,6 +1369,7 @@ class StratOS:
                 # Save to DB
                 self.db.save_briefing(briefing, profile_id=profile_id)
                 # Patch the output file with the briefing (lock covers read-modify-write)
+                import tempfile
                 with self._output_lock:
                     if self.output_file.exists():
                         with open(self.output_file, "r") as f:
@@ -1320,12 +1377,24 @@ class StratOS:
                         output["briefing"] = briefing
                         output["meta"]["critical_count"] = briefing.get("critical_count", 0)
                         output["meta"]["high_count"] = briefing.get("high_count", 0)
-                        with open(self.output_file, "w") as f:
-                            json.dump(output, f, indent=2)
+                        out_path = self.output_file
+                        tmp_fd, tmp_path = tempfile.mkstemp(
+                            dir=str(out_path.parent), suffix=".tmp", prefix=".briefing_"
+                        )
+                        try:
+                            with os.fdopen(tmp_fd, "w") as f:
+                                json.dump(output, f, indent=2)
+                            os.replace(tmp_path, str(out_path))
+                        except Exception:
+                            try:
+                                os.unlink(tmp_path)
+                            except OSError:
+                                pass
+                            raise
                 self.sse_broadcast("briefing_ready", {"status": "ready"}, profile_id=profile_id)
-                logger.info("Deferred briefing: complete, output patched")
+                logger.info(f"Deferred briefing: complete, output patched (profile_id={profile_id})")
             except Exception as e:
-                logger.warning(f"Deferred briefing failed: {e}")
+                logger.error(f"Deferred briefing failed (profile_id={profile_id}): {e}", exc_info=True)
                 self.sse_broadcast("briefing_ready", {"status": "failed"}, profile_id=profile_id)
             finally:
                 # Signal completion only if this is still the current generation
@@ -1336,7 +1405,7 @@ class StratOS:
         self._briefing_thread = threading.Thread(target=_briefing_worker, daemon=True, name="briefing-deferred")
         self._briefing_thread.start()
 
-    def wait_for_briefing(self, timeout: float = 30) -> bool:
+    def wait_for_briefing(self, timeout: float = BRIEFING_DEFAULT_TIMEOUT_SECS) -> bool:
         """Wait for the deferred briefing to complete.
         Returns True if briefing finished, False if timed out."""
         return self._briefing_done.wait(timeout=timeout)
@@ -1376,9 +1445,9 @@ class StratOS:
         if not scoring_cfg.get("retain_high_scores", True):
             return current_articles
 
-        threshold = scoring_cfg.get("retention_threshold", 8.0)
-        max_age_hours = scoring_cfg.get("retention_max_age_hours", 24)
-        max_retained = scoring_cfg.get("retention_max_items", 20)
+        threshold = scoring_cfg.get("retention_threshold", DEFAULT_RETENTION_THRESHOLD)
+        max_age_hours = scoring_cfg.get("retention_max_age_hours", DEFAULT_RETENTION_MAX_AGE_HOURS)
+        max_retained = scoring_cfg.get("retention_max_items", DEFAULT_RETENTION_MAX_ITEMS)
 
         # Use snapshot taken at scan start (avoids reading partially-written output file)
         previous_articles = getattr(self, '_retained_snapshot', None)
@@ -1423,8 +1492,8 @@ class StratOS:
                     article_time = datetime.fromisoformat(ts.replace("Z", "+00:00")).replace(tzinfo=None)
                     if article_time < cutoff:
                         continue
-                except (ValueError, TypeError):
-                    pass
+                except (ValueError, TypeError) as e:
+                    logger.debug(f"Unparseable timestamp '{ts}' in retained article: {e}")
             # Check if user dismissed this article
             if self.db and self.db.was_dismissed(url, profile_id=profile_id):
                 continue
@@ -1478,7 +1547,7 @@ class StratOS:
         )
 
         # Filter news for output (respect max_items)
-        max_items = self.config.get("system", {}).get("max_news_items", 50)
+        max_items = self.config.get("system", {}).get("max_news_items", DEFAULT_MAX_NEWS_ITEMS)
         filtered_news = news_items[:max_items]
 
         # Build FRS-compliant news array
@@ -1534,11 +1603,26 @@ class StratOS:
 
     def _write_output(self, data: Dict[str, Any], profile_id: int = 0):
         """Write output to JSON file and per-user daily article export.
-        Thread-safe: serialized via _output_lock to prevent briefing/scan races."""
+        Thread-safe: serialized via _output_lock to prevent briefing/scan races.
+        Uses atomic write (tmp + rename) to prevent partial JSON on crash."""
+        import tempfile
         with self._output_lock:
-            with open(self.output_file, "w") as f:
-                json.dump(data, f, indent=2)
-        logger.info(f"Output written to {self.output_file}")
+            out_path = self.output_file
+            tmp_fd, tmp_path = tempfile.mkstemp(
+                dir=str(out_path.parent), suffix=".tmp", prefix=".news_data_"
+            )
+            try:
+                with os.fdopen(tmp_fd, "w") as f:
+                    json.dump(data, f, indent=2)
+                os.replace(tmp_path, str(out_path))
+            except Exception:
+                # Clean up temp file on failure
+                try:
+                    os.unlink(tmp_path)
+                except OSError:
+                    pass
+                raise
+        logger.info(f"Output written to {self.output_file} (profile_id={profile_id})")
 
         # Per-user daily article JSONL export
         uid = user_data.get_user_id_for_profile(self.db, profile_id)
@@ -1561,12 +1645,14 @@ class StratOS:
             logger.warning("Scheduler already running")
             return
 
-        interval_min = self.config.get("schedule", {}).get("background_interval_minutes", 30)
+        interval_min = self.config.get("schedule", {}).get("background_interval_minutes", DEFAULT_SCHEDULER_INTERVAL_MIN)
 
         def _resolve_scheduler_profile():
             """Resume the most recently active profile from sessions DB."""
-            if self.active_profile_id:
-                return self.active_profile_id
+            with self._config_lock:
+                current_pid = self.active_profile_id
+            if current_pid:
+                return current_pid
             try:
                 cursor = self.db.conn.cursor()
                 cursor.execute("""
@@ -1583,18 +1669,21 @@ class StratOS:
             return None
 
         def scheduler_loop():
-            while not self._stop_scheduler.is_set():
-                try:
-                    pid = _resolve_scheduler_profile()
-                    if pid:
-                        self.run_scan(profile_id=pid)
-                    else:
-                        logger.info("Background scan skipped — no active profile")
-                except Exception as e:
-                    logger.error(f"Scheduled scan failed: {e}")
+            try:
+                while not self._stop_scheduler.is_set():
+                    try:
+                        pid = _resolve_scheduler_profile()
+                        if pid:
+                            self.run_scan(profile_id=pid)
+                        else:
+                            logger.info("Background scan skipped — no active profile")
+                    except Exception as e:
+                        logger.error(f"Scheduled scan failed: {e}", exc_info=True)
 
-                # Wait for interval or stop signal
-                self._stop_scheduler.wait(timeout=interval_min * 60)
+                    # Wait for interval or stop signal
+                    self._stop_scheduler.wait(timeout=interval_min * 60)
+            except Exception as e:
+                logger.critical(f"Scheduler thread crashed: {e}", exc_info=True)
 
         self._stop_scheduler.clear()
         self._scheduler_thread = threading.Thread(target=scheduler_loop, daemon=True)
@@ -1605,7 +1694,7 @@ class StratOS:
         """Stop the background scheduler."""
         if self._scheduler_thread:
             self._stop_scheduler.set()
-            self._scheduler_thread.join(timeout=5)
+            self._scheduler_thread.join(timeout=SCHEDULER_JOIN_TIMEOUT_SECS)
             logger.info("Background scheduler stopped")
 
     def serve_frontend(self, port: int = 8080, open_browser: bool = True):
@@ -1625,10 +1714,31 @@ class StratOS:
         start_server(self, auth, port, open_browser)
 
     def cleanup(self):
-        """Cleanup resources."""
+        """Cleanup resources: stop all threads, close DB, cancel pending work."""
+        logger.info("Cleanup: stopping background scheduler...")
         self.stop_background_scheduler()
-        self.db.cleanup_old_data(days=30)
-        self.db.close()
+
+        # Cancel any in-progress scan so threads exit promptly
+        self._scan_cancelled.set()
+
+        # Wait for deferred briefing thread to finish
+        if self._briefing_thread and self._briefing_thread.is_alive():
+            logger.info("Cleanup: waiting for deferred briefing thread...")
+            self._briefing_thread.join(timeout=SCHEDULER_JOIN_TIMEOUT_SECS)
+            if self._briefing_thread.is_alive():
+                logger.warning("Cleanup: briefing thread did not exit in time")
+
+        # DB maintenance and close
+        try:
+            self.db.cleanup_old_data(days=DB_CLEANUP_MAX_AGE_DAYS)
+        except Exception as e:
+            logger.warning(f"Cleanup: DB cleanup_old_data failed: {e}")
+        try:
+            self.db.close()
+        except Exception as e:
+            logger.warning(f"Cleanup: DB close failed: {e}")
+
+        logger.info("Cleanup: complete")
 
 
 def main():
@@ -1657,9 +1767,12 @@ def main():
             # Only run initial scan if --scan flag is explicitly provided
             if args.scan:
                 def background_scan():
-                    time.sleep(2)  # Let server start first
-                    strat.run_scan()
-                threading.Thread(target=background_scan, daemon=True).start()
+                    try:
+                        time.sleep(INITIAL_SCAN_DELAY_SECS)  # Let server start first
+                        strat.run_scan()
+                    except Exception as e:
+                        logger.error(f"Initial background scan failed: {e}", exc_info=True)
+                threading.Thread(target=background_scan, daemon=True, name="initial-scan").start()
 
             if args.background and strat.config.get("schedule", {}).get("background_enabled", False):
                 strat.start_background_scheduler()
