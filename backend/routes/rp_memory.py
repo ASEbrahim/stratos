@@ -101,11 +101,38 @@ def extract_facts_llm(user_msg: str, ai_response: str) -> list:
 
 def extract_facts(session_id: str, user_msg: str, ai_response: str,
                   turn_number: int, db):
-    """Hybrid fact extraction: regex first, LLM for complex patterns."""
+    """Hybrid fact extraction: regex first, LLM for complex patterns.
+    On first extraction, also scans all previous user messages."""
+    # Scan current message
     facts = extract_facts_regex(user_msg)
+
+    # On first extraction, scan ALL previous user messages for missed facts
+    existing = db.get_rp_context(session_id, tier=1, limit=1)
+    if not existing:
+        try:
+            prev_msgs = db.conn.execute(
+                "SELECT content FROM rp_messages WHERE session_id = ? AND role = 'user' ORDER BY turn_number",
+                (session_id,)
+            ).fetchall()
+            for msg in prev_msgs:
+                facts.extend(extract_facts_regex(msg["content"]))
+        except Exception as e:
+            logger.warning(f"Failed to scan previous messages: {e}")
+
+    # LLM fallback if regex found nothing
     if not facts:
         facts = extract_facts_llm(user_msg, ai_response)
-    for category, key, value in facts:
+
+    # Deduplicate by (category, key)
+    seen = set()
+    unique_facts = []
+    for f in facts:
+        k = (f[0], f[1])
+        if k not in seen:
+            seen.add(k)
+            unique_facts.append(f)
+
+    for category, key, value in unique_facts:
         db.upsert_rp_context(session_id, tier=1, category=category,
                              key=key, value=value, turn_number=turn_number)
         logger.info(f"Tier 1 extracted: [{category}] {key}={value} (turn {turn_number})")
