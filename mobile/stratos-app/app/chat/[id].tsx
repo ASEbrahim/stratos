@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useCallback, useState } from 'react';
-import { View, Text, FlatList, StyleSheet, KeyboardAvoidingView, Platform, TouchableOpacity, Alert, Share, Keyboard } from 'react-native';
+import { View, Text, FlatList, StyleSheet, KeyboardAvoidingView, Platform, TouchableOpacity, Share, Keyboard, Modal, TextInput, TouchableWithoutFeedback } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useFocusEffect } from 'expo-router';
 import * as Haptics from 'expo-haptics';
@@ -42,6 +42,8 @@ export default function ChatScreen() {
   const [swipeCount, setSwipeCount] = useState(0);
   const [swipeIndex, setSwipeIndex] = useState(0);
   const [editTarget, setEditTarget] = useState<{ id: string; content: string } | null>(null);
+  const [showContextModal, setShowContextModal] = useState(false);
+  const [contextInput, setContextInput] = useState('');
   const [isRegenerating, setIsRegenerating] = useState(false);
   const { showOptIn, dismiss: dismissOptIn } = useTrainingOptInCheck();
   const { alert: showAlert, AlertComponent } = useThemedAlert();
@@ -120,6 +122,27 @@ export default function ChatScreen() {
     sendMessage(text, directorNote || undefined);
   };
 
+  const handleUpdateCharacter = async () => {
+    if (!character?.id) return;
+    try {
+      const { getCharacter } = await import('../../lib/characters');
+      const updated = await getCharacter(character.id);
+      if (updated) {
+        useChatStore.setState({ character: updated });
+        showAlert('Updated', `${updated.name}'s card has been refreshed.`);
+      }
+    } catch {
+      showAlert('Error', 'Failed to update character card.');
+    }
+  };
+
+  const handleImportContext = () => {
+    if (!contextInput.trim()) return;
+    sendMessage(`[Session Context — reference this throughout the conversation]\n${contextInput.trim()}`);
+    setShowContextModal(false);
+    setContextInput('');
+  };
+
   const lastAssistantIdx = messages.length > 0 && messages[messages.length - 1]?.role === 'assistant'
     ? messages.length - 1 : -1;
 
@@ -140,7 +163,15 @@ export default function ChatScreen() {
           Share.share({ message: `Chat with ${character?.name ?? 'Character'} (${messages.length} messages)\n\n` + text });
         } : undefined}
         onMenuOpen={(actions) => {
-          showAlert(character?.name ?? 'Chat', undefined, actions.map(a => ({
+          // Insert Update Character and Import Context before Clear History
+          const extraActions = [
+            { text: 'Update Character', onPress: handleUpdateCharacter },
+            { text: 'Import Context', onPress: () => setShowContextModal(true) },
+          ];
+          const clearIdx = actions.findIndex(a => a.style === 'destructive');
+          const enriched = [...actions];
+          enriched.splice(clearIdx >= 0 ? clearIdx : actions.length - 1, 0, ...extraActions);
+          showAlert(character?.name ?? 'Chat', undefined, enriched.map(a => ({
             text: a.text,
             style: a.style as any,
             onPress: a.onPress,
@@ -207,18 +238,7 @@ export default function ChatScreen() {
                   </View>
                 )}
 
-                {/* Swipe indicator on last assistant message */}
-                {isLastAssistant && !isStreaming && (
-                  <SwipeIndicator
-                    currentIndex={swipeIndex}
-                    totalCount={Math.max(swipeCount, 1)}
-                    onPrev={() => setSwipeIndex(Math.max(0, swipeIndex - 1))}
-                    onNext={() => setSwipeIndex(Math.min(swipeCount - 1, swipeIndex + 1))}
-                    onRegenerate={handleRegenerate}
-                    isRegenerating={isRegenerating || isStreaming}
-                    accentColor={accentColor}
-                  />
-                )}
+                {/* Swipe indicator removed — regenerate is now inline with edit button */}
               </View>
             );
           }}
@@ -288,6 +308,38 @@ export default function ChatScreen() {
         />
       )}
 
+      {/* Import Context modal */}
+      <Modal visible={showContextModal} transparent animationType="fade" onRequestClose={() => setShowContextModal(false)}>
+        <TouchableWithoutFeedback onPress={() => setShowContextModal(false)}>
+          <View style={styles.contextOverlay}>
+            <TouchableWithoutFeedback>
+              <View style={[styles.contextModal, { backgroundColor: tc.bg.elevated, borderColor: tc.border.subtle }]}>
+                <Text style={[styles.contextTitle, { color: tc.text.primary }]}>Import Context</Text>
+                <Text style={[styles.contextDesc, { color: tc.text.muted }]}>Add backstory, world info, or instructions the AI should reference throughout this conversation.</Text>
+                <TextInput
+                  style={[styles.contextInput, { backgroundColor: tc.bg.tertiary, color: tc.text.primary, borderColor: tc.border.subtle }]}
+                  value={contextInput}
+                  onChangeText={setContextInput}
+                  placeholder="e.g. Marcus is a ronin from Edo period Japan who lost his clan..."
+                  placeholderTextColor={tc.text.muted}
+                  multiline
+                  textAlignVertical="top"
+                  autoFocus
+                />
+                <View style={styles.contextBtnRow}>
+                  <TouchableOpacity style={[styles.contextBtn, { backgroundColor: tc.bg.tertiary }]} onPress={() => setShowContextModal(false)}>
+                    <Text style={[styles.contextBtnText, { color: tc.text.muted }]}>Cancel</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={[styles.contextBtn, { backgroundColor: (accentColor ?? tc.accent.primary) + '15' }]} onPress={handleImportContext} disabled={!contextInput.trim()}>
+                    <Text style={[styles.contextBtnText, { color: accentColor ?? tc.accent.primary }]}>Apply</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </TouchableWithoutFeedback>
+          </View>
+        </TouchableWithoutFeedback>
+      </Modal>
+
       {/* Themed alert modal */}
       {AlertComponent}
     </View>
@@ -301,7 +353,7 @@ const styles = StyleSheet.create({
   msgActions: { flexDirection: 'row', alignItems: 'center' },
   editBtn: { padding: 4, marginLeft: 4 },
   actionBtn: { padding: 6, marginLeft: 6 },
-  scrollFab: { position: 'absolute', right: spacing.lg, bottom: 210, width: 36, height: 36, borderRadius: 18, justifyContent: 'center', alignItems: 'center', borderWidth: 1, zIndex: 10, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.3, shadowRadius: 4, elevation: 4 },
+  scrollFab: { position: 'absolute', right: spacing.lg, bottom: 225, width: 36, height: 36, borderRadius: 18, justifyContent: 'center', alignItems: 'center', borderWidth: 1, zIndex: 10, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.3, shadowRadius: 4, elevation: 4 },
   charIntro: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, marginHorizontal: spacing.lg, marginBottom: spacing.md, padding: spacing.md, borderRadius: 12, borderWidth: 1 },
   charIntroAvatar: { width: 40, height: 40, borderRadius: 20, justifyContent: 'center', alignItems: 'center' },
   charIntroLetter: { fontSize: 18, fontFamily: fonts.heading },
@@ -310,4 +362,12 @@ const styles = StyleSheet.create({
   seenText: { fontSize: 9, fontFamily: fonts.body, textAlign: 'right', paddingRight: spacing.lg, marginTop: 2 },
   resumeBanner: { fontSize: 10, fontFamily: fonts.body, textAlign: 'center', paddingVertical: spacing.sm, marginBottom: spacing.sm },
   savedText: { fontSize: 9, fontFamily: fonts.body, textAlign: 'center', paddingVertical: 3 },
+  contextOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'center', alignItems: 'center', padding: spacing.xl },
+  contextModal: { width: '100%', maxWidth: 360, borderRadius: 16, padding: spacing.xl, borderWidth: 1, gap: spacing.md },
+  contextTitle: { fontSize: 18, fontFamily: fonts.heading, textAlign: 'center' },
+  contextDesc: { fontSize: 12, fontFamily: fonts.body, textAlign: 'center', lineHeight: 18 },
+  contextInput: { borderRadius: 10, borderWidth: 1, paddingHorizontal: spacing.md, paddingVertical: spacing.md, fontSize: 14, fontFamily: fonts.body, minHeight: 120, textAlignVertical: 'top' },
+  contextBtnRow: { flexDirection: 'row', gap: spacing.sm },
+  contextBtn: { flex: 1, paddingVertical: spacing.md, borderRadius: 10, alignItems: 'center' },
+  contextBtnText: { fontSize: 15, fontFamily: fonts.heading },
 });
