@@ -345,7 +345,7 @@ def handle_post(handler, strat, auth, path) -> bool:
             "UPDATE rp_messages SET was_selected = FALSE, swipe_group_id = ? WHERE id = ?",
             (swipe_group, last_asst['id'])
         )
-        db.conn.commit()
+        db._commit()
 
         # Build context up to the last user message
         card = db.get_character_card(card_id) if card_id else None
@@ -405,7 +405,7 @@ def handle_post(handler, strat, auth, path) -> bool:
             "UPDATE rp_messages SET was_selected = TRUE WHERE id = ? AND swipe_group_id = ?",
             (message_id, swipe_group_id)
         )
-        db.conn.commit()
+        db._commit()
 
         json_response(handler, {"ok": True, "selected": message_id})
         return True
@@ -524,7 +524,7 @@ def handle_post(handler, strat, auth, path) -> bool:
                 "INSERT INTO rp_suggestions (message_id, session_id, suggestion_text) VALUES (0, ?, ?)",
                 (session_id, note_text)
             )
-            db.conn.commit()
+            db._commit()
 
         json_response(handler, {"ok": True, "note": note_text})
         return True

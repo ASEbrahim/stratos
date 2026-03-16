@@ -101,26 +101,69 @@ export const useChatStore = create<ChatState>((set, get) => ({
     const { sessionId, character, persona, messages } = get();
     if (!sessionId || messages.length < 2) return;
     // Remove the last assistant message from display
-    const trimmed = messages.filter((_, i) => i < messages.length - 1 || messages[i].role !== 'assistant');
+    const lastIdx = messages.length - 1;
+    if (messages[lastIdx].role !== 'assistant') return;
+    const trimmed = messages.slice(0, lastIdx);
     set({ messages: trimmed, isStreaming: true, streamingContent: '', suggestions: [] });
-    // Use the regenerate endpoint (swipe) — it handles deactivating the old response
-    // and generates a fresh one with different sampling
-    const { regenerateMessage } = await import('../lib/rp');
+
+    // Stream from the regenerate (swipe) endpoint directly
+    // It deactivates the old response and generates a fresh one — no duplicate user messages
     try {
-      await regenerateMessage(sessionId, 'main', character?.id);
-    } catch { /* swipe endpoint may fail, fall back to re-streaming */ }
-    // Re-stream from the regular chat endpoint with the last user message
-    const lastUser = trimmed.filter(m => m.role === 'user').pop();
-    if (!lastUser) return;
-    let accumulated = '';
-    await streamMessage(sessionId, lastUser.content, persona, character,
-      (chunk) => { accumulated += chunk; set({ streamingContent: accumulated }); },
-      () => {
+      const { getToken, getDeviceId } = await import('../lib/api');
+      const { API_BASE } = await import('../constants/config');
+      const token = await getToken();
+      const deviceId = await getDeviceId();
+      const response = await fetch(`${API_BASE}/api/rp/regenerate`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Device-Id': deviceId,
+          ...(token ? { 'X-Auth-Token': token } : {}),
+        },
+        body: JSON.stringify({
+          session_id: sessionId,
+          branch_id: 'main',
+          character_card_id: character?.id,
+          persona,
+        }),
+      });
+
+      let accumulated = '';
+      const reader = response.body?.getReader();
+      if (reader) {
+        const decoder = new TextDecoder();
+        let buffer = '';
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split('\n');
+          buffer = lines.pop() ?? '';
+          for (const line of lines) {
+            if (line.startsWith('data: ')) {
+              try {
+                const data = JSON.parse(line.slice(6));
+                if (data.content || data.token) {
+                  accumulated += data.content || data.token;
+                  set({ streamingContent: accumulated });
+                }
+                if (data.done) break;
+              } catch { /* partial JSON */ }
+            }
+          }
+        }
+      }
+
+      if (accumulated) {
         const assistantMessage: ChatMessage = { id: createMessageId(), role: 'assistant', content: accumulated, timestamp: new Date().toISOString() };
         set((state) => ({ messages: [...state.messages, assistantMessage], isStreaming: false, streamingContent: '' }));
-        get().persistSession().catch(() => {});
-        get().loadSuggestions().catch(() => {});
-      },
-    );
+      } else {
+        set({ isStreaming: false, streamingContent: '' });
+      }
+      get().persistSession().catch(() => {});
+      get().loadSuggestions().catch(() => {});
+    } catch {
+      set({ isStreaming: false, streamingContent: '' });
+    }
   },
 }));
