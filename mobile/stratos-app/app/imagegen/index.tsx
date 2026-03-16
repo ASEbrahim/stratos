@@ -99,7 +99,8 @@ export default function ImageGenScreen() {
         const stylePrefix = style === 'anime' ? 'masterpiece, best quality, highly detailed anime illustration, '
           : style === 'realistic' ? 'masterpiece, photorealistic, highly detailed photograph, '
           : 'masterpiece, best quality, detailed illustration, ';
-        const charPrompt = `${stylePrefix}${params.description!.slice(0, 500)}, 1person, ${params.name!}, sharp focus, detailed eyes, detailed face`;
+        const desc = (prompt || params.description || '').slice(0, 500);
+        const charPrompt = `${stylePrefix}${desc}, 1person, ${params.name!}, sharp focus, detailed eyes, detailed face`;
         result = await generateImage({
           prompt: charPrompt,
           width: 768,
@@ -226,7 +227,15 @@ export default function ImageGenScreen() {
         {isCharacterMode ? (
           <View style={[styles.charInfo, { backgroundColor: tc.bg.secondary, borderColor: tc.border.subtle }]}>
             <Text style={[styles.charName, { color: tc.accent.primary }]}>{params.name}</Text>
-            <Text style={[styles.charDesc, { color: tc.text.secondary }]} numberOfLines={3}>{params.description}</Text>
+            <TextInput
+              style={[styles.charDescInput, { color: tc.text.primary, borderColor: tc.border.subtle, backgroundColor: tc.bg.tertiary }]}
+              value={prompt || params.description || ''}
+              onChangeText={setPrompt}
+              placeholder="Edit description for image generation..."
+              placeholderTextColor={tc.text.muted}
+              multiline
+              textAlignVertical="top"
+            />
           </View>
         ) : (
           <>
@@ -499,6 +508,7 @@ const styles = StyleSheet.create({
   charInfo: { borderRadius: borderRadius.lg, padding: spacing.lg, borderWidth: 1, gap: spacing.xs },
   charName: { fontSize: 18, fontFamily: fonts.heading },
   charDesc: { fontSize: 13, fontFamily: fonts.body, lineHeight: 20 },
+  charDescInput: { fontSize: 13, fontFamily: fonts.body, lineHeight: 20, borderRadius: borderRadius.md, borderWidth: 1, paddingHorizontal: spacing.md, paddingVertical: spacing.sm, minHeight: 60, textAlignVertical: 'top' },
   galleryToggle: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, marginTop: spacing.xl, paddingVertical: spacing.md, borderTopWidth: 1 },
   galleryToggleText: { fontSize: 14, fontFamily: fonts.heading, flex: 1 },
   galleryCount: { fontSize: 12, fontFamily: fonts.body },

@@ -9,8 +9,7 @@ import { TagPills } from './TagPills';
 import { QualityScore } from './QualityScore';
 import { useChatStore } from '../../stores/chatStore';
 import { useCharacterStore } from '../../stores/characterStore';
-import { isCardSaved, loadChatSessions } from '../../lib/storage';
-import { ChatSession } from '../../lib/types';
+import { isCardSaved } from '../../lib/storage';
 import { useThemeStore } from '../../stores/themeStore';
 import { typography, spacing, borderRadius } from '../../constants/theme';
 import { getGenreColor } from '../../constants/genres';
@@ -23,10 +22,9 @@ interface CharacterDetailProps { card: CharacterCard; }
 export function CharacterDetailView({ card }: CharacterDetailProps) {
   const router = useRouter();
   const tc = useThemeStore(s => s.colors);
-  const { startSession, resumeSession } = useChatStore();
+  const { startSession } = useChatStore();
   const { saveToLibrary, removeFromLibrary } = useCharacterStore();
   const [saved, setSaved] = useState(false);
-  const [existingSession, setExistingSession] = useState<ChatSession | null>(null);
   const [showDepth, setShowDepth] = useState(false);
   const accentColor = getGenreColor(card.genre_tags[0] ?? 'default');
   const btnScale = useSharedValue(1);
@@ -39,22 +37,11 @@ export function CharacterDetailView({ card }: CharacterDetailProps) {
 
   useEffect(() => {
     isCardSaved(card.id).then(setSaved);
-    loadChatSessions().then(sessions => {
-      const match = sessions.find(s => s.character_id === card.id);
-      if (match) setExistingSession(match);
-    });
   }, [card.id]);
 
   const handleStartChat = () => {
     btnScale.value = withSequence(withSpring(0.95, { damping: 15 }), withSpring(1, { damping: 10 }));
     startSession(card, 'roleplay');
-    router.push(`/chat/${card.id}`);
-  };
-
-  const handleContinueChat = () => {
-    if (!existingSession) return;
-    btnScale.value = withSequence(withSpring(0.95, { damping: 15 }), withSpring(1, { damping: 10 }));
-    resumeSession(existingSession);
     router.push(`/chat/${card.id}`);
   };
 
@@ -99,24 +86,10 @@ export function CharacterDetailView({ card }: CharacterDetailProps) {
       <View style={styles.section}><TagPills tags={card.genre_tags} size="medium" /></View>
 
       {/* ── Action buttons (moved to top for accessibility) ── */}
-      <Animated.View style={btnAnimStyle}>
-        {existingSession ? (
-          <>
-            <TouchableOpacity style={[styles.primaryButton, { backgroundColor: accentColor }]} onPress={handleContinueChat} activeOpacity={0.8} accessibilityLabel={`Continue conversation with ${card.name}`} accessibilityRole="button">
-              <Text style={styles.primaryButtonText}>Continue Conversation</Text>
-            </TouchableOpacity>
-            <Text style={[styles.sessionHint, { color: tc.text.muted }]}>{existingSession.messages.length} messages · last active {formatRelativeTime(existingSession.updated_at)}</Text>
-            <TouchableOpacity style={[styles.newSessionBtn, { borderColor: accentColor + '40' }]} onPress={handleStartChat} activeOpacity={0.7} accessibilityLabel={`Start new session with ${card.name}`} accessibilityRole="button">
-              <Text style={[styles.newSessionText, { color: accentColor }]}>Start New Session</Text>
-            </TouchableOpacity>
-          </>
-        ) : (
-          <Animated.View style={ctaStyle}>
-            <TouchableOpacity style={[styles.primaryButton, { backgroundColor: accentColor }]} onPress={handleStartChat} activeOpacity={0.8} accessibilityLabel={`Start conversation with ${card.name}`} accessibilityRole="button">
-              <Text style={styles.primaryButtonText}>Start Conversation</Text>
-            </TouchableOpacity>
-          </Animated.View>
-        )}
+      <Animated.View style={[btnAnimStyle, ctaStyle]}>
+        <TouchableOpacity style={[styles.primaryButton, { backgroundColor: accentColor }]} onPress={handleStartChat} activeOpacity={0.8} accessibilityLabel={`Start conversation with ${card.name}`} accessibilityRole="button">
+          <Text style={styles.primaryButtonText}>Start Chat</Text>
+        </TouchableOpacity>
       </Animated.View>
       <View style={styles.actionRow}>
         <TouchableOpacity style={[styles.secondaryButton, { flex: 1, borderColor: tc.border.medium }, saved && { borderColor: tc.status.success + '60', backgroundColor: tc.status.success + '10' }]} onPress={handleToggleSave} activeOpacity={0.7} accessibilityLabel={saved ? `Remove ${card.name} from library` : `Save ${card.name} to library`} accessibilityRole="button">
