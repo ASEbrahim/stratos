@@ -12,7 +12,7 @@ export default function CreateScreen() {
   const insets = useSafeAreaInsets();
   const tc = useThemeStore(s => s.colors);
   const { myCards, loadMyCards } = useCharacterStore();
-  const params = useLocalSearchParams<{ editCard?: string }>();
+  const params = useLocalSearchParams<{ editCard?: string; newCard?: string }>();
 
   useEffect(() => { loadMyCards(); }, []);
 
@@ -22,10 +22,16 @@ export default function CreateScreen() {
     try { editCard = JSON.parse(params.editCard); } catch {}
   }
 
+  // Parse copied card — pre-fills form but creates NEW (no initialCard = no isEditing)
+  let prefillCard: CharacterCard | undefined;
+  if (params.newCard && !editCard) {
+    try { prefillCard = JSON.parse(params.newCard); } catch {}
+  }
+
   return (
     <View style={[styles.container, { paddingTop: insets.top, backgroundColor: tc.bg.primary }]}>
-      <Header title={editCard ? 'Edit Character' : 'Create Character'} subtitle={!editCard && myCards.length > 0 ? `${myCards.length} created` : undefined} showBack={!!editCard} />
-      <CardEditor initialCard={editCard} />
+      <Header title={editCard ? 'Edit Character' : 'Create Character'} subtitle={!editCard && myCards.length > 0 ? `${myCards.length} created` : undefined} showBack={!!editCard || !!prefillCard} />
+      <CardEditor initialCard={editCard} prefillData={prefillCard} />
     </View>
   );
 }

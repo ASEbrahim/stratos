@@ -168,9 +168,10 @@ export function CharacterDetailView({ card }: CharacterDetailProps) {
         </TouchableOpacity>
         <TouchableOpacity style={[styles.secondaryButton, { flex: 1, borderColor: tc.border.medium }]} onPress={() => {
           Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-          // Clone card into Create screen for editing as your own copy
-          const clone = { ...card, name: `${card.name} (Copy)` };
-          router.push({ pathname: '/(tabs)/create', params: { editCard: JSON.stringify(clone) } });
+          // Clone card — strip id/creator so CardEditor creates a NEW card instead of updating
+          const { id, creator_id, creator_name, ...cardData } = card;
+          const clone = { ...cardData, name: `${card.name} (Copy)` };
+          router.push({ pathname: '/(tabs)/create', params: { newCard: JSON.stringify(clone) } });
         }} activeOpacity={0.7} accessibilityLabel={`Copy ${card.name} to edit`} accessibilityRole="button">
           <Copy size={18} color={tc.text.secondary} />
           <Text style={[styles.secondaryButtonText, { color: tc.text.secondary }]}>Copy</Text>

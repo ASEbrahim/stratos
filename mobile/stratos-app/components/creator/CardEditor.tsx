@@ -27,30 +27,32 @@ function WordCount({ text }: { text: string }) {
 
 interface CardEditorProps {
   initialCard?: import('../../lib/types').CharacterCard;
+  prefillData?: import('../../lib/types').CharacterCard;
 }
 
-export function CardEditor({ initialCard }: CardEditorProps) {
+export function CardEditor({ initialCard, prefillData }: CardEditorProps) {
   const router = useRouter();
   const tc = useThemeStore(s => s.colors);
-  const isEditing = !!initialCard;
-  const [mode, setMode] = useState<'quick' | 'advanced'>(isEditing ? 'advanced' : 'quick');
+  const isEditing = !!initialCard;  // Only true for Edit, NOT for Copy
+  const source = initialCard || prefillData;
+  const [mode, setMode] = useState<'quick' | 'advanced'>((isEditing || prefillData) ? 'advanced' : 'quick');
   const [saving, setSaving] = useState(false);
   const [importing, setImporting] = useState(false);
-  const [card, setCard] = useState<CharacterCardCreate>(initialCard ? {
-    name: initialCard.name,
-    description: initialCard.description || initialCard.personality || '',
-    personality: initialCard.personality,
-    scenario: initialCard.scenario,
-    first_message: initialCard.first_message,
-    physical_description: initialCard.physical_description,
-    speech_pattern: initialCard.speech_pattern,
-    emotional_trigger: initialCard.emotional_trigger,
-    defensive_mechanism: initialCard.defensive_mechanism,
-    vulnerability: initialCard.vulnerability,
-    specific_detail: initialCard.specific_detail,
-    genre_tags: initialCard.genre_tags || [],
-    content_rating: initialCard.content_rating || 'sfw',
-    avatar_url: initialCard.avatar_url || '',
+  const [card, setCard] = useState<CharacterCardCreate>(source ? {
+    name: source.name,
+    description: source.description || source.personality || '',
+    personality: source.personality,
+    scenario: source.scenario,
+    first_message: source.first_message,
+    physical_description: source.physical_description,
+    speech_pattern: source.speech_pattern,
+    emotional_trigger: source.emotional_trigger,
+    defensive_mechanism: source.defensive_mechanism,
+    vulnerability: source.vulnerability,
+    specific_detail: source.specific_detail,
+    genre_tags: source.genre_tags || [],
+    content_rating: source.content_rating || 'sfw',
+    avatar_url: '',  // Don't copy avatar — user generates their own
   } : {
     name: '', description: '', personality: '', scenario: '', first_message: '',
     physical_description: '', speech_pattern: '', emotional_trigger: '',
