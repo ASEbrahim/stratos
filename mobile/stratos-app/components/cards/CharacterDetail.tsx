@@ -97,44 +97,8 @@ export function CharacterDetailView({ card }: CharacterDetailProps) {
         <Text style={[styles.sessionCount, { color: tc.text.muted }]}>{[card.description, card.personality, card.scenario, card.first_message, card.physical_description, card.speech_pattern, card.emotional_trigger, card.defensive_mechanism, card.vulnerability, card.specific_detail].filter(Boolean).join(' ').split(/\s+/).length} words</Text>
       </View>
       <View style={styles.section}><TagPills tags={card.genre_tags} size="medium" /></View>
-      <View style={styles.section}><Text style={[styles.sectionTitle, { color: tc.text.primary }]}>Description</Text><Text style={[styles.sectionBody, { color: tc.text.secondary }]}>{card.description}</Text></View>
-      {card.personality && <View style={styles.section}><Text style={[styles.sectionTitle, { color: tc.text.primary }]}>Personality</Text><Text style={[styles.sectionBody, { color: tc.text.secondary }]}>{card.personality}</Text></View>}
-      {card.scenario && <View style={styles.section}><Text style={[styles.sectionTitle, { color: tc.text.primary }]}>Scenario</Text><Text style={[styles.sectionBody, { color: tc.text.secondary }]}>{card.scenario}</Text></View>}
-      <View style={styles.section}>
-        <Text style={[styles.sectionTitle, { color: tc.text.primary }]}>Quality Elements</Text>
-        <QualityScore card={card} showElements size="large" />
-        {(card.speech_pattern || card.emotional_trigger || card.defensive_mechanism || card.vulnerability || card.specific_detail || card.physical_description) && (
-          <TouchableOpacity style={[styles.depthToggle, { borderColor: accentColor + '30' }]} onPress={() => setShowDepth(!showDepth)} activeOpacity={0.7} accessibilityLabel={showDepth ? 'Hide character depth details' : 'Show character depth details'} accessibilityRole="button">
-            <Text style={[styles.depthToggleText, { color: accentColor }]}>{showDepth ? 'Hide Details' : 'Show Character Depth'}</Text>
-          </TouchableOpacity>
-        )}
-        {showDepth && (
-          <View style={styles.depthGrid}>
-            {card.physical_description && <DepthItem label="Appearance" value={card.physical_description} tc={tc} />}
-            {card.speech_pattern && <DepthItem label="Speech Pattern" value={card.speech_pattern} tc={tc} />}
-            {card.emotional_trigger && <DepthItem label="Emotional Triggers" value={card.emotional_trigger} tc={tc} />}
-            {card.defensive_mechanism && <DepthItem label="Defenses" value={card.defensive_mechanism} tc={tc} />}
-            {card.vulnerability && <DepthItem label="Vulnerability" value={card.vulnerability} tc={tc} />}
-            {card.specific_detail && <DepthItem label="Signature Detail" value={card.specific_detail} tc={tc} />}
-          </View>
-        )}
-      </View>
-      {card.first_message && (
-        <View style={[styles.section, styles.firstMsgSection, { backgroundColor: tc.bg.tertiary, borderColor: tc.border.subtle }]}>
-          <Text style={[styles.sectionTitle, { color: tc.text.primary, marginBottom: spacing.sm }]}>Opening Line</Text>
-          <Text style={[styles.firstMsgText, { color: tc.text.secondary }]}>
-            {card.first_message.split('\n').slice(0, 4).map((line, i) => {
-              const cleaned = line.replace(/\*{3}([^*]+)\*{3}/g, '$1').replace(/\*{2}([^*]+)\*{2}/g, '$1');
-              const isAction = /^\*[^*]+\*$/.test(line.trim());
-              return (
-                <Text key={i} style={isAction ? { fontStyle: 'italic', color: tc.text.muted } : undefined}>
-                  {i > 0 ? '\n' : ''}{cleaned}
-                </Text>
-              );
-            })}
-          </Text>
-        </View>
-      )}
+
+      {/* ── Action buttons (moved to top for accessibility) ── */}
       <Animated.View style={btnAnimStyle}>
         {existingSession ? (
           <>
@@ -177,8 +141,8 @@ export function CharacterDetailView({ card }: CharacterDetailProps) {
           <Text style={[styles.secondaryButtonText, { color: tc.text.secondary }]}>Copy</Text>
         </TouchableOpacity>
       </View>
-      {/* Generate Portrait — only for your own cards (creator_id matches) */}
-      {card.physical_description && card.creator_id === 'local' ? (
+      {/* Generate Portrait */}
+      {card.physical_description ? (
         <TouchableOpacity
           style={[styles.portraitBtn, { borderColor: accentColor + '40', backgroundColor: accentColor + '08' }]}
           onPress={() => {
@@ -206,6 +170,46 @@ export function CharacterDetailView({ card }: CharacterDetailProps) {
           ))}
         </View>
       </View>
+
+      {/* ── Character details (below actions) ── */}
+      <View style={styles.section}><Text style={[styles.sectionTitle, { color: tc.text.primary }]}>Description</Text><Text style={[styles.sectionBody, { color: tc.text.secondary }]}>{card.description}</Text></View>
+      {card.personality && <View style={styles.section}><Text style={[styles.sectionTitle, { color: tc.text.primary }]}>Personality</Text><Text style={[styles.sectionBody, { color: tc.text.secondary }]}>{card.personality}</Text></View>}
+      {card.scenario && <View style={styles.section}><Text style={[styles.sectionTitle, { color: tc.text.primary }]}>Scenario</Text><Text style={[styles.sectionBody, { color: tc.text.secondary }]}>{card.scenario}</Text></View>}
+      <View style={styles.section}>
+        <Text style={[styles.sectionTitle, { color: tc.text.primary }]}>Quality Elements</Text>
+        <QualityScore card={card} showElements size="large" />
+        {(card.speech_pattern || card.emotional_trigger || card.defensive_mechanism || card.vulnerability || card.specific_detail || card.physical_description) && (
+          <TouchableOpacity style={[styles.depthToggle, { borderColor: accentColor + '30' }]} onPress={() => setShowDepth(!showDepth)} activeOpacity={0.7}>
+            <Text style={[styles.depthToggleText, { color: accentColor }]}>{showDepth ? 'Hide Details' : 'Show Character Depth'}</Text>
+          </TouchableOpacity>
+        )}
+        {showDepth && (
+          <View style={styles.depthGrid}>
+            {card.physical_description && <DepthItem label="Appearance" value={card.physical_description} tc={tc} />}
+            {card.speech_pattern && <DepthItem label="Speech Pattern" value={card.speech_pattern} tc={tc} />}
+            {card.emotional_trigger && <DepthItem label="Emotional Triggers" value={card.emotional_trigger} tc={tc} />}
+            {card.defensive_mechanism && <DepthItem label="Defenses" value={card.defensive_mechanism} tc={tc} />}
+            {card.vulnerability && <DepthItem label="Vulnerability" value={card.vulnerability} tc={tc} />}
+            {card.specific_detail && <DepthItem label="Signature Detail" value={card.specific_detail} tc={tc} />}
+          </View>
+        )}
+      </View>
+      {card.first_message && (
+        <View style={[styles.section, styles.firstMsgSection, { backgroundColor: tc.bg.tertiary, borderColor: tc.border.subtle }]}>
+          <Text style={[styles.sectionTitle, { color: tc.text.primary, marginBottom: spacing.sm }]}>Opening Line</Text>
+          <Text style={[styles.firstMsgText, { color: tc.text.secondary }]}>
+            {card.first_message.split('\n').slice(0, 4).map((line, i) => {
+              const cleaned = line.replace(/\*{3}([^*]+)\*{3}/g, '$1').replace(/\*{2}([^*]+)\*{2}/g, '$1');
+              const isAction = /^\*[^*]+\*$/.test(line.trim());
+              return (
+                <Text key={i} style={isAction ? { fontStyle: 'italic', color: tc.text.muted } : undefined}>
+                  {i > 0 ? '\n' : ''}{cleaned}
+                </Text>
+              );
+            })}
+          </Text>
+        </View>
+      )}
 
       {/* Similar Characters */}
       {(() => {

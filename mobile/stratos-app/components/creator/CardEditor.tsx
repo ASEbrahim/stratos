@@ -150,6 +150,22 @@ export function CardEditor({ initialCard, prefillData }: CardEditorProps) {
         </TouchableOpacity>
       )}
 
+      {/* Generate Image — accessible from top of editor */}
+      {card.name.trim() && (
+        <TouchableOpacity
+          style={[styles.importBtn, { borderColor: tc.accent.secondary + '40', backgroundColor: tc.accent.secondary + '08' }]}
+          onPress={() => {
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+            const desc = card.physical_description?.trim() || card.personality?.trim() || card.description?.trim() || card.name;
+            router.push({ pathname: '/imagegen', params: { name: card.name, description: desc, ...(initialCard?.id ? { card_id: initialCard.id } : {}) } });
+          }}
+          activeOpacity={0.7}
+        >
+          <Wand2 size={16} color={tc.accent.secondary} />
+          <Text style={[styles.importText, { color: tc.accent.secondary }]}>Generate Image</Text>
+        </TouchableOpacity>
+      )}
+
       {/* Avatar + Name row — shared between both modes */}
       <View style={styles.avatarNameRow}>
         <AvatarPicker
