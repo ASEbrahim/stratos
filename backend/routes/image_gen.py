@@ -139,7 +139,7 @@ def generate_image(prompt: str, negative_prompt: str = "",
     workflow["4"]["inputs"]["height"] = height
     workflow["5"]["inputs"]["seed"] = seed if seed >= 0 else int(time.time()) % 2**32
     workflow["5"]["inputs"]["steps"] = steps                # KSampler
-    workflow["5"]["inputs"]["cfg"] = 3.5
+    workflow["5"]["inputs"]["cfg"] = 1.0                     # Schnell-based: guidance baked in
 
     prompt_id = _queue_prompt(workflow)
     if not prompt_id:
@@ -252,7 +252,13 @@ def handle_get(handler, strat, auth, path) -> bool:
 
     # ── GET /api/image/gallery ──
     if path == "/api/image/gallery":
+        # Try user-specific first, fall back to all images (single-user / mobile)
         images = db.get_user_images(profile_id)
+        if not images:
+            rows = db.conn.execute(
+                "SELECT * FROM generated_images ORDER BY created_at DESC LIMIT 20"
+            ).fetchall()
+            images = [dict(r) for r in rows]
         json_response(handler, {"images": images})
         return True
 
