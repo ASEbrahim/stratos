@@ -157,6 +157,14 @@ export async function getImageGallery() {
   return apiFetch<{ images: any[] }>('/api/image/gallery');
 }
 
+// ── Delete image ──
+export async function deleteImage(imageId: string) {
+  if (USE_MOCKS) return { ok: true, deleted: imageId };
+  return apiFetch<{ ok: boolean; deleted: string }>(`/api/image/${imageId}`, {
+    method: 'DELETE',
+  });
+}
+
 // ── Privacy opt-in ──
 export async function setTrainingOptIn(optedIn: boolean) {
   if (USE_MOCKS) return { ok: true };
