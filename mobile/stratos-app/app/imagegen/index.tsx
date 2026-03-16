@@ -126,17 +126,27 @@ export default function ImageGenScreen() {
     try {
       const uri = getImageUrl(imageId);
       if (Platform.OS === 'web') {
-        // Fetch as blob to bypass cross-origin download restriction
-        const res = await fetch(uri);
-        const blob = await res.blob();
-        const blobUrl = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = blobUrl;
-        a.download = `stratos_${imageId}.png`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(blobUrl);
+        try {
+          const res = await fetch(uri);
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          const blob = await res.blob();
+          const blobUrl = URL.createObjectURL(blob);
+          // Use window.open as fallback if anchor click doesn't trigger download
+          const a = document.createElement('a');
+          a.href = blobUrl;
+          a.download = `stratos_${imageId}.png`;
+          a.style.display = 'none';
+          document.body.appendChild(a);
+          a.click();
+          // Delay cleanup so browser can process the click
+          setTimeout(() => {
+            document.body.removeChild(a);
+            URL.revokeObjectURL(blobUrl);
+          }, 1000);
+        } catch (err) {
+          // Fallback: open image directly in new tab
+          window.open(uri, '_blank');
+        }
         setSaving(false);
         return;
       }
