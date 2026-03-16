@@ -131,12 +131,16 @@ def _call_ollama(host, model, system, prompt, max_tokens=500, temperature=0.2,
         return None
 
 
+MAX_INPUT_LEN = 200  # Max length for role, location, context fields
+MAX_CONTEXT_LEN = 1000  # Max length for context/selection strings
+
+
 def handle_wizard_preselect(handler, strat):
     """POST /api/wizard-preselect — AI picks relevant categories for Step 1."""
     try:
         data = read_json_body(handler)
-        role = data.get("role", "").strip()
-        location = data.get("location", "").strip()
+        role = data.get("role", "").strip()[:MAX_INPUT_LEN]
+        location = data.get("location", "").strip()[:MAX_INPUT_LEN]
         available = data.get("available_categories", [])
 
         if not role:
@@ -200,12 +204,12 @@ def handle_wizard_tab_suggest(handler, strat):
     """POST /api/wizard-tab-suggest — AI suggests keywords for a Step 2 tab."""
     try:
         data = read_json_body(handler)
-        role = data.get("role", "").strip()
-        location = data.get("location", "").strip()
-        category_id = data.get("category_id", "")
-        category_label = data.get("category_label", "")
+        role = data.get("role", "").strip()[:MAX_INPUT_LEN]
+        location = data.get("location", "").strip()[:MAX_INPUT_LEN]
+        category_id = data.get("category_id", "")[:MAX_INPUT_LEN]
+        category_label = data.get("category_label", "")[:MAX_INPUT_LEN]
         existing_items = data.get("existing_items", [])
-        selections_context = data.get("selections_context", "").strip()
+        selections_context = data.get("selections_context", "").strip()[:MAX_CONTEXT_LEN]
         selections = data.get("selections", {})  # structured dict: {label: [values]}
         exclude_selected = data.get("exclude_selected", [])  # previously-added suggestions
         is_refresh = data.get("is_refresh", False)
@@ -324,7 +328,8 @@ def _validate_entities_ddg(items: list, max_workers: int = 4, timeout: float = 5
             with DDGS() as ddgs:
                 results = list(ddgs.text(item, max_results=1))
                 return item, len(results) > 0
-        except Exception:
+        except Exception as e:
+            logger.debug(f"Wizard entity validation error for '{item}': {e}")
             return item, True  # On error, keep the item
 
     valid = []
@@ -337,7 +342,8 @@ def _validate_entities_ddg(items: list, max_workers: int = 4, timeout: float = 5
                     valid.append(item)
                 else:
                     logger.info(f"Wizard entity validation: dropped '{item}' (0 search results)")
-            except Exception:
+            except Exception as e:
+                logger.debug(f"Wizard entity validation future error: {e}")
                 valid.append(futures[f])  # Keep on timeout
     return valid
 
@@ -346,8 +352,8 @@ def handle_wizard_rv_items(handler, strat):
     """POST /api/wizard-rv-items — AI generates role-aware entities for Step 3 review."""
     try:
         data = read_json_body(handler)
-        role = data.get("role", "").strip()
-        location = data.get("location", "").strip()
+        role = data.get("role", "").strip()[:MAX_INPUT_LEN]
+        location = data.get("location", "").strip()[:MAX_INPUT_LEN]
         sections = data.get("sections", [])  # [{id, name, category}]
 
         if not role or not sections:

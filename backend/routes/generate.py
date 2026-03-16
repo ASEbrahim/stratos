@@ -13,6 +13,9 @@ from processors.profile_generator import run_pipeline
 
 logger = logging.getLogger("STRAT_OS")
 
+MAX_INPUT_LEN = 200   # Max length for role, location fields
+MAX_CONTEXT_LEN = 1000  # Max length for context field
+
 # The full system prompt for category generation
 GENERATE_SYSTEM_PROMPT = """You are a configuration assistant for STRAT_OS, an intelligence monitoring dashboard.
 Given a user's professional role, location, and interests, generate ONLY the tracking categories that are genuinely relevant to them.
@@ -131,13 +134,14 @@ def handle_generate_profile(handler, strat):
     """POST /api/generate-profile — AI-powered category generation."""
     try:
         data = read_json_body(handler)
-        role = data.get("role", "").strip()
-        location = data.get("location", "").strip()
-        user_context = data.get("context", "").strip()
+        role = data.get("role", "").strip()[:MAX_INPUT_LEN]
+        location = data.get("location", "").strip()[:MAX_INPUT_LEN]
+        user_context = data.get("context", "").strip()[:MAX_CONTEXT_LEN]
         deep = data.get("deep", False)
 
         if not role:
-            raise ValueError("Role is required")
+            error_response(handler, "Role is required", 400)
+            return
 
         scorer = strat.scorer
         scoring_cfg = strat.config.get('scoring', {})
@@ -252,7 +256,13 @@ Generate the optimal STRAT_OS configuration for this person. Remember:
 
     except json.JSONDecodeError as e:
         logger.error(f"Generate: JSON parse error: {e}")
-        error_response(handler, f"AI returned invalid JSON: {e}", 500)
+        error_response(handler, "AI returned invalid JSON", 500)
+    except ValueError as e:
+        logger.warning(f"Generate validation error: {e}")
+        error_response(handler, str(e), 400)
+    except RuntimeError as e:
+        logger.warning(f"Generate runtime error: {e}")
+        error_response(handler, str(e), 503)
     except Exception as e:
         logger.error(f"Generate error: {e}")
         error_response(handler, "Internal server error", 500)

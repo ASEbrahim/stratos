@@ -29,6 +29,12 @@ def _send_json(handler, data, status=200):
     handler.wfile.write(body)
 
 
+def _is_admin(handler):
+    """Check if the current request is from an admin user (profile_id 1 = admin)."""
+    profile_id = getattr(handler, '_profile_id', 0)
+    return profile_id == 1
+
+
 def _run_git(*args, cwd=None):
     """Run a git command and return stdout, or empty string on error."""
     try:
@@ -38,7 +44,8 @@ def _run_git(*args, cwd=None):
             capture_output=True, text=True, timeout=10
         )
         return result.stdout.strip()
-    except Exception:
+    except Exception as e:
+        logger.debug(f"Git command failed: {e}")
         return ''
 
 
@@ -48,7 +55,8 @@ def _read_file_tail(path, lines=80):
         with open(path, 'r', encoding='utf-8', errors='replace') as f:
             all_lines = f.readlines()
         return ''.join(all_lines[-lines:])
-    except Exception:
+    except Exception as e:
+        logger.debug(f"Failed to read file tail {path}: {e}")
         return ''
 
 
@@ -62,7 +70,8 @@ def _read_file_head(path, lines=50):
                     break
                 result.append(line)
         return ''.join(result)
-    except Exception:
+    except Exception as e:
+        logger.debug(f"Failed to read file head {path}: {e}")
         return ''
 
 
@@ -73,7 +82,8 @@ def _list_files(directory, extension=''):
         if extension:
             files = [f for f in files if f.endswith(extension)]
         return files
-    except Exception:
+    except Exception as e:
+        logger.debug(f"Failed to list files in {directory}: {e}")
         return []
 
 
@@ -86,7 +96,8 @@ def _get_db_tables(db_path):
         tables = [row[0] for row in cursor.fetchall()]
         conn.close()
         return tables
-    except Exception:
+    except Exception as e:
+        logger.debug(f"Failed to get DB tables: {e}")
         return []
 
 
@@ -137,7 +148,8 @@ def _get_pending_items():
             elif in_pending and line.strip().startswith('-'):
                 pending.append(line.strip().lstrip('- '))
         return pending[-10:]  # Last 10 items
-    except Exception:
+    except Exception as e:
+        logger.debug(f"Failed to read pending items: {e}")
         return []
 
 
@@ -179,15 +191,21 @@ def handle_get(handler, strat, auth, path):
     """Handle GET requests for dev endpoints. Returns True if handled."""
 
     if path == "/api/dev/context":
+        if not _is_admin(handler):
+            _send_json(handler, {"error": "Admin access required"}, 403)
+            return True
         try:
             context = _build_context()
             _send_json(handler, context)
         except Exception as e:
             logger.error(f"Dev context error: {e}")
-            _send_json(handler, {"error": str(e)}, 500)
+            _send_json(handler, {"error": "Failed to build context"}, 500)
         return True
 
     if path == "/api/dev/sprint-log":
+        if not _is_admin(handler):
+            _send_json(handler, {"error": "Admin access required"}, 403)
+            return True
         try:
             cursor = strat.db.conn.cursor()
             cursor.execute(
@@ -203,10 +221,14 @@ def handle_get(handler, strat, auth, path):
                 })
             _send_json(handler, {"entries": entries})
         except Exception as e:
-            _send_json(handler, {"error": str(e)}, 500)
+            logger.error(f"Sprint log GET error: {e}")
+            _send_json(handler, {"error": "Failed to retrieve sprint log"}, 500)
         return True
 
     if path == "/api/dev/sprint-log/prompt":
+        if not _is_admin(handler):
+            _send_json(handler, {"error": "Admin access required"}, 403)
+            return True
         # GET with ?id=N to retrieve stored prompt
         from urllib.parse import parse_qs, urlparse
         qs = parse_qs(urlparse(handler.path).query)
@@ -215,18 +237,27 @@ def handle_get(handler, strat, auth, path):
             _send_json(handler, {"error": "Missing id parameter"}, 400)
             return True
         try:
+            log_id_int = int(log_id)
+        except (ValueError, TypeError):
+            _send_json(handler, {"error": "Invalid id parameter"}, 400)
+            return True
+        try:
             cursor = strat.db.conn.cursor()
-            cursor.execute("SELECT generated_prompt FROM sprint_log WHERE id = ?", (int(log_id),))
+            cursor.execute("SELECT generated_prompt FROM sprint_log WHERE id = ?", (log_id_int,))
             row = cursor.fetchone()
             if row:
                 _send_json(handler, {"prompt": row[0] or ""})
             else:
                 _send_json(handler, {"error": "Not found"}, 404)
         except Exception as e:
-            _send_json(handler, {"error": str(e)}, 500)
+            logger.error(f"Sprint log prompt GET error: {e}")
+            _send_json(handler, {"error": "Failed to retrieve prompt"}, 500)
         return True
 
     if path == "/api/dev/templates":
+        if not _is_admin(handler):
+            _send_json(handler, {"error": "Admin access required"}, 403)
+            return True
         profile_id = getattr(handler, '_profile_id', 0)
         try:
             cursor = strat.db.conn.cursor()
@@ -244,7 +275,8 @@ def handle_get(handler, strat, auth, path):
                 })
             _send_json(handler, {"templates": templates})
         except Exception as e:
-            _send_json(handler, {"error": str(e)}, 500)
+            logger.error(f"Templates GET error: {e}")
+            _send_json(handler, {"error": "Failed to retrieve templates"}, 500)
         return True
 
     return False
@@ -254,6 +286,9 @@ def handle_post(handler, strat, auth, path):
     """Handle POST requests for dev endpoints. Returns True if handled."""
 
     if path == "/api/prompt-builder/generate":
+        if not _is_admin(handler):
+            _send_json(handler, {"error": "Admin access required"}, 403)
+            return True
         content_length = int(handler.headers.get('Content-Length', 0))
         post_data = handler.rfile.read(content_length) if content_length else b'{}'
         try:
@@ -268,10 +303,13 @@ def handle_post(handler, strat, auth, path):
             _send_json(handler, {"prompt": prompt})
         except Exception as e:
             logger.error(f"Prompt builder error: {e}")
-            _send_json(handler, {"error": str(e)}, 500)
+            _send_json(handler, {"error": "Failed to generate prompt"}, 500)
         return True
 
     if path == "/api/dev/sprint-log":
+        if not _is_admin(handler):
+            _send_json(handler, {"error": "Admin access required"}, 403)
+            return True
         content_length = int(handler.headers.get('Content-Length', 0))
         post_data = handler.rfile.read(content_length) if content_length else b'{}'
         try:
@@ -283,9 +321,11 @@ def handle_post(handler, strat, auth, path):
         try:
             cursor = strat.db.conn.cursor()
             if data.get('action') == 'update_status':
+                status_val = str(data.get('status', ''))[:50]
+                id_val = int(data.get('id', 0))
                 cursor.execute(
                     "UPDATE sprint_log SET status = ? WHERE id = ?",
-                    (data['status'], data['id'])
+                    (status_val, id_val)
                 )
                 strat.db._commit()
                 _send_json(handler, {"ok": True})
@@ -293,16 +333,20 @@ def handle_post(handler, strat, auth, path):
                 cursor.execute(
                     "INSERT INTO sprint_log (sprint_number, sprint_name, owner, generated_prompt, status) "
                     "VALUES (?, ?, ?, ?, ?)",
-                    (data.get('sprint_number', 0), data.get('sprint_name', ''),
-                     data.get('owner', ''), data.get('prompt', ''), 'generated')
+                    (data.get('sprint_number', 0), str(data.get('sprint_name', ''))[:200],
+                     str(data.get('owner', ''))[:100], data.get('prompt', ''), 'generated')
                 )
                 strat.db._commit()
                 _send_json(handler, {"ok": True, "id": cursor.lastrowid})
         except Exception as e:
-            _send_json(handler, {"error": str(e)}, 500)
+            logger.error(f"Sprint log POST error: {e}")
+            _send_json(handler, {"error": "Failed to save sprint log entry"}, 500)
         return True
 
     if path == "/api/dev/templates":
+        if not _is_admin(handler):
+            _send_json(handler, {"error": "Admin access required"}, 403)
+            return True
         content_length = int(handler.headers.get('Content-Length', 0))
         post_data = handler.rfile.read(content_length) if content_length else b'{}'
         try:
@@ -316,17 +360,22 @@ def handle_post(handler, strat, auth, path):
             cursor = strat.db.conn.cursor()
             if data.get('action') == 'delete':
                 cursor.execute("DELETE FROM prompt_templates WHERE id = ? AND profile_id = ?",
-                               (data['id'], profile_id))
+                               (int(data.get('id', 0)), profile_id))
             else:
+                name = str(data.get('name', ''))[:200]
+                if not name:
+                    _send_json(handler, {"error": "Template name is required"}, 400)
+                    return True
                 cursor.execute(
                     "INSERT OR REPLACE INTO prompt_templates (profile_id, name, template_json) "
                     "VALUES (?, ?, ?)",
-                    (profile_id, data['name'], json.dumps(data.get('template', {})))
+                    (profile_id, name, json.dumps(data.get('template', {})))
                 )
             strat.db._commit()
             _send_json(handler, {"ok": True})
         except Exception as e:
-            _send_json(handler, {"error": str(e)}, 500)
+            logger.error(f"Templates POST error: {e}")
+            _send_json(handler, {"error": "Failed to save template"}, 500)
         return True
 
     return False

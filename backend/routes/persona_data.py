@@ -6,10 +6,27 @@ Extracted from server.py (Sprint 5K Phase 1).
 
 import json
 import logging
+import re
 from datetime import datetime
 from urllib.parse import urlparse, parse_qs
 
 logger = logging.getLogger("STRAT_OS")
+
+MAX_TITLE_LEN = 200    # Max length for conversation titles, scenario names
+MAX_CONTENT_LEN = 50000  # Max length for message content, entity markdown fields
+
+
+def _sanitize_name(name):
+    """Sanitize a name for use in file paths — prevent path traversal."""
+    # Strip path separators and null bytes
+    name = name.replace('/', '').replace('\\', '').replace('\0', '')
+    # Remove .. sequences
+    name = name.replace('..', '')
+    # Strip leading dots and whitespace
+    name = name.lstrip('. ')
+    # Only allow alphanumeric, underscore, hyphen, space
+    name = re.sub(r'[^\w\s-]', '', name).strip()
+    return name[:MAX_TITLE_LEN] if name else ''
 
 
 def _send_json(handler, data, status=200):
@@ -163,7 +180,8 @@ def handle_get(handler, strat, auth, path):
                     entities = [dict(r) for r in cursor.fetchall()]
                     _send_json(handler, {"entities": entities})
             except Exception as e:
-                _send_json(handler, {"error": str(e)}, 500)
+                logger.error(f"Entity GET error: {e}")
+                _send_json(handler, {"error": "Failed to retrieve entity data"}, 500)
             return True
         _send_json(handler, {"error": "Invalid entity path"}, 400)
         return True
@@ -255,7 +273,7 @@ def handle_post(handler, strat, auth, path):
         # POST /api/conversations — create new
         if len(path_parts) == 3 and handler.command == 'POST':
             persona = body.get('persona', 'intelligence')
-            title = body.get('title', 'New Chat')
+            title = body.get('title', 'New Chat')[:MAX_TITLE_LEN]
             # Enforce max 10 active per persona — archive oldest
             cursor.execute(
                 "SELECT id FROM conversations WHERE profile_id = ? AND persona = ? AND archived = 0 "
@@ -348,9 +366,13 @@ def handle_post(handler, strat, auth, path):
         body = json.loads(handler.rfile.read(int(handler.headers.get('Content-Length', 0))).decode()) if int(handler.headers.get('Content-Length', 0)) > 0 else {}
 
         if path == "/api/scenarios/create":
-            name_raw = body.get('name', '')
-            description = body.get('description', body.get('world', ''))
-            genre = body.get('genre', 'fantasy RPG')
+            name_raw = body.get('name', '')[:MAX_TITLE_LEN]
+            description = body.get('description', body.get('world', ''))[:MAX_CONTENT_LEN]
+            genre = body.get('genre', 'fantasy RPG')[:MAX_TITLE_LEN]
+
+            if not name_raw.strip():
+                _send_json(handler, {"error": "Scenario name is required"}, 400)
+                return True
 
             # Create DB record (existing flow)
             result = sm.create_scenario(
@@ -364,12 +386,28 @@ def handle_post(handler, strat, auth, path):
 
             safe_name = result.get('name', name_raw)
 
+            # Path traversal prevention — ensure safe_name has no path separators
+            if '/' in safe_name or '\\' in safe_name or '..' in safe_name or '\0' in safe_name:
+                safe_name = _sanitize_name(safe_name)
+                if not safe_name:
+                    _send_json(handler, {"error": "Invalid scenario name"}, 400)
+                    return True
+
             # Create file-based folder structure
             try:
                 from processors.scenario_templates import create_scenario_skeleton, get_scenario_base_path
                 data_dir = strat.config.get("system", {}).get("data_dir", "data")
                 base_path = get_scenario_base_path(data_dir, handler._profile_id)
                 scenario_path = create_scenario_skeleton(base_path, safe_name)
+
+                # Verify the resolved path is under the expected base
+                import os
+                resolved = os.path.realpath(scenario_path)
+                resolved_base = os.path.realpath(base_path)
+                if not resolved.startswith(resolved_base + os.sep) and resolved != resolved_base:
+                    logger.warning(f"Path traversal attempt: scenario_path={scenario_path}, base={base_path}")
+                    _send_json(handler, {"error": "Invalid scenario path"}, 400)
+                    return True
                 logger.info(f"Created scenario skeleton: {scenario_path}")
 
                 # Run LLM generation in background thread
@@ -399,8 +437,8 @@ def handle_post(handler, strat, auth, path):
                                     with open(setting_path) as f:
                                         setting = f.read()
                                     sm.save_scenario(handler._profile_id, safe_name, world=setting)
-                            except Exception:
-                                pass
+                            except Exception as e:
+                                logger.warning(f"Failed to save scenario setting from file: {e}")
 
                     def generate_in_background():
                         try:
@@ -509,7 +547,8 @@ def handle_post(handler, strat, auth, path):
                 if 'UNIQUE constraint' in str(e):
                     _send_json(handler, {"error": f"Entity '{name}' already exists"}, 409)
                 else:
-                    _send_json(handler, {"error": str(e)}, 500)
+                    logger.error(f"Entity POST error: {e}")
+                    _send_json(handler, {"error": "Failed to save entity"}, 500)
             return True
         _send_json(handler, {"error": "Invalid entity path"}, 400)
         return True
