@@ -156,17 +156,55 @@ def _build_system_prompt(card: dict = None, director_note: str = None) -> str:
     return prompt
 
 
+def _get_generation_params(user_message: str) -> dict:
+    """Dynamic generation params based on input length.
+    Short inputs get tight ceilings + paragraph stop. Long inputs get full freedom."""
+    words = len(user_message.split())
+    if words <= 2:     # "Hi." / "*nods*"
+        return {"num_predict": 60, "stop": ["\n\n"]}
+    elif words <= 5:   # "How are you?"
+        return {"num_predict": 100, "stop": ["\n\n"]}
+    elif words <= 15:  # Short paragraph
+        return {"num_predict": 200}
+    elif words <= 40:  # Full paragraph
+        return {"num_predict": 350}
+    else:              # Long prose
+        return {"num_predict": 500}
+
+
+def _truncate_response(response: str, target_words: int) -> str:
+    """Post-processing: truncate at sentence boundary if still too long.
+    Only trims if response exceeds target by >1.5x."""
+    words = response.split()
+    if len(words) <= target_words * 1.5:
+        return response
+    # Split at sentence boundaries (after . ! ? * ")
+    import re
+    sentences = re.split(r'(?<=[.!?*"])\s+', response)
+    result = ""
+    for sentence in sentences:
+        candidate = (result + " " + sentence).strip() if result else sentence
+        if len(candidate.split()) > target_words * 1.3:
+            break
+        result = candidate
+    return result or sentences[0]
+
+
 def _stream_ollama(handler, ollama_host: str, model: str, messages: list,
-                   temperature: float = 0.85, num_predict: int = 4000) -> str:
+                   temperature: float = 0.85, num_predict: int = 500,
+                   stop: list = None) -> str:
     """Stream Ollama response via SSE. Returns the full accumulated text."""
     try:
+        opts = {"temperature": temperature, "num_predict": num_predict}
+        if stop:
+            opts["stop"] = stop
         r = req.post(
             f"{ollama_host}/api/chat",
             json={
                 "model": model,
                 "messages": messages,
                 "stream": True,
-                "options": {"temperature": temperature, "num_predict": num_predict},
+                "options": opts,
                 "think": False,
             },
             timeout=180, stream=True
@@ -300,24 +338,24 @@ def handle_post(handler, strat, auth, path) -> bool:
             error_response(handler, "Failed to start Ollama", 503)
             return True
 
-        # Calculate num_predict based on input length (hard length control)
-        input_words = len(content.split())
-        if input_words <= 2:
-            num_predict = 80    # ~50-60 words max for "Hi.", "*nods*"
-        elif input_words <= 5:
-            num_predict = 150   # ~100 words for short sentences
-        elif input_words <= 15:
-            num_predict = 300   # ~200 words for medium inputs
-        else:
-            num_predict = 500   # full response for long inputs
+        # Dynamic generation params: num_predict ceiling + \n\n stop for short inputs
+        gen_params = _get_generation_params(content)
 
         # Stream response
         start_sse(handler)
         start_time = time.time()
-        full_text = _stream_ollama(handler, ollama_host, model, messages, num_predict=num_predict)
+        full_text = _stream_ollama(handler, ollama_host, model, messages,
+                                   num_predict=gen_params.get("num_predict", 500),
+                                   stop=gen_params.get("stop"))
         elapsed_ms = int((time.time() - start_time) * 1000)
 
         if full_text:
+            # Post-processing: sentence-aware truncation for short inputs
+            input_words = len(content.split())
+            if input_words <= 2:
+                full_text = _truncate_response(full_text, target_words=20)
+            elif input_words <= 5:
+                full_text = _truncate_response(full_text, target_words=40)
             # Insert assistant message
             asst_turn = user_turn + 1
             db.insert_rp_message(

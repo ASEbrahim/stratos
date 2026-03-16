@@ -28,14 +28,20 @@ FACT_PATTERNS = [
     (r"(?:my name is|I'm|call me|I am)\s+([A-Z][a-z]+)", "user_fact", "name"),
     # Origin/location
     (r"(?:I'm from|I live in|I grew up in|I was born in)\s+([A-Z][a-z]+(?:\s[A-Z][a-z]+)?)", "user_fact", "origin"),
-    # Physical traits
+    # Physical traits (scars, tattoos, marks)
     (r"I (?:have|got) (?:a |an )?(?:scar|tattoo|mark|piercing|birthmark)\s+(.{5,60}?)(?:\.|,|!|$)", "user_fact", "physical_trait"),
+    # Injuries/events (scratched, broke, hurt, burned, cut, lost)
+    (r"I (?:scratched|broke|hurt|injured|burned|cut|sprained|twisted|bruised)\s+(?:my\s+)?(.{3,50}?)(?:\.|,|!|$)", "user_fact", "injury"),
+    (r"I (?:lost|found|broke|dropped)\s+(?:my\s+)?(.{3,50}?)(?:\.|,|!|$)", "user_fact", "event"),
     # Items/possessions
     (r"I (?:always |usually )?(?:carry|wear|have)\s+(?:a |an |my )?(.{5,50}?)(?:\.|,|!|$)", "user_fact", "item"),
     # Preferences
     (r"(?:my favorite|I love|I prefer|I enjoy)\s+(.{3,40}?)(?:\.|,|!|$)", "user_fact", "preference"),
-    # Relationships
-    (r"(?:my |I have a )((?:wife|husband|partner|sister|brother|mother|father|daughter|son|friend|dog|cat)\s*.{0,30}?)(?:\.|,|!|$)", "user_fact", "relationship"),
+    # Relationships (people + pets)
+    (r"(?:my |I have a )((?:wife|husband|partner|sister|brother|mother|father|daughter|son|friend|dog|cat|pet)\s*.{0,30}?)(?:\.|,|!|$)", "user_fact", "relationship"),
+    # Age/birthday
+    (r"I(?:'m| am)\s+(\d{1,3})\s+years?\s+old", "user_fact", "age"),
+    (r"(?:my birthday is|I was born)\s+(?:on\s+)?(.{3,30}?)(?:\.|,|!|$)", "user_fact", "birthday"),
 ]
 
 TIER1_LLM_PROMPT = """Extract NEW facts from this RP exchange as JSON. Only include information not previously established.
