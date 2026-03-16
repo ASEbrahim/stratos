@@ -8,16 +8,16 @@ COMFYUI_DIR=~/Downloads/StratOS/StratOS1/tools/ComfyUI
 echo "=== StratOS CHROMA Model Setup ==="
 echo ""
 
-# 1. CHROMA model (Q8_0 GGUF, ~9GB)
-echo "[1/5] Downloading CHROMA Q8_0 GGUF..."
-if [ -f "$COMFYUI_DIR/models/unet/chroma-unlocked-v35-Q8_0.gguf" ]; then
+# 1. CHROMA model (v50 safetensors, ~12GB)
+echo "[1/5] Downloading CHROMA v50..."
+if [ -f "$COMFYUI_DIR/models/unet/chroma-unlocked-v50.safetensors" ]; then
     echo "  Already exists, skipping."
 else
     python3 -c "
 from huggingface_hub import hf_hub_download
 hf_hub_download(
     repo_id='lodestones/Chroma',
-    filename='chroma-unlocked-v35-Q8_0.gguf',
+    filename='chroma-unlocked-v50.safetensors',
     local_dir='$COMFYUI_DIR/models/unet',
 )
 print('  Done.')
