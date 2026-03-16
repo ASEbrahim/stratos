@@ -90,7 +90,7 @@ News Sources → NewsFetcher → AI Scorer → SQLite DB → JSON API → Fronte
 
 ### RP Expansion Routes (Sprint 1-6)
 - `rp_chat.py` — RP chat with branching, swipes, edits, director's notes, feedback, A/B testing. **Swipe = last message only (same branch). Branch = earlier message (new timeline).** Uses `select_rp_model()` for deterministic A/B split.
-- `image_gen.py` — ComfyUI-backed image generation. FLUX (SFW), Pony V7 (NSFW). Cannot coexist with Ollama in VRAM. Start via `tools/start_comfyui.sh`.
+- `image_gen.py` — ComfyUI-backed image generation. Single CHROMA model (chroma-unlocked-v50, schnell-distilled, natively uncensored — handles SFW+NSFW without model switching). 8 steps, cfg 4.0, beta scheduler, ~26s/image. Cannot coexist with Ollama in VRAM — gpu_manager.py auto-swaps via Ollama API (no sudo needed).
 - `character_cards.py` — Character card CRUD, TavernCard V2 import, quality element scoring (0-6), publish/browse/rate/search.
 
 ### RP Data Pipeline
