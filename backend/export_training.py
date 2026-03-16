@@ -30,6 +30,7 @@ Usage:
 import argparse
 import json
 import logging
+import os
 import re
 import sqlite3
 import sys
@@ -418,10 +419,13 @@ def export_training_data(db_path: str, output_path: str, min_delta: float = 1.5,
     output_file = Path(output_path)
     output_file.parent.mkdir(parents=True, exist_ok=True)
 
-    with open(output_file, 'w', encoding='utf-8') as f:
+    # Atomic write: write to temp file then rename to prevent partial writes
+    tmp_file = str(output_file) + ".tmp"
+    with open(tmp_file, 'w', encoding='utf-8') as f:
         for item in items:
             record = format_chatml(item)
             f.write(json.dumps(record, ensure_ascii=False) + "\n")
+    os.replace(tmp_file, str(output_file))
 
     logger.info(f"✓ Exported {len(items)} examples to {output_file}")
 
@@ -464,7 +468,9 @@ def merge_training_data(files: List[str], output_path: str) -> int:
     output_file = Path(output_path)
     output_file.parent.mkdir(parents=True, exist_ok=True)
 
-    with open(output_file, 'w', encoding='utf-8') as out:
+    # Atomic write: write to temp file then rename
+    tmp_merge = str(output_file) + ".tmp"
+    with open(tmp_merge, 'w', encoding='utf-8') as out:
         for fpath in files:
             if not Path(fpath).exists():
                 logger.error(f"  File not found: {fpath}")
@@ -507,6 +513,8 @@ def merge_training_data(files: List[str], output_path: str) -> int:
                     file_count += 1
                     total += 1
             logger.info(f"  {Path(fpath).name}: {file_count} examples ({file_dupes} duplicates skipped)")
+
+    os.replace(tmp_merge, str(output_file))
 
     if malformed:
         logger.warning(f"  {malformed} malformed examples skipped (no SCORE: prefix)")

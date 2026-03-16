@@ -1018,9 +1018,11 @@ def save_version_info(output_dir: str, version: int, info: Dict):
     
     versions["latest"] = version
     versions[f"v{version}"] = info
-    
-    with open(versions_file, 'w') as f:
+
+    tmp_versions = str(versions_file) + ".tmp"
+    with open(tmp_versions, 'w') as f:
         json.dump(versions, f, indent=2)
+    os.replace(tmp_versions, str(versions_file))
 
 
 # ═══════════════════════════════════════════════════════════════════
@@ -1292,11 +1294,13 @@ Examples:
                 if "scoring" not in config:
                     config["scoring"] = {}
                 config["scoring"]["model"] = model_tag
-                with open(config_path, 'w') as f:
-                    yaml.dump(config, f, default_flow_style=False, sort_keys=False)
+                tmp_config = str(config_path) + ".tmp"
+                with open(tmp_config, 'w') as f:
+                    yaml.safe_dump(config, f, default_flow_style=False, sort_keys=False)
+                os.replace(tmp_config, str(config_path))
                 logger.info(f"  ✓ config.yaml updated: scoring.model {old_model} → {model_tag}")
             except Exception as e:
-                logger.warning(f"  Could not auto-update config.yaml: {e}")
+                logger.warning(f"Could not auto-update config.yaml: {e}")
                 logger.info(f"  Manual update needed: scoring.model: {model_tag}")
     
     # ── Auto-cleanup: purge intermediate files to save disk ──

@@ -74,7 +74,8 @@ def get_unused_profiles(db_path, all_profiles):
         conn.close()
         unused = [p for p in all_profiles if p['id'] not in recent]
         return unused if unused else all_profiles
-    except Exception:
+    except Exception as e:
+        logger.warning(f"Failed to check unused profiles: {e}")
         return all_profiles
 
 
@@ -312,7 +313,7 @@ def apply_profile(config_path, profile, generated=None):
     # Atomic write
     tmp = config_path + ".tmp"
     with open(tmp, "w") as f:
-        yaml.dump(config, f, default_flow_style=False, sort_keys=False)
+        yaml.safe_dump(config, f, default_flow_style=False, sort_keys=False)
     os.replace(tmp, config_path)
     return original
 
@@ -321,7 +322,7 @@ def restore_profile(config_path, original):
     """Atomic write — prevents corruption if interrupted."""
     tmp = config_path + ".tmp"
     with open(tmp, "w") as f:
-        yaml.dump(original, f, default_flow_style=False, sort_keys=False)
+        yaml.safe_dump(original, f, default_flow_style=False, sort_keys=False)
     os.replace(tmp, config_path)  # Atomic on POSIX
     logger.info("  Profile restored")
 
@@ -339,8 +340,8 @@ def _clear_memory_for_cycle(memory_path):
         empty_memory = {"version": "1.0", "last_updated": datetime.now().isoformat(), "examples": []}
         with open(memory_path, 'w') as f:
             json.dump(empty_memory, f, indent=2)
-    except Exception:
-        pass
+    except Exception as e:
+        logger.warning(f"Failed to clear memory for cycle: {e}")
 
 
 def _check_training_diversity(backend_dir, min_profiles=4, after=None):
@@ -384,7 +385,8 @@ def _check_training_diversity(backend_dir, min_profiles=4, after=None):
         
         conn.close()
         return len(profiles) >= min_profiles, len(profiles), total
-    except Exception:
+    except Exception as e:
+        logger.warning(f"Training diversity check failed: {e}")
         return True, 0, 0  # If check fails, allow training
 
 
@@ -421,8 +423,8 @@ def run_scan(backend_dir):
                 progress = status.get("progress", "")
                 if progress:
                     logger.info(f"  ... {progress}")
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"Status poll failed: {e}")
             time.sleep(5)
         
         logger.warning("  Scan timed out")
@@ -497,7 +499,7 @@ def run_training(backend_dir, state=None):
             logger.warning(f"    Or clean old models: rm -rf data/models/v*/")
             return False
     except Exception as e:
-        logger.warning(f"  Could not check disk space: {e}")
+        logger.warning(f"Could not check disk space: {e}")
 
     # Decide: incremental or full retrain
     force_full = state and state.needs_full_retrain()
@@ -567,8 +569,8 @@ def run_training(backend_dir, state=None):
         for m in [scoring_model, inference_model]:
             if m:
                 subprocess.run(["ollama", "stop", m], capture_output=True, timeout=10)
-    except Exception:
-        pass
+    except Exception as e:
+        logger.warning(f"Failed to stop Ollama models: {e}")
     # Also stop common base models that may be loaded
     subprocess.run(["ollama", "stop", "qwen3.5:9b"], capture_output=True, timeout=10)
     time.sleep(3)  # Let VRAM free up
@@ -627,18 +629,27 @@ class CostTracker:
         try:
             with open(self.log_path) as f:
                 self.spent = json.load(f).get("total_spent", 0.0)
-        except Exception:
-            pass
+        except FileNotFoundError:
+            pass  # Expected on first run
+        except Exception as e:
+            logger.warning(f"Failed to load cost tracker: {e}")
 
     def _save(self):
         Path(self.log_path).parent.mkdir(parents=True, exist_ok=True)
-        with open(self.log_path, 'w') as f:
+        tmp = self.log_path + ".tmp"
+        with open(tmp, 'w') as f:
             json.dump({"total_spent": round(self.spent, 4), "budget": self.budget,
-                        "remaining": round(self.budget - self.spent, 4),
+                        "remaining": round(max(0, self.budget - self.spent), 4),
                         "last_updated": datetime.now().isoformat()}, f, indent=2)
+        os.replace(tmp, self.log_path)
 
     def add(self, cost):
+        if cost < 0:
+            logger.warning(f"Negative cost rejected: {cost}")
+            return
         self.spent += cost
+        if self.remaining < 0:
+            logger.warning(f"Budget exceeded: spent ${self.spent:.4f} of ${self.budget:.2f} budget")
         self._save()
 
     @property
@@ -678,8 +689,10 @@ class AutopilotState:
                 self.corrections_at_last_train = d.get("corrections_at_last_train", 0)
                 self.last_trained_at_time = d.get("last_trained_at_time", "")
                 self._force_full_retrain = d.get("force_full_retrain", False)
-        except Exception:
-            pass
+        except FileNotFoundError:
+            pass  # Expected on first run
+        except Exception as e:
+            logger.warning(f"Failed to load autopilot state: {e}")
 
     def save(self):
         Path(self.path).parent.mkdir(parents=True, exist_ok=True)
@@ -908,8 +921,8 @@ def run_autopilot(max_cycles=0, train_every=5, scan_interval=300,
                      f"Autopilot: {profile['id']} cycle {cycle}", datetime.now().isoformat()))
                 conn.commit()
                 conn.close()
-            except Exception:
-                pass
+            except Exception as e:
+                logger.warning(f"Failed to mark profile as used: {e}")
 
             # Training trigger (uses persistent count!)
             if not skip_training and state.should_train(train_every):

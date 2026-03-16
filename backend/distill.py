@@ -97,8 +97,8 @@ def get_api_key() -> Optional[str]:
             if key:
                 logger.info("API key loaded from config.yaml")
                 return key
-        except Exception:
-            pass
+        except Exception as e:
+            logger.warning(f"Failed to load API key from config.yaml: {e}")
 
     return None
 
@@ -513,8 +513,10 @@ def run_distillation(
         "threshold": threshold,
         "corrections": all_corrections
     }
-    with open(report_path, 'w', encoding='utf-8') as f:
+    tmp_report = str(report_path) + ".tmp"
+    with open(tmp_report, 'w', encoding='utf-8') as f:
         json.dump(report, f, indent=2, ensure_ascii=False)
+    os.replace(tmp_report, str(report_path))
     logger.info(f"Full report saved to: {report_path}")
 
     # Return summary for programmatic callers (e.g. autopilot.py)
