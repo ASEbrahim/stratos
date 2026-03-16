@@ -7,6 +7,7 @@ profile management, and admin operations.
 
 import copy
 import hashlib
+import hmac
 import json
 import logging
 import secrets
@@ -35,12 +36,12 @@ def _hash_password(password: str) -> str:
 def _verify_password(password: str, stored_hash: str) -> bool:
     """Verify a password against a stored hash. Handles legacy PIN hashes."""
     if stored_hash.startswith("LEGACY:"):
-        # Migrated PIN: SHA-256 hash
+        # Migrated PIN: SHA-256 hash — timing-safe comparison
         sha256_hash = stored_hash[7:]
-        return hashlib.sha256(password.encode('utf-8')).hexdigest() == sha256_hash
+        return hmac.compare_digest(hashlib.sha256(password.encode('utf-8')).hexdigest(), sha256_hash)
     if stored_hash.startswith("SHA256:"):
-        # Fallback when bcrypt not installed
-        return hashlib.sha256(password.encode('utf-8')).hexdigest() == stored_hash[7:]
+        # Fallback when bcrypt not installed — timing-safe comparison
+        return hmac.compare_digest(hashlib.sha256(password.encode('utf-8')).hexdigest(), stored_hash[7:])
     if HAS_BCRYPT:
         try:
             return bcrypt.checkpw(password.encode('utf-8'), stored_hash.encode('utf-8'))
@@ -225,7 +226,7 @@ def handle_auth_routes(handler, method, path, data, db, strat, send_json, email_
         if expires and datetime.fromisoformat(expires) < datetime.now():
             send_json(handler, {"error": "Code expired. Request a new one."}, status=400)
             return True
-        if _hash_code(code) != stored_hash:
+        if not hmac.compare_digest(_hash_code(code), stored_hash):
             cursor.execute("UPDATE pending_registrations SET verify_attempts = verify_attempts + 1 WHERE id = ?", (pending_id,))
             db._commit()
             remaining = 4 - (attempts or 0)
@@ -521,7 +522,7 @@ def handle_auth_routes(handler, method, path, data, db, strat, send_json, email_
         if expires and datetime.fromisoformat(expires) < datetime.now():
             send_json(handler, {"error": "Code expired"}, status=400)
             return True
-        if _hash_code(code) != stored_hash:
+        if not hmac.compare_digest(_hash_code(code), stored_hash):
             cursor.execute("UPDATE users SET reset_attempts = COALESCE(reset_attempts, 0) + 1 WHERE id = ?", (user_id,))
             db._commit()
             remaining = 4 - (reset_attempts or 0)
@@ -620,7 +621,7 @@ def handle_auth_routes(handler, method, path, data, db, strat, send_json, email_
         if otp_expires and datetime.fromisoformat(otp_expires) < datetime.now():
             send_json(handler, {"error": "Code expired. Request a new one."}, status=400)
             return True
-        if _hash_code(code) != stored_hash:
+        if not hmac.compare_digest(_hash_code(code), stored_hash):
             cursor.execute("UPDATE users SET otp_attempts = COALESCE(otp_attempts, 0) + 1 WHERE id = ?", (user_id,))
             db._commit()
             remaining = 4 - (otp_attempts or 0)

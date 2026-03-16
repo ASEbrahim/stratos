@@ -8,6 +8,7 @@ Extracted from main.py:serve_frontend() closures (Sprint 4, A1.2).
 """
 
 import copy
+import hmac
 import json
 import hashlib
 import secrets
@@ -74,8 +75,8 @@ class AuthManager:
         """Persist sessions to disk so they survive server restarts."""
         try:
             self._sessions_file.write_text(json.dumps(self._active_sessions))
-        except Exception:
-            pass
+        except Exception as e:
+            logger.warning(f"Failed to persist sessions to disk: {e}")
 
     def _load_sessions(self):
         """Load sessions from disk on startup."""
@@ -86,7 +87,8 @@ class AuthManager:
                 self._active_sessions = {k: v for k, v in data.items() if v.get("expiry", 0) > now}
                 if self._active_sessions:
                     logger.info(f"Restored {len(self._active_sessions)} active session(s) from disk")
-        except Exception:
+        except Exception as e:
+            logger.warning(f"Failed to load sessions from disk: {e}")
             self._active_sessions = {}
 
     @staticmethod
@@ -125,8 +127,8 @@ class AuthManager:
                     "location": p.get("location", "Kuwait"),
                     "has_pin": bool(str(sec.get("pin_hash", sec.get("pin", ""))).strip()),
                 })
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"Failed to read profile {f.name}: {e}")
         return profiles
 
     def verify_profile_pin(self, name, pin):
@@ -144,8 +146,10 @@ class AuthManager:
                 stored_plain = str(sec.get("pin", "")).strip()
                 if not stored_plain:
                     return False
-                return str(pin).strip() == stored_plain
-            return self.hash_pin(pin) == stored_hash
+                # Timing-safe comparison to prevent timing attacks on plain PIN
+                return hmac.compare_digest(str(pin).strip(), stored_plain)
+            # Timing-safe comparison to prevent timing attacks on hash
+            return hmac.compare_digest(self.hash_pin(pin), stored_hash)
         except Exception:
             return None
 

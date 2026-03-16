@@ -39,8 +39,10 @@ logger = logging.getLogger("STRAT_OS")
 _GZIP_TYPES = frozenset({'.js', '.css', '.html', '.json', '.svg', '.txt', '.xml'})
 
 # In-memory gzip cache: {filepath: (mtime, compressed_bytes)}
+# Bounded to _GZIP_CACHE_MAX_ENTRIES to prevent unbounded memory growth.
 _gzip_cache = {}
 _gzip_cache_lock = threading.Lock()
+_GZIP_CACHE_MAX_ENTRIES = 200
 
 
 def _send_json(handler, data, status=200):
@@ -144,6 +146,9 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                 self.send_header("Pragma", "no-cache")
                 self.send_header("Expires", "0")
             # CORS: reflect origin if in allowlist, or wildcard if ["*"] (default)
+            # TODO(production): Restrict cors_origins in config.yaml to specific
+            # domains instead of ["*"]. Wildcard allows any origin to make
+            # authenticated requests, which is unsafe on public networks.
             cors_origins = strat.config.get("system", {}).get("cors_origins", ["*"])
             if "*" in cors_origins:
                 self.send_header("Access-Control-Allow-Origin", "*")
@@ -229,8 +234,8 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                         _pid_row = cursor.fetchone()
                         if _pid_row and _pid_row[0]:
                             self._profile_id = _pid_row[0]
-                    except Exception:
-                        pass
+                    except Exception as e:
+                        logger.warning(f"Failed to resolve profile_id from session: {e}")
                     self._session_profile = _session_profile
                 elif device_id:
                     # Anonymous user — resolve or create profile from device ID
@@ -277,8 +282,10 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                         time.sleep(15)
                         self.wfile.write(": heartbeat\n\n".encode())
                         self.wfile.flush()
-                except Exception:
-                    pass
+                except (BrokenPipeError, ConnectionResetError, OSError):
+                    pass  # Client disconnected — expected
+                except Exception as e:
+                    logger.debug(f"SSE heartbeat error: {e}")
                 finally:
                     strat.sse_unregister(self.wfile)
                 return
@@ -319,6 +326,10 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                                 raw = f.read()
                             compressed = _gzip_mod.compress(raw, compresslevel=6)
                             with _gzip_cache_lock:
+                                # Evict oldest entries if cache is full
+                                if len(_gzip_cache) >= _GZIP_CACHE_MAX_ENTRIES and path not in _gzip_cache:
+                                    oldest = min(_gzip_cache, key=lambda k: _gzip_cache[k][0])
+                                    del _gzip_cache[oldest]
                                 _gzip_cache[path] = (mtime, compressed)
                         ctype = mimetypes.guess_type(path)[0] or 'application/octet-stream'
                         self.send_response(200)
@@ -328,8 +339,8 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                         self.end_headers()
                         self.wfile.write(compressed)
                         return
-                    except Exception:
-                        pass  # Fall through to default handler
+                    except Exception as e:
+                        logger.debug(f"Gzip compression failed for {path}, falling back: {e}")
 
             return super().do_GET()
 
@@ -403,8 +414,11 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                         self.wfile.write(b'{"error": "Invalid PIN"}')
                         return
 
-                    # Load profile config into live system
-                    auth.load_profile_config(profile_name, strat)
+                    # Ensure profile config is cached (thread-safe).
+                    # NOTE: Do NOT call auth.load_profile_config() here — it mutates
+                    # the shared strat.config, which is unsafe under ThreadingMixIn.
+                    # ensure_profile() uses per-profile caching with _config_lock.
+                    strat.ensure_profile(profile_name)
 
                     token = auth.create_session(profile_name)
                     self.send_response(200)
@@ -414,11 +428,9 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                         "token": token,
                         "profile": profile_name
                     }).encode())
-                except Exception:
-                    self.send_response(400)
-                    self.send_header("Content-type", "application/json")
-                    self.end_headers()
-                    self.wfile.write(b'{"error": "Bad request"}')
+                except Exception as e:
+                    logger.error(f"Legacy PIN auth error: {e}")
+                    _send_json(self, {"error": "Bad request"}, 400)
                 return
 
             # --- Register endpoint (always public) ---
@@ -501,8 +513,8 @@ def create_handler(strat, auth, frontend_dir, output_dir):
 
                     logger.info(f"New profile registered: {safe}")
 
-                    # Auto-login after registration
-                    auth.load_profile_config(safe, strat)
+                    # Auto-login after registration (thread-safe profile caching)
+                    strat.ensure_profile(safe)
                     token = auth.create_session(safe)
 
                     self.send_response(201)
@@ -548,8 +560,8 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                         _pid_row = cursor.fetchone()
                         if _pid_row and _pid_row[0]:
                             self._profile_id = _pid_row[0]
-                    except Exception:
-                        pass
+                    except Exception as e:
+                        logger.warning(f"Failed to resolve profile_id from session: {e}")
                     self._session_profile = auth.get_session_profile(token)
                 elif device_id:
                     # Anonymous user — resolve or create profile from device ID
@@ -622,8 +634,7 @@ def create_handler(strat, auth, frontend_dir, output_dir):
             if data_endpoints.handle_post(self, strat, auth, clean_path): return
             if dev_endpoints.handle_post(self, strat, auth, clean_path): return
 
-            self.send_response(404)
-            self.end_headers()
+            _send_json(self, {"error": "Not found"}, 404)
 
         def do_DELETE(self):
             self._profile_id = 0
@@ -642,13 +653,14 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                         _pid_row = cursor.fetchone()
                         if _pid_row and _pid_row[0]:
                             self._profile_id = _pid_row[0]
-                    except Exception:
-                        pass
+                    except Exception as e:
+                        logger.warning(f"Failed to resolve profile_id from session: {e}")
                 elif device_id:
                     _session_profile = None
                     try:
                         self._profile_id = _resolve_device_profile(strat.db, device_id)
-                    except Exception:
+                    except Exception as e:
+                        logger.warning(f"Device profile resolution failed in DELETE: {e}")
                         self._profile_id = 0
                 else:
                     _send_json(self, {"error": "Authentication required"}, 401)
@@ -669,8 +681,7 @@ def create_handler(strat, auth, frontend_dir, output_dir):
             if persona_data.handle_delete(self, strat, auth, clean_path): return
             if media.handle_delete(self, strat, auth, clean_path): return
 
-            self.send_response(404)
-            self.end_headers()
+            _send_json(self, {"error": "Not found"}, 404)
 
         def do_PUT(self):
             """Route PUT requests through do_POST (conversations use PUT for updates)."""
