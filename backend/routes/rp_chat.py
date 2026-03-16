@@ -252,6 +252,9 @@ def handle_post(handler, strat, auth, path) -> bool:
             character_card_id=card_id, persona=persona
         )
 
+        # Immediate regex extraction on every user message (instant, ~0ms)
+        rp_memory.extract_facts_immediate(session_id, content, user_turn, db)
+
         # Build messages for Ollama
         system_prompt = _build_system_prompt(card, director_note)
 
@@ -297,10 +300,21 @@ def handle_post(handler, strat, auth, path) -> bool:
             error_response(handler, "Failed to start Ollama", 503)
             return True
 
+        # Calculate num_predict based on input length (hard length control)
+        input_words = len(content.split())
+        if input_words <= 2:
+            num_predict = 80    # ~50-60 words max for "Hi.", "*nods*"
+        elif input_words <= 5:
+            num_predict = 150   # ~100 words for short sentences
+        elif input_words <= 15:
+            num_predict = 300   # ~200 words for medium inputs
+        else:
+            num_predict = 500   # full response for long inputs
+
         # Stream response
         start_sse(handler)
         start_time = time.time()
-        full_text = _stream_ollama(handler, ollama_host, model, messages)
+        full_text = _stream_ollama(handler, ollama_host, model, messages, num_predict=num_predict)
         elapsed_ms = int((time.time() - start_time) * 1000)
 
         if full_text:

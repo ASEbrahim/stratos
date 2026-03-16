@@ -99,29 +99,37 @@ def extract_facts_llm(user_msg: str, ai_response: str) -> list:
         return []
 
 
+def extract_facts_immediate(session_id: str, user_msg: str, turn_number: int, db):
+    """Instant regex extraction — runs on EVERY user message (zero cost).
+    Called synchronously before the LLM response, not in a thread."""
+    facts = extract_facts_regex(user_msg)
+    for category, key, value in facts:
+        db.upsert_rp_context(session_id, tier=1, category=category,
+                             key=key, value=value, turn_number=turn_number)
+        logger.info(f"Tier 1 immediate: [{category}] {key}={value}")
+
+
 def extract_facts(session_id: str, user_msg: str, ai_response: str,
                   turn_number: int, db):
-    """Hybrid fact extraction: regex first, LLM for complex patterns.
-    On first extraction, also scans all previous user messages."""
-    # Scan current message
-    facts = extract_facts_regex(user_msg)
+    """Deep extraction — LLM analyzes last 5 message pairs for subtle facts.
+    Runs every 5th message pair in a background thread."""
+    # Gather last 5 user+assistant pairs for LLM analysis
+    try:
+        recent = db.conn.execute(
+            """SELECT role, content FROM rp_messages
+               WHERE session_id = ? AND role IN ('user', 'assistant')
+               ORDER BY turn_number DESC LIMIT 10""",
+            (session_id,)
+        ).fetchall()
+        # Build combined text of recent exchanges
+        combined_user = " ".join(m["content"] for m in recent if m["role"] == "user")
+        combined_ai = " ".join(m["content"][:200] for m in recent if m["role"] == "assistant")
+    except Exception:
+        combined_user = user_msg
+        combined_ai = ai_response
 
-    # On first extraction, scan ALL previous user messages for missed facts
-    existing = db.get_rp_context(session_id, tier=1, limit=1)
-    if not existing:
-        try:
-            prev_msgs = db.conn.execute(
-                "SELECT content FROM rp_messages WHERE session_id = ? AND role = 'user' ORDER BY turn_number",
-                (session_id,)
-            ).fetchall()
-            for msg in prev_msgs:
-                facts.extend(extract_facts_regex(msg["content"]))
-        except Exception as e:
-            logger.warning(f"Failed to scan previous messages: {e}")
-
-    # LLM fallback if regex found nothing
-    if not facts:
-        facts = extract_facts_llm(user_msg, ai_response)
+    # Always run LLM extraction (not as fallback — catches subtle facts regex misses)
+    facts = extract_facts_llm(combined_user, combined_ai)
 
     # Deduplicate by (category, key)
     seen = set()
