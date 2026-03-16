@@ -89,8 +89,8 @@ def _check_model_exists(ollama_host: str, model: str) -> bool:
         if r.status_code == 200:
             models = [m['name'] for m in r.json().get('models', [])]
             return any(model in m for m in models)
-    except Exception:
-        pass
+    except Exception as e:
+        logger.warning(f"Could not check Ollama models: {e}")
     return False
 
 
@@ -154,9 +154,13 @@ def _build_system_prompt(card: dict = None, director_note: str = None) -> str:
     return prompt
 
 
+MAX_MESSAGE_LENGTH = 10000  # Max characters per user message
+
 def _stream_ollama(handler, ollama_host: str, model: str, messages: list,
                    temperature: float = 0.85, num_predict: int = 4000) -> str:
-    """Stream Ollama response via SSE. Returns the full accumulated text."""
+    """Stream Ollama response via SSE. Returns the full accumulated text.
+    # TODO: consolidate with scorer_base._call_ollama and agent._stream_ollama_raw
+    """
     try:
         r = req.post(
             f"{ollama_host}/api/chat",
@@ -231,6 +235,9 @@ def handle_post(handler, strat, auth, path) -> bool:
 
         if not content:
             error_response(handler, "Message content required", 400)
+            return True
+        if len(content) > MAX_MESSAGE_LENGTH:
+            error_response(handler, f"Message too long (max {MAX_MESSAGE_LENGTH} chars)", 400)
             return True
         if not session_id:
             session_id = f"rp-{uuid.uuid4().hex[:12]}"
@@ -424,6 +431,9 @@ def handle_post(handler, strat, auth, path) -> bool:
         if not message_id or not edited_content:
             error_response(handler, "message_id and edited_content required", 400)
             return True
+        if len(edited_content) > MAX_MESSAGE_LENGTH:
+            error_response(handler, f"Edited content too long (max {MAX_MESSAGE_LENGTH} chars)", 400)
+            return True
 
         # Get original message
         row = db.conn.execute("SELECT * FROM rp_messages WHERE id = ?", (message_id,)).fetchone()
@@ -457,6 +467,9 @@ def handle_post(handler, strat, auth, path) -> bool:
 
         if not session_id or at_turn is None or not edited_content:
             error_response(handler, "session_id, at_turn, and content required", 400)
+            return True
+        if len(edited_content) > MAX_MESSAGE_LENGTH:
+            error_response(handler, f"Content too long (max {MAX_MESSAGE_LENGTH} chars)", 400)
             return True
 
         new_branch_id = f"branch_{uuid.uuid4().hex[:8]}"
@@ -519,6 +532,9 @@ def handle_post(handler, strat, auth, path) -> bool:
 
         if not session_id:
             error_response(handler, "session_id required", 400)
+            return True
+        if len(note_text) > 2000:
+            error_response(handler, "Director note too long (max 2000 chars)", 400)
             return True
 
         # Store the note — the chat endpoint reads it from the request, not from DB

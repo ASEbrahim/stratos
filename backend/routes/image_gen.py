@@ -42,6 +42,7 @@ OUTPUT_DIR = Path(__file__).parent.parent / "data" / "generated_images"
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
 DEFAULT_NEGATIVE = "worst quality, low quality, blurry, watermark, text, signature"
+MAX_PROMPT_LENGTH = 2000
 
 
 def _load_workflow(name: str) -> dict:
@@ -85,7 +86,8 @@ def _poll_result(prompt_id: str, timeout: int = 120) -> str | None:
                             for img in node_output["images"]:
                                 return img.get("filename")
             time.sleep(1)
-        except Exception:
+        except Exception as e:
+            logger.warning(f"Poll result error (retrying): {e}")
             time.sleep(2)
     return None
 
@@ -191,12 +193,17 @@ def handle_post(handler, strat, auth, path) -> bool:
         if not prompt:
             error_response(handler, "Prompt required", 400)
             return True
+        if len(prompt) > MAX_PROMPT_LENGTH:
+            error_response(handler, f"Prompt too long (max {MAX_PROMPT_LENGTH} chars)", 400)
+            return True
 
         width = min(max(data.get("width", 1024), 512), 1536)
         height = min(max(data.get("height", 1024), 512), 1536)
         seed = data.get("seed", -1)
-        steps = data.get("steps", 8)
+        steps = min(max(data.get("steps", 8), 1), 50)
         negative = data.get("negative_prompt", "")
+        if len(negative) > MAX_PROMPT_LENGTH:
+            negative = negative[:MAX_PROMPT_LENGTH]
 
         result = generate_image(prompt, negative, width, height, seed, steps)
 
@@ -267,10 +274,15 @@ def handle_get(handler, strat, auth, path) -> bool:
     parts = path.split("/")
     if len(parts) == 4:
         image_id = parts[3]
+        # Path traversal protection: only allow alphanumeric IDs
+        if not image_id.isalnum():
+            error_response(handler, "Invalid image ID", 400)
+            return True
         matches = list(OUTPUT_DIR.glob(f"{image_id}.*"))
+        # Verify resolved path is inside OUTPUT_DIR
+        matches = [m for m in matches if m.resolve().parent == OUTPUT_DIR.resolve()]
         if not matches:
-            handler.send_response(404)
-            handler.end_headers()
+            error_response(handler, "Image not found", 404)
             return True
 
         filepath = matches[0]
@@ -298,6 +310,10 @@ def handle_delete(handler, strat, auth, path) -> bool:
     parts = path.split("/")
     if len(parts) == 4:
         image_id = parts[3]
+        # Path traversal protection
+        if not image_id.isalnum():
+            error_response(handler, "Invalid image ID", 400)
+            return True
         # Verify image exists
         row = strat.db.conn.execute(
             "SELECT profile_id FROM generated_images WHERE id = ?", (image_id,)

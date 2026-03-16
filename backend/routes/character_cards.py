@@ -25,6 +25,10 @@ from routes.helpers import json_response, error_response, read_json_body
 
 logger = logging.getLogger("character_cards")
 
+MAX_CARD_NAME_LENGTH = 200
+MAX_CARD_FIELD_LENGTH = 5000
+MAX_TAVERN_IMPORT_BYTES = 20 * 1024 * 1024  # 20MB
+
 
 # ═══════════════════════════════════════════════════════════
 # TavernCard V2 Parser
@@ -52,8 +56,8 @@ def parse_tavern_card_v2(png_bytes: bytes) -> dict | None:
                     try:
                         decoded = base64.b64decode(value)
                         return json.loads(decoded)
-                    except Exception:
-                        pass
+                    except Exception as e:
+                        logger.warning(f"Failed to decode TavernCard chara data: {e}")
 
         if chunk_type == 'IEND':
             break
@@ -119,6 +123,16 @@ def handle_post(handler, strat, auth, path) -> bool:
         if not name:
             error_response(handler, "Name required", 400)
             return True
+        if len(name) > MAX_CARD_NAME_LENGTH:
+            error_response(handler, f"Name too long (max {MAX_CARD_NAME_LENGTH} chars)", 400)
+            return True
+        for field_name in ['physical_description', 'personality', 'scenario',
+                           'first_message', 'example_dialogues', 'speech_pattern',
+                           'emotional_trigger', 'defensive_mechanism', 'vulnerability',
+                           'specific_detail']:
+            if len(data.get(field_name, "")) > MAX_CARD_FIELD_LENGTH:
+                error_response(handler, f"{field_name} too long (max {MAX_CARD_FIELD_LENGTH} chars)", 400)
+                return True
 
         card_id = uuid.uuid4().hex[:16]
         quality = calculate_quality_elements(data)
@@ -149,6 +163,9 @@ def handle_post(handler, strat, auth, path) -> bool:
         content_length = int(handler.headers.get('Content-Length', 0))
         if content_length == 0:
             error_response(handler, "No file data", 400)
+            return True
+        if content_length > MAX_TAVERN_IMPORT_BYTES:
+            error_response(handler, f"File too large (max {MAX_TAVERN_IMPORT_BYTES // (1024*1024)}MB)", 400)
             return True
 
         png_bytes = handler.rfile.read(content_length)
@@ -242,8 +259,8 @@ def handle_get(handler, strat, auth, path) -> bool:
         qs = parse_qs(urlparse(handler.path).query)
         genre = qs.get("genre", [None])[0]
         sort = qs.get("sort", ["trending"])[0]
-        limit = int(qs.get("limit", ["20"])[0])
-        offset = int(qs.get("offset", ["0"])[0])
+        limit = min(int(qs.get("limit", ["20"])[0]), 100)
+        offset = max(int(qs.get("offset", ["0"])[0]), 0)
         cards = db.get_published_cards(genre=genre, sort=sort, limit=limit, offset=offset)
         json_response(handler, {"cards": cards})
         return True

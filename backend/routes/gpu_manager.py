@@ -27,7 +27,7 @@ def _ollama_running() -> bool:
         r = requests.get(f"{OLLAMA_HOST}/api/tags", timeout=2)
         return r.status_code == 200
     except Exception:
-        return False
+        return False  # Connection refused is expected when not running
 
 
 def _comfyui_running() -> bool:
@@ -35,7 +35,7 @@ def _comfyui_running() -> bool:
         r = requests.get(f"{COMFYUI_HOST}/system_stats", timeout=2)
         return r.status_code == 200
     except Exception:
-        return False
+        return False  # Connection refused is expected when not running
 
 
 def _unload_ollama_models():
@@ -62,8 +62,8 @@ def _stop_ollama():
     # Kill the process (no systemctl — avoids polkit auth popup)
     try:
         subprocess.run(["pkill", "-f", "ollama serve"], timeout=5, capture_output=True)
-    except Exception:
-        pass
+    except Exception as e:
+        logger.warning(f"pkill ollama failed (non-fatal): {e}")
     # Wait for VRAM to free
     time.sleep(2)
     logger.info("Ollama stopped")
@@ -106,17 +106,18 @@ def _stop_comfyui():
     logger.info("Stopping ComfyUI...")
     try:
         subprocess.run(["pkill", "-f", "ComfyUI/main.py"], timeout=5, capture_output=True)
-    except Exception:
-        pass
+    except Exception as e:
+        logger.warning(f"pkill ComfyUI failed (non-fatal): {e}")
     if _comfyui_process:
         try:
             _comfyui_process.terminate()
             _comfyui_process.wait(timeout=5)
-        except Exception:
+        except Exception as e:
+            logger.warning(f"ComfyUI terminate failed, force killing: {e}")
             try:
                 _comfyui_process.kill()
-            except Exception:
-                pass
+            except Exception as e2:
+                logger.warning(f"ComfyUI kill also failed: {e2}")
         _comfyui_process = None
     time.sleep(3)
     logger.info("ComfyUI stopped")
@@ -129,11 +130,12 @@ def _start_comfyui():
         return True
     logger.info("Starting ComfyUI...")
     try:
+        _comfyui_log = open("/tmp/comfyui.log", "w")
         _comfyui_process = subprocess.Popen(
             ["python3", "main.py", "--listen", "127.0.0.1", "--port", "8188",
              "--preview-method", "auto"],
             cwd=COMFYUI_DIR,
-            stdout=open("/tmp/comfyui.log", "w"), stderr=subprocess.STDOUT,
+            stdout=_comfyui_log, stderr=subprocess.STDOUT,
         )
     except Exception as e:
         logger.error(f"Failed to start ComfyUI: {e}")

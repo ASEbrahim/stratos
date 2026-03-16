@@ -130,7 +130,8 @@ def extract_facts(session_id: str, user_msg: str, ai_response: str,
         # Build combined text of recent exchanges
         combined_user = " ".join(m["content"] for m in recent if m["role"] == "user")
         combined_ai = " ".join(m["content"][:200] for m in recent if m["role"] == "assistant")
-    except Exception:
+    except Exception as e:
+        logger.warning(f"Failed to fetch recent messages for LLM extraction: {e}")
         combined_user = user_msg
         combined_ai = ai_response
 
