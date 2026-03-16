@@ -4,6 +4,9 @@ import { getToken, getDeviceId } from './api';
 import { ChatMessage, CharacterCard, Suggestion } from './types';
 import { MOCK_SUGGESTIONS, generateId } from './mock';
 
+// Formatting hint injected for cards missing speech_pattern
+const FORMAT_HINT = '[Format: Use *asterisks* for actions/narration and "quotes" for dialogue. Match response length to input length — short messages get short replies.]';
+
 export async function streamMessage(
   sessionId: string, message: string, persona: 'roleplay' | 'gaming',
   characterCard: CharacterCard | null,
@@ -16,6 +19,9 @@ export async function streamMessage(
   try {
     const token = await getToken();
     const deviceId = await getDeviceId();
+    // Inject formatting hint for cards without speech_pattern
+    const needsHint = persona === 'roleplay' && characterCard && !characterCard.speech_pattern?.trim();
+    const content = needsHint ? `${message}\n\n${FORMAT_HINT}` : message;
     const response = await fetch(`${API_BASE}/api/rp/chat`, {
       method: 'POST',
       headers: {
@@ -24,7 +30,7 @@ export async function streamMessage(
         ...(token ? { 'X-Auth-Token': token } : {}),
       },
       body: JSON.stringify({
-        content: message,
+        content,
         persona,
         session_id: sessionId,
         character_card_id: characterCard?.id || undefined,

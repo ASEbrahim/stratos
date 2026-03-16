@@ -6,6 +6,21 @@ import { MOCK_CHARACTERS, generateId } from './mock';
 
 let mockLibrary: CharacterCard[] = [];
 
+// Default formatting instructions for cards that don't specify speech_pattern
+const DEFAULT_SPEECH_PATTERN = 'Use *asterisks* for actions/narration and "quotes" for dialogue. Mix prose with action beats. Match response length to the user\'s message length — short inputs get short replies.';
+
+/**
+ * Auto-fill empty advanced fields with sensible defaults.
+ * Called before saving so even simple cards get proper RP formatting.
+ */
+export function fillCardDefaults(data: CharacterCardCreate): CharacterCardCreate {
+  const filled = { ...data };
+  if (!filled.speech_pattern?.trim()) {
+    filled.speech_pattern = DEFAULT_SPEECH_PATTERN;
+  }
+  return filled;
+}
+
 export async function getTrendingCharacters(): Promise<CharacterCard[]> {
   if (USE_MOCKS) {
     await new Promise(r => setTimeout(r, 400));
@@ -74,10 +89,11 @@ export async function getCharacter(id: string): Promise<CharacterCard | null> {
 }
 
 export async function createCharacter(data: CharacterCardCreate): Promise<CharacterCard> {
+  const filled = fillCardDefaults(data);
   if (USE_MOCKS) {
     await new Promise(r => setTimeout(r, 500));
     const card: CharacterCard = {
-      ...data, id: generateId(), creator_id: 'user-1', creator_name: 'You',
+      ...filled, id: generateId(), creator_id: 'user-1', creator_name: 'You',
       is_public: false, session_count: 0, rating: 0, rating_count: 0,
       created_at: new Date().toISOString(), updated_at: new Date().toISOString(),
     };
@@ -88,12 +104,12 @@ export async function createCharacter(data: CharacterCardCreate): Promise<Charac
     const result = await apiFetch<{ ok: boolean; card_id: string }>('/api/cards', {
       method: 'POST',
       body: JSON.stringify({
-        name: data.name, physical_description: data.physical_description,
-        speech_pattern: data.speech_pattern, emotional_trigger: data.emotional_trigger,
-        defensive_mechanism: data.defensive_mechanism, vulnerability: data.vulnerability,
-        specific_detail: data.specific_detail, personality: data.personality,
-        scenario: data.scenario, first_message: data.first_message,
-        genre_tags: data.genre_tags, content_rating: data.content_rating,
+        name: filled.name, physical_description: filled.physical_description,
+        speech_pattern: filled.speech_pattern, emotional_trigger: filled.emotional_trigger,
+        defensive_mechanism: filled.defensive_mechanism, vulnerability: filled.vulnerability,
+        specific_detail: filled.specific_detail, personality: filled.personality,
+        scenario: filled.scenario, first_message: filled.first_message,
+        genre_tags: filled.genre_tags, content_rating: filled.content_rating,
       }),
     });
     const card = await getCharacter(result.card_id);
