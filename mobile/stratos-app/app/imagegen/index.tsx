@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, TextInput, ScrollView, TouchableOpacity, StyleSheet, ActivityIndicator, Alert, Dimensions, Platform } from 'react-native';
+import { View, Text, TextInput, ScrollView, TouchableOpacity, StyleSheet, ActivityIndicator, Alert, Dimensions, Platform, Share } from 'react-native';
 import { Image } from 'expo-image';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -75,7 +75,7 @@ export default function ImageGenScreen() {
   }, []);
 
   useEffect(() => {
-    if (showGallery && gallery.length === 0) loadGallery();
+    if (showGallery) loadGallery();
   }, [showGallery]);
 
   const randomSeed = () => {
@@ -128,40 +128,44 @@ export default function ImageGenScreen() {
     }
   };
 
-  const handleSaveToDevice = useCallback(() => {
+  const handleSaveToDevice = useCallback(async () => {
     if (!imageId) return;
     const uri = getImageUrl(imageId);
     if (Platform.OS === 'web') {
-      // Synchronous — must be in direct click handler to avoid popup blocker
-      const w = window.open(uri, '_blank');
-      if (!w) {
-        // Popup blocked — navigate directly
-        window.location.assign(uri);
+      // Share API works on modern browsers and Expo web
+      try {
+        await Share.share({ message: uri, title: 'Save Image' });
+      } catch {
+        // Fallback: copy URL to clipboard
+        try {
+          await navigator.clipboard.writeText(uri);
+          Alert.alert('Link Copied', 'Image URL copied to clipboard. Paste in browser to save.');
+        } catch {
+          Alert.alert('Image URL', uri);
+        }
       }
       return;
     }
-    // Native path (async)
-    (async () => {
-      setSaving(true);
-      try {
-        const { cacheDirectory, downloadAsync } = await import('expo-file-system/legacy');
-        const MediaLibrary = await import('expo-media-library');
-        const { status } = await MediaLibrary.requestPermissionsAsync();
-        if (status !== 'granted') {
-          Alert.alert('Permission needed', 'Allow photo library access to save images.');
-          setSaving(false);
-          return;
-        }
-        const fileUri = cacheDirectory + `stratos_${imageId}.png`;
-        const download = await downloadAsync(uri, fileUri);
-        await MediaLibrary.saveToLibraryAsync(download.uri);
-        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-        Alert.alert('Saved', 'Image saved to your photo library.');
-      } catch {
-        Alert.alert('Error', 'Failed to save image.');
+    // Native path
+    setSaving(true);
+    try {
+      const { cacheDirectory, downloadAsync } = await import('expo-file-system/legacy');
+      const MediaLibrary = await import('expo-media-library');
+      const { status } = await MediaLibrary.requestPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('Permission needed', 'Allow photo library access to save images.');
+        setSaving(false);
+        return;
       }
-      setSaving(false);
-    })();
+      const fileUri = cacheDirectory + `stratos_${imageId}.png`;
+      const download = await downloadAsync(uri, fileUri);
+      await MediaLibrary.saveToLibraryAsync(download.uri);
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      Alert.alert('Saved', 'Image saved to your photo library.');
+    } catch {
+      Alert.alert('Error', 'Failed to save image.');
+    }
+    setSaving(false);
   }, [imageId]);
 
   const handleSetAsAvatar = async () => {
