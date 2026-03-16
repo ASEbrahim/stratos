@@ -34,13 +34,13 @@
     "inputs": {
       "model": ["1", 0],
       "positive": ["3", 0],
-      "negative": ["3", 0],
+      "negative": ["9", 0],
       "latent_image": ["4", 0],
       "seed": 0,
-      "steps": 4,
-      "cfg": 1.0,
+      "steps": 28,
+      "cfg": 4.0,
       "sampler_name": "euler",
-      "scheduler": "simple",
+      "scheduler": "beta",
       "denoise": 1.0
     }
   },
@@ -62,6 +62,13 @@
     "inputs": {
       "images": ["7", 0],
       "filename_prefix": "stratos_chroma"
+    }
+  },
+  "9": {
+    "class_type": "CLIPTextEncode",
+    "inputs": {
+      "text": "low quality, ugly, unfinished, out of focus, deformed, disfigured, blurry, smudged, bad anatomy, extra digits, missing digits, extra limbs, missing limbs",
+      "clip": ["2", 0]
     }
   }
 }

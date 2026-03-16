@@ -123,7 +123,7 @@ def character_to_image_prompt(card: dict, style: str = "anime") -> str:
 
 def generate_image(prompt: str, negative_prompt: str = "",
                    width: int = 1024, height: int = 1024, seed: int = -1,
-                   steps: int = 4) -> dict:
+                   steps: int = 28) -> dict:
     """Generate an image via CHROMA through ComfyUI. Auto-swaps GPU from Ollama if needed."""
 
     # Ensure ComfyUI is running (swaps from Ollama if needed)
@@ -134,12 +134,13 @@ def generate_image(prompt: str, negative_prompt: str = "",
     negative_prompt = negative_prompt or DEFAULT_NEGATIVE
 
     # Inject params into workflow
-    workflow["3"]["inputs"]["text"] = prompt               # CLIPTextEncode
+    workflow["3"]["inputs"]["text"] = prompt               # CLIPTextEncode (positive)
+    workflow["9"]["inputs"]["text"] = negative_prompt      # CLIPTextEncode (negative)
     workflow["4"]["inputs"]["width"] = width                # EmptySD3LatentImage
     workflow["4"]["inputs"]["height"] = height
     workflow["5"]["inputs"]["seed"] = seed if seed >= 0 else int(time.time()) % 2**32
     workflow["5"]["inputs"]["steps"] = steps                # KSampler
-    workflow["5"]["inputs"]["cfg"] = 1.0                     # Schnell-based: guidance baked in
+    workflow["5"]["inputs"]["cfg"] = 4.0                    # CHROMA supports real CFG (3.0-5.0)
 
     prompt_id = _queue_prompt(workflow)
     if not prompt_id:

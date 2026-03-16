@@ -181,7 +181,7 @@ export default function ImageGenScreen() {
         {/* CHROMA model badge */}
         <View style={[styles.modelBadge, { backgroundColor: tc.accent.primary + '12', borderColor: tc.accent.primary + '30' }]}>
           <Wand2 size={12} color={tc.accent.primary} />
-          <Text style={[styles.modelText, { color: tc.accent.primary }]}>CHROMA · 4-step · ~5-30s</Text>
+          <Text style={[styles.modelText, { color: tc.accent.primary }]}>CHROMA · 28-step · ~30-60s</Text>
         </View>
 
         {/* Prompt input */}
