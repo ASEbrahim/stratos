@@ -224,8 +224,9 @@ class ArticleScraper:
             for future in as_completed(futures, timeout=global_timeout):
                 try:
                     future.result(timeout=1)
-                except Exception:
-                    pass
+                except Exception as e:
+                    failed_item = futures[future]
+                    logger.debug(f"Scrape failed for {getattr(failed_item, 'url', '?')}: {e}")
                 completed += 1
                 if completed % 25 == 0:
                     logger.info(f"Scraped {completed}/{len(items)} articles...")
@@ -378,8 +379,9 @@ class RSSFetcher:
                 try:
                     feed_items = future.result(timeout=1)
                     items.extend(feed_items)
-                except Exception:
-                    pass
+                except Exception as e:
+                    failed_feed = futures[future]
+                    logger.warning(f"RSS feed '{failed_feed.get('name', '?')}' raised: {e}")
                 completed_feeds += 1
         except TimeoutError:
             failed = [f.get('name', '?') for fut, f in futures.items() if not fut.done()]
@@ -398,7 +400,16 @@ class RSSFetcher:
         name = feed_config.get("name", "RSS Feed")
         root = feed_config.get("root", "global")
         category = feed_config.get("category", "general")
-        
+
+        # Validate URL before fetching
+        if not url or not url.startswith(('http://', 'https://')):
+            logger.warning(f"Invalid RSS feed URL for {name}: {url!r}")
+            return []
+        parsed = urlparse(url)
+        if not parsed.hostname:
+            logger.warning(f"RSS feed URL missing hostname for {name}: {url!r}")
+            return []
+
         # Fetch with requests (has timeout), then parse the response
         ua = random.choice(self.USER_AGENTS)
         try:
@@ -420,13 +431,13 @@ class RSSFetcher:
             if hasattr(entry, "published_parsed") and entry.published_parsed:
                 try:
                     timestamp = datetime(*entry.published_parsed[:6]).isoformat()
-                except Exception:
-                    pass
+                except (ValueError, TypeError, OverflowError) as e:
+                    logger.debug(f"Bad published_parsed in {name}: {e}")
             elif hasattr(entry, "updated_parsed") and entry.updated_parsed:
                 try:
                     timestamp = datetime(*entry.updated_parsed[:6]).isoformat()
-                except Exception:
-                    pass
+                except (ValueError, TypeError, OverflowError) as e:
+                    logger.debug(f"Bad updated_parsed in {name}: {e}")
             
             # Extract summary
             summary = ""

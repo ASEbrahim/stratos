@@ -12,6 +12,8 @@ Get your API key at: https://serper.dev
 import logging
 import json
 import time
+import tempfile
+import os
 import requests
 import threading
 from pathlib import Path
@@ -64,14 +66,30 @@ class SerperQueryTracker:
         self._save()
 
     def _save(self):
-        """Save tracker to file."""
+        """Save tracker to file atomically (write to temp, then rename)."""
         try:
-            with open(self.tracker_file, 'w') as f:
-                json.dump({
-                    'total_count': self.total_count,
-                    'daily_counts': self.daily_counts,
-                    'last_queries': self.last_queries[-200:]  # Keep last 200 for dedup + debugging
-                }, f, indent=2)
+            data = json.dumps({
+                'total_count': self.total_count,
+                'daily_counts': self.daily_counts,
+                'last_queries': self.last_queries[-200:]  # Keep last 200 for dedup + debugging
+            }, indent=2)
+            # Atomic write: write to temp file in same dir, then rename
+            fd, tmp_path = tempfile.mkstemp(
+                dir=str(self.tracker_file.parent),
+                suffix='.tmp',
+                prefix='serper_tracker_'
+            )
+            try:
+                with os.fdopen(fd, 'w') as f:
+                    f.write(data)
+                os.replace(tmp_path, str(self.tracker_file))
+            except BaseException:
+                # Clean up temp file on failure
+                try:
+                    os.unlink(tmp_path)
+                except OSError:
+                    pass
+                raise
         except Exception as e:
             logger.warning(f"Failed to save Serper query tracker: {e}")
 
@@ -102,16 +120,18 @@ class SerperQueryTracker:
         """Check if this query was already sent within the given time window."""
         with self._lock:
             self._load()
+            # Snapshot under lock so iteration is thread-safe
+            queries_snapshot = list(self.last_queries)
         q_normalized = query.strip().lower()[:100]
         cutoff = datetime.now() - __import__('datetime').timedelta(minutes=window_minutes)
-        for entry in self.last_queries:
+        for entry in queries_snapshot:
             if entry.get('query', '').strip().lower() == q_normalized:
                 try:
                     t = datetime.fromisoformat(entry['time'])
                     if t >= cutoff:
                         return True
                 except (ValueError, KeyError):
-                    pass
+                    logger.debug(f"Bad timestamp in query tracker entry: {entry}")
         return False
 
     def get_status(self) -> Dict[str, Any]:
@@ -142,11 +162,12 @@ class SerperQueryTracker:
         logger.info("Serper query tracker reset")
 
     def set_remaining(self, remaining: int):
-        """Set remaining credits (syncs from Serper dashboard)."""
-        self._load()
-        # Calculate used from remaining
-        self.total_count = max(0, SERPER_FREE_LIMIT - remaining)
-        self._save()
+        """Set remaining credits (syncs from Serper dashboard). Thread-safe."""
+        with self._lock:
+            self._load()
+            # Calculate used from remaining
+            self.total_count = max(0, SERPER_FREE_LIMIT - remaining)
+            self._save()
         logger.info(f"Serper tracker synced: {remaining} remaining ({self.total_count} used)")
 
 

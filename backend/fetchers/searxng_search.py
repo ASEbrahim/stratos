@@ -12,6 +12,7 @@ import logging
 import time
 import threading
 import requests
+from urllib.parse import urlparse
 from typing import List, Dict, Any, Optional
 
 logger = logging.getLogger(__name__)
@@ -25,6 +26,11 @@ class SearXNGSearchClient:
 
     def __init__(self, host: str = "http://localhost:8888"):
         self.host = host.rstrip("/")
+        # Validate host URL
+        parsed = urlparse(self.host)
+        if parsed.scheme not in ('http', 'https') or not parsed.hostname:
+            logger.warning(f"Invalid SearXNG host URL: {self.host!r}")
+            self.host = "http://localhost:8888"
         self._throttle_lock = threading.Lock()
         self._last_request_time = 0.0
         self._session = requests.Session()
@@ -113,7 +119,8 @@ class SearXNGSearchClient:
         try:
             resp = self._session.get(f"{self.host}/", timeout=5)
             return resp.status_code == 200
-        except Exception:
+        except Exception as e:
+            logger.debug(f"SearXNG availability check failed for {self.host}: {e}")
             return False
 
 
