@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Alert, Share } from 'react-native';
 import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
@@ -23,10 +23,11 @@ export function CharacterDetailView({ card }: CharacterDetailProps) {
   const router = useRouter();
   const tc = useThemeStore(s => s.colors);
   const { startSession } = useChatStore();
-  const { saveToLibrary, removeFromLibrary } = useCharacterStore();
+  const { saveToLibrary, removeFromLibrary, newCards } = useCharacterStore();
   const [saved, setSaved] = useState(false);
   const [showDepth, setShowDepth] = useState(false);
   const accentColor = getGenreColor(card.genre_tags[0] ?? 'default');
+  const similarCards = useMemo(() => newCards.filter(c => c.id !== card.id && c.genre_tags.some(t => card.genre_tags.includes(t))).slice(0, 3), [newCards, card.id, card.genre_tags]);
   const btnScale = useSharedValue(1);
   const btnAnimStyle = useAnimatedStyle(() => ({ transform: [{ scale: btnScale.value }] }));
   const ctaPulse = useSharedValue(1);
@@ -185,32 +186,25 @@ export function CharacterDetailView({ card }: CharacterDetailProps) {
       )}
 
       {/* Similar Characters */}
-      {(() => {
-        const { newCards } = useCharacterStore.getState();
-        const similar = newCards
-          .filter(c => c.id !== card.id && c.genre_tags.some(t => card.genre_tags.includes(t)))
-          .slice(0, 3);
-        if (similar.length === 0) return null;
-        return (
-          <View style={[styles.section, { marginTop: spacing.lg }]}>
-            <Text style={[styles.sectionTitle, { color: tc.text.primary }]}>Similar Characters</Text>
-            <View style={styles.similarRow}>
-              {similar.map(c => {
-                const gc = getGenreColor(c.genre_tags[0] ?? 'default');
-                return (
-                  <TouchableOpacity key={c.id} style={styles.similarCard} onPress={() => router.push(`/character/${c.id}`)} activeOpacity={0.7} accessibilityLabel={`View similar character ${c.name}`} accessibilityRole="button">
-                    <View style={[styles.similarAvatar, { backgroundColor: gc + '15' }]}>
-                      <Text style={[styles.similarLetter, { color: gc }]}>{c.name[0]}</Text>
-                    </View>
-                    <Text style={[styles.similarName, { color: tc.text.primary }]} numberOfLines={1}>{c.name}</Text>
-                    <Text style={[styles.similarGenre, { color: gc }]}>{c.genre_tags[0]}</Text>
-                  </TouchableOpacity>
-                );
-              })}
-            </View>
+      {similarCards.length > 0 && (
+        <View style={[styles.section, { marginTop: spacing.lg }]}>
+          <Text style={[styles.sectionTitle, { color: tc.text.primary }]}>Similar Characters</Text>
+          <View style={styles.similarRow}>
+            {similarCards.map(c => {
+              const gc = getGenreColor(c.genre_tags[0] ?? 'default');
+              return (
+                <TouchableOpacity key={c.id} style={styles.similarCard} onPress={() => router.push(`/character/${c.id}`)} activeOpacity={0.7} accessibilityLabel={`View similar character ${c.name}`} accessibilityRole="button">
+                  <View style={[styles.similarAvatar, { backgroundColor: gc + '15' }]}>
+                    <Text style={[styles.similarLetter, { color: gc }]}>{c.name[0]}</Text>
+                  </View>
+                  <Text style={[styles.similarName, { color: tc.text.primary }]} numberOfLines={1}>{c.name}</Text>
+                  <Text style={[styles.similarGenre, { color: gc }]}>{c.genre_tags[0]}</Text>
+                </TouchableOpacity>
+              );
+            })}
           </View>
-        );
-      })()}
+        </View>
+      )}
       <TouchableOpacity style={styles.reportBtn} onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); Alert.alert('Report Character', 'Report this character for inappropriate content?', [{ text: 'Cancel', style: 'cancel' }, { text: 'Report', style: 'destructive', onPress: () => Alert.alert('Reported', 'Thank you for your report. We will review this character.') }]); }} activeOpacity={0.7} accessibilityLabel={`Report ${card.name}`} accessibilityRole="button">
         <Flag size={12} color={tc.text.muted} />
         <Text style={[styles.reportText, { color: tc.text.muted }]}>Report Character</Text>

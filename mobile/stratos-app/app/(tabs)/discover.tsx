@@ -25,7 +25,7 @@ export default function DiscoverScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const { colors: tc, themeId, setTheme } = useThemeStore();
-  const { trending, newCards, selectedGenre, isLoading, loadTrending, loadNew, setGenre, search } = useCharacterStore();
+  const { trending, newCards, selectedGenre, searchResults, isLoading, loadTrending, loadNew, setGenre, search } = useCharacterStore();
   const { recentSessions, loadRecentSessions, resumeSession } = useChatStore();
   const [scenarios, setScenarios] = useState<GamingScenario[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -53,7 +53,7 @@ export default function DiscoverScreen() {
     else if (sortBy === 'rating') sorted.sort((a, b) => b.rating - a.rating);
     return sorted;
   };
-  const displayCards = sortCards(filterNsfw(searchQuery.trim() ? useCharacterStore.getState().searchResults : (selectedGenre ? newCards.filter(c => c.genre_tags.includes(selectedGenre)) : newCards)));
+  const displayCards = sortCards(filterNsfw(searchQuery.trim() ? searchResults : (selectedGenre ? newCards.filter(c => c.genre_tags.includes(selectedGenre)) : newCards)));
 
   return (
     <View style={[styles.container, { paddingTop: insets.top, backgroundColor: tc.bg.primary }]}>

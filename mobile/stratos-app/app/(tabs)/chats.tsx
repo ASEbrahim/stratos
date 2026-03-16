@@ -18,7 +18,7 @@ export default function ChatsScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const tc = useThemeStore(s => s.colors);
-  const { recentSessions, loadRecentSessions, resumeSession } = useChatStore();
+  const { recentSessions, loadRecentSessions, resumeSession, sessionId: activeSessionId, character: activeCharacter } = useChatStore();
   const [refreshing, setRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -164,17 +164,17 @@ export default function ChatsScreen() {
           keyboardDismissMode="on-drag"
         >
           {/* Pinned / Active session indicator */}
-          {useChatStore.getState().sessionId && useChatStore.getState().character && (
+          {activeSessionId && activeCharacter && (
             <TouchableOpacity
               style={[styles.activeSession, { backgroundColor: tc.accent.primary + '10', borderColor: tc.accent.primary + '30' }]}
-              onPress={() => router.push(`/chat/${useChatStore.getState().character!.id}`)}
+              onPress={() => router.push(`/chat/${activeCharacter.id}`)}
               activeOpacity={0.7}
-              accessibilityLabel={`Continue active chat with ${useChatStore.getState().character!.name}`}
+              accessibilityLabel={`Continue active chat with ${activeCharacter.name}`}
               accessibilityRole="button"
             >
               <View style={[styles.activeDot, { backgroundColor: tc.status.success }]} />
               <Text style={[styles.activeText, { color: tc.accent.primary }]}>
-                Continue with {useChatStore.getState().character!.name}
+                Continue with {activeCharacter.name}
               </Text>
               <Text style={[styles.activeArrow, { color: tc.accent.primary }]}>→</Text>
             </TouchableOpacity>
