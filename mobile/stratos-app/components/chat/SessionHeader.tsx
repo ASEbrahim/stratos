@@ -16,9 +16,10 @@ interface SessionHeaderProps {
   onNewSession?: () => void;
   onClearHistory?: () => void;
   onExportChat?: () => void;
+  onMenuOpen?: (actions: { text: string; style?: string; onPress?: () => void }[]) => void;
 }
 
-export function SessionHeader({ characterName, accentColor, characterId, isTyping, onNewSession, onClearHistory, onExportChat }: SessionHeaderProps) {
+export function SessionHeader({ characterName, accentColor, characterId, isTyping, onNewSession, onClearHistory, onExportChat, onMenuOpen }: SessionHeaderProps) {
   const router = useRouter();
   const tc = useThemeStore(s => s.colors);
   const color = accentColor ?? tc.accent.primary;
@@ -34,7 +35,11 @@ export function SessionHeader({ characterName, accentColor, characterId, isTypin
     if (onExportChat) actions.push({ text: 'Export Chat', onPress: onExportChat });
     if (onClearHistory) actions.push({ text: 'Clear History', style: 'destructive', onPress: onClearHistory });
     actions.push({ text: 'Cancel', style: 'cancel' });
-    Alert.alert(characterName, undefined, actions);
+    if (onMenuOpen) {
+      onMenuOpen(actions);
+    } else {
+      Alert.alert(characterName, undefined, actions);
+    }
   };
 
   return (

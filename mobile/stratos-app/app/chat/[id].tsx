@@ -4,6 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useFocusEffect } from 'expo-router';
 import * as Haptics from 'expo-haptics';
 import { Pencil } from 'lucide-react-native';
+import { useThemedAlert } from '../../components/shared/ThemedAlert';
 import { useChatStore } from '../../stores/chatStore';
 import { SessionHeader } from '../../components/chat/SessionHeader';
 import { MessageBubble, StreamingBubble } from '../../components/chat/MessageBubble';
@@ -43,6 +44,7 @@ export default function ChatScreen() {
   const [editTarget, setEditTarget] = useState<{ id: string; content: string } | null>(null);
   const [isRegenerating, setIsRegenerating] = useState(false);
   const { showOptIn, dismiss: dismissOptIn } = useTrainingOptInCheck();
+  const { alert: showAlert, AlertComponent } = useThemedAlert();
 
   // Persist session when leaving
   useFocusEffect(useCallback(() => { return () => { persistSession().catch(() => {}); }; }, []));
@@ -85,9 +87,24 @@ export default function ChatScreen() {
     }
   };
 
-  const handleEditSaved = (newContent: string) => {
-    // Update the message in local state (store will handle persistence)
-    if (editTarget) {
+  const handleEditSaved = async (newContent: string) => {
+    if (!editTarget) return;
+    const isUserEdit = (editTarget as any).isUser;
+
+    if (isUserEdit) {
+      // User message edit → replace message and regenerate AI response (creates branch)
+      const store = useChatStore.getState();
+      const idx = store.messages.findIndex(m => m.id === editTarget.id);
+      if (idx >= 0) {
+        // Trim to the edited message, update it, then send for new AI response
+        const trimmed = store.messages.slice(0, idx);
+        const editedMsg: ChatMessage = { ...store.messages[idx], content: newContent };
+        useChatStore.setState({ messages: [...trimmed, editedMsg] });
+        // Send the edited message as if it's new — will generate fresh response
+        await sendMessage(newContent);
+      }
+    } else {
+      // Assistant message edit — update in place (DPO training pair)
       const store = useChatStore.getState();
       const idx = store.messages.findIndex(m => m.id === editTarget.id);
       if (idx >= 0) {
@@ -122,6 +139,13 @@ export default function ChatScreen() {
             .join('\n\n---\n\n');
           Share.share({ message: `Chat with ${character?.name ?? 'Character'} (${messages.length} messages)\n\n` + text });
         } : undefined}
+        onMenuOpen={(actions) => {
+          showAlert(character?.name ?? 'Chat', undefined, actions.map(a => ({
+            text: a.text,
+            style: a.style as any,
+            onPress: a.onPress,
+          })));
+        }}
       />
 
       {/* Branch selector (only visible when multiple branches exist) */}
@@ -144,6 +168,19 @@ export default function ChatScreen() {
                 {/* Seen indicator */}
                 {(isLastUser || isLastUserBeforeAssistant) && !isStreaming && (
                   <Text style={[styles.seenText, { color: tc.text.muted }]}>Seen ✓</Text>
+                )}
+
+                {/* Edit button on USER messages (enables branching) */}
+                {!isAssistant && !isStreaming && index > 0 && (
+                  <View style={[styles.msgActions, { justifyContent: 'flex-end' }]}>
+                    <TouchableOpacity
+                      style={styles.editBtn}
+                      onPress={() => setEditTarget({ id: item.id, content: item.content, isUser: true } as any)}
+                      hitSlop={8}
+                    >
+                      <Pencil size={11} color={tc.text.faint} />
+                    </TouchableOpacity>
+                  </View>
                 )}
 
                 {/* Feedback + Edit + Swipe on assistant messages */}
@@ -240,6 +277,9 @@ export default function ChatScreen() {
           accentColor={accentColor}
         />
       )}
+
+      {/* Themed alert modal */}
+      {AlertComponent}
     </View>
   );
 }
@@ -250,7 +290,7 @@ const styles = StyleSheet.create({
   msgList: { paddingVertical: spacing.md },
   msgActions: { flexDirection: 'row', alignItems: 'center' },
   editBtn: { padding: 4, marginLeft: 4 },
-  scrollFab: { position: 'absolute', right: spacing.lg, bottom: 80, width: 36, height: 36, borderRadius: 18, justifyContent: 'center', alignItems: 'center', borderWidth: 1, zIndex: 10, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.3, shadowRadius: 4, elevation: 4 },
+  scrollFab: { position: 'absolute', right: spacing.lg, bottom: 140, width: 36, height: 36, borderRadius: 18, justifyContent: 'center', alignItems: 'center', borderWidth: 1, zIndex: 10, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.3, shadowRadius: 4, elevation: 4 },
   charIntro: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, marginHorizontal: spacing.lg, marginBottom: spacing.md, padding: spacing.md, borderRadius: 12, borderWidth: 1 },
   charIntroAvatar: { width: 40, height: 40, borderRadius: 20, justifyContent: 'center', alignItems: 'center' },
   charIntroLetter: { fontSize: 18, fontFamily: fonts.heading },
