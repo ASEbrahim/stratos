@@ -69,24 +69,51 @@ export async function clearToken(): Promise<void> {
 
 // ── API client ──
 
+// Retry only GET requests, only on network errors or 502/503/504
+const RETRYABLE_STATUSES = new Set([502, 503, 504]);
+
 export async function apiFetch<T>(
   path: string,
   options: RequestInit = {}
 ): Promise<T> {
   const token = await getToken();
   const deviceId = await getDeviceId();
-  const response = await fetch(`${API_BASE}${path}`, {
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      'X-Device-Id': deviceId,
-      ...(token ? { 'X-Auth-Token': token } : {}),
-      ...options.headers,
-    },
-  });
+  const method = (options.method ?? 'GET').toUpperCase();
+  const isGet = method === 'GET';
+  const url = `${API_BASE.replace(/\/$/, '')}${path.startsWith('/') ? path : `/${path}`}`;
+
+  const doFetch = async (): Promise<Response> => {
+    return fetch(url, {
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Device-Id': deviceId,
+        ...(token ? { 'X-Auth-Token': token } : {}),
+        ...options.headers,
+      },
+    });
+  };
+
+  let response: Response;
+  try {
+    response = await doFetch();
+  } catch (err) {
+    // Network error — retry once for GET requests
+    if (isGet) {
+      await new Promise(r => setTimeout(r, 2000));
+      response = await doFetch();
+    } else {
+      throw err;
+    }
+  }
+
+  // Retry once on 502/503/504 for GET only
+  if (isGet && RETRYABLE_STATUSES.has(response.status)) {
+    await new Promise(r => setTimeout(r, 2000));
+    response = await doFetch();
+  }
 
   if (response.status === 401) {
-    // Don't clear token for anonymous users — 401 just means no auth, not expired
     if (token) await clearToken();
     throw new AuthError('Session expired');
   }

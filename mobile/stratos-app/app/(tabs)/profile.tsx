@@ -22,7 +22,7 @@ export default function ProfileScreen() {
   const { recentSessions, loadRecentSessions, resumeSession } = useChatStore();
   const [stats, setStats] = useState<DetailedStats>({ totalSessions: 0, totalMessages: 0, totalWords: 0, avgSessionLength: 0, favoriteGenre: 'None yet', longestSession: 0, totalCharacters: 0 });
 
-  useEffect(() => { getDetailedStats().then(setStats); loadRecentSessions(); }, []);
+  useEffect(() => { getDetailedStats().then(setStats); }, []);
 
   const handleLogout = () => Alert.alert('Sign Out', 'Are you sure?', [{ text: 'Cancel', style: 'cancel' }, { text: 'Sign Out', style: 'destructive', onPress: async () => { await logout(); router.replace('/(auth)/login'); } }]);
 

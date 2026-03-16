@@ -26,7 +26,7 @@ export default function LibraryScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
-  useEffect(() => { loadMyCards(); loadSaved(); loadRecentSessions(); }, []);
+  useEffect(() => { loadMyCards(); loadSaved(); }, []);
   const onRefresh = useCallback(async () => { setRefreshing(true); await Promise.all([loadMyCards(), loadSaved(), loadRecentSessions()]); setRefreshing(false); }, []);
 
   const handleResumeSession = (session: ChatSession) => {

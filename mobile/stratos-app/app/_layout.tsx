@@ -8,6 +8,7 @@ import { Poppins_300Light, Poppins_400Regular, Poppins_500Medium, Poppins_600Sem
 import { Quicksand_400Regular, Quicksand_500Medium, Quicksand_600SemiBold, Quicksand_700Bold } from '@expo-google-fonts/quicksand';
 import { useAuthStore } from '../stores/authStore';
 import { useThemeStore } from '../stores/themeStore';
+import { useChatStore } from '../stores/chatStore';
 import { LoadingScreen } from '../components/shared/LoadingScreen';
 import { ErrorBoundary } from '../components/shared/ErrorBoundary';
 import { OfflineBanner } from '../components/shared/OfflineBanner';
@@ -22,7 +23,7 @@ export default function RootLayout() {
     Quicksand_400Regular, Quicksand_500Medium, Quicksand_600SemiBold, Quicksand_700Bold,
   });
 
-  useEffect(() => { checkAuth(); loadTheme(); }, []);
+  useEffect(() => { checkAuth(); loadTheme(); useChatStore.getState().loadRecentSessions(); }, []);
 
   if (isLoading || !fontsLoaded) return <LoadingScreen />;
   return (

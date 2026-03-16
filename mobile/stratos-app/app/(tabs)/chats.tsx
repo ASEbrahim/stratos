@@ -22,7 +22,7 @@ export default function ChatsScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
-  useEffect(() => { loadRecentSessions(); }, []);
+  // loadRecentSessions called once in root _layout.tsx
   const onRefresh = useCallback(async () => { setRefreshing(true); await loadRecentSessions(); setRefreshing(false); }, []);
 
   const q = searchQuery.toLowerCase().trim();
