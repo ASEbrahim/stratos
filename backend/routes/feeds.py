@@ -49,8 +49,8 @@ def handle_get(handler, strat, auth, path):
                         for _ek in [f"extra_feeds_{feed_type}", f"custom_feeds_{feed_type}"]:
                             if _ek in _ef_overlay:
                                 _ef_config[_ek] = _ef_overlay[_ek]
-                except Exception:
-                    pass
+                except Exception as e:
+                    logger.debug(f"Failed to load feed overlay for {feed_type}: {e}")
             items = fetch_extra_feeds(feed_type, config=_ef_config)
         except Exception as e:
             logger.error(f"Extra feeds ({feed_type}) error: {e}")
@@ -79,8 +79,8 @@ def handle_get(handler, strat, auth, path):
                         _cf_overlay = json.loads(_cf_row[0])
                         if "custom_feeds" in _cf_overlay:
                             _cf_feeds = _cf_overlay["custom_feeds"]
-                except Exception:
-                    pass
+                except Exception as e:
+                    logger.debug(f"Failed to load custom feed overlay: {e}")
             custom_feeds = _cf_feeds
             enabled_feeds = [f for f in custom_feeds if f.get("on", True)]
             if enabled_feeds:
@@ -89,9 +89,15 @@ def handle_get(handler, strat, auth, path):
                 _worker_base = strat.config.get("proxy", {}).get("cloudflare_worker", "")
                 _blocked = strat.config.get("proxy", {}).get("blocked_domains", [])
 
+                from routes.url_validation import validate_url as _validate_feed_url
                 for feed_cfg in enabled_feeds:
                     try:
                         feed_url = feed_cfg["url"]
+                        # SSRF protection: validate custom feed URLs before fetching
+                        _feed_safe, _feed_err = _validate_feed_url(feed_url)
+                        if not _feed_safe:
+                            logger.warning(f"Custom feed SSRF blocked: {_feed_err} — url={feed_url}")
+                            continue
                         feed_domain = urlparse(feed_url).hostname or ""
                         _is_blocked = any(feed_domain == b or feed_domain.endswith("." + b) for b in _blocked)
 
@@ -374,6 +380,15 @@ def handle_post(handler, strat, auth, path):
             _send_json(handler, {"error": "URL required"}, 400)
             return True
         try:
+            # SSRF protection: validate URL scheme and block private/internal IPs
+            # (must run BEFORE any fetch, including YouTube shortcut)
+            from routes.url_validation import validate_url as _disc_validate
+            _disc_safe, _disc_err = _disc_validate(url)
+            if not _disc_safe:
+                logger.warning(f"RSS discovery SSRF blocked (early): {_disc_err} — url={url}")
+                _send_json(handler, {"error": "Blocked URL"}, 403)
+                return True
+
             # YouTube shortcut: detect channel URLs and resolve to RSS
             _yt_match = _re.match(r'https?://(?:www\.)?youtube\.com/(?:@|channel/|c/|user/)([^/?&#]+)', url)
             if _yt_match:
@@ -394,8 +409,8 @@ def handle_post(handler, strat, auth, path):
                             _channel_id = _uc_matches[0] if _uc_matches else None
                         else:
                             _channel_id = None
-                    except Exception:
-                        _channel_id = None
+                    except Exception as e:
+                        logger.debug(f"YouTube channel resolve failed for {url}: {e}")
                         _channel_id = None
 
                 if _channel_id:
@@ -516,7 +531,7 @@ def handle_post(handler, strat, auth, path):
             _send_json(handler, {"feeds": feeds, "source_url": url})
         except Exception as e:
             logger.warning(f"RSS discovery error for {url}: {e}")
-            _send_json(handler, {"feeds": [], "error": str(e)})
+            _send_json(handler, {"feeds": [], "error": "RSS discovery failed"})
         return True
 
     return False

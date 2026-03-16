@@ -122,8 +122,8 @@ def handle_get(handler, strat, auth, path, output_dir=None):
                         em = pd.get("profile", {}).get("email", "")
                         if em:
                             status["email"] = em
-                    except Exception:
-                        pass
+                    except Exception as e:
+                        logger.debug(f"Failed to load avatar from profile YAML: {e}")
                 # DB fallback for avatar (DB-auth users have no YAML) + ui_state for theme sync
                 if _status_pid:
                     ui_state = strat.db.get_ui_state(_status_pid)
@@ -144,8 +144,8 @@ def handle_get(handler, strat, auth, path, output_dir=None):
                             email_row = cursor.fetchone()
                             if email_row and email_row[0]:
                                 status["email"] = email_row[0]
-                        except Exception:
-                            pass
+                        except Exception as e:
+                            logger.debug(f"Failed to fetch email for profile {_status_pid}: {e}")
         handler.wfile.write(json.dumps(status).encode())
         return True
 
@@ -218,8 +218,8 @@ def handle_get(handler, strat, auth, path, output_dir=None):
                             "location": data.get("profile", {}).get("location", ""),
                             "has_pin": False,
                         })
-                except Exception:
-                    pass
+                except Exception as e:
+                    logger.debug(f"Failed to load preset {f}: {e}")
 
         handler.wfile.write(json.dumps({"presets": presets}).encode())
         return True
@@ -559,8 +559,8 @@ def handle_post(handler, strat, auth, path):
                 row = cursor.fetchone()
                 if row:
                     pid = row[0]
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"Failed to resolve profile from beacon token: {e}")
             body.pop('_token', None)
         if body and pid:
             strat.db.save_ui_state(pid, body)
@@ -586,8 +586,8 @@ def handle_post(handler, strat, auth, path):
                     _fb_path = auth.profiles_dir() / f"{auth.safe_name(handler._session_profile)}.yaml"
                     if _fb_path.exists():
                         _fb_profile = yaml.safe_load(_fb_path.read_text()).get("profile", {})
-                except Exception:
-                    pass
+                except Exception as e:
+                    logger.debug(f"Failed to load feedback profile: {e}")
             if not _fb_profile:
                 _fb_profile = strat.config.get("profile", {})
             data["profile_role"] = _fb_profile.get("role", "")
@@ -679,8 +679,8 @@ def handle_post(handler, strat, auth, path):
             try:
                 from fetchers.serper_search import SerperQueryTracker
                 SerperQueryTracker().set_remaining(2500)
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"Failed to reset Serper tracker: {e}")
 
             # Persist to config.yaml
             with open(strat.config_path, "w") as f:
@@ -886,7 +886,15 @@ def handle_post(handler, strat, auth, path):
 
             # Sanitize filename
             safe_name = "".join(c for c in name if c.isalnum() or c in " _-").strip()
+            if not safe_name:
+                safe_name = "preset"
             filepath = user_presets_dir / f"{safe_name}.yaml"
+
+            # Path traversal protection: ensure resolved path stays within presets dir
+            import os as _os
+            if not _os.path.realpath(filepath).startswith(_os.path.realpath(user_presets_dir)):
+                _send_json(handler, {"error": "Invalid preset name"}, 400)
+                return True
 
             if action == "save":
                 # Save current full config as a preset (no security data)

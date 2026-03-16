@@ -95,6 +95,9 @@ def handle_config_save(handler, strat, auth_helpers):
     """POST /api/config — Save configuration changes."""
     try:
         new_config = read_json_body(handler)
+        if not isinstance(new_config, dict):
+            error_response(handler, "Invalid config format", 400)
+            return
         config = strat.config
 
         # Profile (merge, don't replace)
@@ -152,8 +155,8 @@ def handle_config_save(handler, strat, auth_helpers):
                 try:
                     from processors.tts import load_persona_voices_from_config
                     load_persona_voices_from_config(config)
-                except Exception:
-                    pass
+                except Exception as e:
+                    logger.debug(f"Failed to reload TTS persona voices: {e}")
 
         # Dynamic categories — normalize field names (frontend may send label/items or name/keywords)
         if "dynamic_categories" in new_config:

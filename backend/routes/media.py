@@ -73,18 +73,37 @@ def handle_get(handler, strat, auth, path):
                 "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
                 "Referer": urlparse(target_url).scheme + "://" + (urlparse(target_url).hostname or "") + "/",
             }, stream=True)
+
+            # SSRF: re-validate after redirects to prevent redirect-to-internal bypass
+            final_url = resp.url
+            if final_url != fetch_url:
+                from routes.url_validation import validate_url as _redir_validate
+                _redir_safe, _redir_err = _redir_validate(final_url)
+                if not _redir_safe:
+                    resp.close()
+                    logger.warning(f"Proxy SSRF blocked after redirect: {_redir_err} — url={final_url}")
+                    from routes.helpers import error_response
+                    error_response(handler, "Blocked URL (redirect)", 403)
+                    return True
+
             ct = resp.headers.get("Content-Type", "application/octet-stream")
             handler.send_response(resp.status_code)
             handler.send_header("Content-Type", ct)
             handler.send_header("Access-Control-Allow-Origin", "*")
             handler.send_header("Cache-Control", "public, max-age=3600")
             handler.end_headers()
+            _proxy_bytes = 0
+            _PROXY_MAX_BYTES = 50 * 1024 * 1024  # 50MB limit for proxied content
             for chunk in resp.iter_content(8192):
+                _proxy_bytes += len(chunk)
+                if _proxy_bytes > _PROXY_MAX_BYTES:
+                    logger.warning(f"Proxy response too large (>{_PROXY_MAX_BYTES} bytes), truncating: {target_url}")
+                    break
                 handler.wfile.write(chunk)
         except Exception as e:
             logger.warning(f"Proxy error: {e}")
             from routes.helpers import error_response
-            error_response(handler, f"Proxy error: {e}", 502)
+            error_response(handler, "Proxy fetch failed", 502)
         return True
 
     # ── TTS Voice List ─────────────────────────────
@@ -139,6 +158,11 @@ def handle_post(handler, strat, auth, path):
             file_data = handler.rfile.read(content_length)
             # Expect multipart or raw upload with X-Filename header
             filename = handler.headers.get('X-Filename', 'upload.txt')
+
+            # Filename sanitization: strip path separators and null bytes
+            filename = os.path.basename(filename).replace('\x00', '')
+            if not filename or filename.startswith('.'):
+                filename = 'upload.txt'
             persona = handler.headers.get('X-Persona', '')
             fh = FileHandler(strat.config, db=strat.db)
             result = fh.save_file(handler._profile_id, filename, file_data, persona=persona)
@@ -286,10 +310,22 @@ def handle_post(handler, strat, auth, path):
 
             audio_data = handler.rfile.read(content_length)
 
+            # Validate audio format (WAV/OGG/MP3 magic bytes)
+            if not (audio_data[:4] == b'RIFF' or audio_data[:4] == b'OggS' or
+                    audio_data[:3] == b'ID3' or audio_data[:2] == b'\xff\xfb'):
+                _send_json(handler, {"error": "Invalid audio format (expected WAV, OGG, or MP3)"}, 400)
+                return True
+
             voices_dir = os.path.join(os.path.dirname(__file__), '..', 'data', 'tts_voices')
             os.makedirs(voices_dir, exist_ok=True)
 
             voice_path = os.path.join(voices_dir, f"{voice_name}.wav")
+
+            # Path traversal protection
+            if not os.path.realpath(voice_path).startswith(os.path.realpath(voices_dir)):
+                _send_json(handler, {"error": "Invalid voice name"}, 400)
+                return True
+
             with open(voice_path, 'wb') as f:
                 f.write(audio_data)
 

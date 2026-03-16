@@ -117,8 +117,8 @@ def handle_get(handler, strat, auth, path):
                         with open(os.path.join(presets_dir, fname)) as pf:
                             preset = json.load(pf)
                             presets.append({"name": preset.get("name", fname[:-5]), "tickers": preset.get("tickers", [])})
-                    except Exception:
-                        pass
+                    except Exception as e:
+                        logger.debug(f"Failed to load ticker preset {fname}: {e}")
         handler.send_response(200)
         handler.send_header("Content-type", "application/json")
         handler.send_header("Access-Control-Allow-Origin", "*")
@@ -171,8 +171,8 @@ def handle_post(handler, strat, auth, path):
                           json={"model": model, "prompt": "hi", "stream": False,
                                 "options": {"num_predict": 1}},
                           timeout=30)
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug(f"Agent warmup failed: {e}")
         _send_json(handler, {"ok": True})
         return True
 
@@ -196,6 +196,11 @@ def handle_post(handler, strat, auth, path):
             if not safe_name:
                 safe_name = "preset"
             fpath = os.path.join(presets_dir, safe_name + ".json")
+
+            # Path traversal protection: ensure resolved path stays within presets_dir
+            if not os.path.realpath(fpath).startswith(os.path.realpath(presets_dir)):
+                _send_json(handler, {"error": "Invalid preset name"}, 400)
+                return True
 
             if action == 'delete':
                 if os.path.exists(fpath):
