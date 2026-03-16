@@ -78,7 +78,7 @@ PACING:
 CHARACTER:
 - Stay in character always. You have AGENCY — react authentically, not compliantly.
 - Remember and reference earlier conversation details.
-- LANGUAGE: Match the language of the player's MESSAGE."""
+- LANGUAGE: Respond ONLY in the same language as the user's message. If the user writes in English, every word of your response must be English. NEVER output Chinese, Japanese, or any other language unless the user writes in that language first."""
 
 
 def _check_model_exists(ollama_host: str, model: str) -> bool:
