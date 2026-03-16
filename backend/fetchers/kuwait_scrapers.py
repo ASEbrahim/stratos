@@ -15,6 +15,7 @@ PAID:  Serper.dev (2500 free queries), Google Custom Search (100/day free)
 import logging
 from typing import List, Dict, Any, Optional
 from datetime import datetime, timezone
+from urllib.parse import urlparse
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import threading
@@ -47,6 +48,15 @@ except ImportError:
     HAS_SERPER = False
     SerperSearchClient = None
     SerperSearchError = Exception
+
+
+def _is_valid_url(url: str) -> bool:
+    """Validate that a URL has a safe scheme and a hostname."""
+    try:
+        parsed = urlparse(url)
+        return parsed.scheme in ('http', 'https') and bool(parsed.netloc)
+    except Exception:
+        return False
 
 
 def _detect_source(url: str, fallback: str = "Web Search") -> str:
@@ -340,7 +350,7 @@ class KuwaitIntelligenceFetcher:
                 url = r.get('url', '')
                 title = r.get('title', '')
                 snippet = r.get('snippet', '')
-                if not url or not title:
+                if not url or not title or not _is_valid_url(url):
                     continue
                 results.append({
                     "title": title,
@@ -377,7 +387,7 @@ class KuwaitIntelligenceFetcher:
                 url = r.get('url', '')
                 title = r.get('title', '')
                 snippet = r.get('snippet', '')
-                if not url or not title:
+                if not url or not title or not _is_valid_url(url):
                     continue
                 results.append({
                     "title": title,
@@ -487,9 +497,9 @@ class KuwaitIntelligenceFetcher:
             category_items = []
             with ThreadPoolExecutor(max_workers=3) as executor:
                 futures = {executor.submit(_do_query, q): q for q in queries}
-                for future in as_completed(futures):
+                for future in as_completed(futures, timeout=120):
                     try:
-                        results = future.result()
+                        results = future.result(timeout=30)
                         for item in results:
                             with lock:
                                 if item['url'] not in seen_urls:
@@ -528,9 +538,9 @@ class KuwaitIntelligenceFetcher:
             with ThreadPoolExecutor(max_workers=3) as executor:
                 futures = {executor.submit(_do_evergreen, q): q for q in evergreen_queries}
                 evergreen_count = 0
-                for future in as_completed(futures):
+                for future in as_completed(futures, timeout=120):
                     try:
-                        results = future.result()
+                        results = future.result(timeout=30)
                         for item in results:
                             with lock:
                                 if item['url'] not in seen_urls:

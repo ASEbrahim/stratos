@@ -207,8 +207,13 @@ class GoogleSearchClient:
                 raise DailyLimitReached("Google API rate limit exceeded")
 
             if response.status_code != 200:
-                error_msg = response.json().get('error', {}).get('message', 'Unknown error')
-                raise GoogleSearchError(f"Google API error: {error_msg}")
+                try:
+                    error_msg = response.json().get('error', {}).get('message', 'Unknown error')
+                except Exception:
+                    error_msg = f"HTTP {response.status_code}"
+                # Sanitize: strip any API key fragments from error messages
+                safe_msg = error_msg.replace(self.api_key, '[REDACTED]') if self.api_key else error_msg
+                raise GoogleSearchError(f"Google API error ({response.status_code}): {safe_msg}")
 
             data = response.json()
             results = []
@@ -224,6 +229,7 @@ class GoogleSearchClient:
             return results
 
         except requests.RequestException as e:
+            logger.error(f"Google Search network error for '{query[:40]}...': {e}", exc_info=True)
             raise GoogleSearchError(f"Network error: {e}")
 
     def get_status(self) -> Dict[str, Any]:
@@ -273,7 +279,7 @@ def get_search_status(config: Dict[str, Any]) -> Dict[str, Any]:
                 status['provider'] = 'serper'
                 return status
             except Exception as e:
-                logger.warning(f"Failed to get Serper status: {e}")
+                logger.warning(f"Failed to get Serper status: {e}", exc_info=True)
 
             # Fallback if import fails
             return {

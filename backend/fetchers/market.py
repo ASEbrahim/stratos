@@ -101,7 +101,7 @@ class MarketFetcher:
                     result[symbol] = ticker_data
                     alerts.extend(ticker_alerts)
             except Exception as e:
-                logger.error(f"Failed to fetch {symbol}: {e}")
+                logger.error(f"Failed to fetch {symbol}: {e}", exc_info=True)
                 result[symbol] = {
                     "name": config["name"],
                     "error": str(e),
@@ -214,7 +214,8 @@ class MarketFetcher:
                     try:
                         # Send UTC Unix seconds — lets frontend convert to user's timezone
                         timestamps_str.append(int(ts.timestamp()))
-                    except Exception:
+                    except Exception as e:
+                        logger.warning(f"Timestamp conversion failed for {symbol}: {e}")
                         timestamps_str.append(int(datetime.now().timestamp()))
                 
                 # Summary stats from full (non-downsampled) data
@@ -241,7 +242,7 @@ class MarketFetcher:
                 }
                 
             except Exception as e:
-                logger.error(f"Failed to fetch {symbol} at {interval_key}: {e}")
+                logger.error(f"Failed to fetch {symbol} at {interval_key}: {e}", exc_info=True)
                 result["data"][interval_key] = {
                     "price": 0,
                     "change": 0,
@@ -390,7 +391,7 @@ class MarketFetcher:
                     }
 
             except Exception as e:
-                logger.error(f"Binance fetch failed {symbol} at {interval_key}: {e}")
+                logger.error(f"Binance fetch failed {symbol} at {interval_key}: {e}", exc_info=True)
                 result["data"][interval_key] = {
                     "price": 0, "change": 0, "history": [], "error": str(e)
                 }

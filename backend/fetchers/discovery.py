@@ -84,7 +84,7 @@ class EntityDiscovery:
             self._tracked_entities = {e['name'].lower() for e in entities}
             logger.info(f"Loaded {len(self._tracked_entities)} tracked entities")
         except Exception as e:
-            logger.error(f"Failed to load tracked entities: {e}")
+            logger.error(f"Failed to load tracked entities: {e}", exc_info=True)
     
     def extract_entities(self, text: str) -> List[str]:
         """
@@ -201,7 +201,11 @@ class EntityDiscovery:
                 continue
             
             # Get baseline frequency
-            baseline = self.db.get_entity_baseline(entity, self.baseline_hours)
+            try:
+                baseline = self.db.get_entity_baseline(entity, self.baseline_hours)
+            except Exception as e:
+                logger.error(f"Failed to get baseline for entity '{entity}': {e}", exc_info=True)
+                continue
             
             # Calculate if "rising"
             # If no baseline, and count >= min_mentions, it's potentially new
@@ -235,13 +239,16 @@ class EntityDiscovery:
     def record_mentions(self, counts: Dict[str, int]):
         """
         Record entity mentions for future baseline calculation.
-        
+
         Args:
             counts: Dict of entity -> count
         """
         for entity, count in counts.items():
             if count >= 2:  # Only record if mentioned at least twice
-                self.db.record_entity_mention(entity, count)
+                try:
+                    self.db.record_entity_mention(entity, count)
+                except Exception as e:
+                    logger.error(f"Failed to record mention for '{entity}': {e}", exc_info=True)
     
     def auto_track_entity(self, entity: Dict) -> bool:
         """
@@ -255,17 +262,21 @@ class EntityDiscovery:
         """
         if not self.auto_track:
             return False
-        
-        success = self.db.add_tracked_entity(
-            name=entity["name"],
-            category=entity["category"],
-            is_discovered=True
-        )
-        
+
+        try:
+            success = self.db.add_tracked_entity(
+                name=entity["name"],
+                category=entity["category"],
+                is_discovered=True
+            )
+        except Exception as e:
+            logger.error(f"Failed to auto-track entity '{entity['name']}': {e}", exc_info=True)
+            return False
+
         if success:
             self._tracked_entities.add(entity["name"].lower())
             logger.info(f"Auto-tracked new entity: {entity['name']}")
-        
+
         return success
     
     def discover(self, news_items: List[Dict]) -> List[Dict]:

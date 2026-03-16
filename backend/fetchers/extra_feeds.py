@@ -13,6 +13,7 @@ import random
 import requests
 from datetime import datetime
 from typing import List, Dict, Any, Optional
+from urllib.parse import urlparse
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 logger = logging.getLogger(__name__)
@@ -178,7 +179,8 @@ def _fetch_single_feed(feed_config: Dict[str, str], max_items: int = 5) -> List[
             logger.warning(f"  ✗ {name}: HTTP {response.status_code}")
             return []
         feed = feedparser.parse(response.content)
-    except requests.RequestException:
+    except requests.RequestException as req_err:
+        logger.warning(f"  ✗ {name}: requests failed ({type(req_err).__name__}: {req_err}), trying curl_cffi fallback")
         # Fallback: try curl_cffi for TLS-sensitive sites
         try:
             from curl_cffi import requests as cf_req
@@ -220,6 +222,15 @@ def _fetch_single_feed(feed_config: Dict[str, str], max_items: int = 5) -> List[
         
         link = getattr(entry, "link", "")
         title = getattr(entry, "title", "No Title")
+
+        # Validate URL scheme
+        if link:
+            parsed_link = urlparse(link)
+            if parsed_link.scheme not in ("http", "https", ""):
+                continue
+            # Skip entries with no usable link
+            if not parsed_link.netloc and not parsed_link.path:
+                continue
         
         # Thumbnail extraction
         thumb = ""
@@ -286,15 +297,20 @@ def fetch_extra_feeds(feed_type: str = "finance", config: Optional[Dict] = None)
     """
     feeds = _get_enabled_feeds(feed_type, config)
     
-    # Add custom feeds from config
+    # Add custom feeds from config (with URL validation)
     custom_key = f"custom_feeds_{feed_type}"
     if config:
         custom_feeds = config.get(custom_key, [])
         for cf in custom_feeds:
-            if cf.get("url"):
+            raw_url = cf.get("url", "")
+            if raw_url:
+                parsed = urlparse(raw_url)
+                if parsed.scheme not in ("http", "https") or not parsed.netloc:
+                    logger.warning(f"Skipping invalid custom feed URL: {raw_url[:80]}")
+                    continue
                 feeds.append({
-                    "id": f"custom_{hashlib.md5(cf['url'].encode()).hexdigest()[:8]}",
-                    "url": cf["url"],
+                    "id": f"custom_{hashlib.md5(raw_url.encode()).hexdigest()[:8]}",
+                    "url": raw_url,
                     "name": cf.get("name", "Custom"),
                     "region": "Custom",
                     "category": "custom",
@@ -308,29 +324,30 @@ def fetch_extra_feeds(feed_type: str = "finance", config: Optional[Dict] = None)
     all_items = []
     feed_names = [f["name"] for f in feeds]
     logger.info(f"Extra feeds ({feed_type}): fetching {len(feeds)} feeds: {', '.join(feed_names)}")
-    
-    executor = ThreadPoolExecutor(max_workers=6)
-    futures = {executor.submit(_fetch_single_feed, fc): fc for fc in feeds}
-    
+
     completed = 0
     succeeded = 0
-    try:
-        for future in as_completed(futures, timeout=60):
-            fc = futures[future]
-            try:
-                items = future.result(timeout=1)
-                all_items.extend(items)
-                completed += 1
-                if items:
-                    succeeded += 1
-                    logger.info(f"  ✓ {fc['name']}: {len(items)} items")
-            except Exception as e:
-                completed += 1
-                logger.warning(f"  ✗ {fc['name']}: {type(e).__name__}: {e}")
-    except TimeoutError:
-        logger.warning(f"Extra feeds ({feed_type}) timeout — {completed}/{len(feeds)} done")
-    
-    executor.shutdown(wait=False, cancel_futures=True)
+    with ThreadPoolExecutor(max_workers=6) as executor:
+        futures = {executor.submit(_fetch_single_feed, fc): fc for fc in feeds}
+
+        try:
+            for future in as_completed(futures, timeout=60):
+                fc = futures[future]
+                try:
+                    items = future.result(timeout=5)
+                    all_items.extend(items)
+                    completed += 1
+                    if items:
+                        succeeded += 1
+                        logger.info(f"  ✓ {fc['name']}: {len(items)} items")
+                except Exception as e:
+                    completed += 1
+                    logger.warning(f"  ✗ {fc['name']}: {type(e).__name__}: {e}")
+        except TimeoutError:
+            logger.warning(f"Extra feeds ({feed_type}) timeout — {completed}/{len(feeds)} done")
+            # Cancel remaining futures
+            for f in futures:
+                f.cancel()
     
     # Deduplicate by URL
     seen = set()
