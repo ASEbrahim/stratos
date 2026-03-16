@@ -264,12 +264,15 @@ def handle_post(handler, strat, auth, path) -> bool:
                 "role": "system",
                 "content": f"DIRECTOR'S NOTE (this turn only): {director_note}"
             })
-            # Store the suggestion
-            db.conn.execute(
-                "INSERT INTO rp_suggestions (message_id, session_id, suggestion_text) VALUES (0, ?, ?)",
-                (session_id, director_note)
-            )
-            db.conn.commit()
+            # Store the note (thread-safe commit)
+            try:
+                db.conn.execute(
+                    "INSERT INTO rp_suggestions (message_id, session_id, suggestion_text) VALUES (0, ?, ?)",
+                    (session_id, director_note)
+                )
+                db._commit()
+            except Exception as e:
+                logger.warning(f"Director note storage failed (non-fatal): {e}")
 
         messages.append({"role": "user", "content": content})
 
