@@ -115,6 +115,7 @@ export async function generateImage(params: {
   width?: number;
   height?: number;
   seed?: number;
+  steps?: number;
   negative_prompt?: string;
 }): Promise<{ success: boolean; image_id?: string; error?: string }> {
   if (USE_MOCKS) {

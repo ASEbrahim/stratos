@@ -1,25 +1,31 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, TextInput, ScrollView, TouchableOpacity, StyleSheet, ActivityIndicator, Alert, Dimensions, Platform } from 'react-native';
+import { View, Text, TextInput, ScrollView, TouchableOpacity, StyleSheet, ActivityIndicator, Alert, Dimensions, Platform, Linking } from 'react-native';
 import { Image } from 'expo-image';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import * as Haptics from 'expo-haptics';
-import { cacheDirectory, downloadAsync } from 'expo-file-system/legacy';
-import * as MediaLibrary from 'expo-media-library';
-import { Wand2, Download, ImageIcon, Trash2, ChevronDown, ChevronUp, Shuffle, Grid3X3 } from 'lucide-react-native';
+import { Wand2, Download, ImageIcon, Trash2, ChevronDown, ChevronUp, Shuffle, Grid3X3, UserCircle } from 'lucide-react-native';
 import { Header } from '../../components/shared/Header';
 import { useThemeStore } from '../../stores/themeStore';
 import { typography, spacing, borderRadius } from '../../constants/theme';
 import { fonts } from '../../constants/fonts';
 import { generateImage, generateCharacterPortrait, getImageUrl, getImageGallery, deleteImage } from '../../lib/rp';
+import { apiFetch } from '../../lib/api';
 
 type Style = 'anime' | 'realistic' | 'illustration';
 type Size = 'portrait' | 'square' | 'landscape';
+type Quality = 'fast' | 'balanced' | 'quality';
 
 const SIZES: Record<Size, { w: number; h: number; label: string }> = {
   portrait: { w: 768, h: 1024, label: 'Portrait' },
   square: { w: 1024, h: 1024, label: 'Square' },
   landscape: { w: 1024, h: 768, label: 'Landscape' },
+};
+
+const QUALITY_MODES: Record<Quality, { steps: number; label: string; time: string }> = {
+  fast: { steps: 8, label: 'Fast', time: '~30s' },
+  balanced: { steps: 12, label: 'Balanced', time: '~45s' },
+  quality: { steps: 28, label: 'Quality', time: '~90s' },
 };
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
@@ -45,6 +51,7 @@ export default function ImageGenScreen() {
   const [prompt, setPrompt] = useState(params.description || '');
   const [style, setStyle] = useState<Style>('anime');
   const [size, setSize] = useState<Size>('portrait');
+  const [quality, setQuality] = useState<Quality>('fast');
   const [seed, setSeed] = useState('');
   const [generating, setGenerating] = useState(false);
   const [imageId, setImageId] = useState<string | null>(null);
@@ -54,6 +61,7 @@ export default function ImageGenScreen() {
   const [gallery, setGallery] = useState<GalleryImage[]>([]);
   const [galleryLoading, setGalleryLoading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [settingAvatar, setSettingAvatar] = useState(false);
 
   const isCharacterMode = !!(params.name && params.description);
 
@@ -101,6 +109,7 @@ export default function ImageGenScreen() {
           prompt: stylePrefix + prompt.trim(),
           width: s.w,
           height: s.h,
+          steps: QUALITY_MODES[quality].steps,
           ...(seed ? { seed: parseInt(seed, 10) } : {}),
         });
       }
@@ -108,7 +117,6 @@ export default function ImageGenScreen() {
       if (result.success && result.image_id) {
         setImageId(result.image_id);
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-        // Refresh gallery if it's open
         if (showGallery) loadGallery();
       } else {
         setError(result.error || 'Generation failed');
@@ -126,45 +134,47 @@ export default function ImageGenScreen() {
     try {
       const uri = getImageUrl(imageId);
       if (Platform.OS === 'web') {
-        try {
-          const res = await fetch(uri);
-          if (!res.ok) throw new Error(`HTTP ${res.status}`);
-          const blob = await res.blob();
-          const blobUrl = URL.createObjectURL(blob);
-          // Use window.open as fallback if anchor click doesn't trigger download
-          const a = document.createElement('a');
-          a.href = blobUrl;
-          a.download = `stratos_${imageId}.png`;
-          a.style.display = 'none';
-          document.body.appendChild(a);
-          a.click();
-          // Delay cleanup so browser can process the click
-          setTimeout(() => {
-            document.body.removeChild(a);
-            URL.revokeObjectURL(blobUrl);
-          }, 1000);
-        } catch (err) {
-          // Fallback: open image directly in new tab
-          window.open(uri, '_blank');
+        // Open image URL directly — user can right-click save or browser will download
+        await Linking.openURL(uri);
+      } else {
+        // Native: use expo-file-system + expo-media-library
+        const { cacheDirectory, downloadAsync } = await import('expo-file-system/legacy');
+        const MediaLibrary = await import('expo-media-library');
+        const { status } = await MediaLibrary.requestPermissionsAsync();
+        if (status !== 'granted') {
+          Alert.alert('Permission needed', 'Allow photo library access to save images.');
+          setSaving(false);
+          return;
         }
-        setSaving(false);
-        return;
+        const fileUri = cacheDirectory + `stratos_${imageId}.png`;
+        const download = await downloadAsync(uri, fileUri);
+        await MediaLibrary.saveToLibraryAsync(download.uri);
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+        Alert.alert('Saved', 'Image saved to your photo library.');
       }
-      const { status } = await MediaLibrary.requestPermissionsAsync();
-      if (status !== 'granted') {
-        Alert.alert('Permission needed', 'Allow photo library access to save images.');
-        setSaving(false);
-        return;
-      }
-      const fileUri = cacheDirectory + `stratos_${imageId}.png`;
-      const download = await downloadAsync(uri, fileUri);
-      await MediaLibrary.saveToLibraryAsync(download.uri);
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-      Alert.alert('Saved', 'Image saved to your photo library.');
     } catch (e: any) {
-      Alert.alert('Error', 'Failed to save image.');
+      // On web, Linking.openURL should always work — this catch is for native failures
+      if (Platform.OS !== 'web') {
+        Alert.alert('Error', 'Failed to save image.');
+      }
     }
     setSaving(false);
+  };
+
+  const handleSetAsAvatar = async () => {
+    if (!imageId || !params.card_id) return;
+    setSettingAvatar(true);
+    try {
+      await apiFetch(`/api/cards/${params.card_id}/avatar`, {
+        method: 'POST',
+        body: JSON.stringify({ image_id: imageId }),
+      });
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      Alert.alert('Avatar Set', `${params.name}'s portrait has been updated.`);
+    } catch {
+      Alert.alert('Error', 'Failed to set avatar.');
+    }
+    setSettingAvatar(false);
   };
 
   const handleDeleteImage = async (id: string) => {
@@ -183,6 +193,8 @@ export default function ImageGenScreen() {
     ]);
   };
 
+  const currentQuality = QUALITY_MODES[quality];
+
   return (
     <View style={[styles.container, { paddingTop: insets.top, backgroundColor: tc.bg.primary }]}>
       <Header title={isCharacterMode ? 'Generate Portrait' : 'Image Generation'} showBack />
@@ -191,7 +203,7 @@ export default function ImageGenScreen() {
         {/* CHROMA model badge */}
         <View style={[styles.modelBadge, { backgroundColor: tc.accent.primary + '12', borderColor: tc.accent.primary + '30' }]}>
           <Wand2 size={12} color={tc.accent.primary} />
-          <Text style={[styles.modelText, { color: tc.accent.primary }]}>CHROMA · 8-step · ~30s</Text>
+          <Text style={[styles.modelText, { color: tc.accent.primary }]}>CHROMA · {currentQuality.steps}-step · {currentQuality.time}</Text>
         </View>
 
         {/* Prompt input */}
@@ -228,6 +240,24 @@ export default function ImageGenScreen() {
               <Text style={[styles.chipText, { color: tc.text.secondary },
                 style === s && { color: tc.accent.primary }]}>
                 {s.charAt(0).toUpperCase() + s.slice(1)}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+
+        {/* Quality selector */}
+        <Text style={[styles.label, { color: tc.text.primary }]}>Quality</Text>
+        <View style={styles.chipRow}>
+          {(Object.entries(QUALITY_MODES) as [Quality, typeof QUALITY_MODES[Quality]][]).map(([key, val]) => (
+            <TouchableOpacity
+              key={key}
+              style={[styles.chip, { backgroundColor: tc.bg.tertiary, borderColor: tc.border.subtle },
+                quality === key && { backgroundColor: tc.accent.primary + '20', borderColor: tc.accent.primary }]}
+              onPress={() => { setQuality(key); Haptics.selectionAsync(); }}
+            >
+              <Text style={[styles.chipText, { color: tc.text.secondary },
+                quality === key && { color: tc.accent.primary }]}>
+                {val.label} ({val.steps}st · {val.time})
               </Text>
             </TouchableOpacity>
           ))}
@@ -295,7 +325,7 @@ export default function ImageGenScreen() {
           {generating ? (
             <>
               <ActivityIndicator size={18} color="#fff" />
-              <Text style={styles.generateText}>Generating...</Text>
+              <Text style={styles.generateText}>Generating... {currentQuality.time}</Text>
             </>
           ) : (
             <>
@@ -338,6 +368,20 @@ export default function ImageGenScreen() {
                 <Text style={[styles.resultBtnText, { color: tc.status.error }]}>Delete</Text>
               </TouchableOpacity>
             </View>
+            {/* Set as character avatar (only in character mode with card_id) */}
+            {isCharacterMode && params.card_id && (
+              <TouchableOpacity
+                style={[styles.avatarBtn, { borderColor: tc.accent.secondary + '40', backgroundColor: tc.accent.secondary + '08' }]}
+                onPress={handleSetAsAvatar}
+                disabled={settingAvatar}
+                activeOpacity={0.7}
+              >
+                {settingAvatar ? <ActivityIndicator size={14} color={tc.accent.secondary} /> : <UserCircle size={16} color={tc.accent.secondary} />}
+                <Text style={[styles.avatarBtnText, { color: tc.accent.secondary }]}>
+                  {settingAvatar ? 'Setting...' : `Set as ${params.name}'s Avatar`}
+                </Text>
+              </TouchableOpacity>
+            )}
             <Text style={[styles.imageIdText, { color: tc.text.muted }]}>ID: {imageId}</Text>
           </View>
         )}
@@ -431,6 +475,8 @@ const styles = StyleSheet.create({
   resultActions: { flexDirection: 'row', gap: spacing.sm, marginTop: spacing.md, width: '100%' },
   resultBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.sm, paddingVertical: spacing.md, borderRadius: borderRadius.md, borderWidth: 1 },
   resultBtnText: { fontSize: 13, fontFamily: fonts.button },
+  avatarBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.sm, paddingVertical: spacing.md, borderRadius: borderRadius.md, borderWidth: 1, marginTop: spacing.sm, width: '100%' },
+  avatarBtnText: { fontSize: 13, fontFamily: fonts.button },
   imageIdText: { fontSize: 10, fontFamily: fonts.body, marginTop: spacing.xs },
   placeholder: { marginTop: spacing.xl, alignItems: 'center', justifyContent: 'center', paddingVertical: spacing.xxl * 2, borderWidth: 1, borderStyle: 'dashed', borderRadius: borderRadius.lg, gap: spacing.md },
   placeholderText: { fontSize: 13, fontFamily: fonts.body, textAlign: 'center', paddingHorizontal: spacing.xl },
