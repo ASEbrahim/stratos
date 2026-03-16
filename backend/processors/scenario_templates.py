@@ -7,8 +7,28 @@ helpers to create NPC folders, item files, and full scenario skeletons.
 import os
 import json
 import logging
+import re
 
 logger = logging.getLogger(__name__)
+
+
+def _sanitize_id(raw_id):
+    """Sanitize a filesystem ID to prevent path traversal and invalid chars."""
+    if not raw_id or not isinstance(raw_id, str):
+        return 'unknown'
+    # Strip path separators and dangerous sequences
+    sanitized = os.path.basename(raw_id).replace('..', '_')
+    sanitized = re.sub(r'[^a-zA-Z0-9_\-]', '_', sanitized)
+    return sanitized or 'unknown'
+
+
+def _safe_path(base_path, relative_path):
+    """Resolve path and ensure it stays within base_path (prevent traversal)."""
+    full = os.path.realpath(os.path.join(base_path, relative_path))
+    base = os.path.realpath(base_path)
+    if not full.startswith(base + os.sep) and full != base:
+        raise ValueError(f"Path traversal blocked: {relative_path}")
+    return full
 
 # The canonical folder structure for every scenario
 SCENARIO_STRUCTURE = {
@@ -129,7 +149,8 @@ def create_npc_folder(scenario_path, npc_id, profile_data=None):
         npc_id: Filesystem-safe identifier (e.g., 'alice', 'klein')
         profile_data: Optional dict with keys matching file names (without .md)
     """
-    npc_path = os.path.join(scenario_path, 'characters', 'npcs', npc_id)
+    npc_id = _sanitize_id(npc_id)
+    npc_path = _safe_path(scenario_path, os.path.join('characters', 'npcs', npc_id))
     os.makedirs(npc_path, exist_ok=True)
 
     template = get_npc_template()
@@ -149,7 +170,13 @@ def create_npc_folder(scenario_path, npc_id, profile_data=None):
     try:
         with open(roster_path, 'r') as f:
             roster = json.load(f)
-    except Exception:
+    except FileNotFoundError:
+        roster = {"npcs": [], "player": {"id": "player", "directory": "characters/player/"}}
+    except json.JSONDecodeError as e:
+        logger.warning(f"Corrupt _roster.json, resetting: {e}")
+        roster = {"npcs": [], "player": {"id": "player", "directory": "characters/player/"}}
+    except Exception as e:
+        logger.warning(f"Failed to read _roster.json: {e}")
         roster = {"npcs": [], "player": {"id": "player", "directory": "characters/player/"}}
 
     existing_ids = [n['id'] for n in roster['npcs']]
@@ -195,10 +222,10 @@ def create_item_file(scenario_path, item_data):
     }
 
     folder = type_folder_map.get(item_data.get('type', ''), 'weapons')
-    item_dir = os.path.join(scenario_path, 'items', folder)
+    item_dir = _safe_path(scenario_path, os.path.join('items', folder))
     os.makedirs(item_dir, exist_ok=True)
 
-    safe_id = os.path.basename(item_data['id']).replace('..', '_')
+    safe_id = _sanitize_id(item_data['id'])
     item_path = os.path.join(item_dir, f"{safe_id}.md")
     with open(item_path, 'w') as f:
         f.write(item_data.get('description', f"# {item_data['name']}\n\n(No description yet)"))
@@ -208,7 +235,13 @@ def create_item_file(scenario_path, item_data):
     try:
         with open(catalog_path, 'r') as f:
             catalog = json.load(f)
-    except Exception:
+    except FileNotFoundError:
+        catalog = {"items": []}
+    except json.JSONDecodeError as e:
+        logger.warning(f"Corrupt _catalog.json, resetting: {e}")
+        catalog = {"items": []}
+    except Exception as e:
+        logger.warning(f"Failed to read _catalog.json: {e}")
         catalog = {"items": []}
 
     existing_ids = [i['id'] for i in catalog['items']]
@@ -246,16 +279,18 @@ def migrate_old_scenario(scenario_path):
     try:
         with open(world_md_file, 'r') as f:
             old_world = f.read()
-    except Exception:
-        pass
+    except Exception as e:
+        logger.warning(f"Migration: failed to read world.md: {e}")
 
     old_state = ''
     state_md_file = os.path.join(scenario_path, 'state.md')
     try:
         with open(state_md_file, 'r') as f:
             old_state = f.read()
-    except Exception:
-        pass
+    except FileNotFoundError:
+        pass  # state.md is optional in old format
+    except Exception as e:
+        logger.warning(f"Migration: failed to read state.md: {e}")
 
     # 2. Create new folder structure in-place
     scenario_name = os.path.basename(scenario_path)
@@ -306,13 +341,13 @@ def migrate_old_scenario(scenario_path):
     # 5. Rename old files (don't delete — safety)
     try:
         os.rename(world_md_file, world_md_file + '.old')
-    except Exception:
-        pass
+    except Exception as e:
+        logger.warning(f"Migration: failed to rename world.md: {e}")
     if os.path.exists(state_md_file):
         try:
             os.rename(state_md_file, state_md_file + '.old')
-        except Exception:
-            pass
+        except Exception as e:
+            logger.warning(f"Migration: failed to rename state.md: {e}")
 
     logger.info(f"Migration complete: {scenario_path}")
     return True

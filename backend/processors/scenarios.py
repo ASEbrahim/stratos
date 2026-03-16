@@ -7,12 +7,29 @@ Lazy-migrates legacy file-based scenarios on first access per profile.
 
 import json
 import logging
+import re
 import shutil
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, Any, List, Optional
 
 logger = logging.getLogger(__name__)
+
+
+def _validate_profile_id(profile_id):
+    """Validate profile_id is a positive integer."""
+    if not isinstance(profile_id, int) or profile_id <= 0:
+        raise ValueError(f"Invalid profile_id: {profile_id}")
+
+
+def _validate_scenario_name(name):
+    """Validate scenario name to prevent path traversal and injection."""
+    if not name or not isinstance(name, str):
+        raise ValueError("Scenario name must be a non-empty string")
+    if '..' in name or '/' in name or '\\' in name:
+        raise ValueError(f"Invalid scenario name (path traversal attempt): {name}")
+    if len(name) > 200:
+        raise ValueError("Scenario name too long (max 200 chars)")
 
 
 class ScenarioManager:
@@ -61,7 +78,11 @@ class ScenarioManager:
                 try:
                     characters_json = cf.read_text()
                     json.loads(characters_json)  # validate
-                except Exception:
+                except json.JSONDecodeError as e:
+                    logger.warning(f"Migration: corrupt characters.json in '{name}': {e}")
+                    characters_json = '[]'
+                except Exception as e:
+                    logger.warning(f"Migration: failed to read characters.json in '{name}': {e}")
                     characters_json = '[]'
 
             try:
@@ -148,8 +169,9 @@ class ScenarioManager:
             chars = []
             try:
                 chars = json.loads(d.get('characters_json', '[]'))
-            except Exception:
-                pass
+            except (json.JSONDecodeError, TypeError) as e:
+                logger.warning(f"Corrupt characters_json for scenario '{d['name']}': {e}")
+                chars = []
             info = {
                 "name": d['name'],
                 "is_active": bool(d['is_active']),
@@ -167,11 +189,14 @@ class ScenarioManager:
     def create_scenario(self, profile_id: int, scenario_name: str,
                         world_md: str = "", characters: List[Dict] = None) -> Dict[str, Any]:
         """Create a new scenario."""
+        _validate_profile_id(profile_id)
         self._migrate_file_scenarios(profile_id)
         safe_name = "".join(c for c in scenario_name if c.isalnum() or c in ('_', '-', ' ')).strip()
         safe_name = safe_name.replace(' ', '_')
         if not safe_name:
             return {"error": "Invalid scenario name"}
+        if len(safe_name) > 200:
+            return {"error": "Scenario name too long (max 200 characters)"}
 
         cursor = self.db.conn.cursor()
         try:
@@ -187,7 +212,8 @@ class ScenarioManager:
         except Exception as e:
             if 'UNIQUE' in str(e):
                 return {"error": f"Scenario '{safe_name}' already exists"}
-            return {"error": str(e)}
+            logger.error(f"Failed to create scenario '{safe_name}': {e}")
+            return {"error": "Failed to create scenario"}
 
         # Auto-activate if it's the only scenario
         cursor.execute("SELECT COUNT(*) FROM scenarios WHERE profile_id = ?", (profile_id,))
@@ -198,6 +224,9 @@ class ScenarioManager:
 
     def delete_scenario(self, profile_id: int, scenario_name: str) -> bool:
         """Delete a scenario from DB and remove its file folder."""
+        _validate_profile_id(profile_id)
+        _validate_scenario_name(scenario_name)
+
         cursor = self.db.conn.cursor()
         cursor.execute("DELETE FROM scenarios WHERE profile_id = ? AND name = ?",
                        (profile_id, scenario_name))
@@ -206,6 +235,13 @@ class ScenarioManager:
 
         # Also remove file-based scenario folder to prevent re-migration
         scenario_dir = self._legacy_dir(profile_id) / scenario_name
+        # Verify resolved path stays within legacy dir (prevent traversal)
+        legacy_base = self._legacy_dir(profile_id).resolve()
+        resolved_dir = scenario_dir.resolve()
+        if not str(resolved_dir).startswith(str(legacy_base) + '/') and resolved_dir != legacy_base:
+            logger.warning(f"Path traversal blocked in delete_scenario: {scenario_name}")
+            return deleted
+
         if scenario_dir.exists() and scenario_dir.is_dir():
             try:
                 shutil.rmtree(scenario_dir)
@@ -235,7 +271,8 @@ class ScenarioManager:
             result['world'] = d['world_md']
         try:
             result['characters'] = json.loads(d.get('characters_json', '[]'))
-        except Exception:
+        except (json.JSONDecodeError, TypeError) as e:
+            logger.warning(f"Corrupt characters_json for scenario '{scenario_name}': {e}")
             result['characters'] = []
         return result
 

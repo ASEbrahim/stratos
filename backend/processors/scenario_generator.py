@@ -150,12 +150,29 @@ def generate_scenario_content(ollama_host, scenario_path, name, genre, descripti
     Args:
         progress_callback: optional callable(pass_num, pass_name, status) for SSE updates
     """
+    # Input validation
+    if not name or not isinstance(name, str) or len(name) > 200:
+        logger.error("Invalid scenario name: must be a non-empty string under 200 chars")
+        return False
+    if not genre or not isinstance(genre, str) or len(genre) > 100:
+        logger.error("Invalid genre: must be a non-empty string under 100 chars")
+        return False
+    if not description or not isinstance(description, str):
+        logger.error("Invalid description: must be a non-empty string")
+        return False
+    if not ollama_host or not isinstance(ollama_host, str):
+        logger.error("Invalid ollama_host: must be a non-empty string")
+        return False
+    if not scenario_path or not os.path.isdir(scenario_path):
+        logger.error(f"Invalid scenario_path: {scenario_path} is not a directory")
+        return False
+
     def _report(pass_num, pass_name, status):
         if progress_callback:
             try:
                 progress_callback(pass_num, pass_name, status)
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"Progress callback failed: {e}")
 
     # PASS 1: World
     logger.info(f"Scenario generation pass 1/4: World for {name}")
@@ -322,10 +339,14 @@ def _llm_json_call(ollama_host, prompt, model, max_retries=2):
                 timeout=120,
             )
             if r.status_code != 200:
-                logger.warning(f"Ollama returned {r.status_code}")
+                logger.warning(f"Ollama returned {r.status_code}: {r.text[:200]}")
                 return None
 
             text = r.json().get('response', '').strip()
+            if not text:
+                logger.warning("Ollama returned empty response")
+                return None
+
             text = strip_think_blocks(text)
 
             # Strip markdown fences if present
@@ -345,6 +366,13 @@ def _llm_json_call(ollama_host, prompt, model, max_retries=2):
                 prompt = prompt + "\n\nYour previous response had invalid JSON. Return ONLY a valid JSON object. No text before or after."
             else:
                 logger.error(f"JSON parse failed after {max_retries + 1} attempts")
+                return None
+        except requests.ConnectionError as e:
+            logger.error(f"Ollama connection failed (is Ollama running?): {e}")
+            return None
+        except requests.Timeout:
+            logger.error(f"Ollama request timed out after 120s (attempt {attempt + 1})")
+            if attempt >= max_retries:
                 return None
         except Exception as e:
             logger.error(f"LLM call failed: {e}")
@@ -384,8 +412,20 @@ def _update_index(scenario_path, updates):
     try:
         with open(index_path, 'r') as f:
             index = json.load(f)
-    except Exception:
+    except FileNotFoundError:
+        index = {}
+    except json.JSONDecodeError as e:
+        logger.warning(f"Corrupt _index.json at {index_path}, resetting: {e}")
+        index = {}
+    except Exception as e:
+        logger.warning(f"Failed to read _index.json: {e}")
         index = {}
     index.update(updates)
     with open(index_path, 'w') as f:
         json.dump(index, f, indent=2)
+
+
+# Convenience alias for external imports
+class ScenarioGenerator:
+    """Wrapper class for scenario generation functions."""
+    generate = staticmethod(generate_scenario_content)

@@ -20,12 +20,33 @@ _index_lock = threading.Lock()
 logger = logging.getLogger(__name__)
 
 
+def _safe_path(scenario_path, relative_path):
+    """Resolve path and ensure it stays within scenario_path (prevent traversal)."""
+    full = os.path.realpath(os.path.join(scenario_path, relative_path))
+    base = os.path.realpath(scenario_path)
+    if not full.startswith(base + os.sep) and full != base:
+        raise ValueError(f"Path traversal blocked: {relative_path}")
+    return full
+
+
 def post_response_update(ollama_host, model, scenario_path, user_message, ai_response,
                          mode='gm', active_npc=None):
     """Analyze the exchange and update relevant scenario files.
 
     Called synchronously in a background thread after each gaming response.
     """
+    # Input validation
+    if not user_message or not isinstance(user_message, str):
+        logger.warning("post_response_update: invalid user_message, skipping")
+        return
+    if not ai_response or not isinstance(ai_response, str):
+        logger.warning("post_response_update: invalid ai_response, skipping")
+        return
+    if not scenario_path or not os.path.isdir(scenario_path):
+        logger.warning(f"post_response_update: invalid scenario_path: {scenario_path}")
+        return
+    if mode not in ('gm', 'immersive'):
+        mode = 'gm'
     # 1. ALWAYS: Update scenes/current.md
     _update_current_scene(ollama_host, model, scenario_path, user_message, ai_response)
 
@@ -160,8 +181,12 @@ def _analyze_exchange(ollama_host, model, user_message, ai_response):
             timeout=30,
         )
         if r.status_code != 200:
+            logger.warning(f"Exchange analysis: Ollama returned {r.status_code}: {r.text[:200]}")
             return None
         text = r.json().get('response', '').strip()
+        if not text:
+            logger.warning("Exchange analysis: Ollama returned empty response")
+            return None
         text = strip_think_blocks(text)
         text = re.sub(r'^```(?:json)?\s*', '', text)
         text = re.sub(r'\s*```$', '', text)
@@ -170,6 +195,15 @@ def _analyze_exchange(ollama_host, model, user_message, ai_response):
         if brace_start >= 0 and brace_end > brace_start:
             text = text[brace_start:brace_end + 1]
         return json.loads(text)
+    except requests.ConnectionError as e:
+        logger.error(f"Exchange analysis: Ollama connection failed: {e}")
+        return None
+    except requests.Timeout:
+        logger.warning("Exchange analysis: Ollama request timed out after 30s")
+        return None
+    except json.JSONDecodeError as e:
+        logger.warning(f"Exchange analysis: JSON parse failed: {e}")
+        return None
     except Exception as e:
         logger.warning(f"Exchange analysis failed — skipping auto-updates: {e}")
         return None
@@ -211,6 +245,7 @@ Return ONLY the scene text, no JSON, no markdown fences."""
             timeout=30,
         )
         if r.status_code != 200:
+            logger.warning(f"Scene update: Ollama returned {r.status_code}")
             return
         new_scene = strip_think_blocks(r.json().get('response', '').strip())
         if len(new_scene) > 50:
@@ -225,13 +260,23 @@ Return ONLY the scene text, no JSON, no markdown fences."""
                     f.write(current)
 
             _write_file_direct(scenario_path, 'scenes/current.md', f"## Current Scene\n\n{new_scene}")
+    except requests.ConnectionError as e:
+        logger.error(f"Scene update: Ollama connection failed: {e}")
+    except requests.Timeout:
+        logger.warning("Scene update: Ollama request timed out")
     except Exception as e:
         logger.warning(f"Scene update failed: {e}")
 
 
 def _update_npc_memory(ollama_host, model, scenario_path, npc_id_or_name, user_msg, ai_resp):
     """Update an NPC's memory.md after an RP interaction."""
-    npc_id = npc_id_or_name.strip().lower().replace(' ', '_')
+    if not npc_id_or_name or not isinstance(npc_id_or_name, str):
+        logger.warning("_update_npc_memory: invalid npc_id_or_name")
+        return
+    npc_id = re.sub(r'[^a-z0-9_]', '_', npc_id_or_name.strip().lower().replace(' ', '_'))
+    if not npc_id:
+        logger.warning(f"_update_npc_memory: sanitized npc_id is empty from '{npc_id_or_name}'")
+        return
     memory_path = f'characters/npcs/{npc_id}/memory.md'
     current_memory = _load_file(scenario_path, memory_path) or ''
 
@@ -261,12 +306,17 @@ Return ONLY the text to append. No JSON. No headers."""
             timeout=15,
         )
         if r.status_code != 200:
+            logger.warning(f"NPC memory update: Ollama returned {r.status_code}")
             return
         addition = strip_think_blocks(r.json().get('response', '').strip())
         if addition and len(addition) > 20:
             timestamp = datetime.now().strftime('%Y-%m-%d %H:%M')
             updated = current_memory.rstrip() + f"\n\n### {timestamp}\n{addition}"
             _write_file_direct(scenario_path, memory_path, updated)
+    except requests.ConnectionError as e:
+        logger.error(f"NPC memory update: Ollama connection failed: {e}")
+    except requests.Timeout:
+        logger.warning("NPC memory update: Ollama request timed out")
     except Exception as e:
         logger.warning(f"NPC memory update failed: {e}")
 
@@ -371,29 +421,56 @@ def _update_index_field(scenario_path, key, value):
 
 def _load_file(scenario_path, relative_path):
     try:
-        with open(os.path.join(scenario_path, relative_path), 'r') as f:
+        full_path = _safe_path(scenario_path, relative_path)
+        with open(full_path, 'r') as f:
             return f.read()
-    except Exception:
+    except FileNotFoundError:
+        return None
+    except ValueError as e:
+        logger.warning(f"_load_file path traversal blocked: {e}")
+        return None
+    except Exception as e:
+        logger.warning(f"_load_file failed for {relative_path}: {e}")
         return None
 
 
 def _load_json(scenario_path, relative_path):
     try:
-        with open(os.path.join(scenario_path, relative_path), 'r') as f:
+        full_path = _safe_path(scenario_path, relative_path)
+        with open(full_path, 'r') as f:
             return json.load(f)
-    except Exception:
+    except FileNotFoundError:
+        return None
+    except json.JSONDecodeError as e:
+        logger.warning(f"_load_json: corrupt JSON in {relative_path}: {e}")
+        return None
+    except ValueError as e:
+        logger.warning(f"_load_json path traversal blocked: {e}")
+        return None
+    except Exception as e:
+        logger.warning(f"_load_json failed for {relative_path}: {e}")
         return None
 
 
 def _write_file_direct(scenario_path, relative_path, content):
-    full_path = os.path.join(scenario_path, relative_path)
-    os.makedirs(os.path.dirname(full_path), exist_ok=True)
-    with open(full_path, 'w') as f:
-        f.write(content)
+    try:
+        full_path = _safe_path(scenario_path, relative_path)
+        os.makedirs(os.path.dirname(full_path), exist_ok=True)
+        with open(full_path, 'w') as f:
+            f.write(content)
+    except ValueError as e:
+        logger.warning(f"_write_file_direct path traversal blocked: {e}")
+    except Exception as e:
+        logger.error(f"_write_file_direct failed for {relative_path}: {e}")
 
 
 def _write_json_direct(scenario_path, relative_path, data):
-    full_path = os.path.join(scenario_path, relative_path)
-    os.makedirs(os.path.dirname(full_path), exist_ok=True)
-    with open(full_path, 'w') as f:
-        json.dump(data, f, indent=2)
+    try:
+        full_path = _safe_path(scenario_path, relative_path)
+        os.makedirs(os.path.dirname(full_path), exist_ok=True)
+        with open(full_path, 'w') as f:
+            json.dump(data, f, indent=2)
+    except ValueError as e:
+        logger.warning(f"_write_json_direct path traversal blocked: {e}")
+    except Exception as e:
+        logger.error(f"_write_json_direct failed for {relative_path}: {e}")
