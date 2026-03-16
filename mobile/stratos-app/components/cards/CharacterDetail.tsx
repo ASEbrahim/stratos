@@ -6,7 +6,8 @@ import * as Haptics from 'expo-haptics';
 import { Star, BookmarkPlus, BookmarkCheck, Flag, Share2, Wand2, StarIcon, Pencil, Copy } from 'lucide-react-native';
 import { CharacterCard, formatCount } from '../../lib/types';
 import { TagPills } from './TagPills';
-import { QualityScore } from './QualityScore';
+import { CharacterDepthSection } from './CharacterDepthSection';
+import { SimilarCharacters } from './SimilarCharacters';
 import { useChatStore } from '../../stores/chatStore';
 import { useCharacterStore } from '../../stores/characterStore';
 import { isCardSaved } from '../../lib/storage';
@@ -55,6 +56,10 @@ export function CharacterDetailView({ card }: CharacterDetailProps) {
       await saveToLibrary(card);
       setSaved(true);
     }
+  };
+
+  const handleNavigateToCharacter = (id: string) => {
+    router.push(`/character/${id}`);
   };
 
   return (
@@ -149,25 +154,14 @@ export function CharacterDetailView({ card }: CharacterDetailProps) {
       <View style={styles.section}><Text style={[styles.sectionTitle, { color: tc.text.primary }]}>Description</Text><Text style={[styles.sectionBody, { color: tc.text.secondary }]}>{card.description}</Text></View>
       {card.personality && <View style={styles.section}><Text style={[styles.sectionTitle, { color: tc.text.primary }]}>Personality</Text><Text style={[styles.sectionBody, { color: tc.text.secondary }]}>{card.personality}</Text></View>}
       {card.scenario && <View style={styles.section}><Text style={[styles.sectionTitle, { color: tc.text.primary }]}>Scenario</Text><Text style={[styles.sectionBody, { color: tc.text.secondary }]}>{card.scenario}</Text></View>}
-      <View style={styles.section}>
-        <Text style={[styles.sectionTitle, { color: tc.text.primary }]}>Quality Elements</Text>
-        <QualityScore card={card} showElements size="large" />
-        {(card.speech_pattern || card.emotional_trigger || card.defensive_mechanism || card.vulnerability || card.specific_detail || card.physical_description) && (
-          <TouchableOpacity style={[styles.depthToggle, { borderColor: accentColor + '30' }]} onPress={() => setShowDepth(!showDepth)} activeOpacity={0.7}>
-            <Text style={[styles.depthToggleText, { color: accentColor }]}>{showDepth ? 'Hide Details' : 'Show Character Depth'}</Text>
-          </TouchableOpacity>
-        )}
-        {showDepth && (
-          <View style={styles.depthGrid}>
-            {card.physical_description && <DepthItem label="Appearance" value={card.physical_description} tc={tc} />}
-            {card.speech_pattern && <DepthItem label="Speech Pattern" value={card.speech_pattern} tc={tc} />}
-            {card.emotional_trigger && <DepthItem label="Emotional Triggers" value={card.emotional_trigger} tc={tc} />}
-            {card.defensive_mechanism && <DepthItem label="Defenses" value={card.defensive_mechanism} tc={tc} />}
-            {card.vulnerability && <DepthItem label="Vulnerability" value={card.vulnerability} tc={tc} />}
-            {card.specific_detail && <DepthItem label="Signature Detail" value={card.specific_detail} tc={tc} />}
-          </View>
-        )}
-      </View>
+
+      <CharacterDepthSection
+        card={card}
+        showDepth={showDepth}
+        accentColor={accentColor}
+        onToggleDepth={() => setShowDepth(!showDepth)}
+      />
+
       {card.first_message && (
         <View style={[styles.section, styles.firstMsgSection, { backgroundColor: tc.bg.tertiary, borderColor: tc.border.subtle }]}>
           <Text style={[styles.sectionTitle, { color: tc.text.primary, marginBottom: spacing.sm }]}>Opening Line</Text>
@@ -185,41 +179,17 @@ export function CharacterDetailView({ card }: CharacterDetailProps) {
         </View>
       )}
 
-      {/* Similar Characters */}
-      {similarCards.length > 0 && (
-        <View style={[styles.section, { marginTop: spacing.lg }]}>
-          <Text style={[styles.sectionTitle, { color: tc.text.primary }]}>Similar Characters</Text>
-          <View style={styles.similarRow}>
-            {similarCards.map(c => {
-              const gc = getGenreColor(c.genre_tags[0] ?? 'default');
-              return (
-                <TouchableOpacity key={c.id} style={styles.similarCard} onPress={() => router.push(`/character/${c.id}`)} activeOpacity={0.7} accessibilityLabel={`View similar character ${c.name}`} accessibilityRole="button">
-                  <View style={[styles.similarAvatar, { backgroundColor: gc + '15' }]}>
-                    <Text style={[styles.similarLetter, { color: gc }]}>{c.name[0]}</Text>
-                  </View>
-                  <Text style={[styles.similarName, { color: tc.text.primary }]} numberOfLines={1}>{c.name}</Text>
-                  <Text style={[styles.similarGenre, { color: gc }]}>{c.genre_tags[0]}</Text>
-                </TouchableOpacity>
-              );
-            })}
-          </View>
-        </View>
-      )}
+      <SimilarCharacters
+        similarCards={similarCards}
+        onNavigate={handleNavigateToCharacter}
+      />
+
       <TouchableOpacity style={styles.reportBtn} onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); Alert.alert('Report Character', 'Report this character for inappropriate content?', [{ text: 'Cancel', style: 'cancel' }, { text: 'Report', style: 'destructive', onPress: () => Alert.alert('Reported', 'Thank you for your report. We will review this character.') }]); }} activeOpacity={0.7} accessibilityLabel={`Report ${card.name}`} accessibilityRole="button">
         <Flag size={12} color={tc.text.muted} />
         <Text style={[styles.reportText, { color: tc.text.muted }]}>Report Character</Text>
       </TouchableOpacity>
       <View style={{ height: spacing.xxl }} />
     </ScrollView>
-  );
-}
-
-function DepthItem({ label, value, tc }: { label: string; value: string; tc: any }) {
-  return (
-    <View style={{ marginBottom: spacing.md }}>
-      <Text style={{ fontSize: 10, fontWeight: '700', color: tc.text.muted, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 3 }}>{label}</Text>
-      <Text style={{ fontSize: 13, color: tc.text.secondary, lineHeight: 19 }}>{value}</Text>
-    </View>
   );
 }
 
@@ -259,20 +229,8 @@ const styles = StyleSheet.create({
   actionRow: { flexDirection: 'row', gap: spacing.sm, marginBottom: spacing.sm },
   secondaryButton: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.sm, paddingVertical: spacing.lg, borderRadius: borderRadius.lg, borderWidth: 1 },
   secondaryButtonText: { ...typography.subheading },
-  sessionHint: { ...typography.small, textAlign: 'center', marginTop: spacing.xs, marginBottom: spacing.sm },
-  newSessionBtn: { paddingVertical: spacing.md, borderRadius: borderRadius.lg, borderWidth: 1, alignItems: 'center', marginBottom: spacing.md },
-  newSessionText: { ...typography.caption, fontWeight: '600' },
   reportBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.xs, paddingVertical: spacing.lg, marginTop: spacing.lg },
   reportText: { ...typography.small },
-  depthToggle: { paddingVertical: spacing.sm, marginTop: spacing.sm, borderRadius: borderRadius.sm, borderWidth: 1, alignItems: 'center' },
-  depthToggleText: { fontSize: 12, fontWeight: '600' },
-  depthGrid: { marginTop: spacing.md },
-  similarRow: { flexDirection: 'row', gap: spacing.md },
-  similarCard: { flex: 1, alignItems: 'center' },
-  similarAvatar: { width: 50, height: 50, borderRadius: borderRadius.md, justifyContent: 'center', alignItems: 'center', marginBottom: spacing.xs },
-  similarLetter: { fontSize: 20, fontWeight: '700', opacity: 0.7 },
-  similarName: { fontSize: 11, fontWeight: '600', textAlign: 'center' },
-  similarGenre: { fontSize: 9, textTransform: 'capitalize', marginTop: 2 },
   firstMsgSection: { padding: spacing.lg, borderRadius: borderRadius.lg, borderWidth: 1 },
   firstMsgText: { ...typography.body, lineHeight: 22, fontSize: 13 },
   portraitBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.sm, paddingVertical: spacing.md, borderRadius: borderRadius.lg, borderWidth: 1, marginBottom: spacing.md },

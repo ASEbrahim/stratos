@@ -3,21 +3,14 @@ import { View, Text, FlatList, StyleSheet, KeyboardAvoidingView, Platform, Touch
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useFocusEffect } from 'expo-router';
 import * as Haptics from 'expo-haptics';
-import { Pencil, RefreshCw } from 'lucide-react-native';
 import { useThemedAlert } from '../../components/shared/ThemedAlert';
 import { useChatStore } from '../../stores/chatStore';
 import { SessionHeader } from '../../components/chat/SessionHeader';
-import { MessageBubble, StreamingBubble } from '../../components/chat/MessageBubble';
-import { TypingIndicator } from '../../components/chat/TypingIndicator';
-import { SuggestionChips } from '../../components/chat/SuggestionChips';
-import { ChatInput } from '../../components/chat/ChatInput';
-import { FeedbackButtons } from '../../components/chat/FeedbackButtons';
-import { SwipeIndicator } from '../../components/chat/SwipeIndicator';
-import { DirectorNoteBar } from '../../components/chat/DirectorNoteBar';
-import { EditSheet } from '../../components/chat/EditSheet';
+import { ChatMessageList } from '../../components/chat/ChatMessageList';
+import { ChatInputSection } from '../../components/chat/ChatInputSection';
 import { BranchSelector } from '../../components/chat/BranchSelector';
+import { EditSheet } from '../../components/chat/EditSheet';
 import { TrainingOptInPopup, useTrainingOptInCheck } from '../../components/chat/TrainingOptIn';
-import { ChevronDown } from 'lucide-react-native';
 import { ChatMessage } from '../../lib/types';
 import { getGenreColor } from '../../constants/genres';
 import { useThemeStore } from '../../stores/themeStore';
@@ -41,7 +34,7 @@ export default function ChatScreen() {
   const [currentBranch, setCurrentBranch] = useState('main');
   const [swipeCount, setSwipeCount] = useState(0);
   const [swipeIndex, setSwipeIndex] = useState(0);
-  const [editTarget, setEditTarget] = useState<{ id: string; content: string } | null>(null);
+  const [editTarget, setEditTarget] = useState<{ id: string; content: string; isUser?: boolean } | null>(null);
   const [showContextModal, setShowContextModal] = useState(false);
   const [contextInput, setContextInput] = useState('');
   const [isRegenerating, setIsRegenerating] = useState(false);
@@ -78,7 +71,7 @@ export default function ChatScreen() {
     return () => sub.remove();
   }, []);
 
-  const handleRegenerate = async () => {
+  const handleRegenerate = useCallback(async () => {
     setIsRegenerating(true);
     try {
       await regenerateLastMessage();
@@ -87,11 +80,11 @@ export default function ChatScreen() {
     } finally {
       setIsRegenerating(false);
     }
-  };
+  }, [regenerateLastMessage]);
 
   const handleEditSaved = async (newContent: string) => {
     if (!editTarget) return;
-    const isUserEdit = (editTarget as any).isUser;
+    const isUserEdit = editTarget.isUser;
 
     if (isUserEdit) {
       // User message edit → replace message and regenerate AI response (creates branch)
@@ -118,9 +111,9 @@ export default function ChatScreen() {
     setEditTarget(null);
   };
 
-  const handleSendWithNote = (text: string) => {
+  const handleSendWithNote = useCallback((text: string) => {
     sendMessage(text, directorNote || undefined);
-  };
+  }, [sendMessage, directorNote]);
 
   const handleUpdateCharacter = async () => {
     if (!character?.id) return;
@@ -144,8 +137,26 @@ export default function ChatScreen() {
     showAlert('Context Applied', 'This context will be referenced by the AI in every response for this session.');
   };
 
-  const lastAssistantIdx = messages.length > 0 && messages[messages.length - 1]?.role === 'assistant'
-    ? messages.length - 1 : -1;
+  const handleEditUser = useCallback((msg: { id: string; content: string; isUser: boolean }) => {
+    setEditTarget(msg);
+  }, []);
+
+  const handleEditAssistant = useCallback((msg: { id: string; content: string }) => {
+    setEditTarget(msg);
+  }, []);
+
+  const handleScroll = useCallback((e: any) => {
+    const y = e.nativeEvent.contentOffset.y;
+    const h = e.nativeEvent.contentSize.height - e.nativeEvent.layoutMeasurement.height;
+    setShowScrollBtn(h - y > 200);
+  }, []);
+
+  const handleScrollToEnd = useCallback(() => {
+    listRef.current?.scrollToEnd({ animated: true });
+  }, []);
+
+  const handleReuseNote = useCallback(() => setDirectorNote(lastUsedNote), [lastUsedNote]);
+  const handleClearNote = useCallback(() => { setDirectorNote(''); setLastUsedNote(''); }, []);
 
   return (
     <View style={[styles.container, { paddingTop: insets.top, backgroundColor: tc.bg.primary }]}>
@@ -184,114 +195,34 @@ export default function ChatScreen() {
       <BranchSelector branches={branches} currentBranch={currentBranch} onSelect={setCurrentBranch} accentColor={accentColor} />
 
       <KeyboardAvoidingView style={styles.chatArea} behavior={Platform.OS === 'ios' ? 'padding' : undefined} keyboardVerticalOffset={insets.top}>
-        <FlatList
-          ref={listRef}
-          data={messages}
-          renderItem={({ item, index }: { item: ChatMessage; index: number }) => {
-            const isAssistant = item.role === 'assistant';
-            const isLastAssistant = index === lastAssistantIdx;
-            const isLastUser = item.role === 'user' && index === messages.length - 1 && !isStreaming;
-            const isLastUserBeforeAssistant = item.role === 'user' && index < messages.length - 1 && messages[index + 1]?.role === 'assistant';
-
-            return (
-              <View>
-                <MessageBubble message={item} accentColor={accentColor} />
-
-                {/* Seen indicator */}
-                {(isLastUser || isLastUserBeforeAssistant) && !isStreaming && (
-                  <Text style={[styles.seenText, { color: tc.text.muted }]}>Seen ✓</Text>
-                )}
-
-                {/* Edit button on USER messages (enables branching) */}
-                {!isAssistant && !isStreaming && index > 0 && (
-                  <View style={[styles.msgActions, { justifyContent: 'flex-end' }]}>
-                    <TouchableOpacity
-                      style={styles.actionBtn}
-                      onPress={() => setEditTarget({ id: item.id, content: item.content, isUser: true } as any)}
-                      hitSlop={8}
-                    >
-                      <Pencil size={14} color={tc.text.faint} />
-                    </TouchableOpacity>
-                  </View>
-                )}
-
-                {/* Feedback + Regenerate + Edit on assistant messages */}
-                {isAssistant && !isStreaming && (
-                  <View style={styles.msgActions}>
-                    <FeedbackButtons messageId={item.id} accentColor={accentColor} />
-                    {isLastAssistant && (
-                      <TouchableOpacity
-                        style={styles.actionBtn}
-                        onPress={handleRegenerate}
-                        disabled={isRegenerating}
-                        hitSlop={8}
-                      >
-                        <RefreshCw size={14} color={tc.text.faint} />
-                      </TouchableOpacity>
-                    )}
-                    <TouchableOpacity
-                      style={styles.actionBtn}
-                      onPress={() => setEditTarget({ id: item.id, content: item.content })}
-                      hitSlop={8}
-                    >
-                      <Pencil size={14} color={tc.text.faint} />
-                    </TouchableOpacity>
-                  </View>
-                )}
-
-                {/* Swipe indicator removed — regenerate is now inline with edit button */}
-              </View>
-            );
-          }}
-          keyExtractor={item => item.id}
-          contentContainerStyle={styles.msgList}
-          showsVerticalScrollIndicator={false}
-          ListHeaderComponent={character ? (
-            messages.length <= 2 ? (
-              <View style={[styles.charIntro, { backgroundColor: (accentColor ?? tc.accent.primary) + '08', borderColor: (accentColor ?? tc.accent.primary) + '20' }]}>
-                <View style={[styles.charIntroAvatar, { backgroundColor: (accentColor ?? tc.accent.primary) + '15' }]}>
-                  <Text style={[styles.charIntroLetter, { color: accentColor ?? tc.accent.primary }]}>{character.name[0]}</Text>
-                </View>
-                <View style={{ flex: 1 }}>
-                  <Text style={[styles.charIntroName, { color: tc.text.primary }]}>{character.name}</Text>
-                  <Text style={[styles.charIntroDesc, { color: tc.text.secondary }]} numberOfLines={2}>{character.description}</Text>
-                </View>
-              </View>
-            ) : messages.length > 2 ? (
-              <Text style={[styles.resumeBanner, { color: tc.text.muted }]}>Conversation resumed · {messages.length} messages</Text>
-            ) : null
-          ) : null}
-          onScroll={(e) => { const y = e.nativeEvent.contentOffset.y; const h = e.nativeEvent.contentSize.height - e.nativeEvent.layoutMeasurement.height; setShowScrollBtn(h - y > 200); }}
-          scrollEventThrottle={100}
-          keyboardDismissMode="on-drag"
-          keyboardShouldPersistTaps="handled"
-          ListFooterComponent={<View>
-            {isStreaming && streamingContent ? <StreamingBubble content={streamingContent} accentColor={accentColor} /> : isStreaming ? <TypingIndicator characterName={character?.name} /> : null}
-          </View>}
-        />
-
-        {/* Scroll to bottom FAB */}
-        {showScrollBtn && (
-          <TouchableOpacity style={[styles.scrollFab, { backgroundColor: tc.bg.elevated, borderColor: tc.border.subtle }]} onPress={() => listRef.current?.scrollToEnd({ animated: true })} activeOpacity={0.8}>
-            <ChevronDown size={18} color={tc.text.secondary} />
-          </TouchableOpacity>
-        )}
-
-        {showSaved && <Text style={[styles.savedText, { color: tc.status.success }]}>Auto-saved ✓</Text>}
-
-        <SuggestionChips suggestions={suggestions} onSelect={p => handleSendWithNote(p)} accentColor={accentColor} />
-
-        {/* Director's Note bar */}
-        <DirectorNoteBar
-          note={directorNote}
-          lastUsedNote={lastUsedNote}
-          onNoteChange={setDirectorNote}
-          onReuse={() => setDirectorNote(lastUsedNote)}
-          onClear={() => { setDirectorNote(''); setLastUsedNote(''); }}
+        <ChatMessageList
+          listRef={listRef}
+          messages={messages}
+          isStreaming={isStreaming}
+          streamingContent={streamingContent}
+          character={character}
           accentColor={accentColor}
+          isRegenerating={isRegenerating}
+          showScrollBtn={showScrollBtn}
+          showSaved={showSaved}
+          onEditUser={handleEditUser}
+          onEditAssistant={handleEditAssistant}
+          onRegenerate={handleRegenerate}
+          onScroll={handleScroll}
+          onScrollToEnd={handleScrollToEnd}
         />
 
-        <ChatInput onSend={handleSendWithNote} disabled={isStreaming} accentColor={accentColor} />
+        <ChatInputSection
+          suggestions={suggestions}
+          directorNote={directorNote}
+          lastUsedNote={lastUsedNote}
+          isStreaming={isStreaming}
+          accentColor={accentColor}
+          onSend={handleSendWithNote}
+          onNoteChange={setDirectorNote}
+          onReuseNote={handleReuseNote}
+          onClearNote={handleClearNote}
+        />
       </KeyboardAvoidingView>
 
       {/* Training opt-in popup (shown once) */}
@@ -350,19 +281,6 @@ export default function ChatScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1 },
   chatArea: { flex: 1 },
-  msgList: { paddingVertical: spacing.md },
-  msgActions: { flexDirection: 'row', alignItems: 'center' },
-  editBtn: { padding: 4, marginLeft: 4 },
-  actionBtn: { padding: 6, marginLeft: 6 },
-  scrollFab: { position: 'absolute', right: spacing.lg, bottom: 225, width: 36, height: 36, borderRadius: 18, justifyContent: 'center', alignItems: 'center', borderWidth: 1, zIndex: 10, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.3, shadowRadius: 4, elevation: 4 },
-  charIntro: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, marginHorizontal: spacing.lg, marginBottom: spacing.md, padding: spacing.md, borderRadius: 12, borderWidth: 1 },
-  charIntroAvatar: { width: 40, height: 40, borderRadius: 20, justifyContent: 'center', alignItems: 'center' },
-  charIntroLetter: { fontSize: 18, fontFamily: fonts.heading },
-  charIntroName: { fontSize: 13, fontFamily: fonts.heading, marginBottom: 2 },
-  charIntroDesc: { fontSize: 11, fontFamily: fonts.body, lineHeight: 15 },
-  seenText: { fontSize: 9, fontFamily: fonts.body, textAlign: 'right', paddingRight: spacing.lg, marginTop: 2 },
-  resumeBanner: { fontSize: 10, fontFamily: fonts.body, textAlign: 'center', paddingVertical: spacing.sm, marginBottom: spacing.sm },
-  savedText: { fontSize: 9, fontFamily: fonts.body, textAlign: 'center', paddingVertical: 3 },
   contextOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'center', alignItems: 'center', padding: spacing.xl },
   contextModal: { width: '100%', maxWidth: 360, borderRadius: 16, padding: spacing.xl, borderWidth: 1, gap: spacing.md },
   contextTitle: { fontSize: 18, fontFamily: fonts.heading, textAlign: 'center' },
