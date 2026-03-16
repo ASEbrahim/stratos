@@ -39,7 +39,7 @@ export function DirectorNoteBar({ note, lastUsedNote, onNoteChange, onReuse, onC
       {expanded && (
         <View style={styles.body}>
           <TextInput
-            style={[styles.input, { backgroundColor: tc.bg.tertiary, color: tc.text.primary, borderColor: tc.border.subtle }]}
+            style={[styles.input, { backgroundColor: tc.bg.tertiary, color: tc.text.primary, borderColor: note ? accent + '40' : tc.border.subtle }]}
             value={note}
             onChangeText={onNoteChange}
             placeholder="Guide the AI's next response (e.g., 'keep it short', 'make her hesitant')"
@@ -47,6 +47,9 @@ export function DirectorNoteBar({ note, lastUsedNote, onNoteChange, onReuse, onC
             multiline
             maxLength={500}
           />
+          {note.trim() ? (
+            <Text style={[styles.activeHint, { color: accent }]}>Will apply to your next message</Text>
+          ) : null}
           {!note && lastUsedNote ? (
             <TouchableOpacity
               onPress={() => { onReuse(); Haptics.selectionAsync(); }}
@@ -72,4 +75,5 @@ const styles = StyleSheet.create({
   input: { borderRadius: borderRadius.md, paddingHorizontal: spacing.md, paddingVertical: spacing.sm, fontSize: 13, fontFamily: fonts.body, minHeight: 40, maxHeight: 80, borderWidth: 1 },
   reuseBtn: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs, paddingHorizontal: spacing.md, paddingVertical: spacing.xs, borderRadius: borderRadius.full, borderWidth: 1, alignSelf: 'flex-start' },
   reuseText: { fontSize: 11, fontFamily: fonts.body, maxWidth: 200 },
+  activeHint: { fontSize: 10, fontFamily: fonts.body, marginTop: 2 },
 });

@@ -100,10 +100,7 @@ export default function ChatScreen() {
   };
 
   const handleSendWithNote = (text: string) => {
-    // The director's note is passed alongside the message
-    // In mock mode this has no effect, but when wired to backend
-    // the chatStore.sendMessage could include it
-    sendMessage(text);
+    sendMessage(text, directorNote || undefined);
   };
 
   const lastAssistantIdx = messages.length > 0 && messages[messages.length - 1]?.role === 'assistant'

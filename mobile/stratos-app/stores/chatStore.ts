@@ -15,7 +15,7 @@ interface ChatState {
   recentSessions: ChatSession[];
   startSession: (character: CharacterCard, persona?: 'roleplay' | 'gaming') => void;
   resumeSession: (session: ChatSession) => void;
-  sendMessage: (content: string) => Promise<void>;
+  sendMessage: (content: string, directorNote?: string) => Promise<void>;
   loadSuggestions: () => Promise<void>;
   loadRecentSessions: () => Promise<void>;
   clearSession: () => void;
@@ -44,7 +44,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
       suggestions: [], isStreaming: false, streamingContent: '',
     });
   },
-  sendMessage: async (content) => {
+  sendMessage: async (content, directorNote) => {
     const { sessionId, character, persona, messages } = get();
     if (!sessionId) return;
     const userMessage: ChatMessage = { id: createMessageId(), role: 'user', content, timestamp: new Date().toISOString() };
@@ -59,6 +59,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
         get().persistSession().catch(() => {});
         get().loadSuggestions().catch(() => {});
       },
+      directorNote,
     );
   },
   loadSuggestions: async () => {

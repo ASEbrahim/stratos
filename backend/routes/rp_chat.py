@@ -21,7 +21,6 @@ import json
 import time
 import uuid
 import logging
-import threading
 import requests as req
 
 from routes.helpers import (
@@ -29,7 +28,6 @@ from routes.helpers import (
     start_sse, sse_event, strip_think_blocks,
 )
 from routes.gpu_manager import ensure_ollama
-from routes import rp_memory
 
 logger = logging.getLogger("rp_chat")
 
@@ -156,55 +154,17 @@ def _build_system_prompt(card: dict = None, director_note: str = None) -> str:
     return prompt
 
 
-def _get_generation_params(user_message: str) -> dict:
-    """Dynamic generation params based on input length.
-    Short inputs get tight ceilings + paragraph stop. Long inputs get full freedom."""
-    words = len(user_message.split())
-    if words <= 2:     # "Hi." / "*nods*"
-        return {"num_predict": 60, "stop": ["\n\n"]}
-    elif words <= 5:   # "How are you?"
-        return {"num_predict": 100, "stop": ["\n\n"]}
-    elif words <= 15:  # Short paragraph
-        return {"num_predict": 200}
-    elif words <= 40:  # Full paragraph
-        return {"num_predict": 350}
-    else:              # Long prose
-        return {"num_predict": 500}
-
-
-def _truncate_response(response: str, target_words: int) -> str:
-    """Post-processing: truncate at sentence boundary if still too long.
-    Only trims if response exceeds target by >1.5x."""
-    words = response.split()
-    if len(words) <= target_words * 1.5:
-        return response
-    # Split at sentence boundaries (after . ! ? * ")
-    import re
-    sentences = re.split(r'(?<=[.!?*"])\s+', response)
-    result = ""
-    for sentence in sentences:
-        candidate = (result + " " + sentence).strip() if result else sentence
-        if len(candidate.split()) > target_words * 1.3:
-            break
-        result = candidate
-    return result or sentences[0]
-
-
 def _stream_ollama(handler, ollama_host: str, model: str, messages: list,
-                   temperature: float = 0.85, num_predict: int = 500,
-                   stop: list = None) -> str:
+                   temperature: float = 0.85, num_predict: int = 4000) -> str:
     """Stream Ollama response via SSE. Returns the full accumulated text."""
     try:
-        opts = {"temperature": temperature, "num_predict": num_predict}
-        if stop:
-            opts["stop"] = stop
         r = req.post(
             f"{ollama_host}/api/chat",
             json={
                 "model": model,
                 "messages": messages,
                 "stream": True,
-                "options": opts,
+                "options": {"temperature": temperature, "num_predict": num_predict},
                 "think": False,
             },
             timeout=180, stream=True
@@ -267,7 +227,6 @@ def handle_post(handler, strat, auth, path) -> bool:
         persona = data.get("persona", "roleplay")
         card_id = data.get("character_card_id")
         director_note = data.get("director_note")
-        first_message = data.get("first_message", "")
 
         if not content:
             error_response(handler, "Message content required", 400)
@@ -281,15 +240,6 @@ def handle_post(handler, strat, auth, path) -> bool:
         # Get conversation history
         history = db.get_full_branch_conversation(session_id, branch_id)
 
-        # If this is the first message and character has a first_message,
-        # store it as turn 0 so the AI has the opening context
-        if not history and first_message:
-            db.insert_rp_message(
-                session_id, profile_id, branch_id, 0, 'assistant', first_message,
-                character_card_id=card_id, persona=persona
-            )
-            history = [{"turn_number": 0, "role": "assistant", "content": first_message}]
-
         # Determine next turn number
         max_turn = max((m['turn_number'] for m in history), default=0)
         user_turn = max_turn + 1
@@ -300,20 +250,8 @@ def handle_post(handler, strat, auth, path) -> bool:
             character_card_id=card_id, persona=persona
         )
 
-        # Immediate regex extraction on every user message (instant, ~0ms)
-        rp_memory.extract_facts_immediate(session_id, content, user_turn, db)
-
         # Build messages for Ollama
         system_prompt = _build_system_prompt(card, director_note)
-
-        # Inject tiered memory context
-        memory_context, memory_debug = rp_memory.build_rp_context(
-            session_id, db, character_card_id=card_id, token_budget=4000
-        )
-        if memory_context:
-            system_prompt += f"\n\n{memory_context}"
-        logger.info(f"Memory context: {memory_debug}")
-
         messages = [{"role": "system", "content": system_prompt}]
 
         for m in history:
@@ -348,24 +286,13 @@ def handle_post(handler, strat, auth, path) -> bool:
             error_response(handler, "Failed to start Ollama", 503)
             return True
 
-        # Dynamic generation params: num_predict ceiling + \n\n stop for short inputs
-        gen_params = _get_generation_params(content)
-
         # Stream response
         start_sse(handler)
         start_time = time.time()
-        full_text = _stream_ollama(handler, ollama_host, model, messages,
-                                   num_predict=gen_params.get("num_predict", 500),
-                                   stop=gen_params.get("stop"))
+        full_text = _stream_ollama(handler, ollama_host, model, messages)
         elapsed_ms = int((time.time() - start_time) * 1000)
 
         if full_text:
-            # Post-processing: sentence-aware truncation for short inputs
-            input_words = len(content.split())
-            if input_words <= 2:
-                full_text = _truncate_response(full_text, target_words=20)
-            elif input_words <= 5:
-                full_text = _truncate_response(full_text, target_words=40)
             # Insert assistant message
             asst_turn = user_turn + 1
             db.insert_rp_message(
@@ -373,30 +300,6 @@ def handle_post(handler, strat, auth, path) -> bool:
                 character_card_id=card_id, persona=persona, model_version=model,
                 response_ms=elapsed_ms
             )
-
-            # Non-blocking tiered memory extraction
-            # Use message pair count (asst_turn / 2) for extraction gates
-            pair_count = asst_turn // 2
-            if rp_memory.should_extract(pair_count):
-                threading.Thread(
-                    target=rp_memory.extract_facts,
-                    args=(session_id, content, full_text, asst_turn, db),
-                    daemon=True
-                ).start()
-            if rp_memory.should_arc_summarize(pair_count, content, full_text):
-                char_name = card.get("name", "Character") if card else "Character"
-                # Get user name from tier 1 facts
-                user_facts = db.get_rp_context(session_id, tier=1, category="user_fact")
-                user_name = next((f["value"] for f in user_facts if f["key"] == "name"), "User")
-                recent = [dict(m) for m in history[-10:]] + [
-                    {"role": "user", "content": content},
-                    {"role": "assistant", "content": full_text},
-                ]
-                threading.Thread(
-                    target=rp_memory.extract_arc_summary,
-                    args=(session_id, user_name, char_name, recent, asst_turn, db),
-                    daemon=True
-                ).start()
 
         sse_event(handler, {"done": True, "session_id": session_id, "branch_id": branch_id})
         return True
