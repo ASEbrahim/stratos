@@ -93,12 +93,18 @@ export default function ImageGenScreen() {
 
     try {
       let result: { success: boolean; image_id?: string; error?: string };
+      const steps = QUALITY_MODES[quality].steps;
       if (isCharacterMode) {
-        result = await generateCharacterPortrait({
-          character_name: params.name!,
-          physical_description: params.description!,
-          style,
-          character_card_id: params.card_id,
+        // Build prompt client-side so we can control steps
+        const stylePrefix = style === 'anime' ? 'masterpiece, best quality, highly detailed anime illustration, '
+          : style === 'realistic' ? 'masterpiece, photorealistic, highly detailed photograph, '
+          : 'masterpiece, best quality, detailed illustration, ';
+        const charPrompt = `${stylePrefix}${params.description!.slice(0, 500)}, 1person, ${params.name!}, sharp focus, detailed eyes, detailed face`;
+        result = await generateImage({
+          prompt: charPrompt,
+          width: 768,
+          height: 1024,
+          steps,
         });
       } else {
         const s = SIZES[size];
@@ -109,7 +115,7 @@ export default function ImageGenScreen() {
           prompt: stylePrefix + prompt.trim(),
           width: s.w,
           height: s.h,
-          steps: QUALITY_MODES[quality].steps,
+          steps,
           ...(seed ? { seed: parseInt(seed, 10) } : {}),
         });
       }
