@@ -7,7 +7,7 @@ import sqlite3
 import json
 import threading
 from datetime import datetime, timedelta
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Optional, Union
 from pathlib import Path
 import logging
 
@@ -15,6 +15,24 @@ from migrations import run_migrations
 import user_data
 
 logger = logging.getLogger(__name__)
+
+# Column whitelists for dynamic SQL — prevents injection via dict keys
+_RP_MESSAGE_COLUMNS = frozenset({
+    'model_version', 'character_card_id', 'persona', 'response_tokens',
+    'response_ms', 'swipe_group_id', 'was_selected', 'director_note',
+    'parent_branch_id', 'branch_point_turn', 'is_active',
+})
+_CHARACTER_CARD_COLUMNS = frozenset({
+    'physical_description', 'speech_pattern', 'emotional_trigger',
+    'defensive_mechanism', 'vulnerability', 'specific_detail',
+    'personality', 'scenario', 'first_message', 'example_dialogues',
+    'genre_tags', 'content_rating', 'avatar_image_path', 'is_published',
+    'quality_elements_count', 'imported_from', 'tavern_card_raw',
+})
+_CHARACTER_CARD_UPDATE_COLUMNS = _CHARACTER_CARD_COLUMNS | frozenset({'name'})
+_GENERATED_IMAGE_COLUMNS = frozenset({
+    'negative_prompt', 'seed', 'steps', 'character_card_id', 'session_id',
+})
 
 
 class Database:
@@ -80,7 +98,7 @@ class Database:
     # NEWS ITEMS
     # =========================================================================
     
-    def save_news_item(self, item: Dict[str, Any], profile_id: int = 0) -> bool:
+    def save_news_item(self, item: Dict[str, Union[str, float, int, None]], profile_id: int = 0) -> bool:
         """
         Save a news item to the database.
         Returns True if new item, False if duplicate.
@@ -239,7 +257,7 @@ class Database:
     # SCAN LOG
     # =========================================================================
     
-    def save_scan_log(self, entry: Dict[str, Any], profile_id: int = 0) -> int:
+    def save_scan_log(self, entry: Dict[str, Union[str, int, float, None]], profile_id: int = 0) -> int:
         """Save a scan completion log entry. Returns the scan log row ID."""
         cursor = self.conn.cursor()
         cursor.execute("""
@@ -303,7 +321,7 @@ class Database:
     # SHADOW SCORES
     # =========================================================================
 
-    def save_shadow_score(self, entry: Dict[str, Any], profile_id: int = 0):
+    def save_shadow_score(self, entry: Dict[str, Union[str, int, float, None]], profile_id: int = 0):
         """Save a shadow scoring comparison entry."""
         cursor = self.conn.cursor()
         try:
@@ -405,7 +423,7 @@ class Database:
         """, (since, profile_id))
         return [dict(row) for row in cursor.fetchall()]
 
-    def save_feedback(self, feedback: Dict[str, Any], profile_id: int = 0) -> bool:
+    def save_feedback(self, feedback: Dict[str, Union[str, int, float, None]], profile_id: int = 0) -> bool:
         """Save user feedback (click, dismiss, rate, save, thumbs) for a news item.
 
         Profile columns (profile_role, profile_location) are stored when available
@@ -455,7 +473,7 @@ class Database:
             logger.error(f"Failed to save feedback: {e}")
             return False
     
-    def get_feedback_stats(self, profile_id: int = 0) -> Dict[str, Any]:
+    def get_feedback_stats(self, profile_id: int = 0) -> Dict[str, Union[int, float, dict, list, None]]:
         """Get summary stats on user feedback for a specific profile."""
         cursor = self.conn.cursor()
 
@@ -632,10 +650,8 @@ class Database:
                           turn_number: int, role: str, content: str, **kwargs) -> int:
         """Insert an RP message and return its ID. Retries on DB lock."""
         cols = ['session_id', 'profile_id', 'branch_id', 'turn_number', 'role', 'content']
-        vals = [session_id, profile_id, branch_id, turn_number, role, content]
-        for k in ['model_version', 'character_card_id', 'persona', 'response_tokens',
-                   'response_ms', 'swipe_group_id', 'was_selected', 'director_note',
-                   'parent_branch_id', 'branch_point_turn', 'is_active']:
+        vals: list = [session_id, profile_id, branch_id, turn_number, role, content]
+        for k in _RP_MESSAGE_COLUMNS:
             if k in kwargs:
                 cols.append(k)
                 vals.append(kwargs[k])
@@ -794,13 +810,8 @@ class Database:
     def insert_character_card(self, card_id: str, creator_id: int, name: str, **fields):
         """Create a new character card. Retries on DB lock."""
         cols = ['id', 'creator_profile_id', 'name']
-        vals = [card_id, creator_id, name]
-        allowed = ['physical_description', 'speech_pattern', 'emotional_trigger',
-                    'defensive_mechanism', 'vulnerability', 'specific_detail',
-                    'personality', 'scenario', 'first_message', 'example_dialogues',
-                    'genre_tags', 'content_rating', 'avatar_image_path', 'is_published',
-                    'quality_elements_count', 'imported_from', 'tavern_card_raw']
-        for k in allowed:
+        vals: list = [card_id, creator_id, name]
+        for k in _CHARACTER_CARD_COLUMNS:
             if k in fields:
                 cols.append(k)
                 vals.append(fields[k])
@@ -849,10 +860,15 @@ class Database:
         if not fields:
             return
         sets = []
-        vals = []
+        vals: list = []
         for k, v in fields.items():
+            if k not in _CHARACTER_CARD_UPDATE_COLUMNS:
+                logger.warning(f"update_character_card: ignoring unknown column '{k}'")
+                continue
             sets.append(f"{k} = ?")
             vals.append(v)
+        if not sets:
+            return
         sets.append("updated_at = CURRENT_TIMESTAMP")
         vals.append(card_id)
         self.conn.execute(f"UPDATE character_cards SET {','.join(sets)} WHERE id = ?", vals)
@@ -886,8 +902,8 @@ class Database:
                                model: str, width: int, height: int, filename: str,
                                filepath: str, **kwargs):
         cols = ['id', 'profile_id', 'prompt', 'model', 'width', 'height', 'filename', 'file_path']
-        vals = [image_id, profile_id, prompt, model, width, height, filename, filepath]
-        for k in ['negative_prompt', 'seed', 'steps', 'character_card_id', 'session_id']:
+        vals: list = [image_id, profile_id, prompt, model, width, height, filename, filepath]
+        for k in _GENERATED_IMAGE_COLUMNS:
             if k in kwargs:
                 cols.append(k)
                 vals.append(kwargs[k])
@@ -999,10 +1015,21 @@ class Database:
             for c in self._all_conns:
                 try:
                     c.close()
-                except Exception:
-                    pass
+                except Exception as e:
+                    logger.error(f"Error closing database connection: {e}")
             self._all_conns.clear()
         self._local.conn = None
+
+    def cleanup(self):
+        """Alias for close() — ensures all tracked connections are released."""
+        self.close()
+
+    def __del__(self):
+        """Ensure connections are closed when the Database object is garbage collected."""
+        try:
+            self.close()
+        except Exception:
+            pass  # __del__ must never raise
 
 
 # Singleton instance

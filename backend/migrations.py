@@ -485,7 +485,7 @@ def migration_019(cursor):
     """Add persona column to user_files for persona-scoped file isolation."""
     try:
         cursor.execute("ALTER TABLE user_files ADD COLUMN persona TEXT NOT NULL DEFAULT ''")
-    except Exception:
+    except sqlite3.OperationalError:
         pass  # Column already exists
     cursor.execute(
         "CREATE INDEX IF NOT EXISTS idx_user_files_persona "
@@ -647,7 +647,7 @@ def migration_026(cursor):
     for col in ["reset_attempts INTEGER DEFAULT 0", "otp_attempts INTEGER DEFAULT 0"]:
         try:
             cursor.execute(f"ALTER TABLE users ADD COLUMN {col}")
-        except Exception:
+        except sqlite3.OperationalError:
             pass  # Column already exists
 
 
@@ -836,7 +836,7 @@ def migration_027(cursor):
     # ── Privacy opt-in on profiles ──
     try:
         cursor.execute("ALTER TABLE profiles ADD COLUMN training_data_opt_in BOOLEAN DEFAULT FALSE")
-    except Exception:
+    except sqlite3.OperationalError:
         pass  # Column already exists
 
 
@@ -857,6 +857,32 @@ def migration_028(cursor):
     """)
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_rp_ctx_session ON rp_session_context(session_id, tier)")
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_rp_ctx_updated ON rp_session_context(session_id, updated_at DESC)")
+
+
+# -- Migration 029: High-traffic query indexes --
+@migration
+def migration_029(cursor):
+    """Add missing indexes for high-traffic query patterns."""
+    # news_items(profile_id, url) — used by duplicate checks and lookups
+    cursor.execute(
+        "CREATE INDEX IF NOT EXISTS idx_news_profile_url "
+        "ON news_items(profile_id, url)"
+    )
+    # rp_messages(session_id, branch_id) — used by get_full_branch_conversation
+    cursor.execute(
+        "CREATE INDEX IF NOT EXISTS idx_rp_msg_session_branch "
+        "ON rp_messages(session_id, branch_id)"
+    )
+    # sessions(token) — already PK, but add index on user_id + expires for cleanup queries
+    cursor.execute(
+        "CREATE INDEX IF NOT EXISTS idx_sessions_token_expires "
+        "ON sessions(token, expires_at)"
+    )
+    # character_cards(creator_profile_id) — already idx_cards_creator, verify it exists
+    cursor.execute(
+        "CREATE INDEX IF NOT EXISTS idx_cards_creator "
+        "ON character_cards(creator_profile_id)"
+    )
 
 
 # =========================================================================
