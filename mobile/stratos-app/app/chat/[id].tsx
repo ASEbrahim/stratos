@@ -3,7 +3,7 @@ import { View, Text, FlatList, StyleSheet, KeyboardAvoidingView, Platform, Touch
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useFocusEffect } from 'expo-router';
 import * as Haptics from 'expo-haptics';
-import { Pencil } from 'lucide-react-native';
+import { Pencil, RefreshCw } from 'lucide-react-native';
 import { useThemedAlert } from '../../components/shared/ThemedAlert';
 import { useChatStore } from '../../stores/chatStore';
 import { SessionHeader } from '../../components/chat/SessionHeader';
@@ -174,25 +174,35 @@ export default function ChatScreen() {
                 {!isAssistant && !isStreaming && index > 0 && (
                   <View style={[styles.msgActions, { justifyContent: 'flex-end' }]}>
                     <TouchableOpacity
-                      style={styles.editBtn}
+                      style={styles.actionBtn}
                       onPress={() => setEditTarget({ id: item.id, content: item.content, isUser: true } as any)}
                       hitSlop={8}
                     >
-                      <Pencil size={11} color={tc.text.faint} />
+                      <Pencil size={14} color={tc.text.faint} />
                     </TouchableOpacity>
                   </View>
                 )}
 
-                {/* Feedback + Edit + Swipe on assistant messages */}
+                {/* Feedback + Regenerate + Edit on assistant messages */}
                 {isAssistant && !isStreaming && (
                   <View style={styles.msgActions}>
                     <FeedbackButtons messageId={item.id} accentColor={accentColor} />
+                    {isLastAssistant && (
+                      <TouchableOpacity
+                        style={styles.actionBtn}
+                        onPress={handleRegenerate}
+                        disabled={isRegenerating}
+                        hitSlop={8}
+                      >
+                        <RefreshCw size={14} color={tc.text.faint} />
+                      </TouchableOpacity>
+                    )}
                     <TouchableOpacity
-                      style={styles.editBtn}
+                      style={styles.actionBtn}
                       onPress={() => setEditTarget({ id: item.id, content: item.content })}
                       hitSlop={8}
                     >
-                      <Pencil size={11} color={tc.text.faint} />
+                      <Pencil size={14} color={tc.text.faint} />
                     </TouchableOpacity>
                   </View>
                 )}
@@ -290,7 +300,8 @@ const styles = StyleSheet.create({
   msgList: { paddingVertical: spacing.md },
   msgActions: { flexDirection: 'row', alignItems: 'center' },
   editBtn: { padding: 4, marginLeft: 4 },
-  scrollFab: { position: 'absolute', right: spacing.lg, bottom: 180, width: 36, height: 36, borderRadius: 18, justifyContent: 'center', alignItems: 'center', borderWidth: 1, zIndex: 10, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.3, shadowRadius: 4, elevation: 4 },
+  actionBtn: { padding: 6, marginLeft: 6 },
+  scrollFab: { position: 'absolute', right: spacing.lg, bottom: 210, width: 36, height: 36, borderRadius: 18, justifyContent: 'center', alignItems: 'center', borderWidth: 1, zIndex: 10, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.3, shadowRadius: 4, elevation: 4 },
   charIntro: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, marginHorizontal: spacing.lg, marginBottom: spacing.md, padding: spacing.md, borderRadius: 12, borderWidth: 1 },
   charIntroAvatar: { width: 40, height: 40, borderRadius: 20, justifyContent: 'center', alignItems: 'center' },
   charIntroLetter: { fontSize: 18, fontFamily: fonts.heading },

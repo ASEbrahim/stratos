@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, ScrollView, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import { View, Text, TextInput, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
+import { useThemedAlert } from '../shared/ThemedAlert';
 import { useRouter } from 'expo-router';
 import * as Haptics from 'expo-haptics';
 import * as DocumentPicker from 'expo-document-picker';
@@ -63,6 +64,7 @@ export function CardEditor({ initialCard, prefillData }: CardEditorProps) {
   const { loadMyCards, loadNew } = useCharacterStore();
   const saveBtnScale = useSharedValue(1);
   const saveBtnAnimStyle = useAnimatedStyle(() => ({ transform: [{ scale: saveBtnScale.value }] }));
+  const { alert: showAlert, AlertComponent } = useThemedAlert();
 
   const update = (key: keyof CharacterCardCreate, value: string | string[]) => setCard(prev => ({ ...prev, [key]: value }));
   const toggleGenre = (id: string) => setCard(prev => ({
@@ -73,7 +75,7 @@ export function CardEditor({ initialCard, prefillData }: CardEditorProps) {
   const qualityColor = tc.quality[quality.level];
 
   const handleSave = async () => {
-    if (!card.name.trim()) { Alert.alert('Missing Name', 'Give your character a name.'); return; }
+    if (!card.name.trim()) { showAlert('Missing Name', 'Give your character a name.'); return; }
     setSaving(true);
     saveBtnScale.value = withSequence(withSpring(0.95, { damping: 15 }), withSpring(1, { damping: 10 }));
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
@@ -94,15 +96,15 @@ export function CardEditor({ initialCard, prefillData }: CardEditorProps) {
         });
         loadMyCards().catch(() => {});
         loadNew().catch(() => {});
-        Alert.alert('Updated!', 'Character has been updated.', [{ text: 'OK', onPress: () => router.back() }]);
+        showAlert('Updated!', 'Character has been updated.', [{ text: 'OK', onPress: () => router.back() }]);
       } else {
         await createCharacter(card);
         await incrementStat('totalCharacters');
         loadMyCards().catch(() => {});
         loadNew().catch(() => {});
-        Alert.alert('Created!', 'Your character has been created.', [{ text: 'OK', onPress: () => router.back() }]);
+        showAlert('Created!', 'Your character has been created.', [{ text: 'OK', onPress: () => router.back() }]);
       }
-    } catch { Alert.alert('Error', isEditing ? 'Failed to update character.' : 'Failed to create character.'); }
+    } catch { showAlert('Error', isEditing ? 'Failed to update character.' : 'Failed to create character.'); }
     finally { setSaving(false); }
   };
 
@@ -117,16 +119,16 @@ export function CardEditor({ initialCard, prefillData }: CardEditorProps) {
       if (result.canceled || !result.assets?.[0]) { setImporting(false); return; }
       const parsed = await parseTavernCard(result.assets[0].uri);
       if (!parsed) {
-        Alert.alert('Import Failed', 'No TavernCard V2 data found in this PNG. Make sure it\'s a valid character card file.');
+        showAlert('Import Failed', 'No TavernCard V2 data found in this PNG. Make sure it\'s a valid character card file.');
         setImporting(false);
         return;
       }
       setCard(parsed);
       setMode('advanced'); // Show all imported fields
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-      Alert.alert('Imported!', `"${parsed.name}" loaded. Review and edit before saving.`);
+      showAlert('Imported!', `"${parsed.name}" loaded. Review and edit before saving.`);
     } catch {
-      Alert.alert('Error', 'Failed to import card file.');
+      showAlert('Error', 'Failed to import card file.');
     } finally { setImporting(false); }
   };
 
@@ -310,6 +312,7 @@ export function CardEditor({ initialCard, prefillData }: CardEditorProps) {
       </Animated.View>
 
       <View style={{ height: spacing.xxl }} />
+      {AlertComponent}
     </ScrollView>
   );
 }
