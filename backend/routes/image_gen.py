@@ -7,7 +7,7 @@ Handles both SFW and NSFW content without model switching.
 
 CHROMA: https://huggingface.co/lodestones/Chroma
 - Apache 2.0 license
-- 4-step generation (schnell-based), CFG ~3.5
+- 28-step generation, CFG 4.0, beta scheduler
 - Natural language prompts, supports existing Flux LoRAs
 - Uses same VAE (ae.safetensors) and T5-XXL encoder as FLUX
 
@@ -195,7 +195,7 @@ def handle_post(handler, strat, auth, path) -> bool:
         width = min(max(data.get("width", 1024), 512), 1536)
         height = min(max(data.get("height", 1024), 512), 1536)
         seed = data.get("seed", -1)
-        steps = data.get("steps", 4)
+        steps = data.get("steps", 28)
         negative = data.get("negative_prompt", "")
 
         result = generate_image(prompt, negative, width, height, seed, steps)
@@ -294,9 +294,17 @@ def handle_delete(handler, strat, auth, path) -> bool:
     if not path.startswith("/api/image/"):
         return False
 
+    profile_id = getattr(handler, '_profile_id', 0)
     parts = path.split("/")
     if len(parts) == 4:
         image_id = parts[3]
+        # Ownership check — only delete your own images
+        row = strat.db.conn.execute(
+            "SELECT profile_id FROM generated_images WHERE id = ?", (image_id,)
+        ).fetchone()
+        if row and row[0] != profile_id and profile_id != 0:
+            error_response(handler, "Not your image", 403)
+            return True
         matches = list(OUTPUT_DIR.glob(f"{image_id}.*"))
         for f in matches:
             f.unlink()

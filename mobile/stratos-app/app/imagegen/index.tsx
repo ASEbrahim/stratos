@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, TextInput, ScrollView, TouchableOpacity, StyleSheet, ActivityIndicator, Alert, FlatList, Dimensions } from 'react-native';
+import { View, Text, TextInput, ScrollView, TouchableOpacity, StyleSheet, ActivityIndicator, Alert, Dimensions, Platform } from 'react-native';
 import { Image } from 'expo-image';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import * as Haptics from 'expo-haptics';
 import { cacheDirectory, downloadAsync } from 'expo-file-system/legacy';
 import * as MediaLibrary from 'expo-media-library';
-import { Wand2, Download, ImageIcon, Trash2, ChevronDown, ChevronUp, Shuffle, Clock, Grid3X3 } from 'lucide-react-native';
+import { Wand2, Download, ImageIcon, Trash2, ChevronDown, ChevronUp, Shuffle, Grid3X3 } from 'lucide-react-native';
 import { Header } from '../../components/shared/Header';
 import { useThemeStore } from '../../stores/themeStore';
 import { typography, spacing, borderRadius } from '../../constants/theme';
@@ -94,8 +94,11 @@ export default function ImageGenScreen() {
         });
       } else {
         const s = SIZES[size];
+        const stylePrefix = style === 'anime' ? 'masterpiece, highly detailed anime illustration, '
+          : style === 'realistic' ? 'masterpiece, photorealistic, highly detailed photograph, '
+          : 'masterpiece, best quality, detailed illustration, ';
         result = await generateImage({
-          prompt: prompt.trim(),
+          prompt: stylePrefix + prompt.trim(),
           width: s.w,
           height: s.h,
           ...(seed ? { seed: parseInt(seed, 10) } : {}),
@@ -121,13 +124,19 @@ export default function ImageGenScreen() {
     if (!imageId) return;
     setSaving(true);
     try {
+      const uri = getImageUrl(imageId);
+      if (Platform.OS === 'web') {
+        // Browser: open image in new tab for right-click save
+        window.open(uri, '_blank');
+        setSaving(false);
+        return;
+      }
       const { status } = await MediaLibrary.requestPermissionsAsync();
       if (status !== 'granted') {
         Alert.alert('Permission needed', 'Allow photo library access to save images.');
         setSaving(false);
         return;
       }
-      const uri = getImageUrl(imageId);
       const fileUri = cacheDirectory + `stratos_${imageId}.png`;
       const download = await downloadAsync(uri, fileUri);
       await MediaLibrary.saveToLibraryAsync(download.uri);
@@ -154,24 +163,6 @@ export default function ImageGenScreen() {
       },
     ]);
   };
-
-  const renderGalleryItem = ({ item }: { item: GalleryImage }) => (
-    <TouchableOpacity
-      style={[styles.galleryThumb, { backgroundColor: tc.bg.tertiary }]}
-      onPress={() => setImageId(item.id)}
-      onLongPress={() => handleDeleteImage(item.id)}
-      activeOpacity={0.7}
-    >
-      <Image
-        source={{ uri: getImageUrl(item.id) }}
-        style={styles.galleryImage}
-        contentFit="cover"
-      />
-      {imageId === item.id && (
-        <View style={[styles.gallerySelected, { borderColor: tc.accent.primary }]} />
-      )}
-    </TouchableOpacity>
-  );
 
   return (
     <View style={[styles.container, { paddingTop: insets.top, backgroundColor: tc.bg.primary }]}>

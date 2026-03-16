@@ -117,13 +117,17 @@ export async function generateImage(params: {
   seed?: number;
   negative_prompt?: string;
 }): Promise<{ success: boolean; image_id?: string; error?: string }> {
+  if (USE_MOCKS) {
+    await new Promise(r => setTimeout(r, 2000));
+    return { success: true, image_id: `mock-img-${Date.now()}` };
+  }
   try {
     return await apiFetch<{ success: boolean; image_id?: string; error?: string }>(
       '/api/image/generate',
       { method: 'POST', body: JSON.stringify(params) }
     );
   } catch {
-    return { success: false, error: 'Image generation unavailable — ComfyUI is not running. Start it with: bash tools/start_comfyui.sh (requires stopping Ollama first)' };
+    return { success: false, error: 'Image generation unavailable — ComfyUI is not running.' };
   }
 }
 
@@ -136,13 +140,17 @@ export async function generateCharacterPortrait(params: {
   nsfw?: boolean;
   character_card_id?: string;
 }): Promise<{ success: boolean; image_id?: string; error?: string }> {
+  if (USE_MOCKS) {
+    await new Promise(r => setTimeout(r, 2000));
+    return { success: true, image_id: `mock-portrait-${Date.now()}` };
+  }
   try {
     return await apiFetch<{ success: boolean; image_id?: string; error?: string }>(
       '/api/image/character-portrait',
       { method: 'POST', body: JSON.stringify(params) }
     );
   } catch {
-    return { success: false, error: 'Image generation unavailable — ComfyUI is not running. Ollama and ComfyUI cannot share the GPU simultaneously.' };
+    return { success: false, error: 'Image generation unavailable — ComfyUI is not running.' };
   }
 }
 

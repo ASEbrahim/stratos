@@ -276,7 +276,7 @@ export function CardEditor({ initialCard }: CardEditorProps) {
           onPress={() => {
             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
             const desc = card.physical_description?.trim() || card.personality?.trim() || card.description?.trim() || card.name;
-            router.push({ pathname: '/imagegen', params: { name: card.name, description: desc } });
+            router.push({ pathname: '/imagegen', params: { name: card.name, description: desc, ...(initialCard?.id ? { card_id: initialCard.id } : {}) } });
           }}
           activeOpacity={0.7}
         >
