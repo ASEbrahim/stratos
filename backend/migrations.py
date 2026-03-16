@@ -840,6 +840,25 @@ def migration_027(cursor):
         pass  # Column already exists
 
 
+@migration
+def migration_028(cursor):
+    """Create rp_session_context table for tiered memory persistence."""
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS rp_session_context (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            session_id TEXT NOT NULL,
+            tier INTEGER NOT NULL,
+            category TEXT NOT NULL,
+            key TEXT NOT NULL,
+            value TEXT NOT NULL,
+            turn_number INTEGER DEFAULT 0,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_rp_ctx_session ON rp_session_context(session_id, tier)")
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_rp_ctx_updated ON rp_session_context(session_id, updated_at DESC)")
+
+
 # =========================================================================
 # Migration runner
 # =========================================================================

@@ -904,6 +904,79 @@ class Database:
         return [dict(r) for r in rows]
 
     # =========================================================================
+    # RP SESSION CONTEXT (Tiered Memory)
+    # =========================================================================
+
+    def upsert_rp_context(self, session_id: str, tier: int, category: str,
+                          key: str, value: str, turn_number: int = 0):
+        """Insert or update a context entry. Upserts on (session_id, tier, category, key)."""
+        existing = self.conn.execute(
+            "SELECT id FROM rp_session_context WHERE session_id = ? AND tier = ? AND category = ? AND key = ?",
+            (session_id, tier, category, key)
+        ).fetchone()
+        if existing:
+            self.conn.execute(
+                "UPDATE rp_session_context SET value = ?, turn_number = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?",
+                (value, turn_number, existing['id'])
+            )
+        else:
+            self.conn.execute(
+                "INSERT INTO rp_session_context (session_id, tier, category, key, value, turn_number) VALUES (?, ?, ?, ?, ?, ?)",
+                (session_id, tier, category, key, value, turn_number)
+            )
+        self._commit()
+
+    def insert_rp_context(self, session_id: str, tier: int, category: str,
+                          key: str, value: str, turn_number: int = 0):
+        """Insert a new context entry (no upsert)."""
+        self.conn.execute(
+            "INSERT INTO rp_session_context (session_id, tier, category, key, value, turn_number) VALUES (?, ?, ?, ?, ?, ?)",
+            (session_id, tier, category, key, value, turn_number)
+        )
+        self._commit()
+
+    def get_rp_context(self, session_id: str, tier: int = None,
+                       category: str = None, limit: int = 50) -> list:
+        """Get context entries for a session, optionally filtered by tier/category."""
+        query = "SELECT * FROM rp_session_context WHERE session_id = ?"
+        params: list = [session_id]
+        if tier is not None:
+            query += " AND tier = ?"
+            params.append(tier)
+        if category is not None:
+            query += " AND category = ?"
+            params.append(category)
+        query += " ORDER BY updated_at DESC LIMIT ?"
+        params.append(limit)
+        return [dict(r) for r in self.conn.execute(query, params).fetchall()]
+
+    def delete_rp_context(self, session_id: str, tier: int = None):
+        """Delete context entries for a session, optionally filtered by tier."""
+        if tier is not None:
+            self.conn.execute(
+                "DELETE FROM rp_session_context WHERE session_id = ? AND tier = ?",
+                (session_id, tier)
+            )
+        else:
+            self.conn.execute(
+                "DELETE FROM rp_session_context WHERE session_id = ?", (session_id,)
+            )
+        self._commit()
+
+    def get_rp_context_for_character(self, character_card_id: str, tier: int = 1,
+                                      limit: int = 30) -> list:
+        """Get context across ALL sessions for a character (cross-session memory)."""
+        rows = self.conn.execute(
+            """SELECT rc.* FROM rp_session_context rc
+               JOIN rp_messages rm ON rc.session_id = rm.session_id
+               WHERE rm.character_card_id = ? AND rc.tier = ?
+               GROUP BY rc.category, rc.key
+               ORDER BY rc.updated_at DESC LIMIT ?""",
+            (character_card_id, tier, limit)
+        ).fetchall()
+        return [dict(r) for r in rows]
+
+    # =========================================================================
     # PRIVACY / CONSENT
     # =========================================================================
 
