@@ -11,7 +11,7 @@ export async function streamMessage(
   sessionId: string, message: string, persona: 'roleplay' | 'gaming',
   characterCard: CharacterCard | null,
   onChunk: (text: string) => void, onDone: () => void,
-  directorNote?: string,
+  directorNote?: string, sessionContext?: string,
 ): Promise<void> {
   if (USE_MOCKS) {
     await mockStream(message, persona, characterCard, onChunk, onDone);
@@ -37,6 +37,7 @@ export async function streamMessage(
         character_card_id: characterCard?.id || undefined,
         first_message: characterCard?.first_message || undefined,
         ...(directorNote ? { director_note: directorNote } : {}),
+        ...(sessionContext ? { session_context: sessionContext } : {}),
       }),
     });
     if (!response.ok) {

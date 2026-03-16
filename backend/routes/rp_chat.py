@@ -227,6 +227,7 @@ def handle_post(handler, strat, auth, path) -> bool:
         persona = data.get("persona", "roleplay")
         card_id = data.get("character_card_id")
         director_note = data.get("director_note")
+        session_context = data.get("session_context", "")
 
         if not content:
             error_response(handler, "Message content required", 400)
@@ -252,6 +253,9 @@ def handle_post(handler, strat, auth, path) -> bool:
 
         # Build messages for Ollama
         system_prompt = _build_system_prompt(card, director_note)
+        # Inject persistent session context (from Import Context)
+        if session_context:
+            system_prompt += f"\n\nSESSION CONTEXT (reference throughout):\n{session_context}"
         messages = [{"role": "system", "content": system_prompt}]
 
         for m in history:

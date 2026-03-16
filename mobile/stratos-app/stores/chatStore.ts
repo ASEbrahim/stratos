@@ -7,6 +7,7 @@ interface ChatState {
   sessionId: string | null;
   character: CharacterCard | null;
   persona: 'roleplay' | 'gaming';
+  sessionContext: string;  // Persistent context injected on every turn
   messages: ChatMessage[];
   suggestions: Suggestion[];
   isStreaming: boolean;
@@ -15,6 +16,7 @@ interface ChatState {
   recentSessions: ChatSession[];
   startSession: (character: CharacterCard, persona?: 'roleplay' | 'gaming') => void;
   resumeSession: (session: ChatSession) => void;
+  setSessionContext: (context: string) => void;
   sendMessage: (content: string, directorNote?: string) => Promise<void>;
   loadSuggestions: () => Promise<void>;
   loadRecentSessions: () => Promise<void>;
@@ -24,7 +26,7 @@ interface ChatState {
 }
 
 export const useChatStore = create<ChatState>((set, get) => ({
-  sessionId: null, character: null, persona: 'roleplay', messages: [], suggestions: [],
+  sessionId: null, character: null, persona: 'roleplay', sessionContext: '', messages: [], suggestions: [],
   isStreaming: false, streamingContent: '', isLoadingSuggestions: false, recentSessions: [],
   startSession: (character, persona = 'roleplay') => {
     const sessionId = `session-${character.id}-${Date.now()}`;
@@ -32,9 +34,10 @@ export const useChatStore = create<ChatState>((set, get) => ({
     if (character.first_message) {
       messages.push({ id: createMessageId(), role: 'assistant', content: character.first_message, timestamp: new Date().toISOString() });
     }
-    set({ sessionId, character, persona, messages, suggestions: [], isStreaming: false, streamingContent: '' });
+    set({ sessionId, character, persona, sessionContext: '', messages, suggestions: [], isStreaming: false, streamingContent: '' });
     incrementStat('totalSessions').catch(() => {});
   },
+  setSessionContext: (context) => set({ sessionContext: context }),
   resumeSession: (session: ChatSession) => {
     set({
       sessionId: session.id,
@@ -45,7 +48,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
     });
   },
   sendMessage: async (content, directorNote) => {
-    const { sessionId, character, persona, messages } = get();
+    const { sessionId, character, persona, sessionContext, messages } = get();
     if (!sessionId) return;
     const userMessage: ChatMessage = { id: createMessageId(), role: 'user', content, timestamp: new Date().toISOString() };
     set({ messages: [...messages, userMessage], isStreaming: true, streamingContent: '', suggestions: [] });
@@ -59,7 +62,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
         get().persistSession().catch(() => {});
         get().loadSuggestions().catch(() => {});
       },
-      directorNote,
+      directorNote, sessionContext || undefined,
     );
   },
   loadSuggestions: async () => {

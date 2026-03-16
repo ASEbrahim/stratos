@@ -31,7 +31,7 @@ export default function ChatScreen() {
   const [showScrollBtn, setShowScrollBtn] = useState(false);
   const [showSaved, setShowSaved] = useState(false);
   const tc = useThemeStore(s => s.colors);
-  const { character, messages, suggestions, isStreaming, streamingContent, sendMessage, persistSession, startSession, clearSession, regenerateLastMessage } = useChatStore();
+  const { character, messages, suggestions, isStreaming, streamingContent, sendMessage, persistSession, startSession, clearSession, regenerateLastMessage, setSessionContext } = useChatStore();
   const accentColor = character ? getGenreColor(character.genre_tags?.[0] ?? 'default') : undefined;
 
   // ── RP Expansion state ──
@@ -125,22 +125,23 @@ export default function ChatScreen() {
   const handleUpdateCharacter = async () => {
     if (!character?.id) return;
     try {
-      const { getCharacter } = await import('../../lib/characters');
-      const updated = await getCharacter(character.id);
-      if (updated) {
-        useChatStore.setState({ character: updated });
-        showAlert('Updated', `${updated.name}'s card has been refreshed.`);
-      }
-    } catch {
+      const { apiFetch } = await import('../../lib/api');
+      const { mapCardFromBackend } = await import('../../lib/mappers');
+      const raw = await apiFetch<any>(`/api/cards/${character.id}`);
+      const updated = mapCardFromBackend(raw);
+      useChatStore.setState({ character: updated });
+      showAlert('Updated', `${updated.name}'s card has been refreshed. Changes will apply to the next message.`);
+    } catch (e) {
       showAlert('Error', 'Failed to update character card.');
     }
   };
 
   const handleImportContext = () => {
     if (!contextInput.trim()) return;
-    sendMessage(`[Session Context — reference this throughout the conversation]\n${contextInput.trim()}`);
+    setSessionContext(contextInput.trim());
     setShowContextModal(false);
     setContextInput('');
+    showAlert('Context Applied', 'This context will be referenced by the AI in every response for this session.');
   };
 
   const lastAssistantIdx = messages.length > 0 && messages[messages.length - 1]?.role === 'assistant'
