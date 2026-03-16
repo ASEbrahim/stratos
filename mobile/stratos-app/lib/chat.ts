@@ -34,6 +34,7 @@ export async function streamMessage(
         persona,
         session_id: sessionId,
         character_card_id: characterCard?.id || undefined,
+        first_message: characterCard?.first_message || undefined,
       }),
     });
     if (!response.ok) {

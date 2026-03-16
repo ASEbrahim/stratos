@@ -267,6 +267,7 @@ def handle_post(handler, strat, auth, path) -> bool:
         persona = data.get("persona", "roleplay")
         card_id = data.get("character_card_id")
         director_note = data.get("director_note")
+        first_message = data.get("first_message", "")
 
         if not content:
             error_response(handler, "Message content required", 400)
@@ -279,6 +280,15 @@ def handle_post(handler, strat, auth, path) -> bool:
 
         # Get conversation history
         history = db.get_full_branch_conversation(session_id, branch_id)
+
+        # If this is the first message and character has a first_message,
+        # store it as turn 0 so the AI has the opening context
+        if not history and first_message:
+            db.insert_rp_message(
+                session_id, profile_id, branch_id, 0, 'assistant', first_message,
+                character_card_id=card_id, persona=persona
+            )
+            history = [{"turn_number": 0, "role": "assistant", "content": first_message}]
 
         # Determine next turn number
         max_turn = max((m['turn_number'] for m in history), default=0)

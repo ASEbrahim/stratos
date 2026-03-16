@@ -99,18 +99,20 @@ export const useChatStore = create<ChatState>((set, get) => ({
   regenerateLastMessage: async () => {
     const { sessionId, character, persona, messages } = get();
     if (!sessionId || messages.length < 2) return;
-    // Find the last user message
-    let lastUserIdx = -1;
-    for (let i = messages.length - 1; i >= 0; i--) {
-      if (messages[i].role === 'user') { lastUserIdx = i; break; }
-    }
-    if (lastUserIdx < 0) return;
-    // Remove everything after the last user message
-    const trimmed = messages.slice(0, lastUserIdx + 1);
-    const userContent = messages[lastUserIdx].content;
+    // Remove the last assistant message from display
+    const trimmed = messages.filter((_, i) => i < messages.length - 1 || messages[i].role !== 'assistant');
     set({ messages: trimmed, isStreaming: true, streamingContent: '', suggestions: [] });
+    // Use the regenerate endpoint (swipe) — it handles deactivating the old response
+    // and generates a fresh one with different sampling
+    const { regenerateMessage } = await import('../lib/rp');
+    try {
+      await regenerateMessage(sessionId, 'main', character?.id);
+    } catch { /* swipe endpoint may fail, fall back to re-streaming */ }
+    // Re-stream from the regular chat endpoint with the last user message
+    const lastUser = trimmed.filter(m => m.role === 'user').pop();
+    if (!lastUser) return;
     let accumulated = '';
-    await streamMessage(sessionId, userContent, persona, character,
+    await streamMessage(sessionId, lastUser.content, persona, character,
       (chunk) => { accumulated += chunk; set({ streamingContent: accumulated }); },
       () => {
         const assistantMessage: ChatMessage = { id: createMessageId(), role: 'assistant', content: accumulated, timestamp: new Date().toISOString() };
