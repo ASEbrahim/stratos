@@ -128,16 +128,22 @@ export default function ImageGenScreen() {
     }
   };
 
-  const handleSaveToDevice = async () => {
+  const handleSaveToDevice = useCallback(() => {
     if (!imageId) return;
-    setSaving(true);
-    try {
-      const uri = getImageUrl(imageId);
-      if (Platform.OS === 'web') {
-        // Open image in new tab — user can right-click save
-        window.open(uri, '_blank');
-      } else {
-        // Native: use expo-file-system + expo-media-library
+    const uri = getImageUrl(imageId);
+    if (Platform.OS === 'web') {
+      // Synchronous — must be in direct click handler to avoid popup blocker
+      const w = window.open(uri, '_blank');
+      if (!w) {
+        // Popup blocked — navigate directly
+        window.location.assign(uri);
+      }
+      return;
+    }
+    // Native path (async)
+    (async () => {
+      setSaving(true);
+      try {
         const { cacheDirectory, downloadAsync } = await import('expo-file-system/legacy');
         const MediaLibrary = await import('expo-media-library');
         const { status } = await MediaLibrary.requestPermissionsAsync();
@@ -151,15 +157,12 @@ export default function ImageGenScreen() {
         await MediaLibrary.saveToLibraryAsync(download.uri);
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
         Alert.alert('Saved', 'Image saved to your photo library.');
-      }
-    } catch (e: any) {
-      // On web, Linking.openURL should always work — this catch is for native failures
-      if (Platform.OS !== 'web') {
+      } catch {
         Alert.alert('Error', 'Failed to save image.');
       }
-    }
-    setSaving(false);
-  };
+      setSaving(false);
+    })();
+  }, [imageId]);
 
   const handleSetAsAvatar = async () => {
     if (!imageId || !params.card_id) return;
