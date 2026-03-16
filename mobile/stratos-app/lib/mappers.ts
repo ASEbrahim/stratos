@@ -6,7 +6,7 @@
  */
 
 import { CharacterCard } from './types';
-import { API_BASE } from '../constants/config';
+import { safeParse, buildUrl } from './utils';
 
 /**
  * Map a backend character card response to mobile CharacterCard interface.
@@ -25,9 +25,9 @@ export function mapCardFromBackend(raw: any): CharacterCard {
     defensive_mechanism: raw.defensive_mechanism || '',
     vulnerability: raw.vulnerability || '',
     specific_detail: raw.specific_detail || '',
-    genre_tags: typeof raw.genre_tags === 'string' ? JSON.parse(raw.genre_tags || '[]') : (raw.genre_tags || []),
+    genre_tags: typeof raw.genre_tags === 'string' ? safeParse(raw.genre_tags, []) : (raw.genre_tags || []),
     content_rating: raw.content_rating || 'sfw',
-    avatar_url: raw.avatar_image_path ? `${API_BASE}/api/image/${raw.avatar_image_path}` : (raw.avatar_url || ''),
+    avatar_url: raw.avatar_image_path ? buildUrl(`/api/image/${raw.avatar_image_path}`) : (raw.avatar_url || ''),
     creator_id: String(raw.creator_profile_id || raw.creator_id || ''),
     creator_name: raw.creator_name || 'Unknown',
     is_public: raw.is_published ?? raw.is_public ?? false,

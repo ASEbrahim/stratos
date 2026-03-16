@@ -74,6 +74,7 @@ export interface ChatSession {
   character_name: string;
   character_avatar: string;
   persona: 'roleplay' | 'gaming';
+  session_context?: string;
   messages: ChatMessage[];
   created_at: string;
   updated_at: string;

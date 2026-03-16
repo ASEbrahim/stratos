@@ -5,7 +5,7 @@
  * These call the backend endpoints built in Sprints 2-6.
  */
 
-import { apiFetch, getToken } from './api';
+import { apiFetch, getToken, getDeviceId } from './api';
 import { API_BASE, USE_MOCKS } from '../constants/config';
 
 // ── Swipe: regenerate last assistant message ──
@@ -60,9 +60,14 @@ export async function createBranch(
     return { ok: true, branch_id: `branch-mock-${Date.now()}`, from_branch: branchId };
   }
   const token = await getToken();
+  const deviceId = await getDeviceId();
   const response = await fetch(`${API_BASE}/api/rp/branch`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Device-Id': deviceId,
+      ...(token ? { 'X-Auth-Token': token } : {}),
+    },
     body: JSON.stringify({
       session_id: sessionId, branch_id: branchId,
       at_turn: atTurn, content, character_card_id: cardId, persona,

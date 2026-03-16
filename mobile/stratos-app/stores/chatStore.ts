@@ -43,13 +43,14 @@ export const useChatStore = create<ChatState>((set, get) => ({
       sessionId: session.id,
       character: { id: session.character_id, name: session.character_name, avatar_url: session.character_avatar } as CharacterCard,
       persona: session.persona,
+      sessionContext: session.session_context || '',
       messages: session.messages,
       suggestions: [], isStreaming: false, streamingContent: '',
     });
   },
   sendMessage: async (content, directorNote) => {
-    const { sessionId, character, persona, sessionContext, messages } = get();
-    if (!sessionId) return;
+    const { sessionId, character, persona, sessionContext, messages, isStreaming } = get();
+    if (!sessionId || isStreaming) return;
     const userMessage: ChatMessage = { id: createMessageId(), role: 'user', content, timestamp: new Date().toISOString() };
     set({ messages: [...messages, userMessage], isStreaming: true, streamingContent: '', suggestions: [] });
     let accumulated = '';
@@ -86,7 +87,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
     set({ sessionId: null, character: null, messages: [], suggestions: [], isStreaming: false, streamingContent: '' });
   },
   persistSession: async () => {
-    const { sessionId, character, persona, messages } = get();
+    const { sessionId, character, persona, sessionContext, messages } = get();
     if (!sessionId || !character || messages.length === 0) return;
     const session: ChatSession = {
       id: sessionId,
@@ -94,6 +95,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
       character_name: character.name,
       character_avatar: character.avatar_url,
       persona,
+      session_context: sessionContext || undefined,
       messages,
       created_at: messages[0]?.timestamp ?? new Date().toISOString(),
       updated_at: new Date().toISOString(),
@@ -101,8 +103,8 @@ export const useChatStore = create<ChatState>((set, get) => ({
     await saveChatSession(session);
   },
   regenerateLastMessage: async () => {
-    const { sessionId, character, persona, messages } = get();
-    if (!sessionId || messages.length < 2) return;
+    const { sessionId, character, persona, messages, isStreaming } = get();
+    if (!sessionId || messages.length < 2 || isStreaming) return;
     const lastIdx = messages.length - 1;
     if (messages[lastIdx].role !== 'assistant') return;
     const originalMessages = [...messages]; // Full backup for fallback

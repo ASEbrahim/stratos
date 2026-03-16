@@ -115,7 +115,12 @@ function readUint32(bytes: Uint8Array, offset: number): number {
 }
 
 function bytesToString(bytes: Uint8Array): string {
-  let str = '';
-  for (let i = 0; i < bytes.length; i++) str += String.fromCharCode(bytes[i]);
-  return str;
+  try {
+    return new TextDecoder('utf-8').decode(bytes);
+  } catch {
+    // Fallback for environments without TextDecoder
+    let str = '';
+    for (let i = 0; i < bytes.length; i++) str += String.fromCharCode(bytes[i]);
+    return str;
+  }
 }
