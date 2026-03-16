@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { ChatMessage, ChatSession, CharacterCard, Suggestion } from '../lib/types';
-import { streamMessage, getSuggestions, createMessageId } from '../lib/chat';
+import { streamMessage, streamRegenerate, getSuggestions, createMessageId } from '../lib/chat';
 import { saveChatSession, loadChatSessions, getChatSession, incrementStat } from '../lib/storage';
 
 interface ChatState {
@@ -100,43 +100,32 @@ export const useChatStore = create<ChatState>((set, get) => ({
   regenerateLastMessage: async () => {
     const { sessionId, character, persona, messages } = get();
     if (!sessionId || messages.length < 2) return;
-    // Keep the old message as fallback in case regenerate fails
     const lastIdx = messages.length - 1;
     if (messages[lastIdx].role !== 'assistant') return;
-    const oldMessage = messages[lastIdx];
+    const originalMessages = [...messages]; // Full backup for fallback
     const trimmed = messages.slice(0, lastIdx);
     set({ messages: trimmed, isStreaming: true, streamingContent: '', suggestions: [] });
 
-    // Use the same streamMessage function for consistency
-    // The backend's /api/rp/chat will see the conversation history
-    // WITHOUT the last assistant message (since we just inserted it as turn N
-    // and it's the latest), so it generates a fresh response
-    const lastUser = trimmed.filter(m => m.role === 'user').pop();
-    if (!lastUser) {
-      // Restore old message if no user message found
-      set({ messages, isStreaming: false });
-      return;
-    }
-
     let accumulated = '';
     try {
-      await streamMessage(sessionId, lastUser.content, persona, character,
+      // Use streamRegenerate — hits /api/rp/regenerate, does NOT create duplicate user messages
+      await streamRegenerate(sessionId, persona, character,
         (chunk) => { accumulated += chunk; set({ streamingContent: accumulated }); },
         () => {
           if (accumulated) {
             const assistantMessage: ChatMessage = { id: createMessageId(), role: 'assistant', content: accumulated, timestamp: new Date().toISOString() };
             set((state) => ({ messages: [...state.messages, assistantMessage], isStreaming: false, streamingContent: '' }));
           } else {
-            // Restore old message if generation returned empty
-            set({ messages, isStreaming: false, streamingContent: '' });
+            // Restore original if empty response
+            set({ messages: originalMessages, isStreaming: false, streamingContent: '' });
           }
           get().persistSession().catch(() => {});
           get().loadSuggestions().catch(() => {});
         },
       );
     } catch {
-      // Restore old message on error
-      set({ messages, isStreaming: false, streamingContent: '' });
+      // Restore original on error
+      set({ messages: originalMessages, isStreaming: false, streamingContent: '' });
     }
   },
 }));

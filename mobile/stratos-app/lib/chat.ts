@@ -87,6 +87,75 @@ export async function streamMessage(
   }
 }
 
+/**
+ * Stream a regenerated (swipe) response from /api/rp/regenerate.
+ * Does NOT insert a new user message — reuses existing conversation.
+ */
+export async function streamRegenerate(
+  sessionId: string, persona: 'roleplay' | 'gaming',
+  characterCard: CharacterCard | null,
+  onChunk: (text: string) => void, onDone: () => void,
+): Promise<void> {
+  if (USE_MOCKS) {
+    await mockStream('regenerate', persona, characterCard, onChunk, onDone);
+    return;
+  }
+  try {
+    const token = await getToken();
+    const deviceId = await getDeviceId();
+    const response = await fetch(`${API_BASE}/api/rp/regenerate`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Device-Id': deviceId,
+        ...(token ? { 'X-Auth-Token': token } : {}),
+      },
+      body: JSON.stringify({
+        session_id: sessionId,
+        branch_id: 'main',
+        character_card_id: characterCard?.id || undefined,
+        persona,
+      }),
+    });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+    const reader = response.body?.getReader();
+    if (reader) {
+      const decoder = new TextDecoder();
+      let buffer = '';
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) { onDone(); break; }
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop() ?? '';
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            try {
+              const data = JSON.parse(line.slice(6));
+              if (data.content || data.token) onChunk(data.content || data.token);
+              if (data.done) { onDone(); return; }
+            } catch { /* partial */ }
+          }
+        }
+      }
+    } else {
+      const text = await response.text();
+      for (const line of text.split('\n')) {
+        if (line.startsWith('data: ')) {
+          try {
+            const data = JSON.parse(line.slice(6));
+            if (data.content || data.token) onChunk(data.content || data.token);
+          } catch { /* partial */ }
+        }
+      }
+      onDone();
+    }
+  } catch {
+    onDone(); // Signal done even on error so UI doesn't hang
+  }
+}
+
 // ─── Context-aware mock responses ───
 // Reads user message + character card to produce semi-coherent replies
 async function mockStream(
