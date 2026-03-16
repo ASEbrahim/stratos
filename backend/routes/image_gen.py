@@ -7,7 +7,7 @@ Handles both SFW and NSFW content without model switching.
 
 CHROMA: https://huggingface.co/lodestones/Chroma
 - Apache 2.0 license
-- 28-step generation, CFG 4.0, beta scheduler
+- 8-step generation (schnell-distilled), CFG 4.0, beta scheduler
 - Natural language prompts, supports existing Flux LoRAs
 - Uses same VAE (ae.safetensors) and T5-XXL encoder as FLUX
 
@@ -123,7 +123,7 @@ def character_to_image_prompt(card: dict, style: str = "anime") -> str:
 
 def generate_image(prompt: str, negative_prompt: str = "",
                    width: int = 1024, height: int = 1024, seed: int = -1,
-                   steps: int = 28) -> dict:
+                   steps: int = 8) -> dict:
     """Generate an image via CHROMA through ComfyUI. Auto-swaps GPU from Ollama if needed."""
 
     # Ensure ComfyUI is running (swaps from Ollama if needed)
@@ -195,7 +195,7 @@ def handle_post(handler, strat, auth, path) -> bool:
         width = min(max(data.get("width", 1024), 512), 1536)
         height = min(max(data.get("height", 1024), 512), 1536)
         seed = data.get("seed", -1)
-        steps = data.get("steps", 28)
+        steps = data.get("steps", 8)
         negative = data.get("negative_prompt", "")
 
         result = generate_image(prompt, negative, width, height, seed, steps)

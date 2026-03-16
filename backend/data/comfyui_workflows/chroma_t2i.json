@@ -37,7 +37,7 @@
       "negative": ["9", 0],
       "latent_image": ["4", 0],
       "seed": 0,
-      "steps": 28,
+      "steps": 8,
       "cfg": 4.0,
       "sampler_name": "euler",
       "scheduler": "beta",
