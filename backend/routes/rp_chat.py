@@ -21,6 +21,7 @@ import json
 import time
 import uuid
 import logging
+import threading
 import requests as req
 
 from routes.helpers import (
@@ -28,6 +29,7 @@ from routes.helpers import (
     start_sse, sse_event, strip_think_blocks,
 )
 from routes.gpu_manager import ensure_ollama
+from routes import rp_memory
 
 logger = logging.getLogger("rp_chat")
 
@@ -252,6 +254,15 @@ def handle_post(handler, strat, auth, path) -> bool:
 
         # Build messages for Ollama
         system_prompt = _build_system_prompt(card, director_note)
+
+        # Inject tiered memory context
+        memory_context, memory_debug = rp_memory.build_rp_context(
+            session_id, db, character_card_id=card_id, token_budget=4000
+        )
+        if memory_context:
+            system_prompt += f"\n\n{memory_context}"
+        logger.info(f"Memory context: {memory_debug}")
+
         messages = [{"role": "system", "content": system_prompt}]
 
         for m in history:
@@ -300,6 +311,30 @@ def handle_post(handler, strat, auth, path) -> bool:
                 character_card_id=card_id, persona=persona, model_version=model,
                 response_ms=elapsed_ms
             )
+
+            # Non-blocking tiered memory extraction
+            # Use message pair count (asst_turn / 2) for extraction gates
+            pair_count = asst_turn // 2
+            if rp_memory.should_extract(pair_count):
+                threading.Thread(
+                    target=rp_memory.extract_facts,
+                    args=(session_id, content, full_text, asst_turn, db),
+                    daemon=True
+                ).start()
+            if rp_memory.should_arc_summarize(pair_count, content, full_text):
+                char_name = card.get("name", "Character") if card else "Character"
+                # Get user name from tier 1 facts
+                user_facts = db.get_rp_context(session_id, tier=1, category="user_fact")
+                user_name = next((f["value"] for f in user_facts if f["key"] == "name"), "User")
+                recent = [dict(m) for m in history[-10:]] + [
+                    {"role": "user", "content": content},
+                    {"role": "assistant", "content": full_text},
+                ]
+                threading.Thread(
+                    target=rp_memory.extract_arc_summary,
+                    args=(session_id, user_name, char_name, recent, asst_turn, db),
+                    daemon=True
+                ).start()
 
         sse_event(handler, {"done": True, "session_id": session_id, "branch_id": branch_id})
         return True
