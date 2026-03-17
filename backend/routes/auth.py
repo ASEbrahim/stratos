@@ -931,14 +931,17 @@ def _delete_user_data(db, user_id: int):
         cursor.execute("DELETE FROM briefings WHERE profile_id = ?", (pid,))
         cursor.execute("DELETE FROM shadow_scores WHERE profile_id = ?", (pid,))
         # Tables added after initial auth system — must also be cleaned
-        for table in ['conversations', 'scenarios', 'persona_entities',
-                       'persona_context', 'user_preference_signals', 'user_files',
-                       'video_insights', 'youtube_videos', 'youtube_channels',
-                       'narration_sources', 'prompt_templates']:
+        _CLEANUP_TABLES = frozenset([
+            'conversations', 'scenarios', 'persona_entities',
+            'persona_context', 'user_preference_signals', 'user_files',
+            'video_insights', 'youtube_videos', 'youtube_channels',
+            'narration_sources', 'prompt_templates',
+        ])
+        for table in _CLEANUP_TABLES:
             try:
                 cursor.execute(f"DELETE FROM {table} WHERE profile_id = ?", (pid,))
-            except Exception:
-                pass  # Table may not exist in older schema versions
+            except Exception as e:
+                logger.debug(f"Cleanup skip {table}: {e}")  # Table may not exist in older schema
     # Delete user-scoped data
     cursor.execute("DELETE FROM sessions WHERE user_id = ?", (user_id,))
     cursor.execute("DELETE FROM invite_codes WHERE created_by = ? OR used_by = ?", (user_id, user_id))

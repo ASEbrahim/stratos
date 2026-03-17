@@ -514,9 +514,11 @@ def handle_post(handler, strat, auth, path):
                     entity_name = parts[5]
                     updates = []
                     values = []
-                    for field in ['display_name', 'entity_type', 'identity_md', 'personality_md',
+                    # Allowlist — only these columns can be updated (prevents injection via body keys)
+                    _ENTITY_FIELDS = frozenset(['display_name', 'entity_type', 'identity_md', 'personality_md',
                                   'speaking_style_md', 'relationship_md', 'memory_md', 'knowledge_md',
-                                  'extra_md', 'auto_save']:
+                                  'extra_md', 'auto_save'])
+                    for field in _ENTITY_FIELDS:
                         if field in body:
                             updates.append(f"{field} = ?")
                             values.append(body[field])

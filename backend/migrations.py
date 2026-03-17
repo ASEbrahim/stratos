@@ -14,7 +14,28 @@ logger = logging.getLogger(__name__)
 # Migration registry — append new migrations at the end, never reorder
 # NOTE: f-strings in ALTER TABLE are safe — column names are hardcoded literals,
 # not user input. SQLite DDL does not support parameterized column names.
+# FINDING-010: Acknowledged. All DDL f-strings use developer-controlled literals only.
 # =========================================================================
+
+# Allowlists for DDL validation (defense-in-depth — catches typos too)
+_VALID_TABLES = frozenset([
+    'news_items', 'market_snapshots', 'entities', 'entity_mentions', 'scan_log',
+    'briefings', 'user_feedback', 'shadow_scores', 'users', 'profiles', 'sessions',
+    'pending_registrations', 'invite_codes', 'conversations', 'scenarios',
+    'persona_entities', 'persona_context', 'user_files', 'user_preference_signals',
+    'youtube_channels', 'youtube_videos', 'video_insights', 'narration_sources',
+    'prompt_templates', 'sprint_log', 'schema_version',
+    'rp_messages', 'rp_edits', 'rp_suggestions', 'rp_feedback',
+    'rp_conversation_scores', 'rp_session_context',
+    'character_cards', 'character_card_stats', 'character_card_ratings',
+    'generated_images',
+])
+
+def _safe_table(name: str) -> str:
+    """Validate table name against allowlist before DDL interpolation."""
+    if name not in _VALID_TABLES:
+        raise ValueError(f"Unknown table in migration: {name}")
+    return name
 
 MIGRATIONS = []
 
@@ -254,7 +275,7 @@ def migration_008(cursor):
     # Add profile_id column to 5 existing tables (DEFAULT 0 = legacy sentinel)
     for table in ['news_items', 'scan_log', 'user_feedback', 'shadow_scores', 'briefings']:
         try:
-            cursor.execute(f"ALTER TABLE {table} ADD COLUMN profile_id INTEGER NOT NULL DEFAULT 0")
+            cursor.execute(f"ALTER TABLE {_safe_table(table)} ADD COLUMN profile_id INTEGER NOT NULL DEFAULT 0")
         except sqlite3.OperationalError:
             pass  # Column already exists
 
