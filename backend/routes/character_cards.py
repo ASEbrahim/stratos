@@ -20,10 +20,14 @@ import json
 import struct
 import uuid
 import logging
+import threading
+import requests as req
 
 from routes.helpers import json_response, error_response, read_json_body
 
 logger = logging.getLogger("character_cards")
+
+OLLAMA_HOST = "http://localhost:11434"
 
 MAX_CARD_NAME_LENGTH = 200
 MAX_CARD_FIELD_LENGTH = 5000
@@ -87,6 +91,61 @@ def tavern_card_to_stratos(card_data: dict) -> dict:
         "vulnerability": "",
         "specific_detail": "",
     }
+
+
+def _enrich_card_background(card_id: str, name: str, personality: str, scenario: str,
+                            content_rating: str, db):
+    """Background LLM call to auto-fill missing depth fields on a new card.
+
+    Only fills fields the user left empty. Never overwrites user content.
+    Runs in a background thread so card creation returns instantly.
+    """
+    try:
+        rating_note = "This is an NSFW character — mature themes are expected." if content_rating == "nsfw" else ""
+        prompt = f"""Given this character, generate the missing depth fields as JSON.
+Character: {name}
+Personality: {personality}
+Scenario: {scenario}
+{rating_note}
+
+Return ONLY valid JSON with these keys (1-2 sentences each, vivid and specific):
+{{
+  "emotional_trigger": "What specifically makes this character lose composure or react strongly",
+  "defensive_mechanism": "How they protect themselves emotionally when threatened or vulnerable",
+  "vulnerability": "Their hidden weakness or deepest fear that they try to hide",
+  "specific_detail": "A small defining quirk, habit, or physical detail that makes them feel real"
+}}"""
+
+        r = req.post(f"{OLLAMA_HOST}/api/generate", json={
+            "model": "qwen3.5:9b", "prompt": prompt, "stream": False,
+            "options": {"temperature": 0.4, "num_predict": 300},
+            "think": False,
+        }, timeout=30)
+        if r.status_code != 200:
+            return
+
+        import re
+        text = r.json().get("response", "")
+        # Extract JSON from response
+        json_match = re.search(r'\{[^{}]*\}', text, re.DOTALL)
+        if not json_match:
+            return
+        data = json.loads(json_match.group())
+
+        # Only update fields that are currently empty
+        updates = {}
+        for field in ["emotional_trigger", "defensive_mechanism", "vulnerability", "specific_detail"]:
+            val = data.get(field, "").strip()
+            if val and len(val) > 10:
+                updates[field] = val[:500]
+
+        if updates:
+            updates["quality_elements_count"] = calculate_quality_elements({**updates})
+            db.update_character_card(card_id, **updates)
+            logger.info(f"Auto-enriched card '{name}': filled {list(updates.keys())}")
+
+    except Exception as e:
+        logger.warning(f"Card auto-enrichment failed for '{name}' (non-fatal): {e}")
 
 
 def calculate_quality_elements(card: dict) -> int:
@@ -155,6 +214,16 @@ def handle_post(handler, strat, auth, path) -> bool:
             is_published=True,
         )
 
+        # ── Auto-enrich missing depth fields in background ──
+        depth_fields = ["emotional_trigger", "defensive_mechanism", "vulnerability", "specific_detail"]
+        missing_depth = [f for f in depth_fields if not data.get(f, "").strip()]
+        if missing_depth and data.get("personality", "").strip():
+            threading.Thread(
+                target=_enrich_card_background, daemon=True,
+                args=(card_id, name, data.get("personality", ""),
+                      data.get("scenario", ""), data.get("content_rating", "sfw"), db)
+            ).start()
+
         json_response(handler, {"ok": True, "card_id": card_id, "quality_elements": quality})
         return True
 
@@ -181,6 +250,14 @@ def handle_post(handler, strat, auth, path) -> bool:
             card_id, profile_id, stratos_fields["name"],
             **{k: v for k, v in stratos_fields.items() if k != "name"}
         )
+
+        # Auto-enrich imported cards too
+        if stratos_fields.get("personality", "").strip():
+            threading.Thread(
+                target=_enrich_card_background, daemon=True,
+                args=(card_id, stratos_fields["name"], stratos_fields.get("personality", ""),
+                      stratos_fields.get("scenario", ""), "sfw", db)
+            ).start()
 
         json_response(handler, {
             "ok": True, "card_id": card_id,

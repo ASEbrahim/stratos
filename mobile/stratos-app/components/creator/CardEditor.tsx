@@ -102,13 +102,14 @@ export function CardEditor({ initialCard, prefillData }: CardEditorProps) {
     try {
       setImporting(true);
       const result = await DocumentPicker.getDocumentAsync({
-        type: 'image/png',
+        type: ['image/png', 'application/json'],
         copyToCacheDirectory: true,
       });
       if (result.canceled || !result.assets?.[0]) { setImporting(false); return; }
-      const parsed = await parseTavernCard(result.assets[0].uri);
+      const asset = result.assets[0];
+      const parsed = await parseTavernCard(asset.uri, asset.mimeType);
       if (!parsed) {
-        showAlert('Import Failed', 'No TavernCard V2 data found in this PNG. Make sure it\'s a valid character card file.');
+        showAlert('Import Failed', 'No character data found. Supports TavernCard V2 PNG and character JSON files.');
         setImporting(false);
         return;
       }

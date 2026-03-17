@@ -3,12 +3,37 @@ import { TavernCardV2, CharacterCardCreate } from './types';
 import { reportError } from './utils';
 
 /**
- * Parse a TavernCard V2 PNG file and extract the embedded character data.
+ * Parse a TavernCard V2 PNG or a character JSON file.
  * TavernCard V2 stores JSON in the PNG tEXt chunk with keyword "chara" (base64 encoded).
+ * Also supports plain JSON files with character data (Tavern JSON export or custom format).
  */
-export async function parseTavernCard(uri: string): Promise<CharacterCardCreate | null> {
+export async function parseTavernCard(uri: string, mimeType?: string): Promise<CharacterCardCreate | null> {
   try {
-    // Read file as base64
+    // Handle JSON files directly
+    if (mimeType === 'application/json' || uri.endsWith('.json')) {
+      const jsonStr = await FileSystem.readAsStringAsync(uri, { encoding: 'utf8' });
+      const data = JSON.parse(jsonStr);
+      // Support multiple JSON formats
+      const charData = data.data || data.character || data;
+      if (charData.name || charData.char_name) {
+        const tavern: TavernCardV2 = {
+          name: charData.name || charData.char_name || 'Imported Character',
+          description: charData.description || charData.char_persona || '',
+          personality: charData.personality || '',
+          scenario: charData.scenario || charData.world_scenario || '',
+          first_mes: charData.first_mes || charData.first_message || charData.greeting || '',
+          mes_example: charData.mes_example || charData.example_dialogue || '',
+          tags: charData.tags || [],
+          creator_notes: charData.creator_notes || '',
+          spec: charData.spec || 'chara_card_v2',
+          spec_version: charData.spec_version || '2.0',
+        };
+        return mapTavernToCard(tavern);
+      }
+      return null;
+    }
+
+    // Read file as base64 (PNG path)
     const fileBase64 = await FileSystem.readAsStringAsync(uri, { encoding: 'base64' });
     const bytes = base64ToBytes(fileBase64);
 
