@@ -846,11 +846,11 @@ class Database:
             query += " AND c.genre_tags LIKE ?"
             params.append(f'%{genre}%')
         if sort == 'trending':
-            query += " ORDER BY COALESCE(s.total_sessions, 0) DESC"
+            query += " ORDER BY COALESCE(s.total_sessions, 0) DESC, c.quality_elements_count DESC, c.created_at DESC"
         elif sort == 'newest':
             query += " ORDER BY c.created_at DESC"
         elif sort == 'top_rated':
-            query += " ORDER BY COALESCE(s.avg_rating, 0) DESC"
+            query += " ORDER BY COALESCE(s.avg_rating, 0) DESC, COALESCE(s.total_ratings, 0) DESC, c.quality_elements_count DESC"
         query += " LIMIT ? OFFSET ?"
         params.extend([limit, offset])
         rows = self.conn.execute(query, params).fetchall()

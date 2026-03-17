@@ -17,7 +17,7 @@ const CARD_WIDTH = (Dimensions.get('window').width - spacing.md * 2 - spacing.sm
 interface CharacterCardProps { card: CharacterCardType; variant?: 'grid' | 'horizontal'; featured?: boolean; }
 
 function isNew(dateStr: string): boolean {
-  return Date.now() - new Date(dateStr).getTime() < 30 * 24 * 60 * 60 * 1000;
+  return Date.now() - new Date(dateStr).getTime() < 2 * 24 * 60 * 60 * 1000;
 }
 
 export const CharacterCardComponent = React.memo(function CharacterCardComponent({ card, variant = 'grid', featured = false }: CharacterCardProps) {
