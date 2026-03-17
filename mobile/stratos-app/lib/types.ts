@@ -66,6 +66,7 @@ export interface ChatMessage {
   role: 'user' | 'assistant' | 'system';
   content: string;
   timestamp: string;
+  dbId?: number;  // Backend rp_messages.id — used for edit/feedback API calls
 }
 
 export interface ChatSession {

@@ -9,20 +9,21 @@ import { reportError } from '../../lib/utils';
 
 interface FeedbackButtonsProps {
   messageId: string;
+  dbId?: number;  // Backend rp_messages.id
   accentColor?: string;
 }
 
-export const FeedbackButtons = React.memo(function FeedbackButtons({ messageId, accentColor }: FeedbackButtonsProps) {
+export const FeedbackButtons = React.memo(function FeedbackButtons({ messageId, dbId, accentColor }: FeedbackButtonsProps) {
   const tc = useThemeStore(s => s.colors);
   const accent = accentColor ?? tc.accent.primary;
   const [selected, setSelected] = useState<'up' | 'down' | null>(null);
 
   const handleFeedback = async (type: 'up' | 'down') => {
-    if (selected === type) return;
+    if (selected === type || !dbId) return;
     setSelected(type);
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     try {
-      await sendFeedback(parseInt(messageId) || 0, type === 'up' ? 'thumbs_up' : 'thumbs_down');
+      await sendFeedback(dbId, type === 'up' ? 'thumbs_up' : 'thumbs_down');
     } catch (err) { reportError('FeedbackButtons:sendFeedback', err); }
   };
 

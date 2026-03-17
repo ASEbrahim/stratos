@@ -37,7 +37,7 @@ export default function ChatScreen() {
   const [currentBranch, setCurrentBranch] = useState('main');
   const [swipeCount, setSwipeCount] = useState(0);
   const [swipeIndex, setSwipeIndex] = useState(0);
-  const [editTarget, setEditTarget] = useState<{ id: string; content: string; isUser?: boolean } | null>(null);
+  const [editTarget, setEditTarget] = useState<{ id: string; content: string; isUser?: boolean; dbId?: number } | null>(null);
   const [showContextModal, setShowContextModal] = useState(false);
   const [contextInput, setContextInput] = useState('');
   const [isRegenerating, setIsRegenerating] = useState(false);
@@ -231,6 +231,7 @@ export default function ChatScreen() {
         <EditSheet
           visible={!!editTarget}
           messageId={editTarget.id}
+          dbId={editTarget.dbId}
           originalContent={editTarget.content}
           onClose={() => setEditTarget(null)}
           onSaved={handleEditSaved}

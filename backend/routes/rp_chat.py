@@ -304,7 +304,7 @@ def handle_post(handler, strat, auth, path) -> bool:
                 user_turn = 1
 
         # Insert user message
-        db.insert_rp_message(
+        user_msg_id = db.insert_rp_message(
             session_id, profile_id, branch_id, user_turn, 'user', content,
             character_card_id=card_id, persona=persona
         )
@@ -369,10 +369,11 @@ def handle_post(handler, strat, auth, path) -> bool:
         full_text = _stream_ollama(handler, ollama_host, model, messages)
         elapsed_ms = int((time.time() - start_time) * 1000)
 
+        asst_msg_id = None
         if full_text:
             # Insert assistant message
             asst_turn = user_turn + 1
-            db.insert_rp_message(
+            asst_msg_id = db.insert_rp_message(
                 session_id, profile_id, branch_id, asst_turn, 'assistant', full_text,
                 character_card_id=card_id, persona=persona, model_version=model,
                 response_ms=elapsed_ms
@@ -394,7 +395,10 @@ def handle_post(handler, strat, auth, path) -> bool:
                     args=(session_id, "User", char_name, all_msgs, asst_turn, db)
                 ).start()
 
-        sse_event(handler, {"done": True, "session_id": session_id, "branch_id": branch_id})
+        sse_event(handler, {
+            "done": True, "session_id": session_id, "branch_id": branch_id,
+            "user_message_id": user_msg_id, "message_id": asst_msg_id,
+        })
         return True
 
     # ── POST /api/rp/regenerate (swipe — last message only) ──

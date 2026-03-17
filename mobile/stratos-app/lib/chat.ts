@@ -21,7 +21,7 @@ export function cancelStream(): void {
 export async function streamMessage(
   sessionId: string, message: string, persona: 'roleplay' | 'gaming',
   characterCard: CharacterCard | null,
-  onChunk: (text: string) => void, onDone: () => void,
+  onChunk: (text: string) => void, onDone: (doneData?: Record<string, unknown>) => void,
   directorNote?: string, sessionContext?: string,
 ): Promise<void> {
   if (USE_MOCKS) {
@@ -67,7 +67,7 @@ export async function streamMessage(
 
     await parseSSEStream(response, {
       onToken: onChunk,
-      onComplete: onDone,
+      onComplete: (doneData) => onDone(doneData),
       onError: (err) => {
         reportError('streamMessage:sse', err);
         onChunk(`\n\n*[${err.message}]*`);

@@ -20,13 +20,14 @@ const EDIT_REASONS = [
 interface EditSheetProps {
   visible: boolean;
   messageId: string;
+  dbId?: number;  // Backend rp_messages.id
   originalContent: string;
   onClose: () => void;
   onSaved: (newContent: string) => void;
   accentColor?: string;
 }
 
-export function EditSheet({ visible, messageId, originalContent, onClose, onSaved, accentColor }: EditSheetProps) {
+export function EditSheet({ visible, messageId, dbId, originalContent, onClose, onSaved, accentColor }: EditSheetProps) {
   const tc = useThemeStore(s => s.colors);
   const accent = accentColor ?? tc.accent.primary;
   const [content, setContent] = useState(originalContent);
@@ -38,7 +39,7 @@ export function EditSheet({ visible, messageId, originalContent, onClose, onSave
     setSaving(true);
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     try {
-      await editMessage(parseInt(messageId) || 0, content.trim(), reason || undefined);
+      await editMessage(dbId || 0, content.trim(), reason || undefined);
       onSaved(content.trim());
       onClose();
     } catch (err) {

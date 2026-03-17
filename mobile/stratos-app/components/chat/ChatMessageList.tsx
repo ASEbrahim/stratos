@@ -19,8 +19,8 @@ interface ChatMessageListProps {
   isRegenerating: boolean;
   showScrollBtn: boolean;
   showSaved: boolean;
-  onEditUser: (msg: { id: string; content: string; isUser: boolean }) => void;
-  onEditAssistant: (msg: { id: string; content: string }) => void;
+  onEditUser: (msg: { id: string; content: string; isUser: boolean; dbId?: number }) => void;
+  onEditAssistant: (msg: { id: string; content: string; dbId?: number }) => void;
   onRegenerate: () => void;
   onScroll: (e: NativeSyntheticEvent<NativeScrollEvent>) => void;
   onScrollToEnd: () => void;
@@ -72,7 +72,7 @@ export const ChatMessageList = React.memo(function ChatMessageList({
                 <View style={[styles.msgActions, { justifyContent: 'flex-end' }]}>
                   <TouchableOpacity
                     style={styles.actionBtn}
-                    onPress={() => onEditUser({ id: item.id, content: item.content, isUser: true })}
+                    onPress={() => onEditUser({ id: item.id, content: item.content, isUser: true, dbId: item.dbId })}
                     hitSlop={8}
                   >
                     <Pencil size={14} color={tc.text.faint} />
@@ -83,7 +83,7 @@ export const ChatMessageList = React.memo(function ChatMessageList({
               {/* Feedback + Regenerate + Edit on assistant messages */}
               {isAssistant && !isStreaming && (
                 <View style={styles.msgActions}>
-                  <FeedbackButtons messageId={item.id} accentColor={accentColor} />
+                  <FeedbackButtons messageId={item.id} dbId={item.dbId} accentColor={accentColor} />
                   {isLastAssistant && (
                     <TouchableOpacity
                       style={styles.actionBtn}
@@ -96,7 +96,7 @@ export const ChatMessageList = React.memo(function ChatMessageList({
                   )}
                   <TouchableOpacity
                     style={styles.actionBtn}
-                    onPress={() => onEditAssistant({ id: item.id, content: item.content })}
+                    onPress={() => onEditAssistant({ id: item.id, content: item.content, dbId: item.dbId })}
                     hitSlop={8}
                   >
                     <Pencil size={14} color={tc.text.faint} />

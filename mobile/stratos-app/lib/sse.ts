@@ -11,7 +11,7 @@ const STALL_TIMEOUT_MS = Config.STALL_TIMEOUT_MS;
 
 export interface SSECallbacks {
   onToken: (text: string) => void;
-  onComplete: () => void;
+  onComplete: (doneData?: Record<string, unknown>) => void;
   onError: (error: Error) => void;
 }
 
@@ -70,7 +70,7 @@ export async function parseSSEStream(
             try {
               const data = JSON.parse(line.slice(6));
               if (data.content || data.token) onToken(data.content || data.token);
-              if (data.done) { onComplete(); return; }
+              if (data.done) { onComplete(data); return; }
             } catch { /* partial JSON — skip */ }
           }
         }

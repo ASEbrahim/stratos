@@ -44,16 +44,14 @@ export const EditorActions = React.memo(function EditorActions({
       )}
 
       {/* Generate Image — accessible from top of editor */}
-      {card.name.trim() ? (
-        <TouchableOpacity
-          style={[styles.importBtn, { borderColor: tc.accent.secondary + '40', backgroundColor: tc.accent.secondary + '08' }]}
-          onPress={onGenerateImage}
-          activeOpacity={0.7}
-        >
-          <Wand2 size={16} color={tc.accent.secondary} />
-          <Text style={[styles.importText, { color: tc.accent.secondary }]}>Generate Image</Text>
-        </TouchableOpacity>
-      ) : null}
+      <TouchableOpacity
+        style={[styles.importBtn, { borderColor: tc.accent.secondary + '40', backgroundColor: tc.accent.secondary + '08' }]}
+        onPress={onGenerateImage}
+        activeOpacity={0.7}
+      >
+        <Wand2 size={16} color={tc.accent.secondary} />
+        <Text style={[styles.importText, { color: tc.accent.secondary }]}>Generate Image</Text>
+      </TouchableOpacity>
 
       {/* Content Rating */}
       <View style={styles.ratingRow}>
@@ -67,18 +65,6 @@ export const EditorActions = React.memo(function EditorActions({
           </TouchableOpacity>
         </View>
       </View>
-
-      {/* Generate Character Image button (bottom) */}
-      {card.name.trim() ? (
-        <TouchableOpacity
-          style={[styles.genImageBtn, { borderColor: tc.accent.secondary + '40', backgroundColor: tc.accent.secondary + '08' }]}
-          onPress={onGenerateImage}
-          activeOpacity={0.7}
-        >
-          <Wand2 size={14} color={tc.accent.secondary} />
-          <Text style={[styles.genImageText, { color: tc.accent.secondary }]}>Generate Character Image</Text>
-        </TouchableOpacity>
-      ) : null}
 
       {/* Save button */}
       <Animated.View style={saveBtnAnimStyle}>

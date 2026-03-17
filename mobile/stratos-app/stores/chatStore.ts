@@ -60,9 +60,20 @@ export const useChatStore = create<ChatState>((set, get) => ({
     let accumulated = '';
     await streamMessage(sessionId, content, persona, character,
       (chunk) => { accumulated += chunk; set({ streamingContent: accumulated }); },
-      () => {
-        const assistantMessage: ChatMessage = { id: createMessageId(), role: 'assistant', content: accumulated, timestamp: new Date().toISOString() };
-        set((state) => ({ messages: [...state.messages, assistantMessage], isStreaming: false, streamingContent: '' }));
+      (doneData) => {
+        const assistantMessage: ChatMessage = {
+          id: createMessageId(), role: 'assistant', content: accumulated, timestamp: new Date().toISOString(),
+          dbId: typeof doneData?.message_id === 'number' ? doneData.message_id : undefined,
+        };
+        // Also patch the user message with its backend ID
+        const userDbId = typeof doneData?.user_message_id === 'number' ? doneData.user_message_id : undefined;
+        set((state) => {
+          const msgs = [...state.messages];
+          if (userDbId && msgs.length > 0 && msgs[msgs.length - 1].role === 'user') {
+            msgs[msgs.length - 1] = { ...msgs[msgs.length - 1], dbId: userDbId };
+          }
+          return { messages: [...msgs, assistantMessage], isStreaming: false, streamingContent: '' };
+        });
         incrementStat('totalMessages', 2).catch(err => reportError('sendMessage:incrementStat', err));
         get().persistSession().catch(err => reportError('sendMessage:persistSession', err));
         get().loadSuggestions().catch(err => reportError('sendMessage:loadSuggestions', err));
