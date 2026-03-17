@@ -154,8 +154,8 @@ def extract_facts(session_id: str, user_msg: str, ai_response: str,
 
 
 def should_extract(turn_number: int) -> bool:
-    """Gate: run extraction every 5th message."""
-    return turn_number > 0 and turn_number % 5 == 0
+    """Gate: run LLM fact extraction every 3rd turn (regex runs every turn regardless)."""
+    return turn_number > 0 and turn_number % 3 == 0
 
 
 # =========================================================================
@@ -199,8 +199,8 @@ def detect_scene_transition(user_msg: str, ai_response: str) -> bool:
 
 
 def should_arc_summarize(turn_number: int, user_msg: str, ai_response: str) -> bool:
-    """Gate: generate arc summary on scene transitions or every 25 messages."""
-    if turn_number > 0 and turn_number % 25 == 0:
+    """Gate: generate arc summary on scene transitions or every 10 messages."""
+    if turn_number > 0 and turn_number % 10 == 0:
         return True
     return detect_scene_transition(user_msg, ai_response)
 

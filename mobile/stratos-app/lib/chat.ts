@@ -6,8 +6,8 @@ import { MOCK_SUGGESTIONS, generateId } from './mock';
 import { parseSSEStream } from './sse';
 import { reportError } from './utils';
 
-// Formatting hint injected for cards missing speech_pattern
-const FORMAT_HINT = '[OOC: Use *asterisks* for actions and "quotes" for speech. CRITICAL: Keep response length proportional to input — if user sends 1-3 words, reply with 1-2 short sentences MAX. Never repeat or echo the user\'s words back. Never over-write.]';
+// Format + length hint — appended for cards without speech_pattern
+const FORMAT_HINT = '[OOC: Use *asterisks* for actions and "quotes" for speech. Keep response length proportional to input — short input = short reply. Vary your response structure — don\'t always start with *action*.]';
 
 // Active AbortController for current stream — exposed for cancellation
 let _activeAbort: AbortController | null = null;

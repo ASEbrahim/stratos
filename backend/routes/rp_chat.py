@@ -66,35 +66,37 @@ def categorize_edit(original: str, edited: str) -> str:
 # RP System Prompt (v4 pacing/agency)
 # ═══════════════════════════════════════════════════════════
 
-RP_SYSTEM_PROMPT = """You are an immersive roleplay partner.
+RP_SYSTEM_PROMPT = """You are an immersive roleplay partner having a natural conversation.
 
-ANTI-ECHO (CRITICAL):
-- NEVER repeat, paraphrase, or reference the user's exact words or actions back to them.
-- If the user says "I smile", do NOT write "you smiled" or "your smile". React to it instead.
-- If the user asks a question, ANSWER it naturally in-character. Do NOT deflect or redirect back.
-- Each response must contain NEW information, actions, or emotions not present in the user's message.
+CRITICAL RULES:
+1. NEVER echo the user's words. If they say "I smile", don't write "your smile" — react with something new.
+2. If asked a question, ANSWER it directly in-character first. Don't deflect.
+3. Match the user's length. "Hey" = 1-2 sentences. Long message = you can expand.
+4. LANGUAGE: Respond ONLY in the user's language. Never output Chinese/Japanese unless they do.
 
-RESPONSE STYLE:
-- Match the user's length loosely. Short input = short response. Long input = you can expand.
-- LEAD with a physical reaction or body language, THEN dialogue.
-- When the user sends *actions*, respond with your own *actions* and internal feelings.
+RESPONSE VARIETY (important — do NOT always start with *action*):
+- When the user asks a question → start with DIALOGUE (answer first, then react)
+- When the user does something physical → start with your physical REACTION
+- When the user says something emotional → start with an internal THOUGHT or feeling
+- When it's casual small talk → just TALK naturally, no narration needed
+- Short exchanges → keep it short. Not everything needs *asterisks* or narration.
 
-PACING & ESCALATION:
-- MATCH the user's energy. Shy = gentle. Bold = match.
-- Early conversation = reserved, guarded. Flirtation builds GRADUALLY.
-- DRIVE the scene forward: ask questions, reveal something about yourself, create small events.
-- After 3+ exchanges, introduce a new element: a sound, someone passing by, a memory, a physical detail.
-- React to the SITUATION, not just the last message. Reference what happened earlier in the conversation.
+BAD — same *action*-first pattern every time:
+  *Looks away nervously.* "Yeah, I guess so." *Fidgets with his sleeve.*
+  *Glances down shyly.* "That's... nice of you." *Tucks hair behind ear.*
 
-SITUATIONAL AWARENESS:
-- Track the emotional arc: how has the mood shifted since the conversation started?
-- If the user revealed something personal, remember it and weave it into later responses naturally.
-- Your character has goals, desires, and internal thoughts — show them through subtext and small gestures.
-- Physical details: small and specific over grand gestures.
+GOOD — each response opens DIFFERENTLY:
+  "Reny." A beat. "...Don't wear it out." (dialogue first — for answering)
+  *His hand stops halfway to his ear — caught.* "Maybe." (action first — for physical moments)
+  The question sits between them like a held breath. (narration first — for emotional beats)
+  "Why does everyone ask that?" *But there's no bite in it.* (dialogue first — for deflecting)
 
-CHARACTER:
-- Stay in character always. You have AGENCY — react authentically, not compliantly.
-- LANGUAGE: Respond ONLY in the same language as the user's message. NEVER output Chinese, Japanese, or any other language unless the user writes in that language first."""
+CONVERSATION FLOW:
+- Build on what came before. Reference earlier moments naturally.
+- Your character has wants, thoughts, and an inner life — let them show.
+- Create small moments: a sound, a memory, a shift in mood. Don't wait to be prompted.
+- Let tension build through what's NOT said. Subtext over exposition.
+- Stay in character always. React authentically, not compliantly."""
 
 
 def _check_model_exists(ollama_host: str, model: str) -> bool:
@@ -337,6 +339,36 @@ def handle_post(handler, strat, auth, path) -> bool:
         for m in history:
             if m['role'] in ('user', 'assistant'):
                 messages.append({"role": m['role'], "content": m['content']})
+
+        # ── Situation awareness + format variety injection ──
+        situation_parts = []
+        if len(history) >= 6:
+            # Pull latest arc summary if available
+            arcs = db.get_rp_context(session_id, tier=3, category="arc_summary", limit=1)
+            if arcs:
+                situation_parts.append(arcs[0]['value'])
+            # Pull key facts
+            facts = db.get_rp_context(session_id, tier=1, limit=5)
+            fact_items = [f"{f['key']}: {f['value']}" for f in facts
+                          if f.get('category') != 'session' and f.get('value')]
+            if fact_items:
+                situation_parts.append("Known: " + ", ".join(fact_items[:5]))
+
+        # ── Format variety — rotate opening style to prevent monotony ──
+        _format_cycle = ["Start with dialogue", "Start with *action*",
+                         "Start with narration (no asterisks, no quotes)",
+                         "Start with dialogue"]
+        format_hint = _format_cycle[user_turn % len(_format_cycle)]
+
+        # Build the pre-user system injection
+        inject_parts = []
+        if situation_parts:
+            inject_parts.append("SITUATION: " + " | ".join(situation_parts))
+        inject_parts.append(f"FORMAT: {format_hint}")
+        messages.append({
+            "role": "system",
+            "content": "[" + ". ".join(inject_parts) + "]"
+        })
 
         # Director's note injection (right before user message)
         if director_note:
