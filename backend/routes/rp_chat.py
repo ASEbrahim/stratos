@@ -841,13 +841,35 @@ def handle_post(handler, strat, auth, path) -> bool:
             if ctx.get('key') == 'imported_context':
                 regen_session_ctx = ctx['value']
                 break
-        system_prompt = _build_system_prompt(card, memory_context=memory_context)
+        # Tone anchor — find first assistant message for voice reference
+        fm_text = None
+        for m in history:
+            if m['role'] == 'assistant':
+                fm_text = m['content']
+                break
+        system_prompt = _build_system_prompt(card, memory_context=memory_context, first_message=fm_text)
         if regen_session_ctx:
             system_prompt += f"\n\nSESSION CONTEXT (reference throughout):\n{regen_session_ctx}"
         messages = [{"role": "system", "content": system_prompt}]
-        for m in history[:-1]:  # Exclude the last assistant message
+        # Context = everything except the last assistant message being regenerated
+        context_history = history[:-1]
+        for m in context_history:
             if m['role'] in ('user', 'assistant'):
                 messages.append({"role": m['role'], "content": m['content']})
+
+        # Per-turn injection (format, tone, length, questions, etc.)
+        last_user_content = ""
+        for m in reversed(context_history):
+            if m['role'] == 'user':
+                last_user_content = m['content']
+                break
+        regen_turn = last_asst['turn_number']
+        injection_msg = _build_turn_injection(context_history, card, last_user_content, regen_turn, session_id, db)
+        messages.append({"role": "system", "content": injection_msg})
+
+        # Dynamic num_predict
+        regen_words = len(last_user_content.split())
+        _np = 200 if regen_words <= 5 else 300 if regen_words <= 15 else 400
 
         scoring_cfg = strat.config.get("scoring", {})
         ollama_host = scoring_cfg.get("ollama_host", "http://localhost:11434")
@@ -856,7 +878,7 @@ def handle_post(handler, strat, auth, path) -> bool:
 
         start_sse(handler)
         start_time = time.time()
-        full_text = _stream_ollama(handler, ollama_host, model, messages)
+        full_text = _stream_ollama(handler, ollama_host, model, messages, num_predict=_np)
         elapsed_ms = int((time.time() - start_time) * 1000)
 
         new_msg_id = None
@@ -981,12 +1003,27 @@ def handle_post(handler, strat, auth, path) -> bool:
             branch_memory, _ = build_rp_context(session_id, db, card_id)
         except Exception as e:
             logger.warning(f"Memory context build failed in branch (non-fatal): {e}")
-        system_prompt = _build_system_prompt(card, memory_context=branch_memory)
+        # Tone anchor — first assistant message from parent history
+        fm_text = None
+        for m in context_msgs:
+            if m['role'] == 'assistant':
+                fm_text = m['content']
+                break
+        system_prompt = _build_system_prompt(card, memory_context=branch_memory, first_message=fm_text)
         messages = [{"role": "system", "content": system_prompt}]
         for m in context_msgs:
             if m['role'] in ('user', 'assistant'):
                 messages.append({"role": m['role'], "content": m['content']})
+
+        # Per-turn injection for branch (same quality as main chat)
+        injection_msg = _build_turn_injection(context_msgs, card, edited_content, at_turn, session_id, db)
+        messages.append({"role": "system", "content": injection_msg})
+
         messages.append({"role": "user", "content": edited_content})
+
+        # Dynamic num_predict
+        branch_words = len(edited_content.split())
+        _np = 200 if branch_words <= 5 else 300 if branch_words <= 15 else 400
 
         scoring_cfg = strat.config.get("scoring", {})
         ollama_host = scoring_cfg.get("ollama_host", "http://localhost:11434")
@@ -994,7 +1031,7 @@ def handle_post(handler, strat, auth, path) -> bool:
 
         start_sse(handler)
         start_time = time.time()
-        full_text = _stream_ollama(handler, ollama_host, model, messages)
+        full_text = _stream_ollama(handler, ollama_host, model, messages, num_predict=_np)
         elapsed_ms = int((time.time() - start_time) * 1000)
 
         if full_text:
