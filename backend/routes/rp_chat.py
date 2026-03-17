@@ -462,7 +462,11 @@ def _stream_ollama(handler, ollama_host: str, model: str, messages: list,
                 "model": model,
                 "messages": messages,
                 "stream": True,
-                "options": {"temperature": temperature, "num_predict": num_predict},
+                "options": {
+                    "temperature": temperature,
+                    "num_predict": num_predict,
+                    "num_ctx": 16384,
+                },
             },
             timeout=180, stream=True
         )
