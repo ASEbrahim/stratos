@@ -119,7 +119,6 @@ Return ONLY valid JSON with these keys (1-2 sentences each, vivid and specific):
         r = req.post(f"{OLLAMA_HOST}/api/generate", json={
             "model": "qwen3.5:9b", "prompt": prompt, "stream": False,
             "options": {"temperature": 0.4, "num_predict": 300},
-            "think": False,
         }, timeout=30)
         if r.status_code != 200:
             return
