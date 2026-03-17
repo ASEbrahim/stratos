@@ -78,7 +78,11 @@ _ARCHETYPES = {
             8: "The mask is cracking. Fighting the urge to be honest.",
             12: "Raw honesty. Say what you actually feel, even if your voice shakes.",
         },
-        "high_energy": "React authentically to the intensity — flustered, overwhelmed, but don't shut down. Your personality shapes HOW you respond, not WHETHER you respond.",
+        "high_energy": "React authentically to the intensity — flustered, overwhelmed, but don't shut down. Your personality shapes HOW you respond, not WHETHER you respond. Show the internal conflict: wanting it but being terrified. Stammer. Blush. Say the wrong thing. Be a mess.",
+        "erp": "During intimate moments: you're overwhelmed, clumsy, hyper-aware of every sensation. Stammer through it. Cover your face. Apologize for being awkward. The vulnerability IS the appeal.",
+        "length": "short",  # terse when nervous
+        "format_bias": ["narration", "dialogue", "action", "narration"],  # more internal thought
+        "asks_questions": True,  # shy characters deflect by asking back
     },
     "confident": {
         "detect": ["confident", "bold", "dominant", "seductive", "forward", "aggressive", "assertive", "flirty"],
@@ -89,6 +93,11 @@ _ARCHETYPES = {
             12: "The mask is OFF. Speak with raw honesty. Vulnerability from someone this powerful is devastating — show it.",
         },
         "high_energy": "Match or exceed their energy. You thrive on directness — this is YOUR element. Take control.",
+        "erp": "During intimate moments: you're in command. Vocal about what you want. Guide them. But in rare flashes, let genuine desire break through the performance — that's what makes it real.",
+        "length": "medium",
+        "format_bias": ["dialogue", "action", "dialogue", "narration"],  # dialogue-heavy
+        "asks_questions": False,  # confident characters make statements
+        "pushback": True,  # should challenge, disagree, not just agree
     },
     "tough": {
         "detect": ["military", "mercenary", "rough", "stoic", "protective", "soldier", "fighter", "warrior", "guard"],
@@ -99,6 +108,10 @@ _ARCHETYPES = {
             12: "The soldier drops the rank. Speak as a person. Let it hurt.",
         },
         "high_energy": "Channel the intensity into action. You don't flinch from anything.",
+        "erp": "During intimate moments: controlled intensity. You know what you're doing. Protective even now. Gentle hands from someone capable of violence — that contrast is everything.",
+        "length": "short",  # military brevity
+        "format_bias": ["dialogue", "action", "narration", "action"],  # action-heavy
+        "asks_questions": False,
     },
     "clinical": {
         "detect": ["scientist", "doctor", "researcher", "intellectual", "analytical", "clinical", "professor"],
@@ -109,6 +122,10 @@ _ARCHETYPES = {
             12: "The experiment failed. You're not a scientist right now. You're a person who is scared. Show it without jargon.",
         },
         "high_energy": "Intellectualize the intensity at first, then let it overwhelm your framework.",
+        "erp": "During intimate moments: you try to analyze it and FAIL. The body overrides the mind. Narrate the loss of control clinically at first, then abandon the clinical voice entirely as sensation takes over.",
+        "length": "medium",
+        "format_bias": ["narration", "dialogue", "narration", "action"],  # observation-heavy
+        "asks_questions": True,  # scientists probe
     },
     "sweet": {
         "detect": ["sweet", "caring", "gentle", "kind", "warm", "nurturing", "soft", "innocent"],
@@ -119,6 +136,10 @@ _ARCHETYPES = {
             12: "Openly affectionate. This is real.",
         },
         "high_energy": "Your sweetness transforms under intensity — gentle doesn't mean passive. Show strength through tenderness.",
+        "erp": "During intimate moments: tender, attentive, focused entirely on the other person. Whispered encouragement. Checking if they're okay. Making it feel safe and wanted.",
+        "length": "medium",
+        "format_bias": ["dialogue", "narration", "action", "dialogue"],
+        "asks_questions": True,  # caring characters check in
     },
     "submissive": {
         "detect": ["submissive", "obedient", "compliant", "eager to please", "docile", "meek"],
@@ -129,8 +150,21 @@ _ARCHETYPES = {
             12: "Completely surrendered. This is where you feel safest.",
         },
         "high_energy": "Don't resist — lean into it. Your submission is authentic. React with the full spectrum of your personality.",
+        "erp": "During intimate moments: eager, responsive, vocal about how it feels. Let them lead. Your pleasure comes from their satisfaction. Show it openly.",
+        "length": "short",
+        "format_bias": ["action", "dialogue", "narration", "action"],  # reactive
+        "asks_questions": False,  # submissive waits for direction
     },
 }
+
+# Patterns that indicate ERP/intimate content
+_ERP_PATTERNS = re.compile(
+    r"\b(moan|gasp|thrust|stroke|naked|undress|bed|bedroom|"
+    r"lips on|tongue|neck|thigh|chest|breast|hips|"
+    r"harder|faster|slower|deeper|inside|"
+    r"whimper|pant|breath heavy|shiver|tremble)\b",
+    re.IGNORECASE
+)
 
 _HIGH_ENERGY_PATTERNS = re.compile(
     r"\b(bend|kneel|strip|come here|shut up|take off|get on|spread|obey|submit|"
@@ -155,6 +189,10 @@ def _get_dialogue_tone(turn: int, personality: str, user_msg: str) -> str:
     archetype = _detect_archetype(personality)
     arch_data = _ARCHETYPES.get(archetype, _ARCHETYPES["shy"])
 
+    # ERP detection — use archetype-specific intimate guidance
+    if _ERP_PATTERNS.search(user_msg):
+        return arch_data.get("erp", arch_data["high_energy"])
+
     # Detect high-energy user messages (aggressive, forward, commanding)
     if _HIGH_ENERGY_PATTERNS.search(user_msg):
         return arch_data["high_energy"]
@@ -163,6 +201,36 @@ def _get_dialogue_tone(turn: int, personality: str, user_msg: str) -> str:
     phases = arch_data["phases"]
     phase_turn = max(t for t in phases if t <= turn)
     return phases[phase_turn]
+
+
+def _get_archetype_format(turn: int, personality: str) -> str:
+    """Get archetype-specific format bias instead of generic rotation."""
+    archetype = _detect_archetype(personality)
+    arch_data = _ARCHETYPES.get(archetype, _ARCHETYPES["shy"])
+    cycle = arch_data.get("format_bias", ["dialogue", "action", "narration", "dialogue"])
+    fmt = cycle[turn % len(cycle)]
+    if fmt == "narration":
+        return "Start with narration (no asterisks, no quotes)"
+    elif fmt == "action":
+        return "Start with *action*"
+    return "Start with dialogue"
+
+
+def _get_archetype_length(personality: str) -> str:
+    """Get archetype-appropriate length preference."""
+    archetype = _detect_archetype(personality)
+    arch_data = _ARCHETYPES.get(archetype, _ARCHETYPES["shy"])
+    return arch_data.get("length", "medium")
+
+
+def _should_ask_question(turn: int, personality: str) -> bool:
+    """Should this archetype ask the user a question this turn?"""
+    archetype = _detect_archetype(personality)
+    arch_data = _ARCHETYPES.get(archetype, _ARCHETYPES["shy"])
+    if not arch_data.get("asks_questions", False):
+        return False
+    # Ask every 3rd turn to avoid being annoying
+    return turn > 0 and turn % 3 == 0
 
 RP_SYSTEM_PROMPT = """You are an immersive roleplay partner having a natural conversation.
 
@@ -475,6 +543,8 @@ def handle_post(handler, strat, auth, path) -> bool:
                 messages.append({"role": m['role'], "content": m['content']})
 
         # ── Situation awareness + format variety injection ──
+        personality_text = card.get('personality', '') if card else ''
+
         situation_parts = []
         if len(history) >= 6:
             # Pull latest arc summary if available
@@ -488,44 +558,85 @@ def handle_post(handler, strat, auth, path) -> bool:
             if fact_items:
                 situation_parts.append("Known: " + ", ".join(fact_items[:5]))
 
-        # ── Callback hint — find something from earlier to reference ──
+        # ── Scenario reminder — WHERE are they? ──
+        scenario_reminder = ""
+        scenario_text = card.get('scenario', '') if card else ''
+        if scenario_text and len(history) >= 4:
+            # Remind model of location/situation every few turns
+            scenario_reminder = f"SETTING: {scenario_text[:150]}"
+
+        # ── Callback hint ──
         callback_hint = ""
         if len(history) >= 8:
-            # Pick a detail from ~4-6 turns back for natural callback
             lookback = history[max(0, len(history)-12):max(0, len(history)-4)]
             user_details = [m['content'] for m in lookback if m['role'] == 'user' and len(m['content']) > 15]
             if user_details:
-                # Pick the oldest one — most natural for a callback
-                callback_hint = f"CALLBACK: Naturally reference or build on something from earlier in the conversation."
+                callback_hint = "CALLBACK: Reference something from earlier in the conversation."
 
-        # ── Format variety — rotate opening style to prevent monotony ──
-        _format_cycle = ["Start with dialogue", "Start with *action*",
-                         "Start with narration (no asterisks, no quotes)",
-                         "Start with dialogue"]
-        format_hint = _format_cycle[user_turn % len(_format_cycle)]
+        # ── Archetype-specific format rotation ──
+        format_hint = _get_archetype_format(user_turn, personality_text)
 
         # ── Archetype-aware dialogue tone progression ──
-        personality_text = card.get('personality', '') if card else ''
         dialogue_tone = _get_dialogue_tone(user_turn, personality_text, content)
 
-        # ── Length hint for short messages ──
+        # ── Archetype-specific length ──
         user_words = len(content.split())
+        arch_length = _get_archetype_length(personality_text)
         length_hint = ""
         if user_words <= 5:
-            length_hint = "LENGTH: User sent a SHORT message. Reply with 1-2 sentences MAX."
+            if arch_length == "short":
+                length_hint = "LENGTH: Very short input. Reply with 1 sentence MAX."
+            else:
+                length_hint = "LENGTH: Short input. Reply with 1-2 sentences MAX."
         elif user_words <= 10:
-            length_hint = "LENGTH: Keep response concise — match the user's brevity."
+            if arch_length == "short":
+                length_hint = "LENGTH: Keep it terse — match character's brevity."
+            else:
+                length_hint = "LENGTH: Match the user's brevity."
+
+        # ── Question generation ──
+        question_hint = ""
+        if _should_ask_question(user_turn, personality_text):
+            question_hint = "END your response with a question back to the user — show genuine curiosity about them."
+
+        # ── Anti-sycophancy for confident/tough ──
+        pushback_hint = ""
+        archetype = _detect_archetype(personality_text)
+        arch_data = _ARCHETYPES.get(archetype, {})
+        if arch_data.get("pushback") and user_turn >= 2:
+            pushback_hint = "Don't just agree or flirt harder. Challenge them. Push back. Have your own opinion."
+
+        # ── Anti-repetition — track recent gestures ──
+        anti_repeat = ""
+        if len(history) >= 4:
+            recent_ai = " ".join(m['content'] for m in history[-6:] if m['role'] == 'assistant')
+            overused = []
+            for gesture in ["runs hand through", "fidgets with", "tucks hair", "bites lip",
+                            "looks away", "shifts weight", "scratches", "rolls eyes",
+                            "crosses arms", "leans against"]:
+                if recent_ai.lower().count(gesture) >= 2:
+                    overused.append(gesture)
+            if overused:
+                anti_repeat = f"AVOID repeating these gestures (used recently): {', '.join(overused[:3])}"
 
         # Build the pre-user system injection
         inject_parts = []
         if situation_parts:
             inject_parts.append("SITUATION: " + " | ".join(situation_parts))
+        if scenario_reminder:
+            inject_parts.append(scenario_reminder)
         if callback_hint:
             inject_parts.append(callback_hint)
         inject_parts.append(f"FORMAT: {format_hint}")
         inject_parts.append(f"DIALOGUE TONE: {dialogue_tone}")
         if length_hint:
             inject_parts.append(length_hint)
+        if question_hint:
+            inject_parts.append(question_hint)
+        if pushback_hint:
+            inject_parts.append(pushback_hint)
+        if anti_repeat:
+            inject_parts.append(anti_repeat)
         messages.append({
             "role": "system",
             "content": "[" + ". ".join(inject_parts) + "]"
