@@ -359,9 +359,9 @@ def _clean_speech_pattern(raw: str) -> str:
         return ""
     # Split into sentences and filter out ones that are formatting instructions
     _META_PATTERNS = re.compile(
-        r'(?i)(always start|use \*|use asterisk|use [""]?quote|'
-        r'never cop(?:y|ies)|start with \*|format:|'
-        r'\{\{user\}\}|\{\{char\}\}|narration|'
+        r'(?i)(always start(?:s)? with [*"\']|use \*asterisk|use [""]?quote|'
+        r'never cop(?:y|ies)|start (?:each |every )?(?:response |message )?with \*|format:|'
+        r'\{\{user\}\}|\{\{char\}\}|'
         r'keep response|proportional to input|action beats)',
     )
     sentences = re.split(r'(?<=[.!?])\s+', raw.strip())
