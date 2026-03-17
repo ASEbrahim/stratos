@@ -399,7 +399,7 @@ def _clean_speech_pattern(raw: str) -> str:
 
 
 def _build_system_prompt(card: dict = None, director_note: str = None,
-                         memory_context: str = None) -> str:
+                         memory_context: str = None, first_message: str = None) -> str:
     """Build system prompt from RP base + character card + memory + optional director's note."""
     prompt = RP_SYSTEM_PROMPT
 
@@ -436,6 +436,10 @@ def _build_system_prompt(card: dict = None, director_note: str = None,
         # Example dialogues are the gold standard for voice
         if card.get('example_dialogues'):
             prompt += f"\n\nEXAMPLE DIALOGUE — match this voice, tone, and style exactly:\n{card['example_dialogues']}"
+
+    # Tone anchor — the first message establishes the character's baseline voice
+    if first_message and card:
+        prompt += f"\n\nTONE ANCHOR — your first message establishes your voice. Stay consistent with this energy:\n\"{first_message[:300]}\""
 
     # Inject persistent memory (facts, arcs)
     if memory_context:
@@ -588,7 +592,14 @@ def handle_post(handler, strat, auth, path) -> bool:
             logger.warning(f"Memory context build failed (non-fatal): {e}")
 
         # Build messages for Ollama
-        system_prompt = _build_system_prompt(card, director_note, memory_context)
+        # Get first_message for tone anchoring
+        fm_text = None
+        if history:
+            for m in history:
+                if m['role'] == 'assistant':
+                    fm_text = m['content']
+                    break
+        system_prompt = _build_system_prompt(card, director_note, memory_context, first_message=fm_text)
         # Inject persistent session context (from Import Context)
         if session_context:
             system_prompt += f"\n\nSESSION CONTEXT (reference throughout):\n{session_context}"
