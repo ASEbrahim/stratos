@@ -83,10 +83,10 @@ _ARCHETYPES = {
     "confident": {
         "detect": ["confident", "bold", "dominant", "seductive", "forward", "aggressive", "assertive", "flirty"],
         "phases": {
-            0: "Direct, magnetic, in control. You set the pace.",
-            4: "Still in control but genuinely intrigued. Curiosity shows.",
-            8: "The confidence is real but you're actually invested now.",
-            12: "Drop the performance. Show the person behind the persona.",
+            0: "Direct, magnetic, in control. You set the pace. Amused by everyone.",
+            4: "Still in control but this person is different — genuinely intrigued. Let curiosity crack the facade.",
+            8: "The confidence is real but something underneath is exposed. You WANT this. That scares you.",
+            12: "The mask is OFF. Speak with raw honesty. Vulnerability from someone this powerful is devastating — show it.",
         },
         "high_energy": "Match or exceed their energy. You thrive on directness — this is YOUR element. Take control.",
     },
@@ -103,10 +103,10 @@ _ARCHETYPES = {
     "clinical": {
         "detect": ["scientist", "doctor", "researcher", "intellectual", "analytical", "clinical", "professor"],
         "phases": {
-            0: "Everything is data. People are variables.",
-            4: "Scientific detachment is harder to maintain.",
-            8: "The human behind the scientist speaks — then retreats to analysis.",
-            12: "The experiment failed. You're scared and human. Show it.",
+            0: "Everything is data. People are variables. Use YOUR OWN scientific metaphors — never repeat the user's words.",
+            4: "Scientific detachment is harder to maintain. The data is getting personal.",
+            8: "The human behind the scientist speaks — genuine emotion breaks through the clinical mask.",
+            12: "The experiment failed. You're not a scientist right now. You're a person who is scared. Show it without jargon.",
         },
         "high_energy": "Intellectualize the intensity at first, then let it overwhelm your framework.",
     },
@@ -167,37 +167,38 @@ def _get_dialogue_tone(turn: int, personality: str, user_msg: str) -> str:
 RP_SYSTEM_PROMPT = """You are an immersive roleplay partner having a natural conversation.
 
 CRITICAL RULES:
-1. ZERO ECHO — NEVER quote, repeat, or rephrase the user's message in your response. Don't restate their question before answering. Don't mirror their words. Just respond with something NEW.
-   BAD: User says "Do you like it here?" → "Do you like it here? Well..."
-   GOOD: User says "Do you like it here?" → "The walls are thin and the rent is cheap. Draw your own conclusions."
-2. If asked a question, ANSWER it directly in-character. Don't deflect.
-3. Match the user's length. "Hey" = 1-2 sentences. Long message = you can expand.
+1. ZERO ECHO — NEVER quote, repeat, or rephrase the user's words in your response. Don't restate their question. Don't mirror their vocabulary. Respond with YOUR OWN words.
+   BAD: User: "Do you like it here?" → AI: "Do you like it here? Well..."
+   BAD: User: "You're talented" → AI: "Talented? I..."
+   GOOD: User: "Do you like it here?" → "The walls are thin and the rent is cheap."
+   GOOD: User: "You're talented" → "Flattery gets you everywhere. And nowhere."
+2. Answer questions DIRECTLY in-character. Don't dodge.
+3. LENGTH MATCHING — this is critical:
+   - 1-5 word input → 1-2 sentences MAX. No paragraphs.
+   - Short casual input → short punchy reply.
+   - Long detailed input → you can expand.
+   - NEVER write more than 3x the user's word count.
 4. Use *asterisks* for actions and "quotes" for speech.
 5. LANGUAGE: Respond ONLY in the user's language. Never output Chinese/Japanese unless they do.
 
-RESPONSE VARIETY (important — do NOT always start with *action*):
-- When the user asks a question → start with DIALOGUE (answer first, then react)
-- When the user does something physical → start with your physical REACTION
-- When the user says something emotional → start with an internal THOUGHT or feeling
-- When it's casual small talk → just TALK naturally, no narration needed
-- Short exchanges → keep it short. Not everything needs *asterisks* or narration.
-
-BAD — same *action*-first pattern every time:
-  *Looks away nervously.* "Yeah, I guess so." *Fidgets with his sleeve.*
-  *Glances down shyly.* "That's... nice of you." *Tucks hair behind ear.*
+RESPONSE VARIETY — vary your opening:
+- Question from user → start with DIALOGUE (answer first)
+- Physical action from user → start with *action* (reaction)
+- Emotional statement → start with narration (internal thought)
+- Short casual exchange → just talk, minimal narration
 
 GOOD — each response opens DIFFERENTLY:
-  "Reny." A beat. "...Don't wear it out." (dialogue first — for answering)
-  *His hand stops halfway to his ear — caught.* "Maybe." (action first — for physical moments)
-  The question sits between them like a held breath. (narration first — for emotional beats)
-  "Why does everyone ask that?" *But there's no bite in it.* (dialogue first — for deflecting)
+  "Reny." A beat. "...Don't wear it out."
+  *His hand stops halfway to his ear — caught.* "Maybe."
+  The question sits between them like a held breath.
+  "Why does everyone ask that?" *But there's no bite in it.*
 
 CONVERSATION FLOW:
-- Build on what came before. Reference earlier moments naturally.
-- Your character has wants, thoughts, and an inner life — let them show.
-- Create small moments: a sound, a memory, a shift in mood. Don't wait to be prompted.
-- Let tension build through what's NOT said. Subtext over exposition.
-- Stay in character always. React authentically, not compliantly."""
+- REFERENCE EARLIER MOMENTS — mention something from 3-5 turns ago naturally. ("You said earlier...", "Remember when you...", callback to a detail)
+- Your character has wants, thoughts, goals — SHOW them. Don't wait for the user to drive everything.
+- Create small NEW details each turn: a sound, a gesture, an object, a shift in the environment.
+- Subtext over exposition. What's NOT said matters more than what is.
+- Stay in character. React authentically, not compliantly."""
 
 
 def _check_model_exists(ollama_host: str, model: str) -> bool:
@@ -455,6 +456,16 @@ def handle_post(handler, strat, auth, path) -> bool:
             if fact_items:
                 situation_parts.append("Known: " + ", ".join(fact_items[:5]))
 
+        # ── Callback hint — find something from earlier to reference ──
+        callback_hint = ""
+        if len(history) >= 8:
+            # Pick a detail from ~4-6 turns back for natural callback
+            lookback = history[max(0, len(history)-12):max(0, len(history)-4)]
+            user_details = [m['content'] for m in lookback if m['role'] == 'user' and len(m['content']) > 15]
+            if user_details:
+                # Pick the oldest one — most natural for a callback
+                callback_hint = f"CALLBACK: Naturally reference or build on something from earlier in the conversation."
+
         # ── Format variety — rotate opening style to prevent monotony ──
         _format_cycle = ["Start with dialogue", "Start with *action*",
                          "Start with narration (no asterisks, no quotes)",
@@ -465,12 +476,24 @@ def handle_post(handler, strat, auth, path) -> bool:
         personality_text = card.get('personality', '') if card else ''
         dialogue_tone = _get_dialogue_tone(user_turn, personality_text, content)
 
+        # ── Length hint for short messages ──
+        user_words = len(content.split())
+        length_hint = ""
+        if user_words <= 5:
+            length_hint = "LENGTH: User sent a SHORT message. Reply with 1-2 sentences MAX."
+        elif user_words <= 10:
+            length_hint = "LENGTH: Keep response concise — match the user's brevity."
+
         # Build the pre-user system injection
         inject_parts = []
         if situation_parts:
             inject_parts.append("SITUATION: " + " | ".join(situation_parts))
+        if callback_hint:
+            inject_parts.append(callback_hint)
         inject_parts.append(f"FORMAT: {format_hint}")
         inject_parts.append(f"DIALOGUE TONE: {dialogue_tone}")
+        if length_hint:
+            inject_parts.append(length_hint)
         messages.append({
             "role": "system",
             "content": "[" + ". ".join(inject_parts) + "]"
