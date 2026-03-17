@@ -107,7 +107,7 @@ export function CardEditor({ initialCard, prefillData }: CardEditorProps) {
       });
       if (result.canceled || !result.assets?.[0]) { setImporting(false); return; }
       const asset = result.assets[0];
-      const parsed = await parseTavernCard(asset.uri, asset.mimeType);
+      const parsed = await parseTavernCard(asset.uri, asset.mimeType ?? undefined, (asset as any).file);
       if (!parsed) {
         showAlert('Import Failed', 'No character data found. Supports TavernCard V2 PNG and character JSON files.');
         setImporting(false);

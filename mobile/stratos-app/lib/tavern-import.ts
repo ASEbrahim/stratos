@@ -1,17 +1,46 @@
+import { Platform } from 'react-native';
 import * as FileSystem from 'expo-file-system';
 import { TavernCardV2, CharacterCardCreate } from './types';
 import { reportError } from './utils';
 
 /**
+ * Read file content as string. Uses expo-file-system on native,
+ * falls back to FileReader on web (where expo-file-system is unsupported).
+ */
+async function readFileString(uri: string, encoding: 'utf8' | 'base64', webFile?: File): Promise<string> {
+  if (Platform.OS === 'web' && webFile) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onerror = () => reject(new Error('Failed to read file'));
+      if (encoding === 'base64') {
+        reader.onload = () => {
+          const result = reader.result as string;
+          // strip data URL prefix (e.g. "data:image/png;base64,")
+          const base64 = result.includes(',') ? result.split(',')[1] : result;
+          resolve(base64);
+        };
+        reader.readAsDataURL(webFile);
+      } else {
+        reader.onload = () => resolve(reader.result as string);
+        reader.readAsText(webFile);
+      }
+    });
+  }
+  return FileSystem.readAsStringAsync(uri, { encoding: encoding === 'base64' ? 'base64' : 'utf8' });
+}
+
+/**
  * Parse a TavernCard V2 PNG or a character JSON file.
  * TavernCard V2 stores JSON in the PNG tEXt chunk with keyword "chara" (base64 encoded).
  * Also supports plain JSON files with character data (Tavern JSON export or custom format).
+ *
+ * @param webFile - On web, the File object from DocumentPicker (expo-file-system doesn't work on web)
  */
-export async function parseTavernCard(uri: string, mimeType?: string): Promise<CharacterCardCreate | null> {
+export async function parseTavernCard(uri: string, mimeType?: string, webFile?: File): Promise<CharacterCardCreate | null> {
   try {
     // Handle JSON files directly
     if (mimeType === 'application/json' || uri.endsWith('.json')) {
-      const jsonStr = await FileSystem.readAsStringAsync(uri, { encoding: 'utf8' });
+      const jsonStr = await readFileString(uri, 'utf8', webFile);
       const data = JSON.parse(jsonStr);
       // Support multiple JSON formats
       const charData = data.data || data.character || data;
@@ -34,7 +63,7 @@ export async function parseTavernCard(uri: string, mimeType?: string): Promise<C
     }
 
     // Read file as base64 (PNG path)
-    const fileBase64 = await FileSystem.readAsStringAsync(uri, { encoding: 'base64' });
+    const fileBase64 = await readFileString(uri, 'base64', webFile);
     const bytes = base64ToBytes(fileBase64);
 
     // PNG signature: 137 80 78 71 13 10 26 10
