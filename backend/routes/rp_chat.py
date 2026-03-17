@@ -467,6 +467,7 @@ def _stream_ollama(handler, ollama_host: str, model: str, messages: list,
                     "num_predict": num_predict,
                     "num_ctx": 16384,
                 },
+                "think": False,
             },
             timeout=180, stream=True
         )
