@@ -6,8 +6,6 @@ import { MOCK_SUGGESTIONS, generateId } from './mock';
 import { parseSSEStream } from './sse';
 import { reportError } from './utils';
 
-// Format + length hint — appended for cards without speech_pattern
-const FORMAT_HINT = '[OOC: Use *asterisks* for actions and "quotes" for speech. Keep response length proportional to input — short input = short reply. Vary your response structure — don\'t always start with *action*.]';
 
 // Active AbortController for current stream — exposed for cancellation
 let _activeAbort: AbortController | null = null;
@@ -35,8 +33,7 @@ export async function streamMessage(
   try {
     const token = await getToken();
     const deviceId = await getDeviceId();
-    const needsHint = persona === 'roleplay' && characterCard && !characterCard.speech_pattern?.trim();
-    const content = needsHint ? `${message}\n\n${FORMAT_HINT}` : message;
+    const content = message;
     const response = await fetch(`${API_BASE}/api/rp/chat`, {
       method: 'POST',
       headers: {
