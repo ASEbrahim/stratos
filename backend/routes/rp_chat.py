@@ -388,6 +388,13 @@ def _build_system_prompt(card: dict = None, director_note: str = None,
         name = card.get('name', 'Character')
         prompt += f"\n\nCHARACTER: {name}"
 
+        # Gender hint — infer from physical_description or personality if possible
+        desc_text = (card.get('physical_description', '') + ' ' + card.get('personality', '')).lower()
+        if any(w in desc_text for w in ['she ', 'her ', 'woman', 'female', 'girl', 'mother', 'sister', 'wife', 'goddess', 'queen', 'princess']):
+            prompt += " (female)"
+        elif any(w in desc_text for w in ['he ', 'his ', ' man', 'male', ' boy', 'father', 'brother', 'husband', ' god ', 'king', 'prince']):
+            prompt += " (male)"
+
         if card.get('personality'):
             prompt += f"\nPersonality: {card['personality']}"
 
@@ -399,7 +406,7 @@ def _build_system_prompt(card: dict = None, director_note: str = None,
             prompt += f"\nSpeech: {speech}"
 
         if card.get('scenario'):
-            prompt += f"\nScenario: {card['scenario']}"
+            prompt += f"\nScenario (you are HERE — reference this setting in your responses): {card['scenario']}"
 
         # Depth fields — compact
         for field, label in [("emotional_trigger", "Trigger"),
@@ -450,8 +457,8 @@ def _build_turn_injection(history: list, card: dict, content: str,
     # ── Scenario reminder ──
     scenario_reminder = ""
     scenario_text = card.get('scenario', '') if card else ''
-    if scenario_text and len(history) >= 2:
-        scenario_reminder = f"SETTING: {scenario_text[:150]}"
+    if scenario_text:
+        scenario_reminder = f"SETTING (mention something from this environment): {scenario_text[:150]}"
 
     # ── Callback hint ──
     callback_hint = ""
