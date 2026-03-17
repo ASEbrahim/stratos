@@ -846,6 +846,11 @@ def handle_suggest_context(handler, strat):
         data = read_json_body(handler)
         role = data.get("role", "").strip()
         location = data.get("location", "").strip()
+        # Fall back to profile config if role not in request body
+        if not role:
+            profile = strat.config.get("profile", {})
+            role = profile.get("role", "").strip()
+            location = location or profile.get("location", "").strip()
         if not role:
             raise ValueError("Role required")
 
