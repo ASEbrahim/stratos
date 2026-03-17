@@ -77,6 +77,7 @@ def extract_facts_llm(user_msg: str, ai_response: str) -> list:
             "prompt": prompt,
             "stream": False,
             "options": {"temperature": 0.1, "num_predict": 200},
+            "think": False,
         }, timeout=30)
         if r.status_code != 200:
             return []
@@ -229,6 +230,7 @@ def extract_arc_summary(session_id: str, user_name: str, char_name: str,
             "prompt": prompt,
             "stream": False,
             "options": {"temperature": 0.3, "num_predict": 200},
+            "think": False,
         }, timeout=45)
         if r.status_code != 200:
             logger.warning(f"Arc summary LLM call failed: {r.status_code}")
@@ -245,6 +247,7 @@ def extract_arc_summary(session_id: str, user_name: str, char_name: str,
                 "prompt": prompt,
                 "stream": False,
                 "options": {"temperature": 0.2, "num_predict": 200},
+                "think": False,
             }, timeout=45)
             if r.status_code == 200:
                 summary = r.json().get("response", "").strip()
