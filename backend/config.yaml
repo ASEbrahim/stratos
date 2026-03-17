@@ -40,6 +40,8 @@ scoring:
   wizard_model: qwen3.5:9b
   medium_min: 5.0
   model: stratos-scorer-v2.2
+rp:
+  model: huihui_ai/qwen3.5-abliterated:9b
   ollama_host: http://localhost:11434
   timeout:
     rolling_window: 20
