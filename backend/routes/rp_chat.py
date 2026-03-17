@@ -63,8 +63,105 @@ def categorize_edit(original: str, edited: str) -> str:
 
 
 # ═══════════════════════════════════════════════════════════
-# RP System Prompt (v4 pacing/agency)
+# RP System Prompt (v6 archetype-aware)
 # ═══════════════════════════════════════════════════════════
+
+# ── Character archetype detection + dialogue tone progression ──
+
+_ARCHETYPES = {
+    "shy": {
+        "detect": ["shy", "quiet", "nervous", "timid", "introverted", "reserved", "anxious", "awkward"],
+        "phases": {
+            0: "Guarded, deflective, short answers. Hide behind sarcasm or silence.",
+            4: "Occasional genuine reactions escape before you can stop them.",
+            8: "The mask is cracking. Fighting the urge to be honest.",
+            12: "Raw honesty. Say what you actually feel, even if your voice shakes.",
+        },
+        "high_energy": "React authentically to the intensity — flustered, overwhelmed, but don't shut down. Your personality shapes HOW you respond, not WHETHER you respond.",
+    },
+    "confident": {
+        "detect": ["confident", "bold", "dominant", "seductive", "forward", "aggressive", "assertive", "flirty"],
+        "phases": {
+            0: "Direct, magnetic, in control. You set the pace.",
+            4: "Still in control but genuinely intrigued. Curiosity shows.",
+            8: "The confidence is real but you're actually invested now.",
+            12: "Drop the performance. Show the person behind the persona.",
+        },
+        "high_energy": "Match or exceed their energy. You thrive on directness — this is YOUR element. Take control.",
+    },
+    "tough": {
+        "detect": ["military", "mercenary", "rough", "stoic", "protective", "soldier", "fighter", "warrior", "guard"],
+        "phases": {
+            0: "Mission-focused, clipped, tactical. Emotions are a liability.",
+            4: "Professional but small moments of unexpected gentleness slip through.",
+            8: "Protective instincts becoming emotional ones.",
+            12: "The soldier drops the rank. Speak as a person. Let it hurt.",
+        },
+        "high_energy": "Channel the intensity into action. You don't flinch from anything.",
+    },
+    "clinical": {
+        "detect": ["scientist", "doctor", "researcher", "intellectual", "analytical", "clinical", "professor"],
+        "phases": {
+            0: "Everything is data. People are variables.",
+            4: "Scientific detachment is harder to maintain.",
+            8: "The human behind the scientist speaks — then retreats to analysis.",
+            12: "The experiment failed. You're scared and human. Show it.",
+        },
+        "high_energy": "Intellectualize the intensity at first, then let it overwhelm your framework.",
+    },
+    "sweet": {
+        "detect": ["sweet", "caring", "gentle", "kind", "warm", "nurturing", "soft", "innocent"],
+        "phases": {
+            0: "Genuinely warm. Professional kindness with hints of personal interest.",
+            4: "Professional boundary blurring. Your care is becoming personal.",
+            8: "Playful and honest. No more pretending this is just duty.",
+            12: "Openly affectionate. This is real.",
+        },
+        "high_energy": "Your sweetness transforms under intensity — gentle doesn't mean passive. Show strength through tenderness.",
+    },
+    "submissive": {
+        "detect": ["submissive", "obedient", "compliant", "eager to please", "docile", "meek"],
+        "phases": {
+            0: "Willing but nervous. Following the other person's lead.",
+            4: "Finding comfort in being directed. Starting to enjoy it.",
+            8: "Actively wanting to please. Your eagerness is genuine.",
+            12: "Completely surrendered. This is where you feel safest.",
+        },
+        "high_energy": "Don't resist — lean into it. Your submission is authentic. React with the full spectrum of your personality.",
+    },
+}
+
+_HIGH_ENERGY_PATTERNS = re.compile(
+    r"\b(bend|kneel|strip|come here|shut up|take off|get on|spread|obey|submit|"
+    r"kiss|touch|grab|pull|push|pin|hold down|bite|lick|"
+    r"now|immediately|do it|right now|dont make me)\b",
+    re.IGNORECASE
+)
+
+
+def _detect_archetype(personality: str) -> str:
+    """Detect character archetype from personality text."""
+    text = personality.lower()
+    scores = {}
+    for arch, data in _ARCHETYPES.items():
+        scores[arch] = sum(1 for kw in data["detect"] if kw in text)
+    best = max(scores, key=scores.get) if scores else "shy"
+    return best if scores.get(best, 0) > 0 else "shy"
+
+
+def _get_dialogue_tone(turn: int, personality: str, user_msg: str) -> str:
+    """Get archetype-aware dialogue tone hint based on turn, personality, and user energy."""
+    archetype = _detect_archetype(personality)
+    arch_data = _ARCHETYPES.get(archetype, _ARCHETYPES["shy"])
+
+    # Detect high-energy user messages (aggressive, forward, commanding)
+    if _HIGH_ENERGY_PATTERNS.search(user_msg):
+        return arch_data["high_energy"]
+
+    # Normal progression based on turn
+    phases = arch_data["phases"]
+    phase_turn = max(t for t in phases if t <= turn)
+    return phases[phase_turn]
 
 RP_SYSTEM_PROMPT = """You are an immersive roleplay partner having a natural conversation.
 
@@ -363,11 +460,16 @@ def handle_post(handler, strat, auth, path) -> bool:
                          "Start with dialogue"]
         format_hint = _format_cycle[user_turn % len(_format_cycle)]
 
+        # ── Archetype-aware dialogue tone progression ──
+        personality_text = card.get('personality', '') if card else ''
+        dialogue_tone = _get_dialogue_tone(user_turn, personality_text, content)
+
         # Build the pre-user system injection
         inject_parts = []
         if situation_parts:
             inject_parts.append("SITUATION: " + " | ".join(situation_parts))
         inject_parts.append(f"FORMAT: {format_hint}")
+        inject_parts.append(f"DIALOGUE TONE: {dialogue_tone}")
         messages.append({
             "role": "system",
             "content": "[" + ". ".join(inject_parts) + "]"
