@@ -415,7 +415,7 @@ def _build_system_prompt(card: dict = None, director_note: str = None,
 
     # Tone anchor — compact
     if first_message and card:
-        prompt += f"\nVoice reference: \"{first_message[:200]}\""
+        prompt += f"\nVoice reference (match this tone): \"{first_message[:50]}...\""
 
     # Inject persistent memory (facts, arcs)
     if memory_context:
