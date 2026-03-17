@@ -71,7 +71,8 @@ def categorize_edit(original: str, edited: str) -> str:
 
 _ARCHETYPES = {
     "shy": {
-        "detect": ["shy", "quiet", "nervous", "timid", "introverted", "reserved", "anxious", "awkward"],
+        "detect": ["shy", "quiet", "nervous", "timid", "introverted", "reserved", "anxious", "awkward",
+                   "flustered", "stammers", "self-deprecating", "stumbles over words", "humor as armor"],
         "phases": {
             0: "Guarded, deflective, short answers. Hide behind sarcasm or silence.",
             4: "Occasional genuine reactions escape before you can stop them.",
