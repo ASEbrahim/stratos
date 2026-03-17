@@ -229,11 +229,20 @@ def _get_archetype_format(turn: int, personality: str) -> str:
     arch_data = _ARCHETYPES.get(archetype, _ARCHETYPES["shy"])
     cycle = arch_data.get("format_bias", ["dialogue", "action", "narration", "dialogue"])
     fmt = cycle[turn % len(cycle)]
+
+    # Tough/action-heavy archetypes need forceful override on non-action turns
+    forceful = archetype in ("tough",)
+
     if fmt == "narration":
+        if forceful:
+            return 'This turn: DO NOT start with * or action. Start with a plain narration sentence — a thought, observation, or sensory detail. NO asterisks at the start. Example: "The silence pressed heavy against the walls." Then speak or act after.'
         return 'DO NOT start with * or ". Start with a plain sentence — a thought, observation, or feeling. Example: "The silence stretched between them." or "Something in his chest tightened."'
     elif fmt == "action":
         return "Start your response with *action in asterisks*"
-    return 'Start your response with "dialogue in quotes"'
+    else:
+        if forceful:
+            return 'This turn: START with spoken dialogue in "quotes" — your character SPEAKS first, then acts. NO asterisks before the first line of dialogue.'
+        return 'Start your response with "dialogue in quotes"'
 
 
 def _get_emotional_openness(turn: int, personality: str, user_msg: str) -> float:
@@ -458,10 +467,17 @@ def _build_turn_injection(history: list, card: dict, content: str,
     # ── Archetype-aware dialogue tone progression ──
     dialogue_tone = _get_dialogue_tone(user_turn, personality_text, content)
 
-    # ── Archetype-specific length ──
+    # ── Length control — aggressive for short input, proportional otherwise ──
+    archetype = _detect_archetype(personality_text)
     arch_length = _get_archetype_length(personality_text)
     length_hint = ""
-    if user_words <= 5:
+    if user_words <= 3:
+        # Ultra-short: "okay", "k", "sure", "hey"
+        if arch_length == "short":
+            length_hint = "LENGTH: 1-word input. Reply with ONE short sentence. Nothing more."
+        else:
+            length_hint = "LENGTH: 1-word input. Reply with 1 sentence MAX. No extra narration, no nurturing, no padding."
+    elif user_words <= 5:
         if arch_length == "short":
             length_hint = "LENGTH: Very short input. Reply with 1 sentence MAX."
         else:
