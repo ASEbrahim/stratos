@@ -908,7 +908,7 @@ TICKERS: 3-8 Yahoo Finance symbols relevant to this role.
 
         response = req.post(
             f"{scorer.host}/api/chat",
-            json={"model": scorer.inference_model,
+            json={"model": _inf,
                   "messages": [
                       {"role": "system", "content": system_msg},
                       {"role": "user", "content": prompt},
