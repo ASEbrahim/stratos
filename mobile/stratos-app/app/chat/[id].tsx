@@ -136,7 +136,6 @@ export default function ChatScreen() {
     if (!contextInput.trim()) return;
     setSessionContext(contextInput.trim());
     setShowContextModal(false);
-    setContextInput('');
     showAlert('Context Applied', 'This context will be referenced by the AI in every response for this session.');
   };
 
@@ -181,7 +180,7 @@ export default function ChatScreen() {
           // Insert Update Character and Import Context before Clear History
           const extraActions = [
             { text: 'Update Character', onPress: handleUpdateCharacter },
-            { text: 'Import Context', onPress: () => setShowContextModal(true) },
+            { text: 'Import Context', onPress: () => { setContextInput(useChatStore.getState().sessionContext || ''); setShowContextModal(true); } },
           ];
           const clearIdx = actions.findIndex(a => a.style === 'destructive');
           const enriched = [...actions];
@@ -245,8 +244,8 @@ export default function ChatScreen() {
           <View style={styles.contextOverlay}>
             <TouchableWithoutFeedback>
               <View style={[styles.contextModal, { backgroundColor: tc.bg.elevated, borderColor: tc.border.subtle }]}>
-                <Text style={[styles.contextTitle, { color: tc.text.primary }]}>Import Context</Text>
-                <Text style={[styles.contextDesc, { color: tc.text.muted }]}>Add backstory, world info, or instructions the AI should reference throughout this conversation.</Text>
+                <Text style={[styles.contextTitle, { color: tc.text.primary }]}>{contextInput ? 'Edit Context' : 'Import Context'}</Text>
+                <Text style={[styles.contextDesc, { color: tc.text.muted }]}>Add or edit backstory, world info, or instructions the AI should reference throughout this conversation.</Text>
                 <TextInput
                   style={[styles.contextInput, { backgroundColor: tc.bg.tertiary, color: tc.text.primary, borderColor: tc.border.subtle }]}
                   value={contextInput}

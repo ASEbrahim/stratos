@@ -21,6 +21,7 @@ import json
 import time
 import uuid
 import logging
+import threading
 import requests as req
 
 from routes.helpers import (
@@ -28,6 +29,10 @@ from routes.helpers import (
     start_sse, sse_event, strip_think_blocks,
 )
 from routes.gpu_manager import ensure_ollama
+from routes.rp_memory import (
+    build_rp_context, extract_facts_immediate, extract_facts,
+    should_extract, should_arc_summarize, extract_arc_summary,
+)
 
 logger = logging.getLogger("rp_chat")
 
@@ -63,23 +68,33 @@ def categorize_edit(original: str, edited: str) -> str:
 
 RP_SYSTEM_PROMPT = """You are an immersive roleplay partner.
 
+ANTI-ECHO (CRITICAL):
+- NEVER repeat, paraphrase, or reference the user's exact words or actions back to them.
+- If the user says "I smile", do NOT write "you smiled" or "your smile". React to it instead.
+- If the user asks a question, ANSWER it naturally in-character. Do NOT deflect or redirect back.
+- Each response must contain NEW information, actions, or emotions not present in the user's message.
+
 RESPONSE STYLE:
-- MIRROR the user's length STRICTLY. 1-3 word input = 1-2 sentences max. Short input = short response.
-- Count the user's sentences. Your response should have the SAME number of sentences.
-- Always LEAD with a physical reaction or body language, THEN follow with dialogue.
-- Your dialogue must add something NEW — never restate what the user just said.
+- Match the user's length loosely. Short input = short response. Long input = you can expand.
+- LEAD with a physical reaction or body language, THEN dialogue.
 - When the user sends *actions*, respond with your own *actions* and internal feelings.
 
-PACING:
-- MATCH the user's energy level. If they're shy, be gentle. If they're bold, you can match.
-- Early conversation = reserved, guarded, in-character. Flirtation builds GRADUALLY over many turns.
-- Intimacy comes from what is NOT said. Let tension build through subtext and small gestures.
+PACING & ESCALATION:
+- MATCH the user's energy. Shy = gentle. Bold = match.
+- Early conversation = reserved, guarded. Flirtation builds GRADUALLY.
+- DRIVE the scene forward: ask questions, reveal something about yourself, create small events.
+- After 3+ exchanges, introduce a new element: a sound, someone passing by, a memory, a physical detail.
+- React to the SITUATION, not just the last message. Reference what happened earlier in the conversation.
+
+SITUATIONAL AWARENESS:
+- Track the emotional arc: how has the mood shifted since the conversation started?
+- If the user revealed something personal, remember it and weave it into later responses naturally.
+- Your character has goals, desires, and internal thoughts — show them through subtext and small gestures.
 - Physical details: small and specific over grand gestures.
 
 CHARACTER:
 - Stay in character always. You have AGENCY — react authentically, not compliantly.
-- Remember and reference earlier conversation details.
-- LANGUAGE: Respond ONLY in the same language as the user's message. If the user writes in English, every word of your response must be English. NEVER output Chinese, Japanese, or any other language unless the user writes in that language first."""
+- LANGUAGE: Respond ONLY in the same language as the user's message. NEVER output Chinese, Japanese, or any other language unless the user writes in that language first."""
 
 
 def _check_model_exists(ollama_host: str, model: str) -> bool:
@@ -124,32 +139,41 @@ def select_rp_model(session_id: str, config: dict) -> str:
     return rp_model
 
 
-def _build_system_prompt(card: dict = None, director_note: str = None) -> str:
-    """Build system prompt from RP base + character card + optional director's note."""
+def _build_system_prompt(card: dict = None, director_note: str = None,
+                         memory_context: str = None) -> str:
+    """Build system prompt from RP base + character card + memory + optional director's note."""
     prompt = RP_SYSTEM_PROMPT
 
     if card:
         parts = []
         if card.get('name'):
-            parts.append(f"Character: {card['name']}")
+            parts.append(f"You are {card['name']}.")
         if card.get('physical_description'):
             parts.append(f"Appearance: {card['physical_description']}")
         if card.get('personality'):
             parts.append(f"Personality: {card['personality']}")
         if card.get('speech_pattern'):
-            parts.append(f"Speech: {card['speech_pattern']}")
+            parts.append(f"Speech pattern: {card['speech_pattern']}")
         if card.get('emotional_trigger'):
-            parts.append(f"Emotional Trigger: {card['emotional_trigger']}")
+            parts.append(f"What sets you off: {card['emotional_trigger']}")
         if card.get('defensive_mechanism'):
-            parts.append(f"Defense: {card['defensive_mechanism']}")
+            parts.append(f"How you protect yourself: {card['defensive_mechanism']}")
         if card.get('vulnerability'):
-            parts.append(f"Vulnerability: {card['vulnerability']}")
+            parts.append(f"Your vulnerability: {card['vulnerability']}")
         if card.get('specific_detail'):
-            parts.append(f"Detail: {card['specific_detail']}")
+            parts.append(f"Defining detail: {card['specific_detail']}")
         if card.get('scenario'):
             parts.append(f"Scenario: {card['scenario']}")
         if parts:
-            prompt += "\n\nCHARACTER:\n" + "\n".join(parts)
+            prompt += "\n\nYOUR CHARACTER:\n" + "\n".join(parts)
+
+        # Example dialogues show HOW this character talks — critical for voice
+        if card.get('example_dialogues'):
+            prompt += f"\n\nEXAMPLE DIALOGUE (match this voice and style):\n{card['example_dialogues']}"
+
+    # Inject persistent memory (facts, arcs)
+    if memory_context:
+        prompt += f"\n\n{memory_context}"
 
     return prompt
 
@@ -232,6 +256,7 @@ def handle_post(handler, strat, auth, path) -> bool:
         card_id = data.get("character_card_id")
         director_note = data.get("director_note")
         session_context = data.get("session_context", "")
+        first_message = data.get("first_message", "")
 
         if not content:
             error_response(handler, "Message content required", 400)
@@ -252,14 +277,52 @@ def handle_post(handler, strat, auth, path) -> bool:
         max_turn = max((m['turn_number'] for m in history), default=0)
         user_turn = max_turn + 1
 
+        # ── Persist session_context server-side (survives across messages) ──
+        if session_context:
+            db.upsert_rp_context(
+                session_id, tier=1, category="session",
+                key="imported_context", value=session_context[:5000],
+                turn_number=user_turn
+            )
+        else:
+            # Load previously stored session context
+            stored = db.get_rp_context(session_id, tier=1, category="session", limit=1)
+            for ctx in stored:
+                if ctx.get('key') == 'imported_context':
+                    session_context = ctx['value']
+                    break
+
+        # ── Seed first_message as turn 0 if this is a brand-new session ──
+        if not history and card:
+            fm = first_message or card.get('first_message', '')
+            if fm:
+                db.insert_rp_message(
+                    session_id, profile_id, branch_id, 0, 'assistant', fm,
+                    character_card_id=card_id, persona=persona
+                )
+                history = [{'role': 'assistant', 'content': fm, 'turn_number': 0}]
+                user_turn = 1
+
         # Insert user message
         db.insert_rp_message(
             session_id, profile_id, branch_id, user_turn, 'user', content,
             character_card_id=card_id, persona=persona
         )
 
+        # ── Extract facts immediately (regex — zero cost) ──
+        extract_facts_immediate(session_id, content, user_turn, db)
+
+        # ── Build tiered memory context ──
+        memory_context = ""
+        try:
+            memory_context, _debug = build_rp_context(session_id, db, card_id)
+            if _debug.get('total', 0) > 0:
+                logger.info(f"RP memory: tier1={_debug['tier1']} tier3={_debug['tier3']} tier2={_debug['tier2']} pairs={_debug['tier2_pairs']}")
+        except Exception as e:
+            logger.warning(f"Memory context build failed (non-fatal): {e}")
+
         # Build messages for Ollama
-        system_prompt = _build_system_prompt(card, director_note)
+        system_prompt = _build_system_prompt(card, director_note, memory_context)
         # Inject persistent session context (from Import Context)
         if session_context:
             system_prompt += f"\n\nSESSION CONTEXT (reference throughout):\n{session_context}"
@@ -315,6 +378,22 @@ def handle_post(handler, strat, auth, path) -> bool:
                 response_ms=elapsed_ms
             )
 
+            # ── Background memory extraction ──
+            char_name = card.get('name', 'Character') if card else 'Character'
+            if should_extract(asst_turn):
+                threading.Thread(
+                    target=extract_facts, daemon=True,
+                    args=(session_id, content, full_text, asst_turn, db)
+                ).start()
+            if should_arc_summarize(asst_turn, content, full_text):
+                all_msgs = [{"role": m["role"], "content": m["content"]} for m in history]
+                all_msgs.append({"role": "user", "content": content})
+                all_msgs.append({"role": "assistant", "content": full_text})
+                threading.Thread(
+                    target=extract_arc_summary, daemon=True,
+                    args=(session_id, "User", char_name, all_msgs, asst_turn, db)
+                ).start()
+
         sse_event(handler, {"done": True, "session_id": session_id, "branch_id": branch_id})
         return True
 
@@ -360,7 +439,22 @@ def handle_post(handler, strat, auth, path) -> bool:
 
         # Build context up to the last user message
         card = db.get_character_card(card_id) if card_id else None
-        system_prompt = _build_system_prompt(card)
+        # Build memory context for regeneration
+        memory_context = ""
+        try:
+            memory_context, _ = build_rp_context(session_id, db, card_id)
+        except Exception as e:
+            logger.warning(f"Memory context build failed in regenerate (non-fatal): {e}")
+        # Load stored session context
+        regen_session_ctx = ""
+        stored = db.get_rp_context(session_id, tier=1, category="session", limit=1)
+        for ctx in stored:
+            if ctx.get('key') == 'imported_context':
+                regen_session_ctx = ctx['value']
+                break
+        system_prompt = _build_system_prompt(card, memory_context=memory_context)
+        if regen_session_ctx:
+            system_prompt += f"\n\nSESSION CONTEXT (reference throughout):\n{regen_session_ctx}"
         messages = [{"role": "system", "content": system_prompt}]
         for m in history[:-1]:  # Exclude the last assistant message
             if m['role'] in ('user', 'assistant'):
@@ -369,7 +463,7 @@ def handle_post(handler, strat, auth, path) -> bool:
         scoring_cfg = strat.config.get("scoring", {})
         ollama_host = scoring_cfg.get("ollama_host", "http://localhost:11434")
         persona = last_asst.get('persona', 'roleplay')
-        model = scoring_cfg.get("rp_model", "stratos-rp-q8") if persona == 'roleplay' else scoring_cfg.get("inference_model", "qwen3.5:9b")
+        model = select_rp_model(session_id, strat.config) if persona == 'roleplay' else scoring_cfg.get("inference_model", "qwen3.5:9b")
 
         start_sse(handler)
         start_time = time.time()
@@ -492,7 +586,13 @@ def handle_post(handler, strat, auth, path) -> bool:
         parent_history = db.get_full_branch_conversation(session_id, from_branch)
         context_msgs = [m for m in parent_history if m['turn_number'] < at_turn]
 
-        system_prompt = _build_system_prompt(card)
+        # Build memory context for branch
+        branch_memory = ""
+        try:
+            branch_memory, _ = build_rp_context(session_id, db, card_id)
+        except Exception as e:
+            logger.warning(f"Memory context build failed in branch (non-fatal): {e}")
+        system_prompt = _build_system_prompt(card, memory_context=branch_memory)
         messages = [{"role": "system", "content": system_prompt}]
         for m in context_msgs:
             if m['role'] in ('user', 'assistant'):
@@ -501,7 +601,7 @@ def handle_post(handler, strat, auth, path) -> bool:
 
         scoring_cfg = strat.config.get("scoring", {})
         ollama_host = scoring_cfg.get("ollama_host", "http://localhost:11434")
-        model = scoring_cfg.get("rp_model", "stratos-rp-q8") if persona == 'roleplay' else scoring_cfg.get("inference_model", "qwen3.5:9b")
+        model = select_rp_model(session_id, strat.config) if persona == 'roleplay' else scoring_cfg.get("inference_model", "qwen3.5:9b")
 
         start_sse(handler)
         start_time = time.time()

@@ -833,12 +833,15 @@ function appendAgentMessage(role, content) {
     wrapper.style.transform = 'translateY(8px)';
     msgs.appendChild(wrapper);
     lucide.createIcons();
+    // Scroll BEFORE animation to prevent visual jump
+    msgs.scrollTop = msgs.scrollHeight;
     requestAnimationFrame(() => {
         wrapper.style.transition = 'opacity 0.25s ease, transform 0.25s ease';
         wrapper.style.opacity = '1';
         wrapper.style.transform = 'translateY(0)';
+        // Re-scroll after animation starts to catch any layout shift
+        msgs.scrollTop = msgs.scrollHeight;
     });
-    msgs.scrollTop = msgs.scrollHeight;
     // Fire hook for mobile agent sync (replaces polling)
     if (typeof _onAgentMessageHook === 'function') _onAgentMessageHook(role, content);
     return wrapper;
