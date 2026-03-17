@@ -210,10 +210,10 @@ def _get_archetype_format(turn: int, personality: str) -> str:
     cycle = arch_data.get("format_bias", ["dialogue", "action", "narration", "dialogue"])
     fmt = cycle[turn % len(cycle)]
     if fmt == "narration":
-        return 'Start with plain narration — a thought, observation, or description. Like: "The silence stretched between them." or "Something shifted in the air."'
+        return 'DO NOT start with * or ". Start with a plain sentence — a thought, observation, or feeling. Example: "The silence stretched between them." or "Something in his chest tightened."'
     elif fmt == "action":
-        return "Start with *action*"
-    return "Start with dialogue"
+        return "Start your response with *action in asterisks*"
+    return 'Start your response with "dialogue in quotes"'
 
 
 def _get_emotional_openness(turn: int, personality: str, user_msg: str) -> float:
@@ -583,7 +583,7 @@ def handle_post(handler, strat, auth, path) -> bool:
         # ── Scenario reminder — WHERE are they? ──
         scenario_reminder = ""
         scenario_text = card.get('scenario', '') if card else ''
-        if scenario_text and len(history) >= 4:
+        if scenario_text and len(history) >= 2:
             # Remind model of location/situation every few turns
             scenario_reminder = f"SETTING: {scenario_text[:150]}"
 
