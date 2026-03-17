@@ -175,13 +175,32 @@ _HIGH_ENERGY_PATTERNS = re.compile(
 
 
 def _detect_archetype(personality: str) -> str:
-    """Detect character archetype from personality text."""
+    """Detect character archetype from personality text.
+    Returns the best-matching archetype. For blended characters,
+    the primary archetype drives behavior but secondary traits
+    are noted in the dialogue tone hints.
+    """
     text = personality.lower()
     scores = {}
     for arch, data in _ARCHETYPES.items():
         scores[arch] = sum(1 for kw in data["detect"] if kw in text)
     best = max(scores, key=scores.get) if scores else "shy"
     return best if scores.get(best, 0) > 0 else "shy"
+
+
+def _get_secondary_archetype(personality: str) -> str | None:
+    """Detect if there's a secondary archetype (for blended characters).
+    E.g. 'shy but secretly bold' → primary=shy, secondary=confident.
+    Returns None if character is pure archetype.
+    """
+    text = personality.lower()
+    scores = {}
+    for arch, data in _ARCHETYPES.items():
+        scores[arch] = sum(1 for kw in data["detect"] if kw in text)
+    ranked = sorted(scores.items(), key=lambda x: x[1], reverse=True)
+    if len(ranked) >= 2 and ranked[0][1] > 0 and ranked[1][1] > 0:
+        return ranked[1][0]
+    return None
 
 
 def _get_dialogue_tone(turn: int, personality: str, user_msg: str) -> str:
@@ -245,14 +264,29 @@ def _get_archetype_length(personality: str) -> str:
     return arch_data.get("length", "medium")
 
 
-def _should_ask_question(turn: int, personality: str) -> bool:
-    """Should this archetype ask the user a question this turn?"""
+def _should_ask_question(turn: int, personality: str) -> tuple:
+    """Should this archetype ask the user a question this turn?
+    Returns (should_ask, question_type) where question_type is
+    'curious' (genuine interest), 'challenge' (pushback), or 'check_in' (caring).
+    """
     archetype = _detect_archetype(personality)
     arch_data = _ARCHETYPES.get(archetype, _ARCHETYPES["shy"])
-    if not arch_data.get("asks_questions", False):
-        return False
-    # Ask every 3rd turn to avoid being annoying
-    return turn > 0 and turn % 3 == 0
+
+    # Every archetype asks questions, just differently and at different rates
+    freq = {"shy": 3, "confident": 4, "tough": 5, "clinical": 3, "sweet": 3, "submissive": 5}
+    interval = freq.get(archetype, 4)
+    if turn <= 0 or turn % interval != 0:
+        return False, ""
+
+    q_types = {
+        "shy": "curious",       # genuinely curious, deflecting from themselves
+        "confident": "challenge",  # provocative, testing the user
+        "tough": "tactical",    # assessing the situation
+        "clinical": "probing",  # scientific curiosity
+        "sweet": "check_in",    # caring, making sure they're okay
+        "submissive": "seeking", # seeking direction or approval
+    }
+    return True, q_types.get(archetype, "curious")
 
 RP_SYSTEM_PROMPT = """You are an immersive roleplay partner having a natural conversation.
 
@@ -616,17 +650,39 @@ def handle_post(handler, strat, auth, path) -> bool:
             else:
                 length_hint = "LENGTH: Match the user's brevity."
 
-        # ── Question generation ──
+        # ── Question generation (archetype-aware) ──
         question_hint = ""
-        if _should_ask_question(user_turn, personality_text):
-            question_hint = "END your response with a question back to the user — show genuine curiosity about them."
+        should_ask, q_type = _should_ask_question(user_turn, personality_text)
+        if should_ask:
+            q_hints = {
+                "curious": "END with a genuine question — you're curious about them.",
+                "challenge": "END with a challenging question — test them, provoke them.",
+                "tactical": "END with a tactical question — assess the situation.",
+                "probing": "END with a probing question — you want to understand something specific.",
+                "check_in": "END with a caring question — make sure they're okay.",
+                "seeking": "END with a question seeking direction — what do they want?",
+            }
+            question_hint = q_hints.get(q_type, "END with a question to the user.")
 
         # ── Anti-sycophancy for confident/tough ──
         pushback_hint = ""
         archetype = _detect_archetype(personality_text)
         arch_data = _ARCHETYPES.get(archetype, {})
         if arch_data.get("pushback") and user_turn >= 2:
-            pushback_hint = "Don't just agree or flirt harder. Challenge them. Push back. Have your own opinion."
+            pushback_hint = "Don't just agree or flirt harder. Challenge them. Push back. Disagree. Have your own opinion. Say 'no' or 'you're wrong' if it fits."
+
+        # ── Dynamic archetype blending ──
+        blend_hint = ""
+        secondary = _get_secondary_archetype(personality_text)
+        if secondary and user_turn >= 6:
+            blend_hints = {
+                "shy": "Let unexpected shyness or vulnerability peek through.",
+                "confident": "Let a flash of unexpected boldness break through.",
+                "tough": "Let protective instincts surface unexpectedly.",
+                "sweet": "Let unexpected tenderness surface.",
+                "clinical": "Let analytical observation slip in.",
+            }
+            blend_hint = blend_hints.get(secondary, "")
 
         # ── Anti-repetition — track recent gestures ──
         anti_repeat = ""
@@ -659,6 +715,8 @@ def handle_post(handler, strat, auth, path) -> bool:
             inject_parts.append(pushback_hint)
         if anti_repeat:
             inject_parts.append(anti_repeat)
+        if blend_hint:
+            inject_parts.append(blend_hint)
         # ── Emotional openness meter ──
         openness = _get_emotional_openness(user_turn, personality_text, content)
         inject_parts.append(f"OPENNESS: {openness:.1f}/1.0 — {'fully guarded' if openness < 0.2 else 'mostly guarded' if openness < 0.4 else 'warming up' if openness < 0.6 else 'walls down' if openness < 0.8 else 'completely open'}")
