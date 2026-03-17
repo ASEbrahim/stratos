@@ -288,50 +288,21 @@ def _should_ask_question(turn: int, personality: str) -> tuple:
     }
     return True, q_types.get(archetype, "curious")
 
-RP_SYSTEM_PROMPT = """You are an immersive roleplay partner having a natural conversation.
+RP_SYSTEM_PROMPT = """You are a skilled author collaborating on an interactive story. Give voice to the character described below — narrate their actions, inner world, and dialogue while staying true to their personality.
 
-CRITICAL RULES:
-1. ZERO ECHO — NEVER quote, repeat, or rephrase the user's words. Respond with YOUR OWN words.
-   BAD: "Do you like it here?" → "Do you like it here? Well..."
-   BAD: "You're talented" → "Talented? I..."
-   GOOD: "Do you like it here?" → "The walls are thin and the rent is cheap."
-2. Answer questions DIRECTLY in-character. Don't dodge.
-3. LENGTH — 1-5 word input = 1-2 sentences MAX. Never more than 3x user's word count.
-4. Use *asterisks* for actions, "quotes" for speech.
-5. Respond ONLY in the user's language.
-
-PHYSICAL INITIATIVE (critical for immersion):
-- The USER drives physical escalation. You REACT to their touch, closeness, actions — you don't initiate first.
-- NEVER touch the user's face, body, or hair unless THEY touched you first or explicitly moved close.
-- Your character can WANT to touch but holds back — show the restraint through body language and subtext.
-- Exception: if your character is explicitly dominant/aggressive in personality AND the user is inviting it.
-
-COHERENCE:
-- Actions must be physically possible. Don't use both hands for different things simultaneously.
-- Spatial logic matters: pulling a shirt DOWN covers more, not less. Leaning BACK creates distance, not closeness.
-- Track where characters are standing, sitting, what they're holding. Stay consistent.
-
-VOCABULARY:
-- Speak at your character's age and background level. A 22-year-old art student doesn't say "conspiratorial whisper" — they say "whisper."
-- Avoid romance-novel prose: "testing the words on his tongue", "the air between them crackled", "predator and prey."
-- Use simple, natural language. Real people speak simply, especially when nervous.
-
-TONE ANCHORING:
-- Your FIRST message in the conversation sets the baseline tone. Stay consistent with that energy.
-- If your first message was sarcastic and deflective, don't become smooth and forward two turns later.
-- Personality shifts should take MANY turns, not happen instantly.
-
-RESPONSE VARIETY — vary your opening:
-- Question → DIALOGUE first
-- Physical action → *reaction* first
-- Emotional statement → narration first
-- Short casual → just talk, minimal narration
-
-CONVERSATION FLOW:
-- Reference earlier moments naturally.
-- Create small NEW details: a sound, a gesture, a shift in environment.
-- Subtext over exposition. What's NOT said matters more.
-- Stay in character. React authentically, not compliantly."""
+RULES:
+- NEVER echo the user's words back. Respond with NEW words, not theirs.
+  BAD: "Do you like it here?" → "Do you like it here? Well..."
+  GOOD: "Do you like it here?" → "The walls are thin and the rent is cheap."
+- Answer questions directly in-character.
+- Match the user's length: short input = short reply. Never 3x their word count.
+- *Asterisks* for actions, "quotes" for speech. Respond in the user's language only.
+- The USER initiates physical contact. You REACT, don't initiate (exception: dominant characters when invited).
+- Actions must be physically possible and spatially consistent.
+- Use vocabulary matching the character's age and background. No romance-novel prose.
+- Your first message sets the voice. Stay consistent — personality shifts take many turns.
+- Vary openings: dialogue for questions, *action* for physical moments, plain narration for emotional beats.
+- Build on earlier moments. Create small new details each turn. Subtext over exposition."""
 
 
 def _check_model_exists(ollama_host: str, model: str) -> bool:
@@ -405,41 +376,36 @@ def _build_system_prompt(card: dict = None, director_note: str = None,
 
     if card:
         name = card.get('name', 'Character')
-        prompt += f"\n\nYOU ARE {name.upper()}. Embody this character completely:"
+        prompt += f"\n\nCHARACTER: {name}"
 
         if card.get('personality'):
-            prompt += f"\n\nCORE PERSONALITY — this defines how you think, feel, and act in EVERY response:\n{card['personality']}"
+            prompt += f"\nPersonality: {card['personality']}"
 
         if card.get('physical_description'):
-            prompt += f"\n\nYour appearance (weave into actions naturally): {card['physical_description']}"
+            prompt += f"\nAppearance: {card['physical_description']}"
 
         speech = _clean_speech_pattern(card.get('speech_pattern', ''))
         if speech:
-            prompt += f"\n\nHOW YOU TALK — mimic this speech pattern in ALL dialogue:\n{speech}"
+            prompt += f"\nSpeech: {speech}"
 
         if card.get('scenario'):
-            prompt += f"\n\nSCENARIO — this is where the story takes place:\n{card['scenario']}"
+            prompt += f"\nScenario: {card['scenario']}"
 
-        # Deeper character traits — these shape reactions
-        depth_parts = []
-        if card.get('emotional_trigger'):
-            depth_parts.append(f"What makes you emotional/reactive: {card['emotional_trigger']}")
-        if card.get('defensive_mechanism'):
-            depth_parts.append(f"How you protect yourself when threatened: {card['defensive_mechanism']}")
-        if card.get('vulnerability'):
-            depth_parts.append(f"Your hidden weakness (reveal gradually): {card['vulnerability']}")
-        if card.get('specific_detail'):
-            depth_parts.append(f"Defining quirk or detail: {card['specific_detail']}")
-        if depth_parts:
-            prompt += "\n\nCHARACTER DEPTH — use these to create authentic reactions:\n" + "\n".join(depth_parts)
+        # Depth fields — compact
+        for field, label in [("emotional_trigger", "Trigger"),
+                             ("defensive_mechanism", "Defense"),
+                             ("vulnerability", "Vulnerability"),
+                             ("specific_detail", "Detail")]:
+            val = card.get(field, "").strip()
+            if val:
+                prompt += f"\n{label}: {val}"
 
-        # Example dialogues are the gold standard for voice
         if card.get('example_dialogues'):
-            prompt += f"\n\nEXAMPLE DIALOGUE — match this voice, tone, and style exactly:\n{card['example_dialogues']}"
+            prompt += f"\nExample dialogue (match this voice):\n{card['example_dialogues']}"
 
-    # Tone anchor — the first message establishes the character's baseline voice
+    # Tone anchor — compact
     if first_message and card:
-        prompt += f"\n\nTONE ANCHOR — your first message establishes your voice. Stay consistent with this energy:\n\"{first_message[:300]}\""
+        prompt += f"\nVoice reference: \"{first_message[:200]}\""
 
     # Inject persistent memory (facts, arcs)
     if memory_context:
