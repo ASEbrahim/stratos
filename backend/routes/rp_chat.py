@@ -210,10 +210,32 @@ def _get_archetype_format(turn: int, personality: str) -> str:
     cycle = arch_data.get("format_bias", ["dialogue", "action", "narration", "dialogue"])
     fmt = cycle[turn % len(cycle)]
     if fmt == "narration":
-        return "Start with narration (no asterisks, no quotes)"
+        return 'Start with plain narration — a thought, observation, or description. Like: "The silence stretched between them." or "Something shifted in the air."'
     elif fmt == "action":
         return "Start with *action*"
     return "Start with dialogue"
+
+
+def _get_emotional_openness(turn: int, personality: str, user_msg: str) -> float:
+    """Calculate emotional openness score (0.0 = fully guarded, 1.0 = fully open).
+
+    Increases over turns, jumps on high-energy/ERP input.
+    Different archetypes start at different baselines.
+    """
+    archetype = _detect_archetype(personality)
+    # Starting baselines
+    baselines = {"shy": 0.1, "confident": 0.4, "tough": 0.15, "clinical": 0.1,
+                 "sweet": 0.5, "submissive": 0.3}
+    base = baselines.get(archetype, 0.2)
+    # Increase over turns (diminishing returns)
+    progression = min(turn * 0.05, 0.5)
+    # Boost for intimate/emotional input
+    boost = 0.0
+    if _ERP_PATTERNS.search(user_msg):
+        boost = 0.25
+    elif _HIGH_ENERGY_PATTERNS.search(user_msg):
+        boost = 0.15
+    return min(base + progression + boost, 1.0)
 
 
 def _get_archetype_length(personality: str) -> str:
@@ -637,6 +659,9 @@ def handle_post(handler, strat, auth, path) -> bool:
             inject_parts.append(pushback_hint)
         if anti_repeat:
             inject_parts.append(anti_repeat)
+        # ── Emotional openness meter ──
+        openness = _get_emotional_openness(user_turn, personality_text, content)
+        inject_parts.append(f"OPENNESS: {openness:.1f}/1.0 — {'fully guarded' if openness < 0.2 else 'mostly guarded' if openness < 0.4 else 'warming up' if openness < 0.6 else 'walls down' if openness < 0.8 else 'completely open'}")
         messages.append({
             "role": "system",
             "content": "[" + ". ".join(inject_parts) + "]"
