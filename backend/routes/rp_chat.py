@@ -417,10 +417,8 @@ def _build_system_prompt(card: dict = None, director_note: str = None,
 MAX_MESSAGE_LENGTH = 10000  # Max characters per user message
 
 def _stream_ollama(handler, ollama_host: str, model: str, messages: list,
-                   temperature: float = 0.85, num_predict: int = 4000) -> str:
-    """Stream Ollama response via SSE. Returns the full accumulated text.
-    # TODO: consolidate with scorer_base._call_ollama and agent._stream_ollama_raw
-    """
+                   temperature: float = 0.85, num_predict: int = 350) -> str:
+    """Stream Ollama response via SSE. Returns the full accumulated text."""
     try:
         r = req.post(
             f"{ollama_host}/api/chat",
@@ -737,10 +735,13 @@ def handle_post(handler, strat, auth, path) -> bool:
             error_response(handler, "Failed to start Ollama", 503)
             return True
 
+        # Dynamic num_predict based on user message length
+        _np = 200 if user_words <= 5 else 300 if user_words <= 15 else 400
+
         # Stream response
         start_sse(handler)
         start_time = time.time()
-        full_text = _stream_ollama(handler, ollama_host, model, messages)
+        full_text = _stream_ollama(handler, ollama_host, model, messages, num_predict=_np)
         elapsed_ms = int((time.time() - start_time) * 1000)
 
         asst_msg_id = None
