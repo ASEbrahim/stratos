@@ -145,31 +145,37 @@ def _build_system_prompt(card: dict = None, director_note: str = None,
     prompt = RP_SYSTEM_PROMPT
 
     if card:
-        parts = []
-        if card.get('name'):
-            parts.append(f"You are {card['name']}.")
-        if card.get('physical_description'):
-            parts.append(f"Appearance: {card['physical_description']}")
-        if card.get('personality'):
-            parts.append(f"Personality: {card['personality']}")
-        if card.get('speech_pattern'):
-            parts.append(f"Speech pattern: {card['speech_pattern']}")
-        if card.get('emotional_trigger'):
-            parts.append(f"What sets you off: {card['emotional_trigger']}")
-        if card.get('defensive_mechanism'):
-            parts.append(f"How you protect yourself: {card['defensive_mechanism']}")
-        if card.get('vulnerability'):
-            parts.append(f"Your vulnerability: {card['vulnerability']}")
-        if card.get('specific_detail'):
-            parts.append(f"Defining detail: {card['specific_detail']}")
-        if card.get('scenario'):
-            parts.append(f"Scenario: {card['scenario']}")
-        if parts:
-            prompt += "\n\nYOUR CHARACTER:\n" + "\n".join(parts)
+        name = card.get('name', 'Character')
+        prompt += f"\n\nYOU ARE {name.upper()}. Embody this character completely:"
 
-        # Example dialogues show HOW this character talks — critical for voice
+        if card.get('personality'):
+            prompt += f"\n\nCORE PERSONALITY — this defines how you think, feel, and act in EVERY response:\n{card['personality']}"
+
+        if card.get('physical_description'):
+            prompt += f"\n\nYour appearance (weave into actions naturally): {card['physical_description']}"
+
+        if card.get('speech_pattern'):
+            prompt += f"\n\nHOW YOU TALK — mimic this speech pattern in ALL dialogue:\n{card['speech_pattern']}"
+
+        if card.get('scenario'):
+            prompt += f"\n\nSCENARIO — this is where the story takes place:\n{card['scenario']}"
+
+        # Deeper character traits — these shape reactions
+        depth_parts = []
+        if card.get('emotional_trigger'):
+            depth_parts.append(f"What makes you emotional/reactive: {card['emotional_trigger']}")
+        if card.get('defensive_mechanism'):
+            depth_parts.append(f"How you protect yourself when threatened: {card['defensive_mechanism']}")
+        if card.get('vulnerability'):
+            depth_parts.append(f"Your hidden weakness (reveal gradually): {card['vulnerability']}")
+        if card.get('specific_detail'):
+            depth_parts.append(f"Defining quirk or detail: {card['specific_detail']}")
+        if depth_parts:
+            prompt += "\n\nCHARACTER DEPTH — use these to create authentic reactions:\n" + "\n".join(depth_parts)
+
+        # Example dialogues are the gold standard for voice
         if card.get('example_dialogues'):
-            prompt += f"\n\nEXAMPLE DIALOGUE (match this voice and style):\n{card['example_dialogues']}"
+            prompt += f"\n\nEXAMPLE DIALOGUE — match this voice, tone, and style exactly:\n{card['example_dialogues']}"
 
     # Inject persistent memory (facts, arcs)
     if memory_context:
