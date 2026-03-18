@@ -245,7 +245,12 @@ export async function getSuggestions(
     });
     if (!response.ok) return [];
     const data = await response.json();
-    return data.suggestions || data || [];
+    // Backend returns different formats depending on persona:
+    // RP: { suggestions: [{label, prompt}, ...] } or { suggestions: ["str", ...] }
+    // Intelligence: { suggestion: "string", tickers: [...] }
+    if (Array.isArray(data.suggestions)) return data.suggestions;
+    if (Array.isArray(data)) return data;
+    return [];
   } catch (err) {
     reportError('getSuggestions', err);
     return [];

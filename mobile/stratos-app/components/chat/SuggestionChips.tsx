@@ -40,7 +40,7 @@ function AnimatedChip({ suggestion, index, color, onSelect }: { suggestion: Sugg
 }
 
 export const SuggestionChips = React.memo(function SuggestionChips({ suggestions, onSelect, accentColor }: SuggestionChipsProps) {
-  if (suggestions.length === 0) return null;
+  if (!Array.isArray(suggestions) || suggestions.length === 0) return null;
   const tc = useThemeStore(s => s.colors);
   const color = accentColor ?? tc.accent.primary;
   return (
