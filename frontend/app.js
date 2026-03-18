@@ -858,6 +858,8 @@ function _setAutoRefresh(secs, skipPersist) {
     if (_autoRefreshTimer) { clearInterval(_autoRefreshTimer); _autoRefreshTimer = null; }
     var s = parseInt(secs);
     if (s > 0) {
+        // Trigger immediate refresh on interval change, then start timer
+        if (!skipPersist && typeof refreshMarket === 'function') refreshMarket();
         _autoRefreshTimer = setInterval(function() {
             if (typeof refreshMarket === 'function') refreshMarket();
         }, s * 1000);
