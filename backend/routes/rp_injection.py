@@ -118,19 +118,24 @@ def _build_turn_injection(history: list, card: dict, content: str,
         }
         blend_hint = blend_hints.get(secondary, "")
 
-    # ── Anti-repetition — dynamic phrase extraction from recent responses ──
+    # ── Anti-repetition — expanded n-gram phrase extraction ──
     anti_repeat = ""
     if len(history) >= 4:
         recent_responses = [m['content'] for m in history[-6:] if m['role'] == 'assistant']
         if len(recent_responses) >= 2:
-            all_actions = []
+            all_phrases = []
             for resp in recent_responses:
-                actions = re.findall(r'\*([^*]{5,40})\*', resp)
-                all_actions.extend(a.lower().strip() for a in actions)
-            phrase_counts = Counter(all_actions)
+                clean = resp.replace('*', '').replace('"', '').lower()
+                words = clean.split()
+                for i in range(len(words) - 3):
+                    phrase = ' '.join(words[i:i+4])
+                    if len(phrase) > 15:  # skip trivial phrases
+                        all_phrases.append(phrase)
+            phrase_counts = Counter(all_phrases)
             repeated = [phrase for phrase, count in phrase_counts.items() if count >= 2]
             if repeated:
-                anti_repeat = f"You already used these descriptions recently: {', '.join(repeated[:4])}. Use COMPLETELY DIFFERENT physical details this time."
+                top_repeated = sorted(repeated, key=lambda p: phrase_counts[p], reverse=True)[:6]
+                anti_repeat = f"BANNED PHRASES (do NOT use these — find completely different words): {', '.join(top_repeated)}"
 
     # ── Dedup warning (from previous turn's detection) ──
     dedup_hint = ""
