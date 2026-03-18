@@ -245,19 +245,35 @@ RULES:
 - Build on earlier moments. Create small new details each turn. Subtext over exposition."""
 
 
-def _clean_speech_pattern(raw: str) -> str:
-    """Strip formatting meta-instructions from speech_pattern field."""
+# Regex for detecting formatting meta-instructions in card text fields
+_META_PATTERNS = re.compile(
+    r'(?i)(always start(?:s)? with [*"\']|use \*?asterisk|use [""\u201c]?quote|'
+    r'never cop(?:y|ies)|start (?:each |every )?(?:response |message )?with \*|format:|'
+    r'\{\{user\}\}|\{\{char\}\}|'
+    r'keep response|proportional to input|action beats|'
+    r'narrat(?:e|ion) in (?:first|third|second) person|'
+    r'write (?:actions?|narration|dialogue) (?:in|with|using)|'
+    r'(?:actions?|narration) (?:should|must) (?:be|use)|'
+    r'respond (?:in|with) \*|use italics|use bold|'
+    r'formatting (?:style|guide|rules?)|markdown|'
+    r'length (?:should|must|of)|word count|'
+    r'stay (?:in|within) \d+ (?:words|sentences|paragraphs))',
+)
+
+
+def _clean_meta_instructions(raw: str) -> str:
+    """Strip formatting meta-instructions from any card text field.
+    Shared by speech_pattern and personality cleaning."""
     if not raw:
         return ""
-    _META_PATTERNS = re.compile(
-        r'(?i)(always start(?:s)? with [*"\']|use \*asterisk|use [""]?quote|'
-        r'never cop(?:y|ies)|start (?:each |every )?(?:response |message )?with \*|format:|'
-        r'\{\{user\}\}|\{\{char\}\}|'
-        r'keep response|proportional to input|action beats)',
-    )
     sentences = re.split(r'(?<=[.!?])\s+', raw.strip())
     kept = [s for s in sentences if not _META_PATTERNS.search(s)]
     return ' '.join(kept).strip(' .,;')
+
+
+def _clean_speech_pattern(raw: str) -> str:
+    """Strip formatting meta-instructions from speech_pattern field."""
+    return _clean_meta_instructions(raw)
 
 
 def _build_system_prompt(card: dict = None, director_note: str = None,
@@ -298,7 +314,7 @@ def _build_system_prompt(card: dict = None, director_note: str = None,
             prompt += "\nNARRATION RULE: Write ALL actions and narration in third person. Example: *She adjusts her glasses* NOT *I adjust my glasses*. NEVER use 'I' in narration. This is MANDATORY."
 
         if card.get('personality'):
-            personality_text_final = card['personality']
+            personality_text_final = _clean_meta_instructions(card['personality']) or card['personality']
             if gender == 'female' and not any(w in personality_text_final.lower() for w in ['she ', 'her ']):
                 personality_text_final = f"She is {personality_text_final[0].lower()}{personality_text_final[1:]}" if personality_text_final[0].isupper() else personality_text_final
             elif gender == 'nonbinary' and not any(w in personality_text_final.lower() for w in ['they ', 'their ']):
