@@ -212,7 +212,7 @@ def handle_post(handler, strat, auth, path) -> bool:
             return True
 
         # Dynamic num_predict based on user message length
-        _np = 200 if user_words <= 5 else 300 if user_words <= 15 else 400
+        _np = 250 if user_words <= 5 else 350 if user_words <= 15 else 500
 
         # Stream response
         start_sse(handler)

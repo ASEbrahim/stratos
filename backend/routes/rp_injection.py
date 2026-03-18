@@ -15,6 +15,7 @@ from routes.rp_prompt import (
     _ARCHETYPES, _detect_archetype, _get_secondary_archetype,
     _get_dialogue_tone, _get_archetype_format, _get_emotional_openness,
     _get_archetype_length, _should_ask_question,
+    _ERP_PATTERNS, _HIGH_ENERGY_PATTERNS,
 )
 
 logger = logging.getLogger("rp_injection")
@@ -90,6 +91,13 @@ def _build_turn_injection(history: list, card: dict, content: str,
             length_hint = "LENGTH: Keep it terse — match character's brevity."
         else:
             length_hint = "LENGTH: Match the user's brevity."
+
+    # ── Intensity length ceiling ──
+    if not length_hint:
+        is_erp = bool(_ERP_PATTERNS.search(content))
+        is_high = bool(_HIGH_ENERGY_PATTERNS.search(content))
+        if is_erp or is_high:
+            length_hint = "LENGTH: Intense scene — be vivid and specific, but stay under 150 words. Intensity = sharper detail, NOT more words."
 
     # ── Question generation (archetype-aware) ──
     question_hint = ""
