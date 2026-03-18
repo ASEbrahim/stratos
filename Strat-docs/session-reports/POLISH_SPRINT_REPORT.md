@@ -1,12 +1,12 @@
 # StratOS Polish Sprint Report — 2026-03-18
 
 ## Summary
-- Items completed: **28 / 31**
+- Items completed: **29 / 31**
 - Bugs fixed: **10 / 12**
-- UX improvements: **12 / 13**
+- UX improvements: **13 / 13**
 - Gaming features: **2 / 6**
 - Agent fixes: **6 / 6**
-- Commits: 17 (excluding chore/state commits)
+- Commits: 18 (excluding chore/state commits)
 - Lines changed: +2,845 / -358 (27 files)
 - Tests: All JS syntax checks PASS, all Python imports PASS
 
