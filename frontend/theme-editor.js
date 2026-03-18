@@ -272,9 +272,13 @@
                         <span>Theme Editor</span>
                     </div>
                     <div class="te-header-right">
-                        <button class="te-btn te-btn-reset" onclick="window._themeEditor.reset()" title="Reset to preset">
+                        <button class="te-btn te-btn-reset" onclick="window._themeEditor.resetColors()" title="Reset colors to theme defaults">
                             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
-                            Reset
+                            Colors
+                        </button>
+                        <button class="te-btn te-btn-reset" onclick="window._themeEditor.resetLayout()" title="Reset element positions and layout">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 3v18"/></svg>
+                            Layout
                         </button>
                         <button class="te-close" onclick="window._themeEditor.close()">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
@@ -910,15 +914,19 @@
             if (hexInput) hexInput.value = hex;
         });
 
-        // Sync range sliders from saved overrides
+        // Sync range sliders from saved overrides (or reset to defaults)
         const overrides = loadOverrides();
         panel.querySelectorAll('.te-range-slider').forEach(slider => {
             const varName = slider.dataset.var;
+            const varDef = EDITOR_GROUPS.flatMap(g => g.vars).find(v => v.key === varName);
             if (overrides[varName] !== undefined) {
                 slider.value = overrides[varName];
                 const valSpan = slider.parentElement.querySelector('.te-range-val');
-                const varDef = EDITOR_GROUPS.flatMap(g => g.vars).find(v => v.key === varName);
                 if (valSpan) valSpan.textContent = overrides[varName] + (varDef?.unit || '');
+            } else if (varDef && varDef.default !== undefined) {
+                slider.value = varDef.default;
+                const valSpan = slider.parentElement.querySelector('.te-range-val');
+                if (valSpan) valSpan.textContent = varDef.default + (varDef.unit || '');
             }
         });
     }
@@ -952,21 +960,34 @@
             }
         },
 
-        reset() {
+        resetColors() {
             clearOverrides();
             clearAllOverrides();
-            // Clear all theme element localStorage values
-            const _themes = ['cosmos','sakura','noir','rose','coffee','midnight','nebula','aurora'];
-            const _suffixes = ['-cx','-cy','-scale','-blur','-opacity','-density'];
-            for (const th of _themes) for (const sf of _suffixes) localStorage.removeItem('stratos-' + th + sf);
-            ['stratos-sakura-size','stratos-sakura-fall','stratos-sakura-wind',
-             'stratos-stars-density','stratos-stars-drift','stratos-stars-brightness'].forEach(k => localStorage.removeItem(k));
             // Re-trigger base theme to restore CSS values
             const base = document.documentElement.getAttribute('data-theme') || 'midnight';
-            setTheme(base);
+            if (typeof setTheme === 'function') setTheme(base);
             syncPickersToCurrentTheme();
+        },
+
+        resetLayout() {
+            // Clear all theme element localStorage values
+            const _themes = ['cosmos','sakura','noir','rose','coffee','midnight','nebula','aurora'];
+            const _suffixes = ['-cx','-cy','-scale','-blur','-opacity','-density','-visible'];
+            for (const th of _themes) for (const sf of _suffixes) localStorage.removeItem('stratos-' + th + sf);
+            // Sakura tree-specific keys
+            ['-cx','-cy','-scale','-blur','-opacity'].forEach(sf => localStorage.removeItem('stratos-sakura-tree' + sf));
+            localStorage.removeItem('stratos-sakura-tree');
+            // Sakura petal + star field keys
+            ['stratos-sakura-size','stratos-sakura-fall','stratos-sakura-wind',
+             'stratos-stars-density','stratos-stars-drift','stratos-stars-brightness',
+             'stratos-cosmos-preset'].forEach(k => localStorage.removeItem(k));
             _buildThemeElementControls(document.getElementById('te-body'));
             if (typeof renderStars === 'function') renderStars();
+        },
+
+        reset() {
+            this.resetColors();
+            this.resetLayout();
         },
 
         async savePreset() {
