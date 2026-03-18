@@ -5,33 +5,6 @@
 (function() {
     'use strict';
 
-    // ── Undo history stack (max 20 entries) ──
-    const UNDO_MAX = 20;
-    const _undoStack = [];
-
-    function _pushUndo(overrides) {
-        _undoStack.push(JSON.stringify(overrides));
-        if (_undoStack.length > UNDO_MAX) _undoStack.shift();
-        _updateUndoBtn();
-    }
-
-    function _popUndo() {
-        if (_undoStack.length === 0) return null;
-        const state = JSON.parse(_undoStack.pop());
-        _updateUndoBtn();
-        return state;
-    }
-
-    function _updateUndoBtn() {
-        const btn = document.getElementById('te-undo-btn');
-        if (btn) {
-            btn.disabled = _undoStack.length === 0;
-            btn.title = _undoStack.length > 0
-                ? `Undo (${_undoStack.length}) — Ctrl+Z`
-                : 'Nothing to undo';
-        }
-    }
-
     // ── Color groups for the editor UI ──
     const EDITOR_GROUPS = [
         {
@@ -196,41 +169,6 @@
         localStorage.removeItem(getStorageKey());
     }
 
-    // ── Layout data helpers (canvas element positions/scale/blur) ──
-    const _LAYOUT_THEMES = ['cosmos','sakura','noir','rose','coffee','midnight','nebula','aurora'];
-    const _LAYOUT_SUFFIXES = ['-cx','-cy','-scale','-blur','-opacity','-density','-visible'];
-    const _LAYOUT_EXTRA_KEYS = [
-        'stratos-sakura-tree',
-        'stratos-sakura-tree-cx','stratos-sakura-tree-cy','stratos-sakura-tree-scale',
-        'stratos-sakura-tree-blur','stratos-sakura-tree-opacity',
-        'stratos-sakura-size','stratos-sakura-fall','stratos-sakura-wind',
-        'stratos-stars-density','stratos-stars-drift','stratos-stars-brightness',
-        'stratos-cosmos-preset',
-    ];
-
-    function _collectLayoutData() {
-        const layout = {};
-        for (const th of _LAYOUT_THEMES) {
-            for (const sf of _LAYOUT_SUFFIXES) {
-                const key = 'stratos-' + th + sf;
-                const val = localStorage.getItem(key);
-                if (val !== null) layout[key] = val;
-            }
-        }
-        for (const key of _LAYOUT_EXTRA_KEYS) {
-            const val = localStorage.getItem(key);
-            if (val !== null) layout[key] = val;
-        }
-        return layout;
-    }
-
-    function _restoreLayoutData(layout) {
-        if (!layout || typeof layout !== 'object') return;
-        Object.entries(layout).forEach(([key, val]) => {
-            localStorage.setItem(key, val);
-        });
-    }
-
     // ── Preset storage helpers ──
     function _getPresets() {
         try {
@@ -334,10 +272,6 @@
                         <span>Theme Editor</span>
                     </div>
                     <div class="te-header-right">
-                        <button class="te-btn te-btn-reset" id="te-undo-btn" onclick="window._themeEditor.undo()" title="Nothing to undo" disabled>
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 14L4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg>
-                            Undo
-                        </button>
                         <button class="te-btn te-btn-reset" onclick="window._themeEditor.resetColors()" title="Reset colors to theme defaults">
                             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
                             Colors
@@ -957,7 +891,6 @@
 
     function applyAndSave(varName, hex) {
         const overrides = loadOverrides();
-        _pushUndo(overrides);
         overrides[varName] = hex;
         saveOverrides(overrides);
         applyOverrides(overrides);
@@ -1027,17 +960,6 @@
             }
         },
 
-        undo() {
-            const prev = _popUndo();
-            if (!prev) return;
-            saveOverrides(prev);
-            clearAllOverrides();
-            if (Object.keys(prev).length > 0) {
-                applyOverrides(prev);
-            }
-            syncPickersToCurrentTheme();
-        },
-
         resetColors() {
             clearOverrides();
             clearAllOverrides();
@@ -1049,8 +971,16 @@
 
         resetLayout() {
             // Clear all theme element localStorage values
-            for (const th of _LAYOUT_THEMES) for (const sf of _LAYOUT_SUFFIXES) localStorage.removeItem('stratos-' + th + sf);
-            for (const key of _LAYOUT_EXTRA_KEYS) localStorage.removeItem(key);
+            const _themes = ['cosmos','sakura','noir','rose','coffee','midnight','nebula','aurora'];
+            const _suffixes = ['-cx','-cy','-scale','-blur','-opacity','-density','-visible'];
+            for (const th of _themes) for (const sf of _suffixes) localStorage.removeItem('stratos-' + th + sf);
+            // Sakura tree-specific keys
+            ['-cx','-cy','-scale','-blur','-opacity'].forEach(sf => localStorage.removeItem('stratos-sakura-tree' + sf));
+            localStorage.removeItem('stratos-sakura-tree');
+            // Sakura petal + star field keys
+            ['stratos-sakura-size','stratos-sakura-fall','stratos-sakura-wind',
+             'stratos-stars-density','stratos-stars-drift','stratos-stars-brightness',
+             'stratos-cosmos-preset'].forEach(k => localStorage.removeItem(k));
             _buildThemeElementControls(document.getElementById('te-body'));
             if (typeof renderStars === 'function') renderStars();
         },
@@ -1062,18 +992,16 @@
 
         async savePreset() {
             const overrides = loadOverrides();
-            const layout = _collectLayoutData();
-            if (!Object.keys(overrides).length && !Object.keys(layout).length) return;
+            if (!Object.keys(overrides).length) return;
             const name = await stratosPrompt({ title: 'Save Theme Preset', label: 'Preset name', placeholder: 'My custom theme' });
             if (!name || !name.trim()) return;
             const presets = _getPresets();
             // Overwrite if same name exists
             const idx = presets.findIndex(p => p.name === name.trim());
-            const presetData = { name: name.trim(), overrides: { ...overrides }, layout: { ...layout } };
             if (idx >= 0) {
-                presets[idx] = presetData;
+                presets[idx].overrides = { ...overrides };
             } else {
-                presets.push(presetData);
+                presets.push({ name: name.trim(), overrides: { ...overrides } });
             }
             _savePresets(presets);
             _refreshPresetList();
@@ -1091,11 +1019,6 @@
             saveOverrides(preset.overrides);
             clearAllOverrides();
             applyOverrides(preset.overrides);
-            // Restore layout data (canvas element positions/scale/blur)
-            if (preset.layout) {
-                _restoreLayoutData(preset.layout);
-                _buildThemeElementControls(document.getElementById('te-body'));
-            }
             syncPickersToCurrentTheme();
         },
 
@@ -1162,16 +1085,5 @@
             applyOverrides(overrides);
         }
     }, 100);
-
-    // Ctrl+Z keyboard shortcut for undo (only when theme editor is open)
-    document.addEventListener('keydown', (e) => {
-        if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
-            const panel = document.getElementById('theme-editor-panel');
-            if (panel && panel.classList.contains('te-open') && _undoStack.length > 0) {
-                e.preventDefault();
-                window._themeEditor.undo();
-            }
-        }
-    });
 
 })();
