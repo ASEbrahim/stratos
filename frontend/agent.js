@@ -856,6 +856,11 @@ function appendAgentMessage(role, content) {
         // Re-scroll after animation starts to catch any layout shift
         msgs.scrollTop = msgs.scrollHeight;
     });
+    // UX-01: Hyperlink signal titles in assistant messages
+    if (role === 'assistant') {
+        const respEl = wrapper.querySelector('.agent-response');
+        if (respEl) _hyperlinkSignals(respEl);
+    }
     // Fire hook for mobile agent sync (replaces polling)
     if (typeof _onAgentMessageHook === 'function') _onAgentMessageHook(role, content);
     return wrapper;
@@ -1246,6 +1251,75 @@ function formatAgentText(text) {
     return html;
 }
 
+// ── UX-01: Hyperlink signal names in agent responses ──
+// Post-render hook: scans assistant message HTML for signal titles present in newsData,
+// wraps them with clickable links that navigate to the dashboard feed and scroll to the article.
+function _hyperlinkSignals(containerEl) {
+    if (!containerEl) return;
+    if (typeof newsData === 'undefined' || !Array.isArray(newsData) || newsData.length === 0) return;
+    // Build a list of titles long enough to be meaningful (>15 chars avoids false positives)
+    const titles = newsData
+        .map(n => (n.title || '').trim())
+        .filter(t => t.length > 15);
+    if (titles.length === 0) return;
+    // Sort by length descending so longer titles match first
+    titles.sort((a, b) => b.length - a.length);
+    // Walk text nodes inside the container, skip nodes already inside <a> tags or code blocks
+    const walker = document.createTreeWalker(containerEl, NodeFilter.SHOW_TEXT, {
+        acceptNode(node) {
+            const parent = node.parentElement;
+            if (!parent) return NodeFilter.FILTER_REJECT;
+            const tag = parent.tagName;
+            if (tag === 'A' || tag === 'CODE' || tag === 'PRE' || tag === 'TEXTAREA' || tag === 'SCRIPT')
+                return NodeFilter.FILTER_REJECT;
+            return NodeFilter.FILTER_ACCEPT;
+        }
+    });
+    const textNodes = [];
+    while (walker.nextNode()) textNodes.push(walker.currentNode);
+    for (const node of textNodes) {
+        let text = node.nodeValue;
+        let matched = false;
+        let fragments = null;
+        for (const title of titles) {
+            const idx = text.indexOf(title);
+            if (idx === -1) continue;
+            matched = true;
+            fragments = document.createDocumentFragment();
+            if (idx > 0) fragments.appendChild(document.createTextNode(text.slice(0, idx)));
+            const link = document.createElement('a');
+            link.textContent = title;
+            link.href = '#';
+            link.title = 'View in feed';
+            link.style.cssText = 'color:#60a5fa;text-decoration:underline;text-decoration-color:rgba(96,165,250,0.3);text-underline-offset:2px;cursor:pointer;';
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                if (typeof setActive === 'function') setActive('dashboard');
+                // Scroll to the article card by matching title text
+                setTimeout(function() {
+                    const cards = document.querySelectorAll('.news-card, .feed-card, [data-article-title]');
+                    for (const card of cards) {
+                        const cardTitle = card.getAttribute('data-article-title') || card.querySelector('.news-title, .feed-title, h3, h4')?.textContent || '';
+                        if (cardTitle.trim() === title) {
+                            card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            card.style.outline = '2px solid #60a5fa';
+                            card.style.outlineOffset = '2px';
+                            setTimeout(function() { card.style.outline = ''; card.style.outlineOffset = ''; }, 3000);
+                            break;
+                        }
+                    }
+                }, 300);
+            });
+            fragments.appendChild(link);
+            if (idx + title.length < text.length) fragments.appendChild(document.createTextNode(text.slice(idx + title.length)));
+            break; // One match per text node to avoid complexity
+        }
+        if (matched && fragments) {
+            node.parentNode.replaceChild(fragments, node);
+        }
+    }
+}
+
 function sendAgentOption(btn, text) {
     // Disable all option buttons in the same group
     const group = btn.closest('.agent-options');
@@ -1511,6 +1585,8 @@ async function sendAgentMessage() {
         const finalDiv = typingEl?.querySelector('.agent-response');
         if (finalDiv) {
             finalDiv.innerHTML = wrapWithShowMore(fullResponse, formatAgentText(fullResponse));
+            // UX-01: Hyperlink signal titles in the final rendered response
+            _hyperlinkSignals(finalDiv);
             // Add suggestion chips — prefer LLM-generated, fallback to rule-based
             const chipSuggestions = dynamicSuggestions.length > 0
                 ? dynamicSuggestions.map(s => {
