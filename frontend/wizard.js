@@ -1669,7 +1669,9 @@ async function finishWizard() {
         await saveConfig();
         window._pendingDynamicCategories = null;
         closeWizard();
-        if (typeof showToast === 'function') showToast(`Profile saved! ${catCount} categories configured.`, 'success');
+        if (typeof showToast === 'function') showToast(`Profile saved! ${catCount} categories configured. Run your first scan!`, 'success');
+        // Navigate to feed and highlight scan/refresh button
+        _postWizardScanGuide();
       } catch(e) {
         window._pendingDynamicCategories = null;
         closeWizard();
@@ -2134,6 +2136,35 @@ function closeWizard() {
 /* ═══════════════════════════════════════
    GLOBAL EXPORTS (for inline onclick handlers)
    ═══════════════════════════════════════ */
+
+// Post-wizard scan guidance: navigate to feed, pulse the refresh button
+function _postWizardScanGuide() {
+  setTimeout(() => {
+    // Switch to dashboard tab
+    if (typeof setActive === 'function') setActive('dashboard');
+    // Find and pulse the refresh/scan button
+    const refreshBtn = document.querySelector('[onclick*="triggerRefresh"]') ||
+                       document.querySelector('[onclick*="refreshAll"]') ||
+                       document.querySelector('#refresh-btn') ||
+                       document.querySelector('.refresh-trigger');
+    if (refreshBtn) {
+      refreshBtn.style.animation = 'wizPulseGuide 1.5s ease-in-out 4';
+      refreshBtn.style.boxShadow = '0 0 20px var(--accent, #10b981)';
+      refreshBtn.title = 'Click to run your first scan!';
+      setTimeout(() => {
+        refreshBtn.style.animation = '';
+        refreshBtn.style.boxShadow = '';
+      }, 6000);
+    }
+    // Inject pulse animation if not present
+    if (!document.getElementById('wiz-pulse-guide-style')) {
+      const s = document.createElement('style');
+      s.id = 'wiz-pulse-guide-style';
+      s.textContent = `@keyframes wizPulseGuide { 0%,100% { transform:scale(1); box-shadow:0 0 8px var(--accent,#10b981); } 50% { transform:scale(1.15); box-shadow:0 0 24px var(--accent,#10b981); } }`;
+      document.head.appendChild(s);
+    }
+  }, 600);
+}
 
 window._wiz = {
   // Priorities
