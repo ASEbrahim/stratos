@@ -412,6 +412,14 @@ def _build_system_prompt(card: dict = None, director_note: str = None,
             age_labels = {'teen': 'teenager', 'young_adult': 'young adult (18-25)', 'adult': 'adult (26-40)', 'middle_aged': 'middle-aged (40-60)', 'elderly': 'elderly (60+)'}
             prompt += f", {age_labels.get(age_range, age_range)}"
 
+        # POV / Narration style — EARLY injection (before personality, so it's weighted higher)
+        pov = card.get('narration_pov')
+        if pov == 'first':
+            prompt += "\nNARRATION RULE: Write ALL actions and narration in first person (I/my/me). Example: *I adjust my glasses* NOT *She adjusts her glasses*. This is MANDATORY."
+        elif pov == 'third':
+            prompt += "\nNARRATION RULE: Write ALL actions and narration in third person. Example: *She adjusts her glasses* NOT *I adjust my glasses*. NEVER use 'I' in narration. This is MANDATORY."
+        # 'mixed' or NULL = let the model decide
+
         if card.get('personality'):
             prompt += f"\nPersonality: {card['personality']}"
 
@@ -461,13 +469,7 @@ def _build_system_prompt(card: dict = None, director_note: str = None,
         if card.get('example_dialogues'):
             prompt += f"\nExample dialogue (match this voice):\n{card['example_dialogues']}"
 
-        # POV / Narration style — pill field (strong directive)
-        pov = card.get('narration_pov')
-        if pov == 'first':
-            prompt += "\nNARRATION RULE: Write ALL actions and narration in first person (I/my/me). Example: *I adjust my glasses* NOT *She adjusts her glasses*. This is mandatory."
-        elif pov == 'third':
-            prompt += "\nNARRATION RULE: Write ALL actions and narration in third person. Example: *She adjusts her glasses* NOT *I adjust my glasses*. NEVER use 'I' in narration. This is mandatory."
-        # 'mixed' or NULL = let the model decide
+        # (POV injection moved earlier — right after gender, before personality)
 
     # Tone anchor — compact
     if first_message and card:
