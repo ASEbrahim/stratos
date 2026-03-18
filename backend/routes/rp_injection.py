@@ -7,6 +7,7 @@ Extracted from rp_chat.py for parallelization. Contains:
   questions, pushback, anti-repeat, blend, openness
 """
 
+import json
 import re
 import logging
 from collections import Counter
@@ -160,6 +161,19 @@ def _build_turn_injection(history: list, card: dict, content: str,
             dedup_hint = "WARNING: Your last response repeated content from your previous message. This turn, write something COMPLETELY FRESH — no reused phrases, descriptions, or sentence structures."
             break
 
+    # ── Goal Director (loaded from rp_context, generated async by rp_director.py) ──
+    goal_hint = ""
+    stored_goals = db.get_rp_context(session_id, tier=2, category="director_goal", limit=1)
+    if stored_goals:
+        try:
+            current_goals = json.loads(stored_goals[0].get('value', '[]'))
+            if current_goals:
+                goal_hint = f"GOAL: {current_goals[0]}"
+                if len(current_goals) > 1:
+                    goal_hint += f" Secondary: {current_goals[1]}"
+        except (json.JSONDecodeError, IndexError):
+            pass
+
     # ── Emotional openness meter ──
     openness = _get_emotional_openness(user_turn, personality_text, content)
 
@@ -167,6 +181,8 @@ def _build_turn_injection(history: list, card: dict, content: str,
     inject_parts = []
     if dedup_hint:
         inject_parts.append(dedup_hint)
+    if goal_hint:
+        inject_parts.append(goal_hint)
     if situation_parts:
         inject_parts.append("SITUATION: " + " | ".join(situation_parts))
     if scenario_reminder:

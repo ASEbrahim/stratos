@@ -39,6 +39,8 @@ from routes.rp_memory import (
 from routes.rp_prompt import _build_system_prompt
 from routes.rp_injection import _build_turn_injection
 from routes.rp_stream import select_rp_model, _stream_ollama, MAX_MESSAGE_LENGTH, compute_ngram_overlap
+from routes.rp_director import generate_goals, should_generate_goals
+from routes.rp_prompt import _detect_archetype, _get_emotional_openness
 
 logger = logging.getLogger("rp_chat")
 
@@ -267,6 +269,38 @@ def handle_post(handler, strat, auth, path) -> bool:
                     target=extract_arc_summary, daemon=True,
                     args=(session_id, "User", char_name, all_msgs, asst_turn, db)
                 ).start()
+
+            # ── Goal Director (async — generates goals for NEXT turn) ──
+            def _maybe_generate_goals():
+                import json as _json
+                stored = db.get_rp_context(session_id, tier=2, category="director_goal", limit=1)
+                current_goals = []
+                if stored:
+                    try:
+                        current_goals = _json.loads(stored[0].get('value', '[]'))
+                    except Exception:
+                        pass
+                if not should_generate_goals(asst_turn, current_goals):
+                    return
+                arch = _detect_archetype(personality_text,
+                                         override=card.get('archetype_override') if card else None)
+                openness = _get_emotional_openness(asst_turn, personality_text, content)
+                updated_history = list(history) + [
+                    {"role": "user", "content": content},
+                    {"role": "assistant", "content": full_text},
+                ]
+                result = generate_goals(card or {}, updated_history, asst_turn,
+                                        openness, arch, current_goals)
+                if result is None or result.get("keep_current"):
+                    return
+                new_goals = result.get("goals", [])
+                if new_goals:
+                    db.upsert_rp_context(session_id, tier=2, category="director_goal",
+                                         key="current_goals", value=_json.dumps(new_goals),
+                                         turn_number=asst_turn)
+                    logger.info(f"Goal director: {new_goals}. Reason: {result.get('reasoning', '?')}")
+
+            threading.Thread(target=_maybe_generate_goals, daemon=True).start()
 
         sse_event(handler, {
             "done": True, "session_id": session_id, "branch_id": branch_id,
