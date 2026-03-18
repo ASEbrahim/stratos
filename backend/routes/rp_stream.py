@@ -20,6 +20,26 @@ logger = logging.getLogger("rp_stream")
 MAX_MESSAGE_LENGTH = 10000  # Max characters per user message
 
 
+def compute_ngram_overlap(text_a: str, text_b: str, n: int = 5) -> float:
+    """Compute proportion of n-grams in text_b that also appear in text_a.
+    Returns 0.0-1.0 where 1.0 means text_b is entirely contained in text_a.
+    Used for dedup detection — if a response repeats >40% of the previous
+    response, we inject a warning on the NEXT turn.
+    """
+    if not text_a or not text_b:
+        return 0.0
+    words_a = text_a.lower().split()
+    words_b = text_b.lower().split()
+    if len(words_b) < n:
+        return 0.0
+    ngrams_a = set(tuple(words_a[i:i+n]) for i in range(len(words_a) - n + 1))
+    ngrams_b = [tuple(words_b[i:i+n]) for i in range(len(words_b) - n + 1)]
+    if not ngrams_b:
+        return 0.0
+    matches = sum(1 for ng in ngrams_b if ng in ngrams_a)
+    return matches / len(ngrams_b)
+
+
 def _check_model_exists(ollama_host: str, model: str) -> bool:
     """Check if a model is available in Ollama."""
     try:

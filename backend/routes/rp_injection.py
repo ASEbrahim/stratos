@@ -132,11 +132,21 @@ def _build_turn_injection(history: list, card: dict, content: str,
             if repeated:
                 anti_repeat = f"You already used these descriptions recently: {', '.join(repeated[:4])}. Use COMPLETELY DIFFERENT physical details this time."
 
+    # ── Dedup warning (from previous turn's detection) ──
+    dedup_hint = ""
+    dedup_flags = db.get_rp_context(session_id, tier=1, category="system", limit=1)
+    for f in dedup_flags:
+        if f.get('key') == 'dedup_warning' and f.get('value') == 'true':
+            dedup_hint = "WARNING: Your last response repeated content from your previous message. This turn, write something COMPLETELY FRESH — no reused phrases, descriptions, or sentence structures."
+            break
+
     # ── Emotional openness meter ──
     openness = _get_emotional_openness(user_turn, personality_text, content)
 
     # ── Assemble ──
     inject_parts = []
+    if dedup_hint:
+        inject_parts.append(dedup_hint)
     if situation_parts:
         inject_parts.append("SITUATION: " + " | ".join(situation_parts))
     if scenario_reminder:

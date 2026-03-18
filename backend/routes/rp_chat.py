@@ -38,7 +38,7 @@ from routes.rp_memory import (
 )
 from routes.rp_prompt import _build_system_prompt
 from routes.rp_injection import _build_turn_injection
-from routes.rp_stream import select_rp_model, _stream_ollama, MAX_MESSAGE_LENGTH
+from routes.rp_stream import select_rp_model, _stream_ollama, MAX_MESSAGE_LENGTH, compute_ngram_overlap
 
 logger = logging.getLogger("rp_chat")
 
@@ -229,6 +229,28 @@ def handle_post(handler, strat, auth, path) -> bool:
                 character_card_id=card_id, persona=persona, model_version=model,
                 response_ms=elapsed_ms
             )
+
+            # ── Dedup detection (Option B: flag for next turn) ──
+            prev_assistant = ""
+            for m in reversed(history):
+                if m['role'] == 'assistant':
+                    prev_assistant = m.get('content', '')
+                    break
+            if prev_assistant:
+                overlap = compute_ngram_overlap(prev_assistant, full_text)
+                if overlap > 0.4:
+                    logger.warning(f"Dedup: {overlap:.0%} overlap detected. Flagging for next turn.")
+                    db.upsert_rp_context(session_id, tier=1, category="system",
+                                         key="dedup_warning", value="true", turn_number=asst_turn)
+                else:
+                    # Clear any previous dedup flag
+                    try:
+                        db.conn.execute(
+                            "DELETE FROM rp_session_context WHERE session_id = ? AND category = 'system' AND key = 'dedup_warning'",
+                            (session_id,))
+                        db._commit()
+                    except Exception:
+                        pass
 
             # ── Background memory extraction ──
             char_name = card.get('name', 'Character') if card else 'Character'
