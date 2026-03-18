@@ -1361,3 +1361,97 @@ function _mainChartVZoom() {
         ps.applyOptions({ autoScale: false, scaleMargins: { top: margins, bottom: margins } });
     }
 }
+
+/* ═══════════════════════════════════════════════════
+   REFRESH BAR VISIBILITY TOGGLE [UX-10]
+   ═══════════════════════════════════════════════════ */
+
+var _refreshBarHidden = false;
+var _refreshBarToggleInjected = false;
+
+function _initRefreshBarToggle() {
+    if (_refreshBarToggleInjected) return;
+    var banner = document.getElementById('scanning-banner');
+    if (!banner) return;
+
+    // Read persisted preference
+    try { _refreshBarHidden = localStorage.getItem('stratos_market_refresh_bar') === 'hidden'; } catch(e) {}
+
+    // Inject CSS for hiding the bar content while keeping the banner header visible
+    var style = document.createElement('style');
+    style.textContent = '#scanning-banner.refresh-bar-hidden #scan-progress,' +
+        '#scanning-banner.refresh-bar-hidden #scan-bar,' +
+        '#scanning-banner.refresh-bar-hidden #scan-phase,' +
+        '#scanning-banner.refresh-bar-hidden #scan-percent' +
+        '{ display:none !important; }' +
+        '#scanning-banner.refresh-bar-hidden .scan-bar-container' +
+        '{ display:none !important; }';
+    document.head.appendChild(style);
+
+    // Inject toggle button next to scan-title
+    var titleRow = banner.querySelector('.flex.items-center.justify-between');
+    if (titleRow) {
+        var toggleBtn = document.createElement('button');
+        toggleBtn.id = 'refresh-bar-toggle';
+        toggleBtn.className = 'text-[9px] px-1.5 py-0.5 rounded transition-all flex-shrink-0';
+        toggleBtn.style.cssText = 'border:1px solid color-mix(in srgb, var(--accent) 30%, transparent);color:var(--accent);background:transparent;cursor:pointer;margin-left:4px;';
+        toggleBtn.title = 'Toggle refresh progress bar visibility';
+        toggleBtn.onclick = function(e) {
+            e.stopPropagation();
+            _refreshBarHidden = !_refreshBarHidden;
+            try { localStorage.setItem('stratos_market_refresh_bar', _refreshBarHidden ? 'hidden' : 'visible'); } catch(ex) {}
+            _applyRefreshBarVisibility();
+        };
+        // Insert into the right-side control area
+        var controlArea = titleRow.querySelector('.flex.items-center.gap-2.ml-2');
+        if (controlArea) {
+            controlArea.appendChild(toggleBtn);
+        } else {
+            titleRow.appendChild(toggleBtn);
+        }
+    }
+
+    _refreshBarToggleInjected = true;
+    _applyRefreshBarVisibility();
+}
+
+function _applyRefreshBarVisibility() {
+    var banner = document.getElementById('scanning-banner');
+    var toggleBtn = document.getElementById('refresh-bar-toggle');
+    if (banner) {
+        if (_refreshBarHidden) {
+            banner.classList.add('refresh-bar-hidden');
+            // Also hide the progress bar container (parent div of scan-bar)
+            var barParent = document.getElementById('scan-bar');
+            if (barParent && barParent.parentElement) barParent.parentElement.style.display = 'none';
+            var progText = document.getElementById('scan-progress');
+            if (progText) progText.style.display = 'none';
+        } else {
+            banner.classList.remove('refresh-bar-hidden');
+            var barParent2 = document.getElementById('scan-bar');
+            if (barParent2 && barParent2.parentElement) barParent2.parentElement.style.display = '';
+            var progText2 = document.getElementById('scan-progress');
+            if (progText2) progText2.style.display = '';
+        }
+    }
+    if (toggleBtn) {
+        toggleBtn.textContent = _refreshBarHidden ? 'Show Bar' : 'Hide Bar';
+    }
+}
+
+// Observe scanning-banner visibility to inject toggle when it appears
+(function() {
+    // Try immediately
+    _initRefreshBarToggle();
+
+    // Also observe for when the banner becomes visible (since it starts hidden)
+    var observer = new MutationObserver(function() {
+        var banner = document.getElementById('scanning-banner');
+        if (banner && !banner.classList.contains('hidden')) {
+            _initRefreshBarToggle();
+            _applyRefreshBarVisibility();
+        }
+    });
+    var target = document.getElementById('status-notification') || document.body;
+    observer.observe(target, { attributes: true, childList: true, subtree: true });
+})();
