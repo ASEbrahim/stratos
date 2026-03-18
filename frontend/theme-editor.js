@@ -5,6 +5,33 @@
 (function() {
     'use strict';
 
+    // ── Undo history stack (max 20 entries) ──
+    const UNDO_MAX = 20;
+    const _undoStack = [];
+
+    function _pushUndo(overrides) {
+        _undoStack.push(JSON.stringify(overrides));
+        if (_undoStack.length > UNDO_MAX) _undoStack.shift();
+        _updateUndoBtn();
+    }
+
+    function _popUndo() {
+        if (_undoStack.length === 0) return null;
+        const state = JSON.parse(_undoStack.pop());
+        _updateUndoBtn();
+        return state;
+    }
+
+    function _updateUndoBtn() {
+        const btn = document.getElementById('te-undo-btn');
+        if (btn) {
+            btn.disabled = _undoStack.length === 0;
+            btn.title = _undoStack.length > 0
+                ? `Undo (${_undoStack.length}) — Ctrl+Z`
+                : 'Nothing to undo';
+        }
+    }
+
     // ── Color groups for the editor UI ──
     const EDITOR_GROUPS = [
         {
@@ -307,6 +334,10 @@
                         <span>Theme Editor</span>
                     </div>
                     <div class="te-header-right">
+                        <button class="te-btn te-btn-reset" id="te-undo-btn" onclick="window._themeEditor.undo()" title="Nothing to undo" disabled>
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 14L4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg>
+                            Undo
+                        </button>
                         <button class="te-btn te-btn-reset" onclick="window._themeEditor.resetColors()" title="Reset colors to theme defaults">
                             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
                             Colors
@@ -926,6 +957,7 @@
 
     function applyAndSave(varName, hex) {
         const overrides = loadOverrides();
+        _pushUndo(overrides);
         overrides[varName] = hex;
         saveOverrides(overrides);
         applyOverrides(overrides);
@@ -993,6 +1025,17 @@
             } else {
                 this.open();
             }
+        },
+
+        undo() {
+            const prev = _popUndo();
+            if (!prev) return;
+            saveOverrides(prev);
+            clearAllOverrides();
+            if (Object.keys(prev).length > 0) {
+                applyOverrides(prev);
+            }
+            syncPickersToCurrentTheme();
         },
 
         resetColors() {
@@ -1119,5 +1162,16 @@
             applyOverrides(overrides);
         }
     }, 100);
+
+    // Ctrl+Z keyboard shortcut for undo (only when theme editor is open)
+    document.addEventListener('keydown', (e) => {
+        if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
+            const panel = document.getElementById('theme-editor-panel');
+            if (panel && panel.classList.contains('te-open') && _undoStack.length > 0) {
+                e.preventDefault();
+                window._themeEditor.undo();
+            }
+        }
+    });
 
 })();

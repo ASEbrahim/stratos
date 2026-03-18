@@ -802,13 +802,18 @@ function appendAgentMessage(role, content) {
     const time = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
     
     if (role === 'user') {
-        wrapper.className = 'flex justify-end mb-3';
+        wrapper.className = 'flex justify-end mb-3 group/usermsg';
         wrapper.innerHTML = `
             <div class="max-w-[82%]">
                 <div class="agent-bubble-user rounded-2xl rounded-br-sm px-4 py-2.5 text-xs leading-relaxed" style="color:var(--text-heading); background:rgba(59,130,246,0.12); border:1px solid rgba(59,130,246,0.18); backdrop-filter:blur(6px);">
                     ${escAgent(content)}
                 </div>
-                <div class="text-[9px] mt-1 text-right" style="color:var(--text-muted); opacity:0.4;">${time}</div>
+                <div class="flex items-center justify-end gap-1.5 mt-1">
+                    <span class="text-[9px]" style="color:var(--text-muted); opacity:0.4;">${time}</span>
+                    <button onclick="_editUserMessage(this)" class="p-0.5 rounded opacity-0 group-hover/usermsg:opacity-100 transition-opacity" title="Edit message">
+                        <i data-lucide="pencil" class="w-2.5 h-2.5" style="color:var(--text-muted);"></i>
+                    </button>
+                </div>
             </div>`;
     } else {
         wrapper.className = 'flex gap-3 mb-3 group/msg';

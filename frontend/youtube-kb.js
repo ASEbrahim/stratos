@@ -716,9 +716,54 @@ async function _ykbDoAddChannel() {
     }
 }
 
+// ── Retranscription progress indicator for KB view ──
+let _ykbRetranscribeInfo = null; // { videoDbId, title }
+
+function _ykbShowRetranscribeProgress(videoDbId, videoTitle) {
+    _ykbRetranscribeInfo = { videoDbId, title: videoTitle };
+    const existing = document.getElementById('ykb-retranscribe-progress');
+    if (existing) existing.remove();
+    const panel = document.getElementById('youtube-kb-panel');
+    if (!panel) return;
+    const bar = document.createElement('div');
+    bar.id = 'ykb-retranscribe-progress';
+    bar.style.cssText = 'display:flex;align-items:center;gap:10px;padding:10px 18px;margin-bottom:12px;border-radius:10px;background:rgba(96,165,250,0.08);border:1px solid rgba(96,165,250,0.15);';
+    bar.innerHTML = `<div style="width:16px;height:16px;border:2px solid rgba(96,165,250,0.2);border-top-color:#60a5fa;border-radius:50%;animation:ykb-pulse 0.8s linear infinite;flex-shrink:0;"></div>
+        <span style="font-size:12px;color:#60a5fa;font-weight:500;">Retranscribing: <strong style="color:#93c5fd;">${_ykbEsc(videoTitle.substring(0, 50))}</strong></span>
+        <span id="ykb-retranscribe-status" style="font-size:10px;color:rgba(96,165,250,0.6);margin-left:auto;">Starting...</span>`;
+    // Insert after toolbar
+    const toolbar = panel.querySelector('.ykb-toolbar');
+    if (toolbar) toolbar.insertAdjacentElement('afterend', bar);
+    else panel.prepend(bar);
+}
+
+function _ykbUpdateRetranscribeProgress(status) {
+    const el = document.getElementById('ykb-retranscribe-status');
+    if (el) {
+        const labels = { started: 'Started...', transcribing: 'Transcribing audio...', transcribed: 'Transcript ready', extracting: 'Extracting insights...', complete: 'Complete!', failed: 'Failed' };
+        el.textContent = labels[status] || status;
+        if (status === 'complete' || status === 'failed') {
+            setTimeout(_ykbHideRetranscribeProgress, 2000);
+        }
+    }
+}
+
+function _ykbHideRetranscribeProgress() {
+    _ykbRetranscribeInfo = null;
+    const el = document.getElementById('ykb-retranscribe-progress');
+    if (el) el.remove();
+}
+
 // ── Individual video actions ──
 async function _ykbRetranscribe(videoDbId) {
-    _ykbShowToast('Queuing re-transcription...', '#fbbf24');
+    // Find video title from cached data
+    let videoTitle = 'Video';
+    for (const chId of Object.keys(_ykbVideos)) {
+        const vid = (_ykbVideos[chId] || []).find(v => v.id === videoDbId);
+        if (vid) { videoTitle = vid.title || vid.video_id || 'Video'; break; }
+    }
+    _ykbShowRetranscribeProgress(videoDbId, videoTitle);
+    _ykbShowToast(`Retranscribing: ${videoTitle.substring(0, 40)}...`, '#fbbf24');
     try {
         const res = await fetch('/api/youtube/retranscribe', {
             method: 'POST',
@@ -728,7 +773,10 @@ async function _ykbRetranscribe(videoDbId) {
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         _ykbShowToast('Re-transcription queued', '#34d399');
         _ykbClearVideoCache(videoDbId);
-    } catch (err) { _ykbShowToast('Failed: ' + err.message, '#ef4444'); }
+    } catch (err) {
+        _ykbHideRetranscribeProgress();
+        _ykbShowToast('Failed: ' + err.message, '#ef4444');
+    }
 }
 
 async function _ykbExtractLens(videoDbId, lens) {
@@ -1100,6 +1148,11 @@ function _ykbShowToast(msg, color) {
 
         const { video_id, status } = event;
         if (!video_id || !status) return;
+
+        // Update retranscription progress indicator if active
+        if (_ykbRetranscribeInfo && typeof _ykbUpdateRetranscribeProgress === 'function') {
+            _ykbUpdateRetranscribeProgress(status);
+        }
 
         // Update cached video status
         for (const chId of Object.keys(_ykbVideos)) {

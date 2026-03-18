@@ -57,6 +57,11 @@ function _handleYouTubeSSE(event) {
         });
     }
 
+    // Update retranscription progress indicator if active
+    if (_ytRetranscribeVideoTitle && typeof _ytUpdateRetranscribeProgress === 'function') {
+        _ytUpdateRetranscribeProgress(status);
+    }
+
     // Show toast for key transitions
     const shortTitle = (title || video_id).substring(0, 40);
     if (status === 'transcribing') {
@@ -769,10 +774,60 @@ function _ytRenderTranscript(data) {
     return `${shortWarning}${translateBar}${note}<div class="yi-transcript" id="yi-transcript-content">${paragraphs.map(p => `<p>${_escHtml(p)}</p>`).join('')}</div>`;
 }
 
+// ── Retranscription progress indicator ──
+let _ytRetranscribeVideoTitle = null;
+
+function _ytShowRetranscribeProgress(videoTitle) {
+    _ytRetranscribeVideoTitle = videoTitle;
+    // Insert progress bar below the titlebar in the insights modal
+    const existing = document.getElementById('yi-retranscribe-progress');
+    if (existing) existing.remove();
+    const titlebar = document.querySelector('.yi-titlebar');
+    if (!titlebar) return;
+    const bar = document.createElement('div');
+    bar.id = 'yi-retranscribe-progress';
+    bar.style.cssText = 'display:flex;align-items:center;gap:10px;padding:8px 16px;background:rgba(96,165,250,0.08);border-bottom:1px solid rgba(96,165,250,0.15);';
+    bar.innerHTML = `<div style="width:16px;height:16px;border:2px solid rgba(96,165,250,0.2);border-top-color:#60a5fa;border-radius:50%;animation:spin 0.8s linear infinite;flex-shrink:0;"></div>
+        <span style="font-size:12px;color:#60a5fa;font-weight:500;">Retranscribing: <strong style="color:#93c5fd;">${_escHtml(videoTitle.substring(0, 50))}</strong></span>
+        <span id="yi-retranscribe-status" style="font-size:10px;color:rgba(96,165,250,0.6);margin-left:auto;">Starting...</span>`;
+    titlebar.insertAdjacentElement('afterend', bar);
+    // Add spin keyframe if not present
+    if (!document.getElementById('yi-spin-style')) {
+        const style = document.createElement('style');
+        style.id = 'yi-spin-style';
+        style.textContent = '@keyframes spin { to { transform: rotate(360deg); } }';
+        document.head.appendChild(style);
+    }
+}
+
+function _ytUpdateRetranscribeProgress(status) {
+    const el = document.getElementById('yi-retranscribe-status');
+    if (el) {
+        const labels = { started: 'Started...', transcribing: 'Transcribing audio...', transcribed: 'Transcript ready', extracting: 'Extracting insights...', complete: 'Complete!', failed: 'Failed' };
+        el.textContent = labels[status] || status;
+        if (status === 'complete' || status === 'failed') {
+            setTimeout(_ytHideRetranscribeProgress, 2000);
+        }
+    }
+}
+
+function _ytHideRetranscribeProgress() {
+    _ytRetranscribeVideoTitle = null;
+    const el = document.getElementById('yi-retranscribe-progress');
+    if (el) el.remove();
+}
+
 async function _ytRetranscribe() {
     if (!_ytCurrentVideoId) return;
+    const videoTitle = document.getElementById('yi-title')?.textContent || 'Video';
     const btn = document.getElementById('yi-retranscribe-btn');
-    if (btn) { btn.style.opacity = '0.5'; btn.style.pointerEvents = 'none'; btn.innerHTML = '<i data-lucide="loader-2" style="width:12px;height:12px;" class="animate-pulse"></i> Re-transcribing...'; lucide.createIcons(); }
+    const btn2 = document.getElementById('yi-retranscribe-btn2');
+    [btn, btn2].forEach(b => {
+        if (b) { b.style.opacity = '0.5'; b.style.pointerEvents = 'none'; b.innerHTML = '<i data-lucide="loader-2" style="width:12px;height:12px;" class="animate-pulse"></i> Re-transcribing...'; }
+    });
+    lucide.createIcons();
+    // Show retranscription progress indicator
+    _ytShowRetranscribeProgress(videoTitle);
     try {
         const r = await fetch('/api/youtube/retranscribe', {
             method: 'POST',
@@ -780,17 +835,19 @@ async function _ytRetranscribe() {
             body: JSON.stringify({ video_id: _ytCurrentVideoId }),
         });
         if (r.ok) {
-            if (typeof showToast === 'function') showToast('Re-transcribing video (this may take a few minutes)...', 'info');
+            if (typeof showToast === 'function') showToast(`Retranscribing: ${videoTitle.substring(0, 40)}...`, 'info');
             // Poll for completion
             _ytPollForRetranscribe(_ytCurrentVideoId);
         } else {
             const d = await r.json().catch(() => ({}));
             if (typeof showToast === 'function') showToast(d.error || 'Re-transcribe failed', 'error');
-            if (btn) { btn.style.opacity = ''; btn.style.pointerEvents = ''; }
+            _ytHideRetranscribeProgress();
+            [btn, btn2].forEach(b => { if (b) { b.style.opacity = ''; b.style.pointerEvents = ''; } });
         }
     } catch(e) {
         if (typeof showToast === 'function') showToast('Re-transcribe failed', 'error');
-        if (btn) { btn.style.opacity = ''; btn.style.pointerEvents = ''; }
+        _ytHideRetranscribeProgress();
+        [btn, btn2].forEach(b => { if (b) { b.style.opacity = ''; b.style.pointerEvents = ''; } });
     }
 }
 window._ytRetranscribe = _ytRetranscribe;
@@ -831,6 +888,9 @@ async function _ytTranslateTranscript() {
 window._ytTranslateTranscript = _ytTranslateTranscript;
 
 async function _ytRetranscribeVideo(dbId) {
+    // Get video title from the DOM row
+    const row = document.querySelector(`[data-yt-db-id="${dbId}"]`);
+    const videoTitle = row ? (row.querySelector('.truncate')?.textContent || 'Video') : 'Video';
     try {
         const r = await fetch('/api/youtube/retranscribe', {
             method: 'POST',
@@ -838,7 +898,7 @@ async function _ytRetranscribeVideo(dbId) {
             body: JSON.stringify({ video_id: dbId }),
         });
         if (r.ok) {
-            if (typeof showToast === 'function') showToast('Re-transcribing video...', 'info');
+            if (typeof showToast === 'function') showToast(`Retranscribing: ${videoTitle.substring(0, 40)}...`, 'info');
             // Update status in UI immediately
             const el = document.querySelector(`[data-yt-db-id="${dbId}"] .yt-video-status`);
             if (el) { el.textContent = 'transcribing'; el.className = 'text-[10px] yt-video-status text-blue-400'; }
@@ -891,6 +951,7 @@ function _ytPollForRetranscribe(videoId) {
             const newTranscript = d.transcript_text || '';
             if (newTranscript.length > 500) {
                 // Good transcript — refresh the modal
+                _ytHideRetranscribeProgress();
                 if (typeof showToast === 'function') showToast('Transcript updated successfully!', 'success');
                 _ytShowInsights(videoId);
                 return;

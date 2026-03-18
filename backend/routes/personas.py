@@ -497,6 +497,7 @@ def _pack_gaming_context_selective(strat, profile_id: int, scenario_path: str,
             parts.append((equip, 'combat_equip'))
 
     # NPC NAME DETECTION: if user mentions an NPC, load their profile
+    # Only load NPCs that appear in conversation history (met characters)
     roster = _load_scenario_json(scenario_path, 'characters/_roster.json')
     if roster:
         for npc in roster.get('npcs', []):
@@ -507,6 +508,10 @@ def _pack_gaming_context_selective(strat, profile_id: int, scenario_path: str,
                 npc_id = npc['id']
                 profile = _load_scenario_file(scenario_path, f'characters/npcs/{npc_id}/profile.md')
                 if profile:
+                    # Add character accuracy reminder
+                    profile += ("\n\n---\nIMPORTANT: Use ONLY the gender, description, "
+                                "and personality from this character file. Do NOT hallucinate "
+                                "or override any character details.")
                     parts.append((profile, f'npc_{npc_id}'))
                 if mode == 'immersive':
                     memory = _load_scenario_file(scenario_path, f'characters/npcs/{npc_id}/memory.md')
@@ -827,8 +832,67 @@ def _get_youtube_knowledge(strat, profile_id: int) -> str:
         return ""
 
 
+def get_met_characters(strat, profile_id: int, persona: str, scenario_name: str) -> set:
+    """Return set of lowercased NPC display_names that appear in conversation history.
+
+    Scans the active conversation's messages JSON for mentions of any entity
+    in the persona_entities table. Only characters whose names appear in the
+    conversation text are considered 'met' by the player.
+    """
+    met = set()
+    try:
+        cursor = strat.db.conn.cursor()
+
+        # Get all entity display names for this scenario
+        cursor.execute(
+            "SELECT display_name FROM persona_entities "
+            "WHERE profile_id = ? AND persona = ? AND scenario_name = ?",
+            (profile_id, persona, scenario_name)
+        )
+        all_names = [dict(r)['display_name'] for r in cursor.fetchall()]
+        if not all_names:
+            return met
+
+        # Get active conversation messages
+        cursor.execute(
+            "SELECT messages FROM conversations "
+            "WHERE profile_id = ? AND persona = ? AND is_active = 1 LIMIT 1",
+            (profile_id, persona)
+        )
+        row = cursor.fetchone()
+        if not row:
+            return met
+
+        messages_raw = dict(row).get('messages', '[]')
+        try:
+            messages = json.loads(messages_raw) if isinstance(messages_raw, str) else messages_raw
+        except (json.JSONDecodeError, TypeError):
+            return met
+
+        # Build a single text block from all message content
+        history_text = ' '.join(
+            m.get('content', '') for m in messages
+            if isinstance(m, dict) and m.get('content')
+        ).lower()
+
+        # Check which entity names appear in the conversation
+        for name in all_names:
+            if name.lower() in history_text:
+                met.add(name.lower())
+
+    except Exception as e:
+        logger.debug(f"get_met_characters failed: {e}")
+
+    return met
+
+
 def _get_active_scenario(strat, profile_id: int) -> str:
-    """Full gaming scenario: state + world + characters. ~2000 tokens."""
+    """Full gaming scenario: state + world + characters. ~2000 tokens.
+
+    Characters are filtered to only include those the player has met in
+    conversation history (BUG-12 fix). This prevents spoiling unmet NPCs
+    in suggestion chips and context.
+    """
     try:
         cursor = strat.db.conn.cursor()
         cursor.execute(
@@ -840,6 +904,10 @@ def _get_active_scenario(strat, profile_id: int) -> str:
         if not row:
             return ""
         s = dict(row)
+
+        # Get met characters to filter the roster
+        met_chars = get_met_characters(strat, profile_id, 'gaming', s['name'])
+
         parts = [f"## Active Scenario: {s['name']}"]
         if s.get('genre'):
             parts.append(f"Genre: {s['genre']}")
@@ -851,16 +919,33 @@ def _get_active_scenario(strat, profile_id: int) -> str:
             try:
                 chars = json.loads(s['characters_json']) if isinstance(s['characters_json'], str) else s['characters_json']
                 if isinstance(chars, list) and chars:
-                    parts.append("\n### Characters")
-                    for c in chars[:5]:
-                        if isinstance(c, dict):
+                    # Filter to only characters the player has met
+                    if met_chars:
+                        met_filtered = [
+                            c for c in chars
+                            if isinstance(c, dict) and c.get('name', '').lower() in met_chars
+                        ]
+                    else:
+                        # No conversation yet — show no NPCs (player hasn't met anyone)
+                        met_filtered = []
+
+                    if met_filtered:
+                        parts.append("\n### Characters (encountered)")
+                        for c in met_filtered[:5]:
                             parts.append(f"- {c.get('name', '???')}: {c.get('description', '')[:100]}")
-                        else:
-                            parts.append(f"- {str(c)[:100]}")
             except Exception as e:
                 logger.debug(f"Scenario characters parse failed: {e}")
         if s.get('state_md'):
             parts.append(f"\n### Current State\n{s['state_md'][:1000]}")
+
+        # Enforce character data accuracy
+        parts.append(
+            "\n### Character Data Rules\n"
+            "NEVER override character file data with hallucinated details. "
+            "Always use the exact gender, description, and personality from the character files. "
+            "Do NOT invent or assume character attributes not present in the data."
+        )
+
         return "\n".join(parts)
     except Exception as e:
         logger.debug(f"Active scenario load failed: {e}")
