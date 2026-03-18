@@ -265,13 +265,48 @@ function _savedKey() {
     return `stratos_saved_${profile}`;
 }
 
+let _savedSignalsCache = null;
+
 function getSavedSignals() {
+    // Return localStorage cache synchronously; backend sync happens async
     try { return JSON.parse(localStorage.getItem(_savedKey()) || '[]'); }
     catch(e) { return []; }
 }
 
 function _saveSavedSignals(arr) {
     localStorage.setItem(_savedKey(), JSON.stringify(arr));
+}
+
+// Sync saved signals from backend → localStorage (call on login/page load)
+async function syncSavedSignals() {
+    try {
+        const r = await fetch('/api/saved-signals', {
+            headers: { 'X-Auth-Token': typeof getAuthToken === 'function' ? getAuthToken() : '' }
+        });
+        if (!r.ok) return;
+        const data = await r.json();
+        const serverSignals = data.signals || [];
+        if (serverSignals.length > 0) {
+            // Merge: server is source of truth, but keep local extras with matching URLs
+            const local = getSavedSignals();
+            const urlMap = {};
+            local.forEach(s => { if (s.url) urlMap[s.url] = s; });
+            // Server signals take priority, but enrich with local data (summary, content)
+            const merged = serverSignals.map(s => {
+                const localMatch = urlMap[s.url];
+                return {
+                    ...s,
+                    summary: s.summary || (localMatch ? localMatch.summary : ''),
+                    content: localMatch ? localMatch.content : '',
+                    score_reason: localMatch ? localMatch.score_reason : '',
+                    timestamp: localMatch ? localMatch.timestamp : s.saved_at,
+                };
+            });
+            _saveSavedSignals(merged);
+        }
+        if (typeof renderFeed === 'function') renderFeed();
+        if (typeof renderNav === 'function') renderNav();
+    } catch(e) { /* silent — localStorage fallback works */ }
 }
 
 function isSignalSaved(item) {
@@ -290,6 +325,12 @@ function toggleSaveSignal(idx) {
     if (existIdx >= 0) {
         saved.splice(existIdx, 1);
         if (typeof showToast === 'function') showToast('Removed from saved');
+        // Remove from backend
+        fetch('/api/unsave-signal', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-Auth-Token': typeof getAuthToken === 'function' ? getAuthToken() : '' },
+            body: JSON.stringify({ url: item.url })
+        }).catch(function() {});
     } else {
         saved.unshift({
             title: item.title,
@@ -461,6 +502,9 @@ async function init() {
     isAutoLoading = true;
 
     await loadData();
+
+    // Sync saved signals from backend (non-blocking)
+    syncSavedSignals();
 
     // Now that initial load is complete, start status polling
     startStatusPolling();

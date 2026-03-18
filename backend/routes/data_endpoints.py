@@ -153,6 +153,39 @@ def handle_get(handler, strat, auth, path, output_dir=None):
         _send_json(handler, strat.db.get_ui_state(handler._profile_id))
         return True
 
+    # Saved signals (from user_feedback where action='save')
+    if path == "/api/saved-signals":
+        try:
+            cursor = strat.db.conn.cursor()
+            cursor.execute(
+                """SELECT title, url, root, category, ai_score, note, created_at
+                   FROM user_feedback
+                   WHERE action = 'save' AND profile_id = ?
+                   ORDER BY created_at DESC
+                   LIMIT 200""",
+                (handler._profile_id,)
+            )
+            rows = cursor.fetchall()
+            cols = [d[0] for d in cursor.description]
+            signals = []
+            for row in rows:
+                item = dict(zip(cols, row))
+                signals.append({
+                    "title": item.get("title", ""),
+                    "url": item.get("url", ""),
+                    "root": item.get("root", "global"),
+                    "category": item.get("category", ""),
+                    "score": item.get("ai_score", 0),
+                    "source": item.get("note", ""),
+                    "saved_at": item.get("created_at", ""),
+                    "summary": "",
+                })
+            _send_json(handler, {"signals": signals})
+        except Exception as e:
+            logger.error(f"Failed to load saved signals: {e}")
+            _send_json(handler, {"signals": []})
+        return True
+
     # Serve config
     if path == "/api/config":
         handler.send_response(200)
@@ -566,6 +599,26 @@ def handle_post(handler, strat, auth, path):
         if body and pid:
             strat.db.save_ui_state(pid, body)
         _send_json(handler, {"ok": True})
+        return True
+
+    # Unsave a signal
+    if path == "/api/unsave-signal":
+        content_length = int(handler.headers.get('Content-Length', 0))
+        post_data = handler.rfile.read(content_length)
+        try:
+            data = json.loads(post_data.decode('utf-8'))
+            url = data.get("url", "")
+            if url:
+                cursor = strat.db.conn.cursor()
+                cursor.execute(
+                    "DELETE FROM user_feedback WHERE action = 'save' AND profile_id = ? AND url = ?",
+                    (handler._profile_id, url)
+                )
+                strat.db.conn.commit()
+            _send_json(handler, {"ok": True})
+        except Exception as e:
+            logger.error(f"Failed to unsave signal: {e}")
+            _send_json(handler, {"error": str(e)}, 500)
         return True
 
     # User feedback: click, dismiss, rate
