@@ -421,7 +421,14 @@ def _build_system_prompt(card: dict = None, director_note: str = None,
         # 'mixed' or NULL = let the model decide
 
         if card.get('personality'):
-            prompt += f"\nPersonality: {card['personality']}"
+            personality_text_final = card['personality']
+            # Weave gender pronouns INTO the personality text so the model
+            # can't ignore them — separate directives get deprioritized on 9B
+            if gender == 'female' and not any(w in personality_text_final.lower() for w in ['she ', 'her ']):
+                personality_text_final = f"She is {personality_text_final[0].lower()}{personality_text_final[1:]}" if personality_text_final[0].isupper() else personality_text_final
+            elif gender == 'nonbinary' and not any(w in personality_text_final.lower() for w in ['they ', 'their ']):
+                personality_text_final = f"They are {personality_text_final[0].lower()}{personality_text_final[1:]}" if personality_text_final[0].isupper() else personality_text_final
+            prompt += f"\nPersonality: {personality_text_final}"
 
         if card.get('physical_description'):
             prompt += f"\nAppearance: {card['physical_description']}"
