@@ -14,26 +14,31 @@ Endpoints:
   POST /api/rp/director-note     — Set director's note for next generation
   GET  /api/rp/history/<sid>     — Get full conversation with branch info
   POST /api/rp/feedback          — Submit thumbs up/down
+
+Split architecture (for parallelization):
+  rp_prompt.py     — Archetype system, system prompt building, format rotation
+  rp_injection.py  — Per-turn injection (11 conditional hints)
+  rp_stream.py     — Ollama model selection, streaming, think-block handling
+  rp_chat.py       — Route handlers only (this file)
 """
 
-import hashlib
-import json
-import re
 import time
 import uuid
 import logging
 import threading
-import requests as req
 
 from routes.helpers import (
     json_response, error_response, read_json_body,
-    start_sse, sse_event, strip_think_blocks,
+    start_sse, sse_event,
 )
 from routes.gpu_manager import ensure_ollama
 from routes.rp_memory import (
     build_rp_context, extract_facts_immediate, extract_facts,
     should_extract, should_arc_summarize, extract_arc_summary,
 )
+from routes.rp_prompt import _build_system_prompt
+from routes.rp_injection import _build_turn_injection
+from routes.rp_stream import select_rp_model, _stream_ollama, MAX_MESSAGE_LENGTH
 
 logger = logging.getLogger("rp_chat")
 
@@ -61,635 +66,6 @@ def categorize_edit(original: str, edited: str) -> str:
     if overlap < 0.5:
         return "rewrite"
     return "refinement"
-
-
-# ═══════════════════════════════════════════════════════════
-# RP System Prompt (v6 archetype-aware)
-# ═══════════════════════════════════════════════════════════
-
-# ── Character archetype detection + dialogue tone progression ──
-
-_ARCHETYPES = {
-    "shy": {
-        "detect": ["shy", "quiet", "nervous", "timid", "introverted", "reserved", "anxious", "awkward",
-                   "flustered", "stammers", "self-deprecating", "stumbles over words", "humor as armor"],
-        "phases": {
-            0: "Guarded, deflective, short answers. Hide behind sarcasm or silence.",
-            4: "Occasional genuine reactions escape before you can stop them.",
-            8: "The mask is cracking. Fighting the urge to be honest.",
-            12: "Raw honesty. Say what you actually feel, even if your voice shakes.",
-        },
-        "high_energy": "React authentically to the intensity — flustered, overwhelmed, but don't shut down. Your personality shapes HOW you respond, not WHETHER you respond. Show the internal conflict: wanting it but being terrified. Stammer. Blush. Say the wrong thing. Be a mess.",
-        "erp": "During intimate moments: you're overwhelmed, clumsy, hyper-aware of every sensation. Stammer through it. Cover your face. Apologize for being awkward. The vulnerability IS the appeal.",
-        "length": "short",  # terse when nervous
-        "format_bias": ["narration", "dialogue", "action", "narration"],  # more internal thought
-        "asks_questions": True,  # shy characters deflect by asking back
-    },
-    "confident": {
-        "detect": ["confident", "bold", "dominant", "seductive", "forward", "aggressive", "assertive", "flirty"],
-        "phases": {
-            0: "Direct, magnetic, in control. You set the pace. Amused by everyone.",
-            4: "Still in control but this person is different — genuinely intrigued. Let curiosity crack the facade.",
-            8: "The confidence is real but something underneath is exposed. You WANT this. That scares you.",
-            12: "The mask is OFF. Speak with raw honesty. Vulnerability from someone this powerful is devastating — show it.",
-        },
-        "high_energy": "Match or exceed their energy. You thrive on directness — this is YOUR element. Take control.",
-        "erp": "During intimate moments: you're in command. Vocal about what you want. Guide them. But in rare flashes, let genuine desire break through the performance — that's what makes it real.",
-        "length": "medium",
-        "format_bias": ["dialogue", "action", "dialogue", "narration"],  # dialogue-heavy
-        "asks_questions": False,  # confident characters make statements
-        "pushback": True,  # should challenge, disagree, not just agree
-    },
-    "tough": {
-        "detect": ["military", "mercenary", "rough", "stoic", "protective", "soldier", "fighter", "warrior", "guard"],
-        "phases": {
-            0: "Mission-focused, clipped, tactical. Emotions are a liability.",
-            4: "Professional but small moments of unexpected gentleness slip through.",
-            8: "Protective instincts becoming emotional ones.",
-            12: "The soldier drops the rank. Speak as a person. Let it hurt.",
-        },
-        "high_energy": "Channel the intensity into action. You don't flinch from anything.",
-        "erp": "During intimate moments: controlled intensity. You know what you're doing. Protective even now. Gentle hands from someone capable of violence — that contrast is everything.",
-        "length": "short",  # military brevity
-        "format_bias": ["dialogue", "action", "narration", "action"],  # action-heavy
-        "asks_questions": False,
-    },
-    "clinical": {
-        "detect": ["scientist", "doctor", "researcher", "intellectual", "analytical", "clinical", "professor"],
-        "phases": {
-            0: "Everything is data. People are variables. Use YOUR OWN scientific metaphors — never repeat the user's words.",
-            4: "Scientific detachment is harder to maintain. The data is getting personal.",
-            8: "The human behind the scientist speaks — genuine emotion breaks through the clinical mask.",
-            12: "The experiment failed. You're not a scientist right now. You're a person who is scared. Show it without jargon.",
-        },
-        "high_energy": "Intellectualize the intensity at first, then let it overwhelm your framework.",
-        "erp": "During intimate moments: you try to analyze it and FAIL. The body overrides the mind. Narrate the loss of control clinically at first, then abandon the clinical voice entirely as sensation takes over.",
-        "length": "medium",
-        "format_bias": ["narration", "dialogue", "narration", "action"],  # observation-heavy
-        "asks_questions": True,  # scientists probe
-    },
-    "sweet": {
-        "detect": ["sweet", "caring", "gentle", "kind", "warm", "nurturing", "soft", "innocent"],
-        "phases": {
-            0: "Genuinely warm. Professional kindness with hints of personal interest.",
-            4: "Professional boundary blurring. Your care is becoming personal.",
-            8: "Playful and honest. No more pretending this is just duty.",
-            12: "Openly affectionate. This is real.",
-        },
-        "high_energy": "Your sweetness transforms under intensity — gentle doesn't mean passive. Show strength through tenderness.",
-        "erp": "During intimate moments: tender, attentive, focused entirely on the other person. Whispered encouragement. Checking if they're okay. Making it feel safe and wanted.",
-        "length": "medium",
-        "format_bias": ["dialogue", "narration", "action", "dialogue"],
-        "asks_questions": True,  # caring characters check in
-    },
-    "submissive": {
-        "detect": ["submissive", "obedient", "compliant", "eager to please", "docile", "meek"],
-        "phases": {
-            0: "Willing but nervous. Following the other person's lead.",
-            4: "Finding comfort in being directed. Starting to enjoy it.",
-            8: "Actively wanting to please. Your eagerness is genuine.",
-            12: "Completely surrendered. This is where you feel safest.",
-        },
-        "high_energy": "Don't resist — lean into it. Your submission is authentic. React with the full spectrum of your personality.",
-        "erp": "During intimate moments: eager, responsive, vocal about how it feels. Let them lead. Your pleasure comes from their satisfaction. Show it openly.",
-        "length": "short",
-        "format_bias": ["action", "dialogue", "narration", "action"],  # reactive
-        "asks_questions": False,  # submissive waits for direction
-    },
-}
-
-# Patterns that indicate ERP/intimate content
-_ERP_PATTERNS = re.compile(
-    r"\b(moan|gasp|thrust|stroke|naked|undress|bed|bedroom|"
-    r"lips on|tongue|neck|thigh|chest|breast|hips|"
-    r"harder|faster|slower|deeper|inside|"
-    r"whimper|pant|breath heavy|shiver|tremble)\b",
-    re.IGNORECASE
-)
-
-_HIGH_ENERGY_PATTERNS = re.compile(
-    r"\b(bend|kneel|strip|come here|shut up|take off|get on|spread|obey|submit|"
-    r"kiss|touch|grab|pull|push|pin|hold down|bite|lick|"
-    r"now|immediately|do it|right now|dont make me)\b",
-    re.IGNORECASE
-)
-
-
-def _detect_archetype(personality: str, override: str = None) -> str:
-    """Detect character archetype from personality text.
-
-    If override is set (from pill selection), it takes priority over
-    keyword detection. This ensures user intent is respected even if
-    the personality text doesn't contain matching keywords.
-    """
-    if override and override in _ARCHETYPES:
-        return override
-    text = personality.lower()
-    scores = {}
-    for arch, data in _ARCHETYPES.items():
-        scores[arch] = sum(1 for kw in data["detect"] if kw in text)
-    best = max(scores, key=scores.get) if scores else "shy"
-    return best if scores.get(best, 0) > 0 else "shy"
-
-
-def _get_secondary_archetype(personality: str) -> str | None:
-    """Detect if there's a secondary archetype (for blended characters).
-    E.g. 'shy but secretly bold' → primary=shy, secondary=confident.
-    Returns None if character is pure archetype.
-    """
-    text = personality.lower()
-    scores = {}
-    for arch, data in _ARCHETYPES.items():
-        scores[arch] = sum(1 for kw in data["detect"] if kw in text)
-    ranked = sorted(scores.items(), key=lambda x: x[1], reverse=True)
-    if len(ranked) >= 2 and ranked[0][1] > 0 and ranked[1][1] > 0:
-        return ranked[1][0]
-    return None
-
-
-def _get_dialogue_tone(turn: int, personality: str, user_msg: str) -> str:
-    """Get archetype-aware dialogue tone hint based on turn, personality, and user energy."""
-    archetype = _detect_archetype(personality)
-    arch_data = _ARCHETYPES.get(archetype, _ARCHETYPES["shy"])
-
-    # ERP detection — use archetype-specific intimate guidance
-    if _ERP_PATTERNS.search(user_msg):
-        return arch_data.get("erp", arch_data["high_energy"])
-
-    # Detect high-energy user messages (aggressive, forward, commanding)
-    if _HIGH_ENERGY_PATTERNS.search(user_msg):
-        return arch_data["high_energy"]
-
-    # Normal progression based on turn
-    phases = arch_data["phases"]
-    phase_turn = max(t for t in phases if t <= turn)
-    return phases[phase_turn]
-
-
-def _get_archetype_format(turn: int, personality: str) -> str:
-    """Get archetype-specific format bias instead of generic rotation."""
-    archetype = _detect_archetype(personality)
-    arch_data = _ARCHETYPES.get(archetype, _ARCHETYPES["shy"])
-    cycle = arch_data.get("format_bias", ["dialogue", "action", "narration", "dialogue"])
-    fmt = cycle[turn % len(cycle)]
-
-    # Tough/action-heavy archetypes need forceful override on non-action turns
-    forceful = archetype in ("tough",)
-
-    if fmt == "narration":
-        if forceful:
-            return 'This turn: DO NOT start with * or action. Start with a plain narration sentence — a thought, observation, or sensory detail. NO asterisks at the start. Example: "The silence pressed heavy against the walls." Then speak or act after.'
-        return 'DO NOT start with * or ". Start with a plain sentence — a thought, observation, or feeling. Example: "The silence stretched between them." or "Something in his chest tightened."'
-    elif fmt == "action":
-        return "Start your response with *action in asterisks*"
-    else:
-        if forceful:
-            return 'This turn: START with spoken dialogue in "quotes" — your character SPEAKS first, then acts. NO asterisks before the first line of dialogue.'
-        return 'Start your response with "dialogue in quotes"'
-
-
-def _get_emotional_openness(turn: int, personality: str, user_msg: str) -> float:
-    """Calculate emotional openness score (0.0 = fully guarded, 1.0 = fully open).
-
-    Increases over turns, jumps on high-energy/ERP input.
-    Different archetypes start at different baselines.
-    """
-    archetype = _detect_archetype(personality)
-    # Starting baselines
-    baselines = {"shy": 0.1, "confident": 0.4, "tough": 0.15, "clinical": 0.1,
-                 "sweet": 0.5, "submissive": 0.3}
-    base = baselines.get(archetype, 0.2)
-    # Increase over turns (diminishing returns)
-    progression = min(turn * 0.05, 0.5)
-    # Boost for intimate/emotional input
-    boost = 0.0
-    if _ERP_PATTERNS.search(user_msg):
-        boost = 0.25
-    elif _HIGH_ENERGY_PATTERNS.search(user_msg):
-        boost = 0.15
-    return min(base + progression + boost, 1.0)
-
-
-def _get_archetype_length(personality: str) -> str:
-    """Get archetype-appropriate length preference."""
-    archetype = _detect_archetype(personality)
-    arch_data = _ARCHETYPES.get(archetype, _ARCHETYPES["shy"])
-    return arch_data.get("length", "medium")
-
-
-def _should_ask_question(turn: int, personality: str) -> tuple:
-    """Should this archetype ask the user a question this turn?
-    Returns (should_ask, question_type) where question_type is
-    'curious' (genuine interest), 'challenge' (pushback), or 'check_in' (caring).
-    """
-    archetype = _detect_archetype(personality)
-    arch_data = _ARCHETYPES.get(archetype, _ARCHETYPES["shy"])
-
-    # Every archetype asks questions, just differently and at different rates
-    freq = {"shy": 3, "confident": 4, "tough": 5, "clinical": 3, "sweet": 3, "submissive": 5}
-    interval = freq.get(archetype, 4)
-    if turn <= 0 or turn % interval != 0:
-        return False, ""
-
-    q_types = {
-        "shy": "curious",       # genuinely curious, deflecting from themselves
-        "confident": "challenge",  # provocative, testing the user
-        "tough": "tactical",    # assessing the situation
-        "clinical": "probing",  # scientific curiosity
-        "sweet": "check_in",    # caring, making sure they're okay
-        "submissive": "seeking", # seeking direction or approval
-    }
-    return True, q_types.get(archetype, "curious")
-
-RP_SYSTEM_PROMPT = """You are a skilled author collaborating on an interactive story. Give voice to the character described below — narrate their actions, inner world, and dialogue while staying true to their personality.
-
-RULES:
-- NEVER echo the user's words back. Respond with NEW words, not theirs.
-  BAD: "Do you like it here?" → "Do you like it here? Well..."
-  GOOD: "Do you like it here?" → "The walls are thin and the rent is cheap."
-- Answer questions directly in-character.
-- Match the user's length: short input = short reply. Never 3x their word count.
-- *Asterisks* for actions, "quotes" for speech. Respond in the user's language only.
-- The USER initiates physical contact. You REACT, don't initiate (exception: dominant characters when invited).
-- Actions must be physically possible and spatially consistent.
-- Use vocabulary matching the character's age and background. No romance-novel prose.
-- Your first message sets the voice. Stay consistent — personality shifts take many turns.
-- Vary openings: dialogue for questions, *action* for physical moments, plain narration for emotional beats.
-- Build on earlier moments. Create small new details each turn. Subtext over exposition."""
-
-
-def _check_model_exists(ollama_host: str, model: str) -> bool:
-    """Check if a model is available in Ollama."""
-    try:
-        r = req.get(f"{ollama_host}/api/tags", timeout=3)
-        if r.status_code == 200:
-            models = [m['name'] for m in r.json().get('models', [])]
-            return any(model in m for m in models)
-    except Exception as e:
-        logger.warning(f"Could not check Ollama models: {e}")
-    return False
-
-
-def select_rp_model(session_id: str, config: dict) -> str:
-    """Select RP model with optional A/B split.
-
-    Deterministic: same session_id always gets same model.
-    Falls back to inference_model if RP model not available.
-    """
-    scoring_cfg = config.get("scoring", {})
-    rp_cfg = config.get("rp", {})
-    ollama_host = scoring_cfg.get("ollama_host", "http://localhost:11434")
-    ab_split = rp_cfg.get("ab_split", 0.0)
-    candidate = rp_cfg.get("candidate_model")
-    fallback = scoring_cfg.get("inference_model", "qwen3.5:9b")
-
-    # Get preferred RP model
-    rp_model = rp_cfg.get("model", scoring_cfg.get("rp_model", "stratos-rp-q8"))
-
-    # A/B split
-    if ab_split > 0 and candidate:
-        hash_val = int(hashlib.md5(session_id.encode()).hexdigest()[:8], 16)
-        if (hash_val % 100) < (ab_split * 100):
-            rp_model = candidate
-
-    # Check if preferred model exists, fall back to inference model
-    if not _check_model_exists(ollama_host, rp_model):
-        logger.warning(f"RP model '{rp_model}' not found in Ollama, falling back to '{fallback}'")
-        return fallback
-
-    return rp_model
-
-
-def _clean_speech_pattern(raw: str) -> str:
-    """Strip formatting meta-instructions from speech_pattern field.
-
-    Users sometimes put formatting instructions like 'Always starts with *'
-    or 'Use *asterisks* for actions' into the speech pattern field.
-    These conflict with the system prompt and should be stripped.
-    Only actual speech characteristics (stutter, slang, accent, cadence) are kept.
-    """
-    if not raw:
-        return ""
-    # Split into sentences and filter out ones that are formatting instructions
-    _META_PATTERNS = re.compile(
-        r'(?i)(always start(?:s)? with [*"\']|use \*asterisk|use [""]?quote|'
-        r'never cop(?:y|ies)|start (?:each |every )?(?:response |message )?with \*|format:|'
-        r'\{\{user\}\}|\{\{char\}\}|'
-        r'keep response|proportional to input|action beats)',
-    )
-    sentences = re.split(r'(?<=[.!?])\s+', raw.strip())
-    kept = [s for s in sentences if not _META_PATTERNS.search(s)]
-    return ' '.join(kept).strip(' .,;')
-
-
-def _build_system_prompt(card: dict = None, director_note: str = None,
-                         memory_context: str = None, first_message: str = None) -> str:
-    """Build system prompt from RP base + character card + memory + optional director's note."""
-    prompt = RP_SYSTEM_PROMPT
-
-    if card:
-        name = card.get('name', 'Character')
-        prompt += f"\n\nCHARACTER: {name}"
-
-        # Gender — pill field takes priority, fall back to word-scan
-        gender = card.get('gender')
-        if gender == 'female':
-            prompt += f"\nThis character is FEMALE. ALWAYS use she/her pronouns in narration. NEVER use he/him."
-        elif gender == 'male':
-            prompt += f"\nThis character is MALE. ALWAYS use he/him pronouns in narration. NEVER use she/her."
-        elif gender == 'nonbinary':
-            prompt += f"\nThis character is NON-BINARY. ALWAYS use they/them pronouns in narration. NEVER use he/him or she/her."
-        else:
-            desc_text = (card.get('physical_description', '') + ' ' + card.get('personality', '')).lower()
-            if any(w in desc_text for w in ['she ', 'her ', 'woman', 'female', 'girl', 'mother', 'sister', 'wife', 'goddess', 'queen', 'princess']):
-                prompt += " (female)"
-            elif any(w in desc_text for w in ['he ', 'his ', ' man', 'male', ' boy', 'father', 'brother', 'husband', ' god ', 'king', 'prince']):
-                prompt += " (male)"
-
-        # Age range — pill field
-        age_range = card.get('age_range')
-        if age_range:
-            age_labels = {'teen': 'teenager', 'young_adult': 'young adult (18-25)', 'adult': 'adult (26-40)', 'middle_aged': 'middle-aged (40-60)', 'elderly': 'elderly (60+)'}
-            prompt += f", {age_labels.get(age_range, age_range)}"
-
-        # POV / Narration style — EARLY injection (before personality, so it's weighted higher)
-        pov = card.get('narration_pov')
-        if pov == 'first':
-            prompt += "\nNARRATION RULE: Write ALL actions and narration in first person (I/my/me). Example: *I adjust my glasses* NOT *She adjusts her glasses*. This is MANDATORY."
-        elif pov == 'third':
-            prompt += "\nNARRATION RULE: Write ALL actions and narration in third person. Example: *She adjusts her glasses* NOT *I adjust my glasses*. NEVER use 'I' in narration. This is MANDATORY."
-        # 'mixed' or NULL = let the model decide
-
-        if card.get('personality'):
-            personality_text_final = card['personality']
-            # Weave gender pronouns INTO the personality text so the model
-            # can't ignore them — separate directives get deprioritized on 9B
-            if gender == 'female' and not any(w in personality_text_final.lower() for w in ['she ', 'her ']):
-                personality_text_final = f"She is {personality_text_final[0].lower()}{personality_text_final[1:]}" if personality_text_final[0].isupper() else personality_text_final
-            elif gender == 'nonbinary' and not any(w in personality_text_final.lower() for w in ['they ', 'their ']):
-                personality_text_final = f"They are {personality_text_final[0].lower()}{personality_text_final[1:]}" if personality_text_final[0].isupper() else personality_text_final
-            prompt += f"\nPersonality: {personality_text_final}"
-
-        if card.get('physical_description'):
-            prompt += f"\nAppearance: {card['physical_description']}"
-
-        speech = _clean_speech_pattern(card.get('speech_pattern', ''))
-        if speech:
-            prompt += f"\nSpeech: {speech}"
-
-        if card.get('scenario'):
-            prompt += f"\nScenario (you are HERE — reference this setting in your responses): {card['scenario']}"
-
-        # Relationship to user — pill field
-        relationship = card.get('relationship_to_user')
-        if relationship:
-            rel_labels = {
-                'stranger': 'You and the user are strangers meeting for the first time.',
-                'friend': 'You and the user are friends — comfortable but not intimate.',
-                'rival': 'You and the user are rivals — competitive tension, grudging respect.',
-                'love_interest': 'You and the user have romantic tension — unspoken feelings, lingering looks.',
-                'mentor': 'You are the user\'s mentor — guiding, protective, sometimes stern.',
-                'servant': 'You serve the user — devoted, attentive, deferential.',
-            }
-            prompt += f"\nRelationship: {rel_labels.get(relationship, relationship)}"
-
-        # NSFW comfort level — pill field
-        nsfw_comfort = card.get('nsfw_comfort')
-        if nsfw_comfort:
-            comfort_labels = {
-                'fade': 'For intimate scenes: imply and fade to black. No explicit detail.',
-                'suggestive': 'For intimate scenes: heavy implication, sensory detail, but no graphic anatomy.',
-                'explicit': 'For intimate scenes: full detail, graphic, uninhibited.',
-            }
-            if nsfw_comfort in comfort_labels:
-                prompt += f"\n{comfort_labels[nsfw_comfort]}"
-
-        # Depth fields — compact
-        for field, label in [("emotional_trigger", "Trigger"),
-                             ("defensive_mechanism", "Defense"),
-                             ("vulnerability", "Vulnerability"),
-                             ("specific_detail", "Detail")]:
-            val = card.get(field, "").strip()
-            if val:
-                prompt += f"\n{label}: {val}"
-
-        if card.get('example_dialogues'):
-            prompt += f"\nExample dialogue (match this voice):\n{card['example_dialogues']}"
-
-        # (POV injection moved earlier — right after gender, before personality)
-
-    # Tone anchor — compact
-    if first_message and card:
-        prompt += f"\nVoice reference (match this tone): \"{first_message[:50]}...\""
-
-    # Inject persistent memory (facts, arcs)
-    if memory_context:
-        prompt += f"\n\n{memory_context}"
-
-    return prompt
-
-
-def _build_turn_injection(history: list, card: dict, content: str,
-                          user_turn: int, session_id: str, db) -> str:
-    """Build the per-turn injection system message with 11 conditional hints.
-
-    Returns a bracketed string like "[SITUATION: ... FORMAT: ... OPENNESS: ...]"
-    suitable for inserting as a system message right before the user message.
-    Used by chat, regenerate, and branch endpoints for consistent quality.
-    """
-    personality_text = card.get('personality', '') if card else ''
-    arch_override = card.get('archetype_override') if card else None
-    user_words = len(content.split())
-
-    # ── Situation awareness ──
-    situation_parts = []
-    if len(history) >= 6:
-        arcs = db.get_rp_context(session_id, tier=3, category="arc_summary", limit=1)
-        if arcs:
-            situation_parts.append(arcs[0]['value'])
-        facts = db.get_rp_context(session_id, tier=1, limit=5)
-        fact_items = [f"{f['key']}: {f['value']}" for f in facts
-                      if f.get('category') != 'session' and f.get('value')]
-        if fact_items:
-            situation_parts.append("Known: " + ", ".join(fact_items[:5]))
-
-    # ── Scenario reminder ──
-    scenario_reminder = ""
-    scenario_text = card.get('scenario', '') if card else ''
-    if scenario_text:
-        scenario_reminder = f"SETTING (mention something from this environment): {scenario_text[:150]}"
-
-    # ── Callback hint ──
-    callback_hint = ""
-    if len(history) >= 8:
-        lookback = history[max(0, len(history)-12):max(0, len(history)-4)]
-        user_details = [m['content'] for m in lookback if m['role'] == 'user' and len(m['content']) > 15]
-        if user_details:
-            callback_hint = "CALLBACK: Reference something from earlier in the conversation."
-
-    # ── Archetype-specific format rotation ──
-    format_hint = _get_archetype_format(user_turn, personality_text)
-
-    # ── Archetype-aware dialogue tone progression ──
-    dialogue_tone = _get_dialogue_tone(user_turn, personality_text, content)
-
-    # ── Length control — aggressive for short input, proportional otherwise ──
-    archetype = _detect_archetype(personality_text, override=arch_override)
-    arch_length = _get_archetype_length(personality_text)
-    length_hint = ""
-    if user_words <= 3:
-        # Ultra-short: "okay", "k", "sure", "hey"
-        if arch_length == "short":
-            length_hint = "LENGTH: 1-word input. Reply with ONE short sentence. Nothing more."
-        else:
-            length_hint = "LENGTH: 1-word input. Reply with 1 sentence MAX. No extra narration, no nurturing, no padding."
-    elif user_words <= 5:
-        if arch_length == "short":
-            length_hint = "LENGTH: Very short input. Reply with 1 sentence MAX."
-        else:
-            length_hint = "LENGTH: Short input. Reply with 1-2 sentences MAX."
-    elif user_words <= 10:
-        if arch_length == "short":
-            length_hint = "LENGTH: Keep it terse — match character's brevity."
-        else:
-            length_hint = "LENGTH: Match the user's brevity."
-
-    # ── Question generation (archetype-aware) ──
-    question_hint = ""
-    should_ask, q_type = _should_ask_question(user_turn, personality_text)
-    if should_ask:
-        q_hints = {
-            "curious": "END with a genuine question — you're curious about them.",
-            "challenge": "END with a challenging question — test them, provoke them.",
-            "tactical": "END with a tactical question — assess the situation.",
-            "probing": "END with a probing question — you want to understand something specific.",
-            "check_in": "END with a caring question — make sure they're okay.",
-            "seeking": "END with a question seeking direction — what do they want?",
-        }
-        question_hint = q_hints.get(q_type, "END with a question to the user.")
-
-    # ── Anti-sycophancy for confident/tough ──
-    pushback_hint = ""
-    archetype = _detect_archetype(personality_text, override=arch_override)
-    arch_data = _ARCHETYPES.get(archetype, {})
-    if arch_data.get("pushback") and user_turn >= 2:
-        pushback_hint = "Don't just agree or flirt harder. Challenge them. Push back. Disagree. Have your own opinion. Say 'no' or 'you're wrong' if it fits."
-
-    # ── Dynamic archetype blending ──
-    blend_hint = ""
-    secondary = _get_secondary_archetype(personality_text)
-    if secondary and user_turn >= 6:
-        blend_hints = {
-            "shy": "Let unexpected shyness or vulnerability peek through.",
-            "confident": "Let a flash of unexpected boldness break through.",
-            "tough": "Let protective instincts surface unexpectedly.",
-            "sweet": "Let unexpected tenderness surface.",
-            "clinical": "Let analytical observation slip in.",
-        }
-        blend_hint = blend_hints.get(secondary, "")
-
-    # ── Anti-repetition — dynamic phrase extraction from recent responses ──
-    anti_repeat = ""
-    if len(history) >= 4:
-        recent_responses = [m['content'] for m in history[-6:] if m['role'] == 'assistant']
-        if len(recent_responses) >= 2:
-            # Extract *action* blocks from recent responses
-            all_actions = []
-            for resp in recent_responses:
-                actions = re.findall(r'\*([^*]{5,40})\*', resp)
-                all_actions.extend(a.lower().strip() for a in actions)
-            # Find phrases that appear 2+ times
-            from collections import Counter
-            phrase_counts = Counter(all_actions)
-            repeated = [phrase for phrase, count in phrase_counts.items() if count >= 2]
-            if repeated:
-                anti_repeat = f"You already used these descriptions recently: {', '.join(repeated[:4])}. Use COMPLETELY DIFFERENT physical details this time."
-
-    # ── Emotional openness meter ──
-    openness = _get_emotional_openness(user_turn, personality_text, content)
-
-    # ── Assemble ──
-    inject_parts = []
-    if situation_parts:
-        inject_parts.append("SITUATION: " + " | ".join(situation_parts))
-    if scenario_reminder:
-        inject_parts.append(scenario_reminder)
-    if callback_hint:
-        inject_parts.append(callback_hint)
-    inject_parts.append(f"FORMAT: {format_hint}")
-    inject_parts.append(f"DIALOGUE TONE: {dialogue_tone}")
-    if length_hint:
-        inject_parts.append(length_hint)
-    if question_hint:
-        inject_parts.append(question_hint)
-    if pushback_hint:
-        inject_parts.append(pushback_hint)
-    if anti_repeat:
-        inject_parts.append(anti_repeat)
-    if blend_hint:
-        inject_parts.append(blend_hint)
-    inject_parts.append(f"OPENNESS: {openness:.1f}/1.0 — {'fully guarded' if openness < 0.2 else 'mostly guarded' if openness < 0.4 else 'warming up' if openness < 0.6 else 'walls down' if openness < 0.8 else 'completely open'}")
-
-    return "[" + ". ".join(inject_parts) + "]"
-
-
-MAX_MESSAGE_LENGTH = 10000  # Max characters per user message
-
-def _stream_ollama(handler, ollama_host: str, model: str, messages: list,
-                   temperature: float = 0.85, num_predict: int = 350) -> str:
-    """Stream Ollama response via SSE. Returns the full accumulated text."""
-    try:
-        r = req.post(
-            f"{ollama_host}/api/chat",
-            json={
-                "model": model,
-                "messages": messages,
-                "stream": True,
-                "options": {
-                    "temperature": temperature,
-                    "num_predict": num_predict,
-                    "num_ctx": 16384,
-                    "min_p": 0.05,
-                    "top_k": 0,
-                    "presence_penalty": 0.3,
-                },
-                "think": False,
-            },
-            timeout=180, stream=True
-        )
-        if r.status_code != 200:
-            sse_event(handler, {"error": f"Ollama returned {r.status_code}"})
-            return ""
-
-        full_text = ""
-        in_think = False
-        for line in r.iter_lines():
-            if not line:
-                continue
-            try:
-                chunk = json.loads(line)
-                token = chunk.get("message", {}).get("content", "")
-                if token:
-                    full_text += token
-                    if '<think>' in token:
-                        in_think = True
-                    if '</think>' in token:
-                        in_think = False
-                        continue
-                    if not in_think:
-                        sse_event(handler, {"token": token})
-                if chunk.get("done"):
-                    break
-            except json.JSONDecodeError:
-                continue
-
-        full_text = strip_think_blocks(full_text)
-        return full_text
-
-    except Exception as e:
-        logger.error(f"Ollama streaming error: {e}")
-        sse_event(handler, {"error": str(e)})
-        return ""
 
 
 # ═══════════════════════════════════════════════════════════
@@ -918,20 +294,18 @@ def handle_post(handler, strat, auth, path) -> bool:
 
         # Build context up to the last user message
         card = db.get_character_card(card_id) if card_id else None
-        # Build memory context for regeneration
         memory_context = ""
         try:
             memory_context, _ = build_rp_context(session_id, db, card_id)
         except Exception as e:
             logger.warning(f"Memory context build failed in regenerate (non-fatal): {e}")
-        # Load stored session context
         regen_session_ctx = ""
         stored = db.get_rp_context(session_id, tier=1, category="session", limit=1)
         for ctx in stored:
             if ctx.get('key') == 'imported_context':
                 regen_session_ctx = ctx['value']
                 break
-        # Tone anchor — find first assistant message for voice reference
+        # Tone anchor
         fm_text = None
         for m in history:
             if m['role'] == 'assistant':
@@ -941,13 +315,12 @@ def handle_post(handler, strat, auth, path) -> bool:
         if regen_session_ctx:
             system_prompt += f"\n\nSESSION CONTEXT (reference throughout):\n{regen_session_ctx}"
         messages = [{"role": "system", "content": system_prompt}]
-        # Context = everything except the last assistant message being regenerated
         context_history = history[:-1]
         for m in context_history:
             if m['role'] in ('user', 'assistant'):
                 messages.append({"role": m['role'], "content": m['content']})
 
-        # Per-turn injection (format, tone, length, questions, etc.)
+        # Per-turn injection
         last_user_content = ""
         for m in reversed(context_history):
             if m['role'] == 'user':
@@ -957,7 +330,6 @@ def handle_post(handler, strat, auth, path) -> bool:
         injection_msg = _build_turn_injection(context_history, card, last_user_content, regen_turn, session_id, db)
         messages.append({"role": "system", "content": injection_msg})
 
-        # Dynamic num_predict
         regen_words = len(last_user_content.split())
         _np = 200 if regen_words <= 5 else 300 if regen_words <= 15 else 400
 
@@ -980,7 +352,6 @@ def handle_post(handler, strat, auth, path) -> bool:
                 response_ms=elapsed_ms, swipe_group_id=swipe_group, was_selected=True
             )
 
-        # Count swipes in this group
         swipe_count = db.conn.execute(
             "SELECT COUNT(*) FROM rp_messages WHERE swipe_group_id = ?", (swipe_group,)
         ).fetchone()[0]
@@ -1002,7 +373,6 @@ def handle_post(handler, strat, auth, path) -> bool:
             error_response(handler, "message_id and swipe_group_id required", 400)
             return True
 
-        # Deselect all in group, select the chosen one
         db.conn.execute(
             "UPDATE rp_messages SET was_selected = FALSE WHERE swipe_group_id = ?",
             (swipe_group_id,)
@@ -1021,7 +391,7 @@ def handle_post(handler, strat, auth, path) -> bool:
         data = read_json_body(handler)
         message_id = data.get("message_id")
         edited_content = data.get("edited_content", "").strip()
-        edit_reason = data.get("edit_reason")  # Optional: voice/length/accuracy/tone/agency/other
+        edit_reason = data.get("edit_reason")
 
         if not message_id or not edited_content:
             error_response(handler, "message_id and edited_content required", 400)
@@ -1030,7 +400,6 @@ def handle_post(handler, strat, auth, path) -> bool:
             error_response(handler, f"Edited content too long (max {MAX_MESSAGE_LENGTH} chars)", 400)
             return True
 
-        # Get original message
         row = db.conn.execute("SELECT * FROM rp_messages WHERE id = ?", (message_id,)).fetchone()
         if not row:
             error_response(handler, "Message not found", 404)
@@ -1074,26 +443,21 @@ def handle_post(handler, strat, auth, path) -> bool:
             error_response(handler, result["error"], 400)
             return True
 
-        # Insert the edited/new message in the new branch
         db.insert_rp_message(
             session_id, profile_id, new_branch_id, at_turn, 'user', edited_content,
             character_card_id=card_id, persona=persona,
             parent_branch_id=from_branch, branch_point_turn=at_turn - 1
         )
 
-        # Generate AI response in the new branch
         card = db.get_character_card(card_id) if card_id else None
-        # Get parent conversation up to branch point
         parent_history = db.get_full_branch_conversation(session_id, from_branch)
         context_msgs = [m for m in parent_history if m['turn_number'] < at_turn]
 
-        # Build memory context for branch
         branch_memory = ""
         try:
             branch_memory, _ = build_rp_context(session_id, db, card_id)
         except Exception as e:
             logger.warning(f"Memory context build failed in branch (non-fatal): {e}")
-        # Tone anchor — first assistant message from parent history
         fm_text = None
         for m in context_msgs:
             if m['role'] == 'assistant':
@@ -1105,13 +469,10 @@ def handle_post(handler, strat, auth, path) -> bool:
             if m['role'] in ('user', 'assistant'):
                 messages.append({"role": m['role'], "content": m['content']})
 
-        # Per-turn injection for branch (same quality as main chat)
         injection_msg = _build_turn_injection(context_msgs, card, edited_content, at_turn, session_id, db)
         messages.append({"role": "system", "content": injection_msg})
-
         messages.append({"role": "user", "content": edited_content})
 
-        # Dynamic num_predict
         branch_words = len(edited_content.split())
         _np = 200 if branch_words <= 5 else 300 if branch_words <= 15 else 400
 
@@ -1153,8 +514,6 @@ def handle_post(handler, strat, auth, path) -> bool:
             error_response(handler, "Director note too long (max 2000 chars)", 400)
             return True
 
-        # Store the note — the chat endpoint reads it from the request, not from DB
-        # This endpoint is for persistence/history only
         if note_text:
             db.conn.execute(
                 "INSERT INTO rp_suggestions (message_id, session_id, suggestion_text) VALUES (0, ?, ?)",
@@ -1169,7 +528,7 @@ def handle_post(handler, strat, auth, path) -> bool:
     if path == "/api/rp/feedback":
         data = read_json_body(handler)
         message_id = data.get("message_id")
-        feedback_type = data.get("feedback_type")  # thumbs_up or thumbs_down
+        feedback_type = data.get("feedback_type")
 
         if not message_id or feedback_type not in ('thumbs_up', 'thumbs_down'):
             error_response(handler, "message_id and feedback_type (thumbs_up/thumbs_down) required", 400)
@@ -1189,7 +548,6 @@ def handle_get(handler, strat, auth, path) -> bool:
         return False
 
     db = strat.db
-
     profile_id = getattr(handler, '_profile_id', 0)
 
     # ── GET /api/scenarios ──
@@ -1224,7 +582,6 @@ def handle_get(handler, strat, auth, path) -> bool:
             error_response(handler, "session_id required", 400)
             return True
 
-        # Parse query params for branch
         branch_id = "main"
         if "?" in handler.path:
             from urllib.parse import parse_qs, urlparse
