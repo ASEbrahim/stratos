@@ -28,6 +28,9 @@ _CHARACTER_CARD_COLUMNS = frozenset({
     'personality', 'scenario', 'first_message', 'example_dialogues',
     'genre_tags', 'content_rating', 'avatar_image_path', 'is_published',
     'quality_elements_count', 'imported_from', 'tavern_card_raw',
+    # Pill fields (migration 030)
+    'gender', 'archetype_override', 'narration_pov',
+    'relationship_to_user', 'nsfw_comfort', 'response_length_pref', 'age_range',
 })
 _CHARACTER_CARD_UPDATE_COLUMNS = _CHARACTER_CARD_COLUMNS | frozenset({'name'})
 _GENERATED_IMAGE_COLUMNS = frozenset({

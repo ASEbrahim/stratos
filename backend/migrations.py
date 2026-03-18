@@ -906,6 +906,25 @@ def migration_029(cursor):
     )
 
 
+@migration
+def migration_030(cursor):
+    """Add pill fields to character_cards (gender, archetype, POV, relationship, NSFW comfort)."""
+    _safe_table('character_cards')
+    for col, default in [
+        ('gender', None),                    # 'female', 'male', 'nonbinary', NULL
+        ('archetype_override', None),        # 'shy', 'confident', 'tough', 'clinical', 'sweet', 'submissive', NULL
+        ('narration_pov', None),             # 'third', 'first', 'mixed', NULL (default: third)
+        ('relationship_to_user', None),      # 'stranger', 'friend', 'rival', 'love_interest', 'mentor', 'servant', NULL
+        ('nsfw_comfort', None),              # 'fade', 'suggestive', 'explicit', NULL
+        ('response_length_pref', None),      # 'brief', 'normal', 'detailed', NULL
+        ('age_range', None),                 # 'teen', 'young_adult', 'adult', 'middle_aged', 'elderly', NULL
+    ]:
+        try:
+            cursor.execute(f"ALTER TABLE character_cards ADD COLUMN {col} TEXT DEFAULT NULL")
+        except Exception:
+            pass  # column already exists
+
+
 # =========================================================================
 # Migration runner
 # =========================================================================

@@ -175,12 +175,15 @@ _HIGH_ENERGY_PATTERNS = re.compile(
 )
 
 
-def _detect_archetype(personality: str) -> str:
+def _detect_archetype(personality: str, override: str = None) -> str:
     """Detect character archetype from personality text.
-    Returns the best-matching archetype. For blended characters,
-    the primary archetype drives behavior but secondary traits
-    are noted in the dialogue tone hints.
+
+    If override is set (from pill selection), it takes priority over
+    keyword detection. This ensures user intent is respected even if
+    the personality text doesn't contain matching keywords.
     """
+    if override and override in _ARCHETYPES:
+        return override
     text = personality.lower()
     scores = {}
     for arch, data in _ARCHETYPES.items():
@@ -388,12 +391,23 @@ def _build_system_prompt(card: dict = None, director_note: str = None,
         name = card.get('name', 'Character')
         prompt += f"\n\nCHARACTER: {name}"
 
-        # Gender hint — infer from physical_description or personality if possible
-        desc_text = (card.get('physical_description', '') + ' ' + card.get('personality', '')).lower()
-        if any(w in desc_text for w in ['she ', 'her ', 'woman', 'female', 'girl', 'mother', 'sister', 'wife', 'goddess', 'queen', 'princess']):
-            prompt += " (female)"
-        elif any(w in desc_text for w in ['he ', 'his ', ' man', 'male', ' boy', 'father', 'brother', 'husband', ' god ', 'king', 'prince']):
-            prompt += " (male)"
+        # Gender — pill field takes priority, fall back to word-scan
+        gender = card.get('gender')
+        if gender:
+            gender_labels = {'female': '(female, use she/her)', 'male': '(male, use he/him)', 'nonbinary': '(non-binary, use they/them)'}
+            prompt += f" {gender_labels.get(gender, '')}"
+        else:
+            desc_text = (card.get('physical_description', '') + ' ' + card.get('personality', '')).lower()
+            if any(w in desc_text for w in ['she ', 'her ', 'woman', 'female', 'girl', 'mother', 'sister', 'wife', 'goddess', 'queen', 'princess']):
+                prompt += " (female)"
+            elif any(w in desc_text for w in ['he ', 'his ', ' man', 'male', ' boy', 'father', 'brother', 'husband', ' god ', 'king', 'prince']):
+                prompt += " (male)"
+
+        # Age range — pill field
+        age_range = card.get('age_range')
+        if age_range:
+            age_labels = {'teen': 'teenager', 'young_adult': 'young adult (18-25)', 'adult': 'adult (26-40)', 'middle_aged': 'middle-aged (40-60)', 'elderly': 'elderly (60+)'}
+            prompt += f", {age_labels.get(age_range, age_range)}"
 
         if card.get('personality'):
             prompt += f"\nPersonality: {card['personality']}"
@@ -408,6 +422,30 @@ def _build_system_prompt(card: dict = None, director_note: str = None,
         if card.get('scenario'):
             prompt += f"\nScenario (you are HERE — reference this setting in your responses): {card['scenario']}"
 
+        # Relationship to user — pill field
+        relationship = card.get('relationship_to_user')
+        if relationship:
+            rel_labels = {
+                'stranger': 'You and the user are strangers meeting for the first time.',
+                'friend': 'You and the user are friends — comfortable but not intimate.',
+                'rival': 'You and the user are rivals — competitive tension, grudging respect.',
+                'love_interest': 'You and the user have romantic tension — unspoken feelings, lingering looks.',
+                'mentor': 'You are the user\'s mentor — guiding, protective, sometimes stern.',
+                'servant': 'You serve the user — devoted, attentive, deferential.',
+            }
+            prompt += f"\nRelationship: {rel_labels.get(relationship, relationship)}"
+
+        # NSFW comfort level — pill field
+        nsfw_comfort = card.get('nsfw_comfort')
+        if nsfw_comfort:
+            comfort_labels = {
+                'fade': 'For intimate scenes: imply and fade to black. No explicit detail.',
+                'suggestive': 'For intimate scenes: heavy implication, sensory detail, but no graphic anatomy.',
+                'explicit': 'For intimate scenes: full detail, graphic, uninhibited.',
+            }
+            if nsfw_comfort in comfort_labels:
+                prompt += f"\n{comfort_labels[nsfw_comfort]}"
+
         # Depth fields — compact
         for field, label in [("emotional_trigger", "Trigger"),
                              ("defensive_mechanism", "Defense"),
@@ -419,6 +457,14 @@ def _build_system_prompt(card: dict = None, director_note: str = None,
 
         if card.get('example_dialogues'):
             prompt += f"\nExample dialogue (match this voice):\n{card['example_dialogues']}"
+
+        # POV / Narration style — pill field
+        pov = card.get('narration_pov')
+        if pov == 'first':
+            prompt += "\nWrite ALL narration in first person (I/my/me). Never use third person for this character."
+        elif pov == 'third':
+            prompt += "\nWrite ALL narration in third person (she/he/they). Never use first person for this character."
+        # 'mixed' or NULL = let the model decide
 
     # Tone anchor — compact
     if first_message and card:
@@ -440,6 +486,7 @@ def _build_turn_injection(history: list, card: dict, content: str,
     Used by chat, regenerate, and branch endpoints for consistent quality.
     """
     personality_text = card.get('personality', '') if card else ''
+    arch_override = card.get('archetype_override') if card else None
     user_words = len(content.split())
 
     # ── Situation awareness ──
@@ -475,7 +522,7 @@ def _build_turn_injection(history: list, card: dict, content: str,
     dialogue_tone = _get_dialogue_tone(user_turn, personality_text, content)
 
     # ── Length control — aggressive for short input, proportional otherwise ──
-    archetype = _detect_archetype(personality_text)
+    archetype = _detect_archetype(personality_text, override=arch_override)
     arch_length = _get_archetype_length(personality_text)
     length_hint = ""
     if user_words <= 3:
@@ -511,7 +558,7 @@ def _build_turn_injection(history: list, card: dict, content: str,
 
     # ── Anti-sycophancy for confident/tough ──
     pushback_hint = ""
-    archetype = _detect_archetype(personality_text)
+    archetype = _detect_archetype(personality_text, override=arch_override)
     arch_data = _ARCHETYPES.get(archetype, {})
     if arch_data.get("pushback") and user_turn >= 2:
         pushback_hint = "Don't just agree or flirt harder. Challenge them. Push back. Disagree. Have your own opinion. Say 'no' or 'you're wrong' if it fits."
@@ -529,18 +576,22 @@ def _build_turn_injection(history: list, card: dict, content: str,
         }
         blend_hint = blend_hints.get(secondary, "")
 
-    # ── Anti-repetition — track recent gestures ──
+    # ── Anti-repetition — dynamic phrase extraction from recent responses ──
     anti_repeat = ""
     if len(history) >= 4:
-        recent_ai = " ".join(m['content'] for m in history[-6:] if m['role'] == 'assistant')
-        overused = []
-        for gesture in ["runs hand through", "fidgets with", "tucks hair", "bites lip",
-                        "looks away", "shifts weight", "scratches", "rolls eyes",
-                        "crosses arms", "leans against"]:
-            if recent_ai.lower().count(gesture) >= 2:
-                overused.append(gesture)
-        if overused:
-            anti_repeat = f"AVOID repeating these gestures (used recently): {', '.join(overused[:3])}"
+        recent_responses = [m['content'] for m in history[-6:] if m['role'] == 'assistant']
+        if len(recent_responses) >= 2:
+            # Extract *action* blocks from recent responses
+            all_actions = []
+            for resp in recent_responses:
+                actions = re.findall(r'\*([^*]{5,40})\*', resp)
+                all_actions.extend(a.lower().strip() for a in actions)
+            # Find phrases that appear 2+ times
+            from collections import Counter
+            phrase_counts = Counter(all_actions)
+            repeated = [phrase for phrase, count in phrase_counts.items() if count >= 2]
+            if repeated:
+                anti_repeat = f"You already used these descriptions recently: {', '.join(repeated[:4])}. Use COMPLETELY DIFFERENT physical details this time."
 
     # ── Emotional openness meter ──
     openness = _get_emotional_openness(user_turn, personality_text, content)
