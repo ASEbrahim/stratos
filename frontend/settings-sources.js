@@ -276,6 +276,7 @@ function renderCustomCatalog() {
     html += `<div class="flex gap-2 flex-wrap">
         <input type="text" id="custom-feed-url" class="flex-1 min-w-[200px] bg-slate-900 border border-slate-700 rounded-lg px-3 py-2.5 text-xs text-slate-200 focus:border-purple-500 focus:outline-none" placeholder="Any URL or RSS feed (auto-detects RSS)" onkeydown="if(event.key==='Enter') addCustomFeed()">
         <input type="text" id="custom-feed-name" class="w-36 bg-slate-900 border border-slate-700 rounded-lg px-3 py-2.5 text-xs text-slate-200 focus:border-purple-500 focus:outline-none" placeholder="Label" onkeydown="if(event.key==='Enter') addCustomFeed()">
+        <input type="text" id="custom-feed-context" class="w-48 bg-slate-900 border border-slate-700 rounded-lg px-3 py-2.5 text-xs text-slate-200 focus:border-purple-500 focus:outline-none" placeholder="Context for scoring (optional)" title="Extra context to help the scorer understand this source's relevance">
         <button onclick="addCustomFeed()" class="px-4 py-2.5 bg-purple-600 hover:bg-purple-500 text-white text-xs font-medium rounded-lg transition-colors flex items-center gap-1.5">
             <i data-lucide="plus" class="w-3.5 h-3.5"></i> Add Feed
         </button>
@@ -299,7 +300,13 @@ function renderCustomCatalog() {
                 }"
                 title="${esc(feed.url)}">
                 <span class="w-2 h-2 rounded-full flex-shrink-0 transition-all" style="background:${isOn ? accent : 'rgba(71,85,105,0.5)'}; ${isOn ? `box-shadow:0 0 6px ${accent}60` : ''}"></span>
-                ${esc(feed.name)}
+                <span class="flex flex-col items-start">
+                    <span>${esc(feed.name)}</span>
+                    ${feed.context ? `<span style="font-size:9px;opacity:0.6;font-weight:400;">${esc(feed.context).substring(0,40)}</span>` : ''}
+                </span>
+                <span onclick="event.stopPropagation(); _editFeedContext(${idx})" class="ml-0.5 p-0.5 rounded hover:bg-purple-900/30 transition-colors" title="Edit scoring context">
+                    <i data-lucide="message-square" class="w-3 h-3 opacity-30 hover:opacity-80"></i>
+                </span>
                 <span onclick="event.stopPropagation(); removeCustomFeed(${idx})" class="ml-0.5 p-0.5 rounded hover:bg-red-900/30 transition-colors" title="Remove feed">
                     <i data-lucide="x" class="w-3 h-3 opacity-40 hover:opacity-100"></i>
                 </span>
@@ -527,16 +534,37 @@ function addCustomFeed() {
 }
 
 function _commitCustomFeed(url, name, urlEl, nameEl) {
-    customFeeds.push({ url, name, on: true });
+    const ctxEl = document.getElementById('custom-feed-context');
+    const context = ctxEl ? ctxEl.value.trim() : '';
+    customFeeds.push({ url, name, on: true, ...(context ? { context } : {}) });
     window._settingsDirty = true;
 
     if (urlEl) urlEl.value = '';
     if (nameEl) nameEl.value = '';
+    if (ctxEl) ctxEl.value = '';
     renderCustomCatalog();
     if (configData) configData.custom_feeds = JSON.parse(JSON.stringify(customFeeds));
     if (typeof rebuildNavFromConfig === 'function') rebuildNavFromConfig();
     if (typeof showToast === 'function') showToast(`Added "${name}"`, 'success');
 }
+
+async function _editFeedContext(idx) {
+    const feed = customFeeds[idx];
+    if (!feed) return;
+    if (typeof stratosPrompt === 'function') {
+        const result = await stratosPrompt({
+            title: `Context for "${feed.name}"`,
+            message: 'Add context to help the scorer understand this source\'s relevance to your profile:',
+            fields: [{ key: 'context', label: 'Scoring context', placeholder: 'e.g. "Tech startup news, relevant to my SaaS career"', value: feed.context || '' }],
+        });
+        if (result && result.context !== undefined) {
+            feed.context = result.context.trim();
+            window._settingsDirty = true;
+            renderCustomCatalog();
+        }
+    }
+}
+window._editFeedContext = _editFeedContext;
 
 function removeCustomFeed(index) {
     const removed = customFeeds[index];

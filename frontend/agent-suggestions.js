@@ -56,8 +56,21 @@ var _PERSONA_SUGGESTIONS = {
 var _GENERIC_SUGGESTIONS = _PERSONA_SUGGESTIONS.intelligence;
 
 function _buildDynamicSuggestions() {
-    var personaSugs = _PERSONA_SUGGESTIONS[currentPersona] || _PERSONA_SUGGESTIONS.intelligence;
-    var suggestions = [].concat(personaSugs);
+    var suggestions = [];
+    try {
+        // Try to build context-driven suggestions from profile data first
+        var profileSugs = _buildProfileSuggestions();
+        if (profileSugs.length >= 3) {
+            suggestions = profileSugs;
+        } else {
+            // Fall back to static persona suggestions
+            var personaSugs = _PERSONA_SUGGESTIONS[currentPersona] || _PERSONA_SUGGESTIONS.intelligence;
+            suggestions = [].concat(personaSugs);
+        }
+    } catch(e) {
+        var personaSugs = _PERSONA_SUGGESTIONS[currentPersona] || _PERSONA_SUGGESTIONS.intelligence;
+        suggestions = [].concat(personaSugs);
+    }
     try {
         // Gaming-specific: scenario-aware suggestions
         if (currentPersona === 'gaming' && typeof _gamesGetState === 'function') {
@@ -264,4 +277,40 @@ function _applyAgentChip(action) {
         input.value = action;
         sendAgentMessage();
     }
+}
+
+// Build context-driven suggestions from user's profile, categories, and feed data
+function _buildProfileSuggestions() {
+    var sugs = [];
+    try {
+        var role = (typeof configData !== 'undefined' && configData?.profile?.role) || '';
+        var categories = [];
+        // Get dynamic categories from config
+        if (typeof simpleCategories !== 'undefined' && Array.isArray(simpleCategories)) {
+            categories = simpleCategories.filter(function(c) { return c.enabled !== false; }).map(function(c) { return c.label || c.name || ''; }).filter(Boolean);
+        }
+        // Get top scored articles for topical suggestions
+        var topArticles = [];
+        if (typeof newsData !== 'undefined' && Array.isArray(newsData)) {
+            topArticles = newsData.filter(function(n) { return (n.score || 0) >= 7; }).slice(0, 5);
+        }
+
+        if (currentPersona === 'intelligence' || currentPersona === 'market') {
+            if (topArticles.length > 0) {
+                sugs.push("What's the most important signal today?");
+                var topCat = topArticles[0].category || topArticles[0].root || '';
+                if (topCat) sugs.push("Deep dive into " + topCat + " signals");
+            }
+            if (categories.length > 0) {
+                sugs.push("What's trending in " + categories[0] + "?");
+                if (categories.length > 1) sugs.push("Compare " + categories[0] + " vs " + categories[1] + " activity");
+            }
+            if (role) sugs.push("How do today's signals affect my role as " + role.split(' ')[0] + "?");
+            sugs.push("Summarize today's feed in 3 bullets");
+            if (topArticles.length >= 3) {
+                sugs.push("Any patterns across today's top stories?");
+            }
+        }
+    } catch(e) {}
+    return sugs;
 }

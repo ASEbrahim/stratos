@@ -577,8 +577,11 @@ def handle_post(handler, strat, auth, path):
             (int(video_id), handler._profile_id)
         )
         vrow = cursor.fetchone()
-        if not vrow or not vrow['transcript_text']:
-            _send_json(handler, {"error": "Video not found or not yet transcribed"}, 404)
+        if not vrow:
+            _send_json(handler, {"error": "Video not found. It may have been deleted."}, 404)
+            return True
+        if not vrow['transcript_text']:
+            _send_json(handler, {"error": "No transcript available for this video. Transcribe it first by clicking the Transcribe button."}, 404)
             return True
         video = dict(vrow)
 

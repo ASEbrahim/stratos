@@ -831,6 +831,9 @@ function appendAgentMessage(role, content) {
                     <button onclick="speakMessage(this.closest('.agent-msg-actions').parentElement.querySelector('.agent-response').innerText, this)" class="speak-btn p-0.5 rounded" title="Read aloud">
                         <i data-lucide="volume-2" class="w-3 h-3" style="color:var(--text-muted);"></i>
                     </button>
+                    <button onclick="_editAssistantMessage(this)" class="p-0.5 rounded opacity-0 group-hover/msg:opacity-100 transition-opacity" title="Edit response">
+                        <i data-lucide="pencil" class="w-2.5 h-2.5" style="color:var(--text-muted);"></i>
+                    </button>
                     ${(currentPersona === 'roleplay' || currentPersona === 'gaming') ? `
                     <span style="color:var(--text-muted);opacity:0.2;">|</span>
                     <button onclick="_rpThumbsFeedback(this, 'thumbs_up')" class="p-0.5 rounded rp-feedback-btn" title="Good response" data-feedback="">
@@ -839,7 +842,7 @@ function appendAgentMessage(role, content) {
                     <button onclick="_rpThumbsFeedback(this, 'thumbs_down')" class="p-0.5 rounded rp-feedback-btn" title="Bad response" data-feedback="">
                         <i data-lucide="thumbs-down" class="w-3 h-3" style="color:var(--text-muted);"></i>
                     </button>
-                    <button onclick="_rpEditMessage(this)" class="p-0.5 rounded" title="Edit response">
+                    <button onclick="_rpEditMessage(this)" class="p-0.5 rounded" title="Edit response (RP)">
                         <i data-lucide="pencil" class="w-3 h-3" style="color:var(--text-muted);"></i>
                     </button>
                     ` : ''}
@@ -974,6 +977,347 @@ function _copyAgentMessage(btn) {
         document.body.appendChild(ta); ta.select(); document.execCommand('copy');
         document.body.removeChild(ta); showCheck();
     }
+}
+
+// ── UX-04: Edit user messages with response regeneration ──
+
+function _editUserMessage(btn) {
+    if (agentStreaming) return;
+    const wrapper = btn.closest('.group\\/usermsg');
+    if (!wrapper) return;
+    const bubble = wrapper.querySelector('.agent-bubble-user');
+    if (!bubble) return;
+    const original = bubble.textContent.trim();
+
+    // Find the index of this user message in the DOM
+    const msgs = document.getElementById('agent-messages');
+    if (!msgs) return;
+    const allWrappers = Array.from(msgs.children);
+    const wrapperIdx = allWrappers.indexOf(wrapper);
+
+    // Replace bubble with editable textarea
+    const editDiv = document.createElement('div');
+    editDiv.className = 'w-full';
+    editDiv.innerHTML = `
+        <textarea class="w-full rounded-lg p-3 text-xs" style="background:rgba(59,130,246,0.08); color:var(--text-heading); border:1px solid rgba(59,130,246,0.3); min-height:60px; resize:vertical;">${escAgent(original)}</textarea>
+        <div class="flex items-center justify-end gap-2 mt-1.5">
+            <button class="agent-edit-cancel text-[10px] px-3 py-1 rounded" style="background:var(--bg-tertiary,rgba(255,255,255,0.03)); color:var(--text-muted);">Cancel</button>
+            <button class="agent-edit-save text-[10px] px-3 py-1 rounded" style="background:rgba(59,130,246,0.2); color:#60a5fa; border:1px solid rgba(59,130,246,0.3);">Save & Resend</button>
+        </div>`;
+
+    const container = bubble.parentElement;
+    const origBubbleHTML = bubble.outerHTML;
+    const origActionsHTML = container.querySelector('.flex.items-center.justify-end')?.outerHTML || '';
+    bubble.style.display = 'none';
+    const actionsRow = container.querySelector('.flex.items-center.justify-end');
+    if (actionsRow) actionsRow.style.display = 'none';
+    container.appendChild(editDiv);
+
+    const textarea = editDiv.querySelector('textarea');
+    textarea.focus();
+    textarea.setSelectionRange(textarea.value.length, textarea.value.length);
+
+    // Cancel
+    editDiv.querySelector('.agent-edit-cancel').addEventListener('click', function() {
+        editDiv.remove();
+        bubble.style.display = '';
+        if (actionsRow) actionsRow.style.display = '';
+    });
+
+    // Save & Resend
+    editDiv.querySelector('.agent-edit-save').addEventListener('click', function() {
+        const newText = textarea.value.trim();
+        if (!newText) return;
+
+        // Restore bubble with new text
+        bubble.textContent = newText;
+        bubble.style.display = '';
+        if (actionsRow) actionsRow.style.display = '';
+        editDiv.remove();
+
+        // Find the history index: count user messages up to this DOM position
+        let historyIdx = -1;
+        let userCount = 0;
+        for (let i = 0; i < allWrappers.length; i++) {
+            if (allWrappers[i].classList.contains('group/usermsg')) {
+                if (i === wrapperIdx) {
+                    historyIdx = userCount * 2; // user messages are at even indices in interleaved history
+                    // Actually find by matching — more robust
+                    break;
+                }
+                userCount++;
+            }
+        }
+
+        // Find the corresponding index in agentHistory by scanning
+        let foundIdx = -1;
+        let userSeen = 0;
+        for (let i = 0; i < agentHistory.length; i++) {
+            if (agentHistory[i].role === 'user') {
+                if (userSeen === userCount) {
+                    foundIdx = i;
+                    break;
+                }
+                userSeen++;
+            }
+        }
+
+        if (foundIdx === -1) return;
+
+        // Truncate agentHistory to the edit point (remove edited msg and everything after)
+        agentHistory = agentHistory.slice(0, foundIdx);
+        agentHistory.push({ role: 'user', content: newText });
+
+        // Remove all DOM elements after the edited user message wrapper
+        while (wrapper.nextSibling) {
+            wrapper.nextSibling.remove();
+        }
+
+        // Re-send the edited message via the streaming path
+        const input = document.getElementById('agent-input');
+        if (input) input.value = '';
+
+        // Trigger the send flow with the edited message already in history
+        _resendFromEdit(newText);
+    });
+}
+
+async function _resendFromEdit(msg) {
+    if (agentStreaming) return;
+    const input = document.getElementById('agent-input');
+    const sendBtn = document.getElementById('agent-send-btn');
+
+    // Show typing indicator
+    const typingEl = appendAgentMessage('assistant', `<div class="flex items-center gap-2.5"><div class="agent-thinking-dots flex gap-1"><span></span><span></span><span></span></div><span class="text-[10px]" style="color:var(--text-muted);">Thinking...</span></div>`);
+
+    agentStreaming = true;
+    _agentAbortController = new AbortController();
+    if (sendBtn) {
+        sendBtn.disabled = false;
+        if (input) input.disabled = true;
+        sendBtn.style.opacity = '1';
+        sendBtn.innerHTML = '<i data-lucide="square" class="w-4 h-4"></i>';
+        sendBtn.title = 'Stop generating';
+        sendBtn.onclick = function() { cancelAgentStream(); };
+        lucide.createIcons();
+    }
+
+    try {
+        const response = await fetch('/api/agent-chat', {
+            method: 'POST',
+            signal: _agentAbortController.signal,
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Auth-Token': typeof getAuthToken === 'function' ? getAuthToken() : '',
+                'X-Device-Id': typeof getDeviceId === 'function' ? getDeviceId() : ''
+            },
+            body: JSON.stringify({
+                message: msg,
+                history: agentHistory.slice(-20),
+                mode: agentMode,
+                persona: currentPersona,
+                ...(selectedPersonas.length > 1 ? { personas: selectedPersonas } : {}),
+                ...(_agentFreeLength ? { free_length: true } : {}),
+                ...(_agentAllScans ? { use_all_scans: true } : {}),
+                ...(!_agentInjectSignals ? { inject_signals: false } : {}),
+                ...(currentPersona === 'gaming' && typeof _gamesGetState === 'function' ? {
+                    rp_mode: _gamesGetState().rpMode,
+                    active_npc: _gamesGetState().activeNpc,
+                    active_scenario: _gamesGetState().activeScenario || ''
+                } : {})
+            })
+        });
+
+        if (!response.ok) {
+            const err = await response.json().catch(() => ({}));
+            throw new Error(err.error || `HTTP ${response.status}`);
+        }
+
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let fullResponse = '';
+        const respDiv = typingEl.querySelector('.agent-response');
+        if (respDiv) respDiv.innerHTML = '';
+
+        let _streamRenderPending = false;
+        let _streamRenderTimer = null;
+        const STREAM_RENDER_INTERVAL = 80;
+
+        function _scheduleStreamRender() {
+            if (_streamRenderPending) return;
+            _streamRenderPending = true;
+            _streamRenderTimer = setTimeout(() => {
+                _streamRenderPending = false;
+                if (respDiv) {
+                    respDiv.innerHTML = formatAgentText(fullResponse);
+                    const msgs = document.getElementById('agent-messages');
+                    if (msgs) msgs.scrollTop = msgs.scrollHeight;
+                }
+            }, STREAM_RENDER_INTERVAL);
+        }
+
+        while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            const chunk = decoder.decode(value, { stream: true });
+            const lines = chunk.split('\n');
+            for (const line of lines) {
+                if (line.startsWith('data: ')) {
+                    try {
+                        const payload = JSON.parse(line.slice(6));
+                        if (payload.token) {
+                            fullResponse += payload.token;
+                            _scheduleStreamRender();
+                        }
+                        if (payload.status && respDiv) {
+                            const isSearch = payload.status.includes('web_search');
+                            const icon = isSearch ? '🔍' : '⚙️';
+                            const label = payload.status.replace(/^[🔍⚙️]\s*/, '');
+                            respDiv.innerHTML = `<div class="flex items-center gap-2.5 py-1"><div class="agent-thinking-dots flex gap-1"><span></span><span></span><span></span></div><span class="text-[10px] font-mono" style="color:var(--accent,#34d399);">${icon} ${escAgent(label)}</span></div>`;
+                        }
+                        if (payload.error) {
+                            fullResponse = '\u26a0 ' + payload.error;
+                            if (respDiv) respDiv.innerHTML = `<span class="text-amber-400">${escAgent(fullResponse)}</span>`;
+                        }
+                    } catch(e) {}
+                }
+            }
+        }
+
+        if (_streamRenderTimer) clearTimeout(_streamRenderTimer);
+
+        fullResponse = fullResponse.replace(/[\u4e00-\u9fff\u3400-\u4dbf\u{20000}-\u{2a6df}]+/gu, '').trim();
+        fullResponse = fullResponse.replace(/[^\S\n]{2,}/g, ' ').replace(/\.\s*\./g, '.').trim();
+        fullResponse = fullResponse.replace(/\n{3,}/g, '\n\n');
+
+        const finalDiv = typingEl?.querySelector('.agent-response');
+        if (finalDiv) {
+            finalDiv.innerHTML = wrapWithShowMore(fullResponse, formatAgentText(fullResponse));
+            _hyperlinkSignals(finalDiv);
+        }
+
+        agentHistory.push({ role: 'assistant', content: fullResponse });
+
+    } catch(e) {
+        const respDiv = typingEl?.querySelector('.agent-response');
+        const raw = e.message || 'Failed to reach agent';
+        if (respDiv) {
+            respDiv.innerHTML = `<div class="flex items-start gap-2 p-2 rounded-lg" style="background:rgba(251,191,36,0.06);border:1px solid rgba(251,191,36,0.15);"><i data-lucide="alert-triangle" class="w-4 h-4 text-amber-400 flex-shrink-0 mt-0.5"></i><span class="text-amber-300 text-xs">${escAgent(raw)}</span></div>`;
+            lucide.createIcons();
+        }
+        agentHistory.push({ role: 'assistant', content: raw });
+    } finally {
+        _saveAgentHistory();
+        agentStreaming = false;
+        _agentAbortController = null;
+        if (sendBtn) {
+            sendBtn.disabled = false;
+            sendBtn.style.opacity = '1';
+            sendBtn.innerHTML = '<i data-lucide="arrow-up" class="w-4 h-4"></i>';
+            sendBtn.title = 'Send message';
+            sendBtn.onclick = function() { sendAgentMessage(); };
+            lucide.createIcons();
+        }
+        if (input) { input.disabled = false; input.focus(); }
+        if (typeof _onAgentStreamEndHook === 'function') _onAgentStreamEndHook();
+    }
+}
+
+// ── UX-05: Edit AI messages as learning signal ──
+
+function _editAssistantMessage(btn) {
+    if (agentStreaming) return;
+    const actionsRow = btn.closest('.agent-msg-actions');
+    const contentDiv = actionsRow?.parentElement?.querySelector('.agent-response');
+    if (!contentDiv) return;
+    const originalText = contentDiv.innerText || '';
+    const wrapper = btn.closest('.group\\/msg');
+    if (!wrapper) return;
+
+    // Create inline edit UI
+    const editArea = document.createElement('div');
+    editArea.className = 'agent-ai-edit-area mt-2';
+    editArea.innerHTML = `
+        <textarea class="w-full rounded-lg p-3 text-xs" style="background:rgba(16,185,129,0.05); color:var(--text-body); border:1px solid rgba(16,185,129,0.25); min-height:100px; resize:vertical;">${escAgent(originalText)}</textarea>
+        <div class="flex items-center gap-2 mt-1.5">
+            <button class="agent-ai-edit-save text-[10px] px-3 py-1 rounded" style="background:rgba(16,185,129,0.15); color:#34d399; border:1px solid rgba(16,185,129,0.3);">Save correction</button>
+            <button class="agent-ai-edit-cancel text-[10px] px-3 py-1 rounded" style="background:var(--bg-tertiary,rgba(255,255,255,0.03)); color:var(--text-muted);">Cancel</button>
+        </div>`;
+
+    contentDiv.style.display = 'none';
+    actionsRow.style.display = 'none';
+    contentDiv.parentElement.appendChild(editArea);
+
+    const textarea = editArea.querySelector('textarea');
+    textarea.focus();
+
+    // Cancel
+    editArea.querySelector('.agent-ai-edit-cancel').addEventListener('click', function() {
+        editArea.remove();
+        contentDiv.style.display = '';
+        actionsRow.style.display = '';
+    });
+
+    // Save
+    editArea.querySelector('.agent-ai-edit-save').addEventListener('click', function() {
+        const editedText = textarea.value.trim();
+        if (!editedText || editedText === originalText) {
+            editArea.remove();
+            contentDiv.style.display = '';
+            actionsRow.style.display = '';
+            return;
+        }
+
+        // Update the displayed message
+        contentDiv.innerHTML = formatAgentText(editedText);
+        _hyperlinkSignals(contentDiv);
+        contentDiv.style.display = '';
+        actionsRow.style.display = '';
+        editArea.remove();
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+
+        // Find and update this assistant message in agentHistory
+        const msgs = document.getElementById('agent-messages');
+        if (msgs) {
+            const allAssistantWrappers = Array.from(msgs.querySelectorAll('.group\\/msg'));
+            const wrapperIdx = allAssistantWrappers.indexOf(wrapper);
+            // Map to agentHistory index
+            let assistantSeen = 0;
+            for (let i = 0; i < agentHistory.length; i++) {
+                if (agentHistory[i].role === 'assistant') {
+                    if (assistantSeen === wrapperIdx) {
+                        agentHistory[i].content = editedText;
+                        break;
+                    }
+                    assistantSeen++;
+                }
+            }
+        }
+
+        // Inject a hidden context note so future messages benefit from the correction
+        const correctionNote = `[The user corrected your previous response. Their preferred version: ${editedText.slice(0, 500)}. Adjust accordingly.]`;
+        agentHistory.push({ role: 'user', content: correctionNote });
+        // Immediately add a synthetic acknowledgment so history stays balanced
+        agentHistory.push({ role: 'assistant', content: '(Noted — I\'ll adjust my responses accordingly.)' });
+
+        // Save updated history
+        _saveAgentHistory();
+
+        // POST to /api/feedback (fire and forget)
+        fetch('/api/feedback', {
+            method: 'POST',
+            headers: _agentHeaders(),
+            body: JSON.stringify({
+                action: 'edit',
+                original: originalText,
+                edited: editedText,
+                persona: currentPersona,
+                conversation_id: _agentActiveConvId || null
+            })
+        }).catch(function() {});
+
+        if (typeof showToast === 'function') showToast('Correction saved', 'success');
+    });
 }
 
 // ── RP Expansion: Feedback, Edit, Regenerate ──

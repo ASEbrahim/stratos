@@ -673,16 +673,18 @@ function _ytRenderLensByName(lensName) {
     else if (lens === 'politics') content = _ytRenderPolitics(data);
     else content = _ytRenderGeneric(data, lens);
 
-    // Add refresh button for non-transcript lenses
+    // Add refresh button + save button for non-transcript lenses
     if (lens !== 'transcript') {
         const isRefreshing = _ytExtractingLenses.has(lensName);
         const mode = lens === 'summary' ? 'replace' : 'merge';
         const tooltip = lens === 'summary' ? 'Re-summarize' : 'Find more';
+        const saveBtn = typeof _ytBuildSaveButton === 'function' ? _ytBuildSaveButton(lensName) : '';
         body.innerHTML = `<div style="display:flex;justify-content:flex-end;align-items:center;gap:8px;margin-bottom:8px;">
             ${_ytLangSelect('yi-refresh-lang-'+lensName)}
             <button onclick="_ytRefreshLens('${lensName}','${mode}')" class="yi-header-btn" style="padding:4px 10px;font-size:11px;gap:4px;${isRefreshing ? 'opacity:0.5;pointer-events:none;' : ''}" title="${tooltip}">
                 <i data-lucide="${isRefreshing ? 'loader-2' : 'refresh-cw'}" style="width:12px;height:12px;" ${isRefreshing ? 'class="animate-pulse"' : ''}></i> ${isRefreshing ? 'Refreshing...' : tooltip}
             </button>
+            ${saveBtn}
         </div>` + content;
     } else {
         body.innerHTML = content;
@@ -1357,7 +1359,8 @@ async function _ytExtractLens(lensName) {
         // Poll for completion — SSE is unreliable, polling is the primary mechanism
         _ytPollForLens(_ytCurrentVideoId, lensName, extractLang);
     } catch (e) {
-        if (typeof showToast === 'function') showToast('Extraction failed', 'error');
+        const msg = e.message === 'Failed to fetch' ? 'Connection to server lost. Check if the server is running.' : `Extraction failed: ${e.message}`;
+        if (typeof showToast === 'function') showToast(msg, 'error');
         _ytExtractingLenses.delete(lensName);
         _ytRenderLensByName(lensName);
     }
@@ -1384,7 +1387,8 @@ async function _ytRefreshLens(lensName, mode) {
         }
         _ytPollForLens(_ytCurrentVideoId, lensName, extractLang);
     } catch (e) {
-        if (typeof showToast === 'function') showToast('Refresh failed', 'error');
+        const msg = e.message === 'Failed to fetch' ? 'Connection to server lost. Check if the server is running.' : `Refresh failed: ${e.message}`;
+        if (typeof showToast === 'function') showToast(msg, 'error');
         _ytExtractingLenses.delete(lensName);
         _ytRenderLensByName(lensName);
     }
@@ -1519,6 +1523,91 @@ function _ytToggleSize() {
     }
 }
 window._ytToggleSize = _ytToggleSize;
+
+// ═══════════════════════════════════════════════════════════
+// SAVED INSIGHTS — localStorage-based bookmarking
+// ═══════════════════════════════════════════════════════════
+
+function _ytGetSavedInsights() {
+    try { return JSON.parse(localStorage.getItem('stratos_saved_insights') || '[]'); }
+    catch (e) { return []; }
+}
+
+function _ytSetSavedInsights(arr) {
+    localStorage.setItem('stratos_saved_insights', JSON.stringify(arr));
+}
+
+function _ytSaveInsight(videoId, videoTitle, lens, language, content) {
+    const saved = _ytGetSavedInsights();
+    // Avoid duplicates by video_id + lens + language
+    const exists = saved.some(s => s.video_id === videoId && s.lens === lens && s.language === language);
+    if (exists) {
+        if (typeof showToast === 'function') showToast('Insight already saved', 'info');
+        return;
+    }
+    saved.push({ video_id: videoId, video_title: videoTitle, lens, language, content, saved_at: new Date().toISOString() });
+    _ytSetSavedInsights(saved);
+    if (typeof showToast === 'function') showToast(`Saved ${lens} insight for later`, 'success');
+    // Update save button state
+    _ytUpdateSaveButton(lens, true);
+}
+window._ytSaveInsight = _ytSaveInsight;
+
+function _ytRemoveSavedInsight(index) {
+    const saved = _ytGetSavedInsights();
+    if (index >= 0 && index < saved.length) {
+        saved.splice(index, 1);
+        _ytSetSavedInsights(saved);
+    }
+}
+window._ytRemoveSavedInsight = _ytRemoveSavedInsight;
+
+function _ytUpdateSaveButton(lens, isSaved) {
+    const btn = document.getElementById(`yi-save-btn-${lens}`);
+    if (btn) {
+        if (isSaved) {
+            btn.innerHTML = '<i data-lucide="bookmark-check" style="width:12px;height:12px;"></i> Saved';
+            btn.style.color = 'var(--accent-light,#34d399)';
+            btn.style.borderColor = 'var(--accent-border,rgba(16,185,129,0.3))';
+        } else {
+            btn.innerHTML = '<i data-lucide="bookmark" style="width:12px;height:12px;"></i> Save';
+            btn.style.color = '';
+            btn.style.borderColor = '';
+        }
+        lucide.createIcons();
+    }
+}
+
+function _ytIsInsightSaved(videoId, lens, language) {
+    const saved = _ytGetSavedInsights();
+    return saved.some(s => s.video_id === videoId && s.lens === lens && s.language === language);
+}
+
+function _ytBuildSaveButton(lensName) {
+    if (!_ytCurrentVideoId || lensName === 'transcript') return '';
+    const videoTitle = document.getElementById('yi-title')?.textContent || '';
+    const isSaved = _ytIsInsightSaved(_ytCurrentVideoId, lensName, _ytCurrentLang);
+    const savedStyle = isSaved ? 'color:var(--accent-light,#34d399);border-color:var(--accent-border,rgba(16,185,129,0.3));' : '';
+    const savedLabel = isSaved ? 'Saved' : 'Save';
+    const savedIcon = isSaved ? 'bookmark-check' : 'bookmark';
+    return `<button id="yi-save-btn-${lensName}" onclick="_ytDoSaveInsight('${lensName}')" class="yi-header-btn" style="padding:4px 10px;font-size:11px;gap:4px;${savedStyle}" title="Save this insight for later reference">
+        <i data-lucide="${savedIcon}" style="width:12px;height:12px;"></i> ${savedLabel}
+    </button>`;
+}
+
+function _ytDoSaveInsight(lensName) {
+    if (!_ytCurrentVideoId) return;
+    const videoTitle = document.getElementById('yi-title')?.textContent || 'Unknown Video';
+    const langKey = `${lensName}_${_ytCurrentLang}`;
+    const fallbackKey = `${lensName}_en`;
+    const ins = _ytInsightsAll[langKey] || _ytInsightsAll[fallbackKey] || null;
+    if (!ins) {
+        if (typeof showToast === 'function') showToast('No insight data to save', 'error');
+        return;
+    }
+    _ytSaveInsight(_ytCurrentVideoId, videoTitle, lensName, _ytCurrentLang, ins.content || '');
+}
+window._ytDoSaveInsight = _ytDoSaveInsight;
 
 // Expose functions needed by onclick
 window._ytProcessChannel = _ytProcessChannel;

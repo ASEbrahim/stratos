@@ -137,6 +137,9 @@ function _ykbRender() {
             <div class="ykb-subtitle">${_ykbChannels.length} channel${_ykbChannels.length !== 1 ? 's' : ''} tracked</div>
         </div>
         <div style="flex:1;"></div>
+        <button class="ykb-btn" onclick="_ykbToggleSavedPanel()" title="View saved insights">
+            <i data-lucide="bookmark" class="w-3.5 h-3.5"></i> Saved
+        </button>
         <button class="ykb-btn" onclick="_ykbOpenLensGuide()" title="Lens Guide — what each analysis mode does">
             <i data-lucide="book-open" class="w-3.5 h-3.5"></i> Guide
         </button>
@@ -500,7 +503,21 @@ function _ykbRenderLensContent(contentEl, videoDbId, lens, forceLang, chId) {
     }
 
     const insight = lensData[lang];
-    contentEl.innerHTML = langHtml + _ykbFormatInsight(insight, lens);
+    // Build save button for non-transcript lenses
+    let saveBtn = '';
+    if (lens !== 'transcript') {
+        const isSaved = _ykbIsInsightSaved(videoDbId, lens, lang);
+        const savedStyle = isSaved ? 'color:var(--accent-light,#34d399);border-color:var(--accent-border,rgba(16,185,129,0.3));' : '';
+        const savedLabel = isSaved ? 'Saved' : 'Save';
+        const savedIcon = isSaved ? 'bookmark-check' : 'bookmark';
+        saveBtn = `<div style="display:flex;justify-content:flex-end;margin-bottom:8px;">
+            <button id="ykb-save-btn-${lens}" onclick="_ykbDoSaveCurrentInsight('${lens}')" class="ykb-btn ykb-btn-sm" style="${savedStyle}" title="Save this insight for later reference">
+                <i data-lucide="${savedIcon}" style="width:12px;height:12px;"></i> ${savedLabel}
+            </button>
+        </div>`;
+    }
+    contentEl.innerHTML = langHtml + saveBtn + _ykbFormatInsight(insight, lens);
+    if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 
 function _ykbSwitchLang(chId, lang) {
@@ -1300,4 +1317,154 @@ function _ykbInitStars(chId) {
         _ykbStarsAnim = requestAnimationFrame(draw);
     }
     _ykbStarsAnim = requestAnimationFrame(draw);
+}
+
+// ═══════════════════════════════════════════════════════════
+// SAVED INSIGHTS — localStorage-based bookmarking for KB view
+// ═══════════════════════════════════════════════════════════
+
+function _ykbGetSavedInsights() {
+    try { return JSON.parse(localStorage.getItem('stratos_saved_insights') || '[]'); }
+    catch (e) { return []; }
+}
+
+function _ykbSetSavedInsights(arr) {
+    localStorage.setItem('stratos_saved_insights', JSON.stringify(arr));
+}
+
+function _ykbSaveInsight(videoDbId, videoTitle, lens, language, content) {
+    const saved = _ykbGetSavedInsights();
+    const exists = saved.some(s => s.video_id === videoDbId && s.lens === lens && s.language === language);
+    if (exists) {
+        _ykbShowToast('Insight already saved', '#fbbf24');
+        return;
+    }
+    saved.push({ video_id: videoDbId, video_title: videoTitle, lens, language, content, saved_at: new Date().toISOString() });
+    _ykbSetSavedInsights(saved);
+    _ykbShowToast(`Saved ${lens} insight`, '#34d399');
+    // Update button state
+    const btn = document.getElementById(`ykb-save-btn-${lens}`);
+    if (btn) {
+        btn.innerHTML = '<i data-lucide="bookmark-check" style="width:12px;height:12px;"></i> Saved';
+        btn.style.color = 'var(--accent-light,#34d399)';
+        btn.style.borderColor = 'var(--accent-border,rgba(16,185,129,0.3))';
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+    }
+}
+window._ykbSaveInsight = _ykbSaveInsight;
+
+function _ykbRemoveSavedInsight(index) {
+    const saved = _ykbGetSavedInsights();
+    if (index >= 0 && index < saved.length) {
+        saved.splice(index, 1);
+        _ykbSetSavedInsights(saved);
+        _ykbRenderSavedInsights(); // re-render the saved section
+    }
+}
+window._ykbRemoveSavedInsight = _ykbRemoveSavedInsight;
+
+function _ykbDoSaveCurrentInsight(lens) {
+    const chId = _ykbExpanded;
+    if (!chId) return;
+    const activeVid = _ykbActiveVideo[chId];
+    if (!activeVid) return;
+    const lang = _ykbActiveLang[chId] || 'en';
+    const lensData = (_ykbInsightsByLang[activeVid.id] || {})[lens] || {};
+    const availLangs = Object.keys(lensData);
+    const selectedLang = (lang && lensData[lang]) ? lang : availLangs[0];
+    if (!selectedLang || !lensData[selectedLang]) {
+        _ykbShowToast('No insight data to save', '#ef4444');
+        return;
+    }
+    const insight = lensData[selectedLang];
+    _ykbSaveInsight(activeVid.id, activeVid.title || activeVid.video_id, lens, selectedLang, insight.content || insight.text || '');
+}
+window._ykbDoSaveCurrentInsight = _ykbDoSaveCurrentInsight;
+
+function _ykbIsInsightSaved(videoDbId, lens, language) {
+    const saved = _ykbGetSavedInsights();
+    return saved.some(s => s.video_id === videoDbId && s.lens === lens && s.language === language);
+}
+
+function _ykbToggleSavedPanel() {
+    const existing = document.getElementById('ykb-saved-panel');
+    if (existing) { existing.remove(); return; }
+    _ykbRenderSavedInsights();
+}
+window._ykbToggleSavedPanel = _ykbToggleSavedPanel;
+
+function _ykbRenderSavedInsights() {
+    document.getElementById('ykb-saved-panel')?.remove();
+
+    const saved = _ykbGetSavedInsights();
+    const panel = document.getElementById('youtube-kb-panel');
+    if (!panel) return;
+
+    const modal = document.createElement('div');
+    modal.id = 'ykb-saved-panel';
+    modal.style.cssText = 'position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);';
+    modal.onclick = (e) => { if (e.target === modal) modal.remove(); };
+
+    let listHtml = '';
+    if (saved.length === 0) {
+        listHtml = `<div style="text-align:center;padding:40px;color:var(--text-muted,#64748b);">
+            <div style="font-size:32px;opacity:0.3;margin-bottom:8px;">&#128278;</div>
+            <div style="font-size:13px;font-weight:600;margin-bottom:4px;">No saved insights yet</div>
+            <div style="font-size:11px;">Use the Save button on any insight to bookmark it here.</div>
+        </div>`;
+    } else {
+        const lensIcons = { summary: 'file-text', eloquence: 'pen-tool', narrations: 'book-open', history: 'landmark', spiritual: 'heart', politics: 'flag', transcript: 'scroll-text' };
+        const lensColors = { summary: '#c084fc', eloquence: '#34d399', narrations: '#fb923c', history: '#fbbf24', spiritual: '#f472b6', politics: '#60a5fa' };
+        listHtml = saved.map((s, i) => {
+            const icon = lensIcons[s.lens] || 'sparkles';
+            const color = lensColors[s.lens] || 'var(--accent-light,#34d399)';
+            const savedDate = new Date(s.saved_at).toLocaleDateString();
+            const langLabel = (s.language || 'en').toUpperCase();
+            // Truncate content for preview
+            let preview = '';
+            try {
+                const parsed = typeof s.content === 'string' ? JSON.parse(s.content) : s.content;
+                if (typeof parsed === 'string') preview = parsed.substring(0, 150);
+                else if (parsed.summary) preview = parsed.summary.substring(0, 150);
+                else if (parsed.transcript) preview = parsed.transcript.substring(0, 150);
+                else if (Array.isArray(parsed) && parsed[0]) preview = JSON.stringify(parsed[0]).substring(0, 150);
+                else preview = JSON.stringify(parsed).substring(0, 150);
+            } catch (e) { preview = String(s.content).substring(0, 150); }
+            return `<div style="padding:12px 14px;border-radius:10px;background:var(--bg-hover,rgba(22,26,55,0.5));border:1px solid var(--border,rgba(255,255,255,0.05));margin-bottom:8px;transition:all 0.2s;" onmouseover="this.style.borderColor='var(--accent-border)'" onmouseout="this.style.borderColor='var(--border)'">
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+                    <i data-lucide="${icon}" style="width:14px;height:14px;color:${color};flex-shrink:0;"></i>
+                    <span style="font-size:12px;font-weight:600;color:var(--text-primary,#e2e8f0);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${_ykbEsc(s.video_title || 'Unknown')}</span>
+                    <span style="font-size:9px;padding:2px 6px;border-radius:4px;background:rgba(${color === '#c084fc' ? '192,132,252' : '52,211,153'},0.1);color:${color};font-weight:600;flex-shrink:0;">${_ykbEsc(s.lens)}</span>
+                    <span style="font-size:9px;color:var(--text-faint,#475569);flex-shrink:0;">${langLabel}</span>
+                </div>
+                <div style="font-size:11px;color:var(--text-secondary,#94a3b8);line-height:1.5;margin-bottom:8px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;">${_ykbEsc(preview)}${preview.length >= 150 ? '...' : ''}</div>
+                <div style="display:flex;align-items:center;justify-content:space-between;">
+                    <span style="font-size:9px;color:var(--text-faint,#475569);">Saved ${savedDate}</span>
+                    <button onclick="event.stopPropagation();_ykbRemoveSavedInsight(${i})" style="padding:3px 8px;border-radius:6px;font-size:10px;border:1px solid rgba(239,68,68,0.15);background:rgba(239,68,68,0.06);color:#f87171;cursor:pointer;display:flex;align-items:center;gap:4px;transition:all 0.2s;" onmouseover="this.style.background='rgba(239,68,68,0.15)'" onmouseout="this.style.background='rgba(239,68,68,0.06)'">
+                        <i data-lucide="trash-2" style="width:10px;height:10px;"></i> Remove
+                    </button>
+                </div>
+            </div>`;
+        }).join('');
+    }
+
+    modal.innerHTML = `<div style="background:var(--bg-panel-solid,#0e1026);border:1px solid var(--accent-border,rgba(16,185,129,0.2));border-radius:16px;max-width:560px;width:92%;max-height:80vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,0.5),0 0 30px var(--accent-bg,rgba(16,185,129,0.08));">
+        <div style="padding:18px 20px;border-bottom:1px solid var(--border,rgba(255,255,255,0.05));display:flex;align-items:center;gap:10px;">
+            <div style="width:32px;height:32px;border-radius:8px;background:var(--accent-bg,rgba(16,185,129,0.1));border:1px solid var(--accent-border,rgba(16,185,129,0.2));display:flex;align-items:center;justify-content:center;">
+                <i data-lucide="bookmark" style="width:16px;height:16px;color:var(--accent-light,#34d399);"></i>
+            </div>
+            <div style="flex:1;">
+                <div style="font-size:14px;font-weight:700;color:var(--text-primary,#e2e8f0);">Saved Insights</div>
+                <div style="font-size:10px;color:var(--text-muted,#64748b);">${saved.length} saved insight${saved.length !== 1 ? 's' : ''}</div>
+            </div>
+            ${saved.length > 0 ? `<button onclick="if(confirm('Clear all saved insights?')){localStorage.removeItem('stratos_saved_insights');_ykbRenderSavedInsights();}" style="padding:5px 10px;border-radius:6px;font-size:10px;border:1px solid rgba(239,68,68,0.15);background:rgba(239,68,68,0.06);color:#f87171;cursor:pointer;">Clear All</button>` : ''}
+            <button onclick="document.getElementById('ykb-saved-panel').remove()" style="background:none;border:none;color:var(--text-muted,#64748b);cursor:pointer;font-size:20px;line-height:1;padding:4px;">&times;</button>
+        </div>
+        <div style="padding:14px 18px;overflow-y:auto;flex:1;">
+            ${listHtml}
+        </div>
+    </div>`;
+
+    document.body.appendChild(modal);
+    if (typeof lucide !== 'undefined') lucide.createIcons();
 }
