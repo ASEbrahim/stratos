@@ -925,6 +925,16 @@ def migration_030(cursor):
             pass  # column already exists
 
 
+@migration
+def migration_031(cursor):
+    """Add narration_style to character_cards (full/cinematic/script)."""
+    _safe_table('character_cards')
+    try:
+        cursor.execute("ALTER TABLE character_cards ADD COLUMN narration_style TEXT DEFAULT NULL")
+    except Exception:
+        pass  # column already exists
+
+
 # =========================================================================
 # Migration runner
 # =========================================================================

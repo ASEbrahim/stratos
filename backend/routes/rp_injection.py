@@ -61,6 +61,13 @@ def _build_turn_injection(history: list, card: dict, content: str,
     # ── Archetype-specific format rotation ──
     format_hint = _get_archetype_format(user_turn, personality_text)
 
+    # ── Narration style constraint (separate from narration_pov which is about person) ──
+    narration_style = card.get('narration_style') if card else None
+    if narration_style == 'cinematic':
+        format_hint += ' NARRATION RULE: *actions* and "dialogue" ONLY. No internal monologue, no narrator voice, no plain prose.'
+    elif narration_style == 'script':
+        format_hint += ' NARRATION RULE: Dialogue is primary. Minimal *action* beats. No internal monologue. What is SAID and DONE, not thought.'
+
     # ── Archetype-aware dialogue tone progression ──
     dialogue_tone = _get_dialogue_tone(user_turn, personality_text, content)
 
