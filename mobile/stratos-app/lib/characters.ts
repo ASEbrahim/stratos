@@ -155,3 +155,11 @@ export async function getMyCharacters(): Promise<CharacterCard[]> {
     return mockLibrary;
   }
 }
+
+export async function deleteCharacter(cardId: string): Promise<void> {
+  if (USE_MOCKS) {
+    mockLibrary = mockLibrary.filter(c => c.id !== cardId);
+    return;
+  }
+  await apiFetch(`/api/cards/${cardId}`, { method: 'DELETE' });
+}

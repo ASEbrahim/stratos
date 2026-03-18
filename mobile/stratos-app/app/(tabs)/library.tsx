@@ -11,7 +11,7 @@ import { reportError } from '../../lib/utils';
 import { useChatStore } from '../../stores/chatStore';
 import { CharacterCardComponent } from '../../components/cards/CharacterCard';
 import { EmptyState } from '../../components/shared/EmptyState';
-import { ChatSession } from '../../lib/types';
+import { ChatSession, CharacterCard } from '../../lib/types';
 import { useThemeStore } from '../../stores/themeStore';
 import { typography, spacing, borderRadius } from '../../constants/theme';
 import { fonts } from '../../constants/fonts';
@@ -21,7 +21,7 @@ export default function LibraryScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const tc = useThemeStore(s => s.colors);
-  const { myCards, savedCards, loadMyCards, loadSaved } = useCharacterStore();
+  const { myCards, savedCards, loadMyCards, loadSaved, deleteMyCard } = useCharacterStore();
   const { recentSessions, loadRecentSessions, resumeSession } = useChatStore();
   const [tab, setTab] = useState<'mine' | 'saved' | 'history'>('mine');
   const [refreshing, setRefreshing] = useState(false);
@@ -57,6 +57,19 @@ export default function LibraryScreen() {
           await deleteChatSession(session.id);
           loadRecentSessions();
         } catch (err) { reportError('LibraryScreen:deleteSession', err); Alert.alert('Error', 'Failed to delete session.'); }
+      }},
+    ]);
+  };
+
+  const handleDeleteCard = (card: CharacterCard) => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    Alert.alert('Delete Character', `Delete "${card.name}"? This cannot be undone.`, [
+      { text: 'Cancel', style: 'cancel' },
+      { text: 'Delete', style: 'destructive', onPress: async () => {
+        try {
+          await deleteMyCard(card.id);
+          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+        } catch (err) { reportError('LibraryScreen:deleteCard', err); Alert.alert('Error', 'Failed to delete character.'); }
       }},
     ]);
   };
@@ -121,7 +134,22 @@ export default function LibraryScreen() {
         cards.length === 0 ? (
           <EmptyState title={tab === 'mine' ? 'No characters yet' : 'No saved characters'} subtitle={tab === 'mine' ? 'Create your first character!' : 'Browse and save from Discover.'} />
         ) : (
-          <ScrollView contentContainerStyle={styles.grid} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={tc.accent.primary} />}>{cards.map(c => <CharacterCardComponent key={c.id} card={c} />)}</ScrollView>
+          <ScrollView contentContainerStyle={styles.grid} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={tc.accent.primary} />}>{cards.map(c => (
+            <View key={c.id} style={{ position: 'relative' }}>
+              <CharacterCardComponent card={c} />
+              {tab === 'mine' && (
+                <TouchableOpacity
+                  style={{ position: 'absolute', top: 6, right: 6, padding: 4, backgroundColor: 'rgba(0,0,0,0.5)', borderRadius: 12 }}
+                  onPress={() => handleDeleteCard(c)}
+                  hitSlop={8}
+                  accessibilityLabel={`Delete ${c.name}`}
+                  accessibilityRole="button"
+                >
+                  <Trash2 size={12} color="#f87171" />
+                </TouchableOpacity>
+              )}
+            </View>
+          ))}</ScrollView>
         )
       )}
     </View>

@@ -26,7 +26,7 @@ export default function DiscoverScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const { colors: tc, themeId, setTheme } = useThemeStore();
-  const { trending, newCards, selectedGenre, searchResults, isLoading, loadTrending, loadNew, setGenre, search } = useCharacterStore();
+  const { trending, newCards, selectedGenre, searchResults, isLoading, isLoadingMore, hasMore, loadTrending, loadNew, loadMore, setGenre, search } = useCharacterStore();
   const { recentSessions, loadRecentSessions, resumeSession } = useChatStore();
   const [scenarios, setScenarios] = useState<GamingScenario[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -49,9 +49,9 @@ export default function DiscoverScreen() {
   const filterNsfw = (cards: typeof newCards) => nsfwFilter ? cards.filter(c => c.content_rating !== 'nsfw') : cards;
   const sortCards = (cards: typeof newCards) => {
     const sorted = [...cards];
-    if (sortBy === 'popular') sorted.sort((a, b) => b.session_count - a.session_count);
+    if (sortBy === 'popular') sorted.sort((a, b) => (b.session_count - a.session_count) || (b.rating - a.rating) || (new Date(b.created_at).getTime() - new Date(a.created_at).getTime()));
     else if (sortBy === 'newest') sorted.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
-    else if (sortBy === 'rating') sorted.sort((a, b) => b.rating - a.rating);
+    else if (sortBy === 'rating') sorted.sort((a, b) => (b.rating - a.rating) || (b.rating_count - a.rating_count) || (b.session_count - a.session_count));
     return sorted;
   };
   const displayCards = useMemo(() => sortCards(filterNsfw(searchQuery.trim() ? searchResults : (selectedGenre ? newCards.filter(c => c.genre_tags.includes(selectedGenre)) : newCards))), [searchQuery, searchResults, selectedGenre, newCards, sortBy, nsfwFilter]);
@@ -60,7 +60,14 @@ export default function DiscoverScreen() {
     <View style={[styles.container, { paddingTop: insets.top, backgroundColor: tc.bg.primary }]}>
       <StarParallaxBg />
       <ScrollView ref={scrollRef} style={styles.scroll} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={tc.accent.primary} />}
-        onScroll={(e) => setShowScrollTop(e.nativeEvent.contentOffset.y > 600)}
+        onScroll={(e) => {
+          setShowScrollTop(e.nativeEvent.contentOffset.y > 600);
+          // Infinite scroll: load more when near bottom
+          const { layoutMeasurement, contentOffset, contentSize } = e.nativeEvent;
+          if (layoutMeasurement.height + contentOffset.y >= contentSize.height - 400 && !searchQuery.trim() && sortBy !== 'gaming') {
+            loadMore();
+          }
+        }}
         scrollEventThrottle={200}>
         <Animated.View entering={FadeInDown.duration(400).springify().damping(16)} style={styles.brandRow}>
           {THEMES.slice(0, 2).map(t => {
@@ -138,11 +145,23 @@ export default function DiscoverScreen() {
             <Text style={[styles.emptySubtitle, { color: tc.text.muted }]}>{searchQuery.trim() ? 'Try a different search term or browse by genre' : selectedGenre ? 'Be the first to create one!' : 'Characters will appear here'}</Text>
           </View>
         ) : (
-          <View style={styles.grid}>{displayCards.map((c, idx) => (
-            <Animated.View key={c.id} entering={FadeInDown.delay(idx * 50).duration(300).springify().damping(20)}>
-              <CharacterCardComponent card={c} featured={idx === 0 && !searchQuery.trim() && !selectedGenre} />
-            </Animated.View>
-          ))}</View>
+          <>
+            <View style={styles.grid}>{displayCards.map((c, idx) => (
+              <Animated.View key={c.id} entering={idx < 20 ? FadeInDown.delay(idx * 50).duration(300).springify().damping(20) : undefined}>
+                <CharacterCardComponent card={c} featured={idx === 0 && !searchQuery.trim() && !selectedGenre} />
+              </Animated.View>
+            ))}</View>
+            {isLoadingMore && (
+              <View style={{ paddingVertical: spacing.lg, alignItems: 'center' }}>
+                <Text style={{ color: tc.text.muted, fontSize: 12 }}>Loading more...</Text>
+              </View>
+            )}
+            {!hasMore && displayCards.length > 0 && (
+              <View style={{ paddingVertical: spacing.md, alignItems: 'center' }}>
+                <Text style={{ color: tc.text.muted, fontSize: 11 }}>That's everything</Text>
+              </View>
+            )}
+          </>
         )}
         <View style={{ height: spacing.xxl }} />
       </ScrollView>
