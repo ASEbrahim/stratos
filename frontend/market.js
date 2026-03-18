@@ -1122,6 +1122,9 @@ function renderMarketOverview() {
 
     html += '</div>';
     container.innerHTML = html;
+
+    // Notify markets panel that data has refreshed
+    try { window.dispatchEvent(new CustomEvent('stratos-market-data-refreshed')); } catch(e) {}
 }
 
 // ═══════════════════════════════════════════════════════════

@@ -1916,6 +1916,19 @@ function mpToggleMobileCompact() {
     }, 150);
 }
 
+// ═══════════════════════════════════════════════════════════
+// SYNC — refresh markets panel when market data updates
+// ═══════════════════════════════════════════════════════════
+
+window.addEventListener('stratos-market-data-refreshed', function() {
+    // Only refresh if the markets panel is visible (has charts loaded)
+    if (_mpCharts.length > 0) {
+        _mpRefreshAll();
+        _mpRenderOverview();
+        _mpRenderNews();
+    }
+});
+
 // Restore saved compact mode on init
 (function() {
     if (window.innerWidth <= 768 && localStorage.getItem('mp_mobile_compact') === '1') {
