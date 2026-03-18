@@ -59,16 +59,15 @@ def _generate_suggestions(handler, ollama_host, model, user_msg, agent_response,
                                          rp_mode, active_scenario, active_npc)
             return
 
-        context_hint = ''
         prompt = (
-            f"Based on this conversation, suggest 3 short follow-up actions (3-8 words each). "
-            f"They should feel like natural continuations.\n\n"
+            f"Generate 3 follow-up questions (3-8 words each) that build on what was just discussed "
+            f"in this specific conversation. Do NOT generate generic topic suggestions. "
+            f"Each suggestion should deepen or branch the current discussion.\n\n"
             f"User: {user_msg[:200]}\n"
             f"Assistant: {agent_response[:500]}\n"
-            f"Persona: {persona_name}\n"
-            f"{context_hint}\n\n"
+            f"Persona: {persona_name}\n\n"
             f"Return ONLY a JSON array of 3 strings. No explanation.\n"
-            f'Example: ["Explore the dark corridor", "Ask about the ancient relic", "Check my character stats"]'
+            f'Example: ["What does this mean for Q2 earnings?", "How does this compare to last month?", "Which sectors are most affected?"]'
         )
         r = req.post(
             f"{ollama_host}/api/chat",
@@ -300,6 +299,7 @@ def handle_agent_chat(handler, strat, output_file, profile_id=0):
         npc_memory = body.get("npc_memory", "")
         free_length = body.get("free_length", False)
         use_all_scans = body.get("use_all_scans", False)
+        inject_signals = body.get("inject_signals", True)  # Signal injection toggle
         # Support single persona or multi-persona querying
         personas_param = body.get("personas", body.get("persona", "intelligence"))
         if isinstance(personas_param, list) and len(personas_param) > 1:
@@ -414,11 +414,14 @@ def handle_agent_chat(handler, strat, output_file, profile_id=0):
                 rp_mode=rp_mode, active_npc=active_npc,
                 npc_personality=npc_personality, npc_memory=npc_memory
             )
-            persona_context = build_persona_context(
-                persona_name, strat, output_file, profile_id,
-                user_message=user_msg, rp_mode=rp_mode, active_npc=active_npc,
-                use_all_scans=use_all_scans
-            )
+            if inject_signals:
+                persona_context = build_persona_context(
+                    persona_name, strat, output_file, profile_id,
+                    user_message=user_msg, rp_mode=rp_mode, active_npc=active_npc,
+                    use_all_scans=use_all_scans
+                )
+            else:
+                persona_context = ""
             system_prompt = base_prompt
             if persona_context:
                 system_prompt += f"\n\n{persona_context}"

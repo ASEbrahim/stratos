@@ -14,6 +14,7 @@ let _personaSuggestions = {};  // Per-persona dynamic suggestion cache
 try { _personaSuggestions = JSON.parse(localStorage.getItem('stratos_persona_suggestions') || '{}'); } catch(e) {}
 let _agentFreeLength = false;  // Extended response mode
 let _agentAllScans = false;    // Use all stored scan data vs current only
+let _agentInjectSignals = true; // Signal injection toggle (feed data in context)
 
 // ── Conversation management (DB-backed via /api/conversations) ──
 let _agentConvList = [];       // [{id, persona, title, is_active, message_count, ...}]
@@ -107,6 +108,19 @@ function _toggleAllScans() {
     }
 }
 window._toggleAllScans = _toggleAllScans;
+
+function _toggleSignalInjection() {
+    _agentInjectSignals = !_agentInjectSignals;
+    window._agentInjectSignals = _agentInjectSignals;
+    const btn = document.getElementById('agent-signal-toggle-btn');
+    if (btn) {
+        btn.textContent = _agentInjectSignals ? 'Signals: ON' : 'Signals: OFF';
+        btn.style.background = _agentInjectSignals ? 'rgba(251,191,36,0.12)' : 'rgba(255,255,255,0.03)';
+        btn.style.color = _agentInjectSignals ? '#fbbf24' : 'var(--text-muted)';
+        btn.style.borderColor = _agentInjectSignals ? 'rgba(251,191,36,0.3)' : 'rgba(255,255,255,0.1)';
+    }
+}
+window._toggleSignalInjection = _toggleSignalInjection;
 
 async function newAgentChat() {
     if (agentStreaming) return;
@@ -1400,6 +1414,7 @@ async function sendAgentMessage() {
                 ...(selectedPersonas.length > 1 ? { personas: selectedPersonas } : {}),
                 ...(_agentFreeLength ? { free_length: true } : {}),
                 ...(_agentAllScans ? { use_all_scans: true } : {}),
+                ...(!_agentInjectSignals ? { inject_signals: false } : {}),
                 ...(currentPersona === 'gaming' && typeof _gamesGetState === 'function' ? {
                     rp_mode: _gamesGetState().rpMode,
                     active_npc: _gamesGetState().activeNpc,

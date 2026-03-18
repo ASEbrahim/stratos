@@ -42,9 +42,35 @@ def _build_news_context(strat, output_file: str, include_market: bool = True) ->
         lines = []
         for it in top:
             try:
+                # Article age label
+                age_label = ""
+                fetched = it.get('fetched_at') or it.get('timestamp') or ''
+                if fetched:
+                    try:
+                        from datetime import datetime, timezone
+                        if isinstance(fetched, str):
+                            ft = datetime.fromisoformat(fetched.replace('Z', '+00:00'))
+                        else:
+                            ft = fetched
+                        now = datetime.now(timezone.utc) if ft.tzinfo else datetime.now()
+                        delta = now - ft
+                        hours = delta.total_seconds() / 3600
+                        if hours < 1:
+                            age_label = "just now"
+                        elif hours < 24:
+                            age_label = f"{int(hours)}h ago"
+                        elif hours < 48:
+                            age_label = "yesterday"
+                        elif hours < 168:
+                            age_label = f"{int(hours/24)}d ago"
+                        else:
+                            age_label = f"{int(hours/168)}w ago"
+                    except Exception:
+                        pass
+                age_str = f" [{age_label}]" if age_label else ""
                 lines.append(
-                    f"[{float(it.get('score',0)):.1f}] {it.get('title','')} "
-                    f"({it.get('source','')}, {it.get('category',it.get('root',''))}) "
+                    f"[{float(it.get('score',0)):.1f}]{age_str} {it.get('title','')} "
+                    f"(source: {it.get('source','')}, {it.get('category',it.get('root',''))}) "
                     f"— {str(it.get('summary',''))[:200]}"
                 )
             except Exception as e:
@@ -676,7 +702,7 @@ def _get_recent_feed(strat, profile_id: int, limit: int = 10) -> str:
     try:
         cursor = strat.db.conn.cursor()
         cursor.execute(
-            "SELECT title, score, source, category FROM news_items "
+            "SELECT title, score, source, category, fetched_at FROM news_items "
             "WHERE profile_id = ? AND fetched_at > datetime('now', '-1 day') "
             "ORDER BY score DESC LIMIT ?",
             (profile_id, limit)
@@ -686,7 +712,21 @@ def _get_recent_feed(strat, profile_id: int, limit: int = 10) -> str:
             return ""
         lines = ["## Recent Feed Intelligence (last 24h)"]
         for a in articles:
-            lines.append(f"- [{a['score']:.1f}] {a['title']} ({a['source']}, {a['category']})")
+            # Age label
+            age = ""
+            fa = a.get('fetched_at', '')
+            if fa:
+                try:
+                    from datetime import datetime
+                    ft = datetime.fromisoformat(str(fa))
+                    hours = (datetime.now() - ft).total_seconds() / 3600
+                    if hours < 1: age = "just now"
+                    elif hours < 24: age = f"{int(hours)}h ago"
+                    else: age = f"{int(hours/24)}d ago"
+                except Exception:
+                    pass
+            age_str = f" [{age}]" if age else ""
+            lines.append(f"- [{a['score']:.1f}]{age_str} {a['title']} (source: {a['source']}, {a['category']})")
         return "\n".join(lines)
     except Exception as e:
         logger.debug(f"Recent feed load failed: {e}")
