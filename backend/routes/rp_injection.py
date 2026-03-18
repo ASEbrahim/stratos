@@ -93,6 +93,12 @@ def _build_turn_injection(history: list, card: dict, content: str,
         else:
             length_hint = "LENGTH: Match the user's brevity."
 
+    # ── Gagged/silenced speech detection ──
+    gag_hint = ""
+    gag_patterns = re.compile(r'\b(cover(?:s|ed)? (?:her|his|their) mouth|gag(?:s|ged)?|muffle|shut (?:her|his|their) mouth|hand over (?:her|his|their) mouth|clamp(?:s|ed)? (?:her|his|their) mouth)\b', re.I)
+    if gag_patterns.search(content):
+        gag_hint = "CHARACTER CANNOT SPEAK clearly. Only muffled sounds ('mmph', 'nngh'), body language, and internal thoughts. NO clear dialogue this turn."
+
     # ── Intensity length ceiling ──
     if not length_hint:
         is_erp = bool(_ERP_PATTERNS.search(content))
@@ -181,6 +187,8 @@ def _build_turn_injection(history: list, card: dict, content: str,
     inject_parts = []
     if dedup_hint:
         inject_parts.append(dedup_hint)
+    if gag_hint:
+        inject_parts.append(gag_hint)
     if goal_hint:
         inject_parts.append(goal_hint)
     if situation_parts:

@@ -142,6 +142,41 @@ Return ONLY valid JSON with these keys (1-2 sentences each, vivid and specific):
         if updates:
             updates["quality_elements_count"] = calculate_quality_elements({**updates})
             db.update_character_card(card_id, **updates)
+
+        # ── Generate example dialogues if missing (anchors character voice) ──
+        card_row = db.get_character_card(card_id)
+        if card_row and not card_row.get('example_dialogues', '').strip():
+            speech = card_row.get('speech_pattern', '') or ''
+            dlg_prompt = f"""Write 2-3 short example dialogue exchanges for this character. Show how they talk, their personality through speech and actions.
+
+Character: {name}
+Personality: {personality}
+Speech style: {speech[:200]}
+{rating_note}
+
+Format each exchange with <START> separator:
+<START>
+User: [a greeting or question]
+{name}: [response showing personality through *actions* and "dialogue"]
+<START>
+User: [something that challenges or surprises the character]
+{name}: [response showing how they handle pressure]
+
+Write ONLY the exchanges. No explanation."""
+
+            try:
+                r2 = req.post(f"{OLLAMA_HOST}/api/generate", json={
+                    "model": "qwen3.5:9b", "prompt": dlg_prompt, "stream": False,
+                    "options": {"temperature": 0.6, "num_predict": 400},
+                    "think": False,
+                }, timeout=45)
+                if r2.status_code == 200:
+                    dlg_text = r2.json().get("response", "").strip()
+                    if dlg_text and len(dlg_text) > 50 and "<START>" in dlg_text:
+                        db.update_character_card(card_id, example_dialogues=dlg_text[:2000])
+                        logger.info(f"Auto-generated example dialogues for '{name}'")
+            except Exception as e2:
+                logger.warning(f"Example dialogue generation failed for '{name}': {e2}")
             logger.info(f"Auto-enriched card '{name}': filled {list(updates.keys())}")
 
     except Exception as e:
