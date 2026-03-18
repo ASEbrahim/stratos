@@ -438,3 +438,116 @@ async function _gamesDeleteEntity(name) {
     }
 }
 window._gamesDeleteEntity = _gamesDeleteEntity;
+
+// ═══════════════════════════════════════════════════════════
+// GAME-04: Interactive Stat Display
+// ═══════════════════════════════════════════════════════════
+
+let _gsStylesInjected = false;
+
+function _injectGameStatStyles() {
+    if (_gsStylesInjected) return;
+    _gsStylesInjected = true;
+    const style = document.createElement('style');
+    style.textContent = `
+        .gs-block{background:var(--bg-panel,rgba(255,255,255,0.03));border:1px solid var(--border-strong,#333);border-radius:12px;padding:12px 14px;margin:8px 0;font-family:inherit}
+        .gs-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:8px}
+        .gs-row:last-child{margin-bottom:0}
+        .gs-hp-wrap{flex:1;min-width:160px}
+        .gs-hp-label{font-size:11px;font-weight:600;color:var(--text-heading,#fff);margin-bottom:3px;display:flex;justify-content:space-between}
+        .gs-hp-bar{height:8px;border-radius:4px;background:rgba(255,255,255,0.08);overflow:hidden}
+        .gs-hp-fill{height:100%;border-radius:4px;transition:width .3s ease}
+        .gs-stat-card{display:inline-flex;flex-direction:column;align-items:center;padding:6px 12px;border-radius:8px;border:1px solid var(--border-strong,#333);background:rgba(255,255,255,0.02);min-width:48px}
+        .gs-stat-icon{font-size:14px;line-height:1}
+        .gs-stat-label{font-size:9px;color:var(--text-muted,#888);margin-top:2px}
+        .gs-stat-value{font-size:13px;font-weight:700;color:var(--text-heading,#fff)}
+        .gs-inv-label{font-size:11px;font-weight:600;color:var(--text-heading,#fff);margin-bottom:4px}
+        .gs-inv-pills{display:flex;flex-wrap:wrap;gap:4px}
+        .gs-inv-pill{padding:3px 10px;border-radius:6px;font-size:10px;background:rgba(244,114,182,0.08);border:1px solid rgba(244,114,182,0.2);color:var(--accent,#f472b6)}
+    `;
+    document.head.appendChild(style);
+}
+
+/**
+ * Parse emoji stat blocks from agent responses and replace with styled HTML cards.
+ * Detects patterns like: ❤️ HP: 50/50 | ⚔ ATK: 4 | 🛡 DEF: 2
+ * and: 📦 Inventory: Wooden Sword, Leather Armor
+ *
+ * @param {string} html — The agent response HTML
+ * @returns {string} — HTML with stat blocks replaced by styled cards
+ */
+function formatGameStats(html) {
+    if (!html || typeof html !== 'string') return html;
+
+    // Pattern: line containing emoji stat blocks separated by |
+    // Matches lines like: ❤️ HP: 50/50 | ⚔ ATK: 4 | 🛡 DEF: 2
+    const statLineRegex = /^([^\n]*(?:❤️?|❤)\s*HP\s*:\s*(\d+)\s*\/\s*(\d+)\s*\|.+)$/gm;
+    // Inventory line: 📦 Inventory: item1, item2, ...
+    const invLineRegex = /^([^\n]*📦\s*Inventory\s*:\s*(.+))$/gm;
+
+    let hasStats = statLineRegex.test(html) || invLineRegex.test(html);
+    if (!hasStats) return html;
+
+    _injectGameStatStyles();
+
+    // Reset regex lastIndex after test
+    statLineRegex.lastIndex = 0;
+    invLineRegex.lastIndex = 0;
+
+    // Replace stat lines
+    html = html.replace(statLineRegex, function (match, fullLine, hpCur, hpMax) {
+        const cur = parseInt(hpCur, 10);
+        const max = parseInt(hpMax, 10);
+        const pct = max > 0 ? Math.min(100, Math.round((cur / max) * 100)) : 0;
+
+        // HP bar color: green > 60%, yellow > 30%, red <= 30%
+        let hpColor = '#4ade80';
+        if (pct <= 30) hpColor = '#f87171';
+        else if (pct <= 60) hpColor = '#fbbf24';
+
+        // Extract other stats from the line (ATK, DEF, etc.)
+        const statParts = fullLine.split('|').slice(1); // skip HP part
+        const statCards = statParts.map(function (part) {
+            const trimmed = part.trim();
+            // Match: emoji LABEL: VALUE
+            const m = trimmed.match(/^([^\w]*)\s*(\w+)\s*:\s*(.+)$/);
+            if (!m) return '';
+            const icon = m[1].trim() || '';
+            const label = m[2].trim();
+            const value = m[3].trim();
+            return `<div class="gs-stat-card">
+                <span class="gs-stat-icon">${_escHtmlG(icon)}</span>
+                <span class="gs-stat-value">${_escHtmlG(value)}</span>
+                <span class="gs-stat-label">${_escHtmlG(label)}</span>
+            </div>`;
+        }).filter(Boolean).join('');
+
+        return `<div class="gs-block">
+            <div class="gs-row">
+                <div class="gs-hp-wrap">
+                    <div class="gs-hp-label"><span>HP</span><span>${cur}/${max}</span></div>
+                    <div class="gs-hp-bar"><div class="gs-hp-fill" style="width:${pct}%;background:${hpColor}"></div></div>
+                </div>
+            </div>
+            ${statCards ? `<div class="gs-row">${statCards}</div>` : ''}
+        </div>`;
+    });
+
+    // Replace inventory lines
+    html = html.replace(invLineRegex, function (match, fullLine, items) {
+        const itemList = items.split(',').map(function (item) {
+            const trimmed = item.trim();
+            if (!trimmed) return '';
+            return `<span class="gs-inv-pill">${_escHtmlG(trimmed)}</span>`;
+        }).filter(Boolean).join('');
+
+        return `<div class="gs-block">
+            <div class="gs-inv-label">Inventory</div>
+            <div class="gs-inv-pills">${itemList}</div>
+        </div>`;
+    });
+
+    return html;
+}
+
+window.formatGameStats = formatGameStats;
