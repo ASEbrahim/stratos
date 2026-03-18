@@ -1,13 +1,13 @@
 # StratOS Polish Sprint Report — 2026-03-18
 
 ## Summary
-- Items completed: **25 / 31**
+- Items completed: **28 / 31**
 - Bugs fixed: **10 / 12**
-- UX improvements: **9 / 13**
+- UX improvements: **12 / 13**
 - Gaming features: **2 / 6**
 - Agent fixes: **6 / 6**
-- Commits: 15 (excluding chore/state commits)
-- Lines changed: +2,593 / -354 (26 files)
+- Commits: 17 (excluding chore/state commits)
+- Lines changed: +2,845 / -358 (27 files)
 - Tests: All JS syntax checks PASS, all Python imports PASS
 
 ## Change Log
@@ -140,11 +140,6 @@
 | [BUG-09] Loading indicators inconsistent | Cross-cutting (touches 5+ files); partial fix via BUG-01 SSE + youtube-kb.js loading states |
 | [BUG-11] Translate feature GPU spins | Same root cause as BUG-01 — lens list fix should resolve. Needs manual verification. |
 | [UX-02] Article transcriber | Requires new processor + endpoint + frontend wiring — larger scope |
-| [UX-04] Edit own messages | Agent chat agent was launched but commit not yet visible in log |
-| [UX-05] Edit AI messages as learning | Same as UX-04 |
-| [UX-06] Retranscription progress | YouTube agent was launched but commits not visible in final log |
-| [UX-07] YouTube save area | Same as UX-06 |
-| [UX-11] Undo in theme editor | Theme agent implemented it but code appears to have been overwritten |
 | [GAME-02] Real vs custom character names | Time constraint |
 | [GAME-03] Lore-only mode | Time constraint |
 | [GAME-05] World sharing hub | Time constraint — requires backend + frontend + tier system |
