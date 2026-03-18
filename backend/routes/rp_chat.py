@@ -393,9 +393,12 @@ def _build_system_prompt(card: dict = None, director_note: str = None,
 
         # Gender — pill field takes priority, fall back to word-scan
         gender = card.get('gender')
-        if gender:
-            gender_labels = {'female': '(female, use she/her)', 'male': '(male, use he/him)', 'nonbinary': '(non-binary, use they/them)'}
-            prompt += f" {gender_labels.get(gender, '')}"
+        if gender == 'female':
+            prompt += f"\nThis character is FEMALE. ALWAYS use she/her pronouns in narration. NEVER use he/him."
+        elif gender == 'male':
+            prompt += f"\nThis character is MALE. ALWAYS use he/him pronouns in narration. NEVER use she/her."
+        elif gender == 'nonbinary':
+            prompt += f"\nThis character is NON-BINARY. ALWAYS use they/them pronouns in narration. NEVER use he/him or she/her."
         else:
             desc_text = (card.get('physical_description', '') + ' ' + card.get('personality', '')).lower()
             if any(w in desc_text for w in ['she ', 'her ', 'woman', 'female', 'girl', 'mother', 'sister', 'wife', 'goddess', 'queen', 'princess']):
@@ -458,12 +461,12 @@ def _build_system_prompt(card: dict = None, director_note: str = None,
         if card.get('example_dialogues'):
             prompt += f"\nExample dialogue (match this voice):\n{card['example_dialogues']}"
 
-        # POV / Narration style — pill field
+        # POV / Narration style — pill field (strong directive)
         pov = card.get('narration_pov')
         if pov == 'first':
-            prompt += "\nWrite ALL narration in first person (I/my/me). Never use third person for this character."
+            prompt += "\nNARRATION RULE: Write ALL actions and narration in first person (I/my/me). Example: *I adjust my glasses* NOT *She adjusts her glasses*. This is mandatory."
         elif pov == 'third':
-            prompt += "\nWrite ALL narration in third person (she/he/they). Never use first person for this character."
+            prompt += "\nNARRATION RULE: Write ALL actions and narration in third person. Example: *She adjusts her glasses* NOT *I adjust my glasses*. NEVER use 'I' in narration. This is mandatory."
         # 'mixed' or NULL = let the model decide
 
     # Tone anchor — compact
