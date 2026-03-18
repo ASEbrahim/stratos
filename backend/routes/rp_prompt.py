@@ -312,8 +312,12 @@ def _build_system_prompt(card: dict = None, director_note: str = None,
         if speech:
             prompt += f"\nSpeech: {speech}"
 
-        if card.get('scenario'):
-            prompt += f"\nScenario (you are HERE — reference this setting in your responses): {card['scenario']}"
+        # Scenario is injected via per-turn SETTING hint (rp_injection.py) at optimal
+        # depth (right above recent messages = strongest attention). NOT here in the
+        # system prompt (top = weakest attention on 9B models).
+        # Only inject scenario here for first turn (before injection system fires)
+        if card.get('scenario') and not first_message:
+            prompt += f"\nScenario: {card['scenario']}"
 
         # Relationship to user — pill field
         relationship = card.get('relationship_to_user')
