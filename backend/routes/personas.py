@@ -1089,8 +1089,12 @@ def build_persona_context(persona: str, strat, output_file: str,
 
 
 def list_personas() -> List[Dict[str, str]]:
-    """List all available personas with their greetings."""
+    """List all available personas with their greetings.
+    'roleplay' is excluded — it's a mobile-only persona consumed via /api/rp/chat,
+    not through the web agent picker."""
+    _HIDDEN = {'roleplay'}
     return [
         {'name': name, 'greeting': PERSONA_GREETINGS.get(name, '')}
         for name in PERSONA_TOOLS.keys()
+        if name not in _HIDDEN
     ]
