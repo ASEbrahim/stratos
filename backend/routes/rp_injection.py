@@ -173,7 +173,8 @@ def _build_turn_injection(history: list, card: dict, content: str,
         inject_parts.append(scenario_reminder)
     if callback_hint:
         inject_parts.append(callback_hint)
-    inject_parts.append(f"FORMAT: {format_hint}")
+    format_preamble = '*asterisks* for ALL actions/narration. "quotes" for ALL speech. Never use asterisks for dialogue. Never use bare prose for actions.'
+    inject_parts.append(f"FORMAT: {format_preamble} This turn: {format_hint}")
     inject_parts.append(f"DIALOGUE TONE: {dialogue_tone}")
     if length_hint:
         inject_parts.append(length_hint)
