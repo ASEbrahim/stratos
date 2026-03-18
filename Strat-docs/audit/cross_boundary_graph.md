@@ -1,159 +1,180 @@
-# Cross-Boundary Dependency Graph — StratOS (2026-03-18)
+# Cross-Boundary Dependency Graph & Isolation Groups
+## Generated: 2026-03-18 (Session 2 — post-pill-implementation)
 
-## 1. Endpoint Cross-Reference
+---
 
-| Endpoint | Method | Backend File | Frontend Consumer(s) |
-|----------|--------|-------------|---------------------|
-| /api/config | GET | data_endpoints.py | app.js, settings.js, agent.js, markets-panel.js, feed.js (20+) |
-| /api/config | POST | config.py | settings.js, tts-settings.js, feed.js, agent-tickers.js, app.js |
-| /api/data | GET | data_endpoints.py | app.js (main dashboard load) |
-| /api/briefing | GET | data_endpoints.py | app.js (briefing panel) |
-| /api/status | GET | data_endpoints.py | app.js, markets-panel.js |
-| /api/agent-chat | POST | agent.py | agent.js, markets-panel.js, fullscreen-chart.js |
-| /api/agent-status | GET | data_endpoints.py | agent.js, stt.js |
-| /api/saved-signals | GET | data_endpoints.py | app.js |
-| /api/unsave-signal | POST | data_endpoints.py | app.js |
-| /api/feedback | POST | data_endpoints.py | app.js, ui.js |
-| /api/ui-state | GET/POST | data_endpoints.py | ui-sync.js |
-| /api/market-tick | GET | controls.py | markets-panel.js, fullscreen-chart.js |
-| /api/refresh | GET | controls.py | app.js |
-| /api/refresh-market | GET | controls.py | app.js |
-| /api/refresh-news | GET | controls.py | app.js |
-| /api/scan/status | GET | controls.py | app.js |
-| /api/scan/cancel | POST | controls.py | app.js |
-| /api/agent-warmup | POST | controls.py | app.js |
-| /api/ticker-presets | GET/POST | controls.py | settings-tickers.js |
-| /api/youtube/channels | GET/POST | youtube_endpoints.py | youtube.js, youtube-kb.js |
-| /api/youtube/videos/{id} | GET | youtube_endpoints.py | youtube-kb.js |
-| /api/youtube/insights/{id} | GET | youtube_endpoints.py | youtube.js, youtube-kb.js |
-| /api/youtube/extract-lens | POST | youtube_endpoints.py | youtube.js, youtube-kb.js |
-| /api/youtube/retranscribe | POST | youtube_endpoints.py | youtube.js, youtube-kb.js |
-| /api/youtube/translate-transcript | POST | youtube_endpoints.py | youtube.js, youtube-kb.js |
-| /api/feed-catalog/{type} | GET | feeds.py | feed.js, settings-sources.js |
-| /api/finance-news | GET | feeds.py | app.js (extra feeds) |
-| /api/politics-news | GET | feeds.py | app.js (extra feeds) |
-| /api/jobs-news | GET | feeds.py | app.js (extra feeds) |
-| /api/custom-news | GET | feeds.py | app.js (extra feeds) |
-| /api/discover-rss | POST | feeds.py | settings-sources.js |
-| /api/conversations | GET/POST/PUT/DELETE | persona_data.py | agent.js |
-| /api/persona-context | GET/POST | persona_data.py | persona-context.js |
-| /api/scenarios | GET/POST | persona_data.py | games-ui.js |
-| /api/preference-signals | GET/DELETE | persona_data.py | workspace.js |
-| /api/generate-profile | POST | generate.py | wizard.js, settings.js |
-| /api/wizard-preselect | POST | wizard.py | wizard.js |
-| /api/wizard-tab-suggest | POST | wizard.py | wizard.js |
-| /api/wizard-rv-items | POST | wizard.py | wizard.js |
-| /api/rp/chat | POST | rp_chat.py | agent.js (gaming mode), mobile chat.ts |
-| /api/rp/regenerate | POST | rp_chat.py | mobile rp.ts |
-| /api/rp/edit | POST | rp_chat.py | agent.js, mobile rp.ts |
-| /api/rp/history/{sid} | GET | rp_chat.py | mobile rp.ts |
-| /api/cards | POST/GET/PUT/DELETE | character_cards.py | mobile (card library) |
-| /api/cards/import/tavern | POST | character_cards.py | mobile (import) |
-| /api/image/generate | POST | image_gen.py | image-gen.js, mobile rp.ts |
-| /api/image/gallery | GET | image_gen.py | image-gen.js |
-| /api/tts | POST | media.py | agent.js (TTS playback) |
-| /api/tts/voices | GET | media.py | tts-settings.js |
-| /api/tts/status | GET | media.py | tts-settings.js |
-| /api/stt | POST | media.py | stt.js |
-| /api/proxy | GET | media.py | feed.js (image proxying) |
-| /api/persona-files | GET | media.py | file-browser.js |
-| /api/files/upload | POST | media.py | file-browser.js, agent.js |
-| /api/profiles | GET/POST/DELETE | auth.py | settings.js, auth.js |
-| /api/auth/* | POST | auth.py | auth.js |
-| /api/events | GET | server.py | app.js (SSE connection) |
+## SCOPE BOUNDARY (CRITICAL)
 
-## 2. SSE Event Wiring
+**StratOS Web (110K lines) = OFF LIMITS.** Do not touch scorer, intelligence, web frontend, wizard, briefings, market panel, or any non-RP backend routes.
 
-| Event Name | Backend Emitter | Frontend Handler |
-|------------|-----------------|------------------|
-| scan | main.py | app.js → _handleSSEScan() |
-| complete | main.py | app.js → _handleSSEComplete() |
-| scan_cancelled | main.py | app.js → _handleSSECancelled() |
-| scan_error | main.py | app.js → _handleSSEError() |
-| status | main.py | app.js → _handleSSEStatus() |
-| pass1_complete | main.py | app.js → _handleSSEPass1Complete() |
-| briefing_ready | main.py | app.js → fetches /api/briefing |
-| critical_signal | main.py | app.js → _handleCriticalSignal() |
-| youtube_processing | youtube_endpoints.py | app.js → _handleYouTubeSSE() |
-| lens_extracted | youtube_endpoints.py | app.js → _handleLensExtracted() → youtube.js + youtube-kb.js |
-| narration_resolved | source_resolver.py | app.js → _handleNarrationResolved() → youtube.js |
+**StratOS Mobile (~20K lines) + RP Backend Routes = SAFE TO MODIFY.**
 
-## 3. Shared State Flows
+---
 
-| Flow | Writer | Reader | Notes |
-|------|--------|--------|-------|
-| Config (role, tickers, categories) | settings.js → POST /api/config → config.yaml | ALL frontend via GET /api/config | Config lock serializes |
-| News data | Scanner (main.py) → news_items table | app.js via GET /api/data | JSON export per-profile |
-| Market data | MarketFetcher → market_snapshots | markets-panel.js, fullscreen-chart.js via GET /api/market-tick | 60s cache TTL |
-| Saved signals | app.js → POST /api/feedback (save) | app.js → GET /api/saved-signals | Per-profile scoped |
-| UI state | ui-sync.js → POST /api/ui-state | ui-sync.js → GET /api/ui-state | 80+ localStorage keys synced |
-| Chat history | agent.js → POST /api/agent-chat | agent.js → GET /api/conversations/{id} | DB-backed |
-| YouTube insights | youtube_endpoints.py → video_insights table | youtube.js, youtube-kb.js → GET /api/youtube/insights | SSE triggers refresh |
+## ISOLATION GROUPS
 
-## 4. Sprint Item Parallelization Analysis
+### Group A: RP Chat System (SAFE)
+```
+backend/routes/rp_chat.py        (900+ lines — GOD FILE)
+backend/routes/rp_memory.py      (405 lines)
+backend/routes/gpu_manager.py    (240 lines)
 
-### SAFE TO RUN IN PARALLEL (no shared files/endpoints)
+DB: rp_messages, rp_edits, rp_suggestions, rp_feedback, rp_session_context
+Ollama: YES (RP model — GPU exclusive)
+SSE: {token}, {done, message_id, user_message_id}
 
-**Group A: Markets** (markets-panel.js, market.js, fullscreen-chart.js)
-- BUG-05: Markets duplicate chart → markets-panel.js
-- BUG-06: Market auto-refresh immediate trigger → app.js (_setAutoRefresh)
-- BUG-07: Markets summary sync → markets-panel.js
-- UX-10: Market refresh bar toggleable → markets-panel.js
+Parallel with: C (mobile UI), D (tests — but not during test execution)
+NOT with: B (shared character_cards reads), D (during Ollama test runs)
+```
 
-**Group B: Theme Editor** (theme-editor.js only)
-- BUG-03: Reset button → theme-editor.js
-- BUG-04: Theme save position/scale/blur → theme-editor.js
-- UX-11: Undo button → theme-editor.js
+### Group B: Character Cards (SAFE)
+```
+backend/routes/character_cards.py  (420 lines)
+backend/database.py                (ONLY card helpers, lines 810-900)
 
-**Group C: YouTube** (youtube.js, youtube-kb.js)
-- UX-06: Show retranscription progress → youtube.js, youtube-kb.js
-- UX-07: Save area for YouTube → youtube.js, youtube-kb.js
+DB: character_cards, character_card_stats, character_card_ratings
+Ollama: YES (auto-enrichment background thread)
 
-**Group D: Agent Chat** (agent.js, persona_prompts.py, personas.py)
-- UX-01: Signal hyperlinks → agent.js
-- UX-04: Edit own messages → agent.js
-- UX-05: Edit AI messages as learning → agent.js, agent.py
+Parallel with: C, D
+NOT with: A (rp_chat reads character_cards)
+CAUTION: database.py shared — only touch _CHARACTER_CARD_COLUMNS or card methods
+```
 
-**Group E: Gaming** (games-ui.js, persona_data.py, rp_chat.py)
-- BUG-12: Character reveal progression → games-ui.js, personas.py (suggestion gen)
-- GAME-01 through GAME-06 → games-ui.js, new files
+### Group C: Mobile App (SAFE)
+```
+mobile/stratos-app/**  (entire mobile codebase)
 
-**Group F: Feed** (feed.js, app.js)
-- UX-08: More context input for sources → settings-sources.js
-- UX-09: Post-wizard scan guidance → wizard.js
+DB: None (API only)
+Ollama: None (API only)
+SSE: Consumes {token, done} from /api/rp/chat
 
-**Group G: Error Messages** (cross-cutting)
-- BUG-09: Loading indicators → multiple files (SEQUENTIAL)
-- BUG-10: Vague error messages → multiple files (SEQUENTIAL)
+Parallel with: A, B, D (always safe — no backend file overlap)
+CAUTION: SSE format changes in Group A break Group C
+```
 
-### MUST BE SEQUENTIAL (shared state or cross-file dependencies)
-- BUG-09 (loading indicators) touches agent.js, youtube.js, markets-panel.js, feed.js
-- BUG-10 (error messages) touches multiple catch blocks in frontend + backend
-- UX-02 (article transcriber) needs new processor + endpoint + frontend wiring
-- UX-03 (context-driven suggestions) touches agent-suggestions.js + agent.py (already modified)
+### Group D: Test Infrastructure (SAFE)
+```
+backend/tests/rp_regression_test.py
+backend/tests/rp_baseline.json
 
-### RECOMMENDED PARALLEL GROUPS
+DB: Reads character_cards (SELECT only)
+Ollama: YES — EXCLUSIVE during test runs (~8 min)
 
-| Agent | Items | Files Touched |
-|-------|-------|---------------|
-| Agent 1: Markets | BUG-05, BUG-07, UX-10 | markets-panel.js, market.js |
-| Agent 2: Theme | BUG-03, BUG-04, UX-11 | theme-editor.js |
-| Agent 3: Agent Chat UX | UX-01, UX-04, UX-05 | agent.js |
-| Agent 4: Gaming | BUG-12, GAME-01, GAME-04 | games-ui.js, gaming-import-wizard.js (new), personas.py |
-| Agent 5: YouTube | UX-06, UX-07 | youtube.js, youtube-kb.js |
-| **Sequential**: BUG-09, BUG-10, BUG-06 | Cross-cutting | Multiple files |
+Parallel with: C (code changes only, not test execution)
+RULE: No Ollama work while tests run
+```
 
-### FILE OWNERSHIP MAP (conflict avoidance)
+### Group E: Image Gen (SAFE)
+```
+backend/routes/image_gen.py
+mobile/stratos-app/app/imagegen/
 
-| File | Owned By | DO NOT Touch From Other Agents |
-|------|----------|-------------------------------|
-| agent.js | Agent 3 (Chat UX) | — |
-| markets-panel.js | Agent 1 (Markets) | — |
-| theme-editor.js | Agent 2 (Theme) | — |
-| games-ui.js | Agent 4 (Gaming) | — |
-| youtube.js, youtube-kb.js | Agent 5 (YouTube) | — |
-| app.js | Sequential only | Multiple agents need it → run last |
-| settings.js | Sequential only | Shared config UI |
-| persona_prompts.py | ALREADY DONE (AGENT-02/03) | — |
-| personas.py | ALREADY DONE (AGENT-05/06) + Agent 4 needs it for BUG-12 | Coordinate |
-| feed.js | Sequential (UX-08, UX-09 related) | — |
+GPU: ComfyUI (cannot coexist with Ollama)
+NOT with: A, B, D (GPU contention)
+```
+
+### Group F: Migrations (SEQUENTIAL)
+```
+backend/migrations.py
+backend/database.py (column whitelists)
+
+RULE: Run FIRST in any session. ONE migration. Commit + restart before other work.
+```
+
+### Group X: StratOS Web (OFF LIMITS)
+```
+main.py, server.py, auth.py, sse.py
+processors/*, fetchers/*, routes/agent*.py, routes/feeds.py,
+routes/data_endpoints.py, routes/controls.py, routes/youtube*.py,
+routes/persona_data.py, routes/media.py, routes/generate.py,
+routes/wizard.py, routes/config.py, routes/auth.py, routes/dev*.py
+frontend/*.js, frontend/*.css, frontend/*.html
+```
+
+### Group Y: Scorer/Training (OFF LIMITS)
+```
+processors/scorer_*.py, train_*.py, distill.py, export_training.py,
+evaluate_scorer.py, data/v2_pipeline/*
+```
+
+---
+
+## API CONTRACT (Mobile → Backend)
+
+| Mobile File | Endpoint | Response | Critical Fields |
+|-------------|----------|----------|-----------------|
+| lib/chat.ts | POST /api/rp/chat | SSE stream | token, done, message_id, user_message_id |
+| lib/chat.ts | POST /api/rp/regenerate | SSE stream | token, done, swipe_group_id, message_id |
+| lib/chat.ts | POST /api/suggest-context | JSON | suggestions:[] OR suggestion:"" |
+| lib/rp.ts | POST /api/rp/feedback | JSON | ok |
+| lib/rp.ts | POST /api/rp/edit | JSON | ok, message_id, category |
+| lib/rp.ts | POST /api/rp/branch | SSE stream | done, branch_id, from_branch |
+| lib/rp.ts | POST /api/rp/director-note | JSON | ok, note |
+| lib/characters.ts | POST /api/cards | JSON | ok, card_id |
+| lib/characters.ts | PUT /api/cards/{id} | JSON | ok |
+| lib/rp.ts | POST /api/image/generate | JSON | ok, image_id |
+
+**RULE:** Changing any response field in this table requires updating the corresponding mobile file.
+
+---
+
+## GPU CONTENTION
+
+```
+Ollama (NUM_PARALLEL=1):
+  RP model (Q8, 17GB) — rp_chat, rp_memory, regression tests
+  qwen3.5:9b (15GB) — agent chat, wizard, enrichment, memory extraction
+  scorer-v2.2 (9.5GB) — scan pipeline
+
+  MAX_LOADED_MODELS=2: scorer + qwen3.5 coexist.
+  RP model evicts BOTH when loaded (17GB alone).
+
+ComfyUI (CHROMA, 22GB peak):
+  Cannot coexist with ANY Ollama model.
+  gpu_manager.py handles swap.
+
+RULE: Only ONE GPU consumer at a time during development/testing.
+```
+
+---
+
+## SPRINT TASK PARALLELISM
+
+```
+Phase A: Max 2 agents
+  Agent 1: A6 → A2 → A3 (sequential — all touch rp_chat.py)
+  Agent 2: A5 (test infra — independent code changes)
+  A1: AFTER Agent 1 (needs final baseline)
+
+Phase B remaining: Max 2 agents
+  Agent 1: B1 (migration) → B2 (backend)
+  Agent 2: B3 (auto-enrichment — after B1 commits)
+
+Phase C: Max 2 agents
+  Agent 1: C1 backend (SSE metadata) + C4 (arc frequency)
+  Agent 2: C1 frontend (mock data first, wire after backend)
+```
+
+---
+
+## GOD FILE: rp_chat.py (900+ lines)
+
+Recommended split for future parallelism:
+1. `rp_prompt.py` — system prompt, archetype detection, format rotation
+2. `rp_injection.py` — _build_turn_injection() + 11 hint functions
+3. `rp_stream.py` — _stream_ollama(), think block handling
+4. `rp_chat.py` — route handlers only
+
+This unlocks 2 agents working on prompt engineering + route logic simultaneously.
+
+---
+
+## NO CIRCULAR DEPENDENCIES
+
+All imports are unidirectional. Clean dependency tree:
+```
+server.py → routes/* → helpers.py
+rp_chat.py → rp_memory.py → (no further local imports)
+rp_chat.py → gpu_manager.py → (no further local imports)
+character_cards.py → helpers.py → (no further local imports)
+```
