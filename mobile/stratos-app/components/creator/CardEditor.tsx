@@ -59,7 +59,7 @@ export function CardEditor({ initialCard, prefillData }: CardEditorProps) {
   const saveBtnAnimStyle = useAnimatedStyle(() => ({ transform: [{ scale: saveBtnScale.value }] }));
   const { alert: showAlert, AlertComponent } = useThemedAlert();
 
-  const update = useCallback((key: keyof CharacterCardCreate, value: string | string[]) => setCard(prev => ({ ...prev, [key]: value })), []);
+  const update = useCallback((key: keyof CharacterCardCreate, value: string | string[] | undefined) => setCard(prev => ({ ...prev, [key]: value })), []);
   const toggleGenre = (id: string) => setCard(prev => ({
     ...prev, genre_tags: prev.genre_tags.includes(id) ? prev.genre_tags.filter(g => g !== id) : [...prev.genre_tags, id],
   }));
