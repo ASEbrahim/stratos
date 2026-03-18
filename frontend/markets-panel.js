@@ -547,7 +547,7 @@ function _mpRenderOverview() {
             spark = '<svg width="'+w+'" height="'+ht+'" class="mt-1 opacity-70"><path d="'+pts.map(function(v,i){return(i===0?'M':'L')+(i/(pts.length-1)*w).toFixed(1)+','+(ht-2-((v-mn)/rng)*(ht-4)).toFixed(1);}).join(' ')+'" fill="none" stroke="'+(up?'#10b981':'#ef4444')+'" stroke-width="1.2"/></svg>';
         }
 
-        h += '<div onclick="mpAddChart(\'' + item.sym + '\',\'1m\')" class="cursor-pointer rounded-lg p-2 transition-all hover:scale-[1.02]" style="background:'+bg+';border:1px solid '+border+';">';
+        h += '<div onclick="mpToggleChart(\'' + item.sym + '\',\'1m\')" class="cursor-pointer rounded-lg p-2 transition-all hover:scale-[1.02]" style="background:'+bg+';border:1px solid '+border+';">';
         h += '<div class="flex items-center justify-between"><span class="text-[11px] font-mono font-bold text-white">'+l+'</span><span class="text-[10px] font-mono font-bold '+(up?'text-emerald-400':'text-red-400')+'">'+(up?'+':'')+ch.toFixed(2)+'%</span></div>';
         h += '<div class="text-[9px] text-slate-500 truncate">'+_mpEsc(name)+'</div>';
         h += '<div class="text-[10px] font-mono text-slate-300 mt-0.5">$'+_mpFp(price)+'</div>';

@@ -1,96 +1,96 @@
 {
   "version": "1.0",
-  "last_updated": "2026-03-13T09:16:20.181953",
+  "last_updated": "2026-03-18T05:05:48.542277",
   "examples": [
     {
-      "title": "AMD's Radeon and FSR Redstone were a no-show at GDC 2026, and that's troubling",
-      "content_preview": "AMD's Radeon brand and PC gaming technologies like FSR Redstone for its latest RDNA 4 generation of...",
-      "score": 8.5,
-      "reason": "LLM: Highly relevant technical intelligence regarding AMD and FSR Redstone at GDC 2026 provides cruc",
-      "url": "https://www.tweaktown.com/news/110454/amds-radeon-and-fsr-redstone-were-a-no-show-at-gdc-2026-and-thats-troubling/index.html",
-      "category": "tech",
-      "added_at": "2026-03-13T09:16:20.181944"
-    },
-    {
-      "title": "Zexin D., 普通话一级的北京人·会英语日语·你的难处我都懂 - Preply",
-      "content_preview": "Zexin D. Chinese tutor · From China A native Beijinger fluent in Mandarin, English, and Japanese – I understand your struggles Teaches Chinese lessons About me Translated Show original Hello! I'm Zexi",
-      "score": 8.5,
-      "reason": "LLM: Directly matches the user's target language skills, location (Beijing), and specific need for t",
-      "url": "https://preply.com/en/tutor/7592516",
-      "category": "tech",
-      "added_at": "2026-03-13T09:06:44.195297"
-    },
-    {
-      "title": "AI at the Edge: Why On-Device Intelligence Changes the Game for Supply Chains",
-      "content_preview": "Share this: Artificial intelligence is entering a new phase of deployment. For most of the past decade, enterprise AI systems have relied heavily on centralized cloud infrastructure. Data collected at",
-      "score": 8.5,
-      "reason": "LLM: Highly relevant to user's focus on AI infrastructure and edge computing trends that directly im",
-      "url": "https://logisticsviewpoints.com/2026/03/10/ai-at-the-edge-why-on-device-intelligence-changes-the-game-for-supply-chains/",
-      "category": "auto",
-      "added_at": "2026-03-11T01:41:42.058296"
-    },
-    {
-      "title": "Full Stack Engineer - Google Deployed Engineer (AGBG)",
-      "content_preview": "Search Jobs from Employers Offering Science, Technology, Engineering ... Google Cloud Professional certifications. Compensation at Accenture varies ...",
-      "score": 8.5,
-      "reason": "LLM: Directly actionable Google Cloud certification role aligns with user's cloud skills and mid-car",
-      "url": "https://stem.usnlx.com/morristown-nj/full-stack-engineer-google-deployed-engineer-agbg/1443B3D14A9D4FFFA1A5789386690007/job/",
-      "category": "career",
-      "added_at": "2026-03-11T01:41:11.182864"
-    },
-    {
-      "title": "H37XFAAE | Automation with GreenLake for Private Cloud ...",
-      "content_preview": "... Terraform Infrastructure as Code (IaC) application. Infrastructure as Code (IaC) is a DevOps process that refers to the management and provisioning of ...",
-      "score": 8.5,
-      "reason": "LLM: Highly relevant technical content covering the user's core DevOps and IaC skill set (Terraform,",
-      "url": "https://www.hpe.com/us/en/collaterals/collateral.a50015117enw.html",
-      "category": "tech",
-      "added_at": "2026-03-11T01:40:41.558869"
-    },
-    {
-      "title": "An Enhanced Approach for Edge-Based Intrusion Detection Based ...",
-      "content_preview": "An Enhanced Approach for Edge-Based Intrusion Detection Based on a Hybrid Deep Learning Model CNN-DNN Original Research Published: 10 March 2026 Volume 7 , article number 271 , ( 2026 ) Cite this arti",
+      "title": "How Latest Computer Tech is Reshaping Innovation: From AI Surge ...",
+      "content_preview": "How Latest Computer Tech is Reshaping Innovation: From AI Surge to Quantum Leaps As breakthroughs accelerate at an unprecedented pace, today’s computer technology landscape is defined by transformativ",
       "score": 9.0,
-      "reason": "LLM: Deep learning-based intrusion detection research is highly relevant to cybersecurity threats tr",
-      "url": "https://link.springer.com/article/10.1007/s42979-026-04805-z",
+      "reason": "Breakthrough in tracked area: generative, models, quantum",
+      "url": "https://explore.st-aug.edu/exp/how-latest-computer-tech-is-reshaping-innovation-from-ai-surge-to-quantum-leaps",
       "category": "tech",
-      "added_at": "2026-03-11T01:39:57.534352"
+      "added_at": "2026-03-18T05:05:48.542274"
     },
     {
-      "title": "10 Real-World Edge AI Examples and What They Teach Us - Devōt",
-      "content_preview": "Back to blogs 10 Practical Edge AI Examples and What They Teach Us Iva P. 8 min read Mar 10, 2026 Industry Insights Iva P. 8 min read Link copied! Contents: What is edge AI? Why edge AI is gaining tra",
+      "title": "Top Daily AI Newsletters Every Tech Leader Must Subscribe to by ...",
+      "content_preview": "Top Daily AI Newsletters Every Tech Leader Must Subscribe to by Top Daily AI Newsletters You Can't Miss —and Why They Matter In an era defined by relentless AI innovation, staying ahead requires more ",
+      "score": 9.0,
+      "reason": "Breakthrough in tracked area: generative, models, tech",
+      "url": "https://explore.st-aug.edu/exp/top-daily-ai-newsletters-every-tech-leader-must-subscribe-to-by-top-daily-ai-newsletters-you-cant-missand-why-they-matte",
+      "category": "tech",
+      "added_at": "2026-03-18T05:05:48.542036"
+    },
+    {
+      "title": "Latest AI News September 2025: Major Developments in Artificial ...",
+      "content_preview": "More March 12, 2026 Brain Killer 0 Comments The latest AI news September 2025 highlights a period of rapid innovation, investment, and global competition in artificial intelligence. Major technology c",
+      "score": 9.0,
+      "reason": "Breakthrough in tracked area: generative, models, generative ai models",
+      "url": "https://www.wilsonyb.com/latest-ai-news-september-2025/",
+      "category": "tech",
+      "added_at": "2026-03-18T05:05:48.538120"
+    },
+    {
+      "title": "TeleAI-UAGI/Awesome-Agent-Memory - GitHub",
+      "content_preview": "🧠 Awesome Agent Memory A curated collection of systems, benchmarks, and papers et. on memory mechanisms for Large Language Models (LLMs) and Multimodal Large Language Models (MLLMs), exploring how dif",
+      "score": 9.0,
+      "reason": "Breakthrough in tracked area: memory, reasoning, agent",
+      "url": "https://github.com/TeleAI-UAGI/Awesome-Agent-Memory",
+      "category": "tech",
+      "added_at": "2026-03-18T05:05:48.537854"
+    },
+    {
+      "title": "[PDF] From Agent-centric to Human-centric Memory Management - arXiv",
+      "content_preview": "MAS is designed around four principles that distinguish it from existing agent memory systems. Owner-Controlled Memory Ownership. Memory assets are owned ...",
       "score": 8.5,
-      "reason": "LLM: Edge AI examples provide practical technical insights that directly apply to the user's compute",
-      "url": "https://devot.team/blog/edge-ai",
+      "reason": "LLM: High-value technical content on MAS memory management principles that aligns with the user's fo",
+      "url": "https://arxiv.org/pdf/2603.14212",
       "category": "tech",
-      "added_at": "2026-03-11T01:39:57.534130"
+      "added_at": "2026-03-18T05:05:20.830396"
     },
     {
-      "title": "AI Agents: Built to Reason, Plan, Act | NVIDIA",
-      "content_preview": "This site requires Javascript in order to view all its content. Please enable Javascript in order to access all the functionality of this web site. Here are the instructions how to enable JavaScript i",
+      "title": "Mem0 vs Letta (MemGPT): AI Agent Memory Compared (2026)",
+      "content_preview": "If you're evaluating agent memory solutions, Mem0 and Letta (formerly MemGPT) probably both showed up in your search. They solve the same fundamental problem — giving AI agents persistent memory acros",
       "score": 9.5,
-      "reason": "LLM: NVIDIA AI agent architecture is highly relevant to a Kuwait-based software engineer's technical",
-      "url": "https://www.nvidia.com/en-us/ai/",
+      "reason": "LLM: Directly addresses core agentic AI memory technologies (Mem0/Letta) essential for an engineer b",
+      "url": "https://vectorize.io/articles/mem0-vs-letta",
       "category": "tech",
-      "added_at": "2026-03-11T01:39:57.533800"
+      "added_at": "2026-03-18T05:05:20.830090"
     },
     {
-      "title": "How 5G Is Transforming Internet Speed and Communication - Kerkt",
-      "content_preview": "5G technology represents a major leap forward from 4G, offering faster speeds, lower latency, and higher network capacity. It is not only transforming mobile ...",
-      "score": 8.5,
-      "reason": "LLM: Directly covers 5G technology evolution which is a core tracked topic relevant to Kuwait's tele",
-      "url": "https://kerkt.com/how-5g-is-transforming-internet-communication/",
-      "category": "tech",
-      "added_at": "2026-03-11T01:39:42.915459"
-    },
-    {
-      "title": "White House Cyber Strategy Prioritizes Offense - Security",
-      "content_preview": "Keep up with the latest cybersecurity threats, newly discovered vulnerabilities, data breach information, and emerging trends. ... GISEC GLOBAL 2026 – The ...",
+      "title": "Best AI Agent Memory Systems in 2026: 8 Frameworks Compared",
+      "content_preview": "Do You Actually Need AI Agent Memory? Before diving into frameworks, a quick gut check. You likely need an AI agent memory system if: Your agent runs repeatedly on related tasks (same domain, same use",
       "score": 9.0,
-      "reason": "Breakthrough in tracked area: cybersecurity, threats, cybersecurity threats",
-      "url": "https://www.darkreading.com/cybersecurity-operations/white-house-cyber-strategy-prioritizes-offense",
+      "reason": "LLM: Highly actionable comparison of agent memory systems, a critical component for building robust ",
+      "url": "https://vectorize.io/articles/best-ai-agent-memory-systems",
       "category": "tech",
-      "added_at": "2026-03-10T14:08:53.839309"
+      "added_at": "2026-03-18T05:05:17.166776"
+    },
+    {
+      "title": "[PDF] A Dual-Axis Skill Taxonomy for Evaluating Data Analytics Agents",
+      "content_preview": "The tool format uses XML tags rather than function-calling APIs, deliberately testing instruction-following ability. Execution Sandbox. Python code executes ...",
+      "score": 8.5,
+      "reason": "LLM: Deep technical content on agent tool-calling protocols directly matches their core agentic deve",
+      "url": "https://papers.ssrn.com/sol3/Delivery.cfm/6276539.pdf?abstractid=6276539&mirid=1",
+      "category": "tech",
+      "added_at": "2026-03-18T05:05:17.166433"
+    },
+    {
+      "title": "Top 5 AI Agent Frameworks for Beginners in 2026 - Dev.to",
+      "content_preview": "1. OpenAI Agents SDK — Fastest Path to a Working Agent · 2. CrewAI — Best for Multi-Agent Collaboration · 3. LangGraph — Best for Production-Grade State ...",
+      "score": 8.5,
+      "reason": "LLM: Directly actionable list of top frameworks (LangChain, CrewAI) essential for an Agentic Enginee",
+      "url": "https://dev.to/agent-andy/top-5-ai-agent-frameworks-for-beginners-in-2026-from-zero-to-working-agent-1642",
+      "category": "tech",
+      "added_at": "2026-03-18T05:05:14.136793"
+    },
+    {
+      "title": "Agentic AI Systems: Enterprise Implementation Guide (2026)",
+      "content_preview": "Agentic AI: Autonomous AI Systems From Reactive Assistants to Autonomous Operators — Design Patterns, Orchestration, and Governance Traditional AI answers questions. Agentic AI accomplishes objectives",
+      "score": 9.0,
+      "reason": "LLM: Highly relevant enterprise-level guide on agentic AI orchestration directly matching the user's",
+      "url": "https://www.synvestable.com/agentic-ai.html",
+      "category": "tech",
+      "added_at": "2026-03-18T05:05:14.136493"
     }
   ]
 }

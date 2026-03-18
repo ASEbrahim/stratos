@@ -169,6 +169,41 @@
         localStorage.removeItem(getStorageKey());
     }
 
+    // ── Layout data helpers (canvas element positions/scale/blur) ──
+    const _LAYOUT_THEMES = ['cosmos','sakura','noir','rose','coffee','midnight','nebula','aurora'];
+    const _LAYOUT_SUFFIXES = ['-cx','-cy','-scale','-blur','-opacity','-density','-visible'];
+    const _LAYOUT_EXTRA_KEYS = [
+        'stratos-sakura-tree',
+        'stratos-sakura-tree-cx','stratos-sakura-tree-cy','stratos-sakura-tree-scale',
+        'stratos-sakura-tree-blur','stratos-sakura-tree-opacity',
+        'stratos-sakura-size','stratos-sakura-fall','stratos-sakura-wind',
+        'stratos-stars-density','stratos-stars-drift','stratos-stars-brightness',
+        'stratos-cosmos-preset',
+    ];
+
+    function _collectLayoutData() {
+        const layout = {};
+        for (const th of _LAYOUT_THEMES) {
+            for (const sf of _LAYOUT_SUFFIXES) {
+                const key = 'stratos-' + th + sf;
+                const val = localStorage.getItem(key);
+                if (val !== null) layout[key] = val;
+            }
+        }
+        for (const key of _LAYOUT_EXTRA_KEYS) {
+            const val = localStorage.getItem(key);
+            if (val !== null) layout[key] = val;
+        }
+        return layout;
+    }
+
+    function _restoreLayoutData(layout) {
+        if (!layout || typeof layout !== 'object') return;
+        Object.entries(layout).forEach(([key, val]) => {
+            localStorage.setItem(key, val);
+        });
+    }
+
     // ── Preset storage helpers ──
     function _getPresets() {
         try {

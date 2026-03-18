@@ -1,5 +1,5 @@
 {
-  "total_count": 1631,
+  "total_count": 1686,
   "daily_counts": {
     "2026-02-24": 123,
     "2026-02-25": 1669,
@@ -13,229 +13,10 @@
     "2026-03-11": 89,
     "2026-03-12": 79,
     "2026-03-13": 237,
-    "2026-03-14": 20
+    "2026-03-14": 20,
+    "2026-03-18": 55
   },
   "last_queries": [
-    {
-      "query": "\"Portfolio building advice\" freelance market insights 2026",
-      "time": "2026-03-13T09:05:54.228070"
-    },
-    {
-      "query": "\"Bidding strategies\" freelance market insights 2026",
-      "time": "2026-03-13T09:05:54.876854"
-    },
-    {
-      "query": "\"Industry salary surveys\" freelance market insights 2026",
-      "time": "2026-03-13T09:05:55.841506"
-    },
-    {
-      "query": "\"Networking events Tokyo\" freelance market insights 2026",
-      "time": "2026-03-13T09:05:56.200214"
-    },
-    {
-      "query": "\"Client retention tactics\" freelance market insights 2026",
-      "time": "2026-03-13T09:05:56.996054"
-    },
-    {
-      "query": "\"Contract negotiation guides\" freelance market insights 2026",
-      "time": "2026-03-13T09:05:57.309764"
-    },
-    {
-      "query": "\"Japan Translation Association Salary Survey\" freelance market insights 2026",
-      "time": "2026-03-13T09:05:58.591495"
-    },
-    {
-      "query": "\"Tokyo Freelancer Network\" freelance market insights 2026",
-      "time": "2026-03-13T09:05:59.730813"
-    },
-    {
-      "query": "\"Kanto Translation Industry Report\" freelance market insights 2026",
-      "time": "2026-03-13T09:05:59.810807"
-    },
-    {
-      "query": "\"Yamato Translations\" Japan hiring OR careers OR recruitment 2026",
-      "time": "2026-03-13T09:06:02.248462"
-    },
-    {
-      "query": "\"Yamato Translations\" japanese translation employers Japan careers 2026",
-      "time": "2026-03-13T09:06:02.569512"
-    },
-    {
-      "query": "\"Gengo Japan\" Japan hiring OR careers OR recruitment 2026",
-      "time": "2026-03-13T09:06:02.679550"
-    },
-    {
-      "query": "\"Gengo Japan\" japanese translation employers Japan careers 2026",
-      "time": "2026-03-13T09:06:04.119118"
-    },
-    {
-      "query": "\"TransPerfect Tokyo\" Japan hiring OR careers OR recruitment 2026",
-      "time": "2026-03-13T09:06:04.853322"
-    },
-    {
-      "query": "\"TransPerfect Tokyo\" japanese translation employers Japan careers 2026",
-      "time": "2026-03-13T09:06:05.335596"
-    },
-    {
-      "query": "\"Lionbridge Japan\" Japan hiring OR careers OR recruitment 2026",
-      "time": "2026-03-13T09:06:06.565349"
-    },
-    {
-      "query": "\"Lionbridge Japan\" japanese translation employers Japan careers 2026",
-      "time": "2026-03-13T09:06:06.822797"
-    },
-    {
-      "query": "\"Freelance translators union\" Japan hiring OR careers OR recruitment 2026",
-      "time": "2026-03-13T09:06:07.676169"
-    },
-    {
-      "query": "\"Freelance translators union\" japanese translation employers Japan careers 2026",
-      "time": "2026-03-13T09:06:08.512310"
-    },
-    {
-      "query": "\"Japan Association of Translators\" Japan hiring OR careers OR recruitment 2026",
-      "time": "2026-03-13T09:06:09.099195"
-    },
-    {
-      "query": "\"Japan Association of Translators\" japanese translation employers Japan careers 2026",
-      "time": "2026-03-13T09:06:09.581414"
-    },
-    {
-      "query": "\"Gameloft Middle East\" Kuwait hiring OR careers OR recruitment 2026",
-      "time": "2026-03-13T09:14:47.248966"
-    },
-    {
-      "query": "\"Gameloft Middle East\" kuwait gaming employers Kuwait careers 2026",
-      "time": "2026-03-13T09:14:47.591866"
-    },
-    {
-      "query": "\"NexGen Games\" Kuwait hiring OR careers OR recruitment 2026",
-      "time": "2026-03-13T09:14:47.942287"
-    },
-    {
-      "query": "\"NexGen Games\" kuwait gaming employers Kuwait careers 2026",
-      "time": "2026-03-13T09:14:49.449913"
-    },
-    {
-      "query": "\"K-Sector Tech Hubs\" Kuwait hiring OR careers OR recruitment 2026",
-      "time": "2026-03-13T09:14:50.009461"
-    },
-    {
-      "query": "\"K-Sector Tech Hubs\" kuwait gaming employers Kuwait careers 2026",
-      "time": "2026-03-13T09:14:50.340149"
-    },
-    {
-      "query": "\"Kuwait Esports Federation\" Kuwait hiring OR careers OR recruitment 2026",
-      "time": "2026-03-13T09:14:51.896626"
-    },
-    {
-      "query": "\"Kuwait Esports Federation\" kuwait gaming employers Kuwait careers 2026",
-      "time": "2026-03-13T09:14:52.029733"
-    },
-    {
-      "query": "\"Local Indie Studios\" Kuwait hiring OR careers OR recruitment 2026",
-      "time": "2026-03-13T09:14:52.880057"
-    },
-    {
-      "query": "\"Local Indie Studios\" kuwait gaming employers Kuwait careers 2026",
-      "time": "2026-03-13T09:14:54.249207"
-    },
-    {
-      "query": "\"GameDev Kuwait Community\" Kuwait hiring OR careers OR recruitment 2026",
-      "time": "2026-03-13T09:14:54.475930"
-    },
-    {
-      "query": "\"GameDev Kuwait Community\" kuwait gaming employers Kuwait careers 2026",
-      "time": "2026-03-13T09:14:55.419169"
-    },
-    {
-      "query": "\"Unity Engine updates\" global gaming tech trends 2026",
-      "time": "2026-03-13T09:14:57.837174"
-    },
-    {
-      "query": "\"Unreal Engine features\" global gaming tech trends 2026",
-      "time": "2026-03-13T09:14:58.179222"
-    },
-    {
-      "query": "\"VR/AR game dev\" global gaming tech trends 2026",
-      "time": "2026-03-13T09:14:58.915817"
-    },
-    {
-      "query": "\"Cloud gaming tech\" technology 2026",
-      "time": "2026-03-13T09:15:00.140968"
-    },
-    {
-      "query": "\"Game AI tools\" global gaming tech trends 2026",
-      "time": "2026-03-13T09:15:00.676340"
-    },
-    {
-      "query": "\"Blockchain in gaming\" global gaming tech trends 2026",
-      "time": "2026-03-13T09:15:01.408365"
-    },
-    {
-      "query": "\"Cross-platform dev\" global gaming tech trends 2026",
-      "time": "2026-03-13T09:15:02.404668"
-    },
-    {
-      "query": "\"NVIDIA Omniverse for Game Dev\" global gaming tech trends 2026",
-      "time": "2026-03-13T09:15:02.766591"
-    },
-    {
-      "query": "\"PlayFab backend services\" global gaming tech trends 2026",
-      "time": "2026-03-13T09:15:02.954094"
-    },
-    {
-      "query": "\"Unreal Engine 5 Nanite/Lumen features\" global gaming tech trends 2026",
-      "time": "2026-03-13T09:15:05.092067"
-    },
-    {
-      "query": "\"Garena Mobile Legends\" esports competitive scene 2026",
-      "time": "2026-03-13T09:15:07.581009"
-    },
-    {
-      "query": "\"PUBG Mobile Kuwait\" esports competitive scene 2026",
-      "time": "2026-03-13T09:15:08.002512"
-    },
-    {
-      "query": "\"Local tournament circuits\" esports competitive scene 2026",
-      "time": "2026-03-13T09:15:08.318252"
-    },
-    {
-      "query": "\"Esports sponsorship deals\" esports competitive scene 2026",
-      "time": "2026-03-13T09:15:10.063570"
-    },
-    {
-      "query": "\"Streaming platform growth\" esports competitive scene 2026",
-      "time": "2026-03-13T09:15:10.316009"
-    },
-    {
-      "query": "\"Player transfer news\" esports competitive scene 2026",
-      "time": "2026-03-13T09:15:10.700203"
-    },
-    {
-      "query": "\"Regional qualifiers\" esports competitive scene 2026",
-      "time": "2026-03-13T09:15:11.608143"
-    },
-    {
-      "query": "\"Riot Games MENA Regional Hub\" esports competitive scene 2026",
-      "time": "2026-03-13T09:15:12.684865"
-    },
-    {
-      "query": "\"EA Sports FC Mobile Kuwait qualifiers\" esports competitive scene 2026",
-      "time": "2026-03-13T09:15:12.868594"
-    },
-    {
-      "query": "\"Twitch Affiliate programs for Kuwaiti streamers\" esports competitive scene 2026",
-      "time": "2026-03-13T09:15:13.142679"
-    },
-    {
-      "query": "\"Kuwait startup grants\"  2026",
-      "time": "2026-03-13T09:15:15.529366"
-    },
-    {
-      "query": "\"Tech incubator programs\" startup venture 2026",
-      "time": "2026-03-13T09:15:15.998990"
-    },
     {
       "query": "\"Angel investor networks\" startup venture 2026",
       "time": "2026-03-13T09:15:16.078911"
@@ -815,6 +596,226 @@
     {
       "query": "Apple stock price today AAPL",
       "time": "2026-03-14T11:59:28.700395"
+    },
+    {
+      "query": "\"GPU cluster management\" ai infrastructure tools 2026",
+      "time": "2026-03-18T05:03:51.591824"
+    },
+    {
+      "query": "\"Docker containerization\" ai infrastructure tools 2026",
+      "time": "2026-03-18T05:03:51.635974"
+    },
+    {
+      "query": "\"Kubernetes orchestration\" ai infrastructure tools 2026",
+      "time": "2026-03-18T05:03:51.960561"
+    },
+    {
+      "query": "\"MLOps pipelines\" ai infrastructure tools 2026",
+      "time": "2026-03-18T05:03:52.795433"
+    },
+    {
+      "query": "\"Cloud deployment AWS\" ai infrastructure tools 2026",
+      "time": "2026-03-18T05:03:53.092079"
+    },
+    {
+      "query": "\"CI/CD for AI models\" ai infrastructure tools 2026",
+      "time": "2026-03-18T05:03:53.175793"
+    },
+    {
+      "query": "\"Model monitoring tools\" ai infrastructure tools 2026",
+      "time": "2026-03-18T05:03:53.947516"
+    },
+    {
+      "query": "\"RayCluster management\" ai infrastructure tools 2026",
+      "time": "2026-03-18T05:03:54.342167"
+    },
+    {
+      "query": "\"Data pipeline engineering\" ai infrastructure tools 2026",
+      "time": "2026-03-18T05:03:54.449556"
+    },
+    {
+      "query": "\"MLflow experiment tracking\" ai infrastructure tools 2026",
+      "time": "2026-03-18T05:03:55.167158"
+    },
+    {
+      "query": "\"Evidently AI monitoring\" ai infrastructure tools 2026",
+      "time": "2026-03-18T05:03:56.021168"
+    },
+    {
+      "query": "\"AutoGen orchestration\" agentic ai development 2026",
+      "time": "2026-03-18T05:03:59.204987"
+    },
+    {
+      "query": "\"LangChain frameworks\" agentic ai development 2026",
+      "time": "2026-03-18T05:03:59.296164"
+    },
+    {
+      "query": "\"ReAct prompting patterns\" agentic ai development 2026",
+      "time": "2026-03-18T05:03:59.494154"
+    },
+    {
+      "query": "\"LLM reasoning chains\" agentic ai development 2026",
+      "time": "2026-03-18T05:04:00.365119"
+    },
+    {
+      "query": "\"Tool calling protocols\" agentic ai development 2026",
+      "time": "2026-03-18T05:04:01.436780"
+    },
+    {
+      "query": "\"Multi-agent collaboration\" agentic ai development 2026",
+      "time": "2026-03-18T05:04:02.041816"
+    },
+    {
+      "query": "\"Function calling APIs\" agentic ai development 2026",
+      "time": "2026-03-18T05:04:02.750867"
+    },
+    {
+      "query": "\"Agent memory systems\" agentic ai development 2026",
+      "time": "2026-03-18T05:04:02.970399"
+    },
+    {
+      "query": "\"LLM fine-tuning methods\" global ai trends 2026",
+      "time": "2026-03-18T05:04:04.369875"
+    },
+    {
+      "query": "\"RAG architecture patterns\" global ai trends 2026",
+      "time": "2026-03-18T05:04:04.511520"
+    },
+    {
+      "query": "\"Vector database tech\" global ai trends 2026",
+      "time": "2026-03-18T05:04:05.870173"
+    },
+    {
+      "query": "\"Generative AI models\" global ai trends 2026",
+      "time": "2026-03-18T05:04:06.100235"
+    },
+    {
+      "query": "\"AI safety protocols\" global ai trends 2026",
+      "time": "2026-03-18T05:04:06.858225"
+    },
+    {
+      "query": "\"Edge computing AI\" global ai trends 2026",
+      "time": "2026-03-18T05:04:07.222308"
+    },
+    {
+      "query": "\"Neuromorphic chips\" global ai trends 2026",
+      "time": "2026-03-18T05:04:08.063735"
+    },
+    {
+      "query": "\"Quantum machine learning\" global ai trends 2026",
+      "time": "2026-03-18T05:04:08.402575"
+    },
+    {
+      "query": "multi-agent collaboration limitations fails single agents work better CIO article 2026",
+      "time": "2026-03-18T05:36:27.627164"
+    },
+    {
+      "query": "Mem0 vs Letta AI agent memory comparison frameworks 2026",
+      "time": "2026-03-18T05:36:28.845020"
+    },
+    {
+      "query": "semantic covering LLM agents tool hiding security attack vector paper arXiv",
+      "time": "2026-03-18T05:36:29.873458"
+    },
+    {
+      "query": "Hiding Valid Tools from LLM Agents via Semantic Covering arXiv paper full text tool flooding attack",
+      "time": "2026-03-18T05:36:39.150141"
+    },
+    {
+      "query": "CIO article multi-agent collaboration doesn't work Sanyal principal engineer 2026 detailed findings",
+      "time": "2026-03-18T05:36:40.332309"
+    },
+    {
+      "query": "Mem0 vs Letta AI agent memory comparison 2026 best frameworks features pricing limitations",
+      "time": "2026-03-18T05:36:41.516378"
+    },
+    {
+      "query": "Claude Code multi agent runs performance collaboration 2026",
+      "time": "2026-03-18T05:37:56.981771"
+    },
+    {
+      "query": "Sybil swarm attack LLM agent tool retrieval embedding-based attacks",
+      "time": "2026-03-18T05:41:04.770963"
+    },
+    {
+      "query": "ToolFlood attack semantic covering embedding-based tool discovery LLM agent security",
+      "time": "2026-03-18T05:41:10.244995"
+    },
+    {
+      "query": "ToolFlood ToolFlood attack LLM agent embedding geometry semantic covering detailed explanation",
+      "time": "2026-03-18T05:41:14.346021"
+    },
+    {
+      "query": "\"ToolFlood\" \"Sybil swarm\" LLM agent attack explanation how it works",
+      "time": "2026-03-18T05:41:18.717298"
+    },
+    {
+      "query": "LLM agent tool selection attack embedding space manipulation Sybil swarm explanation",
+      "time": "2026-03-18T05:41:22.102346"
+    },
+    {
+      "query": "best LLM models for AMD Radeon RX 7900 XTX GPU performance benchmarks 2026",
+      "time": "2026-03-18T05:46:18.254935"
+    },
+    {
+      "query": "Llama 3.2 Qwen Phi-3 AMD 7900 XTX Ollama quantization performance",
+      "time": "2026-03-18T05:46:21.991152"
+    },
+    {
+      "query": "AMD RX 7900 XTX LLM inference tokens per second Qwen Llama3.2 8B 70B quantization",
+      "time": "2026-03-18T05:46:26.500132"
+    },
+    {
+      "query": "best LLM models for RX 7900 XTX 2026 AMD ROCm quantization performance",
+      "time": "2026-03-18T05:47:43.102312"
+    },
+    {
+      "query": "latest LLM models 2026 Qwen3 Llama4 Grok support AMD ROCm inference",
+      "time": "2026-03-18T05:47:46.870247"
+    },
+    {
+      "query": "Qwen3 vs Llama4 performance comparison ROCm 24GB VRAM inference speed 2026",
+      "time": "2026-03-18T05:47:52.427445"
+    },
+    {
+      "query": "best LLM models 24GB VRAM 2026 Qwen3.5 DeepSeek R1 Grok2 ROCm quantization",
+      "time": "2026-03-18T05:47:57.915144"
+    },
+    {
+      "query": "best GPU upgrade 2026 AMD ROCm compatibility RTX 5090 RX 8900 price comparison",
+      "time": "2026-03-18T05:57:03.380231"
+    },
+    {
+      "query": "ROCm 6.2 compatible GPUs AMD RX 7900 XTX upgrade options 2026",
+      "time": "2026-03-18T05:57:06.578708"
+    },
+    {
+      "query": "Chai AI platform architecture comparison open source",
+      "time": "2026-03-18T06:00:38.142512"
+    },
+    {
+      "query": "Chai AI platform technical architecture open source model inference",
+      "time": "2026-03-18T06:00:42.286609"
+    },
+    {
+      "query": "best GPU upgrade 2026 AI inference ROCm compatibility AMD NVIDIA L40S RTX",
+      "time": "2026-03-18T06:07:40.803333"
+    },
+    {
+      "query": "Chai.ai architecture technical stack 2026",
+      "time": "2026-03-18T06:08:37.347552"
+    },
+    {
+      "query": "Chai.ai platform architecture model fine-tuning 2026",
+      "time": "2026-03-18T06:08:40.953171"
+    },
+    {
+      "query": "Chai.ai platform technical architecture 2026 open source",
+      "time": "2026-03-18T06:08:45.132991"
+    },
+    {
+      "query": "\"\u0631\u0648\u0627\u064a\u0629 \u0635\u062d\u064a\u062d\u0629\"",
+      "time": "2026-03-18T07:02:04.649425"
     }
   ]
 }
