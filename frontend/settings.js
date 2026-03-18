@@ -81,8 +81,31 @@ async function loadConfig() {
         const ctxEl = document.getElementById('cfg-profile-context');
         if (ctxEl) ctxEl.value = context;
 
+        // UI preferences from server (auto_refresh, density, font_size, chart_type)
+        const uiPrefs = configData.ui_preferences || {};
+        if (uiPrefs.auto_refresh !== undefined) {
+            var arEl = document.getElementById('cfg-auto-refresh');
+            if (arEl) arEl.value = String(uiPrefs.auto_refresh);
+            if (typeof _setAutoRefresh === 'function') _setAutoRefresh(String(uiPrefs.auto_refresh), true);
+        }
+        if (uiPrefs.density) {
+            var densEl = document.getElementById('cfg-density');
+            if (densEl) densEl.value = uiPrefs.density;
+            if (typeof _applyDensity === 'function') _applyDensity(uiPrefs.density);
+        }
+        if (uiPrefs.font_size) {
+            var fsEl = document.getElementById('cfg-font-size');
+            if (fsEl) fsEl.value = uiPrefs.font_size;
+            if (typeof _applyFontSize === 'function') _applyFontSize(uiPrefs.font_size);
+        }
+        if (uiPrefs.chart_type) {
+            var ctEl = document.getElementById('cfg-chart-type');
+            if (ctEl) ctEl.value = uiPrefs.chart_type;
+            if (typeof setChartType === 'function') setChartType(uiPrefs.chart_type);
+        }
+
         lucide.createIcons();
-        
+
         // Initialize settings mode (simple or advanced)
         setSettingsMode(simpleSettingsMode);
         

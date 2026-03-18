@@ -775,12 +775,13 @@ async function _saveProfileSettings() {
 }
 
 /* ═══ Display Settings ═══ */
-function _applyDensity(val) {
+function _applyDensity(val, skipPersist) {
     document.body.className = document.body.className.replace(/density-\w+/g, '').trim();
     if (val && val !== 'normal') document.body.classList.add('density-' + val);
     localStorage.setItem('stratos_density', val);
+    if (!skipPersist) _persistUIPref('density', val);
 }
-function _applyFontSize(val) {
+function _applyFontSize(val, skipPersist) {
     var sizes = { small: '14px', medium: '16px', large: '18px', xlarge: '20px' };
     var scales = { small: '0.875', medium: '1', large: '1.125', xlarge: '1.25' };
     var fs = sizes[val] || '16px';
@@ -790,14 +791,25 @@ function _applyFontSize(val) {
     // Scale all Lucide icons via CSS custom property
     document.documentElement.setAttribute('data-fontsize', val || 'medium');
     localStorage.setItem('stratos_fontsize', val);
+    if (!skipPersist) _persistUIPref('font_size', val);
 }
 function _setDefaultChartType(val) {
     localStorage.setItem('stratos_chart_type', val);
     if (typeof setChartType === 'function' && val) setChartType(val);
+    _persistUIPref('chart_type', val);
+}
+function _persistUIPref(key, val) {
+    var body = { ui_preferences: {} };
+    body.ui_preferences[key] = val;
+    fetch('/api/config', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Auth-Token': typeof getAuthToken === 'function' ? getAuthToken() : '' },
+        body: JSON.stringify(body)
+    }).catch(function() {});
 }
 
 var _autoRefreshTimer = null;
-function _setAutoRefresh(secs) {
+function _setAutoRefresh(secs, skipPersist) {
     localStorage.setItem('stratos_auto_refresh', secs);
     if (_autoRefreshTimer) { clearInterval(_autoRefreshTimer); _autoRefreshTimer = null; }
     var s = parseInt(secs);
@@ -805,6 +817,14 @@ function _setAutoRefresh(secs) {
         _autoRefreshTimer = setInterval(function() {
             if (typeof refreshMarket === 'function') refreshMarket();
         }, s * 1000);
+    }
+    // Persist to backend unless loading from server
+    if (!skipPersist) {
+        fetch('/api/config', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-Auth-Token': typeof getAuthToken === 'function' ? getAuthToken() : '' },
+            body: JSON.stringify({ ui_preferences: { auto_refresh: s } })
+        }).catch(function() {});
     }
 }
 

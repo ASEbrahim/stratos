@@ -190,6 +190,7 @@ def handle_get(handler, strat, auth, path, output_dir=None):
             "scoring": {
                 "retain_high_scores": cfg.get("scoring", {}).get("retain_high_scores", True),
             },
+            "ui_preferences": cfg.get("ui_preferences", {}),
         }
         handler.wfile.write(json.dumps(editable_config).encode())
         return True

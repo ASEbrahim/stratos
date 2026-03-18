@@ -158,6 +158,14 @@ def handle_config_save(handler, strat, auth_helpers):
                 except Exception as e:
                     logger.debug(f"Failed to reload TTS persona voices: {e}")
 
+        # UI preferences (auto_refresh, density, font_size, chart_type)
+        if "ui_preferences" in new_config:
+            if "ui_preferences" not in config:
+                config["ui_preferences"] = {}
+            for key in ["auto_refresh", "density", "font_size", "chart_type"]:
+                if key in new_config["ui_preferences"]:
+                    config["ui_preferences"][key] = new_config["ui_preferences"][key]
+
         # Dynamic categories — normalize field names (frontend may send label/items or name/keywords)
         if "dynamic_categories" in new_config:
             normalized = []
