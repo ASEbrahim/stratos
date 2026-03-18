@@ -3,6 +3,13 @@ import { View, Text, TextInput, StyleSheet } from 'react-native';
 import { CharacterCardCreate } from '../../lib/types';
 import { typography, spacing, borderRadius } from '../../constants/theme';
 import { useThemeStore } from '../../stores/themeStore';
+import {
+  PillSelector,
+  GENDER_OPTIONS, ARCHETYPE_OPTIONS, RELATIONSHIP_OPTIONS,
+  POV_OPTIONS, NSFW_COMFORT_OPTIONS, AGE_RANGE_OPTIONS,
+  RESPONSE_LENGTH_OPTIONS, SCENARIO_TEMPLATES, SPEECH_STYLE_TEMPLATES,
+  PERSONALITY_TEMPLATES,
+} from './PillSelector';
 
 function WordCount({ text }: { text: string }) {
   const tc = useThemeStore(s => s.colors);
@@ -13,16 +20,27 @@ function WordCount({ text }: { text: string }) {
 
 interface AdvancedEditorProps {
   card: CharacterCardCreate;
-  onUpdate: (key: keyof CharacterCardCreate, value: string | string[]) => void;
+  onUpdate: (key: keyof CharacterCardCreate, value: string | string[] | undefined) => void;
 }
 
 export const AdvancedEditor = React.memo(function AdvancedEditor({ card, onUpdate }: AdvancedEditorProps) {
   const tc = useThemeStore(s => s.colors);
 
+  const handleArchetypeChange = (arch: string | undefined) => {
+    onUpdate('archetype_override', arch);
+    if (arch && (!card.personality?.trim() || Object.values(PERSONALITY_TEMPLATES).includes(card.personality))) {
+      onUpdate('personality', PERSONALITY_TEMPLATES[arch] || '');
+    }
+  };
+
   return (
     <>
       {/* Section: Identity */}
       <Text style={[styles.sectionTitle, { color: tc.accent.primary }]}>Identity</Text>
+
+      <PillSelector label="Gender" options={GENDER_OPTIONS} value={card.gender} onChange={(v) => onUpdate('gender', v)} />
+      <PillSelector label="Age Range" options={AGE_RANGE_OPTIONS} value={card.age_range} onChange={(v) => onUpdate('age_range', v)} />
+
       <Text style={[styles.fieldLabel, { color: tc.text.primary }]}>Description</Text>
       <TextInput style={[styles.input, styles.multiline, { backgroundColor: tc.bg.tertiary, color: tc.text.primary, borderColor: tc.border.subtle }]} value={card.description} onChangeText={v => onUpdate('description', v)} placeholder="Who is this character?" placeholderTextColor={tc.text.muted} multiline textAlignVertical="top" />
       <WordCount text={card.description} />
@@ -36,12 +54,15 @@ export const AdvancedEditor = React.memo(function AdvancedEditor({ card, onUpdat
       <View style={[styles.divider, { backgroundColor: tc.border.subtle }]} />
       <Text style={[styles.sectionTitle, { color: tc.accent.primary }]}>Behavior</Text>
 
+      <PillSelector label="Archetype" options={ARCHETYPE_OPTIONS} value={card.archetype_override} onChange={handleArchetypeChange} />
+      <PillSelector label="Relationship to You" options={RELATIONSHIP_OPTIONS} value={card.relationship_to_user} onChange={(v) => onUpdate('relationship_to_user', v)} />
+
       <Text style={[styles.fieldLabel, { color: tc.text.primary }]}>Personality</Text>
       <TextInput style={[styles.input, styles.multiline, { backgroundColor: tc.bg.tertiary, color: tc.text.primary, borderColor: tc.border.subtle }]} value={card.personality} onChangeText={v => onUpdate('personality', v)} placeholder="How does your character act and speak?" placeholderTextColor={tc.text.muted} multiline textAlignVertical="top" />
       <WordCount text={card.personality} />
 
       <Text style={[styles.fieldLabel, { color: tc.text.primary }]}>Speech Pattern</Text>
-      <Text style={[styles.fieldHint, { color: tc.text.secondary }]}>How do they talk? Accent, vocabulary, quirks.</Text>
+      <PillSelector label="" options={SPEECH_STYLE_TEMPLATES} value={undefined} onChange={(v) => { if (v) onUpdate('speech_pattern', v); }} allowDeselect={false} />
       <TextInput style={[styles.input, { backgroundColor: tc.bg.tertiary, color: tc.text.primary, borderColor: tc.border.subtle }]} value={card.speech_pattern} onChangeText={v => onUpdate('speech_pattern', v)} placeholder="Formal, archaic phrasing, never uses contractions..." placeholderTextColor={tc.text.muted} multiline textAlignVertical="top" />
       <WordCount text={card.speech_pattern} />
 
@@ -51,8 +72,17 @@ export const AdvancedEditor = React.memo(function AdvancedEditor({ card, onUpdat
       <WordCount text={card.first_message} />
 
       <Text style={[styles.fieldLabel, { color: tc.text.primary }]}>Scenario</Text>
+      <PillSelector label="" options={SCENARIO_TEMPLATES} value={undefined} onChange={(v) => { if (v) onUpdate('scenario', v); }} allowDeselect={false} />
       <TextInput style={[styles.input, styles.multiline, { backgroundColor: tc.bg.tertiary, color: tc.text.primary, borderColor: tc.border.subtle }]} value={card.scenario} onChangeText={v => onUpdate('scenario', v)} placeholder="The starting situation" placeholderTextColor={tc.text.muted} multiline textAlignVertical="top" />
       <WordCount text={card.scenario} />
+
+      {/* Section: Style */}
+      <View style={[styles.divider, { backgroundColor: tc.border.subtle }]} />
+      <Text style={[styles.sectionTitle, { color: tc.accent.primary }]}>Style</Text>
+
+      <PillSelector label="Narration POV" options={POV_OPTIONS} value={card.narration_pov} onChange={(v) => onUpdate('narration_pov', v)} />
+      <PillSelector label="Response Length" options={RESPONSE_LENGTH_OPTIONS} value={card.response_length_pref} onChange={(v) => onUpdate('response_length_pref', v)} />
+      <PillSelector label="NSFW Comfort" options={NSFW_COMFORT_OPTIONS} value={card.nsfw_comfort} onChange={(v) => onUpdate('nsfw_comfort', v)} />
 
       {/* Section: Depth */}
       <View style={[styles.divider, { backgroundColor: tc.border.subtle }]} />
