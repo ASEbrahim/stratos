@@ -1006,16 +1006,8 @@
 
         resetLayout() {
             // Clear all theme element localStorage values
-            const _themes = ['cosmos','sakura','noir','rose','coffee','midnight','nebula','aurora'];
-            const _suffixes = ['-cx','-cy','-scale','-blur','-opacity','-density','-visible'];
-            for (const th of _themes) for (const sf of _suffixes) localStorage.removeItem('stratos-' + th + sf);
-            // Sakura tree-specific keys
-            ['-cx','-cy','-scale','-blur','-opacity'].forEach(sf => localStorage.removeItem('stratos-sakura-tree' + sf));
-            localStorage.removeItem('stratos-sakura-tree');
-            // Sakura petal + star field keys
-            ['stratos-sakura-size','stratos-sakura-fall','stratos-sakura-wind',
-             'stratos-stars-density','stratos-stars-drift','stratos-stars-brightness',
-             'stratos-cosmos-preset'].forEach(k => localStorage.removeItem(k));
+            for (const th of _LAYOUT_THEMES) for (const sf of _LAYOUT_SUFFIXES) localStorage.removeItem('stratos-' + th + sf);
+            for (const key of _LAYOUT_EXTRA_KEYS) localStorage.removeItem(key);
             _buildThemeElementControls(document.getElementById('te-body'));
             if (typeof renderStars === 'function') renderStars();
         },
@@ -1027,16 +1019,18 @@
 
         async savePreset() {
             const overrides = loadOverrides();
-            if (!Object.keys(overrides).length) return;
+            const layout = _collectLayoutData();
+            if (!Object.keys(overrides).length && !Object.keys(layout).length) return;
             const name = await stratosPrompt({ title: 'Save Theme Preset', label: 'Preset name', placeholder: 'My custom theme' });
             if (!name || !name.trim()) return;
             const presets = _getPresets();
             // Overwrite if same name exists
             const idx = presets.findIndex(p => p.name === name.trim());
+            const presetData = { name: name.trim(), overrides: { ...overrides }, layout: { ...layout } };
             if (idx >= 0) {
-                presets[idx].overrides = { ...overrides };
+                presets[idx] = presetData;
             } else {
-                presets.push({ name: name.trim(), overrides: { ...overrides } });
+                presets.push(presetData);
             }
             _savePresets(presets);
             _refreshPresetList();
@@ -1054,6 +1048,11 @@
             saveOverrides(preset.overrides);
             clearAllOverrides();
             applyOverrides(preset.overrides);
+            // Restore layout data (canvas element positions/scale/blur)
+            if (preset.layout) {
+                _restoreLayoutData(preset.layout);
+                _buildThemeElementControls(document.getElementById('te-body'));
+            }
             syncPickersToCurrentTheme();
         },
 
