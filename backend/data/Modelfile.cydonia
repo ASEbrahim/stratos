@@ -1,0 +1,18 @@
+FROM /home/ahmad/Downloads/Cydonia-24B-v4.3-Q4_K_M.gguf
+
+PARAMETER temperature 0.85
+PARAMETER num_ctx 16384
+PARAMETER stop "<|im_end|>"
+
+TEMPLATE """{{- range .Messages }}
+{{- if eq .Role "system" }}<|im_start|>system
+{{ .Content }}<|im_end|>
+{{ end }}
+{{- if eq .Role "user" }}<|im_start|>user
+{{ .Content }}<|im_end|>
+{{ end }}
+{{- if eq .Role "assistant" }}<|im_start|>assistant
+{{ .Content }}<|im_end|>
+{{ end }}
+{{- end }}<|im_start|>assistant
+"""

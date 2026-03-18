@@ -41,7 +41,7 @@ scoring:
   medium_min: 5.0
   model: stratos-scorer-v2.2
 rp:
-  model: huihui_ai/qwen3.5-abliterated:9b-q8_0
+  model: cydonia-rp
   ollama_host: http://localhost:11434
   timeout:
     rolling_window: 20
@@ -327,3 +327,7 @@ tickers:
 - CL=F
 - EURUSD=X
 - ^GSPC
+ui_preferences:
+  density: comfortable
+  font_size: medium
+  auto_refresh: 0
