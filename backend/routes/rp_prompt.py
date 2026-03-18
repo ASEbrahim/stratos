@@ -311,6 +311,10 @@ def _build_system_prompt(card: dict = None, director_note: str = None,
         speech = _clean_speech_pattern(card.get('speech_pattern', ''))
         if speech:
             prompt += f"\nSpeech: {speech}"
+        else:
+            # Fallback: if speech_pattern was entirely formatting meta (stripped to empty),
+            # remind the model about format since the card-level instruction is gone
+            prompt += "\nSpeech: Use *asterisks* for actions/narration and \"quotes\" for dialogue."
 
         # Scenario is injected via per-turn SETTING hint (rp_injection.py) at optimal
         # depth (right above recent messages = strongest attention). NOT here in the

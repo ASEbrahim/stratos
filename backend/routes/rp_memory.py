@@ -325,10 +325,8 @@ def build_rp_context(session_id: str, db, character_card_id: str = None,
     parts = []
 
     # ── Tier 1: Facts (always, capped at 200 tokens) ──
+    # Only load facts from THIS session — no cross-session bleed
     tier1_facts = db.get_rp_context(session_id, tier=1, limit=50)
-    # Also load cross-session facts if we have a character card
-    if character_card_id and not tier1_facts:
-        tier1_facts = db.get_rp_context_for_character(character_card_id, tier=1, limit=30)
 
     if tier1_facts:
         fact_lines = []
@@ -347,10 +345,8 @@ def build_rp_context(session_id: str, db, character_card_id: str = None,
             debug["tier1"] = _estimate_tokens(tier1_text)
 
     # ── Tier 3: Arc Summaries (always, capped at 800 tokens) ──
+    # Only load arcs from THIS session — no cross-session bleed
     tier3_arcs = db.get_rp_context(session_id, tier=3, category="arc_summary", limit=20)
-    # Also load cross-session arcs
-    if character_card_id and not tier3_arcs:
-        tier3_arcs = db.get_rp_context_for_character(character_card_id, tier=3, limit=10)
 
     if tier3_arcs:
         arc_lines = []
