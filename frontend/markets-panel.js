@@ -401,6 +401,15 @@ function mpAddChart(symbol, timeframe, skipSave, chartType, chartHeight) {
     }
 }
 
+function mpToggleChart(symbol, timeframe) {
+    var existing = _mpCharts.find(function(c) { return c.symbol === symbol; });
+    if (existing) {
+        mpRemoveChart(existing.id);
+    } else {
+        mpAddChart(symbol, timeframe);
+    }
+}
+
 function mpRemoveChart(id) {
     var idx = _mpCharts.findIndex(function(c){return c.id===id;}); if (idx < 0) return;
     var e = _mpCharts[idx]; try{e.ro.disconnect();}catch(x){} try{e.chart.remove();}catch(x){} e.el.remove();
