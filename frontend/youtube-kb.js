@@ -282,7 +282,7 @@ function _ykbRenderExpanded(chId) {
     // Insights panel
     html += `<div class="ykb-insights-panel" id="ykb-insights-${chId}">`;
     if (activeVid) {
-        const lenses = ['transcript', 'summary', 'eloquence', 'narrations', 'translate'];
+        const lenses = ['transcript', 'summary', 'eloquence', 'narrations', 'history', 'spiritual', 'politics'];
         html += `<div class="ykb-lens-tabs">`;
         lenses.forEach(lens => {
             const label = lens === 'transcript' ? 'Transcript' : lens.charAt(0).toUpperCase() + lens.slice(1);
@@ -1121,6 +1121,29 @@ function _ykbShowToast(msg, color) {
                     }
                 }
                 break;
+            }
+        }
+    };
+})();
+
+// ═══ SSE: Refresh insights when lens extraction completes ═══
+(function() {
+    const _origHandler = window._handleLensExtracted;
+    window._handleLensExtracted = function(event) {
+        // Call the original youtube.js handler first
+        if (typeof _origHandler === 'function') _origHandler(event);
+
+        // Invalidate cache for this video and re-render in the KB tab
+        const videoDbId = event.video_id;
+        if (videoDbId && _ykbInsightsLoaded[videoDbId]) {
+            delete _ykbInsightsLoaded[videoDbId];
+            // Find which channel has this video active and reload
+            for (const chId of Object.keys(_ykbActiveVideo)) {
+                const av = _ykbActiveVideo[chId];
+                if (av && av.id == videoDbId) {
+                    _ykbLoadInsights(parseInt(chId), videoDbId);
+                    break;
+                }
             }
         }
     };
