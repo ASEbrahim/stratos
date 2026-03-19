@@ -221,6 +221,71 @@ def handle_post(handler, strat, auth, path) -> bool:
     profile_id = getattr(handler, '_profile_id', 0)
     db = strat.db
 
+    # ── POST /api/cards/generate — AI-generate a character from description ──
+    if path == "/api/cards/generate":
+        import re as _re
+        from routes.rp_meta import call_haiku
+
+        data = read_json_body(handler)
+        prompt_text = data.get("prompt", "").strip()
+        genre = data.get("genre", "")
+        archetype = data.get("archetype", "")
+        relationship = data.get("relationship", "")
+
+        if not prompt_text and not genre and not archetype:
+            error_response(handler, "Provide a prompt, genre, or archetype", 400)
+            return True
+        if len(prompt_text) > 1000:
+            error_response(handler, "Prompt too long (max 1000 chars)", 400)
+            return True
+
+        hints = []
+        if genre:
+            hints.append(f"Genre: {genre}")
+        if archetype:
+            hints.append(f"Archetype: {archetype}")
+        if relationship:
+            hints.append(f"Relationship to user: {relationship}")
+        hint_block = "\n".join(hints)
+
+        gen_prompt = f"""Generate a character card as JSON from this description.
+
+Description: {prompt_text or 'Create a character matching the filters below.'}
+{hint_block}
+
+Return ONLY valid JSON:
+{{"name":"character name","personality":"2-3 sentences","description":"1-2 sentences","physical_description":"appearance + one unique detail","speech_pattern":"how they talk","first_message":"in-character greeting with *actions*, 2-3 sentences","scenario":"the setting, 1-2 sentences","emotional_trigger":"what provokes strong emotion","defensive_mechanism":"how they protect themselves","vulnerability":"the crack in the armor","specific_detail":"one concrete detail","genre_tags":["genre"],"content_rating":"sfw","archetype_override":"archetype","gender":"female/male/nonbinary"}}"""
+
+        text = call_haiku(gen_prompt, max_tokens=500)
+        if text is None:
+            error_response(handler, "Character generation unavailable — check API key", 503)
+            return True
+
+        json_match = _re.search(r'\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}', text, _re.DOTALL)
+        if not json_match:
+            error_response(handler, "Generation failed — invalid response", 500)
+            return True
+
+        try:
+            card_data = json.loads(json_match.group())
+        except json.JSONDecodeError:
+            error_response(handler, "Generation failed — parse error", 500)
+            return True
+
+        # Detect NSFW from prompt
+        nsfw_re = _re.compile(r'\b(nsfw|explicit|18\+|adult|smut|erotic|lewd|hentai)\b', _re.I)
+        if nsfw_re.search(prompt_text):
+            card_data['content_rating'] = 'nsfw'
+            card_data.setdefault('nsfw_comfort', 'suggestive')
+
+        # Ensure genre_tags is a list
+        if isinstance(card_data.get('genre_tags'), str):
+            card_data['genre_tags'] = [card_data['genre_tags']]
+
+        logger.info(f"Quick generated character: {card_data.get('name', '?')} for profile {profile_id}")
+        json_response(handler, {"ok": True, "card": card_data})
+        return True
+
     # ── POST /api/cards (create) ──
     if path == "/api/cards":
         data = read_json_body(handler)
