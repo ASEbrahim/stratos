@@ -119,6 +119,13 @@ function mapTavernToCard(tavern: TavernCardV2): CharacterCardCreate {
   // Map tags to our genre format
   const genreTags = mapTavernTags(tavern.tags ?? []);
 
+  // Detect NSFW from tags — TavernCard V2 uses tags like 'nsfw', 'explicit', '18+'
+  // to indicate content rating (no dedicated nsfw field in the spec)
+  const nsfwTags = ['nsfw', 'explicit', '18+', 'adult', 'smut', 'erotic', 'lewd'];
+  const hasNsfwTag = (tavern.tags ?? []).some(
+    tag => nsfwTags.includes(tag.toLowerCase().trim())
+  );
+
   return {
     name: tavern.name ?? 'Imported Character',
     description: remainingDesc,
@@ -132,8 +139,10 @@ function mapTavernToCard(tavern: TavernCardV2): CharacterCardCreate {
     vulnerability: '',
     specific_detail: '',
     genre_tags: genreTags,
-    content_rating: 'sfw',
+    content_rating: hasNsfwTag ? 'nsfw' : 'sfw',
     avatar_url: '',
+    // Map NSFW comfort from tags — suggestive if card is tagged NSFW
+    ...(hasNsfwTag ? { nsfw_comfort: 'suggestive' as const } : {}),
   };
 }
 
