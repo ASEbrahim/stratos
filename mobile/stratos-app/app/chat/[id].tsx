@@ -192,7 +192,7 @@ export default function ChatScreen() {
       {/* Branch selector (only visible when multiple branches exist) */}
       <BranchSelector branches={branches} currentBranch={currentBranch} onSelect={setCurrentBranch} accentColor={accentColor} />
 
-      <KeyboardAvoidingView style={styles.chatArea} behavior={Platform.OS === 'ios' ? 'padding' : undefined} keyboardVerticalOffset={insets.top}>
+      <KeyboardAvoidingView style={styles.chatArea} behavior={Platform.OS === 'ios' ? 'padding' : 'height'} keyboardVerticalOffset={Platform.OS === 'ios' ? insets.top : 0}>
         <ChatMessageList
           listRef={listRef}
           messages={messages}

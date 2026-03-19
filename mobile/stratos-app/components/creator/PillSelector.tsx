@@ -76,6 +76,10 @@ export const ARCHETYPE_OPTIONS: PillOption[] = [
   { value: 'clinical', label: 'Analytical' },
   { value: 'sweet', label: 'Sweet / Caring' },
   { value: 'submissive', label: 'Submissive' },
+  { value: 'dominant', label: 'Dominant' },
+  { value: 'playful', label: 'Playful / Teasing' },
+  { value: 'mysterious', label: 'Mysterious' },
+  { value: 'protective', label: 'Protective' },
 ];
 
 export const POV_OPTIONS: PillOption[] = [

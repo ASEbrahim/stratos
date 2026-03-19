@@ -39,7 +39,11 @@ export function EditSheet({ visible, messageId, dbId, originalContent, onClose, 
     setSaving(true);
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     try {
-      await editMessage(dbId || 0, content.trim(), reason || undefined);
+      // Only call backend if we have a real DB message ID
+      if (dbId) {
+        await editMessage(dbId, content.trim(), reason || undefined);
+      }
+      // Always update the UI locally regardless
       onSaved(content.trim());
       onClose();
     } catch (err) {

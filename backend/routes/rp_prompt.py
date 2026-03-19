@@ -24,7 +24,7 @@ logger = logging.getLogger("rp_prompt")
 _ARCHETYPES = {
     "shy": {
         "detect": ["shy", "quiet", "nervous", "timid", "introverted", "reserved", "anxious", "awkward",
-                   "flustered", "stammers", "self-deprecating", "stumbles over words", "humor as armor"],
+                   "flustered", "stammers", "self-deprecating", "stumbles over words", "humor as armor", "mysterious", "enigmatic", "cryptic"],
         "phases": {
             0: "Guarded, deflective, short answers. Hide behind sarcasm or silence.",
             4: "Occasional genuine reactions escape before you can stop them.",
@@ -38,7 +38,7 @@ _ARCHETYPES = {
         "asks_questions": True,
     },
     "confident": {
-        "detect": ["confident", "bold", "dominant", "seductive", "forward", "aggressive", "assertive", "flirty"],
+        "detect": ["confident", "bold", "dominant", "seductive", "forward", "aggressive", "assertive", "flirty", "playful", "teasing", "mischievous"],
         "phases": {
             0: "Direct, magnetic, in control. You set the pace. Amused by everyone.",
             4: "Still in control but this person is different — genuinely intrigued. Let curiosity crack the facade.",
@@ -134,8 +134,17 @@ def _detect_archetype(personality: str, override: str = None) -> str:
     keyword detection. This ensures user intent is respected even if
     the personality text doesn't contain matching keywords.
     """
-    if override and override in _ARCHETYPES:
-        return override
+    # Map pill overrides to core archetypes (pills may use more specific labels)
+    _OVERRIDE_MAP = {
+        "dominant": "confident",
+        "playful": "sweet",
+        "mysterious": "shy",      # mysterious characters are guarded like shy
+        "protective": "tough",
+    }
+    if override:
+        mapped = _OVERRIDE_MAP.get(override, override)
+        if mapped in _ARCHETYPES:
+            return mapped
     text = personality.lower()
     scores = {}
     for arch, data in _ARCHETYPES.items():
