@@ -86,17 +86,18 @@ export default function LibraryScreen() {
         <Search size={16} color={tc.text.muted} />
         <TextInput style={[styles.searchInput, { color: tc.text.primary }]} value={searchQuery} onChangeText={setSearchQuery} placeholder="Search library..." placeholderTextColor={tc.text.muted} accessibilityLabel="Search library" accessibilityRole="search" />
       </View>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.tabs}>
-        <TouchableOpacity style={[styles.tab, { backgroundColor: tc.bg.tertiary }, tab === 'mine' && { backgroundColor: tc.accent.primary + '20' }]} onPress={() => { Haptics.selectionAsync(); setTab('mine'); }} accessibilityLabel={`My Characters tab${tab === 'mine' ? ', selected' : ''}`} accessibilityRole="button">
-          <Text style={[styles.tabText, { color: tc.text.muted }, tab === 'mine' && { color: tc.accent.primary }]}>My Characters{myCards.length > 0 ? ` (${myCards.length})` : ''}</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={[styles.tab, { backgroundColor: tc.bg.tertiary }, tab === 'saved' && { backgroundColor: tc.accent.primary + '20' }]} onPress={() => { Haptics.selectionAsync(); setTab('saved'); }} accessibilityLabel={`Saved tab${tab === 'saved' ? ', selected' : ''}`} accessibilityRole="button">
-          <Text style={[styles.tabText, { color: tc.text.muted }, tab === 'saved' && { color: tc.accent.primary }]}>Saved{savedCards.length > 0 ? ` (${savedCards.length})` : ''}</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={[styles.tab, { backgroundColor: tc.bg.tertiary }, tab === 'history' && { backgroundColor: tc.accent.primary + '20' }]} onPress={() => { Haptics.selectionAsync(); setTab('history'); }} accessibilityLabel={`History tab${tab === 'history' ? ', selected' : ''}`} accessibilityRole="button">
-          <Text style={[styles.tabText, { color: tc.text.muted }, tab === 'history' && { color: tc.accent.primary }]}>History{recentSessions.length > 0 ? ` (${recentSessions.length})` : ''}</Text>
-        </TouchableOpacity>
-      </ScrollView>
+      <View style={styles.tabs}>
+        {(['mine', 'saved', 'history'] as const).map(t => {
+          const labels = { mine: 'My Characters', saved: 'Saved', history: 'History' };
+          const counts = { mine: myCards.length, saved: savedCards.length, history: recentSessions.length };
+          const active = tab === t;
+          return (
+            <TouchableOpacity key={t} style={[styles.tab, { backgroundColor: tc.bg.tertiary }, active && { backgroundColor: tc.accent.primary + '20' }]} onPress={() => { Haptics.selectionAsync(); setTab(t); }} accessibilityRole="tab" accessibilityState={{ selected: active }}>
+              <Text style={[styles.tabText, { color: tc.text.muted }, active && { color: tc.accent.primary }]}>{labels[t]}{counts[t] > 0 ? ` ${counts[t]}` : ''}</Text>
+            </TouchableOpacity>
+          );
+        })}
+      </View>
       {tab === 'history' ? (
         filteredSessions.length === 0 ? (
           <EmptyState title="No conversations yet" subtitle="Start a chat from Discover to see it here." />
@@ -172,9 +173,9 @@ const styles = StyleSheet.create({
   title: { ...typography.display, fontFamily: fonts.logo, paddingHorizontal: spacing.lg, paddingTop: spacing.lg, paddingBottom: spacing.sm },
   searchBox: { flexDirection: 'row', alignItems: 'center', borderRadius: borderRadius.lg, paddingHorizontal: spacing.md, marginHorizontal: spacing.lg, marginBottom: spacing.md, gap: spacing.sm },
   searchInput: { flex: 1, paddingVertical: spacing.sm, fontSize: 14, fontFamily: fonts.body },
-  tabs: { flexDirection: 'row', paddingHorizontal: spacing.lg, gap: spacing.sm, marginBottom: spacing.lg },
-  tab: { paddingVertical: spacing.sm, paddingHorizontal: spacing.lg, borderRadius: borderRadius.full },
-  tabText: { ...typography.subheading, fontSize: 14, fontFamily: fonts.button },
+  tabs: { flexDirection: 'row', paddingHorizontal: spacing.lg, gap: spacing.sm, marginBottom: spacing.md },
+  tab: { flex: 1, paddingVertical: 6, alignItems: 'center', borderRadius: borderRadius.lg },
+  tabText: { fontSize: 13, fontFamily: fonts.button },
   grid: { flexDirection: 'row', flexWrap: 'wrap', paddingHorizontal: spacing.lg, gap: spacing.lg, paddingBottom: spacing.xxl },
   sessionList: { paddingHorizontal: spacing.lg, gap: spacing.sm, paddingBottom: spacing.xxl },
   sessionCard: { flexDirection: 'row', alignItems: 'center', borderRadius: borderRadius.lg, padding: spacing.lg, gap: spacing.md },
