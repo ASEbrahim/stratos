@@ -38,6 +38,7 @@ export default function DiscoverScreen() {
   useEffect(() => { loadTrending(); loadNew(); getScenarios().then(setScenarios).catch(err => reportError('DiscoverScreen:getScenarios', err)); }, []);
   const onRefresh = useCallback(async () => { setRefreshing(true); try { await Promise.all([loadTrending(), loadNew(), getScenarios().then(setScenarios)]); } catch (err) { reportError('DiscoverScreen:onRefresh', err); } setRefreshing(false); }, []);
   const searchTimer = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => { return () => { if (searchTimer.current) clearTimeout(searchTimer.current); }; }, []);
   const handleSearch = (text: string) => {
     setSearchQuery(text);
     if (searchTimer.current) clearTimeout(searchTimer.current);
