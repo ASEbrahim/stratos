@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Alert, RefreshControl, TextInput } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Alert, RefreshControl, TextInput, Dimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { MessageCircle, Clock, Trash2, Search } from 'lucide-react-native';
@@ -86,7 +86,7 @@ export default function LibraryScreen() {
         <Search size={16} color={tc.text.muted} />
         <TextInput style={[styles.searchInput, { color: tc.text.primary }]} value={searchQuery} onChangeText={setSearchQuery} placeholder="Search library..." placeholderTextColor={tc.text.muted} accessibilityLabel="Search library" accessibilityRole="search" />
       </View>
-      <View style={styles.tabs}>
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.tabs}>
         <TouchableOpacity style={[styles.tab, { backgroundColor: tc.bg.tertiary }, tab === 'mine' && { backgroundColor: tc.accent.primary + '20' }]} onPress={() => { Haptics.selectionAsync(); setTab('mine'); }} accessibilityLabel={`My Characters tab${tab === 'mine' ? ', selected' : ''}`} accessibilityRole="button">
           <Text style={[styles.tabText, { color: tc.text.muted }, tab === 'mine' && { color: tc.accent.primary }]}>My Characters{myCards.length > 0 ? ` (${myCards.length})` : ''}</Text>
         </TouchableOpacity>
@@ -96,7 +96,7 @@ export default function LibraryScreen() {
         <TouchableOpacity style={[styles.tab, { backgroundColor: tc.bg.tertiary }, tab === 'history' && { backgroundColor: tc.accent.primary + '20' }]} onPress={() => { Haptics.selectionAsync(); setTab('history'); }} accessibilityLabel={`History tab${tab === 'history' ? ', selected' : ''}`} accessibilityRole="button">
           <Text style={[styles.tabText, { color: tc.text.muted }, tab === 'history' && { color: tc.accent.primary }]}>History{recentSessions.length > 0 ? ` (${recentSessions.length})` : ''}</Text>
         </TouchableOpacity>
-      </View>
+      </ScrollView>
       {tab === 'history' ? (
         filteredSessions.length === 0 ? (
           <EmptyState title="No conversations yet" subtitle="Start a chat from Discover to see it here." />
