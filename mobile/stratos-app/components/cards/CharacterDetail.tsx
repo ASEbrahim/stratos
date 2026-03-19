@@ -137,19 +137,7 @@ export function CharacterDetailView({ card }: CharacterDetailProps) {
       ) : null}
 
       {/* Rate this character */}
-      <View style={styles.rateSection}>
-        <Text style={[styles.rateLabel, { color: tc.text.muted }]}>Rate this character</Text>
-        <View style={styles.rateStars}>
-          {[1, 2, 3, 4, 5].map(n => (
-            <TouchableOpacity key={n} onPress={() => {
-              Haptics.selectionAsync();
-              rateCard(card.id, n).catch(err => reportError('CharacterDetail:rateCard', err));
-            }} hitSlop={4}>
-              <Star size={22} color={tc.accent.secondary} fill={n <= Math.round(card.rating) ? tc.accent.secondary : 'transparent'} />
-            </TouchableOpacity>
-          ))}
-        </View>
-      </View>
+      <RatingSection card={card} tc={tc} />
 
       {/* ── Character details (below actions) ── */}
       <View style={styles.section}><Text style={[styles.sectionTitle, { color: tc.text.primary }]}>Description</Text><Text style={[styles.sectionBody, { color: tc.text.secondary }]}>{card.description}</Text></View>
@@ -191,6 +179,29 @@ export function CharacterDetailView({ card }: CharacterDetailProps) {
       </TouchableOpacity>
       <View style={{ height: spacing.xxl }} />
     </ScrollView>
+  );
+}
+
+function RatingSection({ card, tc }: { card: CharacterCard; tc: any }) {
+  const [userRating, setUserRating] = useState(0);
+  const displayRating = userRating || Math.round(card.rating);
+
+  return (
+    <View style={styles.rateSection}>
+      <Text style={[styles.rateLabel, { color: tc.text.muted }]}>Rate this character</Text>
+      <View style={styles.rateStars}>
+        {[1, 2, 3, 4, 5].map(n => (
+          <TouchableOpacity key={n} onPress={() => {
+            setUserRating(n);
+            Haptics.selectionAsync();
+            rateCard(card.id, n).catch(err => reportError('CharacterDetail:rateCard', err));
+          }} hitSlop={4}>
+            <Star size={22} color={tc.accent.secondary} fill={n <= displayRating ? tc.accent.secondary : 'transparent'} />
+          </TouchableOpacity>
+        ))}
+      </View>
+      {userRating > 0 && <Text style={[{ color: tc.text.muted, fontSize: 11, marginTop: 4 }]}>Rated {userRating}/5</Text>}
+    </View>
   );
 }
 

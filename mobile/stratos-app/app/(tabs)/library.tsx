@@ -139,7 +139,7 @@ export default function LibraryScreen() {
               <CharacterCardComponent card={c} />
               {tab === 'mine' && (
                 <TouchableOpacity
-                  style={{ position: 'absolute', top: 6, right: 6, padding: 4, backgroundColor: 'rgba(0,0,0,0.5)', borderRadius: 12 }}
+                  style={{ position: 'absolute', bottom: 6, right: 6, padding: 4, backgroundColor: 'rgba(0,0,0,0.6)', borderRadius: 12, zIndex: 10 }}
                   onPress={() => handleDeleteCard(c)}
                   hitSlop={8}
                   accessibilityLabel={`Delete ${c.name}`}

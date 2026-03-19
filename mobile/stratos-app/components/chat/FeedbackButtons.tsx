@@ -19,11 +19,11 @@ export const FeedbackButtons = React.memo(function FeedbackButtons({ messageId, 
   const [selected, setSelected] = useState<'up' | 'down' | null>(null);
 
   const handleFeedback = async (type: 'up' | 'down') => {
-    if (selected === type || !dbId) return;
+    if (selected === type) return;
     setSelected(type);
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     try {
-      await sendFeedback(dbId, type === 'up' ? 'thumbs_up' : 'thumbs_down');
+      await sendFeedback(dbId || 0, type === 'up' ? 'thumbs_up' : 'thumbs_down');
     } catch (err) { reportError('FeedbackButtons:sendFeedback', err); }
   };
 
