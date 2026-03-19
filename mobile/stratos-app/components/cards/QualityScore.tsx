@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, Text, StyleSheet, DimensionValue } from 'react-native';
 import { CharacterCard, getQualityScore } from '../../lib/types';
 import { useThemeStore } from '../../stores/themeStore';
@@ -6,9 +6,9 @@ import { typography, spacing, borderRadius } from '../../constants/theme';
 
 interface QualityScoreProps { card: CharacterCard; showElements?: boolean; size?: 'small' | 'large'; }
 
-export function QualityScore({ card, showElements = false, size = 'small' }: QualityScoreProps) {
+export const QualityScore = React.memo(function QualityScore({ card, showElements = false, size = 'small' }: QualityScoreProps) {
   const tc = useThemeStore(s => s.colors);
-  const quality = getQualityScore(card);
+  const quality = useMemo(() => getQualityScore(card), [card]);
   const color = tc.quality[quality.level];
   if (size === 'small') {
     return (
@@ -34,7 +34,7 @@ export function QualityScore({ card, showElements = false, size = 'small' }: Qua
       )}
     </View>
   );
-}
+});
 
 const styles = StyleSheet.create({
   badge: { borderWidth: 1, borderRadius: borderRadius.sm, paddingHorizontal: spacing.xs, paddingVertical: 1 },
