@@ -13,14 +13,16 @@ interface AuthState {
   checkAuth: () => Promise<void>;
 }
 
-export const useAuthStore = create<AuthState>((set) => ({
+export const useAuthStore = create<AuthState>((set, get) => ({
   user: null, isLoading: true, isAuthenticated: false,
   login: async (email, password) => {
+    if (get().isLoading) return;
     set({ isLoading: true });
     try { const result = await auth.login(email, password); set({ user: result.user, isAuthenticated: true, isLoading: false }); }
     catch (error) { set({ isLoading: false }); throw error; }
   },
   register: async (name, email, password) => {
+    if (get().isLoading) return;
     set({ isLoading: true });
     try { const result = await auth.register(name, email, password); set({ user: result.user, isAuthenticated: true, isLoading: false }); }
     catch (error) { set({ isLoading: false }); throw error; }
