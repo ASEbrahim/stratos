@@ -1877,6 +1877,8 @@ async function loadNewData(skipToast) {
         }
 
         renderFeed();
+        if (typeof renderAlerts === 'function') renderAlerts();
+        if (typeof updateSyncIndicators === 'function') updateSyncIndicators();
         console.timeEnd('[loadNewData] render all');
 
         // Hide stale notifications — but don't hide scanning banner if a scan is still running
