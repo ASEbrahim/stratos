@@ -8,7 +8,7 @@ import {
 import { CharacterCardCreate } from '../../lib/types';
 import { typography, spacing, borderRadius } from '../../constants/theme';
 import { useThemeStore } from '../../stores/themeStore';
-import { CategoryCard, SectionHeader } from './CategoryCard';
+import { CategoryCard, CategoryPopup, SectionHeader } from './CategoryCard';
 import {
   PillSelector, MultiPillSelector,
   GENDER_OPTIONS, ARCHETYPE_OPTIONS, RELATIONSHIP_OPTIONS,
@@ -66,31 +66,27 @@ export const AdvancedEditor = React.memo(function AdvancedEditor({ card, onUpdat
       {/* ═══ Identity ═══ */}
       <SectionHeader title="Identity" progress={`${identityProgress}/4`} />
 
-      <CategoryCard
+      <CategoryPopup
         icon={User}
         iconColor={tc.accent.primary}
         title="Gender"
         preview={pillPreview(card.gender, GENDER_OPTIONS)}
         isComplete={!!card.gender}
-        isExpanded={expandedId === 'gender'}
-        onToggle={() => toggle('gender')}
         index={0}
       >
         <PillSelector label="" options={GENDER_OPTIONS} value={card.gender} onChange={(v) => onUpdate('gender', v)} />
-      </CategoryCard>
+      </CategoryPopup>
 
-      <CategoryCard
+      <CategoryPopup
         icon={Clock}
         iconColor={tc.accent.primary}
         title="Age Range"
         preview={pillPreview(card.age_range, AGE_RANGE_OPTIONS)}
         isComplete={!!card.age_range}
-        isExpanded={expandedId === 'age_range'}
-        onToggle={() => toggle('age_range')}
         index={1}
       >
         <PillSelector label="" options={AGE_RANGE_OPTIONS} value={card.age_range} onChange={(v) => onUpdate('age_range', v)} />
-      </CategoryCard>
+      </CategoryPopup>
 
       <CategoryCard
         icon={ScrollText}
@@ -124,40 +120,34 @@ export const AdvancedEditor = React.memo(function AdvancedEditor({ card, onUpdat
       {/* ═══ Behavior ═══ */}
       <SectionHeader title="Behavior" progress={`${behaviorProgress}/5`} />
 
-      <CategoryCard
+      <CategoryPopup
         icon={Crown}
         iconColor={tc.accent.secondary}
         title="Archetype"
         preview={pillPreview(card.archetype_override, ARCHETYPE_OPTIONS)}
         isComplete={!!card.archetype_override}
-        isExpanded={expandedId === 'archetype'}
-        onToggle={() => toggle('archetype')}
         index={0}
       >
         <PillSelector label="" options={ARCHETYPE_OPTIONS} value={card.archetype_override} onChange={handleArchetypeChange} />
-      </CategoryCard>
+      </CategoryPopup>
 
-      <CategoryCard
+      <CategoryPopup
         icon={Heart}
         iconColor={tc.accent.romance}
         title="Relationship"
         preview={pillPreview(card.relationship_to_user, RELATIONSHIP_OPTIONS)}
         isComplete={!!card.relationship_to_user}
-        isExpanded={expandedId === 'relationship'}
-        onToggle={() => toggle('relationship')}
         index={1}
       >
         <PillSelector label="" options={RELATIONSHIP_OPTIONS} value={card.relationship_to_user} onChange={(v) => onUpdate('relationship_to_user', v)} />
-      </CategoryCard>
+      </CategoryPopup>
 
-      <CategoryCard
+      <CategoryPopup
         icon={Sparkles}
         iconColor={tc.accent.anime}
         title="Personality Tags"
         preview={card.personality_tags?.length ? `${card.personality_tags.length} selected` : 'Not set'}
         isComplete={!!card.personality_tags?.length}
-        isExpanded={expandedId === 'personality_tags'}
-        onToggle={() => toggle('personality_tags')}
         index={2}
       >
         <MultiPillSelector
@@ -165,8 +155,9 @@ export const AdvancedEditor = React.memo(function AdvancedEditor({ card, onUpdat
           options={PERSONALITY_TAG_OPTIONS}
           values={card.personality_tags || []}
           onChange={(v) => onUpdate('personality_tags' as keyof CharacterCardCreate, v as unknown as string)}
+          wrap
         />
-      </CategoryCard>
+      </CategoryPopup>
 
       <CategoryCard
         icon={Brain}
@@ -233,44 +224,38 @@ export const AdvancedEditor = React.memo(function AdvancedEditor({ card, onUpdat
       {/* ═══ Style ═══ */}
       <SectionHeader title="Style" progress={`${styleProgress}/3`} />
 
-      <CategoryCard
+      <CategoryPopup
         icon={BookOpen}
         iconColor={tc.accent.modern}
         title="Narration POV"
         preview={pillPreview(card.narration_pov, POV_OPTIONS)}
         isComplete={!!card.narration_pov}
-        isExpanded={expandedId === 'narration_pov'}
-        onToggle={() => toggle('narration_pov')}
         index={0}
       >
         <PillSelector label="" options={POV_OPTIONS} value={card.narration_pov} onChange={(v) => onUpdate('narration_pov', v)} />
-      </CategoryCard>
+      </CategoryPopup>
 
-      <CategoryCard
+      <CategoryPopup
         icon={AlignLeft}
         iconColor={tc.accent.primary}
         title="Response Length"
         preview={pillPreview(card.response_length_pref, RESPONSE_LENGTH_OPTIONS)}
         isComplete={!!card.response_length_pref}
-        isExpanded={expandedId === 'response_length'}
-        onToggle={() => toggle('response_length')}
         index={1}
       >
         <PillSelector label="" options={RESPONSE_LENGTH_OPTIONS} value={card.response_length_pref} onChange={(v) => onUpdate('response_length_pref', v)} />
-      </CategoryCard>
+      </CategoryPopup>
 
-      <CategoryCard
+      <CategoryPopup
         icon={Shield}
         iconColor={tc.nsfw}
         title="NSFW Comfort"
         preview={pillPreview(card.nsfw_comfort, NSFW_COMFORT_OPTIONS)}
         isComplete={!!card.nsfw_comfort}
-        isExpanded={expandedId === 'nsfw_comfort'}
-        onToggle={() => toggle('nsfw_comfort')}
         index={2}
       >
         <PillSelector label="" options={NSFW_COMFORT_OPTIONS} value={card.nsfw_comfort} onChange={(v) => onUpdate('nsfw_comfort', v)} />
-      </CategoryCard>
+      </CategoryPopup>
 
       {/* ═══ Depth ═══ */}
       <SectionHeader title="Depth" progress={`${depthProgress}/4`} />

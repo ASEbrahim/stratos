@@ -4,7 +4,7 @@ import { User, Crown, Heart, Sparkles, ScrollText, Brain, Feather, Globe } from 
 import { CharacterCardCreate } from '../../lib/types';
 import { typography, spacing, borderRadius } from '../../constants/theme';
 import { useThemeStore } from '../../stores/themeStore';
-import { CategoryCard, SectionHeader } from './CategoryCard';
+import { CategoryCard, CategoryPopup, SectionHeader } from './CategoryCard';
 import {
   PillSelector, MultiPillSelector,
   GENDER_OPTIONS, ARCHETYPE_OPTIONS, RELATIONSHIP_OPTIONS,
@@ -77,14 +77,12 @@ export const SimpleEditor = React.memo(function SimpleEditor({ card, onUpdate }:
       {/* ── Identity ── */}
       <SectionHeader title="Identity" progress={`${identityDone}/2`} />
 
-      <CategoryCard
+      <CategoryPopup
         icon={User}
         iconColor={tc.accent.primary}
         title="Gender"
         preview={pillPreview(GENDER_OPTIONS, card.gender)}
         isComplete={!!card.gender}
-        isExpanded={expandedId === 'gender'}
-        onToggle={() => toggle('gender')}
         index={0}
       >
         <PillSelector
@@ -93,16 +91,14 @@ export const SimpleEditor = React.memo(function SimpleEditor({ card, onUpdate }:
           value={card.gender}
           onChange={(v) => onUpdate('gender', v)}
         />
-      </CategoryCard>
+      </CategoryPopup>
 
-      <CategoryCard
+      <CategoryPopup
         icon={Crown}
         iconColor={tc.accent.secondary}
         title="Archetype"
         preview={pillPreview(ARCHETYPE_OPTIONS, card.archetype_override)}
         isComplete={!!card.archetype_override}
-        isExpanded={expandedId === 'archetype'}
-        onToggle={() => toggle('archetype')}
         index={1}
       >
         <PillSelector
@@ -111,19 +107,17 @@ export const SimpleEditor = React.memo(function SimpleEditor({ card, onUpdate }:
           value={card.archetype_override}
           onChange={handleArchetypeChange}
         />
-      </CategoryCard>
+      </CategoryPopup>
 
       {/* ── Dynamics ── */}
       <SectionHeader title="Dynamics" progress={`${dynamicsDone}/2`} />
 
-      <CategoryCard
+      <CategoryPopup
         icon={Heart}
         iconColor={tc.accent.romance}
         title="Relationship"
         preview={pillPreview(RELATIONSHIP_OPTIONS, card.relationship_to_user)}
         isComplete={!!card.relationship_to_user}
-        isExpanded={expandedId === 'relationship'}
-        onToggle={() => toggle('relationship')}
         index={2}
       >
         <PillSelector
@@ -132,16 +126,14 @@ export const SimpleEditor = React.memo(function SimpleEditor({ card, onUpdate }:
           value={card.relationship_to_user}
           onChange={(v) => onUpdate('relationship_to_user', v)}
         />
-      </CategoryCard>
+      </CategoryPopup>
 
-      <CategoryCard
+      <CategoryPopup
         icon={Sparkles}
         iconColor={tc.accent.anime}
         title="Personality Tags"
         preview={tagsPreview(card.personality_tags, PERSONALITY_TAG_OPTIONS)}
         isComplete={!!card.personality_tags?.length}
-        isExpanded={expandedId === 'tags'}
-        onToggle={() => toggle('tags')}
         index={3}
       >
         <MultiPillSelector
@@ -149,8 +141,9 @@ export const SimpleEditor = React.memo(function SimpleEditor({ card, onUpdate }:
           options={PERSONALITY_TAG_OPTIONS}
           values={card.personality_tags || []}
           onChange={(v) => onUpdate('personality_tags' as keyof CharacterCardCreate, v as unknown as string)}
+          wrap
         />
-      </CategoryCard>
+      </CategoryPopup>
 
       {/* ── Story ── */}
       <SectionHeader title="Story" progress={`${storyDone}/4`} />
