@@ -29,6 +29,17 @@ export interface HistoryMessage {
   branch_id?: string;
 }
 
+/** Build auth headers for raw fetch calls (SSE endpoints that bypass apiFetch). */
+async function getAuthHeaders(): Promise<Record<string, string>> {
+  const token = await getToken();
+  const deviceId = await getDeviceId();
+  return {
+    'Content-Type': 'application/json',
+    'X-Device-Id': deviceId,
+    ...(token ? { 'X-Auth-Token': token } : {}),
+  };
+}
+
 /** An image in the gallery. */
 export interface GalleryImage {
   id: string;
@@ -90,15 +101,10 @@ export async function createBranch(
   if (USE_MOCKS) {
     return { ok: true, branch_id: `branch-mock-${Date.now()}`, from_branch: branchId };
   }
-  const token = await getToken();
-  const deviceId = await getDeviceId();
+  const headers = await getAuthHeaders();
   const response = await fetch(`${API_BASE}/api/rp/branch`, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-Device-Id': deviceId,
-      ...(token ? { 'X-Auth-Token': token } : {}),
-    },
+    headers,
     body: JSON.stringify({
       session_id: sessionId, branch_id: branchId,
       at_turn: atTurn, content, character_card_id: cardId, persona,
@@ -136,7 +142,7 @@ export async function getHistory(sessionId: string, branchId: string = 'main') {
     branch_id: string;
     messages: HistoryMessage[];
     branches: Branch[];
-  }>(`/api/rp/history/${sessionId}?branch=${branchId}`);
+  }>(`/api/rp/history/${sessionId}?branch=${encodeURIComponent(branchId)}`);
 }
 
 // ── List branches ──
