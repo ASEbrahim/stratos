@@ -25,6 +25,10 @@ export default function LoginScreen() {
       Alert.alert('Error', 'Please fill in all fields.');
       return;
     }
+    if (!email.includes('@') || !email.includes('.')) {
+      Alert.alert('Error', 'Please enter a valid email address.');
+      return;
+    }
     try {
       await login(email.trim(), password);
       router.replace('/(tabs)/discover');

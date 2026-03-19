@@ -27,6 +27,10 @@ export default function RegisterScreen() {
       Alert.alert('Error', 'Fill in all fields.');
       return;
     }
+    if (!email.includes('@') || !email.includes('.')) {
+      Alert.alert('Error', 'Please enter a valid email address.');
+      return;
+    }
     if (password.length < 6) {
       Alert.alert('Error', 'Password must be at least 6 characters.');
       return;
