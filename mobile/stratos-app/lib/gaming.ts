@@ -36,6 +36,34 @@ export async function startGamingSession(scenarioId: string): Promise<string> {
   }
 }
 
+export interface WorldWizardConfig {
+  name: string;
+  description: string;
+  genre: string;
+  wizard_config: {
+    story_position: string;
+    starting_level: number;
+    difficulty: string;
+    starting_class: string;
+    stats: { STR: number; DEX: number; INT: number };
+    extras: string[];
+    canon_characters: boolean;
+    real_names: boolean;
+    lore_depth: string;
+  };
+}
+
+export async function createWorld(config: WorldWizardConfig): Promise<{
+  ok: boolean;
+  name: string;
+  status: string;
+}> {
+  return apiFetch('/api/scenarios/create', {
+    method: 'POST',
+    body: JSON.stringify(config),
+  });
+}
+
 export function parseOptions(text: string): { text: string; options: string[] } {
   const lines = text.split('\n');
   const options: string[] = [];

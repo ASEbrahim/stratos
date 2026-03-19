@@ -5,7 +5,7 @@
  * the mobile CharacterCard interface. These functions normalize.
  */
 
-import { CharacterCard } from './types';
+import { CharacterCard, CharacterCardCreate } from './types';
 import { safeParse, buildUrl } from './utils';
 
 /** Shape of a character card as returned by the backend API. */
@@ -96,4 +96,33 @@ export function mapCardFromBackend(raw: BackendCard): CharacterCard {
  */
 export function mapCardsFromBackend(raw: BackendCard[]): CharacterCard[] {
   return raw.map(mapCardFromBackend);
+}
+
+export interface ScenarioNpc {
+  name: string;
+  description?: string;
+  personality?: string;
+  greeting?: string;
+  world_context?: string;
+  genre?: string;
+}
+
+export function mapNpcToCard(npc: ScenarioNpc, worldScenario?: string): CharacterCardCreate {
+  return {
+    name: npc.name || 'Unknown',
+    description: npc.description || '',
+    personality: npc.personality || '',
+    scenario: worldScenario || npc.world_context || '',
+    first_message: npc.greeting || '',
+    genre_tags: npc.genre ? [npc.genre] : ['fantasy'],
+    content_rating: 'sfw',
+    personality_tags: [],
+    physical_description: '',
+    speech_pattern: '',
+    emotional_trigger: '',
+    defensive_mechanism: '',
+    vulnerability: '',
+    specific_detail: '',
+    avatar_url: '',
+  };
 }
