@@ -23,9 +23,14 @@ OLLAMA_HOST = "http://localhost:11434"
 # Tier 1 — Fact Extraction (regex + LLM)
 # =========================================================================
 
+_NAME_PATTERNS = [
+    # Name detection — run WITHOUT re.IGNORECASE to require actual capitalized names
+    # Prevents "I am hard working" → name=hard
+    (r"(?:[Mm]y name is|[Cc]all me)\s+([A-Z][a-z]{1,20})", "user_fact", "name"),
+    (r"I'm\s+([A-Z][a-z]{1,20})(?:\s|,|\.|!|$)", "user_fact", "name"),
+]
+
 FACT_PATTERNS = [
-    # Name detection
-    (r"(?:my name is|I'm|call me|I am)\s+([A-Z][a-z]+)", "user_fact", "name"),
     # Origin/location
     (r"(?:I'm from|I live in|I grew up in|I was born in)\s+([A-Z][a-z]+(?:\s[A-Z][a-z]+)?)", "user_fact", "origin"),
     # Physical traits (scars, tattoos, marks)
@@ -59,6 +64,14 @@ If nothing new, return: {{"user_facts": [], "npc_changes": [], "scene": {{}}}}""
 def extract_facts_regex(user_msg: str) -> list:
     """Extract facts from user message using regex. Fast, reliable for simple patterns."""
     facts = []
+    # Name patterns run CASE SENSITIVE — "I'm Kiri" matches, "I am hard" doesn't
+    for pattern, category, key in _NAME_PATTERNS:
+        matches = re.findall(pattern, user_msg)  # NO re.IGNORECASE
+        for match in matches:
+            value = match.strip().rstrip('.,!?')
+            if len(value) > 2:
+                facts.append((category, key, value))
+    # All other patterns run case-insensitive
     for pattern, category, key in FACT_PATTERNS:
         matches = re.findall(pattern, user_msg, re.IGNORECASE)
         for match in matches:

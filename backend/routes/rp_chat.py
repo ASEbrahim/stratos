@@ -247,6 +247,7 @@ def handle_post(handler, strat, auth, path) -> bool:
                     break
             if prev_assistant:
                 overlap = compute_ngram_overlap(prev_assistant, full_text)
+                logger.info(f"Response overlap: {overlap:.0%} (turn {asst_turn})")
                 if overlap > 0.4:
                     logger.warning(f"Dedup: {overlap:.0%} overlap detected. Flagging for next turn.")
                     db.upsert_rp_context(session_id, tier=1, category="system",
