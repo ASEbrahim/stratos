@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { View, Text, FlatList, TouchableOpacity, StyleSheet, NativeSyntheticEvent, NativeScrollEvent } from 'react-native';
 import { Pencil, RefreshCw, ChevronDown } from 'lucide-react-native';
 import { MessageBubble, StreamingBubble } from './MessageBubble';
@@ -8,6 +8,84 @@ import { ChatMessage, CharacterCard } from '../../lib/types';
 import { useThemeStore } from '../../stores/themeStore';
 import { spacing } from '../../constants/theme';
 import { fonts } from '../../constants/fonts';
+
+interface MessageItemProps {
+  item: ChatMessage;
+  isAssistant: boolean;
+  isLastAssistant: boolean;
+  showSeen: boolean;
+  showEditUser: boolean;
+  isStreaming: boolean;
+  isRegenerating: boolean;
+  accentColor: string | undefined;
+  tc: ReturnType<typeof useThemeStore.getState>['colors'];
+  onEditUser: (msg: { id: string; content: string; isUser: boolean; dbId?: number }) => void;
+  onEditAssistant: (msg: { id: string; content: string; dbId?: number }) => void;
+  onRegenerate: () => void;
+}
+
+const MemoizedMessageItem = React.memo(function MemoizedMessageItem({
+  item,
+  isAssistant,
+  isLastAssistant,
+  showSeen,
+  showEditUser,
+  isStreaming,
+  isRegenerating,
+  accentColor,
+  tc,
+  onEditUser,
+  onEditAssistant,
+  onRegenerate,
+}: MessageItemProps) {
+  return (
+    <View>
+      <MessageBubble message={item} accentColor={accentColor} />
+
+      {/* Seen indicator */}
+      {showSeen && !isStreaming && (
+        <Text style={[styles.seenText, { color: tc.text.muted }]}>Seen ✓</Text>
+      )}
+
+      {/* Edit button on USER messages (enables branching) */}
+      {showEditUser && !isStreaming && (
+        <View style={[styles.msgActions, { justifyContent: 'flex-end' }]}>
+          <TouchableOpacity
+            style={styles.actionBtn}
+            onPress={() => onEditUser({ id: item.id, content: item.content, isUser: true, dbId: item.dbId })}
+            hitSlop={8}
+          >
+            <Pencil size={14} color={tc.text.faint} />
+          </TouchableOpacity>
+        </View>
+      )}
+
+      {/* Feedback + Regenerate + Edit on assistant messages */}
+      {isAssistant && !isStreaming && (
+        <View style={styles.msgActions}>
+          <FeedbackButtons messageId={item.id} dbId={item.dbId} accentColor={accentColor} />
+          {isLastAssistant && (
+            <TouchableOpacity
+              style={styles.actionBtn}
+              onPress={onRegenerate}
+              disabled={isRegenerating}
+              hitSlop={8}
+            >
+              <RefreshCw size={14} color={tc.text.faint} />
+            </TouchableOpacity>
+          )}
+          <TouchableOpacity
+            style={styles.actionBtn}
+            onPress={() => onEditAssistant({ id: item.id, content: item.content, dbId: item.dbId })}
+            hitSlop={8}
+          >
+            <Pencil size={14} color={tc.text.faint} />
+          </TouchableOpacity>
+        </View>
+      )}
+    </View>
+  );
+});
 
 interface ChatMessageListProps {
   listRef: React.RefObject<FlatList | null>;
@@ -47,65 +125,38 @@ export const ChatMessageList = React.memo(function ChatMessageList({
   const lastAssistantIdx = messages.length > 0 && messages[messages.length - 1]?.role === 'assistant'
     ? messages.length - 1 : -1;
 
+  const renderItem = useCallback(({ item, index }: { item: ChatMessage; index: number }) => {
+    const isAssistant = item.role === 'assistant';
+    const isLastAssistant = index === lastAssistantIdx;
+    const isLastUser = item.role === 'user' && index === messages.length - 1 && !isStreaming;
+    const isLastUserBeforeAssistant = item.role === 'user' && index < messages.length - 1 && messages[index + 1]?.role === 'assistant';
+    const showSeen = isLastUser || isLastUserBeforeAssistant;
+    const showEditUser = !isAssistant && index > 0;
+
+    return (
+      <MemoizedMessageItem
+        item={item}
+        isAssistant={isAssistant}
+        isLastAssistant={isLastAssistant}
+        showSeen={showSeen}
+        showEditUser={showEditUser}
+        isStreaming={isStreaming}
+        isRegenerating={isRegenerating}
+        accentColor={accentColor}
+        tc={tc}
+        onEditUser={onEditUser}
+        onEditAssistant={onEditAssistant}
+        onRegenerate={onRegenerate}
+      />
+    );
+  }, [messages, lastAssistantIdx, isStreaming, isRegenerating, accentColor, tc, onEditUser, onEditAssistant, onRegenerate]);
+
   return (
     <>
       <FlatList
         ref={listRef}
         data={messages}
-        renderItem={({ item, index }: { item: ChatMessage; index: number }) => {
-          const isAssistant = item.role === 'assistant';
-          const isLastAssistant = index === lastAssistantIdx;
-          const isLastUser = item.role === 'user' && index === messages.length - 1 && !isStreaming;
-          const isLastUserBeforeAssistant = item.role === 'user' && index < messages.length - 1 && messages[index + 1]?.role === 'assistant';
-
-          return (
-            <View>
-              <MessageBubble message={item} accentColor={accentColor} />
-
-              {/* Seen indicator */}
-              {(isLastUser || isLastUserBeforeAssistant) && !isStreaming && (
-                <Text style={[styles.seenText, { color: tc.text.muted }]}>Seen ✓</Text>
-              )}
-
-              {/* Edit button on USER messages (enables branching) */}
-              {!isAssistant && !isStreaming && index > 0 && (
-                <View style={[styles.msgActions, { justifyContent: 'flex-end' }]}>
-                  <TouchableOpacity
-                    style={styles.actionBtn}
-                    onPress={() => onEditUser({ id: item.id, content: item.content, isUser: true, dbId: item.dbId })}
-                    hitSlop={8}
-                  >
-                    <Pencil size={14} color={tc.text.faint} />
-                  </TouchableOpacity>
-                </View>
-              )}
-
-              {/* Feedback + Regenerate + Edit on assistant messages */}
-              {isAssistant && !isStreaming && (
-                <View style={styles.msgActions}>
-                  <FeedbackButtons messageId={item.id} dbId={item.dbId} accentColor={accentColor} />
-                  {isLastAssistant && (
-                    <TouchableOpacity
-                      style={styles.actionBtn}
-                      onPress={onRegenerate}
-                      disabled={isRegenerating}
-                      hitSlop={8}
-                    >
-                      <RefreshCw size={14} color={tc.text.faint} />
-                    </TouchableOpacity>
-                  )}
-                  <TouchableOpacity
-                    style={styles.actionBtn}
-                    onPress={() => onEditAssistant({ id: item.id, content: item.content, dbId: item.dbId })}
-                    hitSlop={8}
-                  >
-                    <Pencil size={14} color={tc.text.faint} />
-                  </TouchableOpacity>
-                </View>
-              )}
-            </View>
-          );
-        }}
+        renderItem={renderItem}
         keyExtractor={item => item.id}
         contentContainerStyle={styles.msgList}
         showsVerticalScrollIndicator={false}
