@@ -155,3 +155,17 @@ export async function deleteCharacter(cardId: string): Promise<void> {
   }
   await apiFetch(`/api/cards/${cardId}`, { method: 'DELETE' });
 }
+
+export async function quickGenerateCharacter(params: {
+  prompt?: string;
+  genre?: string;
+  archetype?: string;
+  relationship?: string;
+}): Promise<CharacterCardCreate> {
+  const result = await apiFetch<{ ok: boolean; card: CharacterCardCreate }>('/api/cards/generate', {
+    method: 'POST',
+    body: JSON.stringify(params),
+  });
+  if (!result.ok || !result.card) throw new Error('Character generation failed');
+  return fillCardDefaults(result.card);
+}
