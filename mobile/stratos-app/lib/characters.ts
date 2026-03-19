@@ -106,36 +106,24 @@ export async function createCharacter(data: CharacterCardCreate): Promise<Charac
     if (mockLibrary.length > Config.MAX_MOCK_LIBRARY) mockLibrary = mockLibrary.slice(-Config.MAX_MOCK_LIBRARY);
     return card;
   }
-  try {
-    const result = await apiFetch<{ ok: boolean; card_id: string }>('/api/cards', {
-      method: 'POST',
-      body: JSON.stringify({
-        name: filled.name, physical_description: filled.physical_description,
-        speech_pattern: filled.speech_pattern, emotional_trigger: filled.emotional_trigger,
-        defensive_mechanism: filled.defensive_mechanism, vulnerability: filled.vulnerability,
-        specific_detail: filled.specific_detail, personality: filled.personality,
-        scenario: filled.scenario, first_message: filled.first_message,
-        genre_tags: filled.genre_tags, content_rating: filled.content_rating,
-        gender: filled.gender, archetype_override: filled.archetype_override,
-        narration_pov: filled.narration_pov, relationship_to_user: filled.relationship_to_user,
-        nsfw_comfort: filled.nsfw_comfort, response_length_pref: filled.response_length_pref,
-        age_range: filled.age_range, personality_tags: filled.personality_tags,
-      }),
-    });
-    const card = await getCharacter(result.card_id);
-    return card!;
-  } catch (err) {
-    reportError('createCharacter', err);
-    // Fallback to local creation
-    const card: CharacterCard = {
-      ...data, id: generateId(), creator_id: 'local', creator_name: 'You',
-      is_public: false, session_count: 0, rating: 0, rating_count: 0,
-      created_at: new Date().toISOString(), updated_at: new Date().toISOString(),
-    };
-    mockLibrary.push(card);
-    if (mockLibrary.length > Config.MAX_MOCK_LIBRARY) mockLibrary = mockLibrary.slice(-Config.MAX_MOCK_LIBRARY);
-    return card;
-  }
+  // No try/catch — let errors propagate to caller (CardEditor shows alert)
+  const result = await apiFetch<{ ok: boolean; card_id: string }>('/api/cards', {
+    method: 'POST',
+    body: JSON.stringify({
+      name: filled.name, physical_description: filled.physical_description,
+      speech_pattern: filled.speech_pattern, emotional_trigger: filled.emotional_trigger,
+      defensive_mechanism: filled.defensive_mechanism, vulnerability: filled.vulnerability,
+      specific_detail: filled.specific_detail, personality: filled.personality,
+      scenario: filled.scenario, first_message: filled.first_message,
+      genre_tags: filled.genre_tags, content_rating: filled.content_rating,
+      gender: filled.gender, archetype_override: filled.archetype_override,
+      narration_pov: filled.narration_pov, relationship_to_user: filled.relationship_to_user,
+      nsfw_comfort: filled.nsfw_comfort, response_length_pref: filled.response_length_pref,
+      age_range: filled.age_range, personality_tags: filled.personality_tags,
+    }),
+  });
+  const card = await getCharacter(result.card_id);
+  return card!;
 }
 
 export async function getSavedCharacters(): Promise<CharacterCard[]> {
