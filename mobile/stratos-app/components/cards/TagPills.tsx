@@ -6,7 +6,7 @@ import { typography, spacing, borderRadius } from '../../constants/theme';
 
 interface TagPillsProps { tags: string[]; size?: 'small' | 'medium'; }
 
-export function TagPills({ tags, size = 'small' }: TagPillsProps) {
+export const TagPills = React.memo(function TagPills({ tags, size = 'small' }: TagPillsProps) {
   const tc = useThemeStore(s => s.colors);
   return (
     <View style={styles.container}>
@@ -21,7 +21,7 @@ export function TagPills({ tags, size = 'small' }: TagPillsProps) {
       })}
     </View>
   );
-}
+});
 
 const styles = StyleSheet.create({
   container: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.xs },
