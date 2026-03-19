@@ -945,6 +945,16 @@ def migration_032(cursor):
         pass  # column already exists
 
 
+@migration
+def migration_033(cursor):
+    """Add pinned column to youtube_videos for persistent video pinning."""
+    _safe_table('youtube_videos')
+    try:
+        cursor.execute("ALTER TABLE youtube_videos ADD COLUMN pinned INTEGER DEFAULT 0")
+    except Exception:
+        pass  # column already exists
+
+
 # =========================================================================
 # Migration runner
 # =========================================================================

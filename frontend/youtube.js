@@ -396,9 +396,15 @@ async function _ytLoadVideoList(channelId, el) {
                     </button>`;
                 }
 
-                return `<div data-yt-video="${v.video_id}" data-yt-db-id="${v.id}" ${clickable} class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors" onmouseenter="this.style.background='var(--bg-hover)'" onmouseleave="this.style.background='transparent'">
+                const isPinned = v.pinned === 1 || v.pinned === true;
+                const pinBtn = `<button onclick="event.stopPropagation();_ytTogglePin(${v.id},${isPinned ? 'false' : 'true'})" class="flex-shrink-0 p-1 transition-colors ${isPinned ? 'text-amber-400' : 'text-slate-700 hover:text-amber-400'}" title="${isPinned ? 'Unpin' : 'Pin video'}">
+                    <i data-lucide="pin" style="width:12px;height:12px;${isPinned ? 'fill:currentColor;' : ''}"></i>
+                </button>`;
+
+                return `<div data-yt-video="${v.video_id}" data-yt-db-id="${v.id}" ${clickable} class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors${isPinned ? ' ring-1 ring-amber-500/20' : ''}" style="${isPinned ? 'background:rgba(245,158,11,0.04);' : ''}" onmouseenter="this.style.background='var(--bg-hover)'" onmouseleave="this.style.background='${isPinned ? 'rgba(245,158,11,0.04)' : 'transparent'}'">
                     <i data-lucide="${statusIcon}" class="w-4 h-4 ${statusColor} flex-shrink-0${isActive ? ' animate-pulse' : ''}"></i>
                     <span class="text-[13px] flex-1 truncate" style="color:var(--text-secondary)">${_escHtml(v.title || v.video_id)}</span>
+                    ${pinBtn}
                     ${actionBtn}
                     <span class="text-[10px] yt-video-status ${statusColor}" style="font-weight:600;">${v.status}</span>
                 </div>`;
@@ -1539,16 +1545,18 @@ function _ytSetSavedInsights(arr) {
 
 function _ytSaveInsight(videoId, videoTitle, lens, language, content) {
     const saved = _ytGetSavedInsights();
-    // Avoid duplicates by video_id + lens + language
-    const exists = saved.some(s => s.video_id === videoId && s.lens === lens && s.language === language);
-    if (exists) {
-        if (typeof showToast === 'function') showToast('Insight already saved', 'info');
+    // Toggle: if already saved, unsave it
+    const existIdx = saved.findIndex(s => s.video_id === videoId && s.lens === lens && s.language === language);
+    if (existIdx >= 0) {
+        saved.splice(existIdx, 1);
+        _ytSetSavedInsights(saved);
+        if (typeof showToast === 'function') showToast('Removed from saved', 'info');
+        _ytUpdateSaveButton(lens, false);
         return;
     }
     saved.push({ video_id: videoId, video_title: videoTitle, lens, language, content, saved_at: new Date().toISOString() });
     _ytSetSavedInsights(saved);
-    if (typeof showToast === 'function') showToast(`Saved ${lens} insight for later`, 'success');
-    // Update save button state
+    if (typeof showToast === 'function') showToast(`Saved ${lens} insight`, 'success');
     _ytUpdateSaveButton(lens, true);
 }
 window._ytSaveInsight = _ytSaveInsight;
@@ -1590,8 +1598,8 @@ function _ytBuildSaveButton(lensName) {
     const savedStyle = isSaved ? 'color:var(--accent-light,#34d399);border-color:var(--accent-border,rgba(16,185,129,0.3));' : '';
     const savedLabel = isSaved ? 'Saved' : 'Save';
     const savedIcon = isSaved ? 'bookmark-check' : 'bookmark';
-    return `<button id="yi-save-btn-${lensName}" onclick="_ytDoSaveInsight('${lensName}')" class="yi-header-btn" style="padding:4px 10px;font-size:11px;gap:4px;${savedStyle}" title="Save this insight for later reference">
-        <i data-lucide="${savedIcon}" style="width:12px;height:12px;"></i> ${savedLabel}
+    return `<button id="yi-save-btn-${lensName}" onclick="_ytDoSaveInsight('${lensName}')" class="yi-header-btn" style="padding:5px 12px;font-size:11px;gap:5px;${savedStyle}" title="${isSaved ? 'Remove from saved' : 'Save this insight'}">
+        <i data-lucide="${savedIcon}" style="width:13px;height:13px;"></i> ${savedLabel}
     </button>`;
 }
 
@@ -1608,6 +1616,31 @@ function _ytDoSaveInsight(lensName) {
     _ytSaveInsight(_ytCurrentVideoId, videoTitle, lensName, _ytCurrentLang, ins.content || '');
 }
 window._ytDoSaveInsight = _ytDoSaveInsight;
+
+// ── Pin/Unpin video (persists to DB, pinned videos stay at top) ──
+async function _ytTogglePin(dbId, pin) {
+    try {
+        const r = await fetch('/api/youtube/pin-video', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', ..._ytHeaders() },
+            body: JSON.stringify({ video_id: dbId, pinned: pin }),
+        });
+        if (!r.ok) throw new Error('Failed');
+        if (typeof showToast === 'function') showToast(pin ? 'Video pinned' : 'Video unpinned', 'success');
+        // Find the channel this video belongs to and refresh the list
+        const card = document.querySelector(`[data-yt-db-id="${dbId}"]`);
+        if (card) {
+            const channelEl = card.closest('[data-channel-id]');
+            if (channelEl) {
+                const chId = channelEl.getAttribute('data-channel-id');
+                if (chId) _ytRefreshVideos(parseInt(chId));
+            }
+        }
+    } catch (e) {
+        if (typeof showToast === 'function') showToast('Pin failed', 'error');
+    }
+}
+window._ytTogglePin = _ytTogglePin;
 
 // Expose functions needed by onclick
 window._ytProcessChannel = _ytProcessChannel;

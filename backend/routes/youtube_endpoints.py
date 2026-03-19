@@ -99,7 +99,7 @@ def handle_get(handler, strat, auth, path):
             ch_id = int(path_parts[3])
             cursor = strat.db.conn.cursor()
             cursor.execute(
-                "SELECT * FROM youtube_videos WHERE channel_id = ? AND profile_id = ? ORDER BY published_at DESC",
+                "SELECT * FROM youtube_videos WHERE channel_id = ? AND profile_id = ? ORDER BY pinned DESC, published_at DESC",
                 (ch_id, handler._profile_id)
             )
             _send_json(handler, {"videos": [dict(r) for r in cursor.fetchall()]})
@@ -766,6 +766,21 @@ def handle_post(handler, strat, auth, path):
                     })
 
         threading.Thread(target=_retranscribe, daemon=True).start()
+        return True
+
+    if path == "/api/youtube/pin-video":
+        video_id = body.get('video_id')
+        pinned = body.get('pinned', True)
+        if not video_id:
+            _send_json(handler, {"error": "Missing video_id"}, 400)
+            return True
+        cursor = strat.db.conn.cursor()
+        cursor.execute(
+            "UPDATE youtube_videos SET pinned = ? WHERE id = ? AND profile_id = ?",
+            (1 if pinned else 0, video_id, handler._profile_id)
+        )
+        strat.db._commit()
+        _send_json(handler, {"status": "ok", "pinned": bool(pinned)})
         return True
 
     if path == "/api/youtube/translate-transcript":
