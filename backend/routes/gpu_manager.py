@@ -8,6 +8,9 @@ When image gen is requested: ensure ComfyUI is running (unload Ollama models if 
 Strategy: Ollama process stays alive but models are unloaded (0 VRAM) when
 ComfyUI needs the GPU. This avoids process killing, VRAM fragmentation,
 and the race conditions that caused PC crashes.
+
+Safety: VRAM is verified via rocm-smi before starting ComfyUI. If API-based
+unload fails, escalates to force-killing Ollama as a last resort.
 """
 
 import os
@@ -23,14 +26,56 @@ OLLAMA_HOST = "http://localhost:11434"
 COMFYUI_HOST = "http://127.0.0.1:8188"
 COMFYUI_DIR = "/home/ahmad/Downloads/StratOS/StratOS1/tools/ComfyUI"
 
+# CHROMA needs ~10-12GB VRAM. Require at least 12GB free before starting ComfyUI.
+COMFYUI_VRAM_REQUIRED_MB = 12_000
+# Maximum time to wait for VRAM to be freed after unload (seconds)
+VRAM_RELEASE_TIMEOUT = 30
+
 _lock = threading.Lock()
 _comfyui_process = None
 _comfyui_log_handle = None  # Track file handle to prevent leaks
 
 
+def _get_vram_used_mb() -> int | None:
+    """Get GPU 0 VRAM usage in MB via rocm-smi. Returns None if unavailable."""
+    try:
+        result = subprocess.run(
+            ["rocm-smi", "--showmeminfo", "vram"],
+            capture_output=True, text=True, timeout=5,
+        )
+        total = used = None
+        for line in result.stdout.splitlines():
+            if "GPU[0]" in line and "Total Used" in line:
+                used = int(line.split(":")[-1].strip()) // (1024 * 1024)
+            elif "GPU[0]" in line and "Total Memory" in line:
+                total = int(line.split(":")[-1].strip()) // (1024 * 1024)
+        if used is not None:
+            logger.debug(f"VRAM: {used}MB used / {total}MB total")
+            return used
+    except Exception as e:
+        logger.warning(f"rocm-smi VRAM check failed: {e}")
+    return None
+
+
+def _vram_has_headroom() -> bool:
+    """Check if enough VRAM is free for ComfyUI. Assumes True if check unavailable."""
+    used = _get_vram_used_mb()
+    if used is None:
+        # Can't check — proceed cautiously (better than blocking entirely)
+        logger.warning("Cannot check VRAM — rocm-smi unavailable, proceeding anyway")
+        return True
+    # 7900 XTX = ~24576 MB usable
+    free = 24_576 - used
+    if free >= COMFYUI_VRAM_REQUIRED_MB:
+        logger.info(f"VRAM OK: {free}MB free (need {COMFYUI_VRAM_REQUIRED_MB}MB)")
+        return True
+    logger.warning(f"VRAM insufficient: {free}MB free, need {COMFYUI_VRAM_REQUIRED_MB}MB ({used}MB used)")
+    return False
+
+
 def _ollama_running() -> bool:
     try:
-        r = requests.get(f"{OLLAMA_HOST}/api/tags", timeout=2)
+        r = requests.get(f"{OLLAMA_HOST}/api/tags", timeout=3)
         return r.status_code == 200
     except Exception:
         return False  # Connection refused is expected when not running
@@ -45,48 +90,89 @@ def _comfyui_running() -> bool:
 
 
 def _ollama_has_loaded_models() -> bool:
-    """Check if Ollama currently has any models loaded in VRAM."""
+    """Check if Ollama currently has any models loaded in VRAM.
+
+    SAFETY: Returns True on failure — if we can't confirm models are unloaded,
+    assume they ARE loaded to prevent OOM crash. This is the opposite of the
+    previous behavior which assumed False on failure (causing the crash).
+    """
     try:
-        r = requests.get(f"{OLLAMA_HOST}/api/ps", timeout=3)
+        r = requests.get(f"{OLLAMA_HOST}/api/ps", timeout=5)
         if r.status_code == 200:
             models = r.json().get("models", [])
+            if models:
+                names = [m.get("name", "?") for m in models]
+                logger.info(f"Ollama has {len(models)} model(s) loaded: {names}")
             return len(models) > 0
-    except Exception:
-        pass
+    except Exception as e:
+        logger.warning(f"Cannot check Ollama models (assuming loaded): {e}")
+        return True  # SAFE DEFAULT: assume loaded → trigger unload
     return False
 
 
-def _unload_ollama_models():
-    """Unload all Ollama models from VRAM via API. Ollama process stays alive."""
+def _unload_ollama_models() -> bool:
+    """Unload all Ollama models from VRAM via API. Ollama process stays alive.
+
+    Returns True if all models confirmed unloaded, False otherwise.
+    """
     try:
-        r = requests.get(f"{OLLAMA_HOST}/api/ps", timeout=3)
+        r = requests.get(f"{OLLAMA_HOST}/api/ps", timeout=5)
         if r.status_code != 200:
-            return
+            logger.warning(f"Ollama /api/ps returned {r.status_code}")
+            return False
         models = r.json().get("models", [])
         if not models:
             logger.info("No Ollama models loaded — nothing to unload")
-            return
-        for model in models:
-            name = model.get("name", "")
-            if name:
-                logger.info(f"Unloading Ollama model: {name}")
-                try:
-                    requests.post(f"{OLLAMA_HOST}/api/generate",
-                                  json={"model": name, "keep_alive": 0}, timeout=15)
-                except Exception as e:
-                    logger.warning(f"Unload failed for {name}: {e}")
-        # Verify all models unloaded
-        time.sleep(2)
-        r2 = requests.get(f"{OLLAMA_HOST}/api/ps", timeout=3)
-        if r2.status_code == 200:
-            remaining = r2.json().get("models", [])
-            if remaining:
-                logger.warning(f"{len(remaining)} models still loaded after unload, waiting...")
-                time.sleep(5)
-            else:
-                logger.info("All Ollama models unloaded from VRAM")
+            return True
+
+        model_names = [m.get("name", "") for m in models if m.get("name")]
+        logger.info(f"Unloading {len(model_names)} Ollama model(s): {model_names}")
+
+        for name in model_names:
+            logger.info(f"Unloading: {name}")
+            try:
+                requests.post(f"{OLLAMA_HOST}/api/generate",
+                              json={"model": name, "keep_alive": 0}, timeout=30)
+            except Exception as e:
+                logger.warning(f"Unload API call failed for {name}: {e}")
+
+        # Poll until all models unloaded (up to 20s)
+        for attempt in range(10):
+            time.sleep(2)
+            try:
+                r2 = requests.get(f"{OLLAMA_HOST}/api/ps", timeout=5)
+                if r2.status_code == 200:
+                    remaining = r2.json().get("models", [])
+                    if not remaining:
+                        logger.info("All Ollama models confirmed unloaded from VRAM")
+                        return True
+                    names = [m.get("name", "?") for m in remaining]
+                    logger.info(f"Still loaded after {(attempt+1)*2}s: {names}")
+            except Exception:
+                pass
+
+        logger.warning("Ollama models not fully unloaded after 20s of polling")
+        return False
+
     except Exception as e:
-        logger.warning(f"Could not unload Ollama models via API: {e}")
+        logger.error(f"Could not unload Ollama models via API: {e}")
+        return False
+
+
+def _force_kill_ollama():
+    """Last-resort: kill Ollama process to free VRAM."""
+    logger.warning("FORCE KILLING Ollama to free VRAM (last resort)")
+    try:
+        subprocess.run(["pkill", "-9", "-f", "ollama serve"], timeout=5, capture_output=True)
+    except Exception as e:
+        logger.warning(f"pkill -9 ollama failed: {e}")
+    time.sleep(3)
+    # Also try systemctl in case it's a service
+    try:
+        subprocess.run(["systemctl", "stop", "ollama"], timeout=5, capture_output=True)
+    except Exception:
+        pass
+    time.sleep(2)
 
 
 def _stop_ollama():
@@ -197,6 +283,18 @@ def _start_comfyui():
     return False
 
 
+def _wait_for_vram_release() -> bool:
+    """Wait for VRAM to be freed after model unload. Returns True if enough free."""
+    deadline = time.time() + VRAM_RELEASE_TIMEOUT
+    while time.time() < deadline:
+        if _vram_has_headroom():
+            return True
+        remaining = int(deadline - time.time())
+        logger.info(f"Waiting for VRAM release... ({remaining}s remaining)")
+        time.sleep(2)
+    return False
+
+
 def ensure_ollama() -> bool:
     """Ensure Ollama is running and GPU is available. Stops ComfyUI if needed. Thread-safe."""
     with _lock:
@@ -212,19 +310,44 @@ def ensure_ollama() -> bool:
 
 
 def ensure_comfyui() -> bool:
-    """Ensure ComfyUI is running. Unloads Ollama models (no kill) if needed. Thread-safe.
+    """Ensure ComfyUI is running. Unloads Ollama models first. Thread-safe.
 
-    Option B strategy: Ollama process stays alive but all models are unloaded
-    from VRAM. This frees ~16GB VRAM without process killing, avoiding the
-    race conditions and VRAM fragmentation that caused PC crashes.
+    Three-stage escalation to free VRAM:
+      1. API-based model unload (keep_alive=0) — graceful, Ollama stays alive
+      2. Wait + verify VRAM via rocm-smi — confirms GPU memory actually freed
+      3. Force-kill Ollama — last resort if API unload fails
+
+    Will NOT start ComfyUI until VRAM is confirmed free (prevents OOM crash).
     """
     with _lock:
         if _comfyui_running():
             return True
-        # Unload Ollama models but keep process alive (Option B)
+
+        # Stage 1: Try API-based model unload (graceful)
         if _ollama_running() and _ollama_has_loaded_models():
             logger.info("Unloading Ollama models for ComfyUI (process stays alive)...")
-            _unload_ollama_models()
+            api_unload_ok = _unload_ollama_models()
             # Extra wait for GPU driver to fully release VRAM
             time.sleep(3)
+
+            if not api_unload_ok:
+                logger.warning("API-based unload failed — will check VRAM directly")
+
+        # Stage 2: Verify VRAM is actually free via rocm-smi
+        if not _vram_has_headroom():
+            logger.warning("VRAM still occupied after API unload — waiting for release...")
+            if not _wait_for_vram_release():
+                # Stage 3: Force-kill Ollama as last resort
+                logger.error("VRAM not freed after timeout — escalating to force-kill Ollama")
+                _force_kill_ollama()
+
+                # Final VRAM check after force-kill
+                time.sleep(3)
+                if not _vram_has_headroom():
+                    # Check one more time with a longer wait
+                    if not _wait_for_vram_release():
+                        logger.error("VRAM STILL not free after force-killing Ollama — aborting ComfyUI start")
+                        return False
+
+        logger.info("VRAM clear — starting ComfyUI")
         return _start_comfyui()
