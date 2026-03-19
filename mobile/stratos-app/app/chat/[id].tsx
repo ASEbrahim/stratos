@@ -45,7 +45,8 @@ export default function ChatScreen() {
   const { alert: showAlert, AlertComponent } = useThemedAlert();
 
   // Persist session when leaving
-  useFocusEffect(useCallback(() => { return () => { persistSession().catch(err => reportError('ChatScreen:onBlur:persistSession', err)); }; }, []));
+  // Flush persist on navigate away — no debounce, saves immediately
+  useFocusEffect(useCallback(() => { return () => { persistSession(true).catch(err => reportError('ChatScreen:onBlur:persistSession', err)); }; }, []));
 
   useEffect(() => {
     if (isStreaming && !prevStreamRef.current) Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);

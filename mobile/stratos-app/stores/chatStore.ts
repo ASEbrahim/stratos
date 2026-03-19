@@ -23,7 +23,7 @@ interface ChatState {
   loadSuggestions: () => Promise<void>;
   loadRecentSessions: () => Promise<void>;
   clearSession: () => void;
-  persistSession: () => Promise<void>;
+  persistSession: (flush?: boolean) => Promise<void>;
   regenerateLastMessage: () => Promise<void>;
 }
 
@@ -57,6 +57,8 @@ export const useChatStore = create<ChatState>((set, get) => ({
     if (!sessionId || isStreaming) return;
     const userMessage: ChatMessage = { id: createMessageId(), role: 'user', content, timestamp: new Date().toISOString() };
     set({ messages: [...messages, userMessage], isStreaming: true, streamingContent: '', suggestions: [] });
+    // Persist immediately so user message is saved even if streaming is interrupted
+    get().persistSession(true).catch(err => reportError('sendMessage:earlyPersist', err));
     let accumulated = '';
     await streamMessage(sessionId, content, persona, character,
       (chunk) => { accumulated += chunk; set({ streamingContent: accumulated }); },
@@ -101,29 +103,35 @@ export const useChatStore = create<ChatState>((set, get) => ({
     get().persistSession().catch(err => reportError('clearSession:persistSession', err));
     set({ sessionId: null, character: null, messages: [], suggestions: [], isStreaming: false, streamingContent: '' });
   },
-  persistSession: () => {
+  persistSession: (flush = false) => {
+    // Flush = true bypasses debounce (used for critical saves: user message added, navigation away)
+    const doSave = async () => {
+      if (_persistTimer) { clearTimeout(_persistTimer); _persistTimer = null; }
+      const { sessionId, character, persona, sessionContext, messages } = get();
+      if (!sessionId || !character || messages.length === 0) return;
+      const session: ChatSession = {
+        id: sessionId,
+        character_id: character.id,
+        character_name: character.name,
+        character_avatar: character.avatar_url,
+        persona,
+        session_context: sessionContext || undefined,
+        messages,
+        created_at: messages[0]?.timestamp ?? new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
+      try {
+        await saveChatSession(session);
+      } catch (err) {
+        reportError('persistSession', err);
+      }
+    };
+    if (flush) return doSave();
     return new Promise<void>((resolve) => {
       if (_persistTimer) clearTimeout(_persistTimer);
       _persistTimer = setTimeout(async () => {
         _persistTimer = null;
-        const { sessionId, character, persona, sessionContext, messages } = get();
-        if (!sessionId || !character || messages.length === 0) { resolve(); return; }
-        const session: ChatSession = {
-          id: sessionId,
-          character_id: character.id,
-          character_name: character.name,
-          character_avatar: character.avatar_url,
-          persona,
-          session_context: sessionContext || undefined,
-          messages,
-          created_at: messages[0]?.timestamp ?? new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        };
-        try {
-          await saveChatSession(session);
-        } catch (err) {
-          reportError('persistSession', err);
-        }
+        await doSave();
         resolve();
       }, Config.PERSIST_DEBOUNCE_MS);
     });
