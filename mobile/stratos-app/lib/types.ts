@@ -1,8 +1,8 @@
 // Pill field types
 export type Gender = 'female' | 'male' | 'nonbinary';
-export type Archetype = 'shy' | 'confident' | 'tough' | 'clinical' | 'sweet' | 'submissive';
+export type Archetype = 'shy' | 'confident' | 'tough' | 'clinical' | 'sweet' | 'submissive' | 'dominant' | 'playful' | 'mysterious' | 'protective' | 'tsundere' | 'yandere' | 'kuudere' | 'manipulative' | 'chaotic' | 'elegant' | 'nurturing' | 'brooding';
 export type NarrationPOV = 'first' | 'third' | 'mixed';
-export type Relationship = 'stranger' | 'friend' | 'rival' | 'love_interest' | 'mentor' | 'servant';
+export type Relationship = 'stranger' | 'friend' | 'childhood_friend' | 'rival' | 'love_interest' | 'ex' | 'mentor' | 'student' | 'servant' | 'master' | 'coworker' | 'roommate' | 'enemy' | 'sibling' | 'bodyguard' | 'captor';
 export type NSFWComfort = 'fade' | 'suggestive' | 'explicit';
 export type ResponseLength = 'brief' | 'normal' | 'detailed';
 export type AgeRange = 'teen' | 'young_adult' | 'adult' | 'middle_aged' | 'elderly';
@@ -39,6 +39,7 @@ export interface CharacterCard {
   nsfw_comfort?: NSFWComfort;
   response_length_pref?: ResponseLength;
   age_range?: AgeRange;
+  personality_tags?: string[];
 }
 
 export interface CharacterCardCreate {
@@ -64,6 +65,7 @@ export interface CharacterCardCreate {
   nsfw_comfort?: NSFWComfort;
   response_length_pref?: ResponseLength;
   age_range?: AgeRange;
+  personality_tags?: string[];
 }
 
 export interface GamingScenario {

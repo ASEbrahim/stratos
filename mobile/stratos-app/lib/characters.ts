@@ -116,6 +116,10 @@ export async function createCharacter(data: CharacterCardCreate): Promise<Charac
         specific_detail: filled.specific_detail, personality: filled.personality,
         scenario: filled.scenario, first_message: filled.first_message,
         genre_tags: filled.genre_tags, content_rating: filled.content_rating,
+        gender: filled.gender, archetype_override: filled.archetype_override,
+        narration_pov: filled.narration_pov, relationship_to_user: filled.relationship_to_user,
+        nsfw_comfort: filled.nsfw_comfort, response_length_pref: filled.response_length_pref,
+        age_range: filled.age_range, personality_tags: filled.personality_tags,
       }),
     });
     const card = await getCharacter(result.card_id);

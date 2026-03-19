@@ -26,6 +26,15 @@ export interface BackendCard {
   content_rating?: string;
   avatar_image_path?: string;
   avatar_url?: string;
+  // Pill fields
+  gender?: string;
+  archetype_override?: string;
+  narration_pov?: string;
+  relationship_to_user?: string;
+  nsfw_comfort?: string;
+  response_length_pref?: string;
+  age_range?: string;
+  personality_tags?: string | string[];
   creator_profile_id?: string | number;
   creator_id?: string | number;
   creator_name?: string;
@@ -70,6 +79,15 @@ export function mapCardFromBackend(raw: BackendCard): CharacterCard {
     rating_count: raw.total_ratings ?? raw.rating_count ?? 0,
     created_at: raw.created_at || new Date().toISOString(),
     updated_at: raw.updated_at || new Date().toISOString(),
+    // Pill fields
+    gender: raw.gender as any,
+    archetype_override: raw.archetype_override as any,
+    narration_pov: raw.narration_pov as any,
+    relationship_to_user: raw.relationship_to_user as any,
+    nsfw_comfort: raw.nsfw_comfort as any,
+    response_length_pref: raw.response_length_pref as any,
+    age_range: raw.age_range as any,
+    personality_tags: typeof raw.personality_tags === 'string' ? safeParse(raw.personality_tags, []) : (raw.personality_tags || []),
   };
 }
 

@@ -935,6 +935,16 @@ def migration_031(cursor):
         pass  # column already exists
 
 
+@migration
+def migration_032(cursor):
+    """Add personality_tags JSON column to character_cards for mix-and-match tags."""
+    _safe_table('character_cards')
+    try:
+        cursor.execute("ALTER TABLE character_cards ADD COLUMN personality_tags TEXT DEFAULT NULL")
+    except Exception:
+        pass  # column already exists
+
+
 # =========================================================================
 # Migration runner
 # =========================================================================

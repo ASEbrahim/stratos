@@ -198,12 +198,16 @@ def _start_comfyui():
 
 
 def ensure_ollama() -> bool:
-    """Ensure Ollama is running. Stops ComfyUI if needed. Thread-safe."""
+    """Ensure Ollama is running and GPU is available. Stops ComfyUI if needed. Thread-safe."""
     with _lock:
+        # Always stop ComfyUI first — even if Ollama process is alive,
+        # ComfyUI may still be hogging VRAM from a previous image gen session.
+        # Without this, Ollama tries to load the model while ComfyUI holds GPU = OOM crash.
+        if _comfyui_running():
+            logger.info("ComfyUI still running — stopping to free GPU for Ollama")
+            _stop_comfyui()
         if _ollama_running():
             return True
-        if _comfyui_running():
-            _stop_comfyui()
         return _start_ollama()
 
 

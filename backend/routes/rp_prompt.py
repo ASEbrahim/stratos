@@ -140,6 +140,14 @@ def _detect_archetype(personality: str, override: str = None) -> str:
         "playful": "sweet",
         "mysterious": "shy",      # mysterious characters are guarded like shy
         "protective": "tough",
+        "tsundere": "shy",        # tsundere = shy + aggressive bursts
+        "yandere": "sweet",       # yandere = sweet exterior, intense interior
+        "kuudere": "clinical",    # kuudere = cold/analytical
+        "manipulative": "confident",
+        "chaotic": "confident",
+        "elegant": "confident",
+        "nurturing": "sweet",
+        "brooding": "tough",
     }
     if override:
         mapped = _OVERRIDE_MAP.get(override, override)
@@ -354,10 +362,20 @@ def _build_system_prompt(card: dict = None, director_note: str = None,
             rel_labels = {
                 'stranger': 'You and the user are strangers meeting for the first time.',
                 'friend': 'You and the user are friends — comfortable but not intimate.',
+                'childhood_friend': 'You and the user have been friends since childhood — deep bond, shared memories, unspoken understanding.',
                 'rival': 'You and the user are rivals — competitive tension, grudging respect.',
                 'love_interest': 'You and the user have romantic tension — unspoken feelings, lingering looks.',
+                'ex': 'You and the user are exes — complicated history, unresolved feelings, awkward tension.',
                 'mentor': 'You are the user\'s mentor — guiding, protective, sometimes stern.',
+                'student': 'You are the user\'s student — eager to learn, looks up to them, occasionally defiant.',
                 'servant': 'You serve the user — devoted, attentive, deferential.',
+                'master': 'You are the user\'s master — authoritative, expects obedience, holds power.',
+                'coworker': 'You and the user work together — professional but with personal tension.',
+                'roommate': 'You and the user share a living space — proximity breeds familiarity and friction.',
+                'enemy': 'You and the user are enemies — hostility, distrust, dangerous encounters.',
+                'sibling': 'You and the user are siblings — love underneath the bickering, shared history.',
+                'bodyguard': 'You are the user\'s bodyguard — protector, always alert, professional distance hiding deeper feelings.',
+                'captor': 'You are holding the user captive — power dynamics, control, complex motivations.',
             }
             prompt += f"\nRelationship: {rel_labels.get(relationship, relationship)}"
 
@@ -380,6 +398,16 @@ def _build_system_prompt(card: dict = None, director_note: str = None,
             val = card.get(field, "").strip()
             if val:
                 prompt += f"\n{label}: {val}"
+
+        # Personality tags — mix-and-match flavor traits from pill selection
+        raw_tags = card.get('personality_tags')
+        if raw_tags:
+            import json as _json
+            tags = raw_tags if isinstance(raw_tags, list) else _json.loads(raw_tags) if isinstance(raw_tags, str) else []
+            if tags:
+                # Convert tag IDs to readable labels
+                tag_labels = [t.replace('-', ' ').replace('_', ' ').replace('manipulative tag', 'scheming') for t in tags]
+                prompt += f"\nTraits: {', '.join(tag_labels)}"
 
         if card.get('example_dialogues'):
             prompt += f"\nExample dialogue (match this voice):\n{card['example_dialogues']}"

@@ -4,11 +4,11 @@ import { CharacterCardCreate } from '../../lib/types';
 import { typography, spacing, borderRadius } from '../../constants/theme';
 import { useThemeStore } from '../../stores/themeStore';
 import {
-  PillSelector,
+  PillSelector, MultiPillSelector,
   GENDER_OPTIONS, ARCHETYPE_OPTIONS, RELATIONSHIP_OPTIONS,
   POV_OPTIONS, NSFW_COMFORT_OPTIONS, AGE_RANGE_OPTIONS,
   RESPONSE_LENGTH_OPTIONS, SCENARIO_TEMPLATES, SPEECH_STYLE_TEMPLATES,
-  PERSONALITY_TEMPLATES,
+  PERSONALITY_TEMPLATES, PERSONALITY_TAG_OPTIONS,
 } from './PillSelector';
 
 function WordCount({ text }: { text: string }) {
@@ -56,6 +56,14 @@ export const AdvancedEditor = React.memo(function AdvancedEditor({ card, onUpdat
 
       <PillSelector label="Archetype" options={ARCHETYPE_OPTIONS} value={card.archetype_override} onChange={handleArchetypeChange} />
       <PillSelector label="Relationship to You" options={RELATIONSHIP_OPTIONS} value={card.relationship_to_user} onChange={(v) => onUpdate('relationship_to_user', v)} />
+
+      <MultiPillSelector
+        label="Personality Tags"
+        options={PERSONALITY_TAG_OPTIONS}
+        values={card.personality_tags || []}
+        onChange={(v) => onUpdate('personality_tags' as keyof CharacterCardCreate, v as unknown as string)}
+        wrap
+      />
 
       <Text style={[styles.fieldLabel, { color: tc.text.primary }]}>Personality</Text>
       <TextInput style={[styles.input, styles.multiline, { backgroundColor: tc.bg.tertiary, color: tc.text.primary, borderColor: tc.border.subtle }]} value={card.personality} onChangeText={v => onUpdate('personality', v)} placeholder="How does your character act and speak?" placeholderTextColor={tc.text.muted} multiline textAlignVertical="top" />

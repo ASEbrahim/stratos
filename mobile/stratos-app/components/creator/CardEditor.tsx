@@ -47,11 +47,21 @@ export function CardEditor({ initialCard, prefillData }: CardEditorProps) {
     genre_tags: source.genre_tags || [],
     content_rating: source.content_rating || 'sfw',
     avatar_url: '',  // Don't copy avatar — user generates their own
+    // Pill fields
+    gender: source.gender,
+    archetype_override: source.archetype_override,
+    narration_pov: source.narration_pov,
+    relationship_to_user: source.relationship_to_user,
+    nsfw_comfort: source.nsfw_comfort,
+    response_length_pref: source.response_length_pref,
+    age_range: source.age_range,
+    personality_tags: source.personality_tags || [],
   } : {
     name: '', description: '', personality: '', scenario: '', first_message: '',
     physical_description: '', speech_pattern: '', emotional_trigger: '',
     defensive_mechanism: '', vulnerability: '', specific_detail: '',
     genre_tags: [], content_rating: 'sfw', avatar_url: '',
+    personality_tags: [],
   });
 
   const { loadMyCards, loadNew } = useCharacterStore();
@@ -82,6 +92,10 @@ export function CardEditor({ initialCard, prefillData }: CardEditorProps) {
             defensive_mechanism: card.defensive_mechanism, vulnerability: card.vulnerability,
             specific_detail: card.specific_detail, genre_tags: card.genre_tags,
             content_rating: card.content_rating,
+            gender: card.gender, archetype_override: card.archetype_override,
+            narration_pov: card.narration_pov, relationship_to_user: card.relationship_to_user,
+            nsfw_comfort: card.nsfw_comfort, response_length_pref: card.response_length_pref,
+            age_range: card.age_range, personality_tags: card.personality_tags,
           }),
         });
         loadMyCards().catch(err => reportError('CardEditor:loadMyCards', err));

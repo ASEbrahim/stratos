@@ -22,7 +22,9 @@
         "backgroundColor": "#08050c"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "softwareKeyboardLayoutMode": "adjustResize",
+      "package": "com.stratos.app"
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -30,7 +32,14 @@
     "plugins": [
       "expo-router",
       "expo-font",
-      "expo-secure-store"
+      "expo-secure-store",
+      [
+        "expo-media-library",
+        {
+          "photosPermission": "Allow StratOS to save generated images to your photo library.",
+          "savePhotosPermission": "Allow StratOS to save generated images to your photo library."
+        }
+      ]
     ]
   }
 }
