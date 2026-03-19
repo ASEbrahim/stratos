@@ -18,6 +18,7 @@ from routes.rp_prompt import (
     _get_archetype_length, _should_ask_question,
     _ERP_PATTERNS, _HIGH_ENERGY_PATTERNS,
 )
+from routes.rp_meta import parse_meta_params
 
 logger = logging.getLogger("rp_injection")
 
@@ -33,6 +34,12 @@ def _build_turn_injection(history: list, card: dict, content: str,
     personality_text = card.get('personality', '') if card else ''
     arch_override = card.get('archetype_override') if card else None
     user_words = len(content.split())
+
+    # ── Load meta params (set by rp_meta.py meta-controller) ──
+    meta_params = None
+    stored_meta = db.get_rp_context(session_id, tier=2, category="meta_params", limit=1)
+    if stored_meta:
+        meta_params = parse_meta_params(stored_meta[0]['value'])
 
     # ── Situation awareness ──
     situation_parts = []
@@ -60,8 +67,17 @@ def _build_turn_injection(history: list, card: dict, content: str,
         if user_details:
             callback_hint = "CALLBACK: Reference something from earlier in the conversation."
 
-    # ── Archetype-specific format rotation ──
-    format_hint = _get_archetype_format(user_turn, personality_text)
+    # ── Format rotation (meta-controller or archetype formula) ──
+    if meta_params:
+        _fmt = meta_params.get('format', 1)
+        if _fmt == 3:
+            format_hint = 'DO NOT start with * or ". Start with a plain sentence — a thought, observation, or feeling.'
+        elif _fmt == 2:
+            format_hint = "Start your response with *action in asterisks*"
+        else:
+            format_hint = 'Start your response with "dialogue in quotes"'
+    else:
+        format_hint = _get_archetype_format(user_turn, personality_text)
 
     # ── Narration style constraint (separate from narration_pov which is about person) ──
     narration_style = card.get('narration_style') if card else None
@@ -70,28 +86,48 @@ def _build_turn_injection(history: list, card: dict, content: str,
     elif narration_style == 'script':
         format_hint += ' NARRATION RULE: Dialogue is primary. Minimal *action* beats. No internal monologue. What is SAID and DONE, not thought.'
 
-    # ── Archetype-aware dialogue tone progression ──
-    dialogue_tone = _get_dialogue_tone(user_turn, personality_text, content)
+    # ── Dialogue tone (meta-controller or archetype formula) ──
+    if meta_params:
+        _tone = meta_params.get('tone', 2)
+        _TONE_HINTS = {
+            1: "Keep your guard up. Measured responses, nothing freely given.",
+            2: "Warm but not overly so. Let genuine interest show.",
+            3: "Light, teasing energy. Let playfulness guide this moment.",
+            4: "Raw, unfiltered intensity. Don't hold back.",
+            5: "Tender, gentle, close. This is a quiet, vulnerable moment.",
+            6: "Cold, distant, controlled. Hold them at arm's length.",
+        }
+        dialogue_tone = _TONE_HINTS.get(_tone, _TONE_HINTS[2])
+    else:
+        dialogue_tone = _get_dialogue_tone(user_turn, personality_text, content)
 
-    # ── Length control — aggressive for short input, proportional otherwise ──
+    # ── Length control (meta-controller or formula) ──
     archetype = _detect_archetype(personality_text, override=arch_override)
-    arch_length = _get_archetype_length(personality_text)
     length_hint = ""
-    if user_words <= 3:
-        if arch_length == "short":
-            length_hint = "LENGTH: 1-word input. Reply with ONE short sentence. Nothing more."
-        else:
-            length_hint = "LENGTH: 1-word input. Reply with 1 sentence MAX. No extra narration, no nurturing, no padding."
-    elif user_words <= 5:
-        if arch_length == "short":
-            length_hint = "LENGTH: Very short input. Reply with 1 sentence MAX."
-        else:
-            length_hint = "LENGTH: Short input. Reply with 1-2 sentences MAX."
-    elif user_words <= 10:
-        if arch_length == "short":
-            length_hint = "LENGTH: Keep it terse — match character's brevity."
-        else:
-            length_hint = "LENGTH: Match the user's brevity."
+    if meta_params:
+        _len = meta_params.get('length', 2)
+        if _len == 1:
+            length_hint = "LENGTH: Keep it brief — 1-2 sentences max."
+        elif _len == 3:
+            length_hint = "LENGTH: Take your time — detailed, immersive response."
+        # _len == 2 → no constraint (normal)
+    else:
+        arch_length = _get_archetype_length(personality_text)
+        if user_words <= 3:
+            if arch_length == "short":
+                length_hint = "LENGTH: 1-word input. Reply with ONE short sentence. Nothing more."
+            else:
+                length_hint = "LENGTH: 1-word input. Reply with 1 sentence MAX. No extra narration, no nurturing, no padding."
+        elif user_words <= 5:
+            if arch_length == "short":
+                length_hint = "LENGTH: Very short input. Reply with 1 sentence MAX."
+            else:
+                length_hint = "LENGTH: Short input. Reply with 1-2 sentences MAX."
+        elif user_words <= 10:
+            if arch_length == "short":
+                length_hint = "LENGTH: Keep it terse — match character's brevity."
+            else:
+                length_hint = "LENGTH: Match the user's brevity."
 
     # ── Gagged/silenced speech detection ──
     gag_hint = ""
@@ -99,8 +135,8 @@ def _build_turn_injection(history: list, card: dict, content: str,
     if gag_patterns.search(content):
         gag_hint = "CHARACTER CANNOT SPEAK clearly. Only muffled sounds ('mmph', 'nngh'), body language, and internal thoughts. NO clear dialogue this turn."
 
-    # ── Intensity length ceiling ──
-    if not length_hint:
+    # ── Intensity length ceiling (only when no meta — meta already handles intensity) ──
+    if not length_hint and not meta_params:
         is_erp = bool(_ERP_PATTERNS.search(content))
         is_high = bool(_HIGH_ENERGY_PATTERNS.search(content))
         if is_erp or is_high:
@@ -120,12 +156,15 @@ def _build_turn_injection(history: list, card: dict, content: str,
         }
         question_hint = q_hints.get(q_type, "END with a question to the user.")
 
-    # ── Anti-sycophancy for confident/tough ──
+    # ── Anti-sycophancy (meta tone=cold or archetype pushback) ──
     pushback_hint = ""
-    archetype = _detect_archetype(personality_text, override=arch_override)
-    arch_data = _ARCHETYPES.get(archetype, {})
-    if arch_data.get("pushback") and user_turn >= 2:
-        pushback_hint = "Don't just agree or flirt harder. Challenge them. Push back. Disagree. Have your own opinion. Say 'no' or 'you're wrong' if it fits."
+    if meta_params:
+        if meta_params.get('tone') == 6 and user_turn >= 2:
+            pushback_hint = "Don't just agree or flirt harder. Challenge them. Push back. Disagree. Have your own opinion."
+    else:
+        arch_data = _ARCHETYPES.get(archetype, {})
+        if arch_data.get("pushback") and user_turn >= 2:
+            pushback_hint = "Don't just agree or flirt harder. Challenge them. Push back. Disagree. Have your own opinion. Say 'no' or 'you're wrong' if it fits."
 
     # ── Dynamic archetype blending ──
     blend_hint = ""
@@ -180,8 +219,29 @@ def _build_turn_injection(history: list, card: dict, content: str,
         except (json.JSONDecodeError, IndexError):
             pass
 
-    # ── Emotional openness meter ──
-    openness = _get_emotional_openness(user_turn, personality_text, content, history=history)
+    # ── Emotional openness (meta-controller or formula) ──
+    if meta_params:
+        openness = meta_params.get('openness', 0.1)
+    else:
+        openness = _get_emotional_openness(user_turn, personality_text, content, history=history)
+
+    # ── Pacing hint (meta only) ──
+    pacing_hint = ""
+    if meta_params:
+        _pacing = meta_params.get('pacing', 2)
+        if _pacing == 1:
+            pacing_hint = "PACING: Slow this moment down. Linger on details, sensations, micro-expressions."
+        elif _pacing == 3:
+            pacing_hint = "PACING: Advance the scene. Something should change or happen."
+
+    # ── Speech enforcement hint (meta only) ──
+    speech_hint = ""
+    if meta_params:
+        _speech = meta_params.get('speech', 1)
+        if _speech == 3:
+            speech_hint = "SPEECH: Enforce this character's distinctive speech pattern strictly. Every line must sound like them."
+        elif _speech == 2:
+            speech_hint = "SPEECH: Maintain the character's speech pattern. Light enforcement."
 
     # ── Assemble ──
     inject_parts = []
@@ -210,6 +270,10 @@ def _build_turn_injection(history: list, card: dict, content: str,
         inject_parts.append(anti_repeat)
     if blend_hint:
         inject_parts.append(blend_hint)
+    if pacing_hint:
+        inject_parts.append(pacing_hint)
+    if speech_hint:
+        inject_parts.append(speech_hint)
     inject_parts.append(f"OPENNESS: {openness:.1f}/1.0 — {'fully guarded' if openness < 0.2 else 'mostly guarded' if openness < 0.4 else 'warming up' if openness < 0.6 else 'walls down' if openness < 0.8 else 'completely open'}")
 
     return "[" + ". ".join(inject_parts) + "]"

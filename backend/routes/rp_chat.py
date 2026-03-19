@@ -41,6 +41,7 @@ from routes.rp_injection import _build_turn_injection
 from routes.rp_stream import select_rp_model, _stream_ollama, MAX_MESSAGE_LENGTH, compute_ngram_overlap
 from routes.rp_director import generate_goals, should_generate_goals
 from routes.rp_prompt import _detect_archetype, _get_emotional_openness
+from routes.rp_meta import should_call_meta, call_meta_controller
 
 logger = logging.getLogger("rp_chat")
 
@@ -166,6 +167,23 @@ def handle_post(handler, strat, auth, path) -> bool:
         except Exception as e:
             logger.warning(f"Memory context build failed (non-fatal): {e}")
 
+        # ── Meta-controller (Haiku — blocking, ~0.3-0.5s) ──
+        meta_params = None
+        if persona == 'roleplay' and card:
+            last_asst_msg = ""
+            for m in reversed(history):
+                if m['role'] == 'assistant':
+                    last_asst_msg = m.get('content', '')
+                    break
+            if should_call_meta(content, last_asst_msg, user_turn):
+                archetype = _detect_archetype(
+                    card.get('personality', ''),
+                    override=card.get('archetype_override')
+                )
+                meta_params = call_meta_controller(
+                    card, history, content, user_turn, archetype, session_id, db
+                )
+
         # Build messages for Ollama
         # Get first_message for tone anchoring
         fm_text = None
@@ -220,13 +238,18 @@ def handle_post(handler, strat, auth, path) -> bool:
             error_response(handler, "Failed to start Ollama", 503)
             return True
 
-        # Dynamic num_predict based on user message length
-        _np = 250 if user_words <= 5 else 350 if user_words <= 15 else 500
+        # Dynamic params from meta-controller (or formula fallback)
+        if meta_params:
+            _temp = meta_params.get('temperature', 0.85)
+            _np = {1: 150, 2: 300, 3: 500}.get(meta_params.get('length', 2), 300)
+        else:
+            _temp = 0.85
+            _np = 250 if user_words <= 5 else 350 if user_words <= 15 else 500
 
         # Stream response
         start_sse(handler)
         start_time = time.time()
-        full_text = _stream_ollama(handler, ollama_host, model, messages, num_predict=_np)
+        full_text = _stream_ollama(handler, ollama_host, model, messages, temperature=_temp, num_predict=_np)
         elapsed_ms = int((time.time() - start_time) * 1000)
 
         asst_msg_id = None
@@ -278,41 +301,42 @@ def handle_post(handler, strat, auth, path) -> bool:
                     args=(session_id, "User", char_name, all_msgs, asst_turn, db)
                 ).start()
 
-            # ── Goal Director (async — generates goals for NEXT turn) ──
-            def _maybe_generate_goals():
-                try:
-                    import json as _json
-                    _personality = card.get('personality', '') if card else ''
-                    stored = db.get_rp_context(session_id, tier=2, category="director_goal", limit=1)
-                    current_goals = []
-                    if stored:
-                        try:
-                            current_goals = _json.loads(stored[0].get('value', '[]'))
-                        except Exception:
-                            pass
-                    if not should_generate_goals(asst_turn, current_goals):
-                        return
-                    arch = _detect_archetype(_personality,
-                                             override=card.get('archetype_override') if card else None)
-                    openness = _get_emotional_openness(asst_turn, _personality, content)
-                    updated_history = list(history) + [
-                        {"role": "user", "content": content},
-                        {"role": "assistant", "content": full_text},
-                    ]
-                    result = generate_goals(card or {}, updated_history, asst_turn,
-                                            openness, arch, current_goals)
-                    if result is None or result.get("keep_current"):
-                        return
-                    new_goals = result.get("goals", [])
-                    if new_goals:
-                        db.upsert_rp_context(session_id, tier=2, category="director_goal",
-                                             key="current_goals", value=_json.dumps(new_goals),
-                                             turn_number=asst_turn)
-                        logger.info(f"Goal director: {new_goals}. Reason: {result.get('reasoning', '?')}")
-                except Exception as e:
-                    logger.warning(f"Goal director thread failed: {e}")
+            # ── Goal Director: skip if meta-controller already set goals ──
+            if not meta_params:
+                def _maybe_generate_goals():
+                    try:
+                        import json as _json
+                        _personality = card.get('personality', '') if card else ''
+                        stored = db.get_rp_context(session_id, tier=2, category="director_goal", limit=1)
+                        current_goals = []
+                        if stored:
+                            try:
+                                current_goals = _json.loads(stored[0].get('value', '[]'))
+                            except Exception:
+                                pass
+                        if not should_generate_goals(asst_turn, current_goals):
+                            return
+                        arch = _detect_archetype(_personality,
+                                                 override=card.get('archetype_override') if card else None)
+                        openness = _get_emotional_openness(asst_turn, _personality, content)
+                        updated_history = list(history) + [
+                            {"role": "user", "content": content},
+                            {"role": "assistant", "content": full_text},
+                        ]
+                        result = generate_goals(card or {}, updated_history, asst_turn,
+                                                openness, arch, current_goals)
+                        if result is None or result.get("keep_current"):
+                            return
+                        new_goals = result.get("goals", [])
+                        if new_goals:
+                            db.upsert_rp_context(session_id, tier=2, category="director_goal",
+                                                 key="current_goals", value=_json.dumps(new_goals),
+                                                 turn_number=asst_turn)
+                            logger.info(f"Goal director: {new_goals}. Reason: {result.get('reasoning', '?')}")
+                    except Exception as e:
+                        logger.warning(f"Goal director thread failed: {e}")
 
-            threading.Thread(target=_maybe_generate_goals, daemon=True).start()
+                threading.Thread(target=_maybe_generate_goals, daemon=True).start()
 
         sse_event(handler, {
             "done": True, "session_id": session_id, "branch_id": branch_id,
