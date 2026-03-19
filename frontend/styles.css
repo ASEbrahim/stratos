@@ -524,8 +524,11 @@ body:has(.agent-fullscreen) > .flex > main {
 .yi-takeaway-num { width:24px;height:24px;border-radius:6px;background:color-mix(in srgb, var(--accent,#c084fc) 15%, transparent);color:var(--accent-light,#c084fc);font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0; }
 .yi-takeaway-text { font-size:14px;line-height:1.7;color:var(--text-primary,#e2e8f0); }
 .yi-transcript { font-size:15px;line-height:1.9;color:var(--text-primary,#e2e8f0);padding:20px 22px;border-radius:14px;background:color-mix(in srgb, var(--bg-secondary,#080d18) 40%, transparent);border:1px solid var(--border,rgba(255,255,255,0.06)); }
-.yi-transcript p { margin-bottom:14px; }
+.yi-transcript p { margin-bottom:18px; }
 .yi-transcript p:last-child { margin-bottom:0; }
+.yi-transcript p:first-child::first-letter { font-size:1.35em;font-weight:600;color:var(--accent-light,#c084fc);line-height:1; }
+.yi-transcript em { font-style:italic; }
+.yi-transcript strong { font-weight:600;color:var(--text-heading,#e2e8f0); }
 .yi-note { font-size:12px;color:var(--text-muted,#64748b);padding:8px 14px;border-radius:8px;background:color-mix(in srgb, var(--accent,#c084fc) 5%, transparent);border:1px solid color-mix(in srgb, var(--accent,#c084fc) 10%, transparent);margin-bottom:14px; }
 .yi-vocab-card { padding:18px 20px;border-radius:12px;background:color-mix(in srgb, var(--bg-secondary,#080d18) 40%, transparent);border:1px solid var(--border,rgba(255,255,255,0.06));transition:all 0.2s; }
 .yi-vocab-card:hover { background:color-mix(in srgb, var(--bg-secondary,#080d18) 60%, transparent);border-color:color-mix(in srgb, var(--accent,#c084fc) 18%, transparent); }

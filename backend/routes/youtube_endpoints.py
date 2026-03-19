@@ -768,6 +768,24 @@ def handle_post(handler, strat, auth, path):
         threading.Thread(target=_retranscribe, daemon=True).start()
         return True
 
+    if path == "/api/youtube/translate-text":
+        text = body.get('text', '')
+        target_lang = body.get('target_language', 'en')
+        source_lang = body.get('source_language', 'auto')
+        if not text:
+            _send_json(handler, {"error": "Missing text"}, 400)
+            return True
+        try:
+            from deep_translator import GoogleTranslator
+            # deep-translator max chunk is ~5000 chars, handle longer text
+            chunks = [text[i:i+4500] for i in range(0, len(text), 4500)]
+            translated = ' '.join(GoogleTranslator(source=source_lang, target=target_lang).translate(c) for c in chunks)
+            _send_json(handler, {"translated_text": translated, "source_language": source_lang, "target_language": target_lang})
+        except Exception as e:
+            logger.error(f"Text translation error: {e}")
+            _send_json(handler, {"error": str(e)}, 500)
+        return True
+
     if path == "/api/youtube/pin-video":
         video_id = body.get('video_id')
         pinned = body.get('pinned', True)

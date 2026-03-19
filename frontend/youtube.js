@@ -679,19 +679,29 @@ function _ytRenderLensByName(lensName) {
     else if (lens === 'politics') content = _ytRenderPolitics(data);
     else content = _ytRenderGeneric(data, lens);
 
-    // Add refresh button + save button for non-transcript lenses
+    // Add refresh + translate + save buttons for non-transcript lenses
     if (lens !== 'transcript') {
         const isRefreshing = _ytExtractingLenses.has(lensName);
         const mode = lens === 'summary' ? 'replace' : 'merge';
         const tooltip = lens === 'summary' ? 'Re-summarize' : 'Find more';
         const saveBtn = typeof _ytBuildSaveButton === 'function' ? _ytBuildSaveButton(lensName) : '';
-        body.innerHTML = `<div style="display:flex;justify-content:flex-end;align-items:center;gap:8px;margin-bottom:8px;">
+        const translateLangs = [['en','EN'],['ar','AR'],['ja','JA'],['zh','ZH'],['ko','KO'],['fr','FR'],['de','DE'],['es','ES']];
+        const translateSelect = `<select id="yi-translate-lens-lang-${lensName}" class="yi-header-btn" style="padding:3px 6px;font-size:10px;background:var(--bg-input,rgba(8,10,22,0.7));color:var(--text-secondary);cursor:pointer;appearance:auto;">
+            ${translateLangs.map(([v,l]) => `<option value="${v}">${l}</option>`).join('')}
+        </select>`;
+        const translateBtn = `<button onclick="_ytTranslateLensContent('${lensName}')" class="yi-header-btn" style="padding:4px 10px;font-size:11px;gap:4px;" id="yi-translate-lens-btn-${lensName}" title="Translate this content">
+            <i data-lucide="languages" style="width:12px;height:12px;"></i> Translate
+        </button>`;
+        body.innerHTML = `<div style="display:flex;justify-content:flex-end;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap;">
             ${_ytLangSelect('yi-refresh-lang-'+lensName)}
             <button onclick="_ytRefreshLens('${lensName}','${mode}')" class="yi-header-btn" style="padding:4px 10px;font-size:11px;gap:4px;${isRefreshing ? 'opacity:0.5;pointer-events:none;' : ''}" title="${tooltip}">
                 <i data-lucide="${isRefreshing ? 'loader-2' : 'refresh-cw'}" style="width:12px;height:12px;" ${isRefreshing ? 'class="animate-pulse"' : ''}></i> ${isRefreshing ? 'Refreshing...' : tooltip}
             </button>
+            <span style="width:1px;height:16px;background:var(--border-strong,rgba(255,255,255,0.08));"></span>
+            ${translateSelect}
+            ${translateBtn}
             ${saveBtn}
-        </div>` + content;
+        </div><div id="yi-lens-content-${lensName}">${content}</div>`;
     } else {
         body.innerHTML = content;
     }
@@ -719,10 +729,27 @@ window._ytSwitchLang = _ytSwitchLang;
 
 // ── Renderers ──
 
-function _ytParagraphize(text, sentencesPerPara = 3) {
+function _ytParagraphize(text, sentencesPerPara = 4) {
     // Split on existing double-newlines first
     const existing = text.split(/\n\s*\n/);
-    if (existing.length > 1) return existing.map(p => p.trim()).filter(Boolean);
+    if (existing.length > 2) return existing.map(p => p.trim()).filter(Boolean);
+    // Single newlines as soft breaks
+    const lines = text.split(/\n/).map(l => l.trim()).filter(Boolean);
+    if (lines.length > 3) {
+        // Group short lines (transcript-style) into larger paragraphs
+        const paragraphs = [];
+        let buf = [];
+        for (const line of lines) {
+            buf.push(line);
+            // Break after ~4 lines or if line ends with strong punctuation
+            if (buf.length >= sentencesPerPara || /[.!?؟。！？]$/.test(line)) {
+                paragraphs.push(buf.join(' '));
+                buf = [];
+            }
+        }
+        if (buf.length) paragraphs.push(buf.join(' '));
+        return paragraphs;
+    }
     // Fallback: split on sentence boundaries, group into paragraphs
     const sentences = text.split(/(?<=[.!?。！？؟])\s+/);
     const paragraphs = [];
@@ -779,7 +806,15 @@ function _ytRenderTranscript(data) {
         </button>
     </div>`;
 
-    return `${shortWarning}${translateBar}${note}<div class="yi-transcript" id="yi-transcript-content">${paragraphs.map(p => `<p>${_escHtml(p)}</p>`).join('')}</div>`;
+    return `${shortWarning}${translateBar}${note}<div class="yi-transcript" id="yi-transcript-content">${paragraphs.map(p => {
+        let html = _escHtml(p);
+        // Style quoted text in italics
+        html = html.replace(/["""]([^"""]+)["""]/g, '<em style="color:var(--accent-light,#c084fc);">"$1"</em>');
+        html = html.replace(/«([^»]+)»/g, '<em style="color:var(--accent-light,#c084fc);">«$1»</em>');
+        // Bold speaker labels (e.g., "Speaker 1:", "Host:", names ending with colon)
+        html = html.replace(/^([A-Z][a-zA-Z\s]{1,25}:)/gm, '<strong style="color:var(--text-heading,#e2e8f0);">$1</strong>');
+        return `<p>${html}</p>`;
+    }).join('')}</div>`;
 }
 
 // ── Retranscription progress indicator ──
@@ -894,6 +929,46 @@ async function _ytTranslateTranscript() {
     }
 }
 window._ytTranslateTranscript = _ytTranslateTranscript;
+
+// ── Translate any lens content (summary, eloquence, etc.) via Google Translate ──
+async function _ytTranslateLensContent(lensName) {
+    const contentEl = document.getElementById('yi-lens-content-' + lensName);
+    const langSelect = document.getElementById('yi-translate-lens-lang-' + lensName);
+    const btn = document.getElementById('yi-translate-lens-btn-' + lensName);
+    if (!contentEl || !langSelect) return;
+
+    const targetLang = langSelect.value || 'en';
+    // Grab visible text from the lens content
+    const text = contentEl.innerText || contentEl.textContent || '';
+    if (!text.trim()) {
+        if (typeof showToast === 'function') showToast('No content to translate', 'error');
+        return;
+    }
+
+    if (btn) { btn.style.opacity = '0.5'; btn.style.pointerEvents = 'none'; btn.innerHTML = '<i data-lucide="loader-2" style="width:12px;height:12px;" class="animate-pulse"></i> Translating...'; lucide.createIcons(); }
+
+    try {
+        const r = await fetch('/api/youtube/translate-text', {
+            method: 'POST',
+            headers: _ytHeaders(),
+            body: JSON.stringify({ text: text.slice(0, 15000), target_language: targetLang }),
+        });
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        const d = await r.json();
+        if (!d.translated_text) throw new Error('Empty response');
+
+        // Replace content with translated text, preserving structure
+        const paragraphs = d.translated_text.split(/\n\s*\n|\n/).filter(Boolean);
+        contentEl.innerHTML = `<div class="yi-note" style="margin-bottom:10px;font-size:10px;">Translated to ${targetLang.toUpperCase()} via Google Translate</div>` +
+            paragraphs.map(p => `<p style="margin-bottom:8px;line-height:1.6;">${_escHtml(p.trim())}</p>`).join('');
+        if (typeof showToast === 'function') showToast(`Translated to ${targetLang.toUpperCase()}`, 'success');
+    } catch (e) {
+        if (typeof showToast === 'function') showToast('Translation failed: ' + e.message, 'error');
+    } finally {
+        if (btn) { btn.style.opacity = ''; btn.style.pointerEvents = ''; btn.innerHTML = '<i data-lucide="languages" style="width:12px;height:12px;"></i> Translate'; lucide.createIcons(); }
+    }
+}
+window._ytTranslateLensContent = _ytTranslateLensContent;
 
 async function _ytRetranscribeVideo(dbId) {
     // Get video title from the DOM row
