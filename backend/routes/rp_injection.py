@@ -181,7 +181,7 @@ def _build_turn_injection(history: list, card: dict, content: str,
             pass
 
     # ── Emotional openness meter ──
-    openness = _get_emotional_openness(user_turn, personality_text, content)
+    openness = _get_emotional_openness(user_turn, personality_text, content, history=history)
 
     # ── Assemble ──
     inject_parts = []

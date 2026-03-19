@@ -205,19 +205,58 @@ def _get_archetype_format(turn: int, personality: str) -> str:
         return 'Start your response with "dialogue in quotes"'
 
 
-def _get_emotional_openness(turn: int, personality: str, user_msg: str) -> float:
-    """Calculate emotional openness score (0.0 = fully guarded, 1.0 = fully open)."""
+def _get_emotional_openness(turn: int, personality: str, user_msg: str,
+                            history: list | None = None) -> float:
+    """Calculate emotional openness driven by conversation tone, not just turn count.
+
+    Three components:
+    1. Archetype baseline (low — character's resting state)
+    2. Logarithmic time drift (slow background warmth, plateaus early)
+    3. User emotional signals (the main driver — scans recent user messages
+       for warmth/vulnerability vs coldness/hostility)
+    """
+    import math
     archetype = _detect_archetype(personality)
-    baselines = {"shy": 0.1, "confident": 0.4, "tough": 0.15, "clinical": 0.1,
-                 "sweet": 0.5, "submissive": 0.3}
-    base = baselines.get(archetype, 0.2)
-    progression = min(turn * 0.05, 0.5)
-    boost = 0.0
+
+    # Lower baselines — characters start guarded
+    baselines = {"shy": 0.05, "confident": 0.2, "tough": 0.08, "clinical": 0.05,
+                 "sweet": 0.3, "submissive": 0.15}
+    base = baselines.get(archetype, 0.1)
+
+    # Logarithmic progression — slow start, plateaus around 0.35
+    # turn 2: 0.10, turn 4: 0.15, turn 8: 0.20, turn 16: 0.26, turn 32: 0.33
+    progression = min(math.log2(max(turn, 1) + 1) * 0.065, 0.35)
+
+    # Scan user messages for emotional signals (this turn + recent history)
+    warmth_words = re.compile(
+        r"\b(love|trust|care|gentle|kind|feel|heart|miss|stay|promise|"
+        r"beautiful|adore|protect|hold me|i love|forever|safe|warm|tender|"
+        r"please|scared|afraid|vulnerable|honest|real|blush|flutter|nervous)\b", re.I)
+    cold_words = re.compile(
+        r"\b(leave|hate|shut up|go away|whatever|don't care|boring|annoyed|"
+        r"angry|cold|stop|enough|pathetic|useless|disgusting|get away|no)\b", re.I)
+
+    # Scan current message
+    warmth = len(warmth_words.findall(user_msg))
+    coldness = len(cold_words.findall(user_msg))
+
+    # Scan last 6 user messages from history for accumulated emotional tone
+    if history:
+        recent_user = [m['content'] for m in history[-12:] if m.get('role') == 'user']
+        for msg in recent_user[-6:]:
+            warmth += len(warmth_words.findall(msg))
+            coldness += len(cold_words.findall(msg))
+
+    # Net signal: each warm word nudges +0.03, each cold word nudges -0.04
+    signal = (warmth * 0.03) - (coldness * 0.04)
+
+    # ERP/high-energy still provide a boost (physical escalation = openness)
     if _ERP_PATTERNS.search(user_msg):
-        boost = 0.25
+        signal += 0.15
     elif _HIGH_ENERGY_PATTERNS.search(user_msg):
-        boost = 0.15
-    return min(base + progression + boost, 1.0)
+        signal += 0.08
+
+    return max(0.0, min(base + progression + signal, 1.0))
 
 
 def _get_archetype_length(personality: str) -> str:
