@@ -100,6 +100,7 @@ def _enrich_card_background(card_id: str, name: str, personality: str, scenario:
     Only fills fields the user left empty. Never overwrites user content.
     Runs in a background thread so card creation returns instantly.
     """
+    from routes.rp_meta import call_haiku
     try:
         rating_note = "This is an NSFW character — mature themes are expected." if content_rating == "nsfw" else ""
         prompt = f"""Given this character, generate the missing depth fields as JSON.
@@ -116,16 +117,20 @@ Return ONLY valid JSON with these keys (1-2 sentences each, vivid and specific):
   "specific_detail": "A small defining quirk, habit, or physical detail that makes them feel real"
 }}"""
 
-        r = req.post(f"{OLLAMA_HOST}/api/generate", json={
-            "model": "qwen3.5:9b", "prompt": prompt, "stream": False,
-            "options": {"temperature": 0.4, "num_predict": 300},
-            "think": False,
-        }, timeout=30)
-        if r.status_code != 200:
-            return
+        # Try Haiku first (better creative quality)
+        text = call_haiku(prompt, max_tokens=300)
+        if text is None:
+            # Fallback to Ollama
+            r = req.post(f"{OLLAMA_HOST}/api/generate", json={
+                "model": "qwen3.5:9b", "prompt": prompt, "stream": False,
+                "options": {"temperature": 0.4, "num_predict": 300},
+                "think": False,
+            }, timeout=30)
+            if r.status_code != 200:
+                return
+            text = r.json().get("response", "")
 
         import re
-        text = r.json().get("response", "")
         # Extract JSON from response
         json_match = re.search(r'\{[^{}]*\}', text, re.DOTALL)
         if not json_match:
@@ -165,16 +170,22 @@ User: [something that challenges or surprises the character]
 Write ONLY the exchanges. No explanation."""
 
             try:
-                r2 = req.post(f"{OLLAMA_HOST}/api/generate", json={
-                    "model": "qwen3.5:9b", "prompt": dlg_prompt, "stream": False,
-                    "options": {"temperature": 0.6, "num_predict": 400},
-                    "think": False,
-                }, timeout=45)
-                if r2.status_code == 200:
-                    dlg_text = r2.json().get("response", "").strip()
-                    if dlg_text and len(dlg_text) > 50 and "<START>" in dlg_text:
-                        db.update_character_card(card_id, example_dialogues=dlg_text[:2000])
-                        logger.info(f"Auto-generated example dialogues for '{name}'")
+                # Try Haiku first
+                dlg_text = call_haiku(dlg_prompt, max_tokens=400)
+                if dlg_text is None:
+                    # Fallback to Ollama
+                    r2 = req.post(f"{OLLAMA_HOST}/api/generate", json={
+                        "model": "qwen3.5:9b", "prompt": dlg_prompt, "stream": False,
+                        "options": {"temperature": 0.6, "num_predict": 400},
+                        "think": False,
+                    }, timeout=45)
+                    if r2.status_code == 200:
+                        dlg_text = r2.json().get("response", "").strip()
+                    else:
+                        dlg_text = None
+                if dlg_text and len(dlg_text) > 50 and "<START>" in dlg_text:
+                    db.update_character_card(card_id, example_dialogues=dlg_text[:2000])
+                    logger.info(f"Auto-generated example dialogues for '{name}'")
             except Exception as e2:
                 logger.warning(f"Example dialogue generation failed for '{name}': {e2}")
             logger.info(f"Auto-enriched card '{name}': filled {list(updates.keys())}")

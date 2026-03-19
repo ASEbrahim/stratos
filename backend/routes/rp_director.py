@@ -94,7 +94,7 @@ def generate_goals(
                 "content-type": "application/json",
             },
             json={
-                "model": "claude-sonnet-4-6",
+                "model": "claude-haiku-4-5-20251001",
                 "max_tokens": 200,
                 "system": DIRECTOR_SYSTEM_PROMPT,
                 "messages": [{"role": "user", "content": user_msg}],

@@ -83,18 +83,23 @@ def extract_facts_regex(user_msg: str) -> list:
 
 def extract_facts_llm(user_msg: str, ai_response: str) -> list:
     """Extract complex facts using LLM. Slower, for relationship/mood changes."""
+    from routes.rp_meta import call_haiku
     prompt = TIER1_LLM_PROMPT.format(user_msg=user_msg[:500], ai_response=ai_response[:500])
     try:
-        r = requests.post(f"{OLLAMA_HOST}/api/generate", json={
-            "model": "qwen3.5:9b",
-            "prompt": prompt,
-            "stream": False,
-            "options": {"temperature": 0.1, "num_predict": 200},
-            "think": False,
-        }, timeout=60)
-        if r.status_code != 200:
-            return []
-        text = r.json().get("response", "")
+        # Try Haiku first (better quality, no name=hard bugs)
+        text = call_haiku(prompt, max_tokens=200)
+        if text is None:
+            # Fallback to Ollama
+            r = requests.post(f"{OLLAMA_HOST}/api/generate", json={
+                "model": "qwen3.5:9b",
+                "prompt": prompt,
+                "stream": False,
+                "options": {"temperature": 0.1, "num_predict": 200},
+                "think": False,
+            }, timeout=60)
+            if r.status_code != 200:
+                return []
+            text = r.json().get("response", "")
         # Try to extract JSON from response
         json_match = re.search(r'\{.*\}', text, re.DOTALL)
         if not json_match:
@@ -237,33 +242,42 @@ def extract_arc_summary(session_id: str, user_name: str, char_name: str,
         recent_text=recent_text[:1500],
     )
 
+    from routes.rp_meta import call_haiku
     try:
-        r = requests.post(f"{OLLAMA_HOST}/api/generate", json={
-            "model": "qwen3.5:9b",
-            "prompt": prompt,
-            "stream": False,
-            "options": {"temperature": 0.3, "num_predict": 200},
-            "think": False,
-        }, timeout=90)
-        if r.status_code != 200:
-            logger.warning(f"Arc summary LLM call failed: {r.status_code}")
-            return
-        summary = r.json().get("response", "").strip()
-
-        # Quality gate: 30-200 words
-        word_count = len(summary.split())
-        if word_count < 10 or word_count > 200:
-            logger.warning(f"Arc summary quality gate failed: {word_count} words, retrying")
-            # Retry once
+        # Try Haiku first (better relationship understanding)
+        summary = call_haiku(prompt, max_tokens=200)
+        if summary is None:
+            # Fallback to Ollama
             r = requests.post(f"{OLLAMA_HOST}/api/generate", json={
                 "model": "qwen3.5:9b",
                 "prompt": prompt,
                 "stream": False,
-                "options": {"temperature": 0.2, "num_predict": 200},
+                "options": {"temperature": 0.3, "num_predict": 200},
                 "think": False,
             }, timeout=90)
-            if r.status_code == 200:
-                summary = r.json().get("response", "").strip()
+            if r.status_code != 200:
+                logger.warning(f"Arc summary LLM call failed: {r.status_code}")
+                return
+            summary = r.json().get("response", "").strip()
+
+        # Quality gate: 10-200 words
+        word_count = len(summary.split())
+        if word_count < 10 or word_count > 200:
+            logger.warning(f"Arc summary quality gate failed: {word_count} words, retrying")
+            # Retry with Haiku, fall back to Ollama
+            retry_text = call_haiku(prompt, max_tokens=200)
+            if retry_text is None:
+                r = requests.post(f"{OLLAMA_HOST}/api/generate", json={
+                    "model": "qwen3.5:9b",
+                    "prompt": prompt,
+                    "stream": False,
+                    "options": {"temperature": 0.2, "num_predict": 200},
+                    "think": False,
+                }, timeout=90)
+                if r.status_code == 200:
+                    retry_text = r.json().get("response", "").strip()
+            if retry_text:
+                summary = retry_text
                 word_count = len(summary.split())
                 if word_count < 10 or word_count > 200:
                     logger.warning(f"Arc summary retry also failed: {word_count} words, discarding")
