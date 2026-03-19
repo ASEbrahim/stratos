@@ -1439,15 +1439,19 @@ function _applyRefreshBarVisibility() {
     }
 }
 
-// Observe scanning-banner visibility to inject toggle when it appears
+// Inject refresh-bar toggle when scanning-banner first becomes visible
 (function() {
-    // Try immediately
+    // Try immediately (banner might already be visible)
     _initRefreshBarToggle();
 
-    // Also observe for when the banner becomes visible (since it starts hidden)
+    // If already injected, done — no observer needed
+    if (_refreshBarToggleInjected) return;
+
+    // Watch for the banner to appear, inject toggle, then disconnect
     var observer = new MutationObserver(function() {
         var banner = document.getElementById('scanning-banner');
         if (banner && !banner.classList.contains('hidden')) {
+            observer.disconnect(); // Stop observing BEFORE modifying DOM
             _initRefreshBarToggle();
             _applyRefreshBarVisibility();
         }
