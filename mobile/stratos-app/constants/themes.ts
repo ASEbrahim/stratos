@@ -140,8 +140,8 @@ const noir: ThemeDef = {
   },
 };
 
-export const THEMES: ThemeDef[] = [nebula, sakura, cosmos, noir];
+export const THEMES: ThemeDef[] = [arcane, nebula, sakura, cosmos, noir];
 
 export function getTheme(id: string): ThemeDef {
-  return THEMES.find(t => t.id === id) ?? nebula;
+  return THEMES.find(t => t.id === id) ?? arcane;
 }
