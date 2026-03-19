@@ -363,7 +363,7 @@ function _sendFeedback(item, action, userScore) {
     if (!item) return;
     fetch('/api/feedback', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-Auth-Token': authToken || '' },
+        headers: { 'Content-Type': 'application/json', 'X-Auth-Token': typeof getAuthToken === 'function' ? getAuthToken() : '' },
         signal: AbortSignal.timeout(15000),
         body: JSON.stringify({
             news_id: item.id || '',
@@ -1221,7 +1221,7 @@ function _connectSSE() {
 
         _sseSource.addEventListener('briefing_ready', async (e) => {
             try {
-                const res = await fetch('/api/briefing', {headers: {'X-Auth-Token': authToken}});
+                const res = await fetch('/api/briefing', {headers: {'X-Auth-Token': typeof getAuthToken === 'function' ? getAuthToken() : ''}});
                 if (res.ok) {
                     const briefing = await res.json();
                     if (data) { data.briefing = briefing; }

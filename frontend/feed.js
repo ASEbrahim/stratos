@@ -796,12 +796,14 @@ function renderFeed() {
                 html += `<div class="pl-2 space-y-0.5 mb-3" style="border-left:2px solid ${accentHex}10;margin-left:9px">`;
                 items.forEach(item => {
                     const age = timeAgo(item.timestamp);
+                    const itemIdx = filtered.indexOf(item);
+                    const saved = typeof isSignalSaved === 'function' && isSignalSaved(item);
                     // Check if article is less than 1 hour old
                     let isNew = false;
                     if (item.timestamp) {
                         try { isNew = (Date.now() - new Date(item.timestamp).getTime()) < 3600000; } catch(e) {}
                     }
-                    
+
                     const thumb = item.thumbnail || '';
                     html += `
                     <a href="${esc(item.url)}" target="_blank" rel="noopener"
@@ -819,6 +821,7 @@ function renderFeed() {
                         </div>
                         ${thumb ? `<img src="${esc(thumb)}" alt="" class="w-14 h-10 rounded object-cover flex-shrink-0 mt-0.5 opacity-70 group-hover:opacity-100 transition-opacity" onerror="this.style.display='none'" loading="lazy">` : ''}
                         ${age ? `<span class="text-[10px] text-slate-600 flex-shrink-0 mt-0.5 tabular-nums">${age}</span>` : ''}
+                        ${itemIdx >= 0 ? `<button onclick="event.preventDefault();event.stopPropagation();toggleSaveSignal(${itemIdx})" class="flex-shrink-0 mt-0.5 text-[10px] ${saved ? 'text-emerald-400' : 'text-slate-600 hover:text-emerald-400'} transition-colors p-1" title="${saved ? 'Unsave' : 'Save'}"><i data-lucide="${saved ? 'bookmark-check' : 'bookmark'}" class="w-3.5 h-3.5"></i></button>` : ''}
                     </a>`;
                 });
                 html += `</div>`;
