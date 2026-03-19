@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { View, Text, TextInput, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
 import { useThemedAlert } from '../shared/ThemedAlert';
 import { useRouter } from 'expo-router';
@@ -17,7 +17,7 @@ import { GENRES } from '../../constants/genres';
 import { typography, spacing, borderRadius } from '../../constants/theme';
 import { useThemeStore } from '../../stores/themeStore';
 import { useCharacterStore } from '../../stores/characterStore';
-import Animated, { useSharedValue, useAnimatedStyle, withSpring, withSequence } from 'react-native-reanimated';
+import Animated, { useSharedValue, useAnimatedStyle, withSpring, withSequence, withTiming } from 'react-native-reanimated';
 
 interface CardEditorProps {
   initialCard?: import('../../lib/types').CharacterCard;
@@ -68,6 +68,28 @@ export function CardEditor({ initialCard, prefillData }: CardEditorProps) {
   const saveBtnScale = useSharedValue(1);
   const saveBtnAnimStyle = useAnimatedStyle(() => ({ transform: [{ scale: saveBtnScale.value }] }));
   const { alert: showAlert, AlertComponent } = useThemedAlert();
+
+  const progress = useMemo(() => {
+    const fields: (keyof CharacterCardCreate)[] = mode === 'quick'
+      ? ['name', 'gender', 'archetype_override', 'relationship_to_user', 'description', 'personality', 'first_message', 'scenario']
+      : ['name', 'gender', 'age_range', 'archetype_override', 'relationship_to_user', 'description', 'physical_description', 'personality', 'speech_pattern', 'first_message', 'scenario', 'narration_pov', 'response_length_pref', 'nsfw_comfort', 'emotional_trigger', 'defensive_mechanism', 'vulnerability', 'specific_detail'];
+    let filled = fields.filter(f => {
+      const v = card[f];
+      return typeof v === 'string' ? v.trim().length > 0 : false;
+    }).length;
+    if ((card.personality_tags as unknown as string[])?.length > 0) filled++;
+    const total = fields.length + 1; // +1 for personality_tags
+    return filled / total;
+  }, [card, mode]);
+
+  const progressWidth = useSharedValue(0);
+  React.useEffect(() => {
+    progressWidth.value = withTiming(progress, { duration: 300 });
+  }, [progress]);
+  const progressBarStyle = useAnimatedStyle(() => ({
+    width: `${progressWidth.value * 100}%`,
+    backgroundColor: tc.accent.primary,
+  }));
 
   const update = useCallback((key: keyof CharacterCardCreate, value: string | string[] | undefined) => setCard(prev => ({ ...prev, [key]: value })), []);
   const toggleGenre = (id: string) => setCard(prev => ({
@@ -159,6 +181,11 @@ export function CardEditor({ initialCard, prefillData }: CardEditorProps) {
         </TouchableOpacity>
       </View>
 
+      {/* Completion progress bar */}
+      <View style={[styles.progressTrack, { backgroundColor: tc.bg.tertiary }]}>
+        <Animated.View style={[styles.progressFill, progressBarStyle]} />
+      </View>
+
       {/* Editor actions: import + generate image (top) */}
       <EditorActions
         card={card}
@@ -223,4 +250,6 @@ const styles = StyleSheet.create({
   input: { borderRadius: borderRadius.md, paddingHorizontal: spacing.lg, paddingVertical: spacing.md, fontSize: 15, borderWidth: 1 },
   genreGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
   genreChip: { paddingHorizontal: spacing.md, paddingVertical: spacing.sm, borderRadius: borderRadius.full, borderWidth: 1 },
+  progressTrack: { height: 3, borderRadius: 2, marginBottom: spacing.lg, overflow: 'hidden' },
+  progressFill: { height: '100%', borderRadius: 2 },
 });
