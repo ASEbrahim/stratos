@@ -85,6 +85,6 @@ const styles = StyleSheet.create({
   ratingOpt: { paddingHorizontal: spacing.xl, paddingVertical: spacing.sm, borderRadius: borderRadius.md, borderWidth: 1 },
   genImageBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.sm, paddingVertical: spacing.md, borderRadius: borderRadius.lg, borderWidth: 1, marginTop: spacing.lg },
   genImageText: { fontSize: 13, fontFamily: fonts.button },
-  saveBtn: { paddingVertical: spacing.lg, borderRadius: borderRadius.lg, alignItems: 'center', marginTop: spacing.md },
+  saveBtn: { paddingVertical: spacing.lg, borderRadius: borderRadius.lg, alignItems: 'center', marginTop: spacing.md, marginBottom: spacing.sm },
   saveBtnText: { ...typography.subheading, color: '#fff' },
 });

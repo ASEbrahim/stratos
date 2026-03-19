@@ -5,6 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import * as Haptics from 'expo-haptics';
 import { Wand2, Download, ImageIcon, Trash2, ChevronDown, ChevronUp, Shuffle, Grid3X3, UserCircle } from 'lucide-react-native';
+import Slider from '@react-native-community/slider';
 import { Header } from '../../components/shared/Header';
 import { useThemeStore } from '../../stores/themeStore';
 import { typography, spacing, borderRadius } from '../../constants/theme';
@@ -15,19 +16,21 @@ import { reportError } from '../../lib/utils';
 
 type Style = 'anime' | 'realistic' | 'illustration';
 type Size = 'portrait' | 'square' | 'landscape';
-type Quality = 'fast' | 'balanced' | 'quality';
-
 const SIZES: Record<Size, { w: number; h: number; label: string }> = {
   portrait: { w: 768, h: 1024, label: 'Portrait' },
   square: { w: 1024, h: 1024, label: 'Square' },
   landscape: { w: 1024, h: 768, label: 'Landscape' },
 };
 
-const QUALITY_MODES: Record<Quality, { steps: number; label: string; time: string }> = {
-  fast: { steps: 8, label: 'Fast', time: '~30s' },
-  balanced: { steps: 12, label: 'Balanced', time: '~45s' },
-  quality: { steps: 28, label: 'Quality', time: '~90s' },
-};
+const MIN_STEPS = 4;
+const MAX_STEPS = 32;
+const DEFAULT_STEPS = 8;
+
+function estimateTime(steps: number): string {
+  // ~3s per step on 7900 XTX with CHROMA + ~10s overhead
+  const secs = Math.round(steps * 3 + 10);
+  return secs < 60 ? `~${secs}s` : `~${Math.round(secs / 60 * 10) / 10}m`;
+}
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const GALLERY_COLS = 3;
@@ -43,7 +46,7 @@ export default function ImageGenScreen() {
   const [prompt, setPrompt] = useState(params.description || '');
   const [style, setStyle] = useState<Style>('anime');
   const [size, setSize] = useState<Size>('portrait');
-  const [quality, setQuality] = useState<Quality>('fast');
+  const [steps, setSteps] = useState(DEFAULT_STEPS);
   const [seed, setSeed] = useState('');
   const [generating, setGenerating] = useState(false);
   const [imageId, setImageId] = useState<string | null>(null);
@@ -85,7 +88,6 @@ export default function ImageGenScreen() {
 
     try {
       let result: { success: boolean; image_id?: string; error?: string };
-      const steps = QUALITY_MODES[quality].steps;
       if (isCharacterMode) {
         // Build prompt client-side so we can control steps
         const stylePrefix = style === 'anime' ? 'masterpiece, best quality, highly detailed anime illustration, '
@@ -206,7 +208,7 @@ export default function ImageGenScreen() {
     ]);
   };
 
-  const currentQuality = QUALITY_MODES[quality];
+  const timeEstimate = estimateTime(steps);
 
   return (
     <View style={[styles.container, { paddingTop: insets.top, backgroundColor: tc.bg.primary }]}>
@@ -216,7 +218,7 @@ export default function ImageGenScreen() {
         {/* CHROMA model badge */}
         <View style={[styles.modelBadge, { backgroundColor: tc.accent.primary + '12', borderColor: tc.accent.primary + '30' }]}>
           <Wand2 size={12} color={tc.accent.primary} />
-          <Text style={[styles.modelText, { color: tc.accent.primary }]}>CHROMA · {currentQuality.steps}-step · {currentQuality.time}</Text>
+          <Text style={[styles.modelText, { color: tc.accent.primary }]}>CHROMA · {steps}-step · {timeEstimate}</Text>
         </View>
 
         {/* Prompt input */}
@@ -266,22 +268,24 @@ export default function ImageGenScreen() {
           ))}
         </View>
 
-        {/* Quality selector */}
-        <Text style={[styles.label, { color: tc.text.primary }]}>Quality</Text>
-        <View style={styles.chipRow}>
-          {(Object.entries(QUALITY_MODES) as [Quality, typeof QUALITY_MODES[Quality]][]).map(([key, val]) => (
-            <TouchableOpacity
-              key={key}
-              style={[styles.chip, { backgroundColor: tc.bg.tertiary, borderColor: tc.border.subtle },
-                quality === key && { backgroundColor: tc.accent.primary + '20', borderColor: tc.accent.primary }]}
-              onPress={() => { setQuality(key); Haptics.selectionAsync(); }}
-            >
-              <Text style={[styles.chipText, { color: tc.text.secondary },
-                quality === key && { color: tc.accent.primary }]}>
-                {val.label} ({val.steps}st · {val.time})
-              </Text>
-            </TouchableOpacity>
-          ))}
+        {/* Steps slider */}
+        <Text style={[styles.label, { color: tc.text.primary }]}>Steps</Text>
+        <View style={styles.sliderContainer}>
+          <Slider
+            style={styles.slider}
+            minimumValue={MIN_STEPS}
+            maximumValue={MAX_STEPS}
+            step={1}
+            value={steps}
+            onValueChange={(v: number) => setSteps(Math.round(v))}
+            minimumTrackTintColor={tc.accent.primary}
+            maximumTrackTintColor={tc.bg.tertiary}
+            thumbTintColor={tc.accent.primary}
+          />
+          <View style={styles.sliderLabels}>
+            <Text style={[styles.sliderValue, { color: tc.accent.primary }]}>{steps} steps</Text>
+            <Text style={[styles.sliderHint, { color: tc.text.muted }]}>{timeEstimate}</Text>
+          </View>
         </View>
 
         {/* Size selector (free-form only) */}
@@ -346,7 +350,7 @@ export default function ImageGenScreen() {
           {generating ? (
             <>
               <ActivityIndicator size={18} color="#fff" />
-              <Text style={styles.generateText}>Generating... {currentQuality.time}</Text>
+              <Text style={styles.generateText}>Generating... {timeEstimate}</Text>
             </>
           ) : (
             <>
@@ -482,6 +486,11 @@ const styles = StyleSheet.create({
   chipRow: { flexDirection: 'row', gap: spacing.sm, flexWrap: 'wrap' },
   chip: { paddingHorizontal: spacing.lg, paddingVertical: spacing.sm, borderRadius: borderRadius.full, borderWidth: 1 },
   chipText: { fontSize: 13, fontFamily: fonts.button },
+  sliderContainer: { marginTop: spacing.xs },
+  slider: { width: '100%', height: 36 },
+  sliderLabels: { flexDirection: 'row', justifyContent: 'space-between', marginTop: -2 },
+  sliderValue: { fontSize: 13, fontFamily: fonts.heading },
+  sliderHint: { fontSize: 12, fontFamily: fonts.body },
   advancedToggle: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: spacing.md, alignSelf: 'flex-start' },
   advancedText: { fontSize: 12, fontFamily: fonts.button },
   seedRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, marginTop: spacing.sm },
