@@ -1811,23 +1811,25 @@ async function loadNewData(skipToast) {
     // Silent background update — no loading spinner, no hiding content
     // This prevents disruption on other devices when one device triggers a scan
     try {
+        console.time('[loadNewData] fetch /api/data');
         const response = await fetch('/api/data');
         if (!response.ok) { console.error('/api/data failed:', response.status); return; }
         const newData = await response.json();
+        console.timeEnd('[loadNewData] fetch /api/data');
 
         if (newData.error) {
             console.warn('Data load error:', newData.error);
             return;
         }
-        
+
         setOnline();
-        
+
         // Update the global data object (includes briefing, timestamps, etc.)
         data = newData;
-        
+
         marketData = newData.market || {};
         newsData = newData.news || [];
-        
+
         // Sync version + avatar
         try {
             const statusResp = await fetch('/api/status');
@@ -1853,37 +1855,39 @@ async function loadNewData(skipToast) {
         }
 
         document.getElementById('last-updated').textContent = newData.last_updated || '--:--';
-        
+
         // If still on loading screen (first load), transition to content
         const loadingEl = document.getElementById('loading');
         if (loadingEl && !loadingEl.classList.contains('hidden')) {
             loadingEl.classList.add('hidden');
             document.getElementById('main-content').classList.remove('hidden');
         }
-        
+
         // Silently refresh visible components
         // Don't recreate chart — just update data (preserves zoom, drawings, minBarSpacing)
+        console.time('[loadNewData] render all');
         if (!_tvChart) initChart();
         renderTickerButtons();
         renderMarketOverview();
         _refreshAllCompareCharts();
-        
+
         if (Object.keys(marketData).length > 0 && !window._fs) {
             const sym = currentSymbol || Object.keys(marketData)[0];
             updateChart(sym);
         }
-        
+
         renderFeed();
-        
+        console.timeEnd('[loadNewData] render all');
+
         // Hide stale notifications — but don't hide scanning banner if a scan is still running
         document.getElementById('newdata-banner')?.classList.add('hidden');
         if (!_isScanRunning && !_marketRefreshPending) {
             document.getElementById('status-notification')?.classList.add('hidden');
             document.getElementById('scanning-banner')?.classList.add('hidden');
         }
-        
+
         lucide.createIcons();
-        
+
         if (!skipToast && typeof showToast === 'function') showToast('Data updated', 'success', 2000);
 
     } catch (err) {
@@ -1892,8 +1896,17 @@ async function loadNewData(skipToast) {
 }
 
 var _marketRefreshPending = false;
+var _mktBarAnimId = null;   // single shared interval — prevents accumulation
+var _mktTimeoutId = null;   // single shared timeout
 
 async function refreshMarket() {
+    // Re-entry guard: skip if a refresh is already in flight
+    if (_marketRefreshPending) {
+        console.log('[Market] Refresh already pending, skipping');
+        return;
+    }
+
+    console.time('[Market] refreshMarket total');
     const btn = document.getElementById('refresh-market-btn');
     const icon = btn?.querySelector('svg');
     if (icon) icon.classList.add('animate-spin');
@@ -1912,16 +1925,20 @@ async function refreshMarket() {
     // Gradually fill bar during market refresh (no intermediate SSE events)
     var _mktPct = 10;
     _updateScanBars(_mktPct);
-    var _mktBarAnim = setInterval(function() {
-        if (!_marketRefreshPending) { clearInterval(_mktBarAnim); return; }
+    // Clear any stale interval/timeout from a prior call that never completed
+    if (_mktBarAnimId) { clearInterval(_mktBarAnimId); _mktBarAnimId = null; }
+    if (_mktTimeoutId) { clearTimeout(_mktTimeoutId); _mktTimeoutId = null; }
+    _mktBarAnimId = setInterval(function() {
+        if (!_marketRefreshPending) { clearInterval(_mktBarAnimId); _mktBarAnimId = null; return; }
         // Ease toward 90% — faster ramp so user sees movement immediately
         _mktPct += (90 - _mktPct) * 0.12;
         _updateScanBars(Math.round(_mktPct));
     }, 400);
     // Safety timeout: if SSE complete event is lost, clean up after 90s
-    var _mktTimeout = setTimeout(function() {
+    _mktTimeoutId = setTimeout(function() {
         if (!_marketRefreshPending) return;
-        clearInterval(_mktBarAnim);
+        if (_mktBarAnimId) { clearInterval(_mktBarAnimId); _mktBarAnimId = null; }
+        _mktTimeoutId = null;
         _marketRefreshPending = false;
         _updateScanBars(0);
         if (notif) notif.classList.add('hidden');
@@ -1932,12 +1949,12 @@ async function refreshMarket() {
 
     try {
         const r = await fetch('/api/refresh-market');
-        if (!r.ok) throw new Error('Server error');
+        if (!r.ok) throw new Error('Server ' + r.status);
         // Don't load data or show toast here — SSE 'complete' event will
         // handle the actual data reload once the background fetch finishes
     } catch (err) {
-        clearTimeout(_mktTimeout);
-        clearInterval(_mktBarAnim);
+        if (_mktTimeoutId) { clearTimeout(_mktTimeoutId); _mktTimeoutId = null; }
+        if (_mktBarAnimId) { clearInterval(_mktBarAnimId); _mktBarAnimId = null; }
         _marketRefreshPending = false;
         _updateScanBars(0);
         if (notif) notif.classList.add('hidden');
@@ -1948,6 +1965,7 @@ async function refreshMarket() {
         if (iconAfter) iconAfter.classList.remove('animate-spin');
         if (btn) btn.disabled = false;
     }
+    console.timeEnd('[Market] refreshMarket total');
 }
 
 // Keep refreshNews as alias for backward compatibility

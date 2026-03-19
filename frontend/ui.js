@@ -1410,9 +1410,11 @@ function _uiStateDirty(serverState) {
     if (!serverState) return false;
     // Don't override local changes that haven't synced to the server yet
     if (Date.now() - _lastLocalUiChange < 3000) return false;
-    return serverState.theme !== localStorage.getItem('stratos-theme')
-        || serverState.theme_mode !== localStorage.getItem('stratos-theme-mode')
-        || serverState.stars !== localStorage.getItem('stratos-stars');
+    // Compare as strings to prevent boolean/string type mismatch causing
+    // unnecessary renderStars() calls on every data load
+    return String(serverState.theme || '') !== (localStorage.getItem('stratos-theme') || '')
+        || String(serverState.theme_mode || '') !== (localStorage.getItem('stratos-theme-mode') || '')
+        || String(serverState.stars || '') !== (localStorage.getItem('stratos-stars') || '');
 }
 
 // === ALERTS BANNER ===
