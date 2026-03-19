@@ -4,6 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import * as Haptics from 'expo-haptics';
 import { LogOut, Type, Bell, Server, Shield } from 'lucide-react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuthStore } from '../../stores/authStore';
 import { useThemeStore } from '../../stores/themeStore';
 import { useChatStore } from '../../stores/chatStore';
@@ -24,7 +25,7 @@ export default function ProfileScreen() {
 
   useEffect(() => { getDetailedStats().then(setStats); }, []);
 
-  const handleLogout = () => Alert.alert('Sign Out', 'Are you sure?', [{ text: 'Cancel', style: 'cancel' }, { text: 'Sign Out', style: 'destructive', onPress: async () => { await logout(); router.replace('/(auth)/login'); } }]);
+  const handleLogout = () => Alert.alert('Sign Out', 'Are you sure?', [{ text: 'Cancel', style: 'cancel' }, { text: 'Sign Out', style: 'destructive', onPress: async () => { await AsyncStorage.clear(); await logout(); router.replace('/(auth)/login'); } }]);
 
   const handleThemeChange = (id: string) => {
     setTheme(id);
