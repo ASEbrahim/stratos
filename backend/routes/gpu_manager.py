@@ -34,6 +34,7 @@ VRAM_RELEASE_TIMEOUT = 30
 _lock = threading.Lock()
 _comfyui_process = None
 _comfyui_log_handle = None  # Track file handle to prevent leaks
+_comfyui_ever_started = False  # Skip ComfyUI check if never started this session
 
 
 def _get_vram_used_mb() -> int | None:
@@ -252,7 +253,8 @@ def _stop_comfyui():
 
 def _start_comfyui():
     """Start ComfyUI in API mode."""
-    global _comfyui_process, _comfyui_log_handle
+    global _comfyui_process, _comfyui_log_handle, _comfyui_ever_started
+    _comfyui_ever_started = True
     if _comfyui_running():
         return True
     logger.info("Starting ComfyUI...")
@@ -298,10 +300,9 @@ def _wait_for_vram_release() -> bool:
 def ensure_ollama() -> bool:
     """Ensure Ollama is running and GPU is available. Stops ComfyUI if needed. Thread-safe."""
     with _lock:
-        # Always stop ComfyUI first — even if Ollama process is alive,
-        # ComfyUI may still be hogging VRAM from a previous image gen session.
-        # Without this, Ollama tries to load the model while ComfyUI holds GPU = OOM crash.
-        if _comfyui_running():
+        # Only check ComfyUI if it was ever started this session — avoids
+        # a wasted HTTP request (with 2s timeout) on every chat message
+        if _comfyui_ever_started and _comfyui_running():
             logger.info("ComfyUI still running — stopping to free GPU for Ollama")
             _stop_comfyui()
         if _ollama_running():

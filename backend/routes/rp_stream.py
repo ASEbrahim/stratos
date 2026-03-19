@@ -19,6 +19,9 @@ logger = logging.getLogger("rp_stream")
 
 MAX_MESSAGE_LENGTH = 10000  # Max characters per user message
 
+# Cache verified models — no need to check /api/tags on every message
+_verified_models: set[str] = set()
+
 
 def compute_ngram_overlap(text_a: str, text_b: str, n: int = 5) -> float:
     """Compute proportion of n-grams in text_b that also appear in text_a.
@@ -41,12 +44,16 @@ def compute_ngram_overlap(text_a: str, text_b: str, n: int = 5) -> float:
 
 
 def _check_model_exists(ollama_host: str, model: str) -> bool:
-    """Check if a model is available in Ollama."""
+    """Check if a model is available in Ollama. Cached after first success."""
+    if model in _verified_models:
+        return True
     try:
         r = req.get(f"{ollama_host}/api/tags", timeout=3)
         if r.status_code == 200:
             models = [m['name'] for m in r.json().get('models', [])]
-            return any(model in m for m in models)
+            if any(model in m for m in models):
+                _verified_models.add(model)
+                return True
     except Exception as e:
         logger.warning(f"Could not check Ollama models: {e}")
     return False
