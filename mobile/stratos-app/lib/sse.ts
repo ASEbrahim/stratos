@@ -60,7 +60,7 @@ export async function parseSSEStream(
       while (true) {
         if (signal?.aborted) { reader.cancel(); break; }
         const { done, value } = await reader.read();
-        if (done) { onComplete(); break; }
+        if (done) { cleanup(); onComplete(); break; }
         resetStallTimer();
         buffer += decoder.decode(value, { stream: true });
         const lines = buffer.split('\n');
@@ -70,7 +70,7 @@ export async function parseSSEStream(
             try {
               const data = JSON.parse(line.slice(6));
               if (data.content || data.token) onToken(data.content || data.token);
-              if (data.done) { onComplete(data); return; }
+              if (data.done) { cleanup(); onComplete(data); return; }
             } catch { /* partial JSON — skip */ }
           }
         }
@@ -87,6 +87,7 @@ export async function parseSSEStream(
           } catch { /* partial */ }
         }
       }
+      cleanup();
       onComplete();
     }
   } catch (err) {
