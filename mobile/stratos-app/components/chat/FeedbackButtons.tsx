@@ -17,23 +17,25 @@ export const FeedbackButtons = React.memo(function FeedbackButtons({ messageId, 
   const tc = useThemeStore(s => s.colors);
   const accent = accentColor ?? tc.accent.primary;
   const [selected, setSelected] = useState<'up' | 'down' | null>(null);
+  const disabled = dbId == null;
 
   const handleFeedback = async (type: 'up' | 'down') => {
-    if (selected === type) return;
+    if (disabled || selected === type) return;
     setSelected(type);
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     try {
-      await sendFeedback(dbId || 0, type === 'up' ? 'thumbs_up' : 'thumbs_down');
+      await sendFeedback(dbId, type === 'up' ? 'thumbs_up' : 'thumbs_down');
     } catch (err) { reportError('FeedbackButtons:sendFeedback', err); }
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, disabled && { opacity: 0.35 }]}>
       <TouchableOpacity
         onPress={() => handleFeedback('up')}
         style={[styles.btn, selected === 'up' && { backgroundColor: tc.status.success + '20' }]}
         activeOpacity={0.6}
         hitSlop={8}
+        disabled={disabled}
       >
         <ThumbsUp size={12} color={selected === 'up' ? tc.status.success : tc.text.faint} fill={selected === 'up' ? tc.status.success : 'transparent'} />
       </TouchableOpacity>
@@ -42,6 +44,7 @@ export const FeedbackButtons = React.memo(function FeedbackButtons({ messageId, 
         style={[styles.btn, selected === 'down' && { backgroundColor: tc.status.error + '20' }]}
         activeOpacity={0.6}
         hitSlop={8}
+        disabled={disabled}
       >
         <ThumbsDown size={12} color={selected === 'down' ? tc.status.error : tc.text.faint} fill={selected === 'down' ? tc.status.error : 'transparent'} />
       </TouchableOpacity>
