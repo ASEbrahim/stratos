@@ -67,7 +67,6 @@ export const SimpleEditor = React.memo(function SimpleEditor({ card, onUpdate }:
         options={PERSONALITY_TAG_OPTIONS}
         values={card.personality_tags || []}
         onChange={(v) => onUpdate('personality_tags' as keyof CharacterCardCreate, v as unknown as string)}
-        wrap
       />
 
       <Text style={[styles.fieldLabel, { color: tc.text.primary }]}>Description</Text>

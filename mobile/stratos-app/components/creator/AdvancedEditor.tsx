@@ -62,7 +62,6 @@ export const AdvancedEditor = React.memo(function AdvancedEditor({ card, onUpdat
         options={PERSONALITY_TAG_OPTIONS}
         values={card.personality_tags || []}
         onChange={(v) => onUpdate('personality_tags' as keyof CharacterCardCreate, v as unknown as string)}
-        wrap
       />
 
       <Text style={[styles.fieldLabel, { color: tc.text.primary }]}>Personality</Text>

@@ -3,7 +3,7 @@ import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Alert, Share } fr
 import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 import * as Haptics from 'expo-haptics';
-import { Star, BookmarkPlus, BookmarkCheck, Flag, Share2, Wand2, StarIcon, Pencil, Copy } from 'lucide-react-native';
+import { Star, BookmarkPlus, BookmarkCheck, Flag, Share2, Wand2, StarIcon, Pencil, Copy, Download } from 'lucide-react-native';
 import { CharacterCard, formatCount } from '../../lib/types';
 import { TagPills } from './TagPills';
 import { CharacterDepthSection } from './CharacterDepthSection';
@@ -61,6 +61,52 @@ export function CharacterDetailView({ card }: CharacterDetailProps) {
 
   const handleNavigateToCharacter = (id: string) => {
     router.push(`/character/${id}`);
+  };
+
+  const handleExportCharacter = async () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    // Export as TavernCard V2 JSON format
+    const tavernCard = {
+      spec: 'chara_card_v2',
+      spec_version: '2.0',
+      data: {
+        name: card.name,
+        description: card.description,
+        personality: card.personality,
+        scenario: card.scenario,
+        first_mes: card.first_message,
+        mes_example: '',
+        creator_notes: `Exported from StratOS. Genre: ${card.genre_tags.join(', ')}`,
+        system_prompt: '',
+        post_history_instructions: '',
+        tags: card.genre_tags,
+        creator: card.creator_name,
+        character_version: '1.0',
+        extensions: {
+          stratos: {
+            physical_description: card.physical_description,
+            speech_pattern: card.speech_pattern,
+            emotional_trigger: card.emotional_trigger,
+            defensive_mechanism: card.defensive_mechanism,
+            vulnerability: card.vulnerability,
+            specific_detail: card.specific_detail,
+            gender: card.gender,
+            archetype: card.archetype_override,
+            relationship: card.relationship_to_user,
+            personality_tags: card.personality_tags,
+          },
+        },
+      },
+    };
+    const json = JSON.stringify(tavernCard, null, 2);
+    try {
+      await Share.share({
+        message: json,
+        title: `${card.name} — TavernCard V2`,
+      });
+    } catch (err) {
+      reportError('CharacterDetail:export', err);
+    }
   };
 
   return (
@@ -121,6 +167,20 @@ export function CharacterDetailView({ card }: CharacterDetailProps) {
           <Text style={[styles.secondaryButtonText, { color: tc.text.secondary }]}>Copy</Text>
         </TouchableOpacity>
       </View>
+      <View style={styles.actionRow}>
+        <TouchableOpacity style={[styles.secondaryButton, { flex: 1, borderColor: tc.border.medium }]} onPress={handleExportCharacter} activeOpacity={0.7} accessibilityLabel={`Export ${card.name}`} accessibilityRole="button">
+          <Download size={18} color={tc.text.secondary} />
+          <Text style={[styles.secondaryButtonText, { color: tc.text.secondary }]}>Export</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={[styles.secondaryButton, { flex: 1, borderColor: tc.border.medium }]} onPress={() => {
+          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+          Share.share({ message: `Check out ${card.name} on StratOS!\n\n${card.description}\n\nGenre: ${card.genre_tags.join(', ')}` });
+        }} activeOpacity={0.7} accessibilityLabel={`Share ${card.name}`} accessibilityRole="button">
+          <Share2 size={18} color={tc.text.secondary} />
+          <Text style={[styles.secondaryButtonText, { color: tc.text.secondary }]}>Share</Text>
+        </TouchableOpacity>
+      </View>
+
       {/* Generate Portrait */}
       {card.physical_description ? (
         <TouchableOpacity
