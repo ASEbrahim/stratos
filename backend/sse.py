@@ -58,6 +58,20 @@ class SSEManager:
             for d in dead:
                 self._clients = [(w, p) for w, p in self._clients if w is not d]
 
+    def heartbeat(self, wfile) -> bool:
+        """Send a heartbeat comment to one SSE client under the write lock.
+
+        Returns True on success, False if the client is dead (caller should
+        break out of the keep-alive loop so finally: unregister runs).
+        """
+        with self._lock:
+            try:
+                wfile.write(b": heartbeat\n\n")
+                wfile.flush()
+                return True
+            except (BrokenPipeError, ConnectionResetError, OSError):
+                return False
+
     @property
     def client_count(self):
         """Number of active SSE connections."""

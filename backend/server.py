@@ -278,10 +278,12 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                 strat.sse_register(self.wfile, profile_id=sse_pid)
                 try:
                     # Keep alive with heartbeats every 15s
+                    # Use sse.heartbeat() which holds the write lock, preventing
+                    # interleaved writes with broadcast() from other threads.
                     while True:
                         time.sleep(15)
-                        self.wfile.write(": heartbeat\n\n".encode())
-                        self.wfile.flush()
+                        if not strat.sse.heartbeat(self.wfile):
+                            break  # Client disconnected
                 except (BrokenPipeError, ConnectionResetError, OSError):
                     pass  # Client disconnected — expected
                 except Exception as e:

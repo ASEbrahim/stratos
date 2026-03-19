@@ -1174,7 +1174,20 @@ function _connectSSE() {
         _sseSource.addEventListener('complete', (e) => {
             try {
                 const d = JSON.parse(e.data);
-                _handleSSEComplete(d);
+                _handleSSEComplete(d).catch(err => {
+                    console.error('[SSE] complete handler error:', err);
+                    // Emergency cleanup — ensure UI doesn't get stuck
+                    _marketRefreshPending = false;
+                    _isScanRunning = false;
+                    isAutoLoading = false;
+                    document.getElementById('scanning-banner')?.classList.add('hidden');
+                    document.getElementById('status-notification')?.classList.add('hidden');
+                    _updateScanBars(0);
+                    _setScanButtonIdle();
+                    var mktBtn = document.getElementById('refresh-market-btn');
+                    if (mktBtn) { mktBtn.disabled = false; var ic = mktBtn.querySelector('svg'); if (ic) ic.classList.remove('animate-spin'); }
+                    if (typeof showToast === 'function') showToast('Refresh completed with errors — data may need manual reload', 'warning');
+                });
             } catch(err) { console.warn('[SSE] parse error:', err); }
         });
         
