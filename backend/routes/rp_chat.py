@@ -102,6 +102,13 @@ def handle_post(handler, strat, auth, path) -> bool:
         if len(content) > MAX_MESSAGE_LENGTH:
             error_response(handler, f"Message too long (max {MAX_MESSAGE_LENGTH} chars)", 400)
             return True
+        # Validate ID lengths to prevent memory abuse
+        if len(session_id) > 100 or len(branch_id) > 100 or (card_id and len(card_id) > 64):
+            error_response(handler, "Invalid ID length", 400)
+            return True
+        if director_note and len(director_note) > 2000:
+            error_response(handler, "Director note too long (max 2000 chars)", 400)
+            return True
         if not session_id:
             session_id = f"rp-{uuid.uuid4().hex[:12]}"
 
