@@ -788,69 +788,77 @@ def handle_post(handler, strat, auth, path):
         transcript_text = row[0]
         source_lang = row[1] or 'unknown'
 
-        # Use Argos Translate (offline, fast) with LLM fallback
+        # Translation chain: Google Translate (free API) → Argos (offline) → Qwen LLM
         try:
             translated = None
-            _method = 'argos'
+            _method = 'google'
+            _src = source_lang if source_lang != 'unknown' else 'auto'
 
-            # Try Argos Translate first
+            # --- Tier 1: Google Translate via deep-translator (free, reliable) ---
             try:
-                import argostranslate.package
-                import argostranslate.translate
+                from deep_translator import GoogleTranslator
+                # deep-translator handles chunking for long texts internally
+                _gt_src = _src if _src != 'unknown' else 'auto'
+                translated = GoogleTranslator(source=_gt_src, target=target_lang).translate(transcript_text[:5000])
+                if not translated or not translated.strip():
+                    raise RuntimeError("Empty Google Translate result")
+                logger.info(f"Translation via Google Translate: {_src}→{target_lang} ({len(transcript_text)} chars)")
+            except Exception as gt_err:
+                logger.warning(f"Google Translate failed ({gt_err}), trying Argos")
+                translated = None
 
-                # Map language codes
-                _src = source_lang if source_lang != 'unknown' else 'en'
-                _tgt = target_lang
-
-                # Check if we have the language package installed
-                installed = argostranslate.translate.get_installed_languages()
-                src_lang_obj = next((l for l in installed if l.code == _src), None)
-                tgt_lang_obj = next((l for l in installed if l.code == _tgt), None)
-
-                if not src_lang_obj or not tgt_lang_obj:
-                    # Auto-download the needed packages
-                    logger.info(f"Downloading Argos language package: {_src} → {_tgt}")
-                    argostranslate.package.update_package_index()
-                    available = argostranslate.package.get_available_packages()
-                    pkg = next((p for p in available if p.from_code == _src and p.to_code == _tgt), None)
-                    if pkg:
-                        argostranslate.package.install_from_path(pkg.download())
-                    else:
-                        # Pivot through English
-                        if _src != 'en':
-                            pkg_to_en = next((p for p in available if p.from_code == _src and p.to_code == 'en'), None)
-                            if pkg_to_en:
-                                argostranslate.package.install_from_path(pkg_to_en.download())
-                        if _tgt != 'en':
-                            pkg_from_en = next((p for p in available if p.from_code == 'en' and p.to_code == _tgt), None)
-                            if pkg_from_en:
-                                argostranslate.package.install_from_path(pkg_from_en.download())
-
-                    # Reload installed languages after download
-                    installed = argostranslate.translate.get_installed_languages()
-                    src_lang_obj = next((l for l in installed if l.code == _src), None)
-                    tgt_lang_obj = next((l for l in installed if l.code == _tgt), None)
-
-                if src_lang_obj and tgt_lang_obj:
-                    translation = src_lang_obj.get_translation(tgt_lang_obj)
-                    if translation:
-                        translated = translation.translate(transcript_text)
-                    else:
-                        # Try pivot: src→en→tgt
-                        en_obj = next((l for l in installed if l.code == 'en'), None)
-                        if en_obj:
-                            t1 = src_lang_obj.get_translation(en_obj)
-                            t2 = en_obj.get_translation(tgt_lang_obj)
-                            if t1 and t2:
-                                translated = t2.translate(t1.translate(transcript_text))
-                if not translated:
-                    raise RuntimeError(f"No translation path found for {_src}→{_tgt}")
-            except Exception as argos_err:
-                logger.warning(f"Argos Translate failed ({argos_err}), falling back to LLM")
-                _method = 'ollama'
-
-            # LLM fallback if Argos failed
+            # --- Tier 2: Argos Translate (offline, no network needed) ---
             if not translated:
+                _method = 'argos'
+                try:
+                    import argostranslate.package
+                    import argostranslate.translate
+
+                    _argos_src = source_lang if source_lang != 'unknown' else 'en'
+                    installed = argostranslate.translate.get_installed_languages()
+                    src_lang_obj = next((l for l in installed if l.code == _argos_src), None)
+                    tgt_lang_obj = next((l for l in installed if l.code == target_lang), None)
+
+                    if not src_lang_obj or not tgt_lang_obj:
+                        logger.info(f"Downloading Argos language package: {_argos_src} → {target_lang}")
+                        argostranslate.package.update_package_index()
+                        available = argostranslate.package.get_available_packages()
+                        pkg = next((p for p in available if p.from_code == _argos_src and p.to_code == target_lang), None)
+                        if pkg:
+                            argostranslate.package.install_from_path(pkg.download())
+                        else:
+                            if _argos_src != 'en':
+                                pkg_to_en = next((p for p in available if p.from_code == _argos_src and p.to_code == 'en'), None)
+                                if pkg_to_en:
+                                    argostranslate.package.install_from_path(pkg_to_en.download())
+                            if target_lang != 'en':
+                                pkg_from_en = next((p for p in available if p.from_code == 'en' and p.to_code == target_lang), None)
+                                if pkg_from_en:
+                                    argostranslate.package.install_from_path(pkg_from_en.download())
+                        installed = argostranslate.translate.get_installed_languages()
+                        src_lang_obj = next((l for l in installed if l.code == _argos_src), None)
+                        tgt_lang_obj = next((l for l in installed if l.code == target_lang), None)
+
+                    if src_lang_obj and tgt_lang_obj:
+                        translation = src_lang_obj.get_translation(tgt_lang_obj)
+                        if translation:
+                            translated = translation.translate(transcript_text)
+                        else:
+                            en_obj = next((l for l in installed if l.code == 'en'), None)
+                            if en_obj:
+                                t1 = src_lang_obj.get_translation(en_obj)
+                                t2 = en_obj.get_translation(tgt_lang_obj)
+                                if t1 and t2:
+                                    translated = t2.translate(t1.translate(transcript_text))
+                    if not translated:
+                        raise RuntimeError(f"No Argos path for {_argos_src}→{target_lang}")
+                except Exception as argos_err:
+                    logger.warning(f"Argos Translate failed ({argos_err}), falling back to LLM")
+                    translated = None
+
+            # --- Tier 3: Qwen LLM via Ollama (last resort, uses VRAM) ---
+            if not translated:
+                _method = 'ollama'
                 scoring_cfg = strat.config.get('scoring', {})
                 ollama_host = scoring_cfg.get('ollama_host', 'http://localhost:11434')
                 model = scoring_cfg.get('inference_model', 'qwen3.5:9b')
@@ -863,6 +871,7 @@ def handle_post(handler, strat, auth, path):
                         {"role": "user", "content": text_chunk},
                     ],
                     "stream": False,
+                    "think": False,
                     "options": {"num_predict": 4000, "temperature": 0.3},
                 }, timeout=120)
                 if resp.status_code == 200:
