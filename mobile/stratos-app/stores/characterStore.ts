@@ -34,7 +34,7 @@ export const useCharacterStore = create<CharacterState>((set, get) => ({
   isLoadingMore: false, hasMore: true, page: 1,
   selectedGenre: null, searchQuery: '', searchResults: [],
   loadTrending: async () => { set({ isLoading: true }); try { const trending = await characters.getTrendingCharacters(); set({ trending, isLoading: false }); } catch (err) { reportError('loadTrending', err); set({ isLoading: false }); } },
-  loadNew: async () => { try { const newCards = await characters.getNewCharacters(); set({ newCards, page: 1, hasMore: true }); } catch (err) { reportError('loadNew', err); } },
+  loadNew: async () => { set({ isLoading: true }); try { const newCards = await characters.getNewCharacters(); set({ newCards, page: 1, hasMore: true, isLoading: false }); } catch (err) { reportError('loadNew', err); set({ isLoading: false }); } },
   loadMore: async () => {
     const { isLoadingMore, hasMore, page } = get();
     if (isLoadingMore || !hasMore) return;
@@ -54,6 +54,7 @@ export const useCharacterStore = create<CharacterState>((set, get) => ({
     } catch (err) { reportError('loadMore', err); set({ isLoadingMore: false }); }
   },
   loadSaved: async () => {
+    set({ isLoading: true });
     try {
       const persisted = await getSavedCards();
       const apiCards = await characters.getSavedCharacters();
@@ -63,10 +64,10 @@ export const useCharacterStore = create<CharacterState>((set, get) => ({
       for (const c of [...persisted, ...apiCards]) {
         if (!allIds.has(c.id)) { allIds.add(c.id); merged.push(c); }
       }
-      set({ savedCards: merged });
-    } catch (err) { reportError('loadSaved', err); }
+      set({ savedCards: merged, isLoading: false });
+    } catch (err) { reportError('loadSaved', err); set({ isLoading: false }); }
   },
-  loadMyCards: async () => { try { const myCards = await characters.getMyCharacters(); set({ myCards }); } catch (err) { reportError('loadMyCards', err); } },
+  loadMyCards: async () => { set({ isLoading: true }); try { const myCards = await characters.getMyCharacters(); set({ myCards, isLoading: false }); } catch (err) { reportError('loadMyCards', err); set({ isLoading: false }); } },
   deleteMyCard: async (cardId) => {
     try {
       await characters.deleteCharacter(cardId);
