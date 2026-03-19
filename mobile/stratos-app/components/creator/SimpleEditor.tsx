@@ -90,6 +90,7 @@ export const SimpleEditor = React.memo(function SimpleEditor({ card, onUpdate }:
           options={GENDER_OPTIONS}
           value={card.gender}
           onChange={(v) => onUpdate('gender', v)}
+          wrap
         />
       </CategoryPopup>
 
@@ -106,6 +107,7 @@ export const SimpleEditor = React.memo(function SimpleEditor({ card, onUpdate }:
           options={ARCHETYPE_OPTIONS}
           value={card.archetype_override}
           onChange={handleArchetypeChange}
+          wrap
         />
       </CategoryPopup>
 
@@ -125,6 +127,7 @@ export const SimpleEditor = React.memo(function SimpleEditor({ card, onUpdate }:
           options={RELATIONSHIP_OPTIONS}
           value={card.relationship_to_user}
           onChange={(v) => onUpdate('relationship_to_user', v)}
+          wrap
         />
       </CategoryPopup>
 

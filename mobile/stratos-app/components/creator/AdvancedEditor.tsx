@@ -74,7 +74,7 @@ export const AdvancedEditor = React.memo(function AdvancedEditor({ card, onUpdat
         isComplete={!!card.gender}
         index={0}
       >
-        <PillSelector label="" options={GENDER_OPTIONS} value={card.gender} onChange={(v) => onUpdate('gender', v)} />
+        <PillSelector label="" options={GENDER_OPTIONS} value={card.gender} onChange={(v) => onUpdate('gender', v)} wrap />
       </CategoryPopup>
 
       <CategoryPopup
@@ -85,7 +85,7 @@ export const AdvancedEditor = React.memo(function AdvancedEditor({ card, onUpdat
         isComplete={!!card.age_range}
         index={1}
       >
-        <PillSelector label="" options={AGE_RANGE_OPTIONS} value={card.age_range} onChange={(v) => onUpdate('age_range', v)} />
+        <PillSelector label="" options={AGE_RANGE_OPTIONS} value={card.age_range} onChange={(v) => onUpdate('age_range', v)} wrap />
       </CategoryPopup>
 
       <CategoryCard
@@ -128,7 +128,7 @@ export const AdvancedEditor = React.memo(function AdvancedEditor({ card, onUpdat
         isComplete={!!card.archetype_override}
         index={0}
       >
-        <PillSelector label="" options={ARCHETYPE_OPTIONS} value={card.archetype_override} onChange={handleArchetypeChange} />
+        <PillSelector label="" options={ARCHETYPE_OPTIONS} value={card.archetype_override} onChange={handleArchetypeChange} wrap />
       </CategoryPopup>
 
       <CategoryPopup
@@ -139,7 +139,7 @@ export const AdvancedEditor = React.memo(function AdvancedEditor({ card, onUpdat
         isComplete={!!card.relationship_to_user}
         index={1}
       >
-        <PillSelector label="" options={RELATIONSHIP_OPTIONS} value={card.relationship_to_user} onChange={(v) => onUpdate('relationship_to_user', v)} />
+        <PillSelector label="" options={RELATIONSHIP_OPTIONS} value={card.relationship_to_user} onChange={(v) => onUpdate('relationship_to_user', v)} wrap />
       </CategoryPopup>
 
       <CategoryPopup
@@ -232,7 +232,7 @@ export const AdvancedEditor = React.memo(function AdvancedEditor({ card, onUpdat
         isComplete={!!card.narration_pov}
         index={0}
       >
-        <PillSelector label="" options={POV_OPTIONS} value={card.narration_pov} onChange={(v) => onUpdate('narration_pov', v)} />
+        <PillSelector label="" options={POV_OPTIONS} value={card.narration_pov} onChange={(v) => onUpdate('narration_pov', v)} wrap />
       </CategoryPopup>
 
       <CategoryPopup
@@ -243,7 +243,7 @@ export const AdvancedEditor = React.memo(function AdvancedEditor({ card, onUpdat
         isComplete={!!card.response_length_pref}
         index={1}
       >
-        <PillSelector label="" options={RESPONSE_LENGTH_OPTIONS} value={card.response_length_pref} onChange={(v) => onUpdate('response_length_pref', v)} />
+        <PillSelector label="" options={RESPONSE_LENGTH_OPTIONS} value={card.response_length_pref} onChange={(v) => onUpdate('response_length_pref', v)} wrap />
       </CategoryPopup>
 
       <CategoryPopup
@@ -254,7 +254,7 @@ export const AdvancedEditor = React.memo(function AdvancedEditor({ card, onUpdat
         isComplete={!!card.nsfw_comfort}
         index={2}
       >
-        <PillSelector label="" options={NSFW_COMFORT_OPTIONS} value={card.nsfw_comfort} onChange={(v) => onUpdate('nsfw_comfort', v)} />
+        <PillSelector label="" options={NSFW_COMFORT_OPTIONS} value={card.nsfw_comfort} onChange={(v) => onUpdate('nsfw_comfort', v)} wrap />
       </CategoryPopup>
 
       {/* ═══ Depth ═══ */}

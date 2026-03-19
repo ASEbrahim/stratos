@@ -14,49 +14,62 @@ interface PillSelectorProps<T extends string = string> {
   value: T | undefined;
   onChange: (value: T | undefined) => void;
   allowDeselect?: boolean; // tap selected pill to deselect (default true)
+  wrap?: boolean; // use wrapping layout instead of horizontal scroll
+  showDescriptions?: boolean; // show description below label in each pill
 }
 
 export function PillSelector<T extends string = string>({
-  label, options, value, onChange, allowDeselect = true,
+  label, options, value, onChange, allowDeselect = true, wrap = false, showDescriptions = false,
 }: PillSelectorProps<T>) {
   const tc = useThemeStore(s => s.colors);
+
+  const content = options.map(opt => {
+    const selected = value === opt.value;
+    return (
+      <TouchableOpacity
+        key={opt.value}
+        style={[
+          wrap ? styles.wrapPill : styles.pill,
+          { borderColor: tc.border.subtle, backgroundColor: tc.bg.secondary },
+          selected && { borderColor: tc.accent.primary, backgroundColor: tc.accent.primary + '18' },
+        ]}
+        onPress={() => {
+          if (selected && allowDeselect) {
+            onChange(undefined);
+          } else {
+            onChange(opt.value);
+          }
+        }}
+        activeOpacity={0.7}
+        accessibilityRole="button"
+        accessibilityState={{ selected }}
+        accessibilityLabel={`${opt.label}${opt.description ? ': ' + opt.description : ''}`}
+      >
+        <Text style={[
+          styles.pillText,
+          { color: selected ? tc.accent.primary : tc.text.primary },
+        ]}>
+          {opt.label}
+        </Text>
+        {showDescriptions && opt.description ? (
+          <Text style={[styles.pillDesc, { color: selected ? tc.accent.primary + 'AA' : tc.text.muted }]} numberOfLines={2}>
+            {opt.description}
+          </Text>
+        ) : null}
+      </TouchableOpacity>
+    );
+  });
 
   return (
     <View style={styles.container}>
       {label ? <Text style={[styles.label, { color: tc.text.secondary }]}>{label}</Text> : null}
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.pills}>
-        {options.map(opt => {
-          const selected = value === opt.value;
-          return (
-            <TouchableOpacity
-              key={opt.value}
-              style={[
-                styles.pill,
-                { borderColor: tc.border.subtle, backgroundColor: tc.bg.secondary },
-                selected && { borderColor: tc.accent.primary, backgroundColor: tc.accent.primary + '18' },
-              ]}
-              onPress={() => {
-                if (selected && allowDeselect) {
-                  onChange(undefined);
-                } else {
-                  onChange(opt.value);
-                }
-              }}
-              activeOpacity={0.7}
-              accessibilityRole="button"
-              accessibilityState={{ selected }}
-              accessibilityLabel={`${opt.label}${opt.description ? ': ' + opt.description : ''}`}
-            >
-              <Text style={[
-                styles.pillText,
-                { color: selected ? tc.accent.primary : tc.text.primary },
-              ]}>
-                {opt.label}
-              </Text>
-            </TouchableOpacity>
-          );
-        })}
-      </ScrollView>
+      {wrap ? (
+        <View style={styles.wrapPills}>{content}</View>
+      ) : (
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.pills}>
+          {content}
+        </ScrollView>
+      )}
     </View>
   );
 }
@@ -345,8 +358,19 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     borderWidth: 1,
   },
+  wrapPill: {
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 12,
+    borderWidth: 1,
+  },
   pillText: {
     fontSize: 13,
     fontWeight: '500',
+  },
+  pillDesc: {
+    fontSize: 11,
+    marginTop: 2,
+    lineHeight: 14,
   },
 });

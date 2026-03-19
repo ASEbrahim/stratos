@@ -112,7 +112,7 @@ export const CategoryCard = React.memo(function CategoryCard({
 });
 
 // ═══════════════════════════════════════════════════════════
-// CategoryPopup — Bottom sheet modal card (for pill selectors)
+// CategoryPopup — Wizard-style full modal (for pill selectors)
 // ═══════════════════════════════════════════════════════════
 
 interface CategoryPopupProps {
@@ -146,39 +146,51 @@ export const CategoryPopup = React.memo(function CategoryPopup({
         />
       </Animated.View>
 
-      {/* Bottom sheet modal */}
-      <Modal visible={visible} transparent animationType="slide" onRequestClose={() => setVisible(false)}>
-        <Pressable style={styles.modalBackdrop} onPress={() => setVisible(false)}>
-          <Pressable style={[styles.modalSheet, { backgroundColor: tc.bg.primary }]} onPress={e => e.stopPropagation()}>
-            {/* Handle bar */}
-            <View style={[styles.modalHandle, { backgroundColor: tc.text.faint }]} />
-
-            {/* Modal header */}
-            <View style={styles.modalHeader}>
-              <View style={[styles.iconCircle, { backgroundColor: iconColor + '15' }]}>
-                {React.createElement(icon, { size: 15, color: iconColor })}
+      {/* Wizard-style modal */}
+      <Modal visible={visible} transparent animationType="fade" onRequestClose={() => setVisible(false)}>
+        <View style={styles.wizBackdrop}>
+          <View style={[styles.wizPanel, { backgroundColor: tc.bg.primary, borderColor: tc.border.subtle }]}>
+            {/* Header with accent strip */}
+            <View style={[styles.wizHeader, { borderBottomColor: tc.border.subtle }]}>
+              <View style={[styles.wizIconLarge, { backgroundColor: iconColor + '15' }]}>
+                {React.createElement(icon, { size: 22, color: iconColor })}
               </View>
-              <Text style={[styles.modalTitle, { color: tc.text.primary }]}>{title}</Text>
-              <TouchableOpacity onPress={() => setVisible(false)} hitSlop={12}>
-                <X size={20} color={tc.text.muted} />
+              <View style={{ flex: 1 }}>
+                <Text style={[styles.wizTitle, { color: tc.text.primary }]}>{title}</Text>
+                <Text style={[styles.wizSubtitle, { color: tc.text.muted }]}>
+                  {isComplete ? preview : 'Tap to select'}
+                </Text>
+              </View>
+              <TouchableOpacity
+                onPress={() => setVisible(false)}
+                style={[styles.wizClose, { backgroundColor: tc.bg.tertiary }]}
+                hitSlop={8}
+              >
+                <X size={18} color={tc.text.secondary} />
               </TouchableOpacity>
             </View>
 
-            {/* Content */}
-            <ScrollView style={styles.modalBody} contentContainerStyle={styles.modalBodyContent} showsVerticalScrollIndicator={false}>
+            {/* Pill content — wrapping, all visible */}
+            <ScrollView
+              style={styles.wizBody}
+              contentContainerStyle={styles.wizBodyContent}
+              showsVerticalScrollIndicator={false}
+            >
               {children}
             </ScrollView>
 
             {/* Done button */}
-            <TouchableOpacity
-              style={[styles.modalDone, { backgroundColor: tc.accent.primary }]}
-              onPress={() => setVisible(false)}
-              activeOpacity={0.7}
-            >
-              <Text style={styles.modalDoneText}>Done</Text>
-            </TouchableOpacity>
-          </Pressable>
-        </Pressable>
+            <View style={styles.wizFooter}>
+              <TouchableOpacity
+                style={[styles.wizDone, { backgroundColor: tc.accent.primary }]}
+                onPress={() => setVisible(false)}
+                activeOpacity={0.7}
+              >
+                <Text style={styles.wizDoneText}>Done</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
       </Modal>
     </>
   );
@@ -257,54 +269,69 @@ const styles = StyleSheet.create({
     position: 'absolute',
     width: '100%',
   },
-  // Modal
-  modalBackdrop: {
+  // Wizard-style modal
+  wizBackdrop: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.6)',
-    justifyContent: 'flex-end',
+    backgroundColor: 'rgba(0,0,0,0.7)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: spacing.lg,
   },
-  modalSheet: {
-    borderTopLeftRadius: borderRadius.xl,
-    borderTopRightRadius: borderRadius.xl,
-    maxHeight: '70%',
-    paddingBottom: spacing.xl,
+  wizPanel: {
+    width: '100%',
+    maxHeight: '85%',
+    borderRadius: borderRadius.xl,
+    borderWidth: 1,
+    overflow: 'hidden',
   },
-  modalHandle: {
-    width: 36,
-    height: 4,
-    borderRadius: 2,
-    alignSelf: 'center',
-    marginTop: spacing.sm,
-    marginBottom: spacing.sm,
-    opacity: 0.4,
-  },
-  modalHeader: {
+  wizHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing.sm,
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: 'rgba(255,255,255,0.08)',
+    gap: spacing.md,
+    paddingHorizontal: spacing.xl,
+    paddingVertical: spacing.lg,
+    borderBottomWidth: 1,
   },
-  modalTitle: {
-    flex: 1,
-    fontSize: 18,
+  wizIconLarge: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  wizTitle: {
+    fontSize: 20,
     fontFamily: fonts.heading,
   },
-  modalBody: {
-    paddingHorizontal: spacing.lg,
+  wizSubtitle: {
+    fontSize: 12,
+    fontFamily: fonts.body,
+    marginTop: 2,
   },
-  modalBodyContent: {
-    paddingVertical: spacing.lg,
+  wizClose: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  modalDone: {
-    marginHorizontal: spacing.lg,
+  wizBody: {
+    paddingHorizontal: spacing.xl,
+  },
+  wizBodyContent: {
+    paddingVertical: spacing.xl,
+  },
+  wizFooter: {
+    paddingHorizontal: spacing.xl,
+    paddingBottom: spacing.lg,
+    paddingTop: spacing.sm,
+  },
+  wizDone: {
     paddingVertical: spacing.md,
     borderRadius: borderRadius.lg,
     alignItems: 'center',
   },
-  modalDoneText: {
+  wizDoneText: {
     fontSize: 16,
     fontFamily: fonts.heading,
     color: '#fff',
