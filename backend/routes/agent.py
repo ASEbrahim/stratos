@@ -301,6 +301,7 @@ def handle_agent_chat(handler, strat, output_file, profile_id=0):
         free_length = body.get("free_length", False)
         use_all_scans = body.get("use_all_scans", False)
         inject_signals = body.get("inject_signals", True)  # Signal injection toggle
+        director_note = body.get("director_note", "").strip()[:500]  # Steer — one-shot directive
         # Support single persona or multi-persona querying
         personas_param = body.get("personas", body.get("persona", "intelligence"))
         if isinstance(personas_param, list) and len(personas_param) > 1:
@@ -461,6 +462,10 @@ def handle_agent_chat(handler, strat, output_file, profile_id=0):
                     lines = [f"  [{r.get('score',0):.1f}] {r.get('title','')[:80]} ({r.get('category','')}, {r.get('fetched_at','')[:10]})" for r in unique[:8]]
                     if lines:
                         system_prompt += f"\n\nDB SEARCH '{' '.join(keywords[:3])}':\n" + "\n".join(lines)
+
+        # ── Steer injection ──
+        if director_note:
+            system_prompt += f"\n\nDIRECTOR'S NOTE (this turn only): {director_note}"
 
         # ── Response length mode ──
         _num_predict = 8000 if free_length else 1500

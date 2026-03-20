@@ -10,8 +10,12 @@ let _agentAbortController = null;
 let currentPersona = 'intelligence';
 let selectedPersonas = ['intelligence']; // Multi-persona selection (max 3)
 let availablePersonas = [];
-let _personaSuggestions = {};  // Per-persona dynamic suggestion cache
-try { _personaSuggestions = JSON.parse(localStorage.getItem('stratos_persona_suggestions') || '{}'); } catch(e) {}
+let _personaSuggestions = {};  // Per-persona dynamic suggestion cache (profile-scoped)
+function _suggestionsKey() {
+    const p = typeof getActiveProfile === 'function' ? getActiveProfile() : '';
+    return p ? 'stratos_persona_suggestions_' + p : 'stratos_persona_suggestions';
+}
+try { _personaSuggestions = JSON.parse(localStorage.getItem(_suggestionsKey()) || '{}'); } catch(e) {}
 let _agentFreeLength = false;  // Extended response mode
 let _agentAllScans = false;    // Use all stored scan data vs current only
 let _agentInjectSignals = true; // Signal injection toggle (feed data in context)
@@ -1120,6 +1124,7 @@ async function _resendFromEdit(msg) {
                 ...(_agentFreeLength ? { free_length: true } : {}),
                 ...(_agentAllScans ? { use_all_scans: true } : {}),
                 ...(!_agentInjectSignals ? { inject_signals: false } : {}),
+                ...(_rpDirectorNote ? { director_note: _rpDirectorNote } : {}),
                 ...(currentPersona === 'gaming' && typeof _gamesGetState === 'function' ? {
                     rp_mode: _gamesGetState().rpMode,
                     active_npc: _gamesGetState().activeNpc,
@@ -1400,30 +1405,48 @@ let _rpLastUsedNote = '';
 
 function _rpToggleDirector() {
     const panel = document.getElementById('rp-director-panel');
-    if (panel) { panel.classList.toggle('hidden'); return; }
+    if (panel) { panel.remove(); _rpUpdateSteerButton(); return; }
 
-    const input = document.getElementById('agent-input-area');
-    if (!input) return;
+    const textarea = document.getElementById('agent-input');
+    if (!textarea) return;
+    const inputRow = textarea.closest('.px-3');
+    if (!inputRow) return;
 
     const div = document.createElement('div');
     div.id = 'rp-director-panel';
-    div.className = 'px-4 py-2';
-    div.style.borderTop = '1px solid var(--border-subtle)';
+    div.className = 'mx-3 mb-2 p-3 rounded-xl';
+    div.style.cssText = 'background:rgba(251,191,36,0.06);border:1px solid rgba(251,191,36,0.25);';
     div.innerHTML = `
-        <div class="flex items-center gap-2 mb-1">
-            <i data-lucide="sparkles" class="w-3 h-3" style="color:var(--accent-primary);"></i>
-            <span class="text-[10px] font-medium" style="color:var(--accent-primary);">Director's Note</span>
-            <button onclick="this.closest('#rp-director-panel').classList.add('hidden')" class="ml-auto p-0.5">
-                <i data-lucide="x" class="w-3 h-3" style="color:var(--text-muted);"></i>
+        <div class="flex items-center gap-2 mb-2">
+            <i data-lucide="sparkles" class="w-3.5 h-3.5" style="color:#fbbf24;"></i>
+            <span class="text-[11px] font-semibold" style="color:#fbbf24;">Steer</span>
+            <span class="text-[9px]" style="color:var(--text-muted);">Guide the AI's next response (one-shot)</span>
+            <button onclick="_rpToggleDirector()" class="ml-auto p-1 rounded-md transition-all" style="color:var(--text-muted);" onmouseenter="this.style.color='#f87171'" onmouseleave="this.style.color='var(--text-muted)'">
+                <i data-lucide="x" class="w-3 h-3"></i>
             </button>
         </div>
-        <input type="text" id="rp-director-input" placeholder="Guide the AI's next response..." maxlength="500"
-            class="w-full text-xs rounded px-3 py-1.5" style="background:var(--bg-tertiary); color:var(--text-body); border:1px solid var(--border-subtle);"
+        <input type="text" id="rp-director-input" placeholder="e.g., Make the character more suspicious of the player..." maxlength="500"
+            class="w-full text-[11px] rounded-lg px-3 py-2" style="background:var(--bg-tertiary); color:var(--text-body); border:1px solid rgba(251,191,36,0.3); outline:none;"
+            onfocus="this.style.borderColor='#fbbf24';this.style.boxShadow='0 0 0 2px rgba(251,191,36,0.15)'"
+            onblur="this.style.borderColor='rgba(251,191,36,0.3)';this.style.boxShadow='none'"
             value="${escAgent(_rpDirectorNote)}"
-            oninput="_rpDirectorNote=this.value">
-        ${_rpLastUsedNote ? `<button onclick="_rpDirectorNote='${escAgent(_rpLastUsedNote)}';document.getElementById('rp-director-input').value=_rpDirectorNote;" class="text-[9px] mt-1 opacity-60 hover:opacity-100" style="color:var(--accent-primary);">↩ Reuse: ${escAgent(_rpLastUsedNote.slice(0, 40))}${_rpLastUsedNote.length > 40 ? '...' : ''}</button>` : ''}`;
-    input.parentElement.insertBefore(div, input);
+            oninput="_rpDirectorNote=this.value;_rpUpdateSteerButton();"
+            onkeydown="if(event.key==='Enter'){event.preventDefault();document.getElementById('agent-input').focus();}">
+        ${_rpLastUsedNote ? `<button onclick="_rpDirectorNote='${escAgent(_rpLastUsedNote)}';document.getElementById('rp-director-input').value=_rpDirectorNote;_rpUpdateSteerButton();" class="text-[9px] mt-1.5 px-2 py-0.5 rounded transition-all" style="color:#fbbf24;opacity:0.7;border:1px solid rgba(251,191,36,0.2);" onmouseenter="this.style.opacity='1'" onmouseleave="this.style.opacity='0.7'">&#x21a9; Reuse: ${escAgent(_rpLastUsedNote.slice(0, 40))}${_rpLastUsedNote.length > 40 ? '...' : ''}</button>` : ''}
+        <div class="text-[9px] mt-1.5" style="color:var(--text-muted);opacity:0.6;">This note is consumed after your next message.</div>`;
+    inputRow.parentElement.insertBefore(div, inputRow);
     lucide.createIcons();
+    div.querySelector('#rp-director-input').focus();
+    _rpUpdateSteerButton();
+}
+
+function _rpUpdateSteerButton() {
+    const btn = document.getElementById('rp-director-btn');
+    if (!btn) return;
+    const active = !!_rpDirectorNote || !!document.getElementById('rp-director-panel');
+    btn.style.borderColor = active ? 'rgba(251,191,36,0.5)' : 'var(--border-strong)';
+    btn.style.color = active ? '#fbbf24' : 'var(--text-muted)';
+    btn.style.background = active ? 'rgba(251,191,36,0.08)' : 'rgba(255,255,255,0.02)';
 }
 
 function escAgent(s) {
@@ -1692,8 +1715,14 @@ window.sendAgentOption = sendAgentOption;
 
 // Show more/less for long agent responses (> 500 chars raw text)
 var _showMoreCounter = 0;
+var _agentShowMoreEnabled = localStorage.getItem('stratos_agent_showmore') !== 'false';
+function toggleAgentShowMore() {
+    _agentShowMoreEnabled = !_agentShowMoreEnabled;
+    localStorage.setItem('stratos_agent_showmore', _agentShowMoreEnabled ? 'true' : 'false');
+}
+window.toggleAgentShowMore = toggleAgentShowMore;
 function wrapWithShowMore(rawText, formattedHtml) {
-    if (rawText.length <= 500) return formattedHtml;
+    if (!_agentShowMoreEnabled || rawText.length <= 500) return formattedHtml;
     var id = 'showmore-' + (++_showMoreCounter);
     // Find a cut point near 500 chars in the raw text — try to cut at a paragraph or sentence boundary
     var cutAt = 500;
@@ -1807,9 +1836,21 @@ async function sendAgentMessage() {
     agentHistory.push({ role: 'user', content: msg });
     appendAgentMessage('user', msg);
 
-    // Show typing indicator with bouncing dots
-    const typingEl = appendAgentMessage('assistant', `<div class="flex items-center gap-2.5"><div class="agent-thinking-dots flex gap-1"><span></span><span></span><span></span></div><span class="text-[10px]" style="color:var(--text-muted);">Thinking...</span></div>`);
-    
+    // Show typing indicator — include steer badge if active
+    const _dirBadge = _rpDirectorNote ? `<span class="text-[9px] ml-2 px-1.5 py-0.5 rounded" style="background:rgba(251,191,36,0.12);color:#fbbf24;border:1px solid rgba(251,191,36,0.25);">&#x2728; Steered</span>` : '';
+    const typingEl = appendAgentMessage('assistant', `<div class="flex items-center gap-2.5"><div class="agent-thinking-dots flex gap-1"><span></span><span></span><span></span></div><span class="text-[10px]" style="color:var(--text-muted);">Thinking...</span>${_dirBadge}</div>`);
+
+    // Consume director note (single-use)
+    if (_rpDirectorNote) {
+        _rpLastUsedNote = _rpDirectorNote;
+        _rpDirectorNote = '';
+        const _di = document.getElementById('rp-director-input');
+        if (_di) _di.value = '';
+        const _dp = document.getElementById('rp-director-panel');
+        if (_dp) _dp.remove();
+        if (typeof _rpUpdateSteerButton === 'function') _rpUpdateSteerButton();
+    }
+
     agentStreaming = true;
     _agentAbortController = new AbortController();
     sendBtn.disabled = false;
@@ -1838,6 +1879,7 @@ async function sendAgentMessage() {
                 ...(_agentFreeLength ? { free_length: true } : {}),
                 ...(_agentAllScans ? { use_all_scans: true } : {}),
                 ...(!_agentInjectSignals ? { inject_signals: false } : {}),
+                ...(_rpDirectorNote ? { director_note: _rpDirectorNote } : {}),
                 ...(currentPersona === 'gaming' && typeof _gamesGetState === 'function' ? {
                     rp_mode: _gamesGetState().rpMode,
                     active_npc: _gamesGetState().activeNpc,
@@ -1898,7 +1940,7 @@ async function sendAgentMessage() {
                         if (payload.suggestions && Array.isArray(payload.suggestions)) {
                             dynamicSuggestions = payload.suggestions;
                             _personaSuggestions[currentPersona] = payload.suggestions;
-                            try { localStorage.setItem('stratos_persona_suggestions', JSON.stringify(_personaSuggestions)); } catch(e) {}
+                            try { localStorage.setItem(_suggestionsKey(), JSON.stringify(_personaSuggestions)); } catch(e) {}
                         }
                         if (payload.status) {
                             // Tool usage indicator — animated status bar
