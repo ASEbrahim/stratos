@@ -28,14 +28,15 @@ async function initHue() {
             headers: { 'X-Auth-Token': token }
         });
         if (!res.ok) {
-            container.innerHTML = '';
+            container.innerHTML = _huePlaceholder();
             return;
         }
         _hueData = await res.json();
         _renderHue();
         _startFreshnessDecay();
     } catch (e) {
-        container.innerHTML = '';
+        // Keep placeholder visible on error (don't clear container)
+        container.innerHTML = _huePlaceholder();
     }
 }
 
