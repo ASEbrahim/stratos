@@ -1353,7 +1353,7 @@ function _rpThumbsFeedback(btn, type) {
 
 function _rpRegenerateMessage(btn) {
     if (agentStreaming) return;
-    // Find the last user message in history and resend it
+    // Find the last user message in history
     const lastUserIdx = agentHistory.findLastIndex(h => h.role === 'user');
     if (lastUserIdx < 0) return;
     const lastUserMsg = agentHistory[lastUserIdx].content;
@@ -1362,10 +1362,20 @@ function _rpRegenerateMessage(btn) {
     if (agentHistory.length > lastUserIdx + 1 && agentHistory[agentHistory.length - 1].role === 'assistant') {
         agentHistory.pop();
     }
+    // Also pop the user message — sendAgentMessage will re-add it
+    agentHistory.pop();
     const msgWrapper = btn.closest('.group\\/msg');
     if (msgWrapper) msgWrapper.remove();
 
-    // Re-send the last user message
+    // Remove the user message bubble above this one too
+    const msgs = document.getElementById('agent-messages');
+    if (msgs) {
+        const allBubbles = msgs.querySelectorAll('.group\\/msg');
+        const lastBubble = allBubbles[allBubbles.length - 1];
+        if (lastBubble) lastBubble.remove();
+    }
+
+    // Re-send — sendAgentMessage will push user msg + render it fresh
     const input = document.getElementById('agent-input');
     if (input) {
         input.value = lastUserMsg;
