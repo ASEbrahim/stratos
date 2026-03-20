@@ -826,7 +826,7 @@ function appendAgentMessage(role, content) {
                 <i data-lucide="bot" class="w-3.5 h-3.5 text-emerald-400"></i>
             </div>
             <div class="flex-1 min-w-0">
-                <div class="agent-response text-xs leading-relaxed" style="color:var(--text-body,#cbd5e1);">${content}</div><!-- content is pre-sanitized via formatAgentText() which HTML-escapes before markdown formatting -->
+                <div class="agent-response text-sm leading-relaxed" style="color:var(--text-body,#cbd5e1);">${content}</div><!-- content is pre-sanitized via formatAgentText() which HTML-escapes before markdown formatting -->
                 <div class="flex items-center gap-2 mt-1 agent-msg-actions">
                     <span class="text-[9px]" style="color:var(--text-muted); opacity:0.4;">${time}</span>
                     <button onclick="_copyAgentMessage(this)" class="p-0.5 rounded" title="Copy message">
@@ -1520,10 +1520,10 @@ function formatAgentText(text) {
     let html = processed
         .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
         // Bold
-        .replace(/\*\*(.+?)\*\*/g, '<strong class="text-slate-100">$1</strong>')
-        // Italics (single * or _)
-        .replace(/(?<!\w)\*([^*\n]+?)\*(?!\w)/g, '<em style="color:var(--text-muted);font-style:italic;">$1</em>')
-        .replace(/(?<!\w)_([^_\n]+?)_(?!\w)/g, '<em style="color:var(--text-muted);font-style:italic;">$1</em>')
+        .replace(/\*\*(.+?)\*\*/g, '<strong style="color:var(--text-heading,#f1f5f9);font-weight:600;">$1</strong>')
+        // Italics (single * or _) — accent-tinted for narrative emphasis
+        .replace(/(?<!\w)\*([^*\n]+?)\*(?!\w)/g, '<em style="color:var(--accent,#34d399);font-style:italic;opacity:0.85;">$1</em>')
+        .replace(/(?<!\w)_([^_\n]+?)_(?!\w)/g, '<em style="color:var(--accent,#34d399);font-style:italic;opacity:0.85;">$1</em>')
         // Inline code
         .replace(/`([^`]+)`/g, '<code class="px-1 py-0.5 bg-slate-800 rounded text-emerald-300 text-[10px]">$1</code>')
         // Headers (### or ---TITLE)

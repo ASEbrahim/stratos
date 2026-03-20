@@ -113,10 +113,12 @@ def _generate_gaming_suggestions(handler, ollama_host, model, user_msg, agent_re
             f"Last player action: {user_msg[:200]}\n"
             f"Last game response: {agent_response[:500]}\n\n"
             f'Return a JSON array of suggestion objects:\n'
-            f'[{{"label": "Talk to Klein", "prompt": "I walk over to Klein. \'Hey, got any tips?\'"}}]\n\n'
+            f'[{{"label": "Search the alley", "prompt": "I move quietly into the dark alley, keeping my hand on my weapon."}}]\n\n'
             f"Rules:\n"
             f'- "label": 3-6 words, shown on the button\n'
             f'- "prompt": 1-2 immersive sentences, first person as the player\n'
+            f"- Only reference characters that were mentioned in the conversation above\n"
+            f"- Do NOT invent or reference character names that weren't in the exchange\n"
             f"- Vary types: exploration, social, combat, investigation\n"
             f"- IMPORTANT: Write labels and prompts in the SAME language as the player's last message. If the player wrote in Japanese, suggestions must be in Japanese. If Arabic, in Arabic.\n"
             f"Return ONLY the JSON array."
