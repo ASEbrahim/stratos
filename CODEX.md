@@ -1303,3 +1303,50 @@ Ollama model definition for scorer. FROM, PARAMETER, SYSTEM prompt. DO NOT TOUCH
 
 Ollama max output tokens. Scoring: ~200. Short mode: 1500. Long mode: 8000. Per-call.
 
+
+---
+
+## 🔍 Audit System
+
+### Audit Methodology
+**Files:** `~/Downloads/StratOS/docs/audit/AUDIT_METHODOLOGY.md`  
+**Related:** STRATOS_AUTONOMOUS_AUDIT.md  
+**Added:** Session 2026-03-21
+
+8-phase audit process: Mapping (3 parallel agents) → Backend → Frontend → DB → API → Cross-module → Optimization → Verification. Each session produces 3 files: CHANGELOG, CONNECTION_MAP, FINDINGS. One commit per fix, exact before/after code in docs.
+
+---
+
+### Intelligence Hue
+**Files:** `backend/behavioral.py`, `backend/routes/data_endpoints.py`, `frontend/hue.js`, `frontend/sibyl.js`  
+**Related:** /api/hue, Sibyl Panel  
+**Added:** Session 2026-03-21
+
+Behavioral intelligence layer. `compute_behavioral_profile()` queries news_items, user_feedback, scan_log (all WHERE profile_id=?). `compute_hue()` computes 0-100 score from 5 dimensions (freshness, diversity, coverage, signal, engagement). Sidebar widget in hue.js, fullscreen panel in sibyl.js. Agent/briefing injection via `build_agent_behavioral_hint()` / `build_briefing_behavioral_hint()`.
+
+---
+
+### Sibyl Brain (Login)
+**Files:** `frontend/auth-star-canvas.js`  
+**Related:** AUTH_THEMES, _isSibyl  
+**Added:** Session 2026-03-21
+
+Pre-computed brain outline (3254 points at 0.1 precision, ~40KB inline). Kite-shaped stars (500 desktop, 80 mobile) with crystallized blue glow. Dashed segmented outline with dual sweep heads. Neural network inside: organic node placement via point-in-polygon, pulse cascades, scan rings, threat flashes. No SVG DOM parsing — loads in 78ms.
+
+---
+
+### Sibyl Brain (In-App)
+**Files:** `frontend/ui.js`, `frontend/theme-editor.js`  
+**Related:** _drawThemeElement, _themeElementDefaults  
+**Added:** Session 2026-03-21
+
+Anatomical brain as Sibyl theme visual element. Uses `_drawThemeElement('sibyl', ...)` pattern. Glow slider (0-3x) multiplies all element alphas. Lazy node rebuild on position/scale change. Default: cx=0.33, cy=0.06, scale=0.3, glow=3.0. Brain draws at px,py from theme editor — no translate/scale wrapper (handles own positioning).
+
+---
+
+### Per-Theme Element Defaults
+**Files:** `frontend/ui.js`, `frontend/theme-editor.js`  
+**Related:** _themeElementDefaults  
+**Added:** Session 2026-03-21
+
+Lookup table with custom cx/cy defaults for all 9 themes. Replaces hardcoded 0.5/0.35 fallbacks. Both _drawThemeElement() and _buildGenericElementControls() use the same table. Sibyl has extra defaults: scale, glow, opacity.
