@@ -474,6 +474,15 @@ def handle_agent_chat(handler, strat, output_file, profile_id=0):
         else:
             system_prompt += "\n\nBREVITY: Keep responses short and conversational — 2-4 sentences max unless the user asks for detail. No headers, no bullet lists, no markdown formatting unless specifically asked. Reply like a knowledgeable friend in a chat app."
 
+        # ── Behavioral context injection ──
+        try:
+            from behavioral import build_agent_behavioral_hint
+            _beh_hint = build_agent_behavioral_hint(strat.db, profile_id)
+            if _beh_hint:
+                system_prompt += "\n\n" + _beh_hint
+        except Exception as e:
+            logger.debug(f"Behavioral agent injection skipped: {e}")
+
         # ── Free chat mode: no tools, simple system prompt ──
         # TODO: consolidate with scorer_base._call_ollama — agent.py has its own streaming impl
         if free_mode:
