@@ -1000,14 +1000,14 @@ def _pack_context(persona_name: str, strat, output_file: str,
             )
             sections.append(('gaming_selective', gaming_ctx))
             sections.append(('files', _get_file_summaries(strat, profile_id, 'gaming')))
-        else:
-            # Fallback to DB-based context for old scenarios
-            sections.append(('profile', _get_profile_context(strat, profile_id)))
+        elif active_scenario:
+            # Fallback to DB-based context for old scenarios (only when scenario is selected)
             sections.append(('custom_context', _get_persona_custom_context(strat, profile_id, persona_name)))
             games = _build_games_context(strat, profile_id)
             sections.append(('games_data', games))
             sections.append(('scenario', _get_active_scenario(strat, profile_id)))
             sections.append(('files', _get_file_summaries(strat, profile_id, 'gaming')))
+        # No scenario selected: no context injected — gaming stays isolated from profile
     else:
         # Universal: always include (highest priority) — non-gaming personas
         sections.append(('profile', _get_profile_context(strat, profile_id)))
