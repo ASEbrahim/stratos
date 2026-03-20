@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ahmad Sayed Alsayed Ebrahim — Systems Engineer</title>
-    <meta name="description" content="Computer Engineering student building AI-powered intelligence systems. Creator of StratOS — a self-hosted strategic intelligence platform with a self-improving scorer.">
+    <meta name="description" content="Computer Engineering student building AI-powered intelligence systems. Creator of StratOS — a 111K-line self-hosted strategic intelligence platform with a self-improving scorer, React Native mobile app, RP chat system, and 6 AI personas.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -857,15 +857,17 @@
                     Alsayed <span class="accent">Ebrahim</span>
                 </h1>
                 <p class="hero-subtitle">
-                    Computer Engineering student building <strong>AI-powered intelligence systems</strong> that score, learn, and improve autonomously — running entirely on local hardware.
+                    Computer Engineering student building <strong>AI-powered intelligence systems</strong> that score, learn, and improve autonomously — 111K lines of code, a production-grade mobile app, and a self-improving scorer, all running on local hardware.
                 </p>
                 <div class="hero-tags">
                     <span class="hero-tag">ML Pipelines</span>
                     <span class="hero-tag">Fine-Tuning (DoRA/LoRA)</span>
                     <span class="hero-tag">Full-Stack</span>
+                    <span class="hero-tag">React Native</span>
                     <span class="hero-tag">AMD ROCm</span>
                     <span class="hero-tag">Python</span>
                     <span class="hero-tag">Vanilla JS</span>
+                    <span class="hero-tag">SQLite</span>
                 </div>
                 <a href="#project" class="hero-cta">
                     See the work
@@ -893,10 +895,10 @@
         </div>
 
         <p class="section-desc reveal" style="margin-bottom: 8px;">
-            A self-hosted intelligence dashboard that aggregates news, tracks markets, and scores content relevance using a locally fine-tuned AI model. The system improves its own scorer through a distillation loop — Gemini Flash and Claude Opus re-score articles, disagreements become training data, and DoRA fine-tuning updates the local model. Now with an AI agent, rich media feeds, and a 4-mode platform vision.
+            A self-hosted intelligence platform that aggregates news, tracks markets, and scores content relevance using a locally fine-tuned AI model. The system improves its own scorer through a distillation loop — Gemini Flash and Claude Opus re-score articles, disagreements become training data, and DoRA fine-tuning updates the local model. Features a 6-persona AI agent, YouTube knowledge base, RP chat system with tiered memory, React Native mobile app, and a 4-mode platform vision (Intelligence, Anime/Manga, Collection/TCG, Gaming).
         </p>
         <p class="section-desc reveal" style="color: var(--text-dim); font-family: var(--font-mono); font-size: 13px;">
-            61,000+ lines · 40+ modules · Solo project · Zero cloud dependency for inference
+            111,000+ lines · 192 files · 1,018 commits · Solo project · Zero cloud dependency for inference
         </p>
 
         <!-- Metrics -->
@@ -922,7 +924,7 @@
                 <div class="metric-sublabel">V2: 53.4% · +22pp</div>
             </div>
             <div class="metric-card">
-                <div class="metric-value" data-count="45" data-decimals="0">0</div>
+                <div class="metric-value" data-count="50" data-decimals="0">0</div>
                 <div class="metric-label">Trained Profiles</div>
                 <div class="metric-sublabel">Across 20+ countries</div>
             </div>
@@ -930,6 +932,16 @@
                 <div class="metric-value" data-count="11785" data-decimals="0" data-separator="true">0</div>
                 <div class="metric-label">Training Examples</div>
                 <div class="metric-sublabel">Gemini Flash teacher · $6 total</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value" data-count="1018" data-decimals="0" data-separator="true">0</div>
+                <div class="metric-label">Git Commits</div>
+                <div class="metric-sublabel">31 backend audit · 105 mobile</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value" data-count="47" data-decimals="0">0</div>
+                <div class="metric-label">Database Tables</div>
+                <div class="metric-sublabel">SQLite WAL · 390MB production</div>
             </div>
         </div>
 
@@ -1025,23 +1037,29 @@
 <span class="dim">│</span>                          <span class="hl">StratOS Architecture</span>                              <span class="dim">│</span>
 <span class="dim">├──────────────────────────────────────────────────────────────────────────────┤</span>
 <span class="dim">│</span>                                                                              <span class="dim">│</span>
-<span class="dim">│</span>  <span class="sec">News Sources</span> (DDG, Serper, RSS, Scrapers)                                  <span class="dim">│</span>
-<span class="dim">│</span>       │                                                                      <span class="dim">│</span>
-<span class="dim">│</span>       ▼                                                                      <span class="dim">│</span>
-<span class="dim">│</span>  <span class="hl">NewsFetcher</span> (ThreadPoolExecutor, parallel)                                 <span class="dim">│</span>
-<span class="dim">│</span>       │                                                                      <span class="dim">│</span>
-<span class="dim">│</span>       ▼                                                                      <span class="dim">│</span>
-<span class="dim">│</span>  <span class="hl">AI Scorer</span> (3-phase pipeline)                                               <span class="dim">│</span>
-<span class="dim">│</span>  [Phase 1: Rules] → [Phase 2: Batch LLM] → [Phase 3: Re-score cascade]      <span class="dim">│</span>
-<span class="dim">│</span>       │                                         ▲                             <span class="dim">│</span>
-<span class="dim">│</span>       ▼                                         │                             <span class="dim">│</span>
-<span class="dim">│</span>  <span class="sec">SQLite</span> (WAL) → <span class="sec">JSON API</span> → <span class="hl">Frontend SPA</span>         │                             <span class="dim">│</span>
-<span class="dim">│</span>                              │               <span class="sec">Feedback Loop</span>                    <span class="dim">│</span>
-<span class="dim">│</span>                              ▼                   │                             <span class="dim">│</span>
-<span class="dim">│</span>                        User Feedback ──────► <span class="hl">Distillation</span> (Claude Opus)        <span class="dim">│</span>
-<span class="dim">│</span>                        (save/dismiss/rate)       │                             <span class="dim">│</span>
-<span class="dim">│</span>                                                  ▼                             <span class="dim">│</span>
-<span class="dim">│</span>                                          <span class="hl">DoRA Fine-Tuning</span> ─► GGUF ─► Ollama  <span class="dim">│</span>
+<span class="dim">│</span>  <span class="sec">Data Sources</span>                        <span class="sec">Clients</span>                               <span class="dim">│</span>
+<span class="dim">│</span>  DDG · Serper · SearXNG · RSS          Web SPA (38 JS modules)               <span class="dim">│</span>
+<span class="dim">│</span>  Yahoo Finance · Binance                React Native Mobile (Expo 54)         <span class="dim">│</span>
+<span class="dim">│</span>  YouTube · Fandom Wikis                      │                               <span class="dim">│</span>
+<span class="dim">│</span>       │                                       ▼                               <span class="dim">│</span>
+<span class="dim">│</span>       ▼                              <span class="hl">Python Backend</span> (77 files)                <span class="dim">│</span>
+<span class="dim">│</span>  <span class="hl">NewsFetcher</span>                        21 route modules · SSE · Auth            <span class="dim">│</span>
+<span class="dim">│</span>  (ThreadPool)                              │                                 <span class="dim">│</span>
+<span class="dim">│</span>       │                          ┌──────────┼──────────┐                       <span class="dim">│</span>
+<span class="dim">│</span>       ▼                          ▼          ▼          ▼                       <span class="dim">│</span>
+<span class="dim">│</span>  <span class="hl">AI Scorer</span>               <span class="hl">6-Persona</span>   <span class="hl">RP Chat</span>   <span class="hl">YouTube KB</span>                <span class="dim">│</span>
+<span class="dim">│</span>  3-phase pipeline          Agent     Cydonia 24B  6 lens types               <span class="dim">│</span>
+<span class="dim">│</span>  V2.2 DoRA Qwen3.5      11 tools    3-tier mem   bilingual                  <span class="dim">│</span>
+<span class="dim">│</span>       │                     │          │                                      <span class="dim">│</span>
+<span class="dim">│</span>       ▼                     ▼          ▼                                      <span class="dim">│</span>
+<span class="dim">│</span>  <span class="sec">SQLite</span> (47 tables, WAL, 390MB)  ←── <span class="sec">Ollama</span> (4 models, GPU swap)           <span class="dim">│</span>
+<span class="dim">│</span>       │                                   │                                   <span class="dim">│</span>
+<span class="dim">│</span>       ▼                                   ▼                                   <span class="dim">│</span>
+<span class="dim">│</span>  User Feedback ──► <span class="hl">Distillation</span> ──► <span class="hl">DoRA Fine-Tuning</span> ──► GGUF ──► Ollama     <span class="dim">│</span>
+<span class="dim">│</span>                   (Opus+Flash)     ROCm 6.2 · 24GB VRAM                      <span class="dim">│</span>
+<span class="dim">│</span>                                                                              <span class="dim">│</span>
+<span class="dim">│</span>  <span class="sec">Also:</span> ComfyUI (CHROMA image gen) · Kokoro TTS · faster-whisper STT          <span class="dim">│</span>
+<span class="dim">│</span>         Haiku API (meta-controller, world gen, card enrichment)              <span class="dim">│</span>
 <span class="dim">│</span>                                                                              <span class="dim">│</span>
 <span class="dim">└──────────────────────────────────────────────────────────────────────────────┘</span></pre>
         </div>
@@ -1056,7 +1074,7 @@
             <div class="feature-card">
                 <div class="feature-icon">👤</div>
                 <h4>Profile-Aware Scoring</h4>
-                <p>Same article, different score depending on who's reading. A K-pop agency manager gets 8.5 on idol news; a pipeline welder in Edmonton gets 0.0. The model learned this from 45 profiles across 20+ countries.</p>
+                <p>Same article, different score depending on who's reading. A K-pop agency manager gets 8.5 on idol news; a pipeline welder in Edmonton gets 0.0. The model learned this from 50 profiles across 20+ countries.</p>
             </div>
             <div class="feature-card">
                 <div class="feature-icon">📊</div>
@@ -1065,13 +1083,18 @@
             </div>
             <div class="feature-card">
                 <div class="feature-icon">🤖</div>
-                <h4>Strat Agent</h4>
-                <p>Context-aware AI chat with tool use — web search, feed search, watchlist and category management. Fullscreen mode, free/structured chat toggle, suggestion chips, and "Continue in Agent" from any Ask AI response.</p>
+                <h4>6-Persona AI Agent</h4>
+                <p>Context-aware AI chat with tool use across 6 personas — Intelligence, Market, Scholarly, Gaming, Anime, TCG. Fullscreen mode with Claude/ChatGPT-style sidebar, suggestion chips, streaming, conversation management, and 11 agent tools.</p>
             </div>
             <div class="feature-card">
                 <div class="feature-icon">📱</div>
-                <h4>Mobile PWA</h4>
-                <p>Installable progressive web app with touch gestures (swipe to save/dismiss, pull-to-refresh, edge swipe navigation), bottom navigation, fullscreen charts, and a two-tier mobile drawing toolbar.</p>
+                <h4>React Native Mobile App</h4>
+                <p>Production-grade mobile app built with React Native + Expo 54 + TypeScript. 5 themes, SSE streaming, character creator with TavernCard V2 import, RP chat with swipe/branch/edit, and zero TypeScript errors. 105+ commits, 7,825 lines.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">💬</div>
+                <h4>RP Chat System</h4>
+                <p>Roleplay chat with 6-archetype detection, per-turn prompt injection, 3-tier memory (facts, recent, arc summaries), swipe regeneration, branching timelines, director notes, and automated regression testing. Powered by Cydonia 24B.</p>
             </div>
             <div class="feature-card">
                 <div class="feature-icon">🎨</div>
@@ -1080,13 +1103,28 @@
             </div>
             <div class="feature-card">
                 <div class="feature-icon">📰</div>
-                <h4>Rich Media Feeds</h4>
-                <p>Video/stream/image/manga/article detection with grid view. RSS auto-discovery, contextual feed suggestions, Jobs tab with career-focused feeds, and Cloudflare Worker proxy for media sources.</p>
+                <h4>YouTube Knowledge Base</h4>
+                <p>YouTube channel management with automatic transcript acquisition (3-tier fallback), 6 lens types for insight extraction, bilingual support (Japanese + English), and Arcane-themed insights modal with star parallax.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🖼️</div>
+                <h4>AI Image Generation</h4>
+                <p>ComfyUI integration with CHROMA model for character portraits. GPU swap between Ollama and ComfyUI via API. Gallery with save-to-device, seed control, and quality modes (8/12/28 steps).</p>
             </div>
             <div class="feature-card">
                 <div class="feature-icon">🔐</div>
-                <h4>Multi-User Auth</h4>
-                <p>Email registration with verification codes, bcrypt passwords, 7-day sliding sessions. Per-user data directories with JSONL exports, cross-device sync, and guided onboarding tour.</p>
+                <h4>Security-Audited Auth</h4>
+                <p>Email registration with verification codes, bcrypt passwords, OTP login. 31-commit security audit: zero exploitable vulnerabilities, SSRF prevention, timing-safe comparisons, path traversal protection, atomic writes.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🎮</div>
+                <h4>Gaming Mode</h4>
+                <p>GM narration with interactive stat displays, world import wizard, canon import from Fandom wikis, and scenario management. Sibyl-Pass theme with Dominator reticle and crime coefficient streams.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🔊</div>
+                <h4>Voice I/O</h4>
+                <p>Dual-engine TTS (Kokoro-82M local with 54 voices + Edge-TTS Arabic cloud). Speech-to-text via faster-whisper large-v3-turbo. Per-persona voice preferences persisted to config.</p>
             </div>
         </div>
 
@@ -1096,48 +1134,27 @@
                 <span style="width: 3px; height: 20px; background: var(--accent); border-radius: 2px; display: inline-block;"></span>
                 In Action
             </h3>
-            <p style="font-size: 13.5px; color: var(--text-secondary); margin-bottom: 24px; font-weight: 300;">143 articles scored in a single scan — 3 critical signals, 64 high-relevance, all profile-aware.</p>
+            <p style="font-size: 13.5px; color: var(--text-secondary); margin-bottom: 24px; font-weight: 300;">143 articles scored in a single scan — 3 critical signals, 64 high-relevance, all profile-aware. Security-audited with zero exploitable vulnerabilities across 31 commits.</p>
             <div class="screenshot-grid">
                 <div class="screenshot-card">
-                    <img src="screenshots/scan-history.png" alt="StratOS Scan History" onerror="this.parentElement.classList.add('no-img')">
-                    <div class="screenshot-label">Scan History</div>
-                    <div class="screenshot-fallback">
-                        <div class="fallback-mock">
-                            <div class="mock-header">⏱ Scan History</div>
-                            <div class="mock-row">
-                                <span class="mock-date">26 Feb</span>
-                                <span class="mock-count">143 items</span>
-                                <span class="mock-badge crit">3 critical</span>
-                                <span class="mock-badge high">64 high</span>
-                                <span class="mock-badge mid">12 mid</span>
-                                <span class="mock-badge noise">64 noise</span>
-                                <span class="mock-meta">799.5s</span>
-                            </div>
-                            <div class="mock-row">
-                                <span class="mock-date">26 Feb</span>
-                                <span class="mock-count">138 items</span>
-                                <span class="mock-badge crit">3 critical</span>
-                                <span class="mock-badge high">56 high</span>
-                                <span class="mock-badge mid">9 mid</span>
-                                <span class="mock-badge noise">70 noise</span>
-                                <span class="mock-meta">809.9s</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="screenshot-card">
                     <img src="screenshots/dashboard.png" alt="StratOS Dashboard" onerror="this.parentElement.classList.add('no-img')">
-                    <div class="screenshot-label">Dashboard Feed</div>
-                    <div class="screenshot-fallback">
-                        <div class="fallback-placeholder">📊<br><span>Add screenshot</span></div>
-                    </div>
+                    <div class="screenshot-label">Executive Summary + Strat Agent</div>
                 </div>
                 <div class="screenshot-card">
                     <img src="screenshots/markets.png" alt="StratOS Markets Panel" onerror="this.parentElement.classList.add('no-img')">
-                    <div class="screenshot-label">Markets Panel</div>
-                    <div class="screenshot-fallback">
-                        <div class="fallback-placeholder">📈<br><span>Add screenshot</span></div>
-                    </div>
+                    <div class="screenshot-label">Markets — Dual Charts + Ticker Intel</div>
+                </div>
+                <div class="screenshot-card">
+                    <img src="screenshots/settings.png" alt="StratOS Settings" onerror="this.parentElement.classList.add('no-img')">
+                    <div class="screenshot-label">Settings — 8 Themes + Profile</div>
+                </div>
+                <div class="screenshot-card">
+                    <img src="screenshots/youtube.png" alt="StratOS YouTube Knowledge Base" onerror="this.parentElement.classList.add('no-img')">
+                    <div class="screenshot-label">YouTube Knowledge Base</div>
+                </div>
+                <div class="screenshot-card">
+                    <img src="screenshots/login.png" alt="StratOS Login" onerror="this.parentElement.classList.add('no-img')">
+                    <div class="screenshot-label">Login — Cosmos Theme</div>
                 </div>
             </div>
         </div>
@@ -1150,7 +1167,7 @@
         <div class="reveal">
             <div class="section-label">Technology</div>
             <div class="section-title">Built With</div>
-            <p class="section-desc">Entirely local-first. Zero recurring costs for inference. V2.2 training cost $6 total using Gemini Flash as teacher — 10x cheaper than V2's Opus-based pipeline, with 40% better results.</p>
+            <p class="section-desc">Entirely local-first. Zero recurring costs for inference. V2.2 training cost $6 total using Gemini Flash as teacher — 10x cheaper than V2's Opus-based pipeline, with 40% better results. 4 local models, GPU swap management, and 31-commit security audit with zero exploitable vulnerabilities.</p>
         </div>
 
         <div class="stack-grid reveal">
@@ -1158,28 +1175,42 @@
                 <div class="stack-dot"></div>
                 <div>
                     <div class="label">Python 3.12</div>
-                    <div class="detail">Backend · stdlib http.server</div>
+                    <div class="detail">Backend · 77 files · 39K lines</div>
                 </div>
             </div>
             <div class="stack-item">
                 <div class="stack-dot"></div>
                 <div>
                     <div class="label">Vanilla JavaScript</div>
-                    <div class="detail">Frontend SPA · 14 modules</div>
+                    <div class="detail">Frontend SPA · 38 modules · 40K lines</div>
+                </div>
+            </div>
+            <div class="stack-item">
+                <div class="stack-dot"></div>
+                <div>
+                    <div class="label">React Native + Expo 54</div>
+                    <div class="detail">Mobile app · TypeScript · 7.8K lines</div>
                 </div>
             </div>
             <div class="stack-item">
                 <div class="stack-dot"></div>
                 <div>
                     <div class="label">Ollama</div>
-                    <div class="detail">Local LLM serving</div>
+                    <div class="detail">Local LLM serving · 4 models</div>
                 </div>
             </div>
             <div class="stack-item">
                 <div class="stack-dot"></div>
                 <div>
                     <div class="label">Qwen3.5-9B + DoRA</div>
-                    <div class="detail">V2.2 fine-tuned scorer · Q8_0</div>
+                    <div class="detail">V2.2 scorer + inference + wizard</div>
+                </div>
+            </div>
+            <div class="stack-item">
+                <div class="stack-dot"></div>
+                <div>
+                    <div class="label">Cydonia 24B (Mistral Small)</div>
+                    <div class="detail">RP chat model · Q8 quantization</div>
                 </div>
             </div>
             <div class="stack-item">
@@ -1187,6 +1218,13 @@
                 <div>
                     <div class="label">Gemini Flash + Claude Opus</div>
                     <div class="detail">Dual teacher · distillation</div>
+                </div>
+            </div>
+            <div class="stack-item">
+                <div class="stack-dot"></div>
+                <div>
+                    <div class="label">Claude Haiku API</div>
+                    <div class="detail">Meta-controller · world gen · cards</div>
                 </div>
             </div>
             <div class="stack-item">
@@ -1200,42 +1238,49 @@
                 <div class="stack-dot"></div>
                 <div>
                     <div class="label">SQLite (WAL)</div>
-                    <div class="detail">Feedback + dedup + history</div>
+                    <div class="detail">47 tables · 390MB · per-thread connections</div>
+                </div>
+            </div>
+            <div class="stack-item">
+                <div class="stack-dot"></div>
+                <div>
+                    <div class="label">ComfyUI + CHROMA</div>
+                    <div class="detail">AI image generation · GPU swap</div>
+                </div>
+            </div>
+            <div class="stack-item">
+                <div class="stack-dot"></div>
+                <div>
+                    <div class="label">Kokoro-82M + Edge-TTS</div>
+                    <div class="detail">Dual TTS · 54 voices · 8 languages</div>
+                </div>
+            </div>
+            <div class="stack-item">
+                <div class="stack-dot"></div>
+                <div>
+                    <div class="label">faster-whisper</div>
+                    <div class="detail">Local STT · large-v3-turbo</div>
                 </div>
             </div>
             <div class="stack-item">
                 <div class="stack-dot"></div>
                 <div>
                     <div class="label">TradingView Charts</div>
-                    <div class="detail">Lightweight Charts library</div>
+                    <div class="detail">Lightweight Charts · 20 drawing tools</div>
                 </div>
             </div>
             <div class="stack-item">
                 <div class="stack-dot"></div>
                 <div>
-                    <div class="label">Vanilla CSS</div>
-                    <div class="detail">24 variants · custom properties</div>
+                    <div class="label">DuckDuckGo + Serper + SearXNG</div>
+                    <div class="detail">Multi-provider search</div>
                 </div>
             </div>
             <div class="stack-item">
                 <div class="stack-dot"></div>
                 <div>
-                    <div class="label">DuckDuckGo + Serper</div>
-                    <div class="detail">News search · free tier first</div>
-                </div>
-            </div>
-            <div class="stack-item">
-                <div class="stack-dot"></div>
-                <div>
-                    <div class="label">yfinance</div>
-                    <div class="detail">Market data · OHLCV</div>
-                </div>
-            </div>
-            <div class="stack-item">
-                <div class="stack-dot"></div>
-                <div>
-                    <div class="label">Cloudflare Tunnel</div>
-                    <div class="detail">Public access · free</div>
+                    <div class="label">Cloudflare Worker + Tunnel</div>
+                    <div class="detail">Proxy · captions bypass · access</div>
                 </div>
             </div>
         </div>
@@ -1264,7 +1309,7 @@
                     I'm a Computer Engineering student at the American University of Kuwait, graduating Spring 2027. StratOS started because I was tired of opening a dozen tabs every morning — jobs, news, stocks, tech — just to feel caught up. I wanted <strong>one place</strong> to be "in the know" on everything I care about, ranked by how much it actually matters to me. So I built it.
                 </p>
                 <p>
-                    That "one place" somehow turned into 61,000+ lines of code with a self-improving AI scorer across 3 training generations, a distillation pipeline that went from $60 to $6 per cycle while getting 40% more accurate, and 19 failed training runs that each taught me something the documentation never mentioned. I focus on ML pipelines, full-stack systems with local-first principles, and getting GPU training to work on AMD hardware — which, if you know ROCm, you know is its own adventure.
+                    That "one place" somehow turned into 111,000+ lines of code across 192 files — a self-improving AI scorer across 3 training generations, a production React Native mobile app (105+ commits), an RP chat system with branching timelines and tiered memory, AI image generation, dual TTS engines, a YouTube knowledge base, and 6 AI personas. The distillation pipeline went from $60 to $6 per cycle while getting 40% more accurate. I focus on ML pipelines, full-stack systems with local-first principles, and getting GPU training to work on AMD hardware — which, if you know ROCm, you know is its own adventure.
                 </p>
                 <p>
                     I'm looking for systems and ML engineering roles in Kuwait's energy sector, where AI meets industrial operations and the problems are actually interesting.
