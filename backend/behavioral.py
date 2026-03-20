@@ -377,7 +377,7 @@ def compute_hue(behavioral_profile):
 
     nudge_templates = {
         "freshness": "Your feed is stale — run a scan?",
-        "diversity": f"{int(max_cat_share * 100)}% of your feed is from {num_sources} source{'s' if num_sources != 1 else ''}. Add more sources.",
+        "diversity": f"{int(max_cat_share * 100)}% of your feed is one category, across {num_sources} source{'s' if num_sources != 1 else ''}. Broaden your categories or add more sources.",
         "coverage": f"{over} declared categories have no recent articles. Check your settings.",
         "signal_strength": "Most signals scored below 7. Refine your keywords for sharper relevance.",
         "engagement": f"{article_count} signals delivered, {fb_count} interactions. Save or rate articles to sharpen your feed.",
