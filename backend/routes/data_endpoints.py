@@ -51,6 +51,55 @@ def handle_get(handler, strat, auth, path, output_dir=None):
             _send_json(handler, {"status": "no_briefing"})
         return True
 
+    # Intelligence Hue — behavioral profile + computed hue score
+    if path == "/api/hue":
+        try:
+            from behavioral import compute_behavioral_profile, compute_hue
+            pid = handler._profile_id
+            if not pid:
+                _send_json(handler, {"hue": {"overall": -1, "error": "no_profile"}, "behavior_summary": {}})
+                return True
+
+            # 5-minute cache keyed by (profile_id, time_bucket)
+            cache_key = (pid, int(time.time() / 300))
+            if not hasattr(handle_get, '_hue_cache'):
+                handle_get._hue_cache = {}
+            if cache_key in handle_get._hue_cache:
+                _send_json(handler, handle_get._hue_cache[cache_key])
+                return True
+
+            # Clean cache if it grows too large
+            if len(handle_get._hue_cache) > 100:
+                handle_get._hue_cache.clear()
+
+            bp = compute_behavioral_profile(strat.db, pid, days=30)
+            hue = compute_hue(bp)
+
+            # Trim behavioral profile for the wire
+            top_cats = sorted(bp.get("category_engagement", {}).items(),
+                              key=lambda x: x[1].get("count", 0), reverse=True)[:5]
+            top_sources = sorted(bp.get("source_quality", {}).items(),
+                                 key=lambda x: x[1].get("count", 0), reverse=True)[:5]
+
+            result = {
+                "hue": hue,
+                "behavior_summary": {
+                    "top_categories": {k: v for k, v in top_cats},
+                    "top_sources": {k: v for k, v in top_sources},
+                    "usage_patterns": bp.get("usage_patterns", {}),
+                    "trajectory": bp.get("trajectory", "unknown"),
+                    "alignment": bp.get("alignment", {}),
+                    "article_count": bp.get("article_count", 0),
+                    "feedback_count": bp.get("feedback_count", 0),
+                },
+            }
+            handle_get._hue_cache[cache_key] = result
+            _send_json(handler, result)
+        except Exception as e:
+            logger.warning(f"Hue computation failed: {e}")
+            _send_json(handler, {"hue": {"overall": -1, "error": "computation_failed"}, "behavior_summary": {}})
+        return True
+
     # Serve news_data.json from output directory (per-profile)
     if path == "/api/data" or path == "/news_data.json":
         # Resolve profile-specific output file
