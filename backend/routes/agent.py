@@ -348,9 +348,10 @@ def handle_agent_chat(handler, strat, output_file, profile_id=0):
         ollama_host = scoring_cfg.get("ollama_host", "http://localhost:11434")
         model = scoring_cfg.get("inference_model", "qwen3.5:9b")
 
-        # ── Model swap routing: roleplay persona uses dedicated RP model ──
+        # ── Model swap routing: roleplay + gaming RP mode use dedicated RP model ──
         _is_rp = persona_name == 'roleplay'
-        if _is_rp:
+        _is_gaming_rp = persona_name == 'gaming' and rp_mode == 'immersive'
+        if _is_rp or _is_gaming_rp:
             model = strat.config.get("scoring", {}).get("rp_model", "stratos-rp-q8")
 
         # VRAM safety: ensure Ollama running + check model fits in VRAM
@@ -565,7 +566,7 @@ def handle_agent_chat(handler, strat, output_file, profile_id=0):
         tools = [t for t in AGENT_TOOLS if t["function"]["name"] in allowed_tools]
 
         # ── No-tools persona: stream response directly (like free mode but with full prompt) ──
-        _stream_temp = 0.85 if _is_rp else 0.5
+        _stream_temp = 0.85 if (_is_rp or _is_gaming_rp) else 0.5
         if not tools:
             try:
                 r = req.post(
@@ -608,7 +609,7 @@ def handle_agent_chat(handler, strat, output_file, profile_id=0):
             return
 
         # ── Tool-call loop (max 8 rounds) ──
-        _tool_temp = 0.85 if _is_rp else 0.4
+        _tool_temp = 0.85 if (_is_rp or _is_gaming_rp) else 0.4
         for round_num in range(8):
             try:
                 _tool_payload = {
@@ -621,7 +622,7 @@ def handle_agent_chat(handler, strat, output_file, profile_id=0):
                         "num_predict": _num_predict,
                     },
                 }
-                if _is_rp:
+                if _is_rp or _is_gaming_rp:
                     _tool_payload["think"] = False  # Prevent think-block leakage on RP model
                 r = req.post(
                     f"{ollama_host}/api/chat",

@@ -363,9 +363,26 @@ def ensure_model_ready(model_name: str) -> bool:
                 _unload_ollama_models()
                 return True
 
-            # VRAM has room but a different model is loaded.
-            # With MAX_LOADED_MODELS=1, Ollama will auto-evict the old model.
-            # Log for visibility.
+            # Different model loaded. With MAX_LOADED_MODELS=1, Ollama will
+            # auto-evict, but for large models (>10GB VRAM) this can race and
+            # OOM if eviction hasn't completed before the new model loads.
+            # Force-unload first when the swap is from a smaller to larger model.
+            _LARGE_MODEL_THRESHOLD_MB = 10_000
+            if total_vram_mb + _LARGE_MODEL_THRESHOLD_MB > VRAM_SAFE_LIMIT_MB:
+                logger.info(
+                    f"Large model swap: {loaded_names} ({total_vram_mb}MB) → '{model_name}' "
+                    f"— force-unloading first to prevent OOM"
+                )
+                _unload_ollama_models()
+                # Wait for VRAM to actually free before returning
+                for _ in range(10):
+                    time.sleep(1)
+                    vram = _get_vram_used_mb()
+                    if vram is not None and vram < 2000:
+                        logger.info(f"VRAM freed to {vram}MB — safe to load {model_name}")
+                        break
+                return True
+
             logger.info(
                 f"Model switch: {loaded_names} → '{model_name}' "
                 f"(VRAM: {total_vram_mb}MB, Ollama will auto-evict)"
