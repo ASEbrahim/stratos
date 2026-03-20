@@ -852,7 +852,7 @@
         const isSibylTheme = theme === 'sibyl';
         const defaultOpacity = isSibylTheme ? '0.5' : '1';
         const opacity = parseFloat(localStorage.getItem(prefix + '-opacity') || defaultOpacity);
-        const opacityMax = isSibylTheme ? 2.0 : 1.0;
+        const opacityMax = 1.0; // globalAlpha caps at 1.0 — use Glow slider for extra brightness
         const glow = parseFloat(localStorage.getItem(prefix + '-glow') || '0');
 
         section.innerHTML = `

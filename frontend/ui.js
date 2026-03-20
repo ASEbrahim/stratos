@@ -1281,24 +1281,25 @@ function renderStars() {
                 ctx.lineWidth = sweepBoost > 0.06 ? 1.4 : 0.8;
                 ctx.beginPath(); ctx.moveTo(pt.x, pt.y); ctx.lineTo(pt2.x, pt2.y); ctx.stroke();
                 if (sweepBoost > 0.08) {
-                    ctx.strokeStyle = `rgba(${c1},${sweepBoost * 0.5})`;
+                    ctx.strokeStyle = `rgba(${c1},${sweepBoost * 0.5 * (1 + glow)})`;
                     ctx.lineWidth = 0.3;
                     ctx.beginPath(); ctx.moveTo(pt.x, pt.y); ctx.lineTo(pt2.x, pt2.y); ctx.stroke();
                 }
             }
 
-            // Sweep head glow
+            // Sweep head glow (affected by glow slider)
+            const glowM = 1 + glow;
             const hp = _sybScreenPts[sweepIdx];
-            const hg = ctx.createRadialGradient(hp.x, hp.y, 0, hp.x, hp.y, 10);
-            hg.addColorStop(0, `rgba(${c1},0.1)`); hg.addColorStop(0.5, `rgba(${c1},0.03)`); hg.addColorStop(1, `rgba(${c1},0)`);
-            ctx.fillStyle = hg; ctx.beginPath(); ctx.arc(hp.x, hp.y, 10, 0, PI2); ctx.fill();
-            ctx.fillStyle = `rgba(${c1},0.5)`;
+            const hg = ctx.createRadialGradient(hp.x, hp.y, 0, hp.x, hp.y, 10 + glow * 4);
+            hg.addColorStop(0, `rgba(${c1},${0.1 * glowM})`); hg.addColorStop(0.5, `rgba(${c1},${0.03 * glowM})`); hg.addColorStop(1, `rgba(${c1},0)`);
+            ctx.fillStyle = hg; ctx.beginPath(); ctx.arc(hp.x, hp.y, 10 + glow * 4, 0, PI2); ctx.fill();
+            ctx.fillStyle = `rgba(${c1},${0.5 * glowM})`;
             ctx.beginPath(); ctx.arc(hp.x, hp.y, 1, 0, PI2); ctx.fill();
 
             // Second sweep (opposite, dimmer)
             const s2 = Math.floor(((_sybSweepPos + 0.5) % 1) * bpLen);
             const h2 = _sybScreenPts[s2];
-            const hg2 = ctx.createRadialGradient(h2.x, h2.y, 0, h2.x, h2.y, 6);
+            const hg2 = ctx.createRadialGradient(h2.x, h2.y, 0, h2.x, h2.y, 6 + glow * 2);
             hg2.addColorStop(0, `rgba(${c1},0.05)`); hg2.addColorStop(1, `rgba(${c1},0)`);
             ctx.fillStyle = hg2; ctx.beginPath(); ctx.arc(h2.x, h2.y, 6, 0, PI2); ctx.fill();
 
@@ -1373,7 +1374,7 @@ function renderStars() {
             ctx.lineWidth = 0.3 + l.pulseAlpha * 0.6;
             ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
             if (l.pulseAlpha > 0.01) {
-                ctx.strokeStyle = `rgba(${c1},${l.pulseAlpha * 0.5})`;
+                ctx.strokeStyle = `rgba(${c1},${l.pulseAlpha * 0.5 * (1 + glow)})`;
                 ctx.lineWidth = 0.2 + l.pulseAlpha * 0.4;
                 ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
             }
@@ -1457,14 +1458,14 @@ function renderStars() {
             if (node.pulseRing > 0.02) {
                 const ringR = r + 12 * (1 - node.pulseRing);
                 ctx.beginPath(); ctx.arc(node.x, node.y, ringR, 0, PI2);
-                ctx.strokeStyle = `rgba(${c1},${node.pulseRing * 0.2})`;
+                ctx.strokeStyle = `rgba(${c1},${node.pulseRing * 0.2 * (1 + glow)})`;
                 ctx.lineWidth = 0.6; ctx.stroke();
             }
 
             // Activity halo
             if (node.activity > 0.05) {
                 const hR = r * (node.isHub ? 5 : 3.5);
-                ctx.fillStyle = `rgba(${c1},${node.activity * (node.isHub ? 0.04 : 0.025)})`;
+                ctx.fillStyle = `rgba(${c1},${node.activity * (node.isHub ? 0.04 : 0.025) * (1 + glow)})`;
                 ctx.beginPath(); ctx.arc(node.x, node.y, hR, 0, PI2); ctx.fill();
             }
 
@@ -1510,7 +1511,7 @@ function renderStars() {
         const blur = _perfMode ? 0 : parseFloat(localStorage.getItem(prefix + '-blur') || '0');
         const px = canvas.width * cx, py = canvas.height * cy;
         ctx.save();
-        ctx.globalAlpha = Math.min(opacity, 2.0); // allow up to 2.0 for Sibyl glow
+        ctx.globalAlpha = Math.min(opacity, 1.0);
         if (blur > 0) ctx.filter = `blur(${blur}px)`;
         if (themeName === 'sibyl') {
             // Sibyl handles its own positioning — pass scale via extra arg
