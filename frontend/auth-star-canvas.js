@@ -1644,6 +1644,65 @@ function _initStarParallax() {
                 ctx.quadraticCurveTo(0, 0, 0, -sz * 0.8);
                 ctx.stroke();
                 ctx.restore();
+            } else if (_isSibyl) {
+                // Kite/diamond shaped crystallized particles for Sibyl theme
+                const kSize = radius * 2.2;
+                const kW = kSize;        // half-width
+                const kH = kSize * 1.3;  // half-height (taller than wide)
+                const rot = s.phase + s.x * 0.003; // per-star rotation for variety
+
+                ctx.save();
+                ctx.translate(s.x, s.y);
+                ctx.rotate(rot);
+
+                // Outer glow layer (pulsing with flicker)
+                const glowAlpha = alpha * (0.08 + 0.06 * flicker);
+                const glowScale = 2.4 + 0.4 * flicker;
+                ctx.fillStyle = `rgba(79,195,247,${glowAlpha})`;
+                ctx.beginPath();
+                ctx.moveTo(0, -kH * glowScale);
+                ctx.lineTo(kW * glowScale, 0);
+                ctx.lineTo(0, kH * glowScale);
+                ctx.lineTo(-kW * glowScale, 0);
+                ctx.closePath();
+                ctx.fill();
+
+                // Bright stars get an extra wide halo
+                if (s.isBright) {
+                    const haloAlpha = alpha * (0.04 + 0.03 * flicker);
+                    const haloScale = 3.8;
+                    ctx.fillStyle = `rgba(79,195,247,${haloAlpha})`;
+                    ctx.beginPath();
+                    ctx.moveTo(0, -kH * haloScale);
+                    ctx.lineTo(kW * haloScale, 0);
+                    ctx.lineTo(0, kH * haloScale);
+                    ctx.lineTo(-kW * haloScale, 0);
+                    ctx.closePath();
+                    ctx.fill();
+                }
+
+                // Inner glow layer
+                const innerGlowA = alpha * 0.18;
+                ctx.fillStyle = `rgba(79,195,247,${innerGlowA})`;
+                ctx.beginPath();
+                ctx.moveTo(0, -kH * 1.5);
+                ctx.lineTo(kW * 1.5, 0);
+                ctx.lineTo(0, kH * 1.5);
+                ctx.lineTo(-kW * 1.5, 0);
+                ctx.closePath();
+                ctx.fill();
+
+                // Core kite shape
+                ctx.fillStyle = `rgb(${s.cr},${s.cg},${s.cb})`;
+                ctx.beginPath();
+                ctx.moveTo(0, -kH);
+                ctx.lineTo(kW, 0);
+                ctx.lineTo(0, kH);
+                ctx.lineTo(-kW, 0);
+                ctx.closePath();
+                ctx.fill();
+
+                ctx.restore();
             } else {
                 ctx.fillStyle = `rgb(${s.cr},${s.cg},${s.cb})`;
                 ctx.beginPath();
@@ -1651,8 +1710,8 @@ function _initStarParallax() {
                 ctx.fill();
             }
 
-            // Soft glow on bright stars near cursor
-            if (!isTouch && s.isBright && dist < MOUSE_RADIUS * 0.7) {
+            // Soft glow on bright stars near cursor (non-Sibyl only; Sibyl has built-in glow)
+            if (!_isSibyl && !isTouch && s.isBright && dist < MOUSE_RADIUS * 0.7) {
                 ctx.globalAlpha = alpha * 0.12;
                 ctx.beginPath();
                 ctx.arc(s.x, s.y, radius * 3.5, 0, Math.PI * 2);
