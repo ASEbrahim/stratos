@@ -849,6 +849,9 @@ function appendAgentMessage(role, content) {
                     <button onclick="_rpEditMessage(this)" class="p-0.5 rounded" title="Edit response (RP)">
                         <i data-lucide="pencil" class="w-3 h-3" style="color:var(--text-muted);"></i>
                     </button>
+                    <button onclick="_rpRegenerateMessage(this)" class="p-0.5 rounded" title="Regenerate response">
+                        <i data-lucide="refresh-cw" class="w-3 h-3" style="color:var(--text-muted);"></i>
+                    </button>
                     ` : ''}
                 </div>
             </div>`;
@@ -1346,6 +1349,28 @@ function _rpThumbsFeedback(btn, type) {
         headers: { 'Content-Type': 'application/json', ..._agentHeaders() },
         body: JSON.stringify({ message_id: parseInt(msgId), feedback_type: type })
     }).catch(() => {});
+}
+
+function _rpRegenerateMessage(btn) {
+    if (agentStreaming) return;
+    // Find the last user message in history and resend it
+    const lastUserIdx = agentHistory.findLastIndex(h => h.role === 'user');
+    if (lastUserIdx < 0) return;
+    const lastUserMsg = agentHistory[lastUserIdx].content;
+
+    // Remove the last assistant message from history and DOM
+    if (agentHistory.length > lastUserIdx + 1 && agentHistory[agentHistory.length - 1].role === 'assistant') {
+        agentHistory.pop();
+    }
+    const msgWrapper = btn.closest('.group\\/msg');
+    if (msgWrapper) msgWrapper.remove();
+
+    // Re-send the last user message
+    const input = document.getElementById('agent-input');
+    if (input) {
+        input.value = lastUserMsg;
+        sendAgentMessage();
+    }
 }
 
 function _rpEditMessage(btn) {
