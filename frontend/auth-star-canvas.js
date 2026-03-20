@@ -1057,18 +1057,18 @@ function _initStarParallax() {
             for (let i = 0; i < 4; i++) {
                 _sbScanRings.push({
                     x: _cw * (.15 + Math.random() * .7), y: _ch * (.1 + Math.random() * .8),
-                    radius: Math.random() * 50, maxRadius: 80 + Math.random() * 160,
-                    speed: .4 + Math.random() * .35, baseAlpha: .02 + Math.random() * .02,
+                    radius: Math.random() * 50, maxRadius: 100 + Math.random() * 180,
+                    speed: .5 + Math.random() * .4, baseAlpha: .035 + Math.random() * .025,
                 });
             }
             // Data lines — scattered across entire background
-            for (let i = 0; i < 20; i++) {
+            for (let i = 0; i < 25; i++) {
                 _sbDataLines.push({
                     x: Math.random() * _cw, y: Math.random() * _ch,
-                    w: 8 + Math.random() * 28,
-                    speed: .08 + Math.random() * .12,
-                    opacity: .015 + Math.random() * .03,
-                    drift: (Math.random() - .5) * .25,
+                    w: 8 + Math.random() * 30,
+                    speed: .1 + Math.random() * .15,
+                    opacity: .025 + Math.random() * .04,
+                    drift: (Math.random() - .5) * .3,
                 });
             }
         }
@@ -1088,7 +1088,7 @@ function _initStarParallax() {
                 }
                 const alpha = ring.baseAlpha * (1 - progress);
                 ctx.strokeStyle = `rgba(79,195,247,${alpha})`;
-                ctx.lineWidth = .5;
+                ctx.lineWidth = .7;
                 ctx.beginPath(); ctx.arc(ring.x, ring.y, ring.radius, 0, Math.PI * 2); ctx.stroke();
                 // Illuminate nodes caught in scan wave
                 for (const node of _sbNodes) {
@@ -1107,8 +1107,8 @@ function _initStarParallax() {
                 _sbNextThreat = t + 8 + Math.random() * 14;
             }
 
-            // Holographic data lines
-            ctx.lineWidth = .8;
+            // Holographic data lines (floating HUD fragments)
+            ctx.lineWidth = 1;
             for (const dl of _sbDataLines) {
                 dl.y -= dl.speed;
                 dl.x += dl.drift;
