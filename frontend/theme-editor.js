@@ -196,8 +196,21 @@
         localStorage.removeItem(getStorageKey());
     }
 
+    // ── Per-theme element default positions (shared with ui.js) ──
+    const _themeElementDefaults = {
+        midnight: { cx: 0.32, cy: 0.06 },
+        coffee:   { cx: 0.32, cy: 0.06 },
+        noir:     { cx: 0.55, cy: 0.05 },
+        rose:     { cx: 0.55, cy: 0.05 },
+        aurora:   { cx: 0.87, cy: 0.84 },
+        cosmos:   { cx: 0.79, cy: 0.88 },
+        sakura:   { cx: 0.09, cy: 0.87 },
+        nebula:   { cx: 0.92, cy: 0.91 },
+        sibyl:    { cx: 0.33, cy: 0.06, scale: 0.3, glow: 3.0, opacity: 1.0 },
+    };
+
     // ── Layout data helpers (canvas element positions/scale/blur) ──
-    const _LAYOUT_THEMES = ['cosmos','sakura','noir','rose','coffee','midnight','nebula','aurora'];
+    const _LAYOUT_THEMES = ['cosmos','sakura','noir','rose','coffee','midnight','nebula','aurora','sibyl'];
     const _LAYOUT_SUFFIXES = ['-cx','-cy','-scale','-blur','-opacity','-density','-visible'];
     const _LAYOUT_EXTRA_KEYS = [
         'stratos-sakura-tree',
@@ -462,8 +475,9 @@
         section.id = 'te-cosmos-section';
         section.className = 'te-group';
 
-        const cx = parseFloat(localStorage.getItem('stratos-cosmos-cx') || '0.5');
-        const cy = parseFloat(localStorage.getItem('stratos-cosmos-cy') || '0.35');
+        const _cosmosDef = _themeElementDefaults.cosmos;
+        const cx = parseFloat(localStorage.getItem('stratos-cosmos-cx') || String(_cosmosDef.cx));
+        const cy = parseFloat(localStorage.getItem('stratos-cosmos-cy') || String(_cosmosDef.cy));
         const scale = parseFloat(localStorage.getItem('stratos-cosmos-scale') || '1');
         const blur = parseFloat(localStorage.getItem('stratos-cosmos-blur') || '0');
         const opacity = parseFloat(localStorage.getItem('stratos-cosmos-opacity') || '1');
@@ -844,16 +858,16 @@
         section.id = 'te-element-section';
         section.className = 'te-group';
 
+        const defaults = _themeElementDefaults[theme] || { cx: 0.5, cy: 0.35 };
         const elOn = localStorage.getItem(prefix + '-visible') !== 'false';
-        const cx = parseFloat(localStorage.getItem(prefix + '-cx') || '0.5');
-        const cy = parseFloat(localStorage.getItem(prefix + '-cy') || '0.35');
-        const scale = parseFloat(localStorage.getItem(prefix + '-scale') || '1');
+        const cx = parseFloat(localStorage.getItem(prefix + '-cx') || String(defaults.cx));
+        const cy = parseFloat(localStorage.getItem(prefix + '-cy') || String(defaults.cy));
+        const scale = parseFloat(localStorage.getItem(prefix + '-scale') || String(defaults.scale || 1));
         const blur = parseFloat(localStorage.getItem(prefix + '-blur') || '0');
         const isSibylTheme = theme === 'sibyl';
-        const defaultOpacity = isSibylTheme ? '0.5' : '1';
-        const opacity = parseFloat(localStorage.getItem(prefix + '-opacity') || defaultOpacity);
+        const opacity = parseFloat(localStorage.getItem(prefix + '-opacity') || String(defaults.opacity != null ? defaults.opacity : 1));
         const opacityMax = 1.0; // globalAlpha caps at 1.0 — use Glow slider for extra brightness
-        const glow = parseFloat(localStorage.getItem(prefix + '-glow') || '0');
+        const glow = parseFloat(localStorage.getItem(prefix + '-glow') || String(defaults.glow || 0));
 
         section.innerHTML = `
             <div class="te-group-label" style="display:flex;align-items:center;justify-content:space-between;">
@@ -1151,23 +1165,25 @@
         },
 
         _resetCosmosPos() {
+            const cosmosDef = _themeElementDefaults.cosmos || { cx: 0.5, cy: 0.35 };
             localStorage.removeItem('stratos-cosmos-cx');
             localStorage.removeItem('stratos-cosmos-cy');
             const dot = document.getElementById('te-cosmos-dot');
             const lbl = document.getElementById('te-cosmos-pos-label');
-            if (dot) { dot.style.left = '50%'; dot.style.top = '35%'; }
-            if (lbl) lbl.textContent = '50%, 35%';
+            if (dot) { dot.style.left = (cosmosDef.cx * 100) + '%'; dot.style.top = (cosmosDef.cy * 100) + '%'; }
+            if (lbl) lbl.textContent = Math.round(cosmosDef.cx * 100) + '%, ' + Math.round(cosmosDef.cy * 100) + '%';
         },
 
         _resetElementPos() {
             const theme = document.documentElement.getAttribute('data-theme');
             const prefix = 'stratos-' + theme;
+            const defaults = _themeElementDefaults[theme] || { cx: 0.5, cy: 0.35 };
             localStorage.removeItem(prefix + '-cx');
             localStorage.removeItem(prefix + '-cy');
             const dot = document.getElementById('te-el-dot');
             const lbl = document.getElementById('te-el-pos-label');
-            if (dot) { dot.style.left = '50%'; dot.style.top = '35%'; }
-            if (lbl) lbl.textContent = '50%, 35%';
+            if (dot) { dot.style.left = (defaults.cx * 100) + '%'; dot.style.top = (defaults.cy * 100) + '%'; }
+            if (lbl) lbl.textContent = Math.round(defaults.cx * 100) + '%, ' + Math.round(defaults.cy * 100) + '%';
         }
     };
 

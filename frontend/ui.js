@@ -1501,14 +1501,27 @@ function renderStars() {
         ctx.globalAlpha = 1;
     }
 
+    // ── Per-theme element default positions ──
+    const _themeElementDefaults = {
+        midnight: { cx: 0.32, cy: 0.06 },
+        coffee:   { cx: 0.32, cy: 0.06 },
+        noir:     { cx: 0.55, cy: 0.05 },
+        rose:     { cx: 0.55, cy: 0.05 },
+        aurora:   { cx: 0.87, cy: 0.84 },
+        cosmos:   { cx: 0.79, cy: 0.88 },
+        sakura:   { cx: 0.09, cy: 0.87 },
+        nebula:   { cx: 0.92, cy: 0.91 },
+        sibyl:    { cx: 0.33, cy: 0.06, scale: 0.3, glow: 3.0, opacity: 1.0 },
+    };
+
     // ── Generic theme element draw helper ──
     function _drawThemeElement(themeName, drawFn, t) {
         const prefix = 'stratos-' + themeName;
-        const cx = parseFloat(localStorage.getItem(prefix + '-cx') || '0.5');
-        const cy = parseFloat(localStorage.getItem(prefix + '-cy') || '0.35');
-        const scale = parseFloat(localStorage.getItem(prefix + '-scale') || '1');
-        const defaultOpacity = themeName === 'sibyl' ? '0.5' : '1';
-        const opacity = parseFloat(localStorage.getItem(prefix + '-opacity') || defaultOpacity);
+        const defaults = _themeElementDefaults[themeName] || { cx: 0.5, cy: 0.35 };
+        const cx = parseFloat(localStorage.getItem(prefix + '-cx') || String(defaults.cx));
+        const cy = parseFloat(localStorage.getItem(prefix + '-cy') || String(defaults.cy));
+        const scale = parseFloat(localStorage.getItem(prefix + '-scale') || String(defaults.scale || 1));
+        const opacity = parseFloat(localStorage.getItem(prefix + '-opacity') || String(defaults.opacity != null ? defaults.opacity : 1));
         const blur = _perfMode ? 0 : parseFloat(localStorage.getItem(prefix + '-blur') || '0');
         const px = canvas.width * cx, py = canvas.height * cy;
         ctx.save();
@@ -1533,8 +1546,9 @@ function renderStars() {
 
         // Solar system (cosmos theme - drawn first, behind stars)
         if (isCosmos) {
-            const _cxPct = parseFloat(localStorage.getItem('stratos-cosmos-cx') || '0.5');
-            const _cyPct = parseFloat(localStorage.getItem('stratos-cosmos-cy') || '0.35');
+            const _cosmosDef = _themeElementDefaults.cosmos;
+            const _cxPct = parseFloat(localStorage.getItem('stratos-cosmos-cx') || String(_cosmosDef.cx));
+            const _cyPct = parseFloat(localStorage.getItem('stratos-cosmos-cy') || String(_cosmosDef.cy));
             const _sScale = parseFloat(localStorage.getItem('stratos-cosmos-scale') || '1');
             const _ssOpacity = parseFloat(localStorage.getItem('stratos-cosmos-opacity') || '1');
             const _ssBlur = _perfMode ? 0 : parseFloat(localStorage.getItem('stratos-cosmos-blur') || '0');
