@@ -55,7 +55,7 @@
         const style = document.createElement('style');
         style.id = 'sibyl-styles';
         style.textContent = `
-#sibyl-panel{position:relative;width:100%;height:100%;overflow:hidden;background:#020610;color:#dce8f4;font-family:'Rajdhani',sans-serif}
+#sibyl-panel{position:relative;width:100%;height:100%;overflow:hidden;background:transparent;color:#dce8f4;font-family:'Rajdhani',sans-serif}
 #sibyl-panel canvas.sibyl-bg{position:absolute;top:0;left:0;z-index:0;width:100%;height:100%}
 #sibyl-panel .sibyl-scan{position:absolute;top:0;left:0;width:100%;height:1px;z-index:2;pointer-events:none;animation:sibyl-sc 16s linear infinite;opacity:0.7}
 @keyframes sibyl-sc{0%{top:-1px}100%{top:100%}}
@@ -344,6 +344,9 @@
     function animBg() {
         if (!_sibylVisible) return;
         _bgCtx.clearRect(0, 0, _W, _H);
+        // Semi-transparent overlay so hex grid/particles are visible but theme bg shows through
+        _bgCtx.fillStyle = 'rgba(2, 6, 16, 0.3)';
+        _bgCtx.fillRect(0, 0, _W, _H);
         lerpColors();
         drawHex();
         for (var i = 0; i < _scanRings.length; i++) { updateScanRing(_scanRings[i]); drawScanRing(_scanRings[i]); }
@@ -504,13 +507,19 @@
     function populateFromData(data) {
         _sibylData = data;
         var hue = data.hue || {};
+        var bs = data.behavior_summary || {};
         var overall = hue.overall != null ? hue.overall : 0;
         var dims = hue.dimensions || {};
         var nudges = hue.nudges || [];
-        var sources = data.sources || [];
-        var categories = data.categories || [];
-        var engagement = data.engagement || {};
-        var stats = data.stats || {};
+
+        // Extract from behavior_summary (actual API shape)
+        var topCats = bs.top_categories || {};
+        var topSources = bs.top_sources || {};
+        var usage = bs.usage_patterns || {};
+        var trajectory = bs.trajectory || 'unknown';
+        var alignment = bs.alignment || {};
+        var articleCount = bs.article_count || 0;
+        var feedbackCount = bs.feedback_count || 0;
 
         // Set dimension values for ring arcs
         var freshness = dims.freshness || 0;
@@ -519,74 +528,96 @@
         var signal = dims.signal_strength || 0;
         var engagementDim = dims.engagement || 0;
 
+        function tierOf(v) { return v >= 60 ? 'hi' : v >= 35 ? 'mid' : 'lo'; }
         _dims = [
-            { val: freshness, tier: freshness >= 60 ? 'hi' : freshness >= 35 ? 'mid' : 'lo' },
-            { val: diversity, tier: diversity >= 60 ? 'hi' : diversity >= 35 ? 'mid' : 'lo' },
-            { val: coverage, tier: coverage >= 60 ? 'hi' : coverage >= 35 ? 'mid' : 'lo' },
-            { val: signal, tier: signal >= 60 ? 'hi' : signal >= 35 ? 'mid' : 'lo' },
-            { val: engagementDim, tier: engagementDim >= 60 ? 'hi' : engagementDim >= 35 ? 'mid' : 'lo' }
+            { val: freshness, tier: tierOf(freshness) },
+            { val: diversity, tier: tierOf(diversity) },
+            { val: coverage, tier: tierOf(coverage) },
+            { val: signal, tier: tierOf(signal) },
+            { val: engagementDim, tier: tierOf(engagementDim) }
         ];
 
-        // Left panels: Feed Diagnostics + Source Reliability
+        // ── Left panels: Feed Diagnostics + Source Reliability ──
         var leftHTML = '';
 
         // Feed Diagnostics
         leftHTML += '<div class="sibyl-panel-card"><span class="sibyl-edge"></span><div class="sibyl-panel-title">Feed diagnostics</div>';
-        var dimEntries = [
-            ['Freshness', freshness], ['Diversity', diversity], ['Coverage', coverage],
-            ['Signal strength', signal], ['Engagement', engagementDim]
-        ];
-        dimEntries.forEach(function(d) {
+        [['Freshness', freshness], ['Diversity', diversity], ['Coverage', coverage],
+         ['Signal strength', signal], ['Engagement', engagementDim]].forEach(function(d) {
             leftHTML += '<div class="sibyl-p-row"><span class="sibyl-p-label">' + d[0] + '</span><span class="sibyl-p-value">' + d[1] + '</span></div>';
             leftHTML += '<div class="sibyl-p-bar"><div class="sibyl-p-fill ' + fillClass(d[1]) + '" style="width:' + d[1] + '%"></div></div>';
         });
         leftHTML += '</div>';
 
-        // Source Reliability
+        // Source Reliability (from top_sources object: { "Serper/Google": { count, avg_score }, ... })
         leftHTML += '<div class="sibyl-panel-card"><span class="sibyl-edge"></span><div class="sibyl-panel-title">Source reliability</div>';
-        var topSources = sources.slice(0, 5);
-        if (topSources.length === 0) {
+        var sourceEntries = Object.entries(topSources).slice(0, 5);
+        if (sourceEntries.length === 0) {
             leftHTML += '<div class="sibyl-p-row"><span class="sibyl-p-label" style="color:rgba(138,156,184,0.4)">No sources tracked</span></div>';
         } else {
-            topSources.forEach(function(src) {
-                var name = esc(src.name || src.source || 'Unknown');
-                var score = src.reliability != null ? src.reliability : (src.score != null ? src.score : 0);
-                var pct = Math.round(score);
+            sourceEntries.forEach(function(entry) {
+                var name = esc(entry[0]);
+                var info = entry[1] || {};
+                var avgScore = info.avg_score || 0;
+                // Convert avg_score (0-10) to a reliability percentage
+                var pct = Math.round(avgScore * 10);
                 leftHTML += '<div class="sibyl-p-row"><span class="sibyl-p-label">' + name + '</span><span class="sibyl-p-value" style="' + valueColor(pct) + '">' + pct + '%</span></div>';
+                leftHTML += '<div class="sibyl-p-bar"><div class="sibyl-p-fill ' + fillClass(pct) + '" style="width:' + pct + '%"></div></div>';
             });
         }
         leftHTML += '</div>';
         document.getElementById('sibyl-left-panels').innerHTML = leftHTML;
 
-        // Right panels: Behavioral Profile + Category Engagement + Inspector Note
+        // ── Right panels: Behavioral Profile + Category Engagement + Inspector Note ──
         var rightHTML = '';
 
         // Behavioral Profile
         rightHTML += '<div class="sibyl-panel-card"><span class="sibyl-edge"></span><div class="sibyl-panel-title">Behavioral profile</div>';
-        var topEngaged = engagement.top_engaged || engagement.top_category || (categories.length > 0 ? (categories[0].name || categories[0].category || 'N/A') : 'N/A');
-        var clickRate = engagement.click_rate != null ? engagement.click_rate : (stats.click_rate != null ? stats.click_rate : 0);
-        var trajectory = engagement.trajectory || stats.trajectory || 'Stable';
-        var alignment = engagement.alignment != null ? engagement.alignment : (stats.alignment != null ? stats.alignment : 0);
-        var trajArrow = trajectory.toLowerCase().indexOf('ris') >= 0 ? '\u25B2' : trajectory.toLowerCase().indexOf('fall') >= 0 ? '\u25BC' : '\u25C6';
-        var trajColor = trajectory.toLowerCase().indexOf('ris') >= 0 ? '#81c784' : trajectory.toLowerCase().indexOf('fall') >= 0 ? '#ff8a65' : 'rgba(220,232,244,0.8)';
 
-        rightHTML += '<div class="sibyl-p-row"><span class="sibyl-p-label">Top engaged</span><span class="sibyl-p-value" style="color:rgba(79,195,247,0.8)">' + esc(String(topEngaged)) + '</span></div>';
-        rightHTML += '<div class="sibyl-p-row"><span class="sibyl-p-label">Click rate</span><span class="sibyl-p-value">' + Math.round(clickRate) + '%</span></div>';
-        rightHTML += '<div class="sibyl-p-row"><span class="sibyl-p-label">Trajectory</span><span class="sibyl-p-value" style="color:' + trajColor + '">' + trajArrow + ' ' + esc(trajectory) + '</span></div>';
-        rightHTML += '<div class="sibyl-p-row"><span class="sibyl-p-label">Alignment</span><span class="sibyl-p-value">' + Math.round(alignment) + '%</span></div>';
-        rightHTML += '<div class="sibyl-p-bar"><div class="sibyl-p-fill ' + fillClass(alignment) + '" style="width:' + Math.round(alignment) + '%"></div></div>';
+        // Find top engaged category by count
+        var catEntries = Object.entries(topCats);
+        catEntries.sort(function(a, b) { return (b[1].count || 0) - (a[1].count || 0); });
+        var topEngaged = catEntries.length > 0 ? catEntries[0][0] : 'N/A';
+
+        // Compute overall click rate from top categories
+        var totalFb = 0, totalClicks = 0;
+        catEntries.forEach(function(e) {
+            var v = e[1];
+            totalClicks += (v.clicks || 0);
+            totalFb += (v.clicks || 0) + (v.saves || 0) + (v.dismisses || 0) + (v.rates || 0);
+        });
+        var clickRate = totalFb > 0 ? Math.round((totalClicks / totalFb) * 100) : 0;
+
+        // Alignment percentage
+        var wellAligned = (alignment.well_aligned || []).length;
+        var overDeclared = (alignment.over_declared || []).length;
+        var totalDeclared = wellAligned + overDeclared;
+        var alignPct = totalDeclared > 0 ? Math.round((wellAligned / totalDeclared) * 100) : (articleCount > 0 ? 60 : 0);
+
+        var trajLabel = trajectory.charAt(0).toUpperCase() + trajectory.slice(1).replace(/_/g, ' ');
+        var trajArrow = trajectory.indexOf('ris') >= 0 ? '\u25B2' : trajectory.indexOf('declin') >= 0 ? '\u25BC' : '\u25C6';
+        var trajColor = trajectory.indexOf('ris') >= 0 ? '#81c784' : trajectory.indexOf('declin') >= 0 ? '#ff8a65' : 'rgba(220,232,244,0.8)';
+
+        rightHTML += '<div class="sibyl-p-row"><span class="sibyl-p-label">Top engaged</span><span class="sibyl-p-value" style="color:rgba(79,195,247,0.8)">' + esc(topEngaged) + '</span></div>';
+        rightHTML += '<div class="sibyl-p-row"><span class="sibyl-p-label">Click rate</span><span class="sibyl-p-value">' + clickRate + '%</span></div>';
+        rightHTML += '<div class="sibyl-p-row"><span class="sibyl-p-label">Trajectory</span><span class="sibyl-p-value" style="color:' + trajColor + '">' + trajArrow + ' ' + esc(trajLabel) + '</span></div>';
+        rightHTML += '<div class="sibyl-p-row"><span class="sibyl-p-label">Alignment</span><span class="sibyl-p-value">' + alignPct + '%</span></div>';
+        rightHTML += '<div class="sibyl-p-bar"><div class="sibyl-p-fill ' + fillClass(alignPct) + '" style="width:' + alignPct + '%"></div></div>';
         rightHTML += '</div>';
 
-        // Category Engagement
+        // Category Engagement (from top_categories: { "cat_name": { count, avg_score, clicks, ... } })
         rightHTML += '<div class="sibyl-panel-card"><span class="sibyl-edge"></span><div class="sibyl-panel-title">Category engagement</div>';
-        var topCats = categories.slice(0, 4);
-        if (topCats.length === 0) {
+        var topCatSlice = catEntries.slice(0, 4);
+        if (topCatSlice.length === 0) {
             rightHTML += '<div class="sibyl-p-row"><span class="sibyl-p-label" style="color:rgba(138,156,184,0.4)">No categories</span></div>';
         } else {
-            topCats.forEach(function(cat) {
-                var name = esc(cat.name || cat.category || 'Unknown');
-                var pct = Math.round(cat.percentage || cat.pct || cat.engagement || 0);
-                rightHTML += '<div class="sibyl-p-row"><span class="sibyl-p-label">' + name + '</span><span class="sibyl-p-value" style="' + valueColor(pct) + '">' + pct + '%</span></div>';
+            var maxCount = topCatSlice[0] ? (topCatSlice[0][1].count || 1) : 1;
+            topCatSlice.forEach(function(entry) {
+                var name = esc(entry[0]);
+                var info = entry[1] || {};
+                var pct = Math.round(((info.count || 0) / maxCount) * 100);
+                var scoreStr = (info.avg_score || 0).toFixed(1);
+                rightHTML += '<div class="sibyl-p-row"><span class="sibyl-p-label">' + name + '</span><span class="sibyl-p-value" style="' + valueColor(pct) + '">' + scoreStr + ' avg</span></div>';
                 rightHTML += '<div class="sibyl-p-bar"><div class="sibyl-p-fill ' + fillClass(pct) + '" style="width:' + pct + '%"></div></div>';
             });
         }
@@ -596,9 +627,8 @@
         rightHTML += '<div class="sibyl-panel-card" style="flex:1"><span class="sibyl-edge"></span><div class="sibyl-panel-title">Inspector note</div>';
         if (nudges.length > 0) {
             var noteHTML = nudges.map(function(n) {
-                var msg = esc(n.message || n.text || String(n));
-                // Highlight keywords in em tags
-                msg = msg.replace(/(\b(?:freshness|diversity|coverage|signal|engagement|tech|ai|market|finance|regional)\b)/gi, '<em>$1</em>');
+                var msg = esc(n.message || '');
+                msg = msg.replace(/(\b(?:freshness|diversity|coverage|signal|engagement|tech|ai|market|finance|regional|scan|sources?|keywords?)\b)/gi, '<em>$1</em>');
                 return msg;
             }).join(' ');
             rightHTML += '<div class="sibyl-insight">' + noteHTML + '</div>';
@@ -609,15 +639,15 @@
         document.getElementById('sibyl-right-panels').innerHTML = rightHTML;
 
         // Bottom stats
-        var articleCount = stats.article_count || stats.total_articles || stats.signals || 0;
-        var sourceCount = stats.source_count || stats.total_sources || sources.length || 0;
-        var lastScan = stats.hours_since_scan != null ? stats.hours_since_scan : (stats.last_scan_hours != null ? stats.last_scan_hours : '—');
-        if (typeof lastScan === 'number') lastScan = lastScan.toFixed(1) + 'h';
+        var sourceCount = Object.keys(topSources).length;
+        var lastScanHrs = usage.hours_since_last_scan;
+        var lastScanStr = (lastScanHrs != null && lastScanHrs < 999) ? lastScanHrs.toFixed(1) + 'h' : '\u2014';
 
         var statsHTML = '';
         statsHTML += '<div class="sibyl-stat"><div class="sibyl-stat-val">' + articleCount + '</div><div class="sibyl-stat-lbl">Signals</div></div>';
         statsHTML += '<div class="sibyl-stat"><div class="sibyl-stat-val">' + sourceCount + '</div><div class="sibyl-stat-lbl">Sources</div></div>';
-        statsHTML += '<div class="sibyl-stat"><div class="sibyl-stat-val">' + esc(String(lastScan)) + '</div><div class="sibyl-stat-lbl">Last scan</div></div>';
+        statsHTML += '<div class="sibyl-stat"><div class="sibyl-stat-val">' + esc(lastScanStr) + '</div><div class="sibyl-stat-lbl">Last scan</div></div>';
+        statsHTML += '<div class="sibyl-stat"><div class="sibyl-stat-val">' + feedbackCount + '</div><div class="sibyl-stat-lbl">Feedback</div></div>';
         document.getElementById('sibyl-stats').innerHTML = statsHTML;
 
         // Trigger hue count-up from 0 to actual value
