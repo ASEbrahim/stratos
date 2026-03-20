@@ -224,8 +224,26 @@ function setActive(id) {
     const mainContent = document.getElementById('main-content');
     const settingsPanel = document.getElementById('settings-panel');
     const marketsPanel = document.getElementById('markets-panel');
-    
-    if (id === 'markets_view') {
+    const sibylPanel = document.getElementById('sibyl-panel');
+
+    // Hide sibyl panel by default (shown only on sibyl_hue tab)
+    if (sibylPanel && id !== 'sibyl_hue') {
+        sibylPanel.classList.add('hidden');
+        if (typeof hideSibylPanel === 'function') hideSibylPanel();
+    }
+
+    if (id === 'sibyl_hue') {
+        // Sibyl Intelligence Hue panel
+        mainContent.classList.add('hidden');
+        settingsPanel.classList.add('hidden');
+        if (marketsPanel) marketsPanel.classList.add('hidden');
+        const ytPanelSb = document.getElementById('youtube-kb-panel');
+        if (ytPanelSb) ytPanelSb.classList.add('hidden');
+        if (sibylPanel) {
+            sibylPanel.classList.remove('hidden');
+            if (typeof initSibylPanel === 'function') initSibylPanel();
+        }
+    } else if (id === 'markets_view') {
         // Dedicated markets panel
         mainContent.classList.add('hidden');
         settingsPanel.classList.add('hidden');

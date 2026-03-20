@@ -61,6 +61,7 @@ function buildNavSections(dynamicCats) {
     const overviewItems = [
         { id: 'dashboard', label: 'Summary', icon: 'layout-dashboard', subtitle: 'Strategic Intelligence Stream' },
         { id: 'markets_view', label: 'Markets', icon: 'trending-up', subtitle: 'Expanded Charts & Analysis' },
+        { id: 'sibyl_hue', label: 'Sibyl', icon: 'scan-eye', subtitle: 'Intelligence Hue Analysis' },
         { id: 'saved', label: 'Saved', icon: 'bookmark', subtitle: 'Your Saved Signals' },
     ];
     // AI & Tech tab only useful with dynamic categories covering tech topics
@@ -81,6 +82,7 @@ function buildNavSections(dynamicCats) {
                 items: [
                     { id: 'dashboard', label: 'Summary', icon: 'layout-dashboard', subtitle: 'Get Started' },
                     { id: 'markets_view', label: 'Markets', icon: 'trending-up', subtitle: 'Expanded Charts & Analysis' },
+                    { id: 'sibyl_hue', label: 'Sibyl', icon: 'scan-eye', subtitle: 'Intelligence Hue Analysis' },
                     { id: 'saved', label: 'Saved', icon: 'bookmark', subtitle: 'Your Saved Signals' },
                 ]
             },
