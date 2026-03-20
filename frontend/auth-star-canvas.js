@@ -12,7 +12,7 @@ function _initStarParallax() {
 
     const isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
     const isMobile = window.innerWidth <= 768;
-    const COUNT = isMobile ? 40 : 300;
+    const COUNT = _isSibyl ? (isMobile ? 80 : 500) : (isMobile ? 40 : 300);
     const MOUSE_RADIUS = 160;
     const LINE_RADIUS = 130;
     const LINE_MOUSE_RANGE = 250;
@@ -1645,55 +1645,52 @@ function _initStarParallax() {
                 ctx.stroke();
                 ctx.restore();
             } else if (_isSibyl) {
-                // Kite/diamond shaped crystallized particles for Sibyl theme
-                const kSize = radius * 2.2;
-                const kW = kSize;        // half-width
-                const kH = kSize * 1.3;  // half-height (taller than wide)
-                const rot = s.phase + s.x * 0.003; // per-star rotation for variety
+                // Kite/diamond crystallized particles — smaller, varied shapes
+                const kSize = radius * 1.2; // smaller than before
+                // Vary aspect ratio per star: some tall/narrow, some wide/squat
+                const aspect = 1.0 + (s.phase % 1.5); // 1.0 to 2.5
+                const kW = kSize;
+                const kH = kSize * aspect;
+                // Slow spin + position-based rotation for variety
+                const rot = s.phase + s.x * 0.004 + t * (0.02 + (s.phase % 0.03));
 
                 ctx.save();
                 ctx.translate(s.x, s.y);
                 ctx.rotate(rot);
 
-                // Outer glow layer (pulsing with flicker)
-                const glowAlpha = alpha * (0.08 + 0.06 * flicker);
-                const glowScale = 2.4 + 0.4 * flicker;
-                ctx.fillStyle = `rgba(79,195,247,${glowAlpha})`;
+                // Outer crystallized glow (pulsing)
+                const glowA = alpha * (0.06 + 0.04 * flicker);
+                const glowS = 2.0 + 0.5 * flicker;
+                ctx.fillStyle = `rgba(79,195,247,${glowA})`;
                 ctx.beginPath();
-                ctx.moveTo(0, -kH * glowScale);
-                ctx.lineTo(kW * glowScale, 0);
-                ctx.lineTo(0, kH * glowScale);
-                ctx.lineTo(-kW * glowScale, 0);
+                ctx.moveTo(0, -kH * glowS);
+                ctx.lineTo(kW * glowS, 0);
+                ctx.lineTo(0, kH * glowS);
+                ctx.lineTo(-kW * glowS, 0);
                 ctx.closePath();
                 ctx.fill();
 
-                // Bright stars get an extra wide halo
+                // Bright stars: extra halo + inner cross accent
                 if (s.isBright) {
-                    const haloAlpha = alpha * (0.04 + 0.03 * flicker);
-                    const haloScale = 3.8;
-                    ctx.fillStyle = `rgba(79,195,247,${haloAlpha})`;
+                    ctx.fillStyle = `rgba(79,195,247,${alpha * 0.03})`;
                     ctx.beginPath();
-                    ctx.moveTo(0, -kH * haloScale);
-                    ctx.lineTo(kW * haloScale, 0);
-                    ctx.lineTo(0, kH * haloScale);
-                    ctx.lineTo(-kW * haloScale, 0);
+                    ctx.moveTo(0, -kH * 3.2);
+                    ctx.lineTo(kW * 3.2, 0);
+                    ctx.lineTo(0, kH * 3.2);
+                    ctx.lineTo(-kW * 3.2, 0);
                     ctx.closePath();
                     ctx.fill();
+                    // Tiny cross lines through center
+                    ctx.strokeStyle = `rgba(79,195,247,${alpha * 0.15})`;
+                    ctx.lineWidth = 0.3;
+                    ctx.beginPath();
+                    ctx.moveTo(0, -kH * 1.8); ctx.lineTo(0, kH * 1.8);
+                    ctx.moveTo(-kW * 1.8, 0); ctx.lineTo(kW * 1.8, 0);
+                    ctx.stroke();
                 }
 
-                // Inner glow layer
-                const innerGlowA = alpha * 0.18;
-                ctx.fillStyle = `rgba(79,195,247,${innerGlowA})`;
-                ctx.beginPath();
-                ctx.moveTo(0, -kH * 1.5);
-                ctx.lineTo(kW * 1.5, 0);
-                ctx.lineTo(0, kH * 1.5);
-                ctx.lineTo(-kW * 1.5, 0);
-                ctx.closePath();
-                ctx.fill();
-
-                // Core kite shape
-                ctx.fillStyle = `rgb(${s.cr},${s.cg},${s.cb})`;
+                // Core kite
+                ctx.fillStyle = `rgba(${s.cr},${s.cg},${s.cb},${alpha})`;
                 ctx.beginPath();
                 ctx.moveTo(0, -kH);
                 ctx.lineTo(kW, 0);
