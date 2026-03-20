@@ -1775,7 +1775,7 @@ function toggleAgentShowMore() {
 }
 window.toggleAgentShowMore = toggleAgentShowMore;
 function wrapWithShowMore(rawText, formattedHtml) {
-    if (!_agentShowMoreEnabled || rawText.length <= 500) return formattedHtml;
+    if (_agentShowMoreEnabled || rawText.length <= 500) return formattedHtml;
     var id = 'showmore-' + (++_showMoreCounter);
     // Find a cut point near 500 chars in the raw text — try to cut at a paragraph or sentence boundary
     var cutAt = 500;
