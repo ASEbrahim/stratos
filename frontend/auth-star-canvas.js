@@ -1061,16 +1061,7 @@ function _initStarParallax() {
                     speed: .5 + Math.random() * .4, baseAlpha: .035 + Math.random() * .025,
                 });
             }
-            // Data lines — scattered across entire background
-            for (let i = 0; i < 25; i++) {
-                _sbDataLines.push({
-                    x: Math.random() * _cw, y: Math.random() * _ch,
-                    w: 8 + Math.random() * 30,
-                    speed: .1 + Math.random() * .15,
-                    opacity: .025 + Math.random() * .04,
-                    drift: (Math.random() - .5) * .3,
-                });
-            }
+            // (data lines removed — replaced by full-width scan line)
         }
 
         function _sbDrawExtras(t) {
@@ -1107,16 +1098,16 @@ function _initStarParallax() {
                 _sbNextThreat = t + 8 + Math.random() * 14;
             }
 
-            // Holographic data lines (floating HUD fragments)
-            ctx.lineWidth = 1;
-            for (const dl of _sbDataLines) {
-                dl.y -= dl.speed;
-                dl.x += dl.drift;
-                if (dl.y < -10) { dl.y = _ch + 10; dl.x = Math.random() * _cw; }
-                ctx.strokeStyle = `rgba(79,195,247,${dl.opacity})`;
-                ctx.beginPath(); ctx.moveTo(dl.x, dl.y); ctx.lineTo(dl.x + dl.w, dl.y); ctx.stroke();
-                ctx.beginPath(); ctx.moveTo(dl.x + dl.w, dl.y - 1.2); ctx.lineTo(dl.x + dl.w, dl.y + 1.2); ctx.stroke();
-            }
+            // Full-width scan line — sweeps top to bottom (Psycho-Pass CRT effect)
+            const scanY = (t * .0625 % 1) * _ch; // 16s cycle, matching sibyl panel
+            const scanGrad = ctx.createLinearGradient(0, scanY, _cw, scanY);
+            scanGrad.addColorStop(0, 'rgba(79,195,247,0)');
+            scanGrad.addColorStop(.3, 'rgba(79,195,247,.06)');
+            scanGrad.addColorStop(.5, 'rgba(79,195,247,.08)');
+            scanGrad.addColorStop(.7, 'rgba(79,195,247,.06)');
+            scanGrad.addColorStop(1, 'rgba(79,195,247,0)');
+            ctx.fillStyle = scanGrad;
+            ctx.fillRect(0, scanY - .5, _cw, 1);
         }
 
         function _sibylDrawBrain(t) {
