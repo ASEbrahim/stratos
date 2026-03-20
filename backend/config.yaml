@@ -58,7 +58,7 @@ search:
   provider: serper
   searxng_host: http://localhost:8888
   serper_api_key: ''
-  serper_credits: 814
+  serper_credits: 738
 system:
   database_file: strat_os.db
   frontend_port: 8080
@@ -329,5 +329,5 @@ tickers:
 - ^GSPC
 ui_preferences:
   density: comfortable
-  font_size: xlarge
+  font_size: medium
   auto_refresh: 0
