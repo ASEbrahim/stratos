@@ -74,11 +74,11 @@
             label: 'Effects',
             icon: 'sliders',
             vars: [
-                { key: '--te-card-opacity',   label: 'Card Opacity',   type: 'range', min: 0.1, max: 1, step: 0.05, default: 0.82 },
-                { key: '--te-panel-opacity',  label: 'Panel Opacity',  type: 'range', min: 0.1, max: 1, step: 0.05, default: 0.96 },
-                { key: '--te-border-radius',  label: 'Border Radius',  type: 'range', min: 0, max: 24, step: 1, default: 12, unit: 'px' },
+                { key: '--te-card-opacity',   label: 'Card Opacity',   type: 'range', min: 0.1, max: 1, step: 0.05, default: 0.45 },
+                { key: '--te-panel-opacity',  label: 'Panel Opacity',  type: 'range', min: 0.1, max: 1, step: 0.05, default: 0.2 },
+                { key: '--te-border-radius',  label: 'Border Radius',  type: 'range', min: 0, max: 30, step: 1, default: 25, unit: 'px' },
                 { key: '--te-glow-intensity', label: 'Glow Intensity', type: 'range', min: 0, max: 1, step: 0.05, default: 0.15 },
-                { key: '--te-blur',           label: 'Glass Blur ⚡',  type: 'range', min: 0, max: 20, step: 1, default: 12, unit: 'px' },
+                { key: '--te-blur',           label: 'Glass Blur ⚡',  type: 'range', min: 0, max: 20, step: 1, default: 2, unit: 'px' },
             ]
         },
     ];

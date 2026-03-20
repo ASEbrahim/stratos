@@ -43,8 +43,8 @@ function setTheme(theme) {
     applyThemeMode(mode);
     updateModeToggleUI(mode);
 
-    // Preserve stars toggle UI across theme switches
-    const starsOn = localStorage.getItem('stratos-stars') === 'true';
+    // Preserve stars toggle UI across theme switches (default: enabled for new users)
+    const starsOn = localStorage.getItem('stratos-stars') !== 'false';
     updateStarsToggleUI(starsOn);
     updateCosmosPresetUI();
 
@@ -148,7 +148,8 @@ function updatePerfToggleUI(on) {
 
 function toggleStars() {
     _lastLocalUiChange = Date.now();
-    const starsOn = localStorage.getItem('stratos-stars') !== 'true';
+    const wasOn = localStorage.getItem('stratos-stars') !== 'false';
+    const starsOn = !wasOn;
     localStorage.setItem('stratos-stars', starsOn ? 'true' : 'false');
     updateStarsToggleUI(starsOn);
     updateCosmosPresetUI();
@@ -215,7 +216,7 @@ function updateCosmosPresetUI() {
     const wrap = document.getElementById('cosmos-preset-wrap');
     if (!wrap) return;
     const theme = document.documentElement.getAttribute('data-theme');
-    const starsOn = localStorage.getItem('stratos-stars') === 'true';
+    const starsOn = localStorage.getItem('stratos-stars') !== 'false';
     wrap.style.display = (theme === 'cosmos' && starsOn) ? 'flex' : 'none';
     const cur = localStorage.getItem('stratos-cosmos-preset') || 'P1';
     const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
@@ -282,7 +283,7 @@ function renderStars() {
     // Stop any running engine
     _stopStarEngine();
 
-    const starsOn = localStorage.getItem('stratos-stars') === 'true';
+    const starsOn = localStorage.getItem('stratos-stars') !== 'false';
     if (!starsOn) {
         container.style.display = 'none';
         return;
@@ -312,7 +313,7 @@ function renderStars() {
     const _perfMul = _perfMode ? 0.5 : 1;
     const _cosmosDensityInit = isCosmos ? parseFloat(localStorage.getItem('stratos-cosmos-density') || '1') : 1;
     const _sakuraDensityInit = isSakura ? parseFloat(localStorage.getItem('stratos-sakura-density') || '1') : 1;
-    const _starsDensityInit = parseFloat(localStorage.getItem('stratos-stars-density') || '1');
+    const _starsDensityInit = parseFloat(localStorage.getItem('stratos-stars-density') || '2.5');
     const COUNT = Math.round((isMobile ? 30 : 200) * _cosmosDensityInit * _sakuraDensityInit * _starsDensityInit * _perfMul);
     const MOUSE_RADIUS = 150;
     const LINE_RADIUS = 120;
@@ -1645,7 +1646,7 @@ function renderStars() {
 
             if (s.y < -15 || s.y > canvas.height + 15) continue;
 
-            const _starsBright = parseFloat(localStorage.getItem('stratos-stars-brightness') || '1');
+            const _starsBright = parseFloat(localStorage.getItem('stratos-stars-brightness') || '1.8');
             const flicker = 0.65 + 0.35 * Math.sin(t * s.speed * 4 + s.phase);
             const proxBoost = (!isTouch && dist < MOUSE_RADIUS) ? 1 + (1 - dist / MOUSE_RADIUS) * 0.5 : 1;
             const alpha = Math.min(1, s.a * flicker * proxBoost * _starsBright);
@@ -1787,7 +1788,7 @@ const savedMode = localStorage.getItem('stratos-theme-mode') ||
 applyThemeMode(savedMode);
 setTheme(savedTheme);
 // Restore stars toggle + perf mode
-const savedStars = localStorage.getItem('stratos-stars') === 'true';
+const savedStars = localStorage.getItem('stratos-stars') !== 'false';
 updateStarsToggleUI(savedStars);
 const savedPerfMode = localStorage.getItem('stratos-perf-mode') === 'true';
 updatePerfToggleUI(savedPerfMode);
