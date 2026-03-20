@@ -506,6 +506,9 @@ async function init() {
     // Sync saved signals from backend (non-blocking)
     syncSavedSignals();
 
+    // Initialize Intelligence Hue widget (non-blocking)
+    if (typeof initHue === 'function') initHue();
+
     // Now that initial load is complete, start status polling
     startStatusPolling();
 
