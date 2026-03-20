@@ -129,6 +129,8 @@ function _escForAttr(s) { return s.replace(/'/g, "\\'").replace(/"/g, '&quot;');
 
 function _gamesSetMode(mode) {
     _gamesRpMode = mode;
+    // Clear active NPC when switching to GM — GM doesn't speak as characters
+    if (mode === 'gm') _gamesActiveNpc = '';
     try { localStorage.setItem('stratos_games_rp_mode', mode); } catch(e) {}
     _renderScenarioBar();
     if (typeof showToast === 'function') showToast(mode === 'immersive' ? 'Immersive RP mode — AI speaks as characters' : 'Game Master mode — narration & choices', 'info');
@@ -163,8 +165,9 @@ function _gamesAutoDetectNpc(msg) {
 window._gamesAutoDetectNpc = _gamesAutoDetectNpc;
 
 // Expose state for agent.js to read when sending messages
+// GM mode never sends activeNpc — prevents character data injection
 window._gamesGetState = function() {
-    return { rpMode: _gamesRpMode, activeNpc: _gamesActiveNpc, activeScenario: _gamesActiveScenario };
+    return { rpMode: _gamesRpMode, activeNpc: _gamesRpMode === 'immersive' ? _gamesActiveNpc : '', activeScenario: _gamesActiveScenario };
 };
 
 // ── Create scenario (enhanced with genre + description) ──
