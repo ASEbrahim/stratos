@@ -124,8 +124,9 @@ async function checkAuthAndInit() {
                 if (d.authenticated) {
                     setActiveProfile(d.display_name || '');
                     if (d.ui_state && typeof _applyUiStateFromServer === 'function') _applyUiStateFromServer(d.ui_state);
-                    // Show app immediately — don't block on UI settings load
-                    const _app = document.querySelector('.flex.h-screen'); if (_app) _app.style.display = '';
+                    // Show app with fade-in to prevent flash
+                    const _app = document.querySelector('.flex.h-screen');
+                    if (_app) { _app.style.display = ''; requestAnimationFrame(() => { _app.style.opacity = '1'; }); }
                     init();
                     // Load full UI settings in background (non-blocking)
                     if (typeof loadUiSettingsFromServer === 'function') loadUiSettingsFromServer();
@@ -149,7 +150,7 @@ async function checkAuthAndInit() {
         }
         if (authResult.status === 'fulfilled' && authResult.value.ok) {
             const d = await authResult.value.json();
-            if (d.authenticated && d.active_profile) { setActiveProfile(d.active_profile); const _app = document.querySelector('.flex.h-screen'); if (_app) _app.style.display = ''; init(); return; }
+            if (d.authenticated && d.active_profile) { setActiveProfile(d.active_profile); const _app = document.querySelector('.flex.h-screen'); if (_app) { _app.style.display = ''; requestAnimationFrame(() => { _app.style.opacity = '1'; }); } init(); return; }
             _deviceProfiles = (d.profiles || []).filter(p => p.has_pin);
             _allProfiles = (d.all_profiles || d.profiles || []).filter(p => p.has_pin);
         }
