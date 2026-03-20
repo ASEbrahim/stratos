@@ -14,16 +14,14 @@ body { background-color: var(--bg-primary); color: var(--text-primary); }
 
 /* ════════════════ FONT SIZE SCALING (icons + text) ════════════════ */
 :root { --ui-scale: 1; }
-[data-fontsize="small"] [data-lucide] { transform: scale(0.875); }
-[data-fontsize="large"] [data-lucide] { transform: scale(1.125); }
-[data-fontsize="xlarge"] [data-lucide] { transform: scale(1.25); }
-[data-fontsize="large"] .glass-panel,
-[data-fontsize="xlarge"] .glass-panel { padding: calc(1.25rem * var(--ui-scale)); }
-[data-fontsize="xlarge"] .sidebar-label { font-size: 12px; }
-[data-fontsize="xlarge"] .text-xs { font-size: 0.85rem; }
-[data-fontsize="xlarge"] .text-\\[10px\\] { font-size: 12px; }
-[data-fontsize="xlarge"] .text-\\[11px\\] { font-size: 13px; }
-[data-fontsize="xlarge"] .text-\\[9px\\] { font-size: 11px; }
+[data-fontsize="compact"] [data-lucide] { transform: scale(0.875); }
+[data-fontsize="medium"] [data-lucide] { transform: scale(1.25); }
+[data-fontsize="medium"] .glass-panel { padding: calc(1.25rem * var(--ui-scale)); }
+[data-fontsize="medium"] .sidebar-label { font-size: 12px; }
+[data-fontsize="medium"] .text-xs { font-size: 0.85rem; }
+[data-fontsize="medium"] .text-\\[10px\\] { font-size: 12px; }
+[data-fontsize="medium"] .text-\\[11px\\] { font-size: 13px; }
+[data-fontsize="medium"] .text-\\[9px\\] { font-size: 11px; }
 /* ═══ GLOBAL SCROLLBAR: ACCENT GLOW ═══ */
 * { scrollbar-width: thin; scrollbar-color: color-mix(in srgb, var(--accent) 40%, transparent) transparent; }
 ::-webkit-scrollbar { width: 5px; height: 5px; }

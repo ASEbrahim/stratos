@@ -831,13 +831,19 @@ function _applyDensity(val, skipPersist) {
     if (!skipPersist) _persistUIPref('density', val);
 }
 function _applyFontSize(val, skipPersist) {
-    var sizes = { small: '14px', medium: '16px', large: '18px', xlarge: '20px' };
-    var scales = { small: '0.875', medium: '1', large: '1.125', xlarge: '1.25' };
-    var fs = sizes[val] || '16px';
-    var sc = scales[val] || '1';
+    // New 3-tier system: compact=14px, small=16px, medium=20px (default)
+    // Legacy migration (one-time): old small→compact, medium→small, large→medium, xlarge→medium
+    if (!localStorage.getItem('stratos_fontsize_v2')) {
+        var _legacyMap = { small: 'compact', medium: 'small', large: 'medium', xlarge: 'medium' };
+        if (_legacyMap[val]) val = _legacyMap[val];
+        localStorage.setItem('stratos_fontsize_v2', '1');
+    }
+    var sizes = { compact: '14px', small: '16px', medium: '20px' };
+    var scales = { compact: '0.875', small: '1', medium: '1.25' };
+    var fs = sizes[val] || '20px';
+    var sc = scales[val] || '1.25';
     document.documentElement.style.fontSize = fs;
     document.documentElement.style.setProperty('--ui-scale', sc);
-    // Scale all Lucide icons via CSS custom property
     document.documentElement.setAttribute('data-fontsize', val || 'medium');
     localStorage.setItem('stratos_fontsize', val);
     if (!skipPersist) _persistUIPref('font_size', val);
@@ -940,8 +946,8 @@ function _updateStorageUsage() {
 function _restoreDisplaySettings() {
     var density = localStorage.getItem('stratos_density');
     if (density) { _applyDensity(density); var el = document.getElementById('cfg-density'); if (el) el.value = density; }
-    var fontSize = localStorage.getItem('stratos_fontsize');
-    if (fontSize) { _applyFontSize(fontSize); var el2 = document.getElementById('cfg-font-size'); if (el2) el2.value = fontSize; }
+    var fontSize = localStorage.getItem('stratos_fontsize') || 'medium';
+    _applyFontSize(fontSize); var el2 = document.getElementById('cfg-font-size'); if (el2) el2.value = fontSize;
     var chartType = localStorage.getItem('stratos_chart_type');
     if (chartType) { var el3 = document.getElementById('cfg-chart-type'); if (el3) el3.value = chartType; if (typeof setChartType === 'function') setChartType(chartType); }
     var autoRefresh = localStorage.getItem('stratos_auto_refresh');
