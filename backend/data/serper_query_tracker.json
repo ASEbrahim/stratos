@@ -1,5 +1,5 @@
 {
-  "total_count": 1686,
+  "total_count": 1762,
   "daily_counts": {
     "2026-02-24": 123,
     "2026-02-25": 1669,
@@ -14,313 +14,10 @@
     "2026-03-12": 79,
     "2026-03-13": 237,
     "2026-03-14": 20,
-    "2026-03-18": 55
+    "2026-03-18": 55,
+    "2026-03-20": 76
   },
   "last_queries": [
-    {
-      "query": "\"Angel investor networks\" startup venture 2026",
-      "time": "2026-03-13T09:15:16.078911"
-    },
-    {
-      "query": "\"Pitch competition winners\" startup venture 2026",
-      "time": "2026-03-13T09:15:17.833648"
-    },
-    {
-      "query": "\"Venture capital deals\"  2026",
-      "time": "2026-03-13T09:15:18.032070"
-    },
-    {
-      "query": "\"Founder success stories\" startup venture 2026",
-      "time": "2026-03-13T09:15:18.562069"
-    },
-    {
-      "query": "\"Startup accelerator events\"  2026",
-      "time": "2026-03-13T09:15:18.843471"
-    },
-    {
-      "query": "\"Kuwait Technology Development Fund\" startup venture 2026",
-      "time": "2026-03-13T09:15:19.223344"
-    },
-    {
-      "query": "\"Qatar Investment Authority (QIA) gaming ventures\"  2026",
-      "time": "2026-03-13T09:15:21.013187"
-    },
-    {
-      "query": "\"SABIC Digital Ventures partnerships\"  2026",
-      "time": "2026-03-13T09:15:21.307777"
-    },
-    {
-      "query": "\"Online game dev courses\" career skill growth hiring OR jobs 2026",
-      "time": "2026-03-13T09:15:23.469494"
-    },
-    {
-      "query": "\"Indie game competitions\" career skill growth hiring OR jobs 2026",
-      "time": "2026-03-13T09:15:23.927796"
-    },
-    {
-      "query": "\"Unity certification paths\" career skill growth hiring OR jobs 2026",
-      "time": "2026-03-13T09:15:23.966240"
-    },
-    {
-      "query": "\"Hackathon opportunities\" career skill growth hiring OR jobs 2026",
-      "time": "2026-03-13T09:15:26.064743"
-    },
-    {
-      "query": "\"Portfolio building tips\" career skill growth hiring OR jobs 2026",
-      "time": "2026-03-13T09:15:26.262232"
-    },
-    {
-      "query": "\"Freelance gig platforms\" career skill growth hiring OR jobs 2026",
-      "time": "2026-03-13T09:15:26.588106"
-    },
-    {
-      "query": "\"Remote work trends\" career skill growth hiring OR jobs 2026",
-      "time": "2026-03-13T09:15:28.466116"
-    },
-    {
-      "query": "\"Coursera Game Development Specializations\" career skill growth hiring OR jobs 2026",
-      "time": "2026-03-13T09:15:28.757849"
-    },
-    {
-      "query": "\"Itch.io game jam participation\" career skill growth hiring OR jobs 2026",
-      "time": "2026-03-13T09:15:29.041263"
-    },
-    {
-      "query": "\"LinkedIn Learning Unity courses\" career skill growth hiring OR jobs 2026",
-      "time": "2026-03-13T09:15:29.611081"
-    },
-    {
-      "query": "\"Asset store discounts\" indie dev tools resources 2026",
-      "time": "2026-03-13T09:15:32.166981"
-    },
-    {
-      "query": "3D modeling software indie dev tools resources 2026",
-      "time": "2026-03-13T09:15:32.303516"
-    },
-    {
-      "query": "\"Game design patterns\" indie dev tools resources 2026",
-      "time": "2026-03-13T09:15:32.665671"
-    },
-    {
-      "query": "\"Mobile optimization tips\" indie dev tools resources 2026",
-      "time": "2026-03-13T09:15:33.381749"
-    },
-    {
-      "query": "\"Monetization strategies\" indie dev tools resources 2026",
-      "time": "2026-03-13T09:15:34.549098"
-    },
-    {
-      "query": "\"Community feedback forums\" indie dev tools resources 2026",
-      "time": "2026-03-13T09:15:35.129947"
-    },
-    {
-      "query": "\"Beta testing platforms\" indie dev tools resources 2026",
-      "time": "2026-03-13T09:15:35.733466"
-    },
-    {
-      "query": "\"Blender Foundation free assets\" indie dev tools resources 2026",
-      "time": "2026-03-13T09:15:35.969543"
-    },
-    {
-      "query": "\"Unity Asset Store verified sellers\" indie dev tools resources 2026",
-      "time": "2026-03-13T09:15:37.453756"
-    },
-    {
-      "query": "\"Itch.io community feedback tools\" indie dev tools resources 2026",
-      "time": "2026-03-13T09:15:38.295320"
-    },
-    {
-      "query": "\"GCC tech policy changes\" regional tech updates 2026",
-      "time": "2026-03-13T09:15:40.636448"
-    },
-    {
-      "query": "\"Digital transformation news\" regional tech updates 2026",
-      "time": "2026-03-13T09:15:40.833853"
-    },
-    {
-      "query": "\"Cybersecurity alerts\" regional tech updates 2026",
-      "time": "2026-03-13T09:15:41.144087"
-    },
-    {
-      "query": "5G rollout updates regional tech updates 2026",
-      "time": "2026-03-13T09:15:41.840266"
-    },
-    {
-      "query": "\"Smart city initiatives\" regional tech updates 2026",
-      "time": "2026-03-13T09:15:42.094513"
-    },
-    {
-      "query": "\"Tech regulation shifts\" regional tech updates 2026",
-      "time": "2026-03-13T09:15:42.818418"
-    },
-    {
-      "query": "\"Regional digital economy\" regional tech updates 2026",
-      "time": "2026-03-13T09:15:43.169361"
-    },
-    {
-      "query": "\"Kuwait Communications Regulatory Authority (KTRA) gaming\" regional tech updates 2026",
-      "time": "2026-03-13T09:15:43.766214"
-    },
-    {
-      "query": "\"GCC Digital Economy Strategy 2030 updates\" regional tech updates 2026",
-      "time": "2026-03-13T09:15:44.138574"
-    },
-    {
-      "query": "\"National Information Technology Center (NITC) cybersecurity\" regional tech updates 2026",
-      "time": "2026-03-13T09:15:45.124629"
-    },
-    {
-      "query": "Japanese language learning curriculum structure 2026 beginner intermediate advanced",
-      "time": "2026-03-13T11:22:35.287112"
-    },
-    {
-      "query": "\"KIPIC\" Kuwait hiring OR careers OR recruitment 2026",
-      "time": "2026-03-13T22:56:30.945502"
-    },
-    {
-      "query": "\"KIPIC\" kuwait electrical employers Kuwait careers 2026",
-      "time": "2026-03-13T22:56:31.042872"
-    },
-    {
-      "query": "\"Ministry of Electricity\" Kuwait hiring OR careers OR recruitment 2026",
-      "time": "2026-03-13T22:56:31.462407"
-    },
-    {
-      "query": "\"Ministry of Electricity\" kuwait electrical employers Kuwait careers 2026",
-      "time": "2026-03-13T22:56:31.848936"
-    },
-    {
-      "query": "\"KPC Power\" Kuwait hiring OR careers OR recruitment 2026",
-      "time": "2026-03-13T22:56:32.284846"
-    },
-    {
-      "query": "\"KPC Power\" kuwait electrical employers Kuwait careers 2026",
-      "time": "2026-03-13T22:56:32.661996"
-    },
-    {
-      "query": "\"Zain Kuwait Network\" Kuwait hiring OR careers OR recruitment 2026",
-      "time": "2026-03-13T22:56:32.984825"
-    },
-    {
-      "query": "\"Zain Kuwait Network\" kuwait electrical employers Kuwait careers 2026",
-      "time": "2026-03-13T22:56:34.769277"
-    },
-    {
-      "query": "\"Ooredoo Engineering\" Kuwait hiring OR careers OR recruitment 2026",
-      "time": "2026-03-13T22:56:35.421470"
-    },
-    {
-      "query": "\"Ooredoo Engineering\" kuwait electrical employers Kuwait careers 2026",
-      "time": "2026-03-13T22:56:35.821510"
-    },
-    {
-      "query": "\"Nakheel Projects\" Kuwait hiring OR careers OR recruitment 2026",
-      "time": "2026-03-13T22:56:37.350388"
-    },
-    {
-      "query": "\"Nakheel Projects\" kuwait electrical employers Kuwait careers 2026",
-      "time": "2026-03-13T22:56:38.064227"
-    },
-    {
-      "query": "power grid stability oil gas energy tech 2026",
-      "time": "2026-03-13T22:56:40.817406"
-    },
-    {
-      "query": "substation automation oil gas energy tech 2026",
-      "time": "2026-03-13T22:56:41.000079"
-    },
-    {
-      "query": "\"HVDC transmission\" oil gas energy tech 2026",
-      "time": "2026-03-13T22:56:41.324892"
-    },
-    {
-      "query": "industrial motor control oil gas energy tech 2026",
-      "time": "2026-03-13T22:56:42.126783"
-    },
-    {
-      "query": "renewable integration oil gas energy tech 2026",
-      "time": "2026-03-13T22:56:42.970645"
-    },
-    {
-      "query": "smart metering systems oil gas energy tech 2026",
-      "time": "2026-03-13T22:56:43.213842"
-    },
-    {
-      "query": "energy efficiency standards oil gas energy tech 2026",
-      "time": "2026-03-13T22:56:43.219960"
-    },
-    {
-      "query": "\"Offshore platform power systems\" oil gas energy tech 2026",
-      "time": "2026-03-13T22:56:44.244331"
-    },
-    {
-      "query": "\"Gas-to-liquids (GTL) energy recovery\" technology 2026",
-      "time": "2026-03-13T22:56:44.304189"
-    },
-    {
-      "query": "\"Pipeline leak detection algorithms\" oil gas energy tech 2026",
-      "time": "2026-03-13T22:56:44.550211"
-    },
-    {
-      "query": "\"Flare gas recovery tech\" technology 2026",
-      "time": "2026-03-13T22:56:46.778631"
-    },
-    {
-      "query": "\"Carbon capture utilization and storage\" oil gas energy tech 2026",
-      "time": "2026-03-13T22:56:46.960223"
-    },
-    {
-      "query": "\"SCADA systems\" software iot systems 2026",
-      "time": "2026-03-13T22:56:48.908914"
-    },
-    {
-      "query": "\"PLC programming\" software iot systems 2026",
-      "time": "2026-03-13T22:56:49.384559"
-    },
-    {
-      "query": "industrial cybersecurity software iot systems 2026",
-      "time": "2026-03-13T22:56:49.451341"
-    },
-    {
-      "query": "\"IoT sensor networks\" software iot systems 2026",
-      "time": "2026-03-13T22:56:49.884458"
-    },
-    {
-      "query": "power management software software iot systems 2026",
-      "time": "2026-03-13T22:56:50.370356"
-    },
-    {
-      "query": "\"predictive maintenance AI\" software iot systems 2026",
-      "time": "2026-03-13T22:56:51.123521"
-    },
-    {
-      "query": "\"Siemens MindSphere\" software iot systems 2026",
-      "time": "2026-03-13T22:56:51.308035"
-    },
-    {
-      "query": "digital twin modeling software iot systems 2026",
-      "time": "2026-03-13T22:56:51.487334"
-    },
-    {
-      "query": "\"GE Digital Predix\" software iot systems 2026",
-      "time": "2026-03-13T22:56:52.081857"
-    },
-    {
-      "query": "\"PTC ThingWorx\" software iot systems 2026",
-      "time": "2026-03-13T22:56:52.601915"
-    },
-    {
-      "query": "\"Bentley Systems OpenRoads\" software iot systems 2026",
-      "time": "2026-03-13T22:56:52.822519"
-    },
-    {
-      "query": "\"AVEVA System Platform\" software iot systems 2026",
-      "time": "2026-03-13T22:56:53.741568"
-    },
-    {
-      "query": "\"solar PV engineering\" renewables sustainability 2026",
-      "time": "2026-03-13T22:56:55.473158"
-    },
     {
       "query": "wind turbine tech renewables sustainability 2026",
       "time": "2026-03-13T22:56:56.243995"
@@ -816,6 +513,310 @@
     {
       "query": "\"\u0631\u0648\u0627\u064a\u0629 \u0635\u062d\u064a\u062d\u0629\"",
       "time": "2026-03-18T07:02:04.649425"
+    },
+    {
+      "query": "\"KOC\" kwt hiring OR careers OR recruitment 2026",
+      "time": "2026-03-20T12:00:41.959305"
+    },
+    {
+      "query": "\"KOC\" kuwait energy employers kwt careers 2026",
+      "time": "2026-03-20T12:00:42.027882"
+    },
+    {
+      "query": "\"KNPC\" kwt hiring OR careers OR recruitment 2026",
+      "time": "2026-03-20T12:00:42.212779"
+    },
+    {
+      "query": "\"KNPC\" kuwait energy employers kwt careers 2026",
+      "time": "2026-03-20T12:00:43.004551"
+    },
+    {
+      "query": "\"Equate Energy\" kwt hiring OR careers OR recruitment 2026",
+      "time": "2026-03-20T12:00:43.061540"
+    },
+    {
+      "query": "\"Equate Energy\" kuwait energy employers kwt careers 2026",
+      "time": "2026-03-20T12:00:43.530146"
+    },
+    {
+      "query": "\"KIPIC\" kwt hiring OR careers OR recruitment 2026",
+      "time": "2026-03-20T12:00:44.172603"
+    },
+    {
+      "query": "\"KIPIC\" kuwait energy employers kwt careers 2026",
+      "time": "2026-03-20T12:00:44.970049"
+    },
+    {
+      "query": "\"Nakheel Petroleum\" kwt hiring OR careers OR recruitment 2026",
+      "time": "2026-03-20T12:00:46.062155"
+    },
+    {
+      "query": "\"Nakheel Petroleum\" kuwait energy employers kwt careers 2026",
+      "time": "2026-03-20T12:00:46.440826"
+    },
+    {
+      "query": "\"Kuwait Oil Tanker Company\" kwt hiring OR careers OR recruitment 2026",
+      "time": "2026-03-20T12:00:46.696182"
+    },
+    {
+      "query": "\"Kuwait Oil Tanker Company\" kuwait energy employers kwt careers 2026",
+      "time": "2026-03-20T12:00:48.113958"
+    },
+    {
+      "query": "\"Zain Kuwait\" kwt hiring OR careers OR recruitment 2026",
+      "time": "2026-03-20T12:00:50.481479"
+    },
+    {
+      "query": "\"Zain Kuwait\" kuwait tech employers kwt careers 2026",
+      "time": "2026-03-20T12:00:50.924735"
+    },
+    {
+      "query": "\"Ooredoo Kuwait\" kwt hiring OR careers OR recruitment 2026",
+      "time": "2026-03-20T12:00:50.991809"
+    },
+    {
+      "query": "\"Ooredoo Kuwait\" kuwait tech employers kwt careers 2026",
+      "time": "2026-03-20T12:00:51.732238"
+    },
+    {
+      "query": "\"STC Kuwait\" kwt hiring OR careers OR recruitment 2026",
+      "time": "2026-03-20T12:00:52.025982"
+    },
+    {
+      "query": "\"STC Kuwait\" kuwait tech employers kwt careers 2026",
+      "time": "2026-03-20T12:00:52.869283"
+    },
+    {
+      "query": "\"Kuwait Finance House IT\" kwt hiring OR careers OR recruitment 2026",
+      "time": "2026-03-20T12:00:53.377701"
+    },
+    {
+      "query": "\"Kuwait Finance House IT\" kuwait tech employers kwt careers 2026",
+      "time": "2026-03-20T12:00:53.771813"
+    },
+    {
+      "query": "\"NBK Technology\" kwt hiring OR careers OR recruitment 2026",
+      "time": "2026-03-20T12:00:55.037498"
+    },
+    {
+      "query": "\"NBK Technology\" kuwait tech employers kwt careers 2026",
+      "time": "2026-03-20T12:00:55.376340"
+    },
+    {
+      "query": "\"Boubyan Digital\" kwt hiring OR careers OR recruitment 2026",
+      "time": "2026-03-20T12:00:56.285548"
+    },
+    {
+      "query": "\"Boubyan Digital\" kuwait tech employers kwt careers 2026",
+      "time": "2026-03-20T12:00:56.625374"
+    },
+    {
+      "query": "\"subsea engineering\" oil gas technology trends 2026",
+      "time": "2026-03-20T12:00:59.300059"
+    },
+    {
+      "query": "digital transformation oil oil gas technology trends 2026",
+      "time": "2026-03-20T12:00:59.492394"
+    },
+    {
+      "query": "carbon capture tech oil gas technology trends 2026",
+      "time": "2026-03-20T12:00:59.657689"
+    },
+    {
+      "query": "\"drone inspection\" oil gas technology trends 2026",
+      "time": "2026-03-20T12:01:00.295280"
+    },
+    {
+      "query": "predictive maintenance oil gas technology trends 2026",
+      "time": "2026-03-20T12:01:01.224223"
+    },
+    {
+      "query": "\"automation rigs\" oil gas technology trends 2026",
+      "time": "2026-03-20T12:01:01.281506"
+    },
+    {
+      "query": "offshore wind integration oil gas technology trends 2026",
+      "time": "2026-03-20T12:01:02.174739"
+    },
+    {
+      "query": "\"AI-driven reservoir modeling\" oil gas technology trends 2026",
+      "time": "2026-03-20T12:01:02.704428"
+    },
+    {
+      "query": "\"IoT sensor networks for pipeline monitoring\" oil gas technology trends 2026",
+      "time": "2026-03-20T12:01:03.242959"
+    },
+    {
+      "query": "\"CCUS (Carbon Capture, Utilization, and Storage)\" oil gas technology trends 2026",
+      "time": "2026-03-20T12:01:03.546125"
+    },
+    {
+      "query": "microservices patterns software development trends 2026",
+      "time": "2026-03-20T12:01:06.003611"
+    },
+    {
+      "query": "cloud native architecture software development trends 2026",
+      "time": "2026-03-20T12:01:06.220156"
+    },
+    {
+      "query": "\"AI integration software\" software development trends 2026",
+      "time": "2026-03-20T12:01:06.254926"
+    },
+    {
+      "query": "\"DevOps pipelines\" software development trends 2026",
+      "time": "2026-03-20T12:01:07.062573"
+    },
+    {
+      "query": "low code platforms software development trends 2026",
+      "time": "2026-03-20T12:01:08.555438"
+    },
+    {
+      "query": "blockchain enterprise software development trends 2026",
+      "time": "2026-03-20T12:01:09.127889"
+    },
+    {
+      "query": "\"Serverless computing frameworks\" software development trends 2026",
+      "time": "2026-03-20T12:01:09.339686"
+    },
+    {
+      "query": "\"Container orchestration with Kubernetes\" software development trends 2026",
+      "time": "2026-03-20T12:01:10.312209"
+    },
+    {
+      "query": "cybersecurity protocols software development trends 2026",
+      "time": "2026-03-20T12:01:10.783267"
+    },
+    {
+      "query": "\"Quantum-safe cryptography standards\" software development trends 2026",
+      "time": "2026-03-20T12:01:10.987110"
+    },
+    {
+      "query": "senior engineer roles kwt hiring OR careers OR recruitment 2026",
+      "time": "2026-03-20T12:01:13.433192"
+    },
+    {
+      "query": "contract engineering kwt kwt hiring OR careers OR recruitment 2026",
+      "time": "2026-03-20T12:01:13.766312"
+    },
+    {
+      "query": "senior engineer roles mid career job hunting kwt careers 2026",
+      "time": "2026-03-20T12:01:13.963487"
+    },
+    {
+      "query": "contract engineering kwt mid career job hunting kwt careers 2026",
+      "time": "2026-03-20T12:01:14.652197"
+    },
+    {
+      "query": "remote tech jobs kwt hiring OR careers OR recruitment 2026",
+      "time": "2026-03-20T12:01:14.726754"
+    },
+    {
+      "query": "remote tech jobs mid career job hunting kwt careers 2026",
+      "time": "2026-03-20T12:01:14.931289"
+    },
+    {
+      "query": "\"leadership positions\" kwt hiring OR careers OR recruitment 2026",
+      "time": "2026-03-20T12:01:15.663467"
+    },
+    {
+      "query": "\"leadership positions\" mid career job hunting kwt careers 2026",
+      "time": "2026-03-20T12:01:15.982942"
+    },
+    {
+      "query": "salary negotiation tips kwt hiring OR careers OR recruitment 2026",
+      "time": "2026-03-20T12:01:16.125921"
+    },
+    {
+      "query": "salary negotiation tips mid career job hunting kwt careers 2026",
+      "time": "2026-03-20T12:01:17.103993"
+    },
+    {
+      "query": "\"resume optimization\" kwt hiring OR careers OR recruitment 2026",
+      "time": "2026-03-20T12:01:17.412474"
+    },
+    {
+      "query": "\"resume optimization\" mid career job hunting kwt careers 2026",
+      "time": "2026-03-20T12:01:18.243445"
+    },
+    {
+      "query": "online engineering courses professional development 2026",
+      "time": "2026-03-20T12:01:20.365676"
+    },
+    {
+      "query": "hands on coding labs professional development 2026",
+      "time": "2026-03-20T12:01:20.928790"
+    },
+    {
+      "query": "\"leadership training\" professional development 2026",
+      "time": "2026-03-20T12:01:21.097067"
+    },
+    {
+      "query": "\"industry webinars\" professional development 2026",
+      "time": "2026-03-20T12:01:22.262172"
+    },
+    {
+      "query": "soft skills workshops professional development 2026",
+      "time": "2026-03-20T12:01:22.456488"
+    },
+    {
+      "query": "\"mentorship programs\" professional development 2026",
+      "time": "2026-03-20T12:01:23.215942"
+    },
+    {
+      "query": "\"Coursera Specializations in Energy Tech\" professional development 2026",
+      "time": "2026-03-20T12:01:23.802627"
+    },
+    {
+      "query": "\"AWS Certified Cloud Practitioner\" professional development 2026",
+      "time": "2026-03-20T12:01:24.258205"
+    },
+    {
+      "query": "\"PMP (Project Management Professional) certification\"  2026",
+      "time": "2026-03-20T12:01:25.177726"
+    },
+    {
+      "query": "technical certifications professional development 2026",
+      "time": "2026-03-20T12:01:26.176442"
+    },
+    {
+      "query": "\"GCC oil production\" regional energy GCC OR kwt OR \"Middle East\" 2026",
+      "time": "2026-03-20T12:01:27.064339"
+    },
+    {
+      "query": "\"UAE energy initiatives\"  GCC OR kwt OR \"Middle East\" 2026",
+      "time": "2026-03-20T12:01:27.632425"
+    },
+    {
+      "query": "\"Saudi Aramco projects\" regional energy GCC OR kwt OR \"Middle East\" 2026",
+      "time": "2026-03-20T12:01:27.946006"
+    },
+    {
+      "query": "\"OPEC meeting updates\" regional energy GCC OR kwt OR \"Middle East\" 2026",
+      "time": "2026-03-20T12:01:28.590082"
+    },
+    {
+      "query": "energy security policies  GCC OR kwt OR \"Middle East\" 2026",
+      "time": "2026-03-20T12:01:29.631587"
+    },
+    {
+      "query": "green hydrogen region regional energy GCC OR kwt OR \"Middle East\" 2026",
+      "time": "2026-03-20T12:01:29.796757"
+    },
+    {
+      "query": "regional gas markets  GCC OR kwt OR \"Middle East\" 2026",
+      "time": "2026-03-20T12:01:29.967760"
+    },
+    {
+      "query": "\"Qatar LNG expansion updates\" regional energy GCC OR kwt OR \"Middle East\" 2026",
+      "time": "2026-03-20T12:01:30.654839"
+    },
+    {
+      "query": "\"Jordan nuclear energy projects\"  GCC OR kwt OR \"Middle East\" 2026",
+      "time": "2026-03-20T12:01:30.835825"
+    },
+    {
+      "query": "\"Egypt gas field developments\" regional energy GCC OR kwt OR \"Middle East\" 2026",
+      "time": "2026-03-20T12:01:31.208169"
     }
   ]
 }
