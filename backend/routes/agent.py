@@ -60,6 +60,10 @@ def _generate_suggestions(handler, ollama_host, model, user_msg, agent_response,
                                          rp_mode, active_scenario, active_npc)
             return
 
+        # Gaming without scenario: skip LLM suggestions (no useful context yet)
+        if persona_name == 'gaming':
+            return
+
         prompt = (
             f"Generate 3 follow-up questions (3-8 words each) that build on what was just discussed "
             f"in this specific conversation. Do NOT generate generic topic suggestions. "
