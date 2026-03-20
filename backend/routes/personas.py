@@ -976,7 +976,8 @@ def _get_market_articles(strat, profile_id: int, limit: int = 5) -> str:
 def _pack_context(persona_name: str, strat, output_file: str,
                   profile_id: int, max_tokens: int = 16000,
                   user_message: str = '', rp_mode: str = 'gm',
-                  active_npc: str = '', use_all_scans: bool = False) -> str:
+                  active_npc: str = '', use_all_scans: bool = False,
+                  active_scenario: str = '') -> str:
     """Build the richest possible context that fits in max_tokens.
 
     Token estimation: word count * 1.3
@@ -989,7 +990,7 @@ def _pack_context(persona_name: str, strat, output_file: str,
     # Gaming and Roleplay personas: skip real-world profile, use selective file loading
     # Roleplay reuses the gaming scenario/entity infrastructure with its own persona name
     if persona_name in ('gaming', 'roleplay'):
-        scenario_path = _get_scenario_path(strat, profile_id)
+        scenario_path = _get_scenario_path(strat, profile_id) if active_scenario else None
         if scenario_path:
             # New file-based selective loading
             gaming_ctx = _pack_gaming_context_selective(
@@ -1076,12 +1077,14 @@ def _load_state_md(strat, profile_id: int, persona_name: str) -> str:
 def build_persona_context(persona: str, strat, output_file: str,
                           profile_id: int = 0, user_message: str = '',
                           rp_mode: str = 'gm', active_npc: str = '',
-                          use_all_scans: bool = False) -> str:
+                          use_all_scans: bool = False,
+                          active_scenario: str = '') -> str:
     """Build context data for the given persona using smart context packing."""
-    state = _load_state_md(strat, profile_id, persona)
+    state = _load_state_md(strat, profile_id, persona) if active_scenario or persona not in ('gaming', 'roleplay') else ''
     ctx = _pack_context(persona, strat, output_file, profile_id,
                         user_message=user_message, rp_mode=rp_mode,
-                        active_npc=active_npc, use_all_scans=use_all_scans)
+                        active_npc=active_npc, use_all_scans=use_all_scans,
+                        active_scenario=active_scenario)
 
     if state:
         ctx = f"{state}\n\n{ctx}" if ctx else state

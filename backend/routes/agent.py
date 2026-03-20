@@ -363,7 +363,8 @@ def handle_agent_chat(handler, strat, output_file, profile_id=0):
                 ctx = build_persona_context(p, strat, output_file, profile_id,
                                             user_message=user_msg, rp_mode=rp_mode,
                                             active_npc=active_npc,
-                                            use_all_scans=use_all_scans)
+                                            use_all_scans=use_all_scans,
+                                            active_scenario=active_scenario)
                 if ctx:
                     context_parts.append(f"[{p.upper()} DATA]\n{ctx}")
             persona_config = {**persona_config, 'tools': list(merged_tools)}
@@ -424,7 +425,7 @@ def handle_agent_chat(handler, strat, output_file, profile_id=0):
                 persona_context = build_persona_context(
                     persona_name, strat, output_file, profile_id,
                     user_message=user_msg, rp_mode=rp_mode, active_npc=active_npc,
-                    use_all_scans=use_all_scans
+                    use_all_scans=use_all_scans, active_scenario=active_scenario
                 )
             else:
                 persona_context = ""
