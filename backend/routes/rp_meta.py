@@ -291,14 +291,14 @@ def call_haiku(prompt: str, max_tokens: int = 200, system: str = None) -> Option
                 "content-type": "application/json",
             },
             json=payload,
-            timeout=15,
+            timeout=max(15, max_tokens // 30),  # scale timeout with output size
         )
         if r.status_code != 200:
             logger.warning(f"Haiku API returned {r.status_code}")
             return None
         return r.json().get("content", [{}])[0].get("text", "").strip()
     except requests.Timeout:
-        logger.warning("Haiku API timed out (15s)")
+        logger.warning(f"Haiku API timed out ({max(15, max_tokens // 30)}s)")
         return None
     except Exception as e:
         logger.warning(f"Haiku API error: {e}")

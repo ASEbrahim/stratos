@@ -323,8 +323,36 @@ def generate_scenario_content(ollama_host, scenario_path, name, genre, descripti
 # LLM + FILE HELPERS
 # ═══════════════════════════════════════════════════════════
 
+def _haiku_json_call(prompt, max_tokens=2048):
+    """Try Haiku API for JSON generation. Returns parsed dict/list or None."""
+    try:
+        from routes.rp_meta import call_haiku
+        raw = call_haiku(prompt, max_tokens=max_tokens,
+                         system="You are a game world designer. Return ONLY valid JSON. No markdown, no explanation.")
+        if not raw:
+            return None
+        raw = strip_think_blocks(raw)
+        raw = re.sub(r'^```(?:json)?\s*', '', raw)
+        raw = re.sub(r'\s*```$', '', raw)
+        brace_start = raw.find('{')
+        brace_end = raw.rfind('}')
+        if brace_start >= 0 and brace_end > brace_start:
+            return json.loads(raw[brace_start:brace_end + 1])
+        return json.loads(raw)
+    except Exception as e:
+        logger.debug(f"Haiku world gen failed (will fall back to Ollama): {e}")
+        return None
+
+
 def _llm_json_call(ollama_host, prompt, model, max_retries=2):
-    """Call the LLM and parse JSON response. Retries on parse failure."""
+    """Call Haiku first for better quality, fall back to Ollama."""
+    # Try Haiku first
+    haiku_result = _haiku_json_call(prompt)
+    if haiku_result is not None:
+        logger.info("World gen: used Haiku API")
+        return haiku_result
+    logger.info("World gen: Haiku unavailable, falling back to Ollama")
+
     for attempt in range(max_retries + 1):
         try:
             r = requests.post(
