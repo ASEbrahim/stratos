@@ -346,3 +346,77 @@
     --star-color-1: rgba(212, 128, 154, 0.28); --star-color-2: rgba(255, 200, 225, 0.15); --star-color-3: rgba(180, 140, 200, 0.12);
     --starry-theme: 1;
 }
+
+/* ──────────────── SIBYL (Psycho-Pass — Dominator HUD) ──────────────── */
+[data-theme="sibyl"] {
+    --bg-primary: #030810; --bg-secondary: #060e1c;
+    --bg-panel: rgba(8, 16, 36, 0.85); --bg-panel-solid: #081024;
+    --bg-hover: rgba(16, 32, 58, 0.4); --bg-input: rgba(4, 8, 20, 0.75);
+    --accent: #4fc3f7; --accent-light: #81d4fa; --accent-dim: #0d4f72;
+    --accent-bg: rgba(79, 195, 247, 0.08); --accent-border: rgba(79, 195, 247, 0.16);
+    --text-primary: #d8e6f4; --text-secondary: #7e96b8; --text-muted: #506880; --text-faint: #2e4258;
+    --border: rgba(79, 195, 247, 0.05); --border-strong: rgba(79, 195, 247, 0.10);
+    --sidebar-bg: rgba(3, 6, 14, 0.96);
+    --chart-line: #4fc3f7; --chart-fill-top: rgba(79, 195, 247, 0.10);
+    --star-color-1: rgba(79, 195, 247, 0.55); --star-color-2: rgba(140, 200, 255, 0.35); --star-color-3: rgba(220, 240, 255, 0.2);
+    --starry-theme: 1;
+}
+/* Bright — OLED lift, sterile laboratory feel */
+[data-theme="sibyl"][data-bright="true"] {
+    --bg-primary: #0a1420; --bg-secondary: #101e30;
+    --bg-panel: rgba(16, 28, 52, 0.85); --bg-panel-solid: #101c34;
+    --bg-hover: rgba(24, 44, 72, 0.45); --bg-input: rgba(10, 16, 32, 0.7);
+    --accent: #81d4fa; --accent-light: #b3e5fc; --accent-dim: #1a6080;
+    --accent-bg: rgba(129, 212, 250, 0.12); --accent-border: rgba(129, 212, 250, 0.24);
+    --text-primary: #eaf2fa; --text-secondary: #9ab4d0; --text-muted: #6a84a0; --text-faint: #3e5870;
+    --border: rgba(79, 195, 247, 0.08); --border-strong: rgba(79, 195, 247, 0.16);
+    --sidebar-bg: rgba(6, 10, 20, 0.96);
+    --chart-line: #81d4fa; --chart-fill-top: rgba(129, 212, 250, 0.14);
+    --star-color-1: rgba(129, 212, 250, 0.65); --star-color-2: rgba(170, 220, 255, 0.45); --star-color-3: rgba(230, 245, 255, 0.3);
+    --starry-theme: 1;
+}
+/* Dark — Deep abyss, surveillance state at night */
+[data-theme="sibyl"][data-dark="true"] {
+    --bg-primary: #010408; --bg-secondary: #03080e;
+    --bg-panel: rgba(4, 8, 18, 0.90); --bg-panel-solid: #040812;
+    --bg-hover: rgba(8, 18, 34, 0.35); --bg-input: rgba(2, 4, 10, 0.8);
+    --accent: #2a8ab8; --accent-light: #4fc3f7; --accent-dim: #08304a;
+    --accent-bg: rgba(42, 138, 184, 0.06); --accent-border: rgba(42, 138, 184, 0.10);
+    --text-primary: #a0b8cc; --text-secondary: #586e82; --text-muted: #3e5060; --text-faint: #1e2e3a;
+    --border: rgba(79, 195, 247, 0.03); --border-strong: rgba(79, 195, 247, 0.06);
+    --sidebar-bg: rgba(1, 2, 6, 0.98);
+    --chart-line: #2a8ab8; --chart-fill-top: rgba(42, 138, 184, 0.06);
+    --star-color-1: rgba(42, 138, 184, 0.25); --star-color-2: rgba(100, 160, 200, 0.14); --star-color-3: rgba(180, 210, 230, 0.08);
+    --starry-theme: 1;
+}
+
+/* Sibyl scan line — horizontal sweep across viewport */
+[data-theme="sibyl"] .sibyl-scanline {
+    display: block;
+}
+.sibyl-scanline {
+    display: none;
+    position: fixed; top: 0; left: 0; width: 100%; height: 2px;
+    background: linear-gradient(90deg, transparent 0%, var(--accent, #4fc3f7) 30%, var(--accent, #4fc3f7) 70%, transparent 100%);
+    opacity: 0.12;
+    pointer-events: none;
+    z-index: 0;
+    animation: sibyl-sweep 14s linear infinite;
+}
+[data-theme="sibyl"] .sibyl-scanline-slow {
+    display: block;
+}
+.sibyl-scanline-slow {
+    display: none;
+    position: fixed; top: 0; left: 0; width: 100%; height: 1px;
+    background: linear-gradient(90deg, transparent 5%, var(--accent, #4fc3f7) 40%, var(--accent, #4fc3f7) 60%, transparent 95%);
+    opacity: 0.06;
+    pointer-events: none;
+    z-index: 0;
+    animation: sibyl-sweep 23s linear infinite;
+    animation-delay: -8s;
+}
+@keyframes sibyl-sweep {
+    0%   { transform: translateY(-2px); }
+    100% { transform: translateY(100vh); }
+}

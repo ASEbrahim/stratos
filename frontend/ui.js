@@ -2,7 +2,7 @@
 // The chart container uses ResizeObserver internally. No manual resize handle needed.
 
 // === THEME SYSTEM ===
-const validThemes = ['midnight', 'noir', 'coffee', 'rose', 'cosmos', 'nebula', 'aurora', 'sakura'];
+const validThemes = ['midnight', 'noir', 'coffee', 'rose', 'cosmos', 'nebula', 'aurora', 'sakura', 'sibyl'];
 
 // UI state sync variables (declared early to avoid TDZ in init code)
 var _lastLocalUiChange = 0;
@@ -306,6 +306,7 @@ function renderStars() {
     const isMidnight = theme === 'midnight';
     const isNebula = theme === 'nebula';
     const isAurora = theme === 'aurora';
+    const isSibyl = theme === 'sibyl';
 
     const _myGen = _starGeneration; // capture generation — draw() exits if stale
     const _perfMul = _perfMode ? 0.5 : 1;
