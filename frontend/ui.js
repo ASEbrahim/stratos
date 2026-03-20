@@ -1063,6 +1063,203 @@ function renderStars() {
         ctx.globalAlpha = 1;
     }
 
+    // ── Sibyl: Psycho-Pass — Crime Coefficient data streams + Dominator reticle ──
+    // Corridor particles flow upward in structured lanes (Sibyl processing data)
+    // Synaptic links flash between nearby particles (collective brain)
+    // Dominator reticle: circular targeting HUD, slowly rotating, cached
+    // Crime Coefficient scan pulses: expanding circular rings
+    const _sybCorridors = [];
+    const _sybParticles = [];
+    let _sybReticleCanvas = null, _sybReticleCtx = null, _sybReticleDirty = true;
+    let _sybReticleAngle = 0;
+    const _sybScanRings = [];
+    const _sybLinks = []; // synaptic link pool
+    if (isSibyl) {
+        // Build corridor particles
+        const spacing = isMobile ? 64 : 48;
+        const corridorCount = Math.floor((canvas.width || window.innerWidth) / spacing);
+        for (let i = 0; i < corridorCount; i++) {
+            const cx = spacing / 2 + i * spacing;
+            const density = _perfMode ? Math.min((i % 3 === 0 ? 4 : i % 3 === 1 ? 2 : 1), 2) :
+                            (i % 3 === 0 ? 4 : i % 3 === 1 ? 2 : 1);
+            const baseSpeed = 0.18 + (i % 5) * 0.07;
+            for (let d = 0; d < density; d++) {
+                const typeRoll = Math.random();
+                const type = typeRoll < 0.78 ? 0 : typeRoll < 0.92 ? 1 : 2; // ambient, packet, signal
+                _sybParticles.push({
+                    cx, y: Math.random() * (canvas.height || window.innerHeight),
+                    speed: baseSpeed * (0.8 + Math.random() * 0.4),
+                    type,
+                    size: type === 0 ? 0.4 + Math.random() * 0.8 : type === 1 ? 1 : 1.8 + Math.random() * 0.8,
+                    opacity: type === 0 ? 0.03 + Math.random() * 0.06 : type === 1 ? 0.06 + Math.random() * 0.10 : 0.3 + Math.random() * 0.2,
+                    phase: Math.random() * Math.PI * 2,
+                    drift: Math.sin(cx * 0.01) * 3,
+                    rw: 1 + Math.random() * 1.5, rh: 4 + Math.random() * 5, // packet rect dims
+                    scanFlash: 0, // current flash intensity (0-1)
+                });
+            }
+        }
+        // Init scan rings
+        for (let i = 0; i < 3; i++) {
+            _sybScanRings.push({
+                x: (canvas.width || window.innerWidth) * 0.5 + (Math.random() - 0.5) * 300,
+                y: (canvas.height || window.innerHeight) * 0.5 + (Math.random() - 0.5) * 200,
+                radius: Math.random() * 60,
+                maxRadius: 80 + Math.random() * 160,
+                speed: 0.4 + Math.random() * 0.3,
+                baseAlpha: 0.03 + Math.random() * 0.03,
+            });
+        }
+        // Init reticle offscreen canvas
+        _sybReticleCanvas = document.createElement('canvas');
+        _sybReticleCtx = _sybReticleCanvas.getContext('2d');
+    }
+    function _sybDrawReticle(c, W, H, colors) {
+        // Dominator targeting HUD — concentric rings + crosshair + tick marks
+        c.clearRect(0, 0, W, H);
+        const mx = W * 0.5, my = H * 0.5;
+        const maxR = Math.max(W, H) * 0.45;
+        // Draw concentric rings with ticks
+        const rings = [0.15, 0.28, 0.45, 0.65, 0.85, 1.0];
+        for (let ri = 0; ri < rings.length; ri++) {
+            const r = maxR * rings[ri];
+            const fade = 0.6 + ri * 0.08; // outer rings slightly more visible
+            const alpha = (0.012 + ri * 0.003) * fade;
+            c.strokeStyle = `rgba(${colors.c1.r},${colors.c1.g},${colors.c1.b},${alpha})`;
+            c.lineWidth = ri < 2 ? 0.6 : 0.3;
+            c.beginPath(); c.arc(mx, my, r, 0, Math.PI * 2); c.stroke();
+            // Tick marks at every 15 degrees
+            const tickLen = ri < 3 ? 6 : 3;
+            c.lineWidth = 0.4;
+            for (let a = 0; a < 24; a++) {
+                const angle = (a / 24) * Math.PI * 2;
+                const x1 = mx + Math.cos(angle) * (r - tickLen);
+                const y1 = my + Math.sin(angle) * (r - tickLen);
+                const x2 = mx + Math.cos(angle) * r;
+                const y2 = my + Math.sin(angle) * r;
+                c.beginPath(); c.moveTo(x1, y1); c.lineTo(x2, y2); c.stroke();
+            }
+        }
+        // Crosshair lines (cardinal directions)
+        c.strokeStyle = `rgba(${colors.c1.r},${colors.c1.g},${colors.c1.b},0.018)`;
+        c.lineWidth = 0.5;
+        // Horizontal
+        c.beginPath(); c.moveTo(mx - maxR, my); c.lineTo(mx - maxR * 0.08, my); c.stroke();
+        c.beginPath(); c.moveTo(mx + maxR * 0.08, my); c.lineTo(mx + maxR, my); c.stroke();
+        // Vertical
+        c.beginPath(); c.moveTo(mx, my - maxR); c.lineTo(mx, my - maxR * 0.08); c.stroke();
+        c.beginPath(); c.moveTo(mx, my + maxR * 0.08); c.lineTo(mx, my + maxR); c.stroke();
+    }
+    function _sybDrawElement(px, py, t, W, H) {
+        const colors = _getStarColors();
+        // Rebuild reticle cache if dirty or resized
+        if (_sybReticleDirty || _sybReticleCanvas.width !== W || _sybReticleCanvas.height !== H) {
+            _sybReticleCanvas.width = W; _sybReticleCanvas.height = H;
+            _sybDrawReticle(_sybReticleCtx, W, H, colors);
+            _sybReticleDirty = false;
+        }
+        // Draw rotating reticle (very slow rotation)
+        _sybReticleAngle += 0.0003;
+        ctx.save();
+        ctx.translate(W * 0.5, H * 0.5);
+        ctx.rotate(_sybReticleAngle);
+        ctx.translate(-W * 0.5, -H * 0.5);
+        ctx.drawImage(_sybReticleCanvas, 0, 0);
+        ctx.restore();
+
+        // Crime Coefficient scan pulses — expanding circles with crosshair ticks
+        for (const ring of _sybScanRings) {
+            ring.radius += ring.speed;
+            const progress = ring.radius / ring.maxRadius;
+            if (progress >= 1) {
+                ring.radius = 0;
+                ring.x = W * 0.5 + (Math.random() - 0.5) * 300;
+                ring.y = H * 0.5 + (Math.random() - 0.5) * 200;
+                ring.maxRadius = 80 + Math.random() * 160;
+                ring.speed = 0.4 + Math.random() * 0.3;
+                ring.baseAlpha = 0.03 + Math.random() * 0.03;
+                continue;
+            }
+            const alpha = ring.baseAlpha * (1 - progress);
+            ctx.strokeStyle = `rgba(${colors.c1.r},${colors.c1.g},${colors.c1.b},${alpha})`;
+            ctx.lineWidth = 0.5;
+            ctx.beginPath(); ctx.arc(ring.x, ring.y, ring.radius, 0, Math.PI * 2); ctx.stroke();
+            // Crosshair ticks at cardinal points
+            const tickLen = 4 + ring.radius * 0.04;
+            ctx.lineWidth = 0.4;
+            for (let a = 0; a < 4; a++) {
+                const angle = a * Math.PI * 0.5;
+                const x1 = ring.x + Math.cos(angle) * ring.radius;
+                const y1 = ring.y + Math.sin(angle) * ring.radius;
+                const x2 = ring.x + Math.cos(angle) * (ring.radius + tickLen);
+                const y2 = ring.y + Math.sin(angle) * (ring.radius + tickLen);
+                ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+            }
+        }
+
+        // Data corridor particles
+        const c1 = `${colors.c1.r},${colors.c1.g},${colors.c1.b}`;
+        const c2 = `${colors.c2.r},${colors.c2.g},${colors.c2.b}`;
+        for (let i = 0; i < _sybParticles.length; i++) {
+            const p = _sybParticles[i];
+            p.y -= p.speed;
+            p.phase += 0.008;
+            const x = p.cx + Math.sin(p.y * 0.002 + p.phase) * p.drift;
+            // Occasional scan flash (rare, random)
+            if (p.scanFlash > 0) p.scanFlash -= 0.02;
+            else if (Math.random() < 0.0003) p.scanFlash = 1;
+            const flashBoost = p.scanFlash * 0.3;
+            const alpha = Math.min(1, p.opacity + flashBoost);
+
+            if (p.type === 0) {
+                // Ambient dot
+                ctx.globalAlpha = alpha;
+                ctx.fillStyle = `rgba(${c1},${alpha})`;
+                ctx.beginPath(); ctx.arc(x, p.y, p.size, 0, Math.PI * 2); ctx.fill();
+            } else if (p.type === 1) {
+                // Data packet — small rectangle
+                ctx.globalAlpha = alpha;
+                ctx.fillStyle = `rgba(${c1},${alpha})`;
+                ctx.fillRect(x - p.rw * 0.5, p.y - p.rh * 0.5, p.rw, p.rh);
+            } else {
+                // Signal dot — brighter with glow halo
+                ctx.globalAlpha = alpha * 0.15;
+                ctx.fillStyle = `rgba(${c2},${alpha * 0.3})`;
+                ctx.beginPath(); ctx.arc(x, p.y, p.size * 4, 0, Math.PI * 2); ctx.fill();
+                ctx.globalAlpha = alpha;
+                ctx.fillStyle = `rgba(${c1},${alpha})`;
+                ctx.beginPath(); ctx.arc(x, p.y, p.size, 0, Math.PI * 2); ctx.fill();
+            }
+            // Respawn at bottom
+            if (p.y < -20) {
+                p.y = H + 10 + Math.random() * 40;
+            }
+        }
+
+        // Synaptic links — brief neural connections between nearby particles
+        if (!_perfMode) {
+            ctx.lineWidth = 0.3;
+            for (let i = 0; i < _sybParticles.length; i++) {
+                const a = _sybParticles[i];
+                if (a.type === 0 && Math.random() > 0.08) continue; // only check 8% of ambient per frame
+                const ax = a.cx + Math.sin(a.y * 0.002 + a.phase) * a.drift;
+                for (let j = i + 1; j < Math.min(i + 6, _sybParticles.length); j++) {
+                    const b = _sybParticles[j];
+                    const bx = b.cx + Math.sin(b.y * 0.002 + b.phase) * b.drift;
+                    const dx = ax - bx, dy = a.y - b.y;
+                    const dist = dx * dx + dy * dy;
+                    if (dist < 4000 && dist > 100) { // ~63px range
+                        const linkAlpha = 0.04 * (1 - dist / 4000);
+                        ctx.globalAlpha = linkAlpha;
+                        ctx.strokeStyle = `rgba(${c1},${linkAlpha})`;
+                        ctx.beginPath(); ctx.moveTo(ax, a.y); ctx.lineTo(bx, b.y); ctx.stroke();
+                    }
+                }
+            }
+        }
+        ctx.globalAlpha = 1;
+    }
+
     // ── Generic theme element draw helper ──
     function _drawThemeElement(themeName, drawFn, t) {
         const prefix = 'stratos-' + themeName;
@@ -1151,6 +1348,7 @@ function renderStars() {
         if (isMidnight && localStorage.getItem('stratos-midnight-visible') !== 'false') _drawThemeElement('midnight', _midnightDrawMoon, t);
         if (isNebula && localStorage.getItem('stratos-nebula-visible') !== 'false') _drawThemeElement('nebula', _nebulaDrawBlackHole, t);
         if (isAurora && localStorage.getItem('stratos-aurora-visible') !== 'false') _drawThemeElement('aurora', _auroraDrawBinary, t);
+        if (isSibyl && localStorage.getItem('stratos-sibyl-visible') !== 'false') _sybDrawElement(canvas.width * 0.5, canvas.height * 0.5, t, canvas.width, canvas.height);
         if (isSakura) _drawSakuraTree(canvas.width, canvas.height, t);
 
         // Shooting stars (skip in perf mode)
