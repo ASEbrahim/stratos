@@ -1171,11 +1171,11 @@ YouTube insights modal: sm/normal/lg. CSS classes yi-size-sm/yi-size-lg. localSt
 ---
 
 ### Intelligence Hue
-**Files:** `backend/routes/behavioral.py`, `frontend/hue.js`, `frontend/sibyl.js`
+**Files:** `backend/behavioral.py`, `backend/routes/data_endpoints.py`, `frontend/hue.js`, `frontend/sibyl.js`
 **Related:** AdaptiveScorer, Sibyl Theme
 **Added:** Sprint Sibyl
 
-Behavioral analysis system. Backend /api/hue endpoint computes a composite intelligence "hue" from scored news signals. hue.js renders a collapsible sidebar widget. sibyl.js provides the fullscreen Sibyl panel with expanded analytics.
+Behavioral analysis system. `behavioral.py` computes behavioral profiles (category engagement, source quality, usage patterns, trajectory, alignment) and a composite intelligence "hue" (0-100, 5 dimensions). `/api/hue` endpoint in `data_endpoints.py` serves results with a thread-safe 5-minute cache. `hue.js` renders a collapsible sidebar widget with live freshness decay. `sibyl.js` provides the fullscreen Sibyl panel with expanded analytics, animated hue ring, and behavioral diagnostics. Agent and briefing prompts receive behavioral hints via `build_agent_behavioral_hint()` and `build_briefing_behavioral_hint()`.
 
 ---
 
