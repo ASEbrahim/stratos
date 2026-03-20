@@ -397,21 +397,21 @@ def handle_agent_chat(handler, strat, output_file, profile_id=0):
                                 f"## Knowledge\n{e['knowledge_md']}" if e.get('knowledge_md') else '',
                             ]))
                     elif rp_mode == 'gm':
-                        # GM mode: load names + brief role only (no personality/speaking style)
-                        # GM narrates — it needs world awareness, not voicing data
+                        # GM mode: full roster but NO speaking_style (that causes voicing)
                         cursor.execute(
-                            "SELECT display_name, identity_md "
+                            "SELECT display_name, identity_md, personality_md "
                             "FROM persona_entities WHERE profile_id = ? AND persona = ? AND scenario_name = ?",
                             (profile_id, persona_name, active_scenario))
                         rows = [dict(r) for r in cursor.fetchall()]
                         if rows:
-                            char_entries = []
+                            roster = ["## Character Roster"]
                             for e in rows[:10]:
                                 name = e.get('display_name', '???')
-                                identity = (e.get('identity_md') or '').strip()
-                                brief = identity[:60].rstrip('.') if identity else ''
-                                char_entries.append(f"{name} ({brief})" if brief else name)
-                            npc_personality = "Characters in this world: " + ", ".join(char_entries) + "."
+                                parts = []
+                                if e.get('identity_md'): parts.append(e['identity_md'][:150])
+                                if e.get('personality_md'): parts.append(e['personality_md'][:150])
+                                roster.append(f"**{name}**: {' | '.join(parts)}" if parts else f"**{name}**")
+                            npc_personality = '\n'.join(roster)
                 except Exception as ex:
                     logger.debug(f"Entity load failed: {ex}")
 
@@ -528,20 +528,6 @@ def handle_agent_chat(handler, strat, output_file, profile_id=0):
 
         # Build messages for /api/chat
         messages = [{"role": "system", "content": system_prompt}]
-
-        # Seed GM format on first message — one-shot example so the model follows stat blocks + choices
-        if persona_name == 'gaming' and rp_mode == 'gm' and not history:
-            messages.append({"role": "user", "content": "Begin"})
-            messages.append({"role": "assistant", "content": (
-                "The scene unfolds before you...\n\n"
-                "❤ HP: 100/100 | ⚔ ATK: 5 | 🛡 DEF: 3\n"
-                "📦 Inventory: Starting gear\n"
-                "⚠ Status: Healthy\n\n"
-                "1. Look around and take in the surroundings\n"
-                "2. Check your equipment\n"
-                "3. Move forward cautiously\n"
-                "4. [Custom action]"
-            )})
 
         for h in history[:-1]:
             if isinstance(h, dict) and h.get("role") in ("user", "assistant") and h.get("content"):

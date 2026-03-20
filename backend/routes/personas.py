@@ -438,7 +438,7 @@ def _pack_gaming_context_selective(strat, profile_id: int, scenario_path: str,
         for npc_id in active_npcs[:5]:
             profile = _load_scenario_file(scenario_path, f'characters/npcs/{npc_id}/profile.md')
             if profile:
-                summary = profile.split('\n')[0]
+                summary = '\n'.join(profile.split('\n')[:5])
                 parts.append((summary, 'npc_summary'))
 
     elif mode == 'immersive':
