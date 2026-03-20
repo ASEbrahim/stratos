@@ -326,7 +326,7 @@ Keep it formal and professional:"""
         response = self._call_ollama(prompt, max_tokens=200)
         return response if response else f"Detected rising activity: {', '.join(entities)}. Added to monitoring."
     
-    def _generate_combined(self, market_data, market_alerts, critical_items, discoveries):
+    def _generate_combined(self, market_data, market_alerts, critical_items, discoveries, behavioral_hint=""):
         """Generate market summary, critical alerts, and discovery note in a single LLM call."""
         # Build market context
         summaries = []
@@ -368,6 +368,9 @@ Keep it formal and professional:"""
             entities = [d["name"] for d in discoveries[:3]]
             sections.append(f"\n## DISCOVERIES\nEntities with rising activity: {', '.join(entities)}")
 
+        if behavioral_hint:
+            sections.append(f"\n{behavioral_hint}")
+
         prompt = "\n".join(sections) + """
 
 Generate a complete intelligence briefing as JSON. Respond ONLY with valid JSON, no other text.
@@ -406,7 +409,8 @@ Rules:
                          market_alerts: List[Dict],
                          news_items: List[Dict],
                          discoveries: List[Dict],
-                         previous_briefing: Optional[Dict] = None) -> Dict[str, Any]:
+                         previous_briefing: Optional[Dict] = None,
+                         behavioral_hint: str = "") -> Dict[str, Any]:
         """
         Generate a complete intelligence briefing.
 
@@ -432,7 +436,7 @@ Rules:
         if self.is_available():
             import time as _time
             _t0 = _time.time()
-            combined = self._generate_combined(market_data, market_alerts, critical_items, discoveries)
+            combined = self._generate_combined(market_data, market_alerts, critical_items, discoveries, behavioral_hint=behavioral_hint)
             _elapsed = _time.time() - _t0
 
             if combined:

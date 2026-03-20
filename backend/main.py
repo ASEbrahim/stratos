@@ -1358,11 +1358,20 @@ class StratOS:
                     return
                 logger.info(f"Deferred briefing: generating (profile_id={profile_id})...")
                 self.sse_broadcast("scan", {"status": "briefing", "progress": "Generating briefing..."}, profile_id=profile_id)
+                # Build behavioral hint for briefing
+                _beh_hint = ""
+                try:
+                    from behavioral import build_briefing_behavioral_hint
+                    _beh_hint = build_briefing_behavioral_hint(self.db, profile_id)
+                except Exception as _bhe:
+                    logger.debug(f"Behavioral briefing hint skipped: {_bhe}")
+
                 briefing = self.briefing_gen.generate_briefing(
                     market_data=market_data,
                     market_alerts=market_alerts,
                     news_items=scored_items,
-                    discoveries=discoveries
+                    discoveries=discoveries,
+                    behavioral_hint=_beh_hint,
                 )
                 if self._scan_cancelled.is_set():
                     return
