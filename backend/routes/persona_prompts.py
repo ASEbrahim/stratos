@@ -256,7 +256,10 @@ def build_persona_prompt(persona: str, role: str, location: str,
     elif persona == 'gaming':
         if rp_mode == 'immersive':
             return _games_immersive_prompt(role, location, active_npc, npc_personality, npc_memory, scene)
-        return _games_prompt(role, location, tickers, cat_summary, search_note)
+        prompt = _games_prompt(role, location, tickers, cat_summary, search_note)
+        if npc_personality:
+            prompt += f"\n\n{npc_personality}"
+        return prompt
     elif persona == 'roleplay':
         return _roleplay_prompt(role, location, tickers, cat_summary, search_note,
                                 active_npc, npc_personality, npc_memory, scene)

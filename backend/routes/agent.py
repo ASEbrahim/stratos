@@ -396,11 +396,11 @@ def handle_agent_chat(handler, strat, output_file, profile_id=0):
             if context_parts:
                 system_prompt += "\n\n" + "\n\n".join(context_parts)
         else:
-            # Load entity data from DB (immersive mode only — GM mode narrates, doesn't need sheets)
-            if persona_name in ('gaming', 'scholarly', 'roleplay') and active_scenario and strat.db and rp_mode == 'immersive':
+            # Load entity data from DB
+            if persona_name in ('gaming', 'scholarly', 'roleplay') and active_scenario and strat.db:
                 try:
                     cursor = strat.db.conn.cursor()
-                    if active_npc:
+                    if rp_mode == 'immersive' and active_npc:
                         # Immersive: load single active NPC's full data
                         entity_name = active_npc.strip().lower().replace(' ', '_')
                         cursor.execute(
@@ -419,7 +419,20 @@ def handle_agent_chat(handler, strat, output_file, profile_id=0):
                                 f"## Interaction Memory\n{e['memory_md']}" if e.get('memory_md') else '',
                                 f"## Knowledge\n{e['knowledge_md']}" if e.get('knowledge_md') else '',
                             ]))
-                    # GM mode: no entity data injected — GM narrates without character sheets
+                    elif rp_mode == 'gm':
+                        # GM mode: load roster as REFERENCE ONLY (names + brief info)
+                        cursor.execute(
+                            "SELECT display_name, identity_md, personality_md "
+                            "FROM persona_entities WHERE profile_id = ? AND persona = ? AND scenario_name = ?",
+                            (profile_id, persona_name, active_scenario))
+                        rows = [dict(r) for r in cursor.fetchall()]
+                        if rows:
+                            roster = ["## Known Characters (REFERENCE ONLY — do NOT speak as these characters)"]
+                            for e in rows[:10]:
+                                name = e.get('display_name', '???')
+                                brief = (e.get('identity_md') or e.get('personality_md') or '')[:100]
+                                roster.append(f"- **{name}**: {brief}" if brief else f"- **{name}**")
+                            npc_personality = '\n'.join(roster)
                 except Exception as ex:
                     logger.debug(f"Entity load failed: {ex}")
 

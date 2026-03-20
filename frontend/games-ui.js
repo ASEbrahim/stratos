@@ -128,14 +128,11 @@ function _escHtmlG(s) { const d = document.createElement('div'); d.textContent =
 function _escForAttr(s) { return s.replace(/'/g, "\\'").replace(/"/g, '&quot;'); }
 
 function _gamesSetMode(mode) {
-    const prev = _gamesRpMode;
     _gamesRpMode = mode;
     // Clear active NPC when switching to GM — GM doesn't speak as characters
     if (mode === 'gm') _gamesActiveNpc = '';
     try { localStorage.setItem('stratos_games_rp_mode', mode); } catch(e) {}
     _renderScenarioBar();
-    // Start fresh conversation on mode switch — prevents RP history bleeding into GM and vice versa
-    if (prev !== mode && typeof newAgentChat === 'function') newAgentChat();
     if (typeof showToast === 'function') showToast(mode === 'immersive' ? 'Immersive RP mode — AI speaks as characters' : 'Game Master mode — narration & choices', 'info');
 }
 window._gamesSetMode = _gamesSetMode;
