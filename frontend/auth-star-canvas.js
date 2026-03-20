@@ -847,8 +847,8 @@ function _initStarParallax() {
                 if (dist < 0) dist += bpLen;
                 if (dist > bpLen / 2) dist = bpLen - dist;
                 const sweepBoost = dist < sweepW ? (.2 * (1 - dist / sweepW)) : 0;
-                ctx.strokeStyle = 'rgba(79,195,247,' + (.05 + sweepBoost) + ')';
-                ctx.lineWidth = sweepBoost > .06 ? 1.4 : .7;
+                ctx.strokeStyle = 'rgba(79,195,247,' + (.09 + sweepBoost) + ')';
+                ctx.lineWidth = sweepBoost > .06 ? 1.4 : .8;
                 ctx.beginPath(); ctx.moveTo(pt.x, pt.y); ctx.lineTo(pt2.x, pt2.y); ctx.stroke();
                 if (sweepBoost > .08) {
                     ctx.strokeStyle = 'rgba(160,230,255,' + (sweepBoost * .5) + ')';
@@ -1053,20 +1053,22 @@ function _initStarParallax() {
             if (_sbExtrasInited) return;
             _sbExtrasInited = true;
             _sbNextThreat = Date.now() * .001 + 8 + Math.random() * 10;
-            for (let i = 0; i < 3; i++) {
+            // Scan rings — across full screen like in-app Sibyl theme
+            for (let i = 0; i < 4; i++) {
                 _sbScanRings.push({
-                    x: _cw * (.3 + Math.random() * .4), y: _ch * (.15 + Math.random() * .3),
-                    radius: Math.random() * 40, maxRadius: 60 + Math.random() * 100,
-                    speed: .3 + Math.random() * .25, baseAlpha: .02 + Math.random() * .02,
+                    x: _cw * (.15 + Math.random() * .7), y: _ch * (.1 + Math.random() * .8),
+                    radius: Math.random() * 50, maxRadius: 80 + Math.random() * 160,
+                    speed: .4 + Math.random() * .35, baseAlpha: .02 + Math.random() * .02,
                 });
             }
-            for (let i = 0; i < 15; i++) {
+            // Data lines — scattered across entire background
+            for (let i = 0; i < 20; i++) {
                 _sbDataLines.push({
                     x: Math.random() * _cw, y: Math.random() * _ch,
-                    w: 6 + Math.random() * 22,
-                    speed: .08 + Math.random() * .1,
+                    w: 8 + Math.random() * 28,
+                    speed: .08 + Math.random() * .12,
                     opacity: .015 + Math.random() * .03,
-                    drift: (Math.random() - .5) * .2,
+                    drift: (Math.random() - .5) * .25,
                 });
             }
         }
@@ -1078,10 +1080,10 @@ function _initStarParallax() {
                 const progress = ring.radius / ring.maxRadius;
                 if (progress >= 1) {
                     ring.radius = 0;
-                    ring.x = _cw * (.2 + Math.random() * .6);
-                    ring.y = _ch * (.1 + Math.random() * .35);
-                    ring.maxRadius = 60 + Math.random() * 100;
-                    ring.speed = .3 + Math.random() * .25;
+                    ring.x = _cw * (.1 + Math.random() * .8);
+                    ring.y = _ch * (.05 + Math.random() * .9);
+                    ring.maxRadius = 80 + Math.random() * 160;
+                    ring.speed = .4 + Math.random() * .35;
                     continue;
                 }
                 const alpha = ring.baseAlpha * (1 - progress);
