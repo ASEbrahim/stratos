@@ -10,8 +10,31 @@ let _agentAbortController = null;
 let currentPersona = 'intelligence';
 let selectedPersonas = ['intelligence']; // Multi-persona selection (max 3)
 let availablePersonas = [];
-let _personaSuggestions = {};  // Per-persona dynamic suggestion cache
-try { _personaSuggestions = JSON.parse(localStorage.getItem('stratos_persona_suggestions') || '{}'); } catch(e) {}
+let _personaSuggestions = {};  // Per-persona dynamic suggestion cache (DB-backed, profile-scoped)
+
+// Load suggestions from DB for current persona + scenario
+async function _loadSuggestionsFromDB(persona, scenario) {
+    try {
+        const qs = `persona=${encodeURIComponent(persona)}&scenario=${encodeURIComponent(scenario || '')}`;
+        const r = await fetch(`/api/agent-suggestions?${qs}`, { headers: _agentHeaders() });
+        if (r.ok) {
+            const d = await r.json();
+            if (d.suggestions && d.suggestions.length) {
+                _personaSuggestions[persona] = d.suggestions;
+                if (typeof renderAgentSuggestions === 'function') renderAgentSuggestions();
+            }
+        }
+    } catch(e) {}
+}
+
+// Save suggestions to DB (fire-and-forget)
+function _saveSuggestionsToDB(persona, scenario, suggestions) {
+    fetch('/api/agent-suggestions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ..._agentHeaders() },
+        body: JSON.stringify({ persona, scenario: scenario || '', suggestions })
+    }).catch(() => {});
+}
 let _agentFreeLength = false;  // Extended response mode
 let _agentAllScans = false;    // Use all stored scan data vs current only
 let _agentInjectSignals = true; // Signal injection toggle (feed data in context)
@@ -346,7 +369,10 @@ async function switchPersona(name) {
     }
     _renderConvTabs();
     if (_agentFullscreen) _refreshFsSidebar();
-    renderAgentSuggestions();
+    // Load DB-backed suggestions for this persona+scenario, then render
+    const _scen = (name === 'gaming' && typeof _gamesGetState === 'function') ? (_gamesGetState().activeScenario || '') : '';
+    _loadSuggestionsFromDB(name, _scen).then(() => renderAgentSuggestions());
+    renderAgentSuggestions(); // immediate render with cache while DB loads
     // Update context indicator
     _updateContextBadge(name);
     if (typeof _onPersonaChanged === 'function') _onPersonaChanged(name);
@@ -1120,6 +1146,7 @@ async function _resendFromEdit(msg) {
                 ...(_agentFreeLength ? { free_length: true } : {}),
                 ...(_agentAllScans ? { use_all_scans: true } : {}),
                 ...(!_agentInjectSignals ? { inject_signals: false } : {}),
+                ...(_rpDirectorNote ? { director_note: _rpDirectorNote } : {}),
                 ...(currentPersona === 'gaming' && typeof _gamesGetState === 'function' ? {
                     rp_mode: _gamesGetState().rpMode,
                     active_npc: _gamesGetState().activeNpc,
@@ -1692,8 +1719,14 @@ window.sendAgentOption = sendAgentOption;
 
 // Show more/less for long agent responses (> 500 chars raw text)
 var _showMoreCounter = 0;
+var _agentShowMoreEnabled = localStorage.getItem('stratos_agent_showmore') !== 'false'; // default ON
+function toggleAgentShowMore() {
+    _agentShowMoreEnabled = !_agentShowMoreEnabled;
+    localStorage.setItem('stratos_agent_showmore', _agentShowMoreEnabled ? 'true' : 'false');
+}
+window.toggleAgentShowMore = toggleAgentShowMore;
 function wrapWithShowMore(rawText, formattedHtml) {
-    if (rawText.length <= 500) return formattedHtml;
+    if (!_agentShowMoreEnabled || rawText.length <= 500) return formattedHtml;
     var id = 'showmore-' + (++_showMoreCounter);
     // Find a cut point near 500 chars in the raw text — try to cut at a paragraph or sentence boundary
     var cutAt = 500;
@@ -1807,9 +1840,19 @@ async function sendAgentMessage() {
     agentHistory.push({ role: 'user', content: msg });
     appendAgentMessage('user', msg);
 
-    // Show typing indicator with bouncing dots
-    const typingEl = appendAgentMessage('assistant', `<div class="flex items-center gap-2.5"><div class="agent-thinking-dots flex gap-1"><span></span><span></span><span></span></div><span class="text-[10px]" style="color:var(--text-muted);">Thinking...</span></div>`);
-    
+    // Show typing indicator — include director note badge if active
+    const _dirLabel = _rpDirectorNote ? `<span class="text-[9px] ml-2 px-1.5 py-0.5 rounded" style="background:rgba(251,191,36,0.12);color:#fbbf24;border:1px solid rgba(251,191,36,0.25);">&#x2728; Steered</span>` : '';
+    const typingEl = appendAgentMessage('assistant', `<div class="flex items-center gap-2.5"><div class="agent-thinking-dots flex gap-1"><span></span><span></span><span></span></div><span class="text-[10px]" style="color:var(--text-muted);">Thinking...</span>${_dirLabel}</div>`);
+
+    // Consume director note after sending (single-use)
+    const _usedDirectorNote = _rpDirectorNote;
+    if (_rpDirectorNote) {
+        _rpLastUsedNote = _rpDirectorNote;
+        _rpDirectorNote = '';
+        const dirInput = document.getElementById('rp-director-input');
+        if (dirInput) dirInput.value = '';
+    }
+
     agentStreaming = true;
     _agentAbortController = new AbortController();
     sendBtn.disabled = false;
@@ -1838,6 +1881,7 @@ async function sendAgentMessage() {
                 ...(_agentFreeLength ? { free_length: true } : {}),
                 ...(_agentAllScans ? { use_all_scans: true } : {}),
                 ...(!_agentInjectSignals ? { inject_signals: false } : {}),
+                ...(_rpDirectorNote ? { director_note: _rpDirectorNote } : {}),
                 ...(currentPersona === 'gaming' && typeof _gamesGetState === 'function' ? {
                     rp_mode: _gamesGetState().rpMode,
                     active_npc: _gamesGetState().activeNpc,
@@ -1898,7 +1942,8 @@ async function sendAgentMessage() {
                         if (payload.suggestions && Array.isArray(payload.suggestions)) {
                             dynamicSuggestions = payload.suggestions;
                             _personaSuggestions[currentPersona] = payload.suggestions;
-                            try { localStorage.setItem('stratos_persona_suggestions', JSON.stringify(_personaSuggestions)); } catch(e) {}
+                            const _scen = (currentPersona === 'gaming' && typeof _gamesGetState === 'function') ? (_gamesGetState().activeScenario || '') : '';
+                            _saveSuggestionsToDB(currentPersona, _scen, payload.suggestions);
                         }
                         if (payload.status) {
                             // Tool usage indicator — animated status bar

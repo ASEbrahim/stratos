@@ -28,7 +28,7 @@ _VALID_TABLES = frozenset([
     'rp_messages', 'rp_edits', 'rp_suggestions', 'rp_feedback',
     'rp_conversation_scores', 'rp_session_context',
     'character_cards', 'character_card_stats', 'character_card_ratings',
-    'generated_images',
+    'generated_images', 'agent_suggestions',
 ])
 
 def _safe_table(name: str) -> str:
@@ -953,6 +953,24 @@ def migration_033(cursor):
         cursor.execute("ALTER TABLE youtube_videos ADD COLUMN pinned INTEGER DEFAULT 0")
     except Exception:
         pass  # column already exists
+
+
+@migration
+def migration_034(cursor):
+    """Create agent_suggestions table — per-profile, per-persona, per-scenario suggestion cache."""
+    _safe_table('agent_suggestions')
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS agent_suggestions (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            profile_id INTEGER NOT NULL,
+            persona TEXT NOT NULL,
+            scenario TEXT NOT NULL DEFAULT '',
+            suggestions TEXT NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE(profile_id, persona, scenario)
+        )
+    """)
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_agent_sug_profile ON agent_suggestions(profile_id, persona)")
 
 
 # =========================================================================
