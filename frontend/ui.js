@@ -1079,6 +1079,7 @@ function renderStars() {
     let _sybSweepPos = 0;
     let _sybBrainPts = [];
     let _sybScreenPts = [];
+    let _sybLastBuildX = 0, _sybLastBuildY = 0;
     let _sybBrainBuilt = false;
 
     // Pre-computed brain outline data (same as auth-star-canvas.js)
@@ -1093,12 +1094,12 @@ function renderStars() {
     // Brain coordinate space: x range ~176-553, y range ~111-553 (after /10)
     // Brain bounding box width ~377, height ~442, but we use 660x649 as the reference frame (matching auth)
 
-    function _sybGetBrainTransform(W, H, cx, cy, scale) {
-        // Size the brain relative to canvas height, centered at cx/cy
-        const brainH = H * 0.45 * scale;
-        const bs = brainH / 649; // scale factor from outline coords to screen pixels
-        const bx = W * cx - 660 * bs / 2;
-        const by = H * cy - 649 * bs / 2;
+    function _sybGetBrainTransform(W, H, centerX, centerY) {
+        // Size the brain relative to canvas height, centered at centerX/centerY pixel coords
+        const brainH = H * 0.45;
+        const bs = brainH / 649;
+        const bx = centerX - 660 * bs / 2;
+        const by = centerY - 649 * bs / 2;
         return { bs, bx, by };
     }
 
@@ -1117,7 +1118,7 @@ function renderStars() {
         return ins;
     }
 
-    function _sybBuildBrainNetwork(W, H, cx, cy, scale) {
+    function _sybBuildBrainNetwork(W, H, centerX, centerY) {
         _sybNodes.length = 0;
         _sybEdges.length = 0;
         _sybPulses.length = 0;
@@ -1127,7 +1128,7 @@ function renderStars() {
         _sybLastMajorHub = -1;
         _sybSweepPos = 0;
 
-        const { bs, bx, by } = _sybGetBrainTransform(W, H, cx, cy, scale);
+        const { bs, bx, by } = _sybGetBrainTransform(W, H, centerX, centerY);
         const spacing = 22 * bs * 660 / 300;
         const mx = bx + 3, MX = bx + 660 * bs - 3;
         const my = by + 3, MY = by + 649 * bs - 3;
@@ -1190,18 +1191,23 @@ function renderStars() {
         _sybBrainBuilt = true;
     }
 
-    // Build brain on first frame (needs canvas dimensions)
-    if (isSibyl) {
-        const W = canvas.width || window.innerWidth;
-        const H = canvas.height || window.innerHeight;
-        _sybBuildBrainNetwork(W, H, 0.5, 0.35, 1.0);
-    }
+    // Brain is built lazily on first draw call (needs px, py from theme editor)
 
     function _sybDrawElement(px, py, t, W, H) {
         if (!_sybBrainBuilt || _sybBrainPts.length === 0) return;
         const colors = _getStarColors();
         const c1 = `${colors.c1.r},${colors.c1.g},${colors.c1.b}`;
         const PI2 = Math.PI * 2;
+
+        // Rebuild screen points centered on px, py (follows theme editor grid)
+        const { bs, bx, by } = _sybGetBrainTransform(W, H, px, py);
+        _sybScreenPts = _sybBrainPts.map(p => _sybScreenPt(p.x, p.y, bs, bx, by));
+
+        // Rebuild nodes if brain center moved significantly
+        if (_sybNodes.length === 0 || Math.abs((_sybLastBuildX || 0) - px) > 20 || Math.abs((_sybLastBuildY || 0) - py) > 20) {
+            _sybBuildBrainNetwork(W, H, px, py);
+            _sybLastBuildX = px; _sybLastBuildY = py;
+        }
 
         // ── Scan rings — expanding circular area scans (full canvas) ──
         for (const ring of _sybScanRings) {
@@ -1490,13 +1496,16 @@ function renderStars() {
         const cx = parseFloat(localStorage.getItem(prefix + '-cx') || '0.5');
         const cy = parseFloat(localStorage.getItem(prefix + '-cy') || '0.35');
         const scale = parseFloat(localStorage.getItem(prefix + '-scale') || '1');
-        const opacity = parseFloat(localStorage.getItem(prefix + '-opacity') || '1');
+        const defaultOpacity = themeName === 'sibyl' ? '0.5' : '1';
+        const opacity = parseFloat(localStorage.getItem(prefix + '-opacity') || defaultOpacity);
         const blur = _perfMode ? 0 : parseFloat(localStorage.getItem(prefix + '-blur') || '0');
         const px = canvas.width * cx, py = canvas.height * cy;
         ctx.save();
         ctx.globalAlpha = opacity;
         if (blur > 0) ctx.filter = `blur(${blur}px)`;
-        ctx.translate(px, py); ctx.scale(scale, scale); ctx.translate(-px, -py);
+        if (themeName !== 'sibyl') {
+            ctx.translate(px, py); ctx.scale(scale, scale); ctx.translate(-px, -py);
+        }
         drawFn(px, py, t, canvas.width, canvas.height);
         ctx.restore();
     }
