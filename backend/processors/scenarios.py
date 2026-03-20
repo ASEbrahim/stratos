@@ -116,9 +116,14 @@ class ScenarioManager:
         return row['name'] if row else None
 
     def set_active_scenario(self, profile_id: int, scenario_name: str) -> bool:
-        """Set the active scenario. Returns False if scenario doesn't exist."""
+        """Set the active scenario. Empty name deactivates all."""
         self._migrate_file_scenarios(profile_id)
         cursor = self.db.conn.cursor()
+        # Empty name = deselect all scenarios
+        if not scenario_name:
+            cursor.execute("UPDATE scenarios SET is_active = 0 WHERE profile_id = ?", (profile_id,))
+            self.db._commit()
+            return True
         cursor.execute("SELECT id FROM scenarios WHERE profile_id = ? AND name = ?",
                        (profile_id, scenario_name))
         if not cursor.fetchone():

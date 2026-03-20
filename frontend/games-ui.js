@@ -295,16 +295,18 @@ window._pollGenerationStatus = _pollGenerationStatus;
 // ── Activate scenario ──
 async function _gamesActivateScenario(name) {
     if (!name) return;
+    // Toggle: clicking active scenario deselects it
+    const deselecting = _gamesActiveScenario === name;
     try {
         await fetch('/api/scenarios/activate', {
             method: 'POST',
             headers: _gamesHeaders(),
-            body: JSON.stringify({ name })
+            body: JSON.stringify({ name: deselecting ? '' : name })
         });
-        _gamesActiveScenario = name;
+        _gamesActiveScenario = deselecting ? null : name;
         _renderScenarioBar();
         _refreshFileBrowserIfOpen();
-        if (typeof showToast === 'function') showToast(`Switched to "${name}"`, 'success');
+        if (typeof showToast === 'function') showToast(deselecting ? 'Scenario deselected' : `Switched to "${name}"`, 'success');
     } catch (e) {
         if (typeof showToast === 'function') showToast('Failed to activate scenario', 'error');
     }
