@@ -803,7 +803,7 @@ function _initStarParallax() {
                     _sbNodes.push({
                         x: jx, y: jy, bx: jx, by: jy,
                         r: .6 + Math.random() * .3,
-                        activity: 0, connections: 0,
+                        activity: 0, connections: 0, threat: 0,
                         phase: Math.random() * Math.PI * 2,
                         pulseRing: 0, isHub: false,
                     });
@@ -1025,6 +1025,7 @@ function _initStarParallax() {
                 n.y = n.by + Math.cos(t * .025 + n.phase) * .2;
                 if (n.activity > 0) n.activity *= .985;
                 if (n.pulseRing > 0) n.pulseRing *= .97;
+                if (n.threat > 0) n.threat *= .985;
                 const r = n.r + n.activity * .6;
                 if (n.pulseRing > .02) {
                     const ringR = r + 12 * (1 - n.pulseRing);
@@ -1046,8 +1047,13 @@ function _initStarParallax() {
                     ctx.strokeStyle = `rgba(120,210,255,${.06 + n.activity * .12})`;
                     ctx.lineWidth = .25; ctx.stroke();
                 }
+                // Threat glow — Crime Coefficient spike (red/orange)
+                if (n.threat > .05) {
+                    ctx.fillStyle = `rgba(255,${Math.floor(100 + n.threat * 60)},60,${n.threat * .2})`;
+                    ctx.beginPath(); ctx.arc(n.x, n.y, r * 5, 0, Math.PI * 2); ctx.fill();
+                }
                 const somaA = n.isHub ? (.08 + n.activity * .4) : (.05 + n.activity * .3);
-                ctx.fillStyle = `rgba(79,195,247,${somaA})`;
+                ctx.fillStyle = n.threat > .1 ? `rgba(255,160,80,${somaA + n.threat * .3})` : `rgba(79,195,247,${somaA})`;
                 ctx.beginPath(); ctx.arc(n.x, n.y, r, 0, Math.PI * 2); ctx.fill();
                 if (n.activity > .1) {
                     ctx.fillStyle = `rgba(200,240,255,${n.activity * .4})`;
@@ -1056,7 +1062,79 @@ function _initStarParallax() {
             }
         }
 
+        // ── Scan rings (Dominator area scans) ──
+        const _sbScanRings = [];
+        for (let i = 0; i < 3; i++) {
+            _sbScanRings.push({
+                x: _cw * (.3 + Math.random() * .4), y: _ch * (.15 + Math.random() * .3),
+                radius: Math.random() * 40, maxRadius: 60 + Math.random() * 100,
+                speed: .3 + Math.random() * .25, baseAlpha: .02 + Math.random() * .02,
+            });
+        }
+
+        // ── Holographic data lines (floating HUD fragments) ──
+        const _sbDataLines = [];
+        for (let i = 0; i < 15; i++) {
+            _sbDataLines.push({
+                x: Math.random() * _cw, y: Math.random() * _ch,
+                w: 6 + Math.random() * 22,
+                speed: .08 + Math.random() * .1,
+                opacity: .015 + Math.random() * .03,
+                drift: (Math.random() - .5) * .2,
+            });
+        }
+
+        // ── Threat flash state ──
+        let _sbNextThreat = 8 + Math.random() * 10;
+
+        function _sbDrawExtras(t) {
+            // Scan rings — illuminate nodes they pass over
+            for (const ring of _sbScanRings) {
+                ring.radius += ring.speed;
+                const progress = ring.radius / ring.maxRadius;
+                if (progress >= 1) {
+                    ring.radius = 0;
+                    ring.x = _cw * (.2 + Math.random() * .6);
+                    ring.y = _ch * (.1 + Math.random() * .35);
+                    ring.maxRadius = 60 + Math.random() * 100;
+                    ring.speed = .3 + Math.random() * .25;
+                    continue;
+                }
+                const alpha = ring.baseAlpha * (1 - progress);
+                ctx.strokeStyle = `rgba(79,195,247,${alpha})`;
+                ctx.lineWidth = .5;
+                ctx.beginPath(); ctx.arc(ring.x, ring.y, ring.radius, 0, Math.PI * 2); ctx.stroke();
+                // Illuminate nodes caught in scan wave
+                for (const node of _sbNodes) {
+                    const dx = node.x - ring.x, dy = node.y - ring.y;
+                    const nd = Math.sqrt(dx * dx + dy * dy);
+                    if (Math.abs(nd - ring.radius) < 10) {
+                        node.activity = Math.max(node.activity, alpha * 5);
+                    }
+                }
+            }
+
+            // Threat flashes — rare red/orange Crime Coefficient spikes
+            if (t > _sbNextThreat && _sbNodes.length > 0) {
+                const idx = Math.floor(Math.random() * _sbNodes.length);
+                _sbNodes[idx].threat = 1;
+                _sbNextThreat = t + 8 + Math.random() * 14;
+            }
+
+            // Holographic data lines
+            ctx.lineWidth = .8;
+            for (const dl of _sbDataLines) {
+                dl.y -= dl.speed;
+                dl.x += dl.drift;
+                if (dl.y < -10) { dl.y = _ch + 10; dl.x = Math.random() * _cw; }
+                ctx.strokeStyle = `rgba(79,195,247,${dl.opacity})`;
+                ctx.beginPath(); ctx.moveTo(dl.x, dl.y); ctx.lineTo(dl.x + dl.w, dl.y); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(dl.x + dl.w, dl.y - 1.2); ctx.lineTo(dl.x + dl.w, dl.y + 1.2); ctx.stroke();
+            }
+        }
+
         function _sibylDrawBrain(t) {
+            _sbDrawExtras(t);
             _sbDrawOutline(t);
             _sbDrawNetwork(t);
         }
