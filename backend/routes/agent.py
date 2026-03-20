@@ -396,22 +396,21 @@ def handle_agent_chat(handler, strat, output_file, profile_id=0):
                                 f"## Knowledge\n{e['knowledge_md']}" if e.get('knowledge_md') else '',
                             ]))
                     elif rp_mode == 'gm':
-                        # GM mode: load full entity roster so GM knows the cast
+                        # GM mode: load names + brief role only (no personality/speaking style)
+                        # GM narrates — it needs world awareness, not voicing data
                         cursor.execute(
-                            "SELECT display_name, identity_md, personality_md, speaking_style_md "
+                            "SELECT display_name, identity_md "
                             "FROM persona_entities WHERE profile_id = ? AND persona = ? AND scenario_name = ?",
                             (profile_id, persona_name, active_scenario))
                         rows = [dict(r) for r in cursor.fetchall()]
                         if rows:
-                            roster = ["## Character Roster"]
+                            char_entries = []
                             for e in rows[:10]:
                                 name = e.get('display_name', '???')
-                                parts = []
-                                if e.get('identity_md'): parts.append(e['identity_md'][:150])
-                                if e.get('personality_md'): parts.append(e['personality_md'][:150])
-                                if e.get('speaking_style_md'): parts.append(f"Voice: {e['speaking_style_md'][:80]}")
-                                roster.append(f"**{name}**: {' | '.join(parts)}" if parts else f"**{name}**")
-                            npc_personality = '\n'.join(roster)
+                                identity = (e.get('identity_md') or '').strip()
+                                brief = identity[:60].rstrip('.') if identity else ''
+                                char_entries.append(f"{name} ({brief})" if brief else name)
+                            npc_personality = "Characters in this world: " + ", ".join(char_entries) + "."
                 except Exception as ex:
                     logger.debug(f"Entity load failed: {ex}")
 
