@@ -8,6 +8,7 @@ import gzip as _gzip_mod
 import hashlib
 import json
 import logging
+import threading
 import time
 import yaml
 from datetime import datetime
@@ -17,6 +18,10 @@ from urllib.parse import urlparse, parse_qs
 import requests
 
 logger = logging.getLogger("STRAT_OS")
+
+# Thread-safe cache for /api/hue (replaces function-attribute dict)
+_hue_cache = {}
+_hue_cache_lock = threading.Lock()
 
 
 def _send_json(handler, data, status=200):
@@ -62,15 +67,13 @@ def handle_get(handler, strat, auth, path, output_dir=None):
 
             # 5-minute cache keyed by (profile_id, time_bucket)
             cache_key = (pid, int(time.time() / 300))
-            if not hasattr(handle_get, '_hue_cache'):
-                handle_get._hue_cache = {}
-            if cache_key in handle_get._hue_cache:
-                _send_json(handler, handle_get._hue_cache[cache_key])
-                return True
-
-            # Clean cache if it grows too large
-            if len(handle_get._hue_cache) > 100:
-                handle_get._hue_cache.clear()
+            with _hue_cache_lock:
+                if cache_key in _hue_cache:
+                    _send_json(handler, _hue_cache[cache_key])
+                    return True
+                # Clean cache if it grows too large
+                if len(_hue_cache) > 100:
+                    _hue_cache.clear()
 
             bp = compute_behavioral_profile(strat.db, pid, days=30, config=strat.config)
             hue = compute_hue(bp)
@@ -93,7 +96,8 @@ def handle_get(handler, strat, auth, path, output_dir=None):
                     "feedback_count": bp.get("feedback_count", 0),
                 },
             }
-            handle_get._hue_cache[cache_key] = result
+            with _hue_cache_lock:
+                _hue_cache[cache_key] = result
             _send_json(handler, result)
         except Exception as e:
             logger.warning(f"Hue computation failed: {e}")
