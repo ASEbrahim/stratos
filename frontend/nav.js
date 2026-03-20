@@ -123,7 +123,10 @@ function getTabCount(id) {
 function renderNav() {
     let html = '';
     navSections.forEach((section, si) => {
-        const isCollapsed = section.collapsible && localStorage.getItem(section.storageKey) === 'true';
+        // Categories (navIntelCollapsed) default to collapsed for new users
+        const collapseDefault = section.storageKey === 'navIntelCollapsed';
+        const stored = localStorage.getItem(section.storageKey);
+        const isCollapsed = section.collapsible && (stored === 'true' || (stored === null && collapseDefault));
         const hasActiveItem = section.items.some(item => item.id === activeRoot);
         
         if (section.label) {

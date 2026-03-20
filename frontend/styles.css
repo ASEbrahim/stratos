@@ -974,7 +974,11 @@ input::placeholder, textarea::placeholder {
 .nav-section-items.collapsed { max-height: 0 !important; opacity: 0; overflow: hidden !important; pointer-events: none; }
 .nav-section-header { cursor: pointer; user-select: none; }
 .nav-section-header .chevron-icon { transition: transform 0.25s ease; display: inline-block; }
-.nav-section-header.collapsed .chevron-icon { transform: rotate(-90deg); }
+.nav-section-header.collapsed .chevron-icon { transform: rotate(-90deg); animation: chevronGlow 2s ease-in-out infinite; }
+@keyframes chevronGlow {
+    0%, 100% { filter: drop-shadow(0 0 2px var(--accent)); color: var(--text-muted); }
+    50% { filter: drop-shadow(0 0 6px var(--accent)) drop-shadow(0 0 12px var(--accent)); color: var(--accent); }
+}
 .sidebar-collapsed .nav-section-header { display: none; }
 .sidebar-collapsed .nav-section-items { max-height: none !important; opacity: 1; }
 .sidebar-collapsed .nav-section-items.collapsed { max-height: none !important; opacity: 1; }
