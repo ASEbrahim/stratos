@@ -348,10 +348,9 @@ def handle_agent_chat(handler, strat, output_file, profile_id=0):
         ollama_host = scoring_cfg.get("ollama_host", "http://localhost:11434")
         model = scoring_cfg.get("inference_model", "qwen3.5:9b")
 
-        # ── Model swap routing: roleplay + gaming RP mode use dedicated RP model ──
+        # ── Model swap routing: roleplay persona uses dedicated RP model ──
         _is_rp = persona_name == 'roleplay'
-        _is_gaming_rp = persona_name == 'gaming' and rp_mode == 'immersive'
-        if _is_rp or _is_gaming_rp:
+        if _is_rp:
             model = strat.config.get("scoring", {}).get("rp_model", "stratos-rp-q8")
 
         # VRAM safety: ensure Ollama running + check model fits in VRAM
@@ -419,7 +418,23 @@ def handle_agent_chat(handler, strat, output_file, profile_id=0):
                                 f"## Interaction Memory\n{e['memory_md']}" if e.get('memory_md') else '',
                                 f"## Knowledge\n{e['knowledge_md']}" if e.get('knowledge_md') else '',
                             ]))
-                    # GM mode: no character data injected — GM creates NPCs organically from the scenario
+                    elif rp_mode == 'gm':
+                        # GM mode: load full entity roster so GM knows the cast
+                        cursor.execute(
+                            "SELECT display_name, identity_md, personality_md, speaking_style_md "
+                            "FROM persona_entities WHERE profile_id = ? AND persona = ? AND scenario_name = ?",
+                            (profile_id, persona_name, active_scenario))
+                        rows = [dict(r) for r in cursor.fetchall()]
+                        if rows:
+                            roster = ["## Character Roster"]
+                            for e in rows[:10]:
+                                name = e.get('display_name', '???')
+                                parts = []
+                                if e.get('identity_md'): parts.append(e['identity_md'][:150])
+                                if e.get('personality_md'): parts.append(e['personality_md'][:150])
+                                if e.get('speaking_style_md'): parts.append(f"Voice: {e['speaking_style_md'][:80]}")
+                                roster.append(f"**{name}**: {' | '.join(parts)}" if parts else f"**{name}**")
+                            npc_personality = '\n'.join(roster)
                 except Exception as ex:
                     logger.debug(f"Entity load failed: {ex}")
 
@@ -550,7 +565,7 @@ def handle_agent_chat(handler, strat, output_file, profile_id=0):
         tools = [t for t in AGENT_TOOLS if t["function"]["name"] in allowed_tools]
 
         # ── No-tools persona: stream response directly (like free mode but with full prompt) ──
-        _stream_temp = 0.85 if (_is_rp or _is_gaming_rp) else 0.5
+        _stream_temp = 0.85 if _is_rp else 0.5
         if not tools:
             try:
                 r = req.post(
@@ -593,7 +608,7 @@ def handle_agent_chat(handler, strat, output_file, profile_id=0):
             return
 
         # ── Tool-call loop (max 8 rounds) ──
-        _tool_temp = 0.85 if (_is_rp or _is_gaming_rp) else 0.4
+        _tool_temp = 0.85 if _is_rp else 0.4
         for round_num in range(8):
             try:
                 _tool_payload = {
@@ -606,7 +621,7 @@ def handle_agent_chat(handler, strat, output_file, profile_id=0):
                         "num_predict": _num_predict,
                     },
                 }
-                if _is_rp or _is_gaming_rp:
+                if _is_rp:
                     _tool_payload["think"] = False  # Prevent think-block leakage on RP model
                 r = req.post(
                     f"{ollama_host}/api/chat",
