@@ -12,11 +12,6 @@ function _initStarParallax() {
 
     const isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
     const isMobile = window.innerWidth <= 768;
-    const COUNT = _isSibyl ? (isMobile ? 80 : 500) : (isMobile ? 40 : 300);
-    const MOUSE_RADIUS = 160;
-    const LINE_RADIUS = 130;
-    const LINE_MOUSE_RANGE = 250;
-    const DRIFT_SPEED = 0.12;
     const _isCosmos = _t.name === 'Cosmos';
     const _isSakura = _t.name === 'Sakura';
     const _isNebula = _t.name === 'Nebula';
@@ -26,6 +21,11 @@ function _initStarParallax() {
     const _isCoffee = _t.name === 'Coffee';
     const _isMidnight = _t.name === 'Midnight';
     const _isSibyl = _t.name === 'Sibyl';
+    const COUNT = _isSibyl ? (isMobile ? 80 : 500) : (isMobile ? 40 : 300);
+    const MOUSE_RADIUS = 160;
+    const LINE_RADIUS = 130;
+    const LINE_MOUSE_RANGE = 250;
+    const DRIFT_SPEED = 0.12;
 
     // ── Black hole data (nebula auth theme — P1 classic accretion disk) ──
     const _bhParticles = [];
