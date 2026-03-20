@@ -1517,6 +1517,14 @@ function formatAgentText(text) {
         return `\x00URL_${idx}\x00` + trailing;
     });
 
+    // Extract blockquotes before escaping (> at line start = dialogue/emphasis)
+    const blockquotes = [];
+    processed = processed.replace(/^>\s*(.+)$/gm, (_, text) => {
+        const idx = blockquotes.length;
+        blockquotes.push(text);
+        return `\x00BQUOTE_${idx}\x00`;
+    });
+
     let html = processed
         .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
         // Bold
@@ -1600,6 +1608,16 @@ function formatAgentText(text) {
         const langBadge = block.lang ? `<span class="absolute top-1.5 right-2 text-[9px] font-mono" style="color:var(--text-muted);opacity:0.5;">${block.lang}</span>` : '';
         html = html.replace(`\x00CODEBLOCK_${i}\x00`,
             `<div class="relative my-2 rounded-lg overflow-hidden" style="background:rgba(0,0,0,0.3);border:1px solid var(--border-strong);">${langBadge}<pre class="p-3 overflow-x-auto text-[11px] leading-relaxed font-mono" style="color:#e2e8f0;"><code>${escaped}</code></pre></div>`);
+    });
+
+    // Re-inject blockquotes (dialogue/emphasis)
+    blockquotes.forEach((text, i) => {
+        const formatted = text
+            .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+            .replace(/\*\*(.+?)\*\*/g, '<strong style="color:var(--text-heading);">$1</strong>')
+            .replace(/(?<!\w)\*([^*\n]+?)\*(?!\w)/g, '<em style="color:var(--accent,#34d399);font-style:italic;">$1</em>');
+        html = html.replace(`\x00BQUOTE_${i}\x00`,
+            `<div class="pl-3 my-1" style="border-left:2px solid var(--accent,#34d399);color:var(--text-secondary,#94a3b8);font-style:italic;">${formatted}</div>`);
     });
 
     // Re-inject clickable option blocks
