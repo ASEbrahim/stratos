@@ -2039,6 +2039,8 @@ async function sendAgentMessage() {
         input.focus();
         // Fire stream-end hook for mobile agent sync
         if (typeof _onAgentStreamEndHook === 'function') _onAgentStreamEndHook();
+        // Refresh scenario list after gaming responses (catches tool-created scenarios)
+        if (currentPersona === 'gaming' && typeof _loadScenarios === 'function') _loadScenarios();
     }
 }
 
