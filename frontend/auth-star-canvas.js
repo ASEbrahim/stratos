@@ -767,7 +767,7 @@ function _initStarParallax() {
             g.appendChild(p); svg.appendChild(g); document.body.appendChild(svg);
             svg.style.cssText = 'position:absolute;visibility:hidden;width:660px;height:649px';
             _sbBp = []; const len = p.getTotalLength();
-            for (let i = 0; i < len; i += 2) { const pt = p.getPointAtLength(i); _sbBp.push({ x: pt.x * .1, y: 649 + pt.y * -.1 }); }
+            for (let i = 0; i < len; i += 4) { const pt = p.getPointAtLength(i); _sbBp.push({ x: pt.x * .1, y: 649 + pt.y * -.1 }); }
             document.body.removeChild(svg);
         })();
 
@@ -775,7 +775,7 @@ function _initStarParallax() {
             const th = _ch * .28;
             _sbBs = th / 649;
             _sbBx = _cw / 2 - 660 * _sbBs / 2;
-            _sbBy = _ch * .28 - th / 2;
+            _sbBy = _ch * .18 - th / 2; // brain sits above the logo
         }
 
         function _sbSpt(px, py) { return { x: _sbBx + px * _sbBs, y: _sbBy + py * _sbBs }; }
@@ -831,43 +831,73 @@ function _initStarParallax() {
             }
         }
 
+        // Pre-computed screen points (rebuilt on transform change)
+        let _sbScreenPts = [];
+        function _sbCacheScreenPts() {
+            _sbScreenPts = _sbBp.map(p => _sbSpt(p.x, p.y));
+        }
+
         function _sbDrawOutline(t) {
+            if (_sbScreenPts.length === 0) return;
             _sbSweepPos = (_sbSweepPos + .0008) % 1;
-            const sweepIdx = Math.floor(_sbSweepPos * _sbBp.length);
-            const sweepW = _sbBp.length * .12;
+            const sweepIdx = Math.floor(_sbSweepPos * _sbScreenPts.length);
+            const sweepW = _sbScreenPts.length * .12;
             const segLen = 5, gapLen = 3, totalSeg = segLen + gapLen;
-            for (let i = 0; i < _sbBp.length - 1; i++) {
-                if (i % totalSeg >= segLen) continue;
-                const pt = _sbSpt(_sbBp[i].x, _sbBp[i].y);
-                const pt2 = _sbSpt(_sbBp[(i + 1) % _sbBp.length].x, _sbBp[(i + 1) % _sbBp.length].y);
-                let dist = i - sweepIdx;
-                if (dist < 0) dist += _sbBp.length;
-                if (dist > _sbBp.length / 2) dist = _sbBp.length - dist;
-                const sweepBoost = dist < sweepW ? (.2 * (1 - dist / sweepW)) : 0;
-                const baseAlpha = .05 + sweepBoost;
-                ctx.strokeStyle = `rgba(79,195,247,${baseAlpha})`;
-                ctx.lineWidth = sweepBoost > .06 ? 1.4 : .7;
-                ctx.beginPath(); ctx.moveTo(pt.x, pt.y); ctx.lineTo(pt2.x, pt2.y); ctx.stroke();
-                if (sweepBoost > .08) {
-                    ctx.strokeStyle = `rgba(160,230,255,${sweepBoost * .5})`;
-                    ctx.lineWidth = .3;
-                    ctx.beginPath(); ctx.moveTo(pt.x, pt.y); ctx.lineTo(pt2.x, pt2.y); ctx.stroke();
-                }
-            }
-            const hp = _sbSpt(_sbBp[sweepIdx].x, _sbBp[sweepIdx].y);
-            const hg = ctx.createRadialGradient(hp.x, hp.y, 0, hp.x, hp.y, 14);
-            hg.addColorStop(0, 'rgba(79,195,247,.18)'); hg.addColorStop(.4, 'rgba(79,195,247,.05)'); hg.addColorStop(1, 'rgba(79,195,247,0)');
-            ctx.fillStyle = hg; ctx.beginPath(); ctx.arc(hp.x, hp.y, 14, 0, Math.PI * 2); ctx.fill();
-            ctx.fillStyle = 'rgba(200,240,255,.7)'; ctx.beginPath(); ctx.arc(hp.x, hp.y, 1.5, 0, Math.PI * 2); ctx.fill();
-            const s2 = Math.floor(((_sbSweepPos + .5) % 1) * _sbBp.length);
-            const h2 = _sbSpt(_sbBp[s2].x, _sbBp[s2].y);
-            const hg2 = ctx.createRadialGradient(h2.x, h2.y, 0, h2.x, h2.y, 8);
-            hg2.addColorStop(0, 'rgba(79,195,247,.08)'); hg2.addColorStop(1, 'rgba(79,195,247,0)');
-            ctx.fillStyle = hg2; ctx.beginPath(); ctx.arc(h2.x, h2.y, 8, 0, Math.PI * 2); ctx.fill();
+            const bpLen = _sbScreenPts.length;
+
+            // Batch: draw base segments in one path, sweep-boosted in another
+            ctx.lineWidth = .7;
+            ctx.strokeStyle = 'rgba(79,195,247,.05)';
             ctx.beginPath();
-            let p0 = _sbSpt(_sbBp[0].x, _sbBp[0].y); ctx.moveTo(p0.x, p0.y);
-            for (let i = 1; i < _sbBp.length; i++) { const pt = _sbSpt(_sbBp[i].x, _sbBp[i].y); ctx.lineTo(pt.x, pt.y); }
-            ctx.closePath(); ctx.fillStyle = 'rgba(79,195,247,.006)'; ctx.fill();
+            let inSeg = false;
+            for (let i = 0; i < bpLen - 1; i++) {
+                if (i % totalSeg >= segLen) { inSeg = false; continue; }
+                let dist = i - sweepIdx;
+                if (dist < 0) dist += bpLen;
+                if (dist > bpLen / 2) dist = bpLen - dist;
+                if (dist < sweepW) continue; // skip sweep zone, drawn separately
+                if (!inSeg) { ctx.moveTo(_sbScreenPts[i].x, _sbScreenPts[i].y); inSeg = true; }
+                ctx.lineTo(_sbScreenPts[i + 1].x, _sbScreenPts[i + 1].y);
+            }
+            ctx.stroke();
+
+            // Sweep zone — brighter, drawn as separate batch
+            ctx.beginPath();
+            let inSweep = false;
+            for (let i = 0; i < bpLen - 1; i++) {
+                if (i % totalSeg >= segLen) { inSweep = false; continue; }
+                let dist = i - sweepIdx;
+                if (dist < 0) dist += bpLen;
+                if (dist > bpLen / 2) dist = bpLen - dist;
+                if (dist >= sweepW) { inSweep = false; continue; }
+                const boost = .2 * (1 - dist / sweepW);
+                if (!inSweep) { ctx.moveTo(_sbScreenPts[i].x, _sbScreenPts[i].y); inSweep = true; }
+                ctx.lineTo(_sbScreenPts[i + 1].x, _sbScreenPts[i + 1].y);
+            }
+            ctx.strokeStyle = 'rgba(79,195,247,.2)';
+            ctx.lineWidth = 1.4;
+            ctx.stroke();
+
+            // Sweep head glow
+            const hp = _sbScreenPts[sweepIdx];
+            ctx.fillStyle = 'rgba(79,195,247,.15)';
+            ctx.beginPath(); ctx.arc(hp.x, hp.y, 10, 0, Math.PI * 2); ctx.fill();
+            ctx.fillStyle = 'rgba(200,240,255,.7)';
+            ctx.beginPath(); ctx.arc(hp.x, hp.y, 1.5, 0, Math.PI * 2); ctx.fill();
+
+            // Second sweep head (opposite)
+            const s2 = Math.floor(((_sbSweepPos + .5) % 1) * bpLen);
+            const h2 = _sbScreenPts[s2];
+            ctx.fillStyle = 'rgba(79,195,247,.06)';
+            ctx.beginPath(); ctx.arc(h2.x, h2.y, 6, 0, Math.PI * 2); ctx.fill();
+
+            // Inner fill — single path, no per-point _sbSpt calls
+            ctx.beginPath();
+            ctx.moveTo(_sbScreenPts[0].x, _sbScreenPts[0].y);
+            for (let i = 1; i < _sbScreenPts.length; i++) ctx.lineTo(_sbScreenPts[i].x, _sbScreenPts[i].y);
+            ctx.closePath();
+            ctx.fillStyle = 'rgba(79,195,247,.006)';
+            ctx.fill();
         }
 
         function _sbDrawNetwork(t) {
@@ -1002,11 +1032,11 @@ function _initStarParallax() {
                     ctx.strokeStyle = `rgba(79,195,247,${n.pulseRing * .2})`;
                     ctx.lineWidth = .6; ctx.stroke();
                 }
-                if (n.activity > .03) {
-                    const hg = ctx.createRadialGradient(n.x, n.y, 0, n.x, n.y, r * (n.isHub ? 6 : 4));
-                    hg.addColorStop(0, `rgba(79,195,247,${n.activity * (n.isHub ? .08 : .05)})`);
-                    hg.addColorStop(1, 'rgba(79,195,247,0)');
-                    ctx.fillStyle = hg; ctx.beginPath(); ctx.arc(n.x, n.y, r * (n.isHub ? 6 : 4), 0, Math.PI * 2); ctx.fill();
+                if (n.activity > .05) {
+                    // Simple halo circle instead of expensive radialGradient
+                    const hR = r * (n.isHub ? 5 : 3.5);
+                    ctx.fillStyle = `rgba(79,195,247,${n.activity * (n.isHub ? .04 : .025)})`;
+                    ctx.beginPath(); ctx.arc(n.x, n.y, hR, 0, Math.PI * 2); ctx.fill();
                 }
                 if (n.isHub) {
                     ctx.beginPath(); ctx.arc(n.x, n.y, r + 2, 0, Math.PI * 2);
@@ -1221,6 +1251,7 @@ function _initStarParallax() {
     // Sibyl brain init (needs _cw/_ch from resize)
     if (_isSibyl && typeof _sbGetTransform === 'function') {
         _sbGetTransform();
+        _sbCacheScreenPts();
         _sbBuildNetwork();
     }
 
@@ -1425,9 +1456,7 @@ function _initStarParallax() {
             ctx.restore();
         }
         if (_isSibyl) {
-            ctx.save(); ctx.translate(_elCx, _elCy); ctx.scale(_elScale, _elScale); ctx.translate(-_elCx, -_elCy);
             _sibylDrawBrain(t);
-            ctx.restore();
         }
         if (_isSakura) {
             if (isMobile) {
