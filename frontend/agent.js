@@ -1427,30 +1427,56 @@ let _rpLastUsedNote = '';
 
 function _rpToggleDirector() {
     const panel = document.getElementById('rp-director-panel');
-    if (panel) { panel.classList.toggle('hidden'); return; }
+    if (panel) { panel.remove(); _rpUpdateSteerButton(); return; }
 
-    const input = document.getElementById('agent-input-area');
-    if (!input) return;
+    // Insert above the input row — find the textarea's container
+    const textarea = document.getElementById('agent-input');
+    if (!textarea) return;
+    const inputRow = textarea.closest('.px-3');
+    if (!inputRow) return;
 
     const div = document.createElement('div');
     div.id = 'rp-director-panel';
-    div.className = 'px-4 py-2';
-    div.style.borderTop = '1px solid var(--border-subtle)';
+    div.className = 'mx-3 mb-2 p-3 rounded-xl';
+    div.style.cssText = 'background:rgba(251,191,36,0.06);border:1px solid rgba(251,191,36,0.25);';
     div.innerHTML = `
-        <div class="flex items-center gap-2 mb-1">
-            <i data-lucide="sparkles" class="w-3 h-3" style="color:var(--accent-primary);"></i>
-            <span class="text-[10px] font-medium" style="color:var(--accent-primary);">Director's Note</span>
-            <button onclick="this.closest('#rp-director-panel').classList.add('hidden')" class="ml-auto p-0.5">
-                <i data-lucide="x" class="w-3 h-3" style="color:var(--text-muted);"></i>
+        <div class="flex items-center gap-2 mb-2">
+            <i data-lucide="sparkles" class="w-3.5 h-3.5" style="color:#fbbf24;"></i>
+            <span class="text-[11px] font-semibold" style="color:#fbbf24;">Steer</span>
+            <span class="text-[9px]" style="color:var(--text-muted);">Guide the AI's next response (one-shot)</span>
+            <button onclick="_rpToggleDirector()" class="ml-auto p-1 rounded-md transition-all" style="color:var(--text-muted);" onmouseenter="this.style.color='#f87171'" onmouseleave="this.style.color='var(--text-muted)'">
+                <i data-lucide="x" class="w-3 h-3"></i>
             </button>
         </div>
-        <input type="text" id="rp-director-input" placeholder="Guide the AI's next response..." maxlength="500"
-            class="w-full text-xs rounded px-3 py-1.5" style="background:var(--bg-tertiary); color:var(--text-body); border:1px solid var(--border-subtle);"
+        <input type="text" id="rp-director-input" placeholder="e.g., Make the character more suspicious of the player..." maxlength="500"
+            class="w-full text-[11px] rounded-lg px-3 py-2" style="background:var(--bg-tertiary); color:var(--text-body); border:1px solid rgba(251,191,36,0.3); outline:none;"
+            onfocus="this.style.borderColor='#fbbf24';this.style.boxShadow='0 0 0 2px rgba(251,191,36,0.15)'"
+            onblur="this.style.borderColor='rgba(251,191,36,0.3)';this.style.boxShadow='none'"
             value="${escAgent(_rpDirectorNote)}"
-            oninput="_rpDirectorNote=this.value">
-        ${_rpLastUsedNote ? `<button onclick="_rpDirectorNote='${escAgent(_rpLastUsedNote)}';document.getElementById('rp-director-input').value=_rpDirectorNote;" class="text-[9px] mt-1 opacity-60 hover:opacity-100" style="color:var(--accent-primary);">↩ Reuse: ${escAgent(_rpLastUsedNote.slice(0, 40))}${_rpLastUsedNote.length > 40 ? '...' : ''}</button>` : ''}`;
-    input.parentElement.insertBefore(div, input);
+            oninput="_rpDirectorNote=this.value;_rpUpdateSteerButton();"
+            onkeydown="if(event.key==='Enter'){event.preventDefault();document.getElementById('agent-input').focus();}">
+        ${_rpLastUsedNote ? `<button onclick="_rpDirectorNote='${escAgent(_rpLastUsedNote)}';document.getElementById('rp-director-input').value=_rpDirectorNote;_rpUpdateSteerButton();" class="text-[9px] mt-1.5 px-2 py-0.5 rounded transition-all" style="color:#fbbf24;opacity:0.7;border:1px solid rgba(251,191,36,0.2);" onmouseenter="this.style.opacity='1'" onmouseleave="this.style.opacity='0.7'">&#x21a9; Reuse: ${escAgent(_rpLastUsedNote.slice(0, 40))}${_rpLastUsedNote.length > 40 ? '...' : ''}</button>` : ''}
+        <div class="text-[9px] mt-1.5" style="color:var(--text-muted);opacity:0.6;">This note is consumed after your next message. The AI won't see it after that.</div>`;
+    inputRow.parentElement.insertBefore(div, inputRow);
     lucide.createIcons();
+    div.querySelector('#rp-director-input').focus();
+    _rpUpdateSteerButton();
+}
+
+function _rpUpdateSteerButton() {
+    const btn = document.getElementById('rp-director-btn');
+    if (!btn) return;
+    const active = !!_rpDirectorNote;
+    const panelOpen = !!document.getElementById('rp-director-panel');
+    if (active || panelOpen) {
+        btn.style.borderColor = 'rgba(251,191,36,0.5)';
+        btn.style.color = '#fbbf24';
+        btn.style.background = 'rgba(251,191,36,0.08)';
+    } else {
+        btn.style.borderColor = 'var(--border-strong)';
+        btn.style.color = 'var(--text-muted)';
+        btn.style.background = 'rgba(255,255,255,0.02)';
+    }
 }
 
 function escAgent(s) {
@@ -1851,6 +1877,10 @@ async function sendAgentMessage() {
         _rpDirectorNote = '';
         const dirInput = document.getElementById('rp-director-input');
         if (dirInput) dirInput.value = '';
+        // Collapse the steer panel and reset button glow
+        const dirPanel = document.getElementById('rp-director-panel');
+        if (dirPanel) dirPanel.remove();
+        if (typeof _rpUpdateSteerButton === 'function') _rpUpdateSteerButton();
     }
 
     agentStreaming = true;
