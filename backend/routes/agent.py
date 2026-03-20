@@ -528,6 +528,21 @@ def handle_agent_chat(handler, strat, output_file, profile_id=0):
 
         # Build messages for /api/chat
         messages = [{"role": "system", "content": system_prompt}]
+
+        # Seed GM format on first message — one-shot example so the model follows stat blocks + choices
+        if persona_name == 'gaming' and rp_mode == 'gm' and not history:
+            messages.append({"role": "user", "content": "Begin"})
+            messages.append({"role": "assistant", "content": (
+                "The scene unfolds before you...\n\n"
+                "❤ HP: 100/100 | ⚔ ATK: 5 | 🛡 DEF: 3\n"
+                "📦 Inventory: Starting gear\n"
+                "⚠ Status: Healthy\n\n"
+                "1. Look around and take in the surroundings\n"
+                "2. Check your equipment\n"
+                "3. Move forward cautiously\n"
+                "4. [Custom action]"
+            )})
+
         for h in history[:-1]:
             if isinstance(h, dict) and h.get("role") in ("user", "assistant") and h.get("content"):
                 messages.append({"role": h["role"], "content": h["content"]})
