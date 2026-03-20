@@ -86,7 +86,9 @@ def compute_behavioral_profile(db, profile_id, days=30, config=None):
         # Merge volumes + feedback
         for cat, vol in cat_volumes.items():
             fb = cat_fb.get(cat, {})
-            total_fb = sum(fb.values()) or 1
+            raw_fb_total = sum(fb.values())
+            total_fb = raw_fb_total or 1
+            has_fb = raw_fb_total > 0
             entry = {
                 "count": vol["count"],
                 "avg_score": vol["avg_score"],
@@ -94,9 +96,9 @@ def compute_behavioral_profile(db, profile_id, days=30, config=None):
                 "saves": fb.get("save", 0),
                 "dismisses": fb.get("dismiss", 0),
                 "rates": fb.get("rate", 0),
-                "click_rate": round(fb.get("click", 0) / total_fb, 2) if sum(fb.values()) > 0 else 0,
-                "save_rate": round(fb.get("save", 0) / total_fb, 2) if sum(fb.values()) > 0 else 0,
-                "dismiss_rate": round(fb.get("dismiss", 0) / total_fb, 2) if sum(fb.values()) > 0 else 0,
+                "click_rate": round(fb.get("click", 0) / total_fb, 2) if has_fb else 0,
+                "save_rate": round(fb.get("save", 0) / total_fb, 2) if has_fb else 0,
+                "dismiss_rate": round(fb.get("dismiss", 0) / total_fb, 2) if has_fb else 0,
             }
             result["category_engagement"][cat] = entry
 
