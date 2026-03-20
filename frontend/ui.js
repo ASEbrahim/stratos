@@ -1194,7 +1194,7 @@ function renderStars() {
     // Brain is built lazily on first draw call (needs px, py from theme editor)
 
     function _sybDrawElement(px, py, t, W, H) {
-        if (!_sybBrainBuilt || _sybBrainPts.length === 0) return;
+        if (_sybBrainPts.length === 0) return;
         const colors = _getStarColors();
         const c1 = `${colors.c1.r},${colors.c1.g},${colors.c1.b}`;
         const PI2 = Math.PI * 2;
