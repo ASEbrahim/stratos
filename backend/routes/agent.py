@@ -419,20 +419,7 @@ def handle_agent_chat(handler, strat, output_file, profile_id=0):
                                 f"## Interaction Memory\n{e['memory_md']}" if e.get('memory_md') else '',
                                 f"## Knowledge\n{e['knowledge_md']}" if e.get('knowledge_md') else '',
                             ]))
-                    elif rp_mode == 'gm':
-                        # GM mode: load roster as REFERENCE ONLY (names + brief info)
-                        cursor.execute(
-                            "SELECT display_name, identity_md, personality_md "
-                            "FROM persona_entities WHERE profile_id = ? AND persona = ? AND scenario_name = ?",
-                            (profile_id, persona_name, active_scenario))
-                        rows = [dict(r) for r in cursor.fetchall()]
-                        if rows:
-                            roster = ["## Known Characters (REFERENCE ONLY — do NOT speak as these characters)"]
-                            for e in rows[:10]:
-                                name = e.get('display_name', '???')
-                                brief = (e.get('identity_md') or e.get('personality_md') or '')[:100]
-                                roster.append(f"- **{name}**: {brief}" if brief else f"- **{name}**")
-                            npc_personality = '\n'.join(roster)
+                    # GM mode: no character data injected — GM creates NPCs organically from the scenario
                 except Exception as ex:
                     logger.debug(f"Entity load failed: {ex}")
 
