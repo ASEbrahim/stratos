@@ -94,7 +94,7 @@ def extract_facts_llm(user_msg: str, ai_response: str) -> list:
                 "model": "qwen3.5:9b",
                 "prompt": prompt,
                 "stream": False,
-                "options": {"temperature": 0.1, "num_predict": 200, "num_ctx": 4096},
+                "options": {"temperature": 0.1, "num_predict": 200},
                 "think": False,
             }, timeout=60)
             if r.status_code != 200:
@@ -252,7 +252,7 @@ def extract_arc_summary(session_id: str, user_name: str, char_name: str,
                 "model": "qwen3.5:9b",
                 "prompt": prompt,
                 "stream": False,
-                "options": {"temperature": 0.3, "num_predict": 200, "num_ctx": 4096},
+                "options": {"temperature": 0.3, "num_predict": 200},
                 "think": False,
             }, timeout=90)
             if r.status_code != 200:
@@ -271,7 +271,7 @@ def extract_arc_summary(session_id: str, user_name: str, char_name: str,
                     "model": "qwen3.5:9b",
                     "prompt": prompt,
                     "stream": False,
-                    "options": {"temperature": 0.2, "num_predict": 200, "num_ctx": 4096},
+                    "options": {"temperature": 0.2, "num_predict": 200},
                     "think": False,
                 }, timeout=90)
                 if r.status_code == 200:

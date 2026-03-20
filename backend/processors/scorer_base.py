@@ -799,7 +799,7 @@ class ScorerBase:
                 "model": self.model,
                 "prompt": prompt,
                 "stream": True,
-                "options": {"temperature": 0.6, "top_p": 0.95, "top_k": 20, "num_predict": 256, "num_ctx": 4096}
+                "options": {"temperature": 0.6, "top_p": 0.95, "top_k": 20, "num_predict": 256}
             }
             if system_prompt:
                 payload["system"] = system_prompt

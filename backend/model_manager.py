@@ -227,7 +227,7 @@ def _score_single(messages: List[dict], model: str, host: str) -> Tuple[float, s
                 "model": model,
                 "messages": messages[:2],  # system + user only
                 "stream": False,
-                "options": {"temperature": 0.1, "num_predict": 2048, "num_ctx": 4096},
+                "options": {"temperature": 0.1, "num_predict": 2048},
             },
             timeout=120,
         )

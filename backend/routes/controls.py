@@ -171,7 +171,7 @@ def handle_post(handler, strat, auth, path):
             ensure_model_ready(model)
             requests.post(f"{ollama_host}/api/generate",
                           json={"model": model, "prompt": "hi", "stream": False,
-                                "options": {"num_predict": 1, "num_ctx": 2048}},
+                                "options": {"num_predict": 1}},
                           timeout=30)
         except Exception as e:
             logger.debug(f"Agent warmup failed: {e}")

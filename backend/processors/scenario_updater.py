@@ -175,7 +175,7 @@ def _analyze_exchange(ollama_host, model, user_message, ai_response):
                 "model": model,
                 "prompt": prompt,
                 "stream": False,
-                "options": {"temperature": 0.1, "num_predict": 512, "num_ctx": 4096},
+                "options": {"temperature": 0.1, "num_predict": 512},
                 "think": False,
             },
             timeout=30,
@@ -239,7 +239,7 @@ Return ONLY the scene text, no JSON, no markdown fences."""
             f"{ollama_host}/api/generate",
             json={
                 "model": model, "prompt": prompt, "stream": False,
-                "options": {"temperature": 0.3, "num_predict": 256, "num_ctx": 4096},
+                "options": {"temperature": 0.3, "num_predict": 256},
                 "think": False,
             },
             timeout=30,
@@ -300,7 +300,7 @@ Return ONLY the text to append. No JSON. No headers."""
             f"{ollama_host}/api/generate",
             json={
                 "model": model, "prompt": prompt, "stream": False,
-                "options": {"temperature": 0.3, "num_predict": 128, "num_ctx": 4096},
+                "options": {"temperature": 0.3, "num_predict": 128},
                 "think": False,
             },
             timeout=15,

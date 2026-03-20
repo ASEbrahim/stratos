@@ -76,7 +76,7 @@ def _generate_suggestions(handler, ollama_host, model, user_msg, agent_response,
                 "model": model,
                 "messages": [{"role": "user", "content": prompt}],
                 "stream": False,
-                "options": {"temperature": 0.7, "num_predict": 120, "num_ctx": 4096},
+                "options": {"temperature": 0.7, "num_predict": 120},
                 "think": False,
             },
             timeout=8,
@@ -123,7 +123,7 @@ def _generate_gaming_suggestions(handler, ollama_host, model, user_msg, agent_re
                 "model": model,
                 "messages": [{"role": "user", "content": prompt}],
                 "stream": False,
-                "options": {"temperature": 0.7, "num_predict": 300, "num_ctx": 4096},
+                "options": {"temperature": 0.7, "num_predict": 300},
                 "think": False,
             },
             timeout=10,
@@ -189,7 +189,7 @@ Return ONLY a JSON object:
         r = req.post(
             f"{ollama_host}/api/chat",
             json={"model": model, "messages": [{"role": "user", "content": prompt}],
-                  "stream": False, "options": {"temperature": 0.3, "num_predict": 200, "num_ctx": 4096}, "think": False},
+                  "stream": False, "options": {"temperature": 0.3, "num_predict": 200}, "think": False},
             timeout=15)
 
         if r.status_code != 200:
@@ -485,7 +485,7 @@ def handle_agent_chat(handler, strat, output_file, profile_id=0):
                 r = req.post(
                     f"{ollama_host}/api/chat",
                     json={"model": model, "messages": messages, "stream": True,
-                          "options": {"temperature": 0.7, "num_predict": _num_predict, "num_ctx": 8192}},
+                          "options": {"temperature": 0.7, "num_predict": _num_predict}},
                     timeout=180, stream=True
                 )
                 if r.status_code != 200:
@@ -544,7 +544,7 @@ def handle_agent_chat(handler, strat, output_file, profile_id=0):
                 r = req.post(
                     f"{ollama_host}/api/chat",
                     json={"model": model, "messages": messages, "stream": True,
-                          "options": {"temperature": _stream_temp, "num_predict": _num_predict, "num_ctx": 8192},
+                          "options": {"temperature": _stream_temp, "num_predict": _num_predict},
                           "think": False},
                     timeout=180, stream=True
                 )
@@ -592,7 +592,6 @@ def handle_agent_chat(handler, strat, output_file, profile_id=0):
                     "options": {
                         "temperature": _tool_temp,
                         "num_predict": _num_predict,
-                        "num_ctx": 8192,
                     },
                 }
                 if _is_rp:
@@ -668,7 +667,7 @@ def handle_agent_chat(handler, strat, output_file, profile_id=0):
             r = req.post(
                 f"{ollama_host}/api/chat",
                 json={"model": model, "messages": messages, "stream": False,
-                      "options": {"temperature": 0.4, "num_predict": 2000, "num_ctx": 8192}},
+                      "options": {"temperature": 0.4, "num_predict": 2000}},
                 timeout=120)
             if r.status_code == 200:
                 text = strip_think_blocks(r.json().get("message", {}).get("content", ""))
