@@ -831,51 +831,49 @@ function _initStarParallax() {
 
         function _sbDrawOutline(t) {
             if (_sbScreenPts.length === 0) return;
+            if (_sbScreenPts.length < 3) return;
             _sbSweepPos = (_sbSweepPos + .0008) % 1;
             const sweepIdx = Math.floor(_sbSweepPos * _sbScreenPts.length);
             const sweepW = _sbScreenPts.length * .12;
             const segLen = 5, gapLen = 3, totalSeg = segLen + gapLen;
             const bpLen = _sbScreenPts.length;
+            const PI2 = Math.PI * 2;
 
-            // Batch: draw base segments in one path, sweep-boosted in another
-            ctx.lineWidth = .7;
-            ctx.strokeStyle = 'rgba(79,195,247,.05)';
-            ctx.beginPath();
-            let inSeg = false;
+            // Per-segment drawing with sweep boost (matches standalone)
             for (let i = 0; i < bpLen - 1; i++) {
-                if (i % totalSeg >= segLen) { inSeg = false; continue; }
+                if (i % totalSeg >= segLen) continue;
+                const pt = _sbScreenPts[i], pt2 = _sbScreenPts[i + 1];
                 let dist = i - sweepIdx;
                 if (dist < 0) dist += bpLen;
                 if (dist > bpLen / 2) dist = bpLen - dist;
-                if (dist < sweepW) continue; // skip sweep zone, drawn separately
-                if (!inSeg) { ctx.moveTo(_sbScreenPts[i].x, _sbScreenPts[i].y); inSeg = true; }
-                ctx.lineTo(_sbScreenPts[i + 1].x, _sbScreenPts[i + 1].y);
+                const sweepBoost = dist < sweepW ? (.2 * (1 - dist / sweepW)) : 0;
+                ctx.strokeStyle = 'rgba(79,195,247,' + (.05 + sweepBoost) + ')';
+                ctx.lineWidth = sweepBoost > .06 ? 1.4 : .7;
+                ctx.beginPath(); ctx.moveTo(pt.x, pt.y); ctx.lineTo(pt2.x, pt2.y); ctx.stroke();
+                if (sweepBoost > .08) {
+                    ctx.strokeStyle = 'rgba(160,230,255,' + (sweepBoost * .5) + ')';
+                    ctx.lineWidth = .3;
+                    ctx.beginPath(); ctx.moveTo(pt.x, pt.y); ctx.lineTo(pt2.x, pt2.y); ctx.stroke();
+                }
             }
-            ctx.stroke();
 
-            // Sweep zone — brighter, drawn as separate batch
-            ctx.beginPath();
-            let inSweep = false;
-            for (let i = 0; i < bpLen - 1; i++) {
-                if (i % totalSeg >= segLen) { inSweep = false; continue; }
-                let dist = i - sweepIdx;
-                if (dist < 0) dist += bpLen;
-                if (dist > bpLen / 2) dist = bpLen - dist;
-                if (dist >= sweepW) { inSweep = false; continue; }
-                const boost = .2 * (1 - dist / sweepW);
-                if (!inSweep) { ctx.moveTo(_sbScreenPts[i].x, _sbScreenPts[i].y); inSweep = true; }
-                ctx.lineTo(_sbScreenPts[i + 1].x, _sbScreenPts[i + 1].y);
-            }
-            ctx.strokeStyle = 'rgba(79,195,247,.2)';
-            ctx.lineWidth = 1.4;
-            ctx.stroke();
+            // Sweep head glow
+            const hp = _sbScreenPts[sweepIdx];
+            ctx.fillStyle = 'rgba(79,195,247,.15)';
+            ctx.beginPath(); ctx.arc(hp.x, hp.y, 10, 0, PI2); ctx.fill();
+            ctx.fillStyle = 'rgba(200,240,255,.7)';
+            ctx.beginPath(); ctx.arc(hp.x, hp.y, 1.5, 0, PI2); ctx.fill();
 
-            // Sweep heads removed — outline-only
+            // Second sweep (opposite, dimmer)
+            const s2 = Math.floor(((_sbSweepPos + .5) % 1) * bpLen);
+            const h2 = _sbScreenPts[s2];
+            ctx.fillStyle = 'rgba(79,195,247,.06)';
+            ctx.beginPath(); ctx.arc(h2.x, h2.y, 6, 0, PI2); ctx.fill();
 
-            // Inner fill — single path, no per-point _sbSpt calls
+            // Inner fill
             ctx.beginPath();
             ctx.moveTo(_sbScreenPts[0].x, _sbScreenPts[0].y);
-            for (let i = 1; i < _sbScreenPts.length; i++) ctx.lineTo(_sbScreenPts[i].x, _sbScreenPts[i].y);
+            for (let i = 1; i < bpLen; i++) ctx.lineTo(_sbScreenPts[i].x, _sbScreenPts[i].y);
             ctx.closePath();
             ctx.fillStyle = 'rgba(79,195,247,.006)';
             ctx.fill();
