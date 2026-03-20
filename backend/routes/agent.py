@@ -404,21 +404,14 @@ def handle_agent_chat(handler, strat, output_file, profile_id=0):
                                 f"## Knowledge\n{e['knowledge_md']}" if e.get('knowledge_md') else '',
                             ]))
                     elif rp_mode == 'gm':
-                        # GM mode: full roster but NO speaking_style (that causes voicing)
+                        # GM mode: names + one-line role ONLY — any personality data causes voicing
                         cursor.execute(
-                            "SELECT display_name, identity_md, personality_md "
+                            "SELECT display_name, identity_md "
                             "FROM persona_entities WHERE profile_id = ? AND persona = ? AND scenario_name = ?",
                             (profile_id, persona_name, active_scenario))
-                        rows = [dict(r) for r in cursor.fetchall()]
-                        if rows:
-                            roster = ["## Character Roster"]
-                            for e in rows[:10]:
-                                name = e.get('display_name', '???')
-                                parts = []
-                                if e.get('identity_md'): parts.append(e['identity_md'][:150])
-                                if e.get('personality_md'): parts.append(e['personality_md'][:150])
-                                roster.append(f"**{name}**: {' | '.join(parts)}" if parts else f"**{name}**")
-                            npc_personality = '\n'.join(roster)
+                        names = [r[0] + (f" ({r[1][:50].rstrip('.')})" if r[1] else '') for r in cursor.fetchall() if r[0]]
+                        if names:
+                            npc_personality = "Characters in this world: " + ", ".join(names[:15]) + "."
                 except Exception as ex:
                     logger.debug(f"Entity load failed: {ex}")
 
