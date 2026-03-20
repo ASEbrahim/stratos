@@ -90,9 +90,9 @@ const AUTH_THEMES = [
       grid:'rgba(16,185,129,.04)', bg:'linear-gradient(160deg,#050810 0%,#080d18 50%,#050810 100%)',
       star1:'rgba(16,185,129,.5)', star2:'rgba(52,211,153,.35)', star3:'rgba(209,250,229,.25)' },
     { name:'Sibyl', accent:'#4fc3f7', rgb:'79,195,247',
-      orb1:'rgba(79,195,247,.06)', orb2:'rgba(60,140,200,.04)', orb3:'rgba(30,100,180,.03)',
-      grid:'rgba(79,195,247,.02)', bg:'linear-gradient(160deg,#020610 0%,#060e1a 50%,#020610 100%)',
-      star1:'rgba(79,195,247,.15)', star2:'rgba(60,140,200,.1)', star3:'rgba(120,160,190,.08)' },
+      orb1:'rgba(79,195,247,.04)', orb2:'rgba(40,100,160,.03)', orb3:'rgba(20,60,120,.02)',
+      grid:'rgba(79,195,247,.015)', bg:'linear-gradient(160deg,#010408 0%,#040a14 50%,#010408 100%)',
+      star1:'rgba(79,195,247,.12)', star2:'rgba(50,120,180,.08)', star3:'rgba(100,140,170,.06)' },
 ];
 
 function _getAuthTheme() {
