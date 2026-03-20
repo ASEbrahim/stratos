@@ -99,7 +99,7 @@ def _stream_ollama(handler, ollama_host: str, model: str, messages: list,
                 "options": {
                     "temperature": temperature,
                     "num_predict": num_predict,
-                    "num_ctx": 16384,
+                    "num_ctx": 32768,
                     "min_p": 0.05,
                     "top_k": 0,
                 },
