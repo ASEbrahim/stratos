@@ -119,9 +119,7 @@ function _renderScenarioBar() {
         </div>
         <div id="games-entity-content"></div>` : ''}`;
     lucide.createIcons();
-    // Only load character list in immersive/RP mode, not GM
-    if (_gamesActiveScenario && _gamesRpMode === 'immersive') _gamesLoadEntities();
-    else { _gamesEntities = []; const ec = document.getElementById('games-entity-content'); if (ec) ec.innerHTML = ''; }
+    if (_gamesActiveScenario) _gamesLoadEntities();
 }
 
 function _escHtmlG(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
@@ -366,29 +364,15 @@ function _renderEntityBar() {
         return;
     }
 
-    // Sort: last spoken to first (updated_at DESC), then alphabetical
-    const sorted = [..._gamesEntities].sort((a, b) => {
-        const aTime = a.updated_at || a.created_at || '';
-        const bTime = b.updated_at || b.created_at || '';
-        if (bTime > aTime) return 1;
-        if (aTime > bTime) return -1;
-        return (a.display_name || '').localeCompare(b.display_name || '');
-    });
-
-    const chips = sorted.map(e => {
-        const active = _gamesActiveNpc === e.display_name;
+    const chips = _gamesEntities.map(e => {
+        const active = _gamesActiveNpc.toLowerCase().replace(/ /g, '_') === e.name;
         const preview = (e.personality_md || '').slice(0, 40) || e.entity_type;
-        return `<div class="flex-shrink-0 flex items-center gap-0.5 rounded-md transition-all" style="background:${active ? 'rgba(168,85,247,0.15)' : 'transparent'};border:1px solid ${active ? 'rgba(168,85,247,0.4)' : 'var(--border-strong)'};">
-            <button onclick="_gamesSelectEntity('${_escForAttr(e.display_name)}')" class="px-2 py-1 text-left" title="${active ? 'Click to deselect' : _escHtmlG(preview)}">
-                <span class="text-[9px] font-medium" style="color:${active ? '#c084fc' : 'var(--text-heading)'}">${_escHtmlG(e.display_name)}</span>
-            </button>
-            <button onclick="event.stopPropagation();_gamesDeleteEntity('${_escForAttr(e.name)}')" class="px-1 py-1 transition-all" style="color:var(--text-muted);opacity:0.4;" title="Delete ${_escHtmlG(e.display_name)}" onmouseenter="this.style.color='#f87171';this.style.opacity='1'" onmouseleave="this.style.color='var(--text-muted)';this.style.opacity='0.4'">
-                <i data-lucide="x" class="w-2.5 h-2.5"></i>
-            </button>
-        </div>`;
+        return `<button onclick="_gamesSelectEntity('${_escForAttr(e.display_name)}')" class="flex-shrink-0 px-2 py-1 rounded-md text-left transition-all" style="background:${active ? 'rgba(168,85,247,0.15)' : 'transparent'};border:1px solid ${active ? 'rgba(168,85,247,0.4)' : 'var(--border-strong)'};" title="${_escHtmlG(preview)}">
+            <span class="text-[9px] font-medium" style="color:${active ? '#c084fc' : 'var(--text-heading)'}">${_escHtmlG(e.display_name)}</span>
+        </button>`;
     }).join('');
 
-    bar.innerHTML = `<div class="flex items-center gap-1.5 overflow-x-auto pb-0.5" style="scrollbar-width:thin;scrollbar-color:rgba(168,85,247,0.3) transparent;">
+    bar.innerHTML = `<div class="flex items-center gap-1.5 overflow-x-auto" style="scrollbar-width:none;">
         <span class="text-[9px] flex-shrink-0" style="color:var(--text-muted)">${entityLabel}s:</span>
         ${chips}
         <button onclick="_gamesCreateEntity()" class="flex-shrink-0 text-[9px] px-1.5 py-0.5 rounded-md transition-all" style="color:var(--text-muted);border:1px dashed var(--border-strong);" title="Add ${entityLabel}" onmouseenter="this.style.color='${theme.color}'" onmouseleave="this.style.color='var(--text-muted)'">+</button>
@@ -396,14 +380,9 @@ function _renderEntityBar() {
 }
 
 function _gamesSelectEntity(displayName) {
-    // Toggle: clicking the active character deselects them
-    if (_gamesActiveNpc === displayName) {
-        _gamesActiveNpc = '';
-    } else {
-        _gamesActiveNpc = displayName;
-    }
+    _gamesActiveNpc = displayName;
     const sel = document.getElementById('games-npc-input');
-    if (sel) sel.value = _gamesActiveNpc;
+    if (sel) sel.value = displayName;
     _renderEntityBar();
 }
 window._gamesSelectEntity = _gamesSelectEntity;

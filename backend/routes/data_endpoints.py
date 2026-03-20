@@ -570,30 +570,6 @@ def handle_get(handler, strat, auth, path, output_dir=None):
         _send_json(handler, {"personas": list_personas()})
         return True
 
-    # Agent suggestions — per-profile, per-persona, per-scenario (DB-backed)
-    if path == "/api/agent-suggestions":
-        qs = parse_qs(urlparse(handler.path).query)
-        persona = qs.get("persona", [""])[0][:30]
-        scenario = qs.get("scenario", [""])[0][:100]
-        pid = handler._profile_id
-        if not pid or not persona:
-            _send_json(handler, {"suggestions": []})
-            return True
-        try:
-            cursor = strat.db.conn.cursor()
-            cursor.execute(
-                "SELECT suggestions FROM agent_suggestions WHERE profile_id = ? AND persona = ? AND scenario = ?",
-                (pid, persona, scenario))
-            row = cursor.fetchone()
-            if row:
-                _send_json(handler, {"suggestions": json.loads(row[0])})
-            else:
-                _send_json(handler, {"suggestions": []})
-        except Exception as e:
-            logger.debug(f"Agent suggestions load failed: {e}")
-            _send_json(handler, {"suggestions": []})
-        return True
-
     return False
 
 
@@ -1046,32 +1022,6 @@ def handle_post(handler, strat, auth, path):
             handler.send_header("Access-Control-Allow-Origin", "*")
             handler.end_headers()
             handler.wfile.write(json.dumps({"error": "Internal server error"}).encode())
-        return True
-
-    # Save agent suggestions — per-profile, per-persona, per-scenario
-    if path == "/api/agent-suggestions":
-        try:
-            content_length = int(handler.headers.get('Content-Length', 0))
-            post_data = handler.rfile.read(content_length) if content_length else b'{}'
-            body = json.loads(post_data.decode('utf-8'))
-            pid = handler._profile_id
-            persona = body.get("persona", "")[:30]
-            scenario = body.get("scenario", "")[:100]
-            suggestions = body.get("suggestions", [])
-            if pid and persona and isinstance(suggestions, list):
-                suggestions = suggestions[:10]  # cap at 10
-                cursor = strat.db.conn.cursor()
-                cursor.execute(
-                    "INSERT OR REPLACE INTO agent_suggestions (profile_id, persona, scenario, suggestions, created_at) "
-                    "VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)",
-                    (pid, persona, scenario, json.dumps(suggestions)))
-                strat.db.conn.commit()
-                _send_json(handler, {"ok": True})
-            else:
-                _send_json(handler, {"error": "Missing persona or suggestions"}, 400)
-        except Exception as e:
-            logger.error(f"Agent suggestions save failed: {e}")
-            _send_json(handler, {"error": "Internal server error"}, 500)
         return True
 
     return False

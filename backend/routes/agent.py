@@ -48,33 +48,16 @@ def handle_agent_status(handler, strat):
 # SUGGESTION GENERATION
 # ═══════════════════════════════════════════════════════════
 
-def _save_suggestions_to_db(db, profile_id, persona_name, scenario, suggestions):
-    """Persist suggestions to agent_suggestions table (per-profile, per-persona, per-scenario)."""
-    try:
-        if not db or not profile_id or not suggestions:
-            return
-        cursor = db.conn.cursor()
-        cursor.execute(
-            "INSERT OR REPLACE INTO agent_suggestions (profile_id, persona, scenario, suggestions, created_at) "
-            "VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)",
-            (profile_id, persona_name, scenario or '', json.dumps(suggestions)))
-        db._commit()
-    except Exception as e:
-        logger.debug(f"Suggestions DB save failed: {e}")
-
-
 def _generate_suggestions(handler, ollama_host, model, user_msg, agent_response,
-                          persona_name, rp_mode='', active_scenario='', active_npc='',
-                          db=None, profile_id=None):
+                          persona_name, rp_mode='', active_scenario='', active_npc=''):
     """Generate 3 contextual follow-up suggestions via a lightweight LLM call.
-    Sends a 'suggestions' SSE event and persists to DB. Falls back silently on failure.
+    Sends a 'suggestions' SSE event. Falls back silently on failure.
     Gaming persona returns rich suggestions: {label, prompt} pairs."""
     try:
         # Gaming persona: rich suggestions with label + immersive prompt
         if persona_name == 'gaming' and active_scenario:
             _generate_gaming_suggestions(handler, ollama_host, model, user_msg, agent_response,
-                                         rp_mode, active_scenario, active_npc,
-                                         db=db, profile_id=profile_id)
+                                         rp_mode, active_scenario, active_npc)
             return
 
         prompt = (
@@ -109,15 +92,13 @@ def _generate_suggestions(handler, ollama_host, model, user_msg, agent_response,
                     suggestions = [s.strip() for s in arr if isinstance(s, str) and 2 < len(s.strip()) < 80][:3]
                     if suggestions:
                         sse_event(handler, {"suggestions": suggestions})
-                        _save_suggestions_to_db(db, profile_id, persona_name, '', suggestions)
                         return
     except Exception as e:
         logger.debug(f"Suggestion generation failed: {e}")
 
 
 def _generate_gaming_suggestions(handler, ollama_host, model, user_msg, agent_response,
-                                  rp_mode, active_scenario, active_npc,
-                                  db=None, profile_id=None):
+                                  rp_mode, active_scenario, active_npc):
     """Generate rich gaming suggestions with label + immersive prompt."""
     try:
         mode_desc = "Game Master (third-person narration)" if rp_mode == 'gm' else f"Immersive RP (talking to {active_npc or 'a character'})"
@@ -128,11 +109,10 @@ def _generate_gaming_suggestions(handler, ollama_host, model, user_msg, agent_re
             f"Last player action: {user_msg[:200]}\n"
             f"Last game response: {agent_response[:500]}\n\n"
             f'Return a JSON array of suggestion objects:\n'
-            f'[{{"label": "Explore the cave", "prompt": "I light my torch and step into the dark cave entrance."}}]\n\n'
+            f'[{{"label": "Talk to Klein", "prompt": "I walk over to Klein. \'Hey, got any tips?\'"}}]\n\n'
             f"Rules:\n"
             f'- "label": 3-6 words, shown on the button\n'
             f'- "prompt": 1-2 immersive sentences, first person as the player\n'
-            f"- Do NOT invent character names that weren't in the conversation\n"
             f"- Vary types: exploration, social, combat, investigation\n"
             f"- IMPORTANT: Write labels and prompts in the SAME language as the player's last message. If the player wrote in Japanese, suggestions must be in Japanese. If Arabic, in Arabic.\n"
             f"Return ONLY the JSON array."
@@ -164,7 +144,6 @@ def _generate_gaming_suggestions(handler, ollama_host, model, user_msg, agent_re
                             suggestions.append(s.strip())
                     if suggestions:
                         sse_event(handler, {"suggestions": suggestions})
-                        _save_suggestions_to_db(db, profile_id, 'gaming', active_scenario, suggestions)
                         return
     except Exception as e:
         logger.debug(f"Gaming suggestion generation failed: {e}")
@@ -262,8 +241,7 @@ def _post_response_tasks(handler, strat, ollama_host, model, user_msg, ai_respon
                          persona_name, profile_id, rp_mode='gm', active_npc='', scenario=''):
     """Run post-response tasks: suggestions + entity memory update + scenario auto-update."""
     _generate_suggestions(handler, ollama_host, model, user_msg, ai_response,
-                          persona_name, rp_mode=rp_mode, active_scenario=scenario, active_npc=active_npc,
-                          db=strat.db, profile_id=profile_id)
+                          persona_name, rp_mode=rp_mode, active_scenario=scenario, active_npc=active_npc)
 
     # Background entity memory update for immersive RP mode
     if rp_mode == 'immersive' and active_npc and persona_name in ('gaming', 'scholarly'):
@@ -323,7 +301,6 @@ def handle_agent_chat(handler, strat, output_file, profile_id=0):
         free_length = body.get("free_length", False)
         use_all_scans = body.get("use_all_scans", False)
         inject_signals = body.get("inject_signals", True)  # Signal injection toggle
-        director_note = body.get("director_note", "").strip()[:500]  # Director's note — steer
         # Support single persona or multi-persona querying
         personas_param = body.get("personas", body.get("persona", "intelligence"))
         if isinstance(personas_param, list) and len(personas_param) > 1:
@@ -348,10 +325,9 @@ def handle_agent_chat(handler, strat, output_file, profile_id=0):
         ollama_host = scoring_cfg.get("ollama_host", "http://localhost:11434")
         model = scoring_cfg.get("inference_model", "qwen3.5:9b")
 
-        # ── Model swap routing: roleplay + gaming RP mode use dedicated RP model ──
+        # ── Model swap routing: roleplay persona uses dedicated RP model ──
         _is_rp = persona_name == 'roleplay'
-        _is_gaming_rp = persona_name == 'gaming' and rp_mode == 'immersive'
-        if _is_rp or _is_gaming_rp:
+        if _is_rp:
             model = strat.config.get("scoring", {}).get("rp_model", "stratos-rp-q8")
 
         # VRAM safety: ensure Ollama running + check model fits in VRAM
@@ -487,10 +463,6 @@ def handle_agent_chat(handler, strat, output_file, profile_id=0):
                     if lines:
                         system_prompt += f"\n\nDB SEARCH '{' '.join(keywords[:3])}':\n" + "\n".join(lines)
 
-        # ── Director's note injection (steer) ──
-        if director_note:
-            system_prompt += f"\n\nDIRECTOR'S NOTE (this turn only): {director_note}"
-
         # ── Response length mode ──
         _num_predict = 8000 if free_length else 1500
         if free_length:
@@ -566,7 +538,7 @@ def handle_agent_chat(handler, strat, output_file, profile_id=0):
         tools = [t for t in AGENT_TOOLS if t["function"]["name"] in allowed_tools]
 
         # ── No-tools persona: stream response directly (like free mode but with full prompt) ──
-        _stream_temp = 0.85 if (_is_rp or _is_gaming_rp) else 0.5
+        _stream_temp = 0.85 if _is_rp else 0.5
         if not tools:
             try:
                 r = req.post(
@@ -609,7 +581,7 @@ def handle_agent_chat(handler, strat, output_file, profile_id=0):
             return
 
         # ── Tool-call loop (max 8 rounds) ──
-        _tool_temp = 0.85 if (_is_rp or _is_gaming_rp) else 0.4
+        _tool_temp = 0.85 if _is_rp else 0.4
         for round_num in range(8):
             try:
                 _tool_payload = {
@@ -622,7 +594,7 @@ def handle_agent_chat(handler, strat, output_file, profile_id=0):
                         "num_predict": _num_predict,
                     },
                 }
-                if _is_rp or _is_gaming_rp:
+                if _is_rp:
                     _tool_payload["think"] = False  # Prevent think-block leakage on RP model
                 r = req.post(
                     f"{ollama_host}/api/chat",
