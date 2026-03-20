@@ -17,6 +17,7 @@ from pathlib import Path
 from routes.helpers import (json_response, error_response, read_json_body, sse_event, start_sse,
                            strip_think_blocks, strip_reasoning_preamble)
 from routes.agent_tools import AGENT_TOOLS, execute_tool, parse_text_tool_calls
+from routes.gpu_manager import ensure_model_ready
 
 logger = logging.getLogger("STRAT_OS")
 
@@ -75,7 +76,7 @@ def _generate_suggestions(handler, ollama_host, model, user_msg, agent_response,
                 "model": model,
                 "messages": [{"role": "user", "content": prompt}],
                 "stream": False,
-                "options": {"temperature": 0.7, "num_predict": 120},
+                "options": {"temperature": 0.7, "num_predict": 120, "num_ctx": 4096},
                 "think": False,
             },
             timeout=8,
@@ -122,7 +123,7 @@ def _generate_gaming_suggestions(handler, ollama_host, model, user_msg, agent_re
                 "model": model,
                 "messages": [{"role": "user", "content": prompt}],
                 "stream": False,
-                "options": {"temperature": 0.7, "num_predict": 300},
+                "options": {"temperature": 0.7, "num_predict": 300, "num_ctx": 4096},
                 "think": False,
             },
             timeout=10,
@@ -188,7 +189,7 @@ Return ONLY a JSON object:
         r = req.post(
             f"{ollama_host}/api/chat",
             json={"model": model, "messages": [{"role": "user", "content": prompt}],
-                  "stream": False, "options": {"temperature": 0.3, "num_predict": 200}, "think": False},
+                  "stream": False, "options": {"temperature": 0.3, "num_predict": 200, "num_ctx": 4096}, "think": False},
             timeout=15)
 
         if r.status_code != 200:
@@ -328,6 +329,11 @@ def handle_agent_chat(handler, strat, output_file, profile_id=0):
         _is_rp = persona_name == 'roleplay'
         if _is_rp:
             model = strat.config.get("scoring", {}).get("rp_model", "stratos-rp-q8")
+
+        # VRAM safety: ensure Ollama running + check model fits in VRAM
+        if not ensure_model_ready(model):
+            error_response(handler, "Failed to start Ollama", 503)
+            return
 
         profile = strat.config.get("profile", {})
         role = profile.get("role", "user")
@@ -479,7 +485,7 @@ def handle_agent_chat(handler, strat, output_file, profile_id=0):
                 r = req.post(
                     f"{ollama_host}/api/chat",
                     json={"model": model, "messages": messages, "stream": True,
-                          "options": {"temperature": 0.7, "num_predict": _num_predict}},
+                          "options": {"temperature": 0.7, "num_predict": _num_predict, "num_ctx": 8192}},
                     timeout=180, stream=True
                 )
                 if r.status_code != 200:
@@ -538,7 +544,7 @@ def handle_agent_chat(handler, strat, output_file, profile_id=0):
                 r = req.post(
                     f"{ollama_host}/api/chat",
                     json={"model": model, "messages": messages, "stream": True,
-                          "options": {"temperature": _stream_temp, "num_predict": _num_predict},
+                          "options": {"temperature": _stream_temp, "num_predict": _num_predict, "num_ctx": 8192},
                           "think": False},
                     timeout=180, stream=True
                 )
@@ -586,6 +592,7 @@ def handle_agent_chat(handler, strat, output_file, profile_id=0):
                     "options": {
                         "temperature": _tool_temp,
                         "num_predict": _num_predict,
+                        "num_ctx": 8192,
                     },
                 }
                 if _is_rp:
@@ -661,7 +668,7 @@ def handle_agent_chat(handler, strat, output_file, profile_id=0):
             r = req.post(
                 f"{ollama_host}/api/chat",
                 json={"model": model, "messages": messages, "stream": False,
-                      "options": {"temperature": 0.4, "num_predict": 2000}},
+                      "options": {"temperature": 0.4, "num_predict": 2000, "num_ctx": 8192}},
                 timeout=120)
             if r.status_code == 200:
                 text = strip_think_blocks(r.json().get("message", {}).get("content", ""))
@@ -722,12 +729,8 @@ def handle_ask(handler, strat, output_dir):
                 parts.append(f"location: {location}")
             user_ctx = f" The user is a professional ({', '.join(parts)}). Tailor your analysis to their perspective."
 
-        # Check Ollama + inference model directly
-        try:
-            _r = req.get(f"{scorer.host}/api/tags", timeout=5)
-            if _r.status_code != 200:
-                raise RuntimeError("Ollama unavailable")
-        except req.exceptions.ConnectionError:
+        # VRAM safety: ensure Ollama running + model fits
+        if not ensure_model_ready(scorer.inference_model):
             raise RuntimeError("Ollama unavailable")
 
         response = req.post(
@@ -815,6 +818,8 @@ def handle_file_assist(handler, strat):
         num_ctx = min(max(est_input_tokens + max_tokens + 256, 1024), 4096)
 
         scorer = strat.scorer
+        if not ensure_model_ready(scorer.inference_model):
+            raise RuntimeError("Ollama unavailable")
         response = req.post(
             f"{scorer.host}/api/chat",
             json={
@@ -858,18 +863,8 @@ def handle_suggest_context(handler, strat):
             raise ValueError("Role required")
 
         scorer = strat.scorer
-        # Check Ollama + inference model directly (not scorer model)
-        try:
-            _r = req.get(f"{scorer.host}/api/tags", timeout=5)
-            if _r.status_code != 200:
-                raise RuntimeError("Ollama unavailable")
-            _models = [m.get("name","") for m in _r.json().get("models",[])]
-            _bases = [n.split(":")[0] for n in _models]
-            _inf = getattr(scorer, 'inference_model', None) or scorer.model
-            _inf_base = _inf.split(":")[0]
-            if not (_inf in _models or _inf_base in _bases or f"{_inf}:latest" in _models):
-                raise RuntimeError(f"Inference model '{_inf}' not found in Ollama")
-        except req.exceptions.ConnectionError:
+        _inf = getattr(scorer, 'inference_model', None) or scorer.model
+        if not ensure_model_ready(_inf):
             raise RuntimeError("Ollama unavailable")
 
         system_msg = """You are a concise assistant that suggests tracking interests for a professional using a strategic intelligence dashboard.

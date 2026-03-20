@@ -147,7 +147,7 @@ Keep it under 500 words. Use markdown headers. Be factual, not creative."""
                         {"role": "user", "content": f"Update state based on this conversation:\n\n{conv_text}"}
                     ],
                     "stream": False,
-                    "options": {"temperature": 0.3, "num_predict": 1024},
+                    "options": {"temperature": 0.3, "num_predict": 1024, "num_ctx": 8192},
                     "think": False,
                 },
                 timeout=60
@@ -213,7 +213,7 @@ Keep it under 500 words. Use markdown headers. Be factual, not creative."""
                         {"role": "user", "content": combined}
                     ],
                     "stream": False,
-                    "options": {"temperature": 0.3, "num_predict": 512},
+                    "options": {"temperature": 0.3, "num_predict": 512, "num_ctx": 8192},
                     "think": False,
                 },
                 timeout=60

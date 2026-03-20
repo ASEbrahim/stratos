@@ -123,7 +123,7 @@ Return ONLY valid JSON with these keys (1-2 sentences each, vivid and specific):
             # Fallback to Ollama
             r = req.post(f"{OLLAMA_HOST}/api/generate", json={
                 "model": "qwen3.5:9b", "prompt": prompt, "stream": False,
-                "options": {"temperature": 0.4, "num_predict": 300},
+                "options": {"temperature": 0.4, "num_predict": 300, "num_ctx": 4096},
                 "think": False,
             }, timeout=30)
             if r.status_code != 200:
@@ -176,7 +176,7 @@ Write ONLY the exchanges. No explanation."""
                     # Fallback to Ollama
                     r2 = req.post(f"{OLLAMA_HOST}/api/generate", json={
                         "model": "qwen3.5:9b", "prompt": dlg_prompt, "stream": False,
-                        "options": {"temperature": 0.6, "num_predict": 400},
+                        "options": {"temperature": 0.6, "num_predict": 400, "num_ctx": 4096},
                         "think": False,
                     }, timeout=45)
                     if r2.status_code == 200:

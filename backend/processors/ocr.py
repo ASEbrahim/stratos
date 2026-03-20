@@ -88,7 +88,7 @@ class OCRProcessor:
                         }
                     ],
                     "stream": False,
-                    "options": {"temperature": 0.1, "num_predict": 2000},
+                    "options": {"temperature": 0.1, "num_predict": 2000, "num_ctx": 4096},
                 },
                 timeout=60,
             )
@@ -133,7 +133,7 @@ class OCRProcessor:
                         }
                     ],
                     "stream": False,
-                    "options": {"temperature": 0.1, "num_predict": 2000},
+                    "options": {"temperature": 0.1, "num_predict": 2000, "num_ctx": 4096},
                 },
                 timeout=60,
             )

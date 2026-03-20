@@ -175,7 +175,8 @@ Do NOT include items just because they scored high — they must be relevant to 
                     "stream": False,
                     "options": {
                         "temperature": 0.7,
-                        "num_predict": max_tokens + 1000  # Budget for thinking + output
+                        "num_predict": max_tokens + 1000,  # Budget for thinking + output
+                        "num_ctx": 8192,
                     }
                 },
                 timeout=150

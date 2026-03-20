@@ -30,6 +30,11 @@ COMFYUI_DIR = "/home/ahmad/Downloads/StratOS/StratOS1/tools/ComfyUI"
 COMFYUI_VRAM_REQUIRED_MB = 12_000
 # Maximum time to wait for VRAM to be freed after unload (seconds)
 VRAM_RELEASE_TIMEOUT = 30
+# Total GPU VRAM in MB (7900 XTX)
+VRAM_TOTAL_MB = 24_576
+# Safety margin — never fill VRAM beyond this threshold.
+# Leaves room for GPU driver overhead, context allocation, and fragmentation.
+VRAM_SAFE_LIMIT_MB = 20_480  # 20 GB
 
 _lock = threading.Lock()
 _comfyui_process = None
@@ -201,7 +206,7 @@ def _start_ollama():
             stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
             env={
                 **os.environ,
-                "OLLAMA_MAX_LOADED_MODELS": "2",
+                "OLLAMA_MAX_LOADED_MODELS": "1",
                 "OLLAMA_KEEP_ALIVE": "10m",
                 "OLLAMA_NUM_PARALLEL": "1",
                 "OLLAMA_FLASH_ATTENTION": "0",
@@ -308,6 +313,68 @@ def ensure_ollama() -> bool:
         if _ollama_running():
             return True
         return _start_ollama()
+
+
+def ensure_model_ready(model_name: str) -> bool:
+    """Ensure Ollama is running and VRAM can fit the requested model.
+
+    Goes beyond ensure_ollama() by checking what's currently loaded in VRAM.
+    If the requested model is already loaded, returns immediately.
+    If loading it would exceed the VRAM safety limit, unloads other models first.
+
+    MUST be called before any Ollama /api/chat or /api/generate request to
+    prevent OOM crashes from concurrent model loads.
+    """
+    with _lock:
+        # Step 1: Ensure Ollama is running (same as ensure_ollama, inlined to avoid deadlock)
+        if _comfyui_ever_started and _comfyui_running():
+            logger.info("ComfyUI still running — stopping to free GPU for Ollama")
+            _stop_comfyui()
+        if not _ollama_running():
+            if not _start_ollama():
+                return False
+
+        # Step 2: Check what's loaded in VRAM
+        try:
+            r = requests.get(f"{OLLAMA_HOST}/api/ps", timeout=5)
+            if r.status_code != 200:
+                logger.warning(f"Cannot check loaded models (/api/ps returned {r.status_code})")
+                return True  # Proceed cautiously
+
+            models = r.json().get("models", [])
+            if not models:
+                return True  # Nothing loaded, safe to proceed
+
+            loaded_names = [m.get("name", "") for m in models]
+
+            # Model already loaded — safe to proceed
+            if any(model_name in name for name in loaded_names):
+                return True
+
+            # Different model(s) loaded — check VRAM before loading new one
+            total_vram_bytes = sum(m.get("size_vram", 0) for m in models)
+            total_vram_mb = total_vram_bytes // (1024 * 1024)
+
+            if total_vram_mb > VRAM_SAFE_LIMIT_MB:
+                logger.warning(
+                    f"VRAM at {total_vram_mb}MB (limit {VRAM_SAFE_LIMIT_MB}MB) with "
+                    f"{loaded_names} — unloading before loading '{model_name}'"
+                )
+                _unload_ollama_models()
+                return True
+
+            # VRAM has room but a different model is loaded.
+            # With MAX_LOADED_MODELS=1, Ollama will auto-evict the old model.
+            # Log for visibility.
+            logger.info(
+                f"Model switch: {loaded_names} → '{model_name}' "
+                f"(VRAM: {total_vram_mb}MB, Ollama will auto-evict)"
+            )
+            return True
+
+        except Exception as e:
+            logger.warning(f"VRAM check failed (proceeding cautiously): {e}")
+            return True
 
 
 def ensure_comfyui() -> bool:

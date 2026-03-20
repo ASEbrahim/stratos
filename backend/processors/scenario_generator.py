@@ -333,7 +333,7 @@ def _llm_json_call(ollama_host, prompt, model, max_retries=2):
                     "model": model,
                     "prompt": prompt,
                     "stream": False,
-                    "options": {"temperature": 0.4, "num_predict": 2048},
+                    "options": {"temperature": 0.4, "num_predict": 2048, "num_ctx": 4096},
                     "think": False,
                 },
                 timeout=120,

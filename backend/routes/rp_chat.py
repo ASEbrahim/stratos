@@ -31,7 +31,7 @@ from routes.helpers import (
     json_response, error_response, read_json_body,
     start_sse, sse_event,
 )
-from routes.gpu_manager import ensure_ollama
+from routes.gpu_manager import ensure_ollama, ensure_model_ready
 from routes.rp_memory import (
     build_rp_context, extract_facts_immediate, extract_facts,
     should_extract, should_arc_summarize, extract_arc_summary,
@@ -233,8 +233,8 @@ def handle_post(handler, strat, auth, path) -> bool:
         else:
             model = scoring_cfg.get("inference_model", "qwen3.5:9b")
 
-        # Ensure Ollama is running (swaps from ComfyUI if needed)
-        if not ensure_ollama():
+        # VRAM safety: ensure Ollama running + model fits (unloads others if needed)
+        if not ensure_model_ready(model):
             error_response(handler, "Failed to start Ollama", 503)
             return True
 

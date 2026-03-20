@@ -167,9 +167,11 @@ def handle_post(handler, strat, auth, path):
             scoring_cfg = strat.config.get("scoring", {})
             ollama_host = scoring_cfg.get("ollama_host", "http://localhost:11434")
             model = scoring_cfg.get("inference_model", "qwen3.5:9b")
+            from routes.gpu_manager import ensure_model_ready
+            ensure_model_ready(model)
             requests.post(f"{ollama_host}/api/generate",
                           json={"model": model, "prompt": "hi", "stream": False,
-                                "options": {"num_predict": 1}},
+                                "options": {"num_predict": 1, "num_ctx": 2048}},
                           timeout=30)
         except Exception as e:
             logger.debug(f"Agent warmup failed: {e}")

@@ -182,7 +182,7 @@ def extract_lens(transcript: str, lens_name: str, video_title: str,
                 ],
                 'stream': False,
                 'think': False,
-                'options': {'temperature': 0.2, 'num_predict': 2000},
+                'options': {'temperature': 0.2, 'num_predict': 2000, 'num_ctx': 8192},
             },
             timeout=120,
         )

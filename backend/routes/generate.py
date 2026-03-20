@@ -10,6 +10,7 @@ import requests as req
 from routes.helpers import (json_response, error_response, read_json_body,
                            strip_think_blocks, extract_json)
 from processors.profile_generator import run_pipeline
+from routes.gpu_manager import ensure_model_ready
 
 logger = logging.getLogger("STRAT_OS")
 
@@ -152,17 +153,8 @@ def handle_generate_profile(handler, strat):
         else:
             wiz_model = scoring_cfg.get('wizard_model') or getattr(scorer, 'inference_model', None) or scorer.model
             logger.info(f"Generate: QUICK mode — using {wiz_model}")
-        # Check if Ollama is reachable and the model is available
-        try:
-            _r = req.get(f"{scorer.host}/api/tags", timeout=5)
-            if _r.status_code != 200:
-                raise RuntimeError("Ollama is not available")
-            _models = [m.get("name","") for m in _r.json().get("models",[])]
-            _bases = [n.split(":")[0] for n in _models]
-            _inf_base = wiz_model.split(":")[0]
-            if not (wiz_model in _models or _inf_base in _bases or f"{wiz_model}:latest" in _models):
-                raise RuntimeError(f"Model '{wiz_model}' not found in Ollama")
-        except req.exceptions.ConnectionError:
+        # VRAM safety: ensure Ollama running + model fits
+        if not ensure_model_ready(wiz_model):
             raise RuntimeError("Ollama is not available")
 
         # Build user prompt

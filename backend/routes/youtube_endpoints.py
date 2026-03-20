@@ -905,7 +905,7 @@ def handle_post(handler, strat, auth, path):
                     ],
                     "stream": False,
                     "think": False,
-                    "options": {"num_predict": 4000, "temperature": 0.3},
+                    "options": {"num_predict": 4000, "temperature": 0.3, "num_ctx": 8192},
                 }, timeout=120)
                 if resp.status_code == 200:
                     result = resp.json()
