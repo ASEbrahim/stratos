@@ -1162,11 +1162,56 @@ Swipe sidebar, swipe cards, pull-to-refresh, bottom nav, PWA install. 860 lines.
 ---
 
 ### Size Modes
-**Files:** `frontend/youtube.js`  
-**Related:** Insights Modal  
+**Files:** `frontend/youtube.js`
+**Related:** Insights Modal
 **Added:** Sprint YouTube
 
 YouTube insights modal: sm/normal/lg. CSS classes yi-size-sm/yi-size-lg. localStorage stratos_yi_size.
+
+---
+
+### Intelligence Hue
+**Files:** `backend/routes/behavioral.py`, `frontend/hue.js`, `frontend/sibyl.js`
+**Related:** AdaptiveScorer, Sibyl Theme
+**Added:** Sprint Sibyl
+
+Behavioral analysis system. Backend /api/hue endpoint computes a composite intelligence "hue" from scored news signals. hue.js renders a collapsible sidebar widget. sibyl.js provides the fullscreen Sibyl panel with expanded analytics.
+
+---
+
+### Sibyl Login Theme
+**Files:** `frontend/auth-star-canvas.js`
+**Related:** Theme System, Star Engine
+**Added:** Sprint Sibyl
+
+Brain neural network animation on the login page. Pre-computed outline vertices with animated pulse connections. Renders on the auth-star-canvas behind the login form.
+
+---
+
+### Sibyl In-App Theme
+**Files:** `frontend/ui.js`, `frontend/theme-editor.js`
+**Related:** Theme System, Theme Editor, Star Engine
+**Added:** Sprint Sibyl
+
+Anatomical brain visual as theme element in ui.js. Theme editor exposes position, scale, opacity, and glow sliders (glow is Sibyl-only). Default: cx=0.33, cy=0.06, scale=0.3, glow=3.0, opacity=1.0.
+
+---
+
+### Per-Theme Element Defaults
+**Files:** `frontend/ui.js`, `frontend/theme-editor.js`
+**Related:** Theme System, Theme Editor
+**Added:** Sprint Defaults
+
+Lookup table (_themeElementDefaults) maps each of 9 themes to optimal cx/cy/scale/glow/opacity defaults. Replaces hardcoded 0.5/0.35 fallbacks. Reset button snaps to per-theme defaults instead of center.
+
+---
+
+### New User Defaults
+**Files:** `frontend/app.js`, `frontend/theme-editor.js`, `frontend/ui.js`, `frontend/nav.js`, `frontend/styles.css`
+**Related:** Theme Editor, Star Engine, Font Size System
+**Added:** Sprint Defaults
+
+Font sizes renamed to 3-tier (Compact/Small/Medium). Old Extra Large = new Medium (default). Theme editor defaults: card opacity 0.45, panel opacity 0.2, border radius 25px, blur 2px. Stars enabled by default with density 2.5x and brightness 1.8x. Categories collapsed by default with glowing chevron indicator. Legacy migration via stratos_fontsize_v2 flag.
 
 
 ## 📖 Glossary
