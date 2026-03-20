@@ -25,6 +25,7 @@ function _initStarParallax() {
     const _isRose = _t.name === 'Rose';
     const _isCoffee = _t.name === 'Coffee';
     const _isMidnight = _t.name === 'Midnight';
+    const _isSibyl = _t.name === 'Sibyl';
 
     // ── Black hole data (nebula auth theme — P1 classic accretion disk) ──
     const _bhParticles = [];
@@ -747,6 +748,293 @@ function _initStarParallax() {
         ctx.globalAlpha = 1;
     }
 
+    // ── Sibyl: Neural network brain ──
+    const _sbSVG_PATH = "M3050 5129 c-25 -5 -148 -14 -275 -19 -357 -14 -566 -75 -677 -199 -32 -35 -53 -49 -80 -54 -85 -13 -147 -57 -309 -218 -171 -170 -198 -210 -207 -301 -5 -57 -6 -59 -47 -77 -80 -35 -245 -309 -245 -407 0 -29 -10 -64 -29 -102 -105 -208 -84 -490 47 -633 50 -55 51 -57 62 -145 64 -517 347 -834 744 -834 56 0 56 0 58 -247 3 -247 3 -247 52 -261 39 -11 67 -31 140 -102 114 -109 116 -110 225 -110 91 0 91 0 120 59 92 181 241 363 411 501 124 101 193 175 227 244 27 56 27 56 243 56 211 0 218 1 266 25 27 14 57 25 66 25 50 0 272 120 349 188 75 67 99 125 99 244 0 98 0 98 243 98 411 0 575 40 729 177 119 106 189 215 209 328 6 33 20 80 32 105 19 38 23 66 25 178 4 163 -9 212 -72 270 -43 40 -43 40 -50 128 -13 160 -84 265 -223 331 -60 29 -77 43 -104 84 -64 101 -209 200 -361 249 -55 18 -82 34 -143 90 -109 99 -211 140 -349 140 -28 0 -43 6 -56 23 -22 28 -116 80 -197 109 -46 16 -96 22 -243 28 -102 5 -203 13 -225 20 -52 15 -397 22 -455 9z";
+    let _sbBp = [], _sbBs, _sbBx, _sbBy;
+    let _sbNodes = [], _sbLinks = [], _sbPulses = [];
+    let _sbNextMajorPulse = 1;
+    let _sbNextMinorPulse = 0.3;
+    let _sbLastMajorHub = -1;
+    let _sbSweepPos = 0;
+
+    if (_isSibyl) {
+        // Parse SVG path to extract brain outline points
+        (function _sbParsePath() {
+            const ns = "http://www.w3.org/2000/svg";
+            const svg = document.createElementNS(ns, "svg"); svg.setAttribute("viewBox", "0 0 660 649");
+            const g = document.createElementNS(ns, "g"); g.setAttribute("transform", "translate(0,649) scale(0.1,-0.1)");
+            const p = document.createElementNS(ns, "path"); p.setAttribute("d", _sbSVG_PATH);
+            g.appendChild(p); svg.appendChild(g); document.body.appendChild(svg);
+            svg.style.cssText = 'position:absolute;visibility:hidden;width:660px;height:649px';
+            _sbBp = []; const len = p.getTotalLength();
+            for (let i = 0; i < len; i += 2) { const pt = p.getPointAtLength(i); _sbBp.push({ x: pt.x * .1, y: 649 + pt.y * -.1 }); }
+            document.body.removeChild(svg);
+        })();
+
+        function _sbGetTransform() {
+            const th = _ch * .28;
+            _sbBs = th / 649;
+            _sbBx = _cw / 2 - 660 * _sbBs / 2;
+            _sbBy = _ch * .28 - th / 2;
+        }
+
+        function _sbSpt(px, py) { return { x: _sbBx + px * _sbBs, y: _sbBy + py * _sbBs }; }
+
+        function _sbInside(sx, sy) {
+            const px = (sx - _sbBx) / _sbBs, py = (sy - _sbBy) / _sbBs; let ins = false;
+            for (let i = 0, j = _sbBp.length - 1; i < _sbBp.length; j = i++) {
+                const xi = _sbBp[i].x, yi = _sbBp[i].y, xj = _sbBp[j].x, yj = _sbBp[j].y;
+                if (((yi > py) !== (yj > py)) && (px < (xj - xi) * (py - yi) / (yj - yi) + xi)) ins = !ins;
+            } return ins;
+        }
+
+        function _sbBuildNetwork() {
+            _sbNodes = []; _sbLinks = [];
+            const spacing = 22 * _sbBs * 660 / 300;
+            const mx = _sbBx + 3, MX = _sbBx + 660 * _sbBs - 3, my = _sbBy + 3, MY = _sbBy + 649 * _sbBs - 3;
+            let row = 0;
+            for (let sy = my; sy < MY; sy += spacing * (.7 + Math.random() * .35)) {
+                const off = (row % 2) ? (spacing * (.3 + Math.random() * .4)) : 0;
+                for (let sx = mx + off; sx < MX; sx += spacing * (.75 + Math.random() * .5)) {
+                    const jx = sx + (Math.random() - .5) * spacing * .55;
+                    const jy = sy + (Math.random() - .5) * spacing * .55;
+                    if (!_sbInside(jx, jy)) continue;
+                    if (Math.random() < .15) continue;
+                    _sbNodes.push({
+                        x: jx, y: jy, bx: jx, by: jy,
+                        r: .6 + Math.random() * .3,
+                        activity: 0, connections: 0,
+                        phase: Math.random() * Math.PI * 2,
+                        pulseRing: 0, isHub: false,
+                    });
+                }
+                row++;
+            }
+            const maxDist = spacing * 1.5;
+            for (let i = 0; i < _sbNodes.length; i++) {
+                const dists = [];
+                for (let j = i + 1; j < _sbNodes.length; j++) {
+                    const dx = _sbNodes[i].x - _sbNodes[j].x, dy = _sbNodes[i].y - _sbNodes[j].y;
+                    const d = Math.sqrt(dx * dx + dy * dy);
+                    if (d < maxDist) dists.push({ j, d });
+                }
+                dists.sort((a, b) => a.d - b.d);
+                for (let k = 0; k < Math.min(3, dists.length); k++) {
+                    _sbLinks.push({ a: i, b: dists[k].j, dist: dists[k].d, pulseAlpha: 0, pulseDecay: 0 });
+                    _sbNodes[i].connections++;
+                    _sbNodes[dists[k].j].connections++;
+                }
+            }
+            const avgConn = _sbNodes.reduce((s, n) => s + n.connections, 0) / Math.max(_sbNodes.length, 1);
+            for (const n of _sbNodes) {
+                if (n.connections >= avgConn * 1.3) { n.isHub = true; n.r = 1.0 + Math.random() * .4; }
+            }
+        }
+
+        function _sbDrawOutline(t) {
+            _sbSweepPos = (_sbSweepPos + .0008) % 1;
+            const sweepIdx = Math.floor(_sbSweepPos * _sbBp.length);
+            const sweepW = _sbBp.length * .12;
+            const segLen = 5, gapLen = 3, totalSeg = segLen + gapLen;
+            for (let i = 0; i < _sbBp.length - 1; i++) {
+                if (i % totalSeg >= segLen) continue;
+                const pt = _sbSpt(_sbBp[i].x, _sbBp[i].y);
+                const pt2 = _sbSpt(_sbBp[(i + 1) % _sbBp.length].x, _sbBp[(i + 1) % _sbBp.length].y);
+                let dist = i - sweepIdx;
+                if (dist < 0) dist += _sbBp.length;
+                if (dist > _sbBp.length / 2) dist = _sbBp.length - dist;
+                const sweepBoost = dist < sweepW ? (.2 * (1 - dist / sweepW)) : 0;
+                const baseAlpha = .05 + sweepBoost;
+                ctx.strokeStyle = `rgba(79,195,247,${baseAlpha})`;
+                ctx.lineWidth = sweepBoost > .06 ? 1.4 : .7;
+                ctx.beginPath(); ctx.moveTo(pt.x, pt.y); ctx.lineTo(pt2.x, pt2.y); ctx.stroke();
+                if (sweepBoost > .08) {
+                    ctx.strokeStyle = `rgba(160,230,255,${sweepBoost * .5})`;
+                    ctx.lineWidth = .3;
+                    ctx.beginPath(); ctx.moveTo(pt.x, pt.y); ctx.lineTo(pt2.x, pt2.y); ctx.stroke();
+                }
+            }
+            const hp = _sbSpt(_sbBp[sweepIdx].x, _sbBp[sweepIdx].y);
+            const hg = ctx.createRadialGradient(hp.x, hp.y, 0, hp.x, hp.y, 14);
+            hg.addColorStop(0, 'rgba(79,195,247,.18)'); hg.addColorStop(.4, 'rgba(79,195,247,.05)'); hg.addColorStop(1, 'rgba(79,195,247,0)');
+            ctx.fillStyle = hg; ctx.beginPath(); ctx.arc(hp.x, hp.y, 14, 0, Math.PI * 2); ctx.fill();
+            ctx.fillStyle = 'rgba(200,240,255,.7)'; ctx.beginPath(); ctx.arc(hp.x, hp.y, 1.5, 0, Math.PI * 2); ctx.fill();
+            const s2 = Math.floor(((_sbSweepPos + .5) % 1) * _sbBp.length);
+            const h2 = _sbSpt(_sbBp[s2].x, _sbBp[s2].y);
+            const hg2 = ctx.createRadialGradient(h2.x, h2.y, 0, h2.x, h2.y, 8);
+            hg2.addColorStop(0, 'rgba(79,195,247,.08)'); hg2.addColorStop(1, 'rgba(79,195,247,0)');
+            ctx.fillStyle = hg2; ctx.beginPath(); ctx.arc(h2.x, h2.y, 8, 0, Math.PI * 2); ctx.fill();
+            ctx.beginPath();
+            let p0 = _sbSpt(_sbBp[0].x, _sbBp[0].y); ctx.moveTo(p0.x, p0.y);
+            for (let i = 1; i < _sbBp.length; i++) { const pt = _sbSpt(_sbBp[i].x, _sbBp[i].y); ctx.lineTo(pt.x, pt.y); }
+            ctx.closePath(); ctx.fillStyle = 'rgba(79,195,247,.006)'; ctx.fill();
+        }
+
+        function _sbDrawNetwork(t) {
+            if (t > _sbNextMajorPulse) {
+                const hubs = [];
+                for (let i = 0; i < _sbNodes.length; i++) if (_sbNodes[i].isHub) hubs.push(i);
+                let srcIdx;
+                if (hubs.length > 1) {
+                    const candidates = hubs.filter(h => h !== _sbLastMajorHub);
+                    srcIdx = candidates[Math.floor(Math.random() * candidates.length)];
+                } else {
+                    srcIdx = hubs.length > 0 ? hubs[0] : Math.floor(Math.random() * _sbNodes.length);
+                }
+                _sbLastMajorHub = srcIdx;
+                if (_sbNodes[srcIdx]) {
+                    _sbNodes[srcIdx].activity = .6;
+                    _sbNodes[srcIdx].pulseRing = .8;
+                    let delay = 0;
+                    const connLinks = [];
+                    for (let li = 0; li < _sbLinks.length; li++) {
+                        const l = _sbLinks[li];
+                        if (l.a === srcIdx || l.b === srcIdx) connLinks.push(li);
+                    }
+                    for (let i = connLinks.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [connLinks[i], connLinks[j]] = [connLinks[j], connLinks[i]]; }
+                    const initialCount = 1 + Math.floor(Math.random() * 2);
+                    for (let ci = 0; ci < Math.min(initialCount, connLinks.length); ci++) {
+                        const li = connLinks[ci];
+                        const l = _sbLinks[li];
+                        const toIdx = l.a === srcIdx ? l.b : l.a;
+                        _sbPulses.push({ from: srcIdx, to: toIdx, linkIdx: li, progress: 0, speed: .002 + Math.random() * .002, strength: .9, generation: 0, delay: delay });
+                        delay += 12 + Math.floor(Math.random() * 8);
+                    }
+                }
+                _sbNextMajorPulse = t + 3.5;
+            }
+            if (t > _sbNextMinorPulse) {
+                const idx = Math.floor(Math.random() * _sbNodes.length);
+                if (_sbNodes[idx] && !_sbNodes[idx].isHub) {
+                    _sbNodes[idx].activity = Math.max(_sbNodes[idx].activity, .15);
+                    const connLinks = [];
+                    for (let li = 0; li < _sbLinks.length; li++) {
+                        if (_sbLinks[li].a === idx || _sbLinks[li].b === idx) connLinks.push(li);
+                    }
+                    if (connLinks.length > 0) {
+                        const li = connLinks[Math.floor(Math.random() * connLinks.length)];
+                        const l = _sbLinks[li];
+                        _sbPulses.push({ from: idx, to: l.a === idx ? l.b : l.a, linkIdx: li, progress: 0, speed: .003 + Math.random() * .003, strength: .3, generation: 0, delay: 10 });
+                    }
+                }
+                _sbNextMinorPulse = t + 1.0 + Math.random() * .5;
+            }
+            for (const l of _sbLinks) {
+                const a = _sbNodes[l.a], b = _sbNodes[l.b];
+                const act = Math.max(a.activity, b.activity);
+                const baseA = .018 + act * .03 + l.pulseAlpha * .15;
+                ctx.strokeStyle = `rgba(79,195,247,${baseA})`;
+                ctx.lineWidth = .3 + l.pulseAlpha * .6;
+                ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+                if (l.pulseAlpha > .01) {
+                    ctx.strokeStyle = `rgba(180,235,255,${l.pulseAlpha * .5})`;
+                    ctx.lineWidth = .2 + l.pulseAlpha * .4;
+                    ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+                }
+                if (l.pulseDecay > 0) {
+                    l.pulseAlpha = l.pulseDecay;
+                    l.pulseDecay *= .92;
+                    if (l.pulseDecay < .005) l.pulseDecay = 0;
+                }
+            }
+            for (let i = _sbPulses.length - 1; i >= 0; i--) {
+                const p = _sbPulses[i];
+                if (p.delay && p.delay > 0) {
+                    p.delay--;
+                    const src = _sbNodes[p.from];
+                    if (src) src.activity = Math.max(src.activity, p.strength * .3);
+                    continue;
+                }
+                p.progress += p.speed;
+                if (p.linkIdx >= 0 && p.linkIdx < _sbLinks.length) {
+                    const targetAlpha = p.strength * .7 * p.progress;
+                    _sbLinks[p.linkIdx].pulseDecay = Math.max(_sbLinks[p.linkIdx].pulseDecay, targetAlpha);
+                    _sbLinks[p.linkIdx].pulseAlpha += (targetAlpha - _sbLinks[p.linkIdx].pulseAlpha) * .08;
+                }
+                if (p.progress >= 1) {
+                    const tgt = _sbNodes[p.to];
+                    tgt.activity = Math.min(1, tgt.activity + .3 * p.strength);
+                    tgt.pulseRing = Math.max(tgt.pulseRing, p.strength * .7);
+                    const cascadeProb = .6 - p.generation * .03;
+                    if (p.generation < 12 && Math.random() < cascadeProb) {
+                        const cascadeLinks = [];
+                        for (let li = 0; li < _sbLinks.length; li++) {
+                            const l = _sbLinks[li];
+                            if ((l.a === p.to || l.b === p.to) && l.a !== p.from && l.b !== p.from) cascadeLinks.push(li);
+                        }
+                        for (let ci = cascadeLinks.length - 1; ci > 0; ci--) { const cj = Math.floor(Math.random() * (ci + 1)); [cascadeLinks[ci], cascadeLinks[cj]] = [cascadeLinks[cj], cascadeLinks[ci]]; }
+                        const maxBranch = p.generation < 3 ? (1 + Math.floor(Math.random() * 3)) : (Math.random() < .6 ? 1 : 2);
+                        let branched = 0;
+                        let cascadeDelay = 10 + Math.floor(Math.random() * 12);
+                        for (const li of cascadeLinks) {
+                            if (branched >= maxBranch) break;
+                            const l = _sbLinks[li];
+                            _sbPulses.push({ from: p.to, to: l.a === p.to ? l.b : l.a, linkIdx: li, progress: 0, speed: .002 + Math.random() * .002, strength: p.strength * (.55 + Math.random() * .15), generation: p.generation + 1, delay: cascadeDelay });
+                            cascadeDelay += 6 + Math.floor(Math.random() * 8);
+                            branched++;
+                        }
+                    }
+                    _sbPulses.splice(i, 1);
+                    continue;
+                }
+                const a = _sbNodes[p.from], b = _sbNodes[p.to];
+                if (!a || !b) { _sbPulses.splice(i, 1); continue; }
+                const px = a.x + (b.x - a.x) * p.progress;
+                const py = a.y + (b.y - a.y) * p.progress;
+                const alpha = p.strength * (1 - Math.abs(p.progress - .5) * 1.5);
+                const clampA = Math.max(0, Math.min(1, alpha));
+                ctx.fillStyle = `rgba(79,195,247,${clampA * .08})`;
+                ctx.beginPath(); ctx.arc(px, py, 10, 0, Math.PI * 2); ctx.fill();
+                ctx.fillStyle = `rgba(120,215,255,${clampA * .25})`;
+                ctx.beginPath(); ctx.arc(px, py, 4, 0, Math.PI * 2); ctx.fill();
+                ctx.fillStyle = `rgba(220,245,255,${clampA * .8})`;
+                ctx.beginPath(); ctx.arc(px, py, 1.8, 0, Math.PI * 2); ctx.fill();
+            }
+            for (const n of _sbNodes) {
+                n.x = n.bx + Math.sin(t * .03 + n.phase) * .3;
+                n.y = n.by + Math.cos(t * .025 + n.phase) * .2;
+                if (n.activity > 0) n.activity *= .985;
+                if (n.pulseRing > 0) n.pulseRing *= .97;
+                const r = n.r + n.activity * .6;
+                if (n.pulseRing > .02) {
+                    const ringR = r + 12 * (1 - n.pulseRing);
+                    ctx.beginPath(); ctx.arc(n.x, n.y, ringR, 0, Math.PI * 2);
+                    ctx.strokeStyle = `rgba(79,195,247,${n.pulseRing * .2})`;
+                    ctx.lineWidth = .6; ctx.stroke();
+                }
+                if (n.activity > .03) {
+                    const hg = ctx.createRadialGradient(n.x, n.y, 0, n.x, n.y, r * (n.isHub ? 6 : 4));
+                    hg.addColorStop(0, `rgba(79,195,247,${n.activity * (n.isHub ? .08 : .05)})`);
+                    hg.addColorStop(1, 'rgba(79,195,247,0)');
+                    ctx.fillStyle = hg; ctx.beginPath(); ctx.arc(n.x, n.y, r * (n.isHub ? 6 : 4), 0, Math.PI * 2); ctx.fill();
+                }
+                if (n.isHub) {
+                    ctx.beginPath(); ctx.arc(n.x, n.y, r + 2, 0, Math.PI * 2);
+                    ctx.strokeStyle = `rgba(79,195,247,${.05 + n.activity * .1})`;
+                    ctx.lineWidth = .35; ctx.stroke();
+                    ctx.beginPath(); ctx.arc(n.x, n.y, r + .8, 0, Math.PI * 2);
+                    ctx.strokeStyle = `rgba(120,210,255,${.06 + n.activity * .12})`;
+                    ctx.lineWidth = .25; ctx.stroke();
+                }
+                const somaA = n.isHub ? (.08 + n.activity * .4) : (.05 + n.activity * .3);
+                ctx.fillStyle = `rgba(79,195,247,${somaA})`;
+                ctx.beginPath(); ctx.arc(n.x, n.y, r, 0, Math.PI * 2); ctx.fill();
+                if (n.activity > .1) {
+                    ctx.fillStyle = `rgba(200,240,255,${n.activity * .4})`;
+                    ctx.beginPath(); ctx.arc(n.x, n.y, r * .4, 0, Math.PI * 2); ctx.fill();
+                }
+            }
+        }
+
+        function _sibylDrawBrain(t) {
+            _sbDrawOutline(t);
+            _sbDrawNetwork(t);
+        }
+
+        _sbGetTransform();
+        _sbBuildNetwork();
+    }
+
     // ── Sakura: Tree with blossoms ──
     const _sakuraTree = { branches: [], blossoms: [], tips: [] };
     if (_isSakura) {
@@ -1129,6 +1417,11 @@ function _initStarParallax() {
         if (_isMidnight) {
             ctx.save(); ctx.translate(_elCx, _elCy); ctx.scale(_elScale, _elScale); ctx.translate(-_elCx, -_elCy);
             _midnightDrawMoon(_elCx, isMobile ? _elCy : _ch * 0.28, t, _cw);
+            ctx.restore();
+        }
+        if (_isSibyl) {
+            ctx.save(); ctx.translate(_elCx, _elCy); ctx.scale(_elScale, _elScale); ctx.translate(-_elCx, -_elCy);
+            _sibylDrawBrain(t);
             ctx.restore();
         }
         if (_isSakura) {
