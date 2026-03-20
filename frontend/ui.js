@@ -1063,200 +1063,224 @@ function renderStars() {
         ctx.globalAlpha = 1;
     }
 
-    // ── Sibyl: Psycho-Pass — Crime Coefficient data streams + Dominator reticle ──
-    // Corridor particles flow upward in structured lanes (Sibyl processing data)
-    // Synaptic links flash between nearby particles (collective brain)
-    // Dominator reticle: circular targeting HUD, slowly rotating, cached
-    // Crime Coefficient scan pulses: expanding circular rings
-    const _sybCorridors = [];
-    const _sybParticles = [];
-    let _sybReticleCanvas = null, _sybReticleCtx = null, _sybReticleDirty = true;
-    let _sybReticleAngle = 0;
+    // ── Sibyl: Psycho-Pass — Neural processing network + Dominator scan ──
+    // Nodes = Sibyl's collective brain, edges = neural connections
+    // Pulse waves propagate through the network (system analyzing targets)
+    // Threat flashes = Crime Coefficient spikes on individual nodes
+    // Holographic data lines = floating HUD fragments
+    // Dominator scan rings = area scanner reading Psycho-Pass levels
+    const _sybNodes = [];
+    const _sybEdges = [];
+    const _sybPulses = []; // { fromIdx, toIdx, progress, speed }
+    const _sybDataLines = []; // floating holographic readout lines
     const _sybScanRings = [];
-    const _sybLinks = []; // synaptic link pool
+    let _sybNextPulse = 0; // time of next pulse wave
+    let _sybNextThreat = 0; // time of next threat flash
     if (isSibyl) {
-        // Build corridor particles
-        const spacing = isMobile ? 64 : 48;
-        const corridorCount = Math.floor((canvas.width || window.innerWidth) / spacing);
-        for (let i = 0; i < corridorCount; i++) {
-            const cx = spacing / 2 + i * spacing;
-            const density = _perfMode ? Math.min((i % 3 === 0 ? 4 : i % 3 === 1 ? 2 : 1), 2) :
-                            (i % 3 === 0 ? 4 : i % 3 === 1 ? 2 : 1);
-            const baseSpeed = 0.18 + (i % 5) * 0.07;
-            for (let d = 0; d < density; d++) {
-                const typeRoll = Math.random();
-                const type = typeRoll < 0.78 ? 0 : typeRoll < 0.92 ? 1 : 2; // ambient, packet, signal
-                _sybParticles.push({
-                    cx, y: Math.random() * (canvas.height || window.innerHeight),
-                    speed: baseSpeed * (0.8 + Math.random() * 0.4),
-                    type,
-                    size: type === 0 ? 0.4 + Math.random() * 0.8 : type === 1 ? 1 : 1.8 + Math.random() * 0.8,
-                    opacity: type === 0 ? 0.03 + Math.random() * 0.06 : type === 1 ? 0.06 + Math.random() * 0.10 : 0.3 + Math.random() * 0.2,
+        const W = canvas.width || window.innerWidth;
+        const H = canvas.height || window.innerHeight;
+        const nodeCount = _perfMode ? 28 : (isMobile ? 25 : 55);
+        // Place nodes in a semi-random grid with jitter (not pure random — feels structured)
+        const cols = Math.ceil(Math.sqrt(nodeCount * W / H));
+        const rows = Math.ceil(nodeCount / cols);
+        const cellW = W / cols, cellH = H / rows;
+        for (let r = 0; r < rows; r++) {
+            for (let c = 0; c < cols; c++) {
+                if (_sybNodes.length >= nodeCount) break;
+                _sybNodes.push({
+                    x: cellW * (c + 0.2 + Math.random() * 0.6),
+                    y: cellH * (r + 0.2 + Math.random() * 0.6),
+                    baseR: 1.2 + Math.random() * 1.0,
+                    pulse: 0, // current pulse brightness (0-1, decays)
+                    threat: 0, // threat flash (0-1, decays) — red/orange flash
+                    drift: { x: (Math.random() - 0.5) * 0.08, y: (Math.random() - 0.5) * 0.06 },
                     phase: Math.random() * Math.PI * 2,
-                    drift: Math.sin(cx * 0.01) * 3,
-                    rw: 1 + Math.random() * 1.5, rh: 4 + Math.random() * 5, // packet rect dims
-                    scanFlash: 0, // current flash intensity (0-1)
                 });
             }
         }
-        // Init scan rings
-        for (let i = 0; i < 3; i++) {
-            _sybScanRings.push({
-                x: (canvas.width || window.innerWidth) * 0.5 + (Math.random() - 0.5) * 300,
-                y: (canvas.height || window.innerHeight) * 0.5 + (Math.random() - 0.5) * 200,
-                radius: Math.random() * 60,
-                maxRadius: 80 + Math.random() * 160,
-                speed: 0.4 + Math.random() * 0.3,
-                baseAlpha: 0.03 + Math.random() * 0.03,
-            });
-        }
-        // Init reticle offscreen canvas
-        _sybReticleCanvas = document.createElement('canvas');
-        _sybReticleCtx = _sybReticleCanvas.getContext('2d');
-    }
-    function _sybDrawReticle(c, W, H, colors) {
-        // Dominator targeting HUD — concentric rings + crosshair + tick marks
-        c.clearRect(0, 0, W, H);
-        const mx = W * 0.5, my = H * 0.5;
-        const maxR = Math.max(W, H) * 0.45;
-        // Draw concentric rings with ticks
-        const rings = [0.15, 0.28, 0.45, 0.65, 0.85, 1.0];
-        for (let ri = 0; ri < rings.length; ri++) {
-            const r = maxR * rings[ri];
-            const fade = 0.6 + ri * 0.08; // outer rings slightly more visible
-            const alpha = (0.012 + ri * 0.003) * fade;
-            c.strokeStyle = `rgba(${colors.c1.r},${colors.c1.g},${colors.c1.b},${alpha})`;
-            c.lineWidth = ri < 2 ? 0.6 : 0.3;
-            c.beginPath(); c.arc(mx, my, r, 0, Math.PI * 2); c.stroke();
-            // Tick marks at every 15 degrees
-            const tickLen = ri < 3 ? 6 : 3;
-            c.lineWidth = 0.4;
-            for (let a = 0; a < 24; a++) {
-                const angle = (a / 24) * Math.PI * 2;
-                const x1 = mx + Math.cos(angle) * (r - tickLen);
-                const y1 = my + Math.sin(angle) * (r - tickLen);
-                const x2 = mx + Math.cos(angle) * r;
-                const y2 = my + Math.sin(angle) * r;
-                c.beginPath(); c.moveTo(x1, y1); c.lineTo(x2, y2); c.stroke();
+        // Build edges — connect nearby nodes (Delaunay-like but simpler: connect within range)
+        const edgeRange = Math.max(cellW, cellH) * 1.8;
+        for (let i = 0; i < _sybNodes.length; i++) {
+            let connections = 0;
+            for (let j = i + 1; j < _sybNodes.length; j++) {
+                const dx = _sybNodes[i].x - _sybNodes[j].x;
+                const dy = _sybNodes[i].y - _sybNodes[j].y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                if (dist < edgeRange && connections < 4) {
+                    _sybEdges.push({ a: i, b: j, dist });
+                    connections++;
+                }
             }
         }
-        // Crosshair lines (cardinal directions)
-        c.strokeStyle = `rgba(${colors.c1.r},${colors.c1.g},${colors.c1.b},0.018)`;
-        c.lineWidth = 0.5;
-        // Horizontal
-        c.beginPath(); c.moveTo(mx - maxR, my); c.lineTo(mx - maxR * 0.08, my); c.stroke();
-        c.beginPath(); c.moveTo(mx + maxR * 0.08, my); c.lineTo(mx + maxR, my); c.stroke();
-        // Vertical
-        c.beginPath(); c.moveTo(mx, my - maxR); c.lineTo(mx, my - maxR * 0.08); c.stroke();
-        c.beginPath(); c.moveTo(mx, my + maxR * 0.08); c.lineTo(mx, my + maxR); c.stroke();
+        // Holographic data lines — small floating horizontal line segments
+        const lineCount = _perfMode ? 12 : (isMobile ? 10 : 25);
+        for (let i = 0; i < lineCount; i++) {
+            _sybDataLines.push({
+                x: Math.random() * W, y: Math.random() * H,
+                w: 8 + Math.random() * 30, // line width
+                speed: 0.1 + Math.random() * 0.15,
+                opacity: 0.02 + Math.random() * 0.04,
+                drift: (Math.random() - 0.5) * 0.3,
+            });
+        }
+        // Scan rings
+        for (let i = 0; i < 3; i++) {
+            _sybScanRings.push({
+                x: W * (0.3 + Math.random() * 0.4), y: H * (0.3 + Math.random() * 0.4),
+                radius: Math.random() * 60, maxRadius: 100 + Math.random() * 180,
+                speed: 0.5 + Math.random() * 0.4, baseAlpha: 0.025 + Math.random() * 0.025,
+            });
+        }
     }
     function _sybDrawElement(px, py, t, W, H) {
         const colors = _getStarColors();
-        // Rebuild reticle cache if dirty or resized
-        if (_sybReticleDirty || _sybReticleCanvas.width !== W || _sybReticleCanvas.height !== H) {
-            _sybReticleCanvas.width = W; _sybReticleCanvas.height = H;
-            _sybDrawReticle(_sybReticleCtx, W, H, colors);
-            _sybReticleDirty = false;
-        }
-        // Draw rotating reticle (very slow rotation)
-        _sybReticleAngle += 0.0003;
-        ctx.save();
-        ctx.translate(W * 0.5, H * 0.5);
-        ctx.rotate(_sybReticleAngle);
-        ctx.translate(-W * 0.5, -H * 0.5);
-        ctx.drawImage(_sybReticleCanvas, 0, 0);
-        ctx.restore();
+        const c1 = `${colors.c1.r},${colors.c1.g},${colors.c1.b}`;
+        const c2 = `${colors.c2.r},${colors.c2.g},${colors.c2.b}`;
 
-        // Crime Coefficient scan pulses — expanding circles with crosshair ticks
+        // ── Dominator scan rings — expanding circular area scans ──
         for (const ring of _sybScanRings) {
             ring.radius += ring.speed;
             const progress = ring.radius / ring.maxRadius;
             if (progress >= 1) {
                 ring.radius = 0;
-                ring.x = W * 0.5 + (Math.random() - 0.5) * 300;
-                ring.y = H * 0.5 + (Math.random() - 0.5) * 200;
-                ring.maxRadius = 80 + Math.random() * 160;
-                ring.speed = 0.4 + Math.random() * 0.3;
-                ring.baseAlpha = 0.03 + Math.random() * 0.03;
+                ring.x = W * (0.2 + Math.random() * 0.6);
+                ring.y = H * (0.2 + Math.random() * 0.6);
+                ring.maxRadius = 100 + Math.random() * 180;
+                ring.speed = 0.5 + Math.random() * 0.4;
                 continue;
             }
             const alpha = ring.baseAlpha * (1 - progress);
-            ctx.strokeStyle = `rgba(${colors.c1.r},${colors.c1.g},${colors.c1.b},${alpha})`;
-            ctx.lineWidth = 0.5;
+            ctx.strokeStyle = `rgba(${c1},${alpha})`;
+            ctx.lineWidth = 0.6;
             ctx.beginPath(); ctx.arc(ring.x, ring.y, ring.radius, 0, Math.PI * 2); ctx.stroke();
-            // Crosshair ticks at cardinal points
-            const tickLen = 4 + ring.radius * 0.04;
-            ctx.lineWidth = 0.4;
-            for (let a = 0; a < 4; a++) {
-                const angle = a * Math.PI * 0.5;
-                const x1 = ring.x + Math.cos(angle) * ring.radius;
-                const y1 = ring.y + Math.sin(angle) * ring.radius;
-                const x2 = ring.x + Math.cos(angle) * (ring.radius + tickLen);
-                const y2 = ring.y + Math.sin(angle) * (ring.radius + tickLen);
-                ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
-            }
-        }
-
-        // Data corridor particles
-        const c1 = `${colors.c1.r},${colors.c1.g},${colors.c1.b}`;
-        const c2 = `${colors.c2.r},${colors.c2.g},${colors.c2.b}`;
-        for (let i = 0; i < _sybParticles.length; i++) {
-            const p = _sybParticles[i];
-            p.y -= p.speed;
-            p.phase += 0.008;
-            const x = p.cx + Math.sin(p.y * 0.002 + p.phase) * p.drift;
-            // Occasional scan flash (rare, random)
-            if (p.scanFlash > 0) p.scanFlash -= 0.02;
-            else if (Math.random() < 0.0003) p.scanFlash = 1;
-            const flashBoost = p.scanFlash * 0.3;
-            const alpha = Math.min(1, p.opacity + flashBoost);
-
-            if (p.type === 0) {
-                // Ambient dot
-                ctx.globalAlpha = alpha;
-                ctx.fillStyle = `rgba(${c1},${alpha})`;
-                ctx.beginPath(); ctx.arc(x, p.y, p.size, 0, Math.PI * 2); ctx.fill();
-            } else if (p.type === 1) {
-                // Data packet — small rectangle
-                ctx.globalAlpha = alpha;
-                ctx.fillStyle = `rgba(${c1},${alpha})`;
-                ctx.fillRect(x - p.rw * 0.5, p.y - p.rh * 0.5, p.rw, p.rh);
-            } else {
-                // Signal dot — brighter with glow halo
-                ctx.globalAlpha = alpha * 0.15;
-                ctx.fillStyle = `rgba(${c2},${alpha * 0.3})`;
-                ctx.beginPath(); ctx.arc(x, p.y, p.size * 4, 0, Math.PI * 2); ctx.fill();
-                ctx.globalAlpha = alpha;
-                ctx.fillStyle = `rgba(${c1},${alpha})`;
-                ctx.beginPath(); ctx.arc(x, p.y, p.size, 0, Math.PI * 2); ctx.fill();
-            }
-            // Respawn at bottom
-            if (p.y < -20) {
-                p.y = H + 10 + Math.random() * 40;
-            }
-        }
-
-        // Synaptic links — brief neural connections between nearby particles
-        if (!_perfMode) {
-            ctx.lineWidth = 0.3;
-            for (let i = 0; i < _sybParticles.length; i++) {
-                const a = _sybParticles[i];
-                if (a.type === 0 && Math.random() > 0.08) continue; // only check 8% of ambient per frame
-                const ax = a.cx + Math.sin(a.y * 0.002 + a.phase) * a.drift;
-                for (let j = i + 1; j < Math.min(i + 6, _sybParticles.length); j++) {
-                    const b = _sybParticles[j];
-                    const bx = b.cx + Math.sin(b.y * 0.002 + b.phase) * b.drift;
-                    const dx = ax - bx, dy = a.y - b.y;
-                    const dist = dx * dx + dy * dy;
-                    if (dist < 4000 && dist > 100) { // ~63px range
-                        const linkAlpha = 0.04 * (1 - dist / 4000);
-                        ctx.globalAlpha = linkAlpha;
-                        ctx.strokeStyle = `rgba(${c1},${linkAlpha})`;
-                        ctx.beginPath(); ctx.moveTo(ax, a.y); ctx.lineTo(bx, b.y); ctx.stroke();
-                    }
+            // Illuminate nodes caught in the scan wave
+            for (const node of _sybNodes) {
+                const dx = node.x - ring.x, dy = node.y - ring.y;
+                const nd = Math.sqrt(dx * dx + dy * dy);
+                if (Math.abs(nd - ring.radius) < 12) {
+                    node.pulse = Math.max(node.pulse, alpha * 8);
                 }
             }
         }
+
+        // ── Neural edges — faint connections between nodes ──
+        ctx.lineWidth = 0.4;
+        for (const edge of _sybEdges) {
+            const a = _sybNodes[edge.a], b = _sybNodes[edge.b];
+            const edgeAlpha = 0.03 + Math.max(a.pulse, b.pulse) * 0.12;
+            ctx.globalAlpha = edgeAlpha;
+            ctx.strokeStyle = `rgba(${c1},1)`;
+            ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+        }
+
+        // ── Pulse propagation — scan waves travel along edges ──
+        if (t > _sybNextPulse) {
+            // Start a new pulse wave from a random node
+            const sourceIdx = Math.floor(Math.random() * _sybNodes.length);
+            _sybNodes[sourceIdx].pulse = 1;
+            // Find connected edges and create pulses
+            for (const edge of _sybEdges) {
+                if (edge.a === sourceIdx || edge.b === sourceIdx) {
+                    _sybPulses.push({
+                        fromIdx: edge.a === sourceIdx ? edge.a : edge.b,
+                        toIdx: edge.a === sourceIdx ? edge.b : edge.a,
+                        progress: 0,
+                        speed: 0.015 + Math.random() * 0.01,
+                    });
+                }
+            }
+            _sybNextPulse = t + 1.5 + Math.random() * 3; // every 1.5-4.5 seconds
+        }
+        // Animate pulses
+        for (let i = _sybPulses.length - 1; i >= 0; i--) {
+            const p = _sybPulses[i];
+            p.progress += p.speed;
+            if (p.progress >= 1) {
+                // Pulse arrived — light up target node, cascade to neighbors
+                _sybNodes[p.toIdx].pulse = Math.max(_sybNodes[p.toIdx].pulse, 0.7);
+                // 40% chance to cascade further (max 2 hops deep via decaying probability)
+                if (Math.random() < 0.35) {
+                    for (const edge of _sybEdges) {
+                        if ((edge.a === p.toIdx || edge.b === p.toIdx) &&
+                            edge.a !== p.fromIdx && edge.b !== p.fromIdx) {
+                            _sybPulses.push({
+                                fromIdx: p.toIdx,
+                                toIdx: edge.a === p.toIdx ? edge.b : edge.a,
+                                progress: 0, speed: 0.012 + Math.random() * 0.008,
+                            });
+                            break; // only cascade to one neighbor
+                        }
+                    }
+                }
+                _sybPulses.splice(i, 1);
+                continue;
+            }
+            // Draw the pulse as a bright dot traveling along the edge
+            const from = _sybNodes[p.fromIdx], to = _sybNodes[p.toIdx];
+            const px = from.x + (to.x - from.x) * p.progress;
+            const py2 = from.y + (to.y - from.y) * p.progress;
+            ctx.globalAlpha = 0.5 * (1 - Math.abs(p.progress - 0.5) * 2);
+            ctx.fillStyle = `rgba(${c1},1)`;
+            ctx.beginPath(); ctx.arc(px, py2, 2, 0, Math.PI * 2); ctx.fill();
+        }
+
+        // ── Threat flashes — Crime Coefficient spikes (rare, red/orange) ──
+        if (t > _sybNextThreat) {
+            const idx = Math.floor(Math.random() * _sybNodes.length);
+            _sybNodes[idx].threat = 1;
+            _sybNextThreat = t + 6 + Math.random() * 12; // every 6-18 seconds
+        }
+
+        // ── Nodes — Sibyl brain nodes with pulse glow + threat flash ──
+        for (const node of _sybNodes) {
+            // Gentle drift (nodes breathe slightly)
+            node.x += node.drift.x + Math.sin(t * 0.3 + node.phase) * 0.02;
+            node.y += node.drift.y + Math.cos(t * 0.25 + node.phase) * 0.015;
+            // Clamp to viewport
+            if (node.x < 0 || node.x > W) node.drift.x *= -1;
+            if (node.y < 0 || node.y > H) node.drift.y *= -1;
+
+            // Decay pulse and threat
+            if (node.pulse > 0) node.pulse *= 0.96;
+            if (node.threat > 0) node.threat *= 0.985;
+
+            const r = node.baseR + node.pulse * 2;
+            const baseAlpha = 0.08 + node.pulse * 0.6;
+
+            // Threat glow — red/orange when Crime Coefficient spikes
+            if (node.threat > 0.05) {
+                ctx.globalAlpha = node.threat * 0.3;
+                ctx.fillStyle = `rgba(255,${Math.floor(100 + node.threat * 60)},60,1)`;
+                ctx.beginPath(); ctx.arc(node.x, node.y, r * 6, 0, Math.PI * 2); ctx.fill();
+                ctx.globalAlpha = node.threat * 0.7;
+                ctx.fillStyle = `rgba(255,${Math.floor(140 + node.threat * 40)},80,1)`;
+                ctx.beginPath(); ctx.arc(node.x, node.y, r * 1.5, 0, Math.PI * 2); ctx.fill();
+            }
+            // Normal node glow
+            if (node.pulse > 0.05) {
+                ctx.globalAlpha = node.pulse * 0.12;
+                ctx.fillStyle = `rgba(${c1},1)`;
+                ctx.beginPath(); ctx.arc(node.x, node.y, r * 5, 0, Math.PI * 2); ctx.fill();
+            }
+            // Core dot
+            ctx.globalAlpha = baseAlpha;
+            ctx.fillStyle = node.threat > 0.1 ? `rgba(255,160,80,1)` : `rgba(${c1},1)`;
+            ctx.beginPath(); ctx.arc(node.x, node.y, r, 0, Math.PI * 2); ctx.fill();
+        }
+
+        // ── Holographic data lines — floating HUD fragments ──
+        ctx.lineWidth = 1;
+        for (const dl of _sybDataLines) {
+            dl.y -= dl.speed;
+            dl.x += dl.drift;
+            if (dl.y < -10) { dl.y = H + 10; dl.x = Math.random() * W; }
+            ctx.globalAlpha = dl.opacity;
+            ctx.strokeStyle = `rgba(${c1},1)`;
+            ctx.beginPath(); ctx.moveTo(dl.x, dl.y); ctx.lineTo(dl.x + dl.w, dl.y); ctx.stroke();
+            // Small tick at the end (like a data readout terminator)
+            ctx.beginPath(); ctx.moveTo(dl.x + dl.w, dl.y - 1.5); ctx.lineTo(dl.x + dl.w, dl.y + 1.5); ctx.stroke();
+        }
+
         ctx.globalAlpha = 1;
     }
 
