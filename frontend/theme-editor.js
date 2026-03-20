@@ -828,7 +828,7 @@
         midnight: { label: 'Moon' },
         nebula:   { label: 'Black Hole' },
         aurora:   { label: 'Binary Stars' },
-        sibyl:    { label: 'Dominator Reticle' },
+        sibyl:    { label: 'Neural Brain' },
     };
 
     function _buildGenericElementControls(body) {
