@@ -984,8 +984,29 @@ def _tool_import_canon_world(args, strat, profile_id=0):
 
     from processors.canon_import import resolve_franchise
     info = resolve_franchise(franchise_name, serper_search_fn=serper_fn)
+
+    # Fallback: no Fandom wiki found — web search + LLM-generated world
+    if not info and serper_fn:
+        try:
+            search_results = serper_fn(f'{franchise_name} game world characters lore setting', num_results=5)
+            if search_results:
+                snippets = '\n'.join(
+                    f"- {r.get('title','')}: {r.get('snippet','')}"
+                    for r in search_results[:5] if r.get('snippet')
+                )
+                if snippets:
+                    logger.info(f"Canon import: Fandom not found for '{franchise_name}', using web search fallback")
+                    info = {
+                        "wiki": None,
+                        "full_name": franchise_name.title(),
+                        "genre": "RPG",
+                        "_web_search_context": snippets,
+                    }
+        except Exception as e:
+            logger.debug(f"Web search fallback failed: {e}")
+
     if not info:
-        return f"Could not find a Fandom wiki for '{franchise_name}'. Try the exact franchise name (e.g., 'Sword Art Online' instead of 'SAO') or create the scenario manually."
+        return f"Could not find information about '{franchise_name}'. Try a more specific name or describe the world and I'll create it from scratch."
 
     # Create scenario (check for existing with case-insensitive match)
     scenario_name = args.get("scenario_name", "").strip()
@@ -1056,10 +1077,26 @@ def _tool_import_canon_world(args, strat, profile_id=0):
             except Exception:
                 pass
 
+    _is_web_search_fallback = info.get('_web_search_context') is not None
+
     def _import_in_background():
         try:
-            from processors.canon_import import run_canon_import
-            run_canon_import(ollama_host, model, scenario_path, info, progress_callback=_progress_cb)
+            if _is_web_search_fallback:
+                # Web search fallback: use scenario generator with search context as description
+                from processors.scenario_generator import generate_scenario_content
+                description = (
+                    f"Create a world based on '{info['full_name']}'.\n\n"
+                    f"Web search results about this franchise:\n{info['_web_search_context']}\n\n"
+                    f"Use these details to build an authentic world with accurate characters, locations, and lore."
+                )
+                generate_scenario_content(
+                    ollama_host, scenario_path, scenario_name,
+                    info.get('genre', 'RPG'), description,
+                    model=model, progress_callback=_progress_cb
+                )
+            else:
+                from processors.canon_import import run_canon_import
+                run_canon_import(ollama_host, model, scenario_path, info, progress_callback=_progress_cb)
             # Register imported NPCs in persona_entities DB so they appear in immersive mode dropdown
             _register_canon_npcs_in_db(strat, profile_id, scenario_name, scenario_path)
         except Exception as e:
@@ -1067,6 +1104,12 @@ def _tool_import_canon_world(args, strat, profile_id=0):
             strat._scenario_gen_status[status_key]["status"] = "failed"
 
     threading.Thread(target=_import_in_background, daemon=True).start()
+
+    if _is_web_search_fallback:
+        return (f"No Fandom wiki found for **{info['full_name']}**, but I found web results. "
+                f"Generating the world from search data into scenario '{scenario_name}'.\n\n"
+                f"Check the scenario panel for progress.\n\n"
+                f"The import runs in the background — you can continue chatting while it works.")
 
     return (f"Importing **{info['full_name']}** from {info['wiki']}.fandom.com into scenario '{scenario_name}'.\n\n"
             f"This will fetch characters, locations, world lore, and power systems from the wiki.\n"
