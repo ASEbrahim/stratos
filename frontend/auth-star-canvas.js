@@ -1031,8 +1031,7 @@ function _initStarParallax() {
             _sbDrawNetwork(t);
         }
 
-        _sbGetTransform();
-        _sbBuildNetwork();
+        // Init deferred — _cw/_ch not yet available. Called after resize().
     }
 
     // ── Sakura: Tree with blossoms ──
@@ -1218,6 +1217,12 @@ function _initStarParallax() {
         ctx.setTransform(_dpr, 0, 0, _dpr, 0, 0);
     }
     resize();
+
+    // Sibyl brain init (needs _cw/_ch from resize)
+    if (_isSibyl && typeof _sbGetTransform === 'function') {
+        _sbGetTransform();
+        _sbBuildNetwork();
+    }
 
     // Pick a star color based on tier distribution
     function pickStar() {
