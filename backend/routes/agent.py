@@ -477,7 +477,7 @@ def handle_agent_chat(handler, strat, output_file, profile_id=0):
         # ── Behavioral context injection ──
         try:
             from behavioral import build_agent_behavioral_hint
-            _beh_hint = build_agent_behavioral_hint(strat.db, profile_id)
+            _beh_hint = build_agent_behavioral_hint(strat.db, profile_id, config=strat.config)
             if _beh_hint:
                 system_prompt += "\n\n" + _beh_hint
         except Exception as e:

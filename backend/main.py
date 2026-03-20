@@ -1362,7 +1362,7 @@ class StratOS:
                 _beh_hint = ""
                 try:
                     from behavioral import build_briefing_behavioral_hint
-                    _beh_hint = build_briefing_behavioral_hint(self.db, profile_id)
+                    _beh_hint = build_briefing_behavioral_hint(self.db, profile_id, config=self.config)
                 except Exception as _bhe:
                     logger.debug(f"Behavioral briefing hint skipped: {_bhe}")
 

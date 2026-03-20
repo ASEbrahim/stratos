@@ -72,7 +72,7 @@ def handle_get(handler, strat, auth, path, output_dir=None):
             if len(handle_get._hue_cache) > 100:
                 handle_get._hue_cache.clear()
 
-            bp = compute_behavioral_profile(strat.db, pid, days=30)
+            bp = compute_behavioral_profile(strat.db, pid, days=30, config=strat.config)
             hue = compute_hue(bp)
 
             # Trim behavioral profile for the wire

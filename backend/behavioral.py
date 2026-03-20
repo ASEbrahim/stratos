@@ -20,13 +20,17 @@ HUE_LEVELS = [
 ]
 
 
-def compute_behavioral_profile(db, profile_id, days=30):
+def compute_behavioral_profile(db, profile_id, days=30, config=None):
     """
     Compute a behavioral profile from existing DB tables.
     Returns a dict with category_engagement, source_quality, usage_patterns,
     trajectory, and alignment data.
 
     All queries filter by profile_id. Read-only — never writes.
+
+    Args:
+        config: Optional config dict for alignment computation (declared vs engaged).
+                If None, alignment section is skipped.
     """
     result = {
         "category_engagement": {},
@@ -215,10 +219,7 @@ def compute_behavioral_profile(db, profile_id, days=30):
     try:
         # Get declared categories from config
         declared = set()
-        if hasattr(db, '_strat_config_ref'):
-            cfg = db._strat_config_ref
-        else:
-            cfg = None
+        cfg = config
 
         if cfg:
             # Check dynamic_categories
@@ -397,13 +398,13 @@ def compute_hue(behavioral_profile):
     }
 
 
-def build_agent_behavioral_hint(db, profile_id, max_tokens=200):
+def build_agent_behavioral_hint(db, profile_id, max_tokens=200, config=None):
     """
     Build a short behavioral context string for agent system prompt injection.
     Returns empty string on any failure. Never exceeds ~200 tokens.
     """
     try:
-        bp = compute_behavioral_profile(db, profile_id, days=30)
+        bp = compute_behavioral_profile(db, profile_id, days=30, config=config)
         if bp["article_count"] == 0:
             return ""
 
@@ -449,13 +450,13 @@ def build_agent_behavioral_hint(db, profile_id, max_tokens=200):
         return ""
 
 
-def build_briefing_behavioral_hint(db, profile_id):
+def build_briefing_behavioral_hint(db, profile_id, config=None):
     """
     Build a short (~80 token) behavioral hint for briefing prompt injection.
     Only returns content if 5+ feedback entries exist. Empty string on failure.
     """
     try:
-        bp = compute_behavioral_profile(db, profile_id, days=30)
+        bp = compute_behavioral_profile(db, profile_id, days=30, config=config)
         if bp.get("feedback_count", 0) < 5:
             return ""
 
