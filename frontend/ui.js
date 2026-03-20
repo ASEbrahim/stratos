@@ -1079,7 +1079,7 @@ function renderStars() {
     let _sybSweepPos = 0;
     let _sybBrainPts = [];
     let _sybScreenPts = [];
-    let _sybLastBuildX = 0, _sybLastBuildY = 0;
+    let _sybLastBuildX = 0, _sybLastBuildY = 0, _sybLastBuildS = 0;
     let _sybBrainBuilt = false;
 
     // Pre-computed brain outline data (same as auth-star-canvas.js)
@@ -1118,7 +1118,7 @@ function renderStars() {
         return ins;
     }
 
-    function _sybBuildBrainNetwork(W, H, centerX, centerY) {
+    function _sybBuildBrainNetwork(W, H, centerX, centerY, scale) {
         _sybNodes.length = 0;
         _sybEdges.length = 0;
         _sybPulses.length = 0;
@@ -1128,7 +1128,11 @@ function renderStars() {
         _sybLastMajorHub = -1;
         _sybSweepPos = 0;
 
-        const { bs, bx, by } = _sybGetBrainTransform(W, H, centerX, centerY);
+        scale = scale || 1;
+        const brainH = H * 0.45 * scale;
+        const bs = brainH / 649;
+        const bx = centerX - 660 * bs / 2;
+        const by = centerY - 649 * bs / 2;
         const spacing = 22 * bs * 660 / 300;
         const mx = bx + 3, MX = bx + 660 * bs - 3;
         const my = by + 3, MY = by + 649 * bs - 3;
@@ -1193,20 +1197,25 @@ function renderStars() {
 
     // Brain is built lazily on first draw call (needs px, py from theme editor)
 
-    function _sybDrawElement(px, py, t, W, H) {
+    function _sybDrawElement(px, py, t, W, H, scale) {
         if (_sybBrainPts.length === 0) return;
+        scale = scale || 1;
         const colors = _getStarColors();
         const c1 = `${colors.c1.r},${colors.c1.g},${colors.c1.b}`;
         const PI2 = Math.PI * 2;
+        const glow = parseFloat(localStorage.getItem('stratos-sibyl-glow') || '0');
 
-        // Rebuild screen points centered on px, py (follows theme editor grid)
-        const { bs, bx, by } = _sybGetBrainTransform(W, H, px, py);
+        // Rebuild screen points centered on px, py with scale
+        const brainH = H * 0.45 * scale;
+        const bs = brainH / 649;
+        const bx = px - 660 * bs / 2;
+        const by = py - 649 * bs / 2;
         _sybScreenPts = _sybBrainPts.map(p => _sybScreenPt(p.x, p.y, bs, bx, by));
 
-        // Rebuild nodes if brain center moved significantly
-        if (_sybNodes.length === 0 || Math.abs((_sybLastBuildX || 0) - px) > 20 || Math.abs((_sybLastBuildY || 0) - py) > 20) {
-            _sybBuildBrainNetwork(W, H, px, py);
-            _sybLastBuildX = px; _sybLastBuildY = py;
+        // Rebuild nodes if brain center or scale changed significantly
+        if (_sybNodes.length === 0 || Math.abs((_sybLastBuildX || 0) - px) > 20 || Math.abs((_sybLastBuildY || 0) - py) > 20 || Math.abs((_sybLastBuildS || 0) - scale) > 0.05) {
+            _sybBuildBrainNetwork(W, H, px, py, scale);
+            _sybLastBuildX = px; _sybLastBuildY = py; _sybLastBuildS = scale;
         }
 
         // ── Scan rings — expanding circular area scans (full canvas) ──
@@ -1268,7 +1277,7 @@ function renderStars() {
                 if (dist < 0) dist += bpLen;
                 if (dist > bpLen / 2) dist = bpLen - dist;
                 const sweepBoost = dist < sweepW ? (0.2 * (1 - dist / sweepW)) : 0;
-                ctx.strokeStyle = `rgba(${c1},${0.09 + sweepBoost})`;
+                ctx.strokeStyle = `rgba(${c1},${(0.09 + sweepBoost) * (1 + glow)})`;
                 ctx.lineWidth = sweepBoost > 0.06 ? 1.4 : 0.8;
                 ctx.beginPath(); ctx.moveTo(pt.x, pt.y); ctx.lineTo(pt2.x, pt2.y); ctx.stroke();
                 if (sweepBoost > 0.08) {
@@ -1359,7 +1368,7 @@ function renderStars() {
         for (const l of _sybEdges) {
             const a = _sybNodes[l.a], b = _sybNodes[l.b];
             const act = Math.max(a.activity, b.activity);
-            const baseA = 0.018 + act * 0.03 + l.pulseAlpha * 0.15;
+            const baseA = (0.018 + act * 0.03 + l.pulseAlpha * 0.15) * (1 + glow);
             ctx.strokeStyle = `rgba(${c1},${baseA})`;
             ctx.lineWidth = 0.3 + l.pulseAlpha * 0.6;
             ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
@@ -1476,7 +1485,7 @@ function renderStars() {
             }
 
             // Core soma
-            const somaA = node.isHub ? (0.08 + node.activity * 0.4) : (0.05 + node.activity * 0.3);
+            const somaA = (node.isHub ? (0.08 + node.activity * 0.4) : (0.05 + node.activity * 0.3)) * (1 + glow);
             ctx.fillStyle = node.threat > 0.1 ? `rgba(255,160,80,${somaA + node.threat * 0.3})` : `rgba(${c1},${somaA})`;
             ctx.beginPath(); ctx.arc(node.x, node.y, r, 0, PI2); ctx.fill();
 
@@ -1501,12 +1510,15 @@ function renderStars() {
         const blur = _perfMode ? 0 : parseFloat(localStorage.getItem(prefix + '-blur') || '0');
         const px = canvas.width * cx, py = canvas.height * cy;
         ctx.save();
-        ctx.globalAlpha = opacity;
+        ctx.globalAlpha = Math.min(opacity, 2.0); // allow up to 2.0 for Sibyl glow
         if (blur > 0) ctx.filter = `blur(${blur}px)`;
-        if (themeName !== 'sibyl') {
+        if (themeName === 'sibyl') {
+            // Sibyl handles its own positioning — pass scale via extra arg
+            drawFn(px, py, t, canvas.width, canvas.height, scale);
+        } else {
             ctx.translate(px, py); ctx.scale(scale, scale); ctx.translate(-px, -py);
+            drawFn(px, py, t, canvas.width, canvas.height);
         }
-        drawFn(px, py, t, canvas.width, canvas.height);
         ctx.restore();
     }
 

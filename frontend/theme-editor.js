@@ -849,7 +849,11 @@
         const cy = parseFloat(localStorage.getItem(prefix + '-cy') || '0.35');
         const scale = parseFloat(localStorage.getItem(prefix + '-scale') || '1');
         const blur = parseFloat(localStorage.getItem(prefix + '-blur') || '0');
-        const opacity = parseFloat(localStorage.getItem(prefix + '-opacity') || '1');
+        const isSibylTheme = theme === 'sibyl';
+        const defaultOpacity = isSibylTheme ? '0.5' : '1';
+        const opacity = parseFloat(localStorage.getItem(prefix + '-opacity') || defaultOpacity);
+        const opacityMax = isSibylTheme ? 2.0 : 1.0;
+        const glow = parseFloat(localStorage.getItem(prefix + '-glow') || '0');
 
         section.innerHTML = `
             <div class="te-group-label" style="display:flex;align-items:center;justify-content:space-between;">
@@ -895,9 +899,16 @@
                     </div>
                     <label class="te-color-label" style="margin-bottom:2px;margin-top:6px;display:block;">Opacity</label>
                     <div style="display:flex;align-items:center;gap:8px;">
-                        <input type="range" class="te-range-slider" id="te-el-opacity" min="0.05" max="1" step="0.05" value="${opacity}" style="flex:1;" />
+                        <input type="range" class="te-range-slider" id="te-el-opacity" min="0.05" max="${opacityMax}" step="0.05" value="${opacity}" style="flex:1;" />
                         <span class="te-range-val" id="te-el-opacity-val">${Math.round(opacity*100)}%</span>
                     </div>
+                    ${isSibylTheme ? `
+                    <label class="te-color-label" style="margin-bottom:2px;margin-top:6px;display:block;">Glow</label>
+                    <div style="display:flex;align-items:center;gap:8px;">
+                        <input type="range" class="te-range-slider" id="te-el-glow" min="0" max="3" step="0.1" value="${glow}" style="flex:1;" />
+                        <span class="te-range-val" id="te-el-glow-val">${glow.toFixed(1)}</span>
+                    </div>
+                    ` : ''}
                 </div>
             </div>
         `;
@@ -933,6 +944,10 @@
         _wireSlider('#te-el-scale', '#te-el-scale-val', prefix + '-scale', v => v.toFixed(2) + 'x');
         _wireSlider('#te-el-blur', '#te-el-blur-val', prefix + '-blur', v => v.toFixed(1) + 'px');
         _wireSlider('#te-el-opacity', '#te-el-opacity-val', prefix + '-opacity', v => Math.round(v * 100) + '%');
+        // Glow slider (Sibyl only)
+        if (isSibylTheme) {
+            _wireSlider('#te-el-glow', '#te-el-glow-val', prefix + '-glow', v => v.toFixed(1));
+        }
 
         // Element visibility toggle
         const elToggle = section.querySelector('#te-el-toggle');
