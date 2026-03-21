@@ -149,9 +149,10 @@ function stratosConfirm(message, opts = {}) {
 
         const dialog = document.createElement('div');
         dialog.className = 'stratos-prompt-dialog';
-        dialog.innerHTML = `<div class="sp-title">${opts.title || 'Confirm'}</div>
-            <div class="sp-message">${message}</div>
-            <div class="sp-buttons"><button class="sp-btn sp-cancel">${opts.cancelText || 'Cancel'}</button><button class="sp-btn sp-ok sp-danger">${opts.okText || 'Confirm'}</button></div>`;
+        var _e = typeof esc === 'function' ? esc : function(s){var d=document.createElement('div');d.textContent=s||'';return d.innerHTML;};
+        dialog.innerHTML = `<div class="sp-title">${_e(opts.title || 'Confirm')}</div>
+            <div class="sp-message">${_e(message)}</div>
+            <div class="sp-buttons"><button class="sp-btn sp-cancel">${_e(opts.cancelText || 'Cancel')}</button><button class="sp-btn sp-ok sp-danger">${_e(opts.okText || 'Confirm')}</button></div>`;
 
         dialog.querySelector('.sp-cancel').onclick = () => close(false);
         dialog.querySelector('.sp-ok').onclick = () => close(true);
