@@ -752,6 +752,7 @@ function _openFullscreenChartInner(sourceEl, title) {
     /* ── Intel Panel: Agent Chat ── */
     var _cfsAgentHistory = [];
     var _cfsAgentStreaming = false;
+    function _cfsCapHistory() { if (_cfsAgentHistory.length > 100) _cfsAgentHistory.splice(0, _cfsAgentHistory.length - 100); }
 
     function _cfsAgentAppend(role, content, elId) {
         var msgs = document.getElementById('cfs-agent-msgs');
@@ -783,7 +784,7 @@ function _openFullscreenChartInner(sourceEl, title) {
         input.value = '';
 
         _cfsAgentAppend('user', msg);
-        _cfsAgentHistory.push({role:'user', content: msg});
+        _cfsAgentHistory.push({role:'user', content: msg}); _cfsCapHistory();
 
         var typingId = 'cfs-typing-' + Date.now();
         _cfsAgentAppend('typing', '', typingId);
@@ -824,7 +825,7 @@ function _openFullscreenChartInner(sourceEl, title) {
                 return reader.read().then(function(result) {
                     if (result.done) {
                         full = full.replace(/[\u4e00-\u9fff\u3400-\u4dbf]+/g, '').replace(/\s{2,}/g, ' ').trim();
-                        _cfsAgentHistory.push({role:'assistant', content: full});
+                        _cfsAgentHistory.push({role:'assistant', content: full}); _cfsCapHistory();
                         if (respEl && typeof formatAgentText === 'function') {
                             respEl.querySelector('div').innerHTML = formatAgentText(full);
                         }

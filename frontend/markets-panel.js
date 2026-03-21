@@ -574,6 +574,7 @@ function _mpRenderOverview() {
 
 var _mpAgentHistory = [];
 var _mpAgentStreaming = false;
+function _mpCapHistory() { if (_mpAgentHistory.length > 100) _mpAgentHistory.splice(0, _mpAgentHistory.length - 100); }
 
 function _mpRenderStatsTable() {
     _mpAgentInitSuggestions();
@@ -720,7 +721,7 @@ function mpImportMarketAgent() {
             // Treat as context file
             var text = raw.slice(0, 5000);
             var contextMsg = '[Imported context from "' + file.name + '"]\n\n' + text;
-            _mpAgentHistory.push({role:'user', content:contextMsg});
+            _mpAgentHistory.push({role:'user', content:contextMsg}); _mpCapHistory();
             var welcome = document.getElementById('mp-agent-welcome');
             if (welcome) welcome.remove();
             _mpAgentAppend('user', '\uD83D\uDCC4 Context loaded: ' + file.name);
@@ -762,7 +763,7 @@ function mpHandleAgentImport(event) {
         // Treat as context file
         var text = raw.slice(0, 5000);
         var contextMsg = '[Imported context from "' + (file.name || 'file') + '"]\n\n' + text;
-        _mpAgentHistory.push({role:'user', content: contextMsg});
+        _mpAgentHistory.push({role:'user', content: contextMsg}); _mpCapHistory();
         var welcome = document.getElementById('mp-agent-welcome');
         if (welcome) welcome.remove();
         var preview = text.length > 200 ? text.slice(0, 200) + '\u2026' : text;
@@ -848,7 +849,7 @@ function mpSendMarketAgent(prefill) {
     var quick = _mpHandleQuickCommand(msg);
     if (quick && quick.handled) {
         _mpAgentHistory.push({role:'user', content:msg});
-        _mpAgentHistory.push({role:'assistant', content: quick.plain || 'OK'});
+        _mpAgentHistory.push({role:'assistant', content: quick.plain || 'OK'}); _mpCapHistory();
         _mpAgentAppend('assistant', quick.html || _mpEsc(quick.plain || ''));
         return;
     }
@@ -857,14 +858,14 @@ function mpSendMarketAgent(prefill) {
     if (typeof _parseTickerCommand === 'function') {
         var cmd = _parseTickerCommand(msg);
         if (cmd) {
-            _mpAgentHistory.push({role:'user', content:msg});
+            _mpAgentHistory.push({role:'user', content:msg}); _mpCapHistory();
             var typingId2 = 'mp-typing-' + Date.now();
             _mpAgentAppend('typing', '', typingId2);
             _executeTickerCommand(cmd).then(function(result) {
                 var t2 = document.getElementById(typingId2); if (t2) t2.remove();
                 var text = result.plain || (typeof result === 'string' ? result : JSON.stringify(result));
                 var html = result.html || (typeof formatAgentText === 'function' ? formatAgentText(text) : _mpEsc(text));
-                _mpAgentHistory.push({role:'assistant', content:text});
+                _mpAgentHistory.push({role:'assistant', content:text}); _mpCapHistory();
                 _mpAgentAppend('assistant', html);
             }).catch(function(err) {
                 var t2 = document.getElementById(typingId2); if (t2) t2.remove();
@@ -874,7 +875,7 @@ function mpSendMarketAgent(prefill) {
         }
     }
 
-    _mpAgentHistory.push({role:'user', content:msg});
+    _mpAgentHistory.push({role:'user', content:msg}); _mpCapHistory();
 
     // Add typing indicator
     var typingId = 'mp-typing-' + Date.now();
@@ -914,7 +915,7 @@ function mpSendMarketAgent(prefill) {
             return reader.read().then(function(result) {
                 if (result.done) {
                     full = full.replace(/[\u4e00-\u9fff\u3400-\u4dbf]+/g, '').replace(/\s{2,}/g, ' ').replace(/\.(\s*\.)+/g, '.').trim();
-                    _mpAgentHistory.push({role:'assistant', content: full});
+                    _mpAgentHistory.push({role:'assistant', content: full}); _mpCapHistory();
                     var rd = respEl.querySelector('.mp-agent-resp');
                     if (rd && typeof formatAgentText === 'function' && typeof wrapWithShowMore === 'function') rd.innerHTML = wrapWithShowMore(full, formatAgentText(full));
                     else if (rd && typeof formatAgentText === 'function') rd.innerHTML = formatAgentText(full);
