@@ -5,11 +5,14 @@ Fetches market data from Yahoo Finance (stocks/metals) and Binance (crypto).
 
 import yfinance as yf
 import requests
+from concurrent.futures import ThreadPoolExecutor, TimeoutError as FuturesTimeoutError
 from datetime import datetime, timedelta
 from typing import Dict, List, Any, Optional
 import logging
 
 logger = logging.getLogger(__name__)
+
+YF_TIMEOUT_SECS = 15  # Max seconds per yfinance history() call
 
 # ── Binance integration for crypto tickers ──
 BINANCE_API = "https://api.binance.com/api/v3"
@@ -138,10 +141,17 @@ class MarketFetcher:
                 # interval_key maps to yfinance unless overridden by yf_interval
                 yf_interval = settings.get("yf_interval", interval_key)
                 
-                hist = ticker.history(
-                    period=settings["period"],
-                    interval=yf_interval
-                )
+                with ThreadPoolExecutor(max_workers=1) as yf_exec:
+                    yf_future = yf_exec.submit(
+                        ticker.history,
+                        period=settings["period"],
+                        interval=yf_interval,
+                    )
+                    try:
+                        hist = yf_future.result(timeout=YF_TIMEOUT_SECS)
+                    except FuturesTimeoutError:
+                        logger.warning(f"Yahoo Finance timeout ({YF_TIMEOUT_SECS}s) for {symbol} at {interval_key}")
+                        continue
                 
                 if hist.empty:
                     logger.warning(f"No data for {symbol} at {interval_key}")
