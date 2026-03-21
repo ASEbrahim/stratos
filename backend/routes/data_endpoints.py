@@ -6,6 +6,7 @@ Extracted from server.py (Sprint 5K Phase 1).
 
 import gzip as _gzip_mod
 import hashlib
+import hmac
 import json
 import logging
 import threading
@@ -896,10 +897,10 @@ def handle_post(handler, strat, auth, path):
                 sec = profile_data.get("security", {})
                 stored_hash = sec.get("pin_hash", "")
                 if stored_hash:
-                    if auth.hash_pin(current_pin) != stored_hash:
+                    if not hmac.compare_digest(auth.hash_pin(current_pin), stored_hash):
                         raise ValueError("Current PIN is incorrect")
                 elif sec.get("pin"):
-                    if str(sec["pin"]).strip() != current_pin:
+                    if not hmac.compare_digest(str(sec["pin"]).strip(), current_pin):
                         raise ValueError("Current PIN is incorrect")
                 # Set new PIN
                 profile_data.setdefault("security", {})["pin_hash"] = auth.hash_pin(new_pin)
