@@ -402,7 +402,8 @@ def _try_parse_tool_json(text: str) -> dict:
         data = json.loads(text)
         name = data.get("name", "")
         arguments = data.get("arguments", data.get("parameters", {}))
-        if name and name in ("web_search", "search_feed", "manage_watchlist", "manage_categories", "import_canon_world"):
+        _VALID_TOOL_NAMES = frozenset(t["function"]["name"] for t in AGENT_TOOLS)
+        if name and name in _VALID_TOOL_NAMES:
             if isinstance(arguments, str):
                 try:
                     arguments = json.loads(arguments)
