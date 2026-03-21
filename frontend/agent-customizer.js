@@ -7,10 +7,10 @@ var _fsCustomizerOpen = false;
 var _fsCustomDefaults = {
     chatOpacity: 0.7, chatBlur: 16, sidebarOpacity: 0.75, sidebarBlur: 20,
     fontSize: 15, lineHeight: 1.65, bubblePadding: 14, bubbleRadius: 16,
-    chatWidth: 800, inputHeight: 52, sendSize: 44, uiScale: 1, gradBar: true
+    chatWidth: 1400, inputHeight: 52, sendSize: 44, uiScale: 1, gradBar: true
 };
 var _fsPresets = {
-    Default:   { chatOpacity:0.7, chatBlur:16, sidebarOpacity:0.75, sidebarBlur:20, fontSize:15, lineHeight:1.65, bubblePadding:14, bubbleRadius:16, chatWidth:800, inputHeight:52, sendSize:44, uiScale:1, gradBar:true },
+    Default:   { chatOpacity:0.7, chatBlur:16, sidebarOpacity:0.75, sidebarBlur:20, fontSize:15, lineHeight:1.65, bubblePadding:14, bubbleRadius:16, chatWidth:1400, inputHeight:52, sendSize:44, uiScale:1, gradBar:true },
     Minimal:   { chatOpacity:0.55, chatBlur:12, sidebarOpacity:0.6, sidebarBlur:14, fontSize:13, lineHeight:1.5, bubblePadding:10, bubbleRadius:8, chatWidth:700, inputHeight:42, sendSize:36, uiScale:0.92, gradBar:false },
     Cozy:      { chatOpacity:0.82, chatBlur:22, sidebarOpacity:0.85, sidebarBlur:24, fontSize:17, lineHeight:1.8, bubblePadding:18, bubbleRadius:20, chatWidth:900, inputHeight:58, sendSize:48, uiScale:1.05, gradBar:true },
     Glass:     { chatOpacity:0.3, chatBlur:32, sidebarOpacity:0.25, sidebarBlur:36, fontSize:15, lineHeight:1.65, bubblePadding:14, bubbleRadius:16, chatWidth:800, inputHeight:52, sendSize:44, uiScale:1, gradBar:true },
