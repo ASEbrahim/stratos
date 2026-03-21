@@ -655,8 +655,8 @@ function updateChart(symbol) {
     candleData = { opens:ad.opens||[], highs:ad.highs||[], lows:ad.lows||[], volumes:ad.volumes||[], timestamps:ad.timestamps||[] };
 
     const open = ad.open || (history[0] ?? price);
-    const high = ad.high || (history.length ? Math.max(...history) : price);
-    const low = ad.low || (history.length ? Math.min(...history) : price);
+    const high = ad.high || (history.length ? history.reduce((a,b) => Math.max(a,b), -Infinity) : price);
+    const low = ad.low || (history.length ? history.reduce((a,b) => Math.min(a,b), Infinity) : price);
     const prevClose = ad.prev_close || open;
     const volume = ad.volume || 0;
     const changeAbs = price - prevClose;
@@ -981,8 +981,8 @@ function updateAssetAnalysis(symbol, price, change, changeAbs, open, high, low, 
             if (recentLo[i] < recentLo[i-1] && recentLo[i] < recentLo[i-2] && recentLo[i] < recentLo[i+1] && recentLo[i] < recentLo[i+2])
                 swingLows.push(recentLo[i]);
         }
-        if (swingHighs.length) resistance = swingHighs.filter(h => h > price).sort((a,b) => a-b)[0] || Math.max(...swingHighs);
-        if (swingLows.length) support = swingLows.filter(l => l < price).sort((a,b) => b-a)[0] || Math.min(...swingLows);
+        if (swingHighs.length) resistance = swingHighs.filter(h => h > price).sort((a,b) => a-b)[0] || swingHighs.reduce((a,b) => Math.max(a,b), -Infinity);
+        if (swingLows.length) support = swingLows.filter(l => l < price).sort((a,b) => b-a)[0] || swingLows.reduce((a,b) => Math.min(a,b), Infinity);
     }
 
     // Distance from period high/low
@@ -1094,7 +1094,7 @@ function renderMarketOverview() {
         return { sym, ad, change: ad?.change || 0 };
     }).sort((a,b) => b.change - a.change);
 
-    const maxAbs = Math.max(1, Math.max(...sorted.map(i => Math.abs(i.change))));
+    const maxAbs = Math.max(1, sorted.map(i => Math.abs(i.change)).reduce((a,b) => Math.max(a,b), -Infinity));
     const fp = v => v.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
 
     let html = '<div class="heatmap-row" style="display:flex;flex-wrap:wrap;gap:4px;">';
