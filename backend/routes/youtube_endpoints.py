@@ -8,6 +8,8 @@ import logging
 import threading
 from urllib.parse import urlparse, parse_qs
 
+from llm_provider import get_provider, call_llm
+
 logger = logging.getLogger("STRAT_OS")
 
 
@@ -885,29 +887,44 @@ def handle_post(handler, strat, auth, path):
                     logger.warning(f"Argos Translate failed ({argos_err}), falling back to LLM")
                     translated = None
 
-            # --- Tier 3: Qwen LLM via Ollama (last resort, uses VRAM) ---
+            # --- Tier 3: LLM translation — Gemini provider or Ollama fallback ---
             if not translated:
-                _method = 'ollama'
-                scoring_cfg = strat.config.get('scoring', {})
-                ollama_host = scoring_cfg.get('ollama_host', 'http://localhost:11434')
-                model = scoring_cfg.get('inference_model', 'qwen3.5:9b')
                 text_chunk = transcript_text[:4000]
-                import requests as req
-                resp = req.post(f"{ollama_host}/api/chat", json={
-                    "model": model,
-                    "messages": [
-                        {"role": "system", "content": f"You are a translator. Translate the following text to {target_lang}. Output ONLY the translation, nothing else."},
-                        {"role": "user", "content": text_chunk},
-                    ],
-                    "stream": False,
-                    "think": False,
-                    "options": {"num_predict": 4000, "temperature": 0.3},
-                }, timeout=120)
-                if resp.status_code == 200:
-                    result = resp.json()
-                    translated = result.get('message', {}).get('content', '')
-                    import re
-                    translated = re.sub(r'<think>.*?</think>', '', translated, flags=re.DOTALL).strip()
+                _translate_system = f"You are a translator. Translate the following text to {target_lang}. Output ONLY the translation, nothing else."
+
+                # Try Gemini provider first
+                if get_provider(strat.config) == 'gemini':
+                    _method = 'gemini'
+                    try:
+                        messages = [{"role": "user", "content": text_chunk}]
+                        translated = call_llm(strat.config, messages, system=_translate_system,
+                                              max_tokens=4000, temperature=0.3, use_case='default')
+                    except Exception as e:
+                        logger.warning(f"Gemini translation failed, falling back to Ollama: {e}")
+                        translated = None
+
+                # Ollama fallback
+                if not translated:
+                    _method = 'ollama'
+                    scoring_cfg = strat.config.get('scoring', {})
+                    ollama_host = scoring_cfg.get('ollama_host', 'http://localhost:11434')
+                    model = scoring_cfg.get('inference_model', 'qwen3.5:9b')
+                    import requests as req
+                    resp = req.post(f"{ollama_host}/api/chat", json={
+                        "model": model,
+                        "messages": [
+                            {"role": "system", "content": _translate_system},
+                            {"role": "user", "content": text_chunk},
+                        ],
+                        "stream": False,
+                        "think": False,
+                        "options": {"num_predict": 4000, "temperature": 0.3},
+                    }, timeout=120)
+                    if resp.status_code == 200:
+                        result = resp.json()
+                        translated = result.get('message', {}).get('content', '')
+                        import re
+                        translated = re.sub(r'<think>.*?</think>', '', translated, flags=re.DOTALL).strip()
 
             if translated:
                 # Save translation as a transcript insight in the target language
