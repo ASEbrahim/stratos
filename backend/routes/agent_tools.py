@@ -649,10 +649,10 @@ def _sync_profile_overlay(strat, profile_id=0):
         # Update profile cache so subsequent requests see the change
         if hasattr(strat, 'cache_profile_config'):
             # Find username for this profile_id
-            cursor.execute("SELECT username FROM profiles WHERE id = ?", (profile_id,))
+            cursor.execute("SELECT name FROM profiles WHERE id = ?", (profile_id,))
             row = cursor.fetchone()
             if row:
-                strat.cache_profile_config(row[0] if isinstance(row, tuple) else row['username'])
+                strat.cache_profile_config(row[0] if isinstance(row, tuple) else row['name'])
     except Exception as e:
         logger.error(f"Profile overlay sync failed: {e}")
 
