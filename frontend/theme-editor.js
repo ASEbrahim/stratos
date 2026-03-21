@@ -1064,6 +1064,15 @@
             syncPickersToCurrentTheme();
         },
 
+        reapply() {
+            // Re-apply saved overrides with fresh derived values from current CSS vars
+            clearAllOverrides();
+            const overrides = loadOverrides();
+            if (Object.keys(overrides).length > 0) {
+                applyOverrides(overrides);
+            }
+        },
+
         resetColors() {
             clearOverrides();
             clearAllOverrides();

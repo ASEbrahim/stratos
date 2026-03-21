@@ -61,6 +61,12 @@ function applyThemeMode(mode) {
     else if (mode === 'dark') html.setAttribute('data-dark', 'true');
     localStorage.setItem('stratos-theme-mode', mode);
     if (!_isApplyingFromServer) _syncUiStateToServer();
+    // Re-apply theme editor overrides so derived values (bg-panel, etc.)
+    // recalculate from the new mode's base colors
+    if (window._themeEditor && typeof window._themeEditor.reapply === 'function') {
+        // Slight delay to let CSS variables update from the new data- attribute
+        requestAnimationFrame(function() { window._themeEditor.reapply(); });
+    }
 }
 
 function cycleThemeMode() {
