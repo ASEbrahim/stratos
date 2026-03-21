@@ -61,6 +61,22 @@ def _upgrade_password(db, user_id: int, password: str, stored_hash: str):
             logger.info(f"Upgraded password hash for user {user_id} to bcrypt")
 
 
+_MAX_SESSIONS_PER_USER = 20
+
+
+def _enforce_session_limit(cursor, user_id: int):
+    """Delete oldest sessions if user has >= _MAX_SESSIONS_PER_USER."""
+    cursor.execute("SELECT COUNT(*) FROM sessions WHERE user_id = ?", (user_id,))
+    count = cursor.fetchone()[0]
+    if count >= _MAX_SESSIONS_PER_USER:
+        cursor.execute("""
+            DELETE FROM sessions WHERE user_id = ? AND token NOT IN (
+                SELECT token FROM sessions WHERE user_id = ?
+                ORDER BY last_active DESC LIMIT ?
+            )
+        """, (user_id, user_id, _MAX_SESSIONS_PER_USER - 1))
+
+
 def _generate_token() -> str:
     """Generate a 64-char hex session token."""
     return secrets.token_hex(32)
@@ -260,6 +276,7 @@ def handle_auth_routes(handler, method, path, data, db, strat, send_json, email_
         # Create session — log the user in (with profile_id)
         token = _generate_token()
         expires = (datetime.now() + timedelta(days=7)).isoformat()
+        _enforce_session_limit(cursor, user_id)
         cursor.execute("""
             INSERT INTO sessions (token, user_id, profile_id, expires_at, last_active)
             VALUES (?, ?, ?, ?, ?)
@@ -355,6 +372,7 @@ def handle_auth_routes(handler, method, path, data, db, strat, send_json, email_
         profile_row = cursor.fetchone()
         profile_id = profile_row[0] if profile_row else None
 
+        _enforce_session_limit(cursor, user_id)
         cursor.execute("""
             INSERT INTO sessions (token, user_id, profile_id, expires_at, last_active)
             VALUES (?, ?, ?, ?, ?)
@@ -662,6 +680,7 @@ def handle_auth_routes(handler, method, path, data, db, strat, send_json, email_
         profile_row = cursor.fetchone()
         profile_id = profile_row[0] if profile_row else None
 
+        _enforce_session_limit(cursor, user_id)
         cursor.execute("""
             INSERT INTO sessions (token, user_id, profile_id, expires_at, last_active)
             VALUES (?, ?, ?, ?, ?)
