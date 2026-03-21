@@ -484,6 +484,15 @@ function setOffline() {
 
 // === INIT ===
 async function init() {
+    // Reset agent state to prevent cross-profile bleed
+    if (typeof agentHistory !== 'undefined') agentHistory = [];
+    if (typeof _agentActiveConvId !== 'undefined') _agentActiveConvId = null;
+    if (typeof currentPersona !== 'undefined') currentPersona = 'intelligence';
+    if (typeof _hueData !== 'undefined') _hueData = null;
+    // Clear agent chat display
+    var agentChat = document.getElementById('agent-chat');
+    if (agentChat) agentChat.innerHTML = '';
+
     renderNav();  // Render default nav immediately (fast first paint)
     updateClock();
     setInterval(updateClock, 1000);
