@@ -329,6 +329,8 @@ async function switchPersona(name) {
     currentPersona = name;
     selectedPersonas = [name];
     _updatePersonaPickerLabel();
+    // Apply persona-specific styling
+    _applyPersonaStyle(name);
     const subtitle = document.querySelector('#agent-panel .text-\\[10px\\].mt-0\\.5');
     if (subtitle) subtitle.textContent = PERSONA_SUBTITLES[name] || PERSONA_SUBTITLES.intelligence;
     const msgs = document.getElementById('agent-messages');
@@ -663,6 +665,15 @@ function _onPersonaCheckChange(cb) {
 }
 window._onPersonaCheckChange = _onPersonaCheckChange;
 
+function _applyPersonaStyle(name) {
+    var panel = document.getElementById('agent-panel');
+    if (!panel) return;
+    // Remove all persona style classes
+    panel.classList.remove('agent-intel');
+    // Add persona-specific class
+    if (name === 'intelligence') panel.classList.add('agent-intel');
+}
+
 function _updatePersonaPickerLabel() {
     const label = document.getElementById('persona-picker-label');
     if (!label) return;
@@ -777,6 +788,7 @@ function showAgentPanel(show) {
         // Update status dot based on Ollama availability
         checkAgentStatus();
         loadPersonas();
+        _applyPersonaStyle(currentPersona);
     } else {
         panel.classList.add('hidden');
     }

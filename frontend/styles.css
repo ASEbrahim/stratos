@@ -3572,6 +3572,70 @@ body.perf-mode .agent-mic-btn.stt-processing { animation: none; }
     .cx-search { width: 120px; }
 }
 
+/* ═══ Intelligence Persona — Terminal Code Style ═══ */
+#agent-panel.agent-intel .agent-response {
+    font-family: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace !important;
+    font-size: 13px !important;
+    line-height: 1.7 !important;
+    color: #c8d6e5 !important;
+}
+#agent-panel.agent-intel .agent-response strong,
+#agent-panel.agent-intel .agent-response b {
+    color: #34d399;
+    text-shadow: 0 0 6px rgba(52,211,153,0.25);
+    font-weight: 700;
+}
+#agent-panel.agent-intel .agent-response code {
+    color: #06b6d4;
+    background: rgba(6,182,212,0.08);
+    text-shadow: 0 0 4px rgba(6,182,212,0.2);
+}
+#agent-panel.agent-intel .agent-response a {
+    color: #06b6d4;
+    text-shadow: 0 0 4px rgba(6,182,212,0.15);
+}
+#agent-panel.agent-intel .agent-response li::marker {
+    color: #34d399;
+}
+#agent-panel.agent-intel .agent-response h1,
+#agent-panel.agent-intel .agent-response h2,
+#agent-panel.agent-intel .agent-response h3,
+#agent-panel.agent-intel .agent-response h4 {
+    color: #34d399 !important;
+    text-shadow: 0 0 8px rgba(52,211,153,0.2);
+    font-family: 'JetBrains Mono', monospace !important;
+}
+#agent-panel.agent-intel .agent-bubble-user {
+    font-family: 'JetBrains Mono', 'SF Mono', monospace !important;
+    font-size: 13px !important;
+}
+#agent-panel.agent-intel #agent-input {
+    font-family: 'JetBrains Mono', 'SF Mono', monospace !important;
+}
+/* Fullscreen intelligence */
+.agent-fullscreen.agent-intel .agent-response {
+    font-family: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace !important;
+    color: #c8d6e5 !important;
+}
+.agent-fullscreen.agent-intel .agent-response strong,
+.agent-fullscreen.agent-intel .agent-response b {
+    color: #34d399;
+    text-shadow: 0 0 6px rgba(52,211,153,0.25);
+}
+.agent-fullscreen.agent-intel .agent-response h1,
+.agent-fullscreen.agent-intel .agent-response h2,
+.agent-fullscreen.agent-intel .agent-response h3 {
+    color: #34d399 !important;
+    text-shadow: 0 0 8px rgba(52,211,153,0.2);
+    font-family: 'JetBrains Mono', monospace !important;
+}
+.agent-fullscreen.agent-intel .agent-bubble-user {
+    font-family: 'JetBrains Mono', 'SF Mono', monospace !important;
+}
+.agent-fullscreen.agent-intel #agent-input {
+    font-family: 'JetBrains Mono', 'SF Mono', monospace !important;
+}
+
 /* ═══ Onboarding Terminal Greeting ═══ */
 .ob-greeting {
     padding: 20px 0;
