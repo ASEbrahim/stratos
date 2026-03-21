@@ -4,6 +4,7 @@ Lightweight LLM calls for wizard step guidance.
 """
 
 import json
+import os
 import re
 import logging
 import requests as req
@@ -94,7 +95,27 @@ def _call_ollama(host, model, system, prompt, max_tokens=500, temperature=0.2,
     These endpoints only need structured JSON — no reasoning required.
     ``think: false`` skips internal reasoning so all ``num_predict`` tokens
     go directly to the JSON output, making responses 3-5x faster.
+
+    Tries llm_provider first (supports Gemini on VPS); falls back to Ollama.
     """
+    # Try provider abstraction first (supports Gemini on VPS)
+    try:
+        from llm_provider import call_llm, get_provider
+        import yaml
+        config_path = os.path.join(os.path.dirname(__file__), '..', 'config.yaml')
+        with open(config_path) as f:
+            config = yaml.safe_load(f)
+        if get_provider(config) == 'gemini':
+            result = call_llm(config, prompt, system=system, max_tokens=max_tokens,
+                              temperature=temperature, timeout=timeout, think=False,
+                              use_case='chat')
+            if result:
+                result = strip_think_blocks(result)
+                return result
+    except Exception:
+        pass  # Fall through to Ollama
+
+    # Original Ollama implementation
     try:
         num_ctx = max(4096, max_tokens + 2048)
         resp = req.post(
