@@ -119,16 +119,13 @@ def handle_post(handler, strat, auth, path) -> bool:
         # Get conversation history
         history = db.get_full_branch_conversation(session_id, branch_id)
 
-        # Determine next turn number
-        max_turn = max((m['turn_number'] for m in history), default=0)
-        user_turn = max_turn + 1
-
         # ── Persist session_context server-side (survives across messages) ──
+        # (read-only — safe outside transaction)
         if session_context:
             db.upsert_rp_context(
                 session_id, tier=1, category="session",
                 key="imported_context", value=session_context[:5000],
-                turn_number=user_turn
+                turn_number=0
             )
         else:
             # Load previously stored session context
@@ -138,22 +135,46 @@ def handle_post(handler, strat, auth, path) -> bool:
                     session_context = ctx['value']
                     break
 
-        # ── Seed first_message as turn 0 if this is a brand-new session ──
-        if not history and card:
-            fm = first_message or card.get('first_message', '')
-            if fm:
-                db.insert_rp_message(
-                    session_id, profile_id, branch_id, 0, 'assistant', fm,
-                    character_card_id=card_id, persona=persona
-                )
-                history = [{'role': 'assistant', 'content': fm, 'turn_number': 0}]
-                user_turn = 1
+        # ── BEGIN IMMEDIATE: acquire write lock before reading max turn ──
+        # Prevents race where two concurrent requests read same max_turn
+        # and both insert at max_turn+1, causing duplicate turn numbers.
+        cursor = db.conn.cursor()
+        cursor.execute("BEGIN IMMEDIATE")
+        try:
+            # Determine next turn number under write lock
+            row = cursor.execute(
+                "SELECT COALESCE(MAX(turn_number), 0) AS max_turn FROM rp_messages "
+                "WHERE session_id = ? AND branch_id = ?",
+                (session_id, branch_id)
+            ).fetchone()
+            max_turn = row['max_turn'] if row else 0
 
-        # Insert user message
-        user_msg_id = db.insert_rp_message(
-            session_id, profile_id, branch_id, user_turn, 'user', content,
-            character_card_id=card_id, persona=persona
-        )
+            # ── Seed first_message as turn 0 if this is a brand-new session ──
+            if not history and card:
+                fm = first_message or card.get('first_message', '')
+                if fm:
+                    cursor.execute(
+                        "INSERT INTO rp_messages (session_id, profile_id, branch_id, turn_number, role, content, character_card_id, persona) "
+                        "VALUES (?, ?, ?, 0, 'assistant', ?, ?, ?)",
+                        (session_id, profile_id, branch_id, fm, card_id, persona)
+                    )
+                    history = [{'role': 'assistant', 'content': fm, 'turn_number': 0}]
+                    max_turn = 0
+
+            user_turn = max_turn + 1
+
+            # Insert user message
+            cursor.execute(
+                "INSERT INTO rp_messages (session_id, profile_id, branch_id, turn_number, role, content, character_card_id, persona) "
+                "VALUES (?, ?, ?, ?, 'user', ?, ?, ?)",
+                (session_id, profile_id, branch_id, user_turn, content, card_id, persona)
+            )
+            user_msg_id = cursor.lastrowid
+
+            cursor.execute("COMMIT")
+        except Exception:
+            cursor.execute("ROLLBACK")
+            raise
 
         # ── Extract facts immediately (regex — zero cost) ──
         extract_facts_immediate(session_id, content, user_turn, db)
