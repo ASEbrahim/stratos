@@ -10,6 +10,7 @@ import hashlib
 import hmac
 import json
 import logging
+import os
 import secrets
 import time
 from datetime import datetime, timedelta
@@ -150,6 +151,11 @@ def _apply_config_overlay(strat, overlay: dict, profile_name: str = ""):
 
 def handle_auth_routes(handler, method, path, data, db, strat, send_json, email_service=None):
     """Handle all /api/auth/* routes. Returns True if handled, False otherwise."""
+
+    if path == "/api/auth/google-client-id" and method == "GET":
+        client_id = os.environ.get('GOOGLE_OAUTH_CLIENT_ID', '')
+        send_json(handler, {"client_id": client_id})
+        return True
 
     if path == "/api/auth/registration-status" and method == "GET":
         cursor = db.conn.cursor()
@@ -406,6 +412,118 @@ def handle_auth_routes(handler, method, path, data, db, strat, send_json, email_
             "email_verified": bool(email_verified),
             "active_profile_id": profile_id,
             "profiles": profiles,
+            "ui_state": db.get_ui_state(profile_id),
+        })
+        return True
+
+    # ═══ Google OAuth ═══
+    if path == "/api/auth/google" and method == "POST":
+        id_token = data.get("credential", "")
+        if not id_token:
+            send_json(handler, {"error": "Missing credential"}, status=400)
+            return True
+
+        # Verify Google ID token
+        google_client_id = os.environ.get('GOOGLE_OAUTH_CLIENT_ID', '')
+        if not google_client_id:
+            send_json(handler, {"error": "Google OAuth not configured"}, status=503)
+            return True
+
+        try:
+            import requests as req
+            # Verify with Google's tokeninfo endpoint
+            r = req.get(f'https://oauth2.googleapis.com/tokeninfo?id_token={id_token}', timeout=5)
+            if r.status_code != 200:
+                send_json(handler, {"error": "Invalid Google token"}, status=401)
+                return True
+            gdata = r.json()
+
+            # Validate audience matches our client ID
+            if gdata.get('aud') != google_client_id:
+                send_json(handler, {"error": "Token audience mismatch"}, status=401)
+                return True
+
+            google_id = gdata.get('sub', '')
+            email = gdata.get('email', '').lower()
+            name = gdata.get('name', '') or email.split('@')[0]
+            email_verified = gdata.get('email_verified', 'false') == 'true'
+
+            if not google_id or not email:
+                send_json(handler, {"error": "Incomplete Google profile"}, status=400)
+                return True
+
+        except Exception as e:
+            logger.error(f"Google token verification failed: {e}")
+            send_json(handler, {"error": "Token verification failed"}, status=500)
+            return True
+
+        cursor = db.conn.cursor()
+
+        # Check if user exists by google_id
+        cursor.execute("SELECT id, display_name, is_admin FROM users WHERE google_id = ?", (google_id,))
+        row = cursor.fetchone()
+
+        if row:
+            # Existing Google user — login
+            user_id, display_name, is_admin = row
+            cursor.execute("UPDATE users SET last_login = ? WHERE id = ?",
+                           (datetime.now().isoformat(), user_id))
+        else:
+            # Check if email matches existing user (link Google account)
+            cursor.execute("SELECT id, display_name, is_admin FROM users WHERE email = ?", (email,))
+            email_row = cursor.fetchone()
+            if email_row:
+                user_id, display_name, is_admin = email_row
+                cursor.execute("UPDATE users SET google_id = ?, auth_method = 'google', last_login = ? WHERE id = ?",
+                               (google_id, datetime.now().isoformat(), user_id))
+                logger.info(f"Linked Google account to existing user {user_id} ({email})")
+            else:
+                # New user — create account (no password needed)
+                cursor.execute("""
+                    INSERT INTO users (email, password_hash, display_name, google_id, auth_method,
+                                       email_verified, created_at, last_login)
+                    VALUES (?, '', ?, ?, 'google', 1, ?, ?)
+                """, (email, name, google_id, datetime.now().isoformat(), datetime.now().isoformat()))
+                user_id = cursor.lastrowid
+                display_name = name
+                is_admin = False
+
+                # Create default profile
+                cursor.execute("""
+                    INSERT INTO profiles (user_id, name, is_default, created_at)
+                    VALUES (?, 'default', 1, ?)
+                """, (user_id, datetime.now().isoformat()))
+                logger.info(f"New Google user created: {user_id} ({email})")
+
+        # Create session
+        token = _generate_token()
+        expires = (datetime.now() + timedelta(days=30)).isoformat()
+        profile_row = cursor.execute("""
+            SELECT id, name, config_overlay FROM profiles WHERE user_id = ?
+            ORDER BY is_default DESC, last_active DESC NULLS LAST LIMIT 1
+        """, (user_id,)).fetchone()
+        profile_id = profile_row[0] if profile_row else None
+
+        _enforce_session_limit(cursor, user_id)
+        cursor.execute("""
+            INSERT INTO sessions (token, user_id, profile_id, expires_at, last_active)
+            VALUES (?, ?, ?, ?, ?)
+        """, (token, user_id, profile_id, expires, datetime.now().isoformat()))
+        db._commit()
+
+        # Apply config overlay
+        if profile_row:
+            overlay = json.loads(profile_row[2]) if profile_row[2] else {}
+            _apply_config_overlay(strat, overlay, profile_name=profile_row[1])
+
+        send_json(handler, {
+            "status": "authenticated",
+            "token": token,
+            "user_id": user_id,
+            "display_name": display_name,
+            "is_admin": bool(is_admin),
+            "email_verified": True,
+            "active_profile_id": profile_id,
             "ui_state": db.get_ui_state(profile_id),
         })
         return True

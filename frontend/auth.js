@@ -220,11 +220,18 @@ function _showLanding() {
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4-4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
                     Create Account</button>
                 ${showLegacy ? `<button class="auth-btn-link" style="color:${_t.accent};" onclick="_authMode='legacy';_showScreen('login')">Use PIN login</button>` : ''}
+                <div style="display:flex;align-items:center;gap:12px;margin:12px 0 8px;width:100%;max-width:280px;">
+                    <div style="flex:1;height:1px;background:rgba(255,255,255,0.08);"></div>
+                    <span style="font-size:10px;color:rgba(255,255,255,0.25);text-transform:uppercase;letter-spacing:1px;">or</span>
+                    <div style="flex:1;height:1px;background:rgba(255,255,255,0.08);"></div>
+                </div>
+                <div id="google-landing-btn" style="display:flex;justify-content:center;"></div>
             </div>
             <div class="auth-landing-footer"><span class="auth-version">v3.0</span></div>
         </div>`);
     document.body.appendChild(ov);
     _initStarParallax();
+    _initGoogleSignIn('google-landing-btn');
 }
 
 /* ═══ SCREEN ROUTER ═══ */
@@ -541,10 +548,17 @@ function _renderEmailLogin() {
             </div>
             <div class="auth-error" id="login-error"></div>
             <button class="auth-btn-primary" id="login-btn" onclick="_doEmailLogin()" style="--ba:${_t.accent};--br:${_t.rgb};">Sign In</button>
+            <div id="google-signin-divider" style="display:flex;align-items:center;gap:12px;margin:16px 0 12px;">
+                <div style="flex:1;height:1px;background:rgba(255,255,255,0.08);"></div>
+                <span style="font-size:11px;color:rgba(255,255,255,0.3);text-transform:uppercase;letter-spacing:1px;">or</span>
+                <div style="flex:1;height:1px;background:rgba(255,255,255,0.08);"></div>
+            </div>
+            <div id="google-signin-btn-container" style="display:flex;justify-content:center;"></div>
             <button class="auth-btn-link" style="color:${_t.accent};margin-top:12px;" onclick="_showForgotPassword()">Forgot password?</button>
             ${_smtpConfigured ? `<button class="auth-btn-link" style="color:${_t.accent};margin-top:4px;" onclick="_showScreen('otp-request')">Sign in with email code</button>` : ''}
         </div>
         ${_allProfiles.length > 0 ? `<div style="margin-top:16px;"><button class="auth-btn-link" onclick="_authMode='legacy';_renderLogin()">Use PIN login instead</button></div>` : ''}`;
+    _initGoogleSignIn('google-signin-btn-container');
     setTimeout(() => document.getElementById('login-email')?.focus(), 120);
 }
 
@@ -851,6 +865,65 @@ function _dismiss() {
     setTimeout(() => { ov.remove(); const app = document.querySelector('.flex.h-screen'); if (app) { app.style.display = ''; requestAnimationFrame(() => { app.style.opacity = '1'; }); } init(); }, 360);
 }
 function _shake(el) { el.style.animation='none'; el.offsetHeight; el.style.animation='authShake .4s ease'; }
+
+/* ═══ GOOGLE OAUTH ═══ */
+var _googleClientId = ''; // Set from /api/auth/google-client-id
+
+function _initGoogleSignIn(containerId) {
+    // Fetch client ID from backend (avoids hardcoding in frontend)
+    _originalFetch('/api/auth/google-client-id').then(r => r.ok ? r.json() : null).then(d => {
+        if (!d || !d.client_id) return; // Google OAuth not configured
+        _googleClientId = d.client_id;
+        if (typeof google === 'undefined' || !google.accounts) {
+            // GIS script not loaded yet — retry after short delay
+            setTimeout(() => _initGoogleSignIn(containerId), 500);
+            return;
+        }
+        google.accounts.id.initialize({
+            client_id: _googleClientId,
+            callback: _handleGoogleCredential,
+            auto_select: false,
+        });
+        var container = document.getElementById(containerId);
+        if (container) {
+            google.accounts.id.renderButton(container, {
+                type: 'standard',
+                theme: 'filled_black',
+                size: 'large',
+                text: 'continue_with',
+                shape: 'pill',
+                width: 280,
+            });
+        }
+    }).catch(() => {});
+}
+
+async function _handleGoogleCredential(response) {
+    if (!response || !response.credential) return;
+    try {
+        const r = await _originalFetch('/api/auth/google', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ credential: response.credential })
+        });
+        const d = await r.json();
+        if (r.ok && d.token) {
+            setAuthToken(d.token);
+            setActiveProfile(d.display_name || '');
+            _clearProfileLocalStorage();
+            if (d.ui_state && typeof _applyUiStateFromServer === 'function') _applyUiStateFromServer(d.ui_state);
+            if (typeof loadUiSettingsFromServer === 'function') await loadUiSettingsFromServer();
+            _dismiss();
+        } else {
+            // Show error on current screen
+            var err = document.getElementById('login-error') || document.getElementById('register-error');
+            if (err) err.textContent = d.error || 'Google sign-in failed';
+            else if (typeof showToast === 'function') showToast(d.error || 'Google sign-in failed', 'error');
+        }
+    } catch (e) {
+        console.error('Google auth error:', e);
+    }
+}
 
 /* ═══ STYLES ═══ */
 /* Extracted to auth-styles.js */
