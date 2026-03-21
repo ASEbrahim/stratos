@@ -785,8 +785,8 @@ function openCompareMenu(e) {
             const ad = _resolveData(sym, currentTimeframe);
             const chg = ad?.change || 0;
             const up = chg >= 0;
-            return `<button onclick="addCompareChart('${sym}')" class="w-full text-left px-2 py-1.5 rounded text-[11px] hover:bg-slate-800 transition-colors flex items-center justify-between gap-2">
-                <span class="text-slate-300 font-mono font-bold">${lbl}</span>
+            return `<button onclick="addCompareChart('${esc(sym)}')" class="w-full text-left px-2 py-1.5 rounded text-[11px] hover:bg-slate-800 transition-colors flex items-center justify-between gap-2">
+                <span class="text-slate-300 font-mono font-bold">${esc(lbl)}</span>
                 <span class="font-mono text-[10px] ${up?'text-emerald-400':'text-red-400'}">${up?'+':''}${chg.toFixed(1)}%</span>
             </button>`;
         }).join('');
@@ -1173,7 +1173,7 @@ function renderTickerButtons() {
         const ad = _resolveData(sym, currentTimeframe);
         const chg = ad?.change || 0;
         const up = chg>=0, lbl = sym.replace('-USD','').replace('=F','');
-        return `<button draggable="true" data-symbol="${sym}" ondragstart="_tickerDragStart(event)" ondragover="_tickerDragOver(event)" ondrop="_tickerDrop(event)" ondragend="_tickerDragEnd(event)" onclick="toggleTicker('${sym}')" class="ticker-btn flex-shrink-0 bg-slate-800 border border-slate-700 rounded px-2.5 py-1 hover:border-slate-500 transition-all flex items-center gap-1.5 cursor-grab active:cursor-grabbing"><span class="text-xs font-mono font-bold text-slate-300">${lbl}</span><span class="text-[10px] font-mono font-bold ${up?'text-emerald-400':'text-red-400'}">${up?'+':''}${chg.toFixed(1)}%</span></button>`;
+        return `<button draggable="true" data-symbol="${esc(sym)}" ondragstart="_tickerDragStart(event)" ondragover="_tickerDragOver(event)" ondrop="_tickerDrop(event)" ondragend="_tickerDragEnd(event)" onclick="toggleTicker('${esc(sym)}')" class="ticker-btn flex-shrink-0 bg-slate-800 border border-slate-700 rounded px-2.5 py-1 hover:border-slate-500 transition-all flex items-center gap-1.5 cursor-grab active:cursor-grabbing"><span class="text-xs font-mono font-bold text-slate-300">${esc(lbl)}</span><span class="text-[10px] font-mono font-bold ${up?'text-emerald-400':'text-red-400'}">${up?'+':''}${chg.toFixed(1)}%</span></button>`;
     }).join('');
 }
 
