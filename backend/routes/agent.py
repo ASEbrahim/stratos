@@ -529,6 +529,35 @@ def handle_agent_chat(handler, strat, output_file, profile_id=0):
         else:
             system_prompt += "\n\nBREVITY: Keep responses short and conversational — 2-4 sentences max unless the user asks for detail. No headers, no bullet lists, no markdown formatting unless specifically asked. Reply like a knowledgeable friend in a chat app."
 
+        # ── Platform knowledge (permanent — agent always knows what StratOS can do) ──
+        system_prompt += """
+
+PLATFORM CAPABILITIES (reference when users ask for help or seem lost):
+- Scan: fetches and scores news articles for relevance to user's profile (0-10 scale)
+- Briefing: generates a daily intelligence briefing summarizing top signals
+- Intelligence Hue: 0-100 behavioral score measuring feed health (freshness, diversity, coverage, signal, engagement)
+- Agent personas: Intelligence (default), Finance, Scholarly, Roleplay, Gaming, Anime
+- Markets: real-time stock/crypto charts and tickers via yfinance
+- YouTube KB: extract structured knowledge from YouTube videos
+- Settings: categories, keywords, RSS sources, theme, profile customization
+- Save/dismiss articles to train the relevance model over time
+When the user asks what you can do or how to use a feature, reference these naturally."""
+
+        # ── New user nudge (≤2 scans) ──
+        try:
+            _scan_count = strat.db.conn.cursor().execute(
+                "SELECT COUNT(*) FROM scan_log WHERE profile_id = ?", (profile_id,)
+            ).fetchone()[0]
+            if _scan_count <= 2:
+                system_prompt += """
+
+NEW USER CONTEXT: This user just joined. Be welcoming and help them:
+1. Understand their interests so you can configure their feed
+2. Encourage them to run a scan if they haven't yet
+3. Keep it conversational — don't list all features at once"""
+        except Exception:
+            pass
+
         # ── Behavioral context injection ──
         try:
             from behavioral import build_agent_behavioral_hint
