@@ -733,6 +733,8 @@ class GuidedTour {
    ═══════════════════════════════════════ */
 
 function maybeStartTour() {
+  // Don't start tour if agent onboarding is active
+  if (window._onboardingActive) return;
   try {
     // Global "don't show again" — survives localStorage wipes
     if (localStorage.getItem('stratos_tour_never') === 'true') return;
