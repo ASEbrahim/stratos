@@ -559,8 +559,8 @@
                 var name = esc(entry[0]);
                 var info = entry[1] || {};
                 var avgScore = info.avg_score || 0;
-                // Convert avg_score (0-10) to a reliability percentage
-                var pct = Math.round(avgScore * 10);
+                // Convert avg_score (0-10) to a reliability percentage, clamped
+                var pct = Math.min(100, Math.max(0, Math.round(avgScore * 10)));
                 leftHTML += '<div class="sibyl-p-row"><span class="sibyl-p-label">' + name + '</span><span class="sibyl-p-value" style="' + valueColor(pct) + '">' + pct + '%</span></div>';
                 leftHTML += '<div class="sibyl-p-bar"><div class="sibyl-p-fill ' + fillClass(pct) + '" style="width:' + pct + '%"></div></div>';
             });
