@@ -412,13 +412,15 @@ function _handleScanChip() {
     var chipContainers = document.querySelectorAll('.agent-onboarding-chips');
     for (var i = 0; i < chipContainers.length; i++) chipContainers[i].remove();
 
-    // Send as agent message for conversation coherence
-    var input = document.getElementById('agent-input');
-    if (input) input.value = 'Run my first scan';
-    if (typeof sendAgentMessage === 'function') sendAgentMessage();
+    // Show user message + hardcoded response (don't send to LLM — agent has no scan tool)
+    if (typeof appendAgentMessage === 'function') {
+        appendAgentMessage('user', 'Run my first scan');
+        var scanReply = 'Scanning now. I\'ll pull articles matching your profile and score them for relevance. This takes about a minute \u2014 I\'ll summarize the results when it\'s done.';
+        appendAgentMessage('assistant', typeof formatAgentText === 'function' ? formatAgentText(scanReply) : scanReply);
+    }
 
-    // Also trigger the actual scan
+    // Trigger the actual scan
     if (typeof toggleScan === 'function') {
-        setTimeout(function() { toggleScan(); }, 500);
+        toggleScan();
     }
 }
