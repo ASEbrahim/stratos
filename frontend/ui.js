@@ -1197,14 +1197,19 @@ function renderStars() {
     }
 
     // Brain is built lazily on first draw call (needs px, py from theme editor)
+    // Cache glow — re-read every 500ms instead of every frame (saves ~59 localStorage reads/sec)
+    let _sybCachedGlow = parseFloat(localStorage.getItem('stratos-sibyl-glow') || '0');
+    let _sybGlowReadAt = 0;
 
     function _sybDrawElement(px, py, t, W, H, scale) {
         if (_sybBrainPts.length === 0) return;
         scale = scale || 1;
+        // Refresh glow cache every 500ms
+        if (t - _sybGlowReadAt > 0.5) { _sybCachedGlow = parseFloat(localStorage.getItem('stratos-sibyl-glow') || '0'); _sybGlowReadAt = t; }
         const colors = _getStarColors();
         const c1 = `${colors.c1.r},${colors.c1.g},${colors.c1.b}`;
         const PI2 = Math.PI * 2;
-        const glow = parseFloat(localStorage.getItem('stratos-sibyl-glow') || '0');
+        const glow = _sybCachedGlow;
 
         // Rebuild screen points centered on px, py with scale
         const brainH = H * 0.45 * scale;
@@ -1501,8 +1506,9 @@ function renderStars() {
         ctx.globalAlpha = 1;
     }
 
-    // ── Per-theme element default positions ──
-    const _themeElementDefaults = {
+    // ── Per-theme element default positions (single source of truth) ──
+    // Shared via window._themeElementDefaults for theme-editor.js
+    const _themeElementDefaults = window._themeElementDefaults = {
         midnight: { cx: 0.32, cy: 0.06 },
         coffee:   { cx: 0.32, cy: 0.06 },
         noir:     { cx: 0.55, cy: 0.05 },
