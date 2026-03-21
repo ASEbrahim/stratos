@@ -395,13 +395,28 @@ function _obSaveConfig(payload) {
 function _obStep1() {
     _obStep = 1;
     console.log('onboarding: step 1 — role');
-    _obMsg('Intelligence profile initialized. I\'m your StratOS agent.\n\nLet\'s set up your feed. First \u2014 what\'s your role or profession?');
+
+    // Terminal-style greeting (custom HTML, not appendAgentMessage)
+    var el = document.getElementById('agent-messages');
+    if (el) {
+        var greetHtml = '<div class="flex gap-3 mb-3">'
+            + '<div class="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5" style="background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.15);">'
+            + '<i data-lucide="bot" class="w-3.5 h-3.5 text-emerald-400"></i></div>'
+            + '<div class="flex-1 min-w-0"><div class="ob-greeting">'
+            + '<div class="ob-line1">Intelligence profile initialized.</div>'
+            + '<div class="ob-line2">I\'m your StratOS agent.<span class="ob-cursor"></span></div>'
+            + '<div class="ob-body">Let\'s set up your feed. First \u2014 what\'s your role or profession?</div>'
+            + '</div></div></div>';
+        el.insertAdjacentHTML('beforeend', greetHtml);
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+        el.scrollTop = el.scrollHeight;
+    }
+
     var html = '';
     for (var i = 0; i < _OB_ROLES.length; i++) {
         html += _obChipHtml(_OB_ROLES[i], '_obSelectRole(\'' + _OB_ROLES[i].replace(/'/g, "\\'") + '\')');
     }
     _obChips(html);
-    // Also allow typed input
     window._obExpectingInput = 'role';
 }
 

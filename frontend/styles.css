@@ -3571,3 +3571,55 @@ body.perf-mode .agent-mic-btn.stt-processing { animation: none; }
     .cx-grid { grid-template-columns: repeat(2, 1fr); }
     .cx-search { width: 120px; }
 }
+
+/* ═══ Onboarding Terminal Greeting ═══ */
+.ob-greeting {
+    padding: 20px 0;
+}
+.ob-greeting .ob-line1 {
+    font-family: 'JetBrains Mono', 'SF Mono', monospace;
+    font-size: 20px;
+    font-weight: 700;
+    color: #34d399;
+    text-shadow: 0 0 10px rgba(52,211,153,0.6), 0 0 30px rgba(52,211,153,0.3);
+    line-height: 1.4;
+}
+.ob-greeting .ob-line1::before {
+    content: '> ';
+    color: #10b981;
+    opacity: 0.5;
+}
+.ob-greeting .ob-line2 {
+    font-family: 'JetBrains Mono', 'SF Mono', monospace;
+    font-size: 15px;
+    font-weight: 400;
+    color: #06b6d4;
+    text-shadow: 0 0 8px rgba(6,182,212,0.4);
+    margin-top: 6px;
+}
+.ob-greeting .ob-line2::before {
+    content: '> ';
+    color: #06b6d4;
+    opacity: 0.35;
+}
+.ob-greeting .ob-cursor {
+    display: inline-block;
+    width: 9px;
+    height: 18px;
+    background: #34d399;
+    margin-left: 3px;
+    animation: obBlink 1s step-end infinite;
+    vertical-align: text-bottom;
+    box-shadow: 0 0 8px rgba(52,211,153,0.6);
+    border-radius: 1px;
+}
+@keyframes obBlink { 50% { opacity: 0; } }
+.ob-greeting .ob-body {
+    font-family: 'JetBrains Mono', 'SF Mono', monospace;
+    font-size: 14px;
+    color: #64748b;
+    border-left: 3px solid rgba(52,211,153,0.25);
+    padding-left: 14px;
+    margin-top: 16px;
+    line-height: 1.6;
+}
