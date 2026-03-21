@@ -150,6 +150,9 @@ def handle_auth_routes(handler, method, path, data, db, strat, send_json, email_
         if not password or len(password) < 8:
             send_json(handler, {"error": "Password must be at least 8 characters"}, status=400)
             return True
+        if len(password) > 128:
+            send_json(handler, {"error": "Password must not exceed 128 characters"}, status=400)
+            return True
         if not display_name or len(display_name) < 2:
             send_json(handler, {"error": "Username must be at least 2 characters"}, status=400)
             return True
@@ -305,6 +308,10 @@ def handle_auth_routes(handler, method, path, data, db, strat, send_json, email_
         identifier = (data.get("email") or "").strip()
         password = data.get("password", "")
 
+        if len(password) > 128:
+            send_json(handler, {"error": "Password must not exceed 128 characters"}, status=400)
+            return True
+
         cursor = db.conn.cursor()
         # Support login by email or username (display_name)
         if "@" in identifier:
@@ -457,6 +464,9 @@ def handle_auth_routes(handler, method, path, data, db, strat, send_json, email_
         if not new_password or len(new_password) < 8:
             send_json(handler, {"error": "New password must be at least 8 characters"}, status=400)
             return True
+        if len(new_password) > 128:
+            send_json(handler, {"error": "Password must not exceed 128 characters"}, status=400)
+            return True
 
         cursor = db.conn.cursor()
         cursor.execute("SELECT password_hash FROM users WHERE id = ?", (user_id,))
@@ -501,6 +511,9 @@ def handle_auth_routes(handler, method, path, data, db, strat, send_json, email_
 
         if not new_password or len(new_password) < 8:
             send_json(handler, {"error": "Password must be at least 8 characters"}, status=400)
+            return True
+        if len(new_password) > 128:
+            send_json(handler, {"error": "Password must not exceed 128 characters"}, status=400)
             return True
 
         cursor = db.conn.cursor()
@@ -852,6 +865,9 @@ def handle_auth_routes(handler, method, path, data, db, strat, send_json, email_
         new_password = data.get("new_password", "")
         if not target_user_id or not new_password or len(new_password) < 8:
             send_json(handler, {"error": "user_id and new_password (8+ chars) required"}, status=400)
+            return True
+        if len(new_password) > 128:
+            send_json(handler, {"error": "Password must not exceed 128 characters"}, status=400)
             return True
 
         new_hash = _hash_password(new_password)
