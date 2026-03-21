@@ -289,6 +289,7 @@
                                             <button id="agent-all-scans-btn" onclick="event.stopPropagation(); _toggleAllScans()" class="agent-toggle-btn text-[10px] font-medium px-2.5 py-1 rounded-md cursor-pointer transition-all" style="background:rgba(255,255,255,0.03);color:var(--text-muted);border:1px solid rgba(255,255,255,0.1);" title="Data scope — Current: latest scan only / All Scans: historical data">Current</button>
                                             <button id="agent-signal-toggle-btn" onclick="event.stopPropagation(); _toggleSignalInjection()" class="agent-toggle-btn text-[10px] font-medium px-2.5 py-1 rounded-md cursor-pointer transition-all" style="background:rgba(52,211,153,0.1);color:var(--accent,#34d399);border:1px solid rgba(52,211,153,0.25);" title="Signal injection — ON: feed articles in context / OFF: training knowledge only">Signals: ON</button>
                                             <button id="agent-showmore-btn" onclick="event.stopPropagation(); _toggleShowMore()" class="agent-toggle-btn text-[10px] font-medium px-2.5 py-1 rounded-md cursor-pointer transition-all" style="background:rgba(52,211,153,0.1);color:var(--accent,#34d399);border:1px solid rgba(52,211,153,0.25);" title="Expand — ON: long responses collapsed / OFF: show full">Expand: ON</button>
+                                            <button onclick="event.stopPropagation(); clearAgentChat()" class="agent-toggle-btn text-[10px] font-medium px-2.5 py-1 rounded-md cursor-pointer transition-all" style="background:rgba(255,255,255,0.03);color:var(--text-muted);border:1px solid rgba(255,255,255,0.1);" title="Clear chat" onmouseenter="this.style.background='rgba(239,68,68,0.08)';this.style.color='#f87171';this.style.borderColor='rgba(239,68,68,0.25)'" onmouseleave="this.style.background='rgba(255,255,255,0.03)';this.style.color='var(--text-muted)';this.style.borderColor='rgba(255,255,255,0.1)'">Clear</button>
                                         </div>
                                         <p class="text-[10px] mt-0.5" style="color:var(--text-muted); opacity:0.7;">AI-powered research assistant</p>
                                     </div>
@@ -302,9 +303,6 @@
                                     </button>
                                     <button onclick="event.stopPropagation(); importAgentChat()" class="p-1.5 rounded-md transition-all" style="color:var(--text-muted);" title="Import chat" onmouseenter="this.style.background='rgba(255,255,255,0.05)';this.style.color='var(--text-heading)'" onmouseleave="this.style.background='transparent';this.style.color='var(--text-muted)'">
                                         <i data-lucide="upload" class="w-3.5 h-3.5"></i>
-                                    </button>
-                                    <button onclick="event.stopPropagation(); clearAgentChat()" class="p-1.5 rounded-md transition-all" style="color:var(--text-muted);" title="Clear chat" onmouseenter="this.style.background='rgba(239,68,68,0.08)';this.style.color='rgb(248,113,113)'" onmouseleave="this.style.background='transparent';this.style.color='var(--text-muted)'">
-                                        <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
                                     </button>
                                     <div class="w-px h-4 mx-1" style="background:var(--border-strong);"></div>
                                     <i data-lucide="chevron-down" id="agent-chevron" class="w-4 h-4 transition-transform" style="color:var(--text-muted);"></i>
