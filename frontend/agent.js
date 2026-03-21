@@ -350,14 +350,21 @@ async function switchPersona(name) {
         setTimeout(() => {
             msgs.innerHTML = '';
             if (agentHistory.length > 0) {
-                const welcome = document.getElementById('agent-welcome');
-                if (welcome) welcome.style.display = 'none';
                 _renderRestoredHistory();
             } else {
-                _updatePersonaWelcome();
+                // Create welcome + suggestions from scratch
+                const _t = PERSONA_THEMES[currentPersona] || PERSONA_THEMES.intelligence;
+                const _w = PERSONA_WELCOMES[currentPersona] || PERSONA_WELCOMES.intelligence;
+                msgs.innerHTML = '<div id="agent-welcome" class="flex flex-col items-center py-6 px-2">'
+                    + '<div class="w-12 h-12 rounded-2xl flex items-center justify-center mb-4" style="background:' + _t.bg + '; border:1px solid ' + _t.border + ';">'
+                    + '<i data-lucide="' + _t.icon + '" class="w-6 h-6" style="color:' + _t.color + ';"></i></div>'
+                    + '<p class="text-sm font-semibold mb-1" style="color:var(--text-heading);">' + (_w.title || 'New Chat') + '</p>'
+                    + '<p class="text-[11px] mb-5 text-center" style="color:var(--text-muted);">' + (_w.desc || 'Try one of these to get started:') + '</p>'
+                    + '<div id="agent-suggestions" class="flex flex-wrap gap-1.5 justify-center max-w-md"></div>'
+                    + '</div>';
+                lucide.createIcons();
+                renderAgentSuggestions();
             }
-            // Render suggestions after welcome container exists
-            renderAgentSuggestions();
         }, 400);
     }
     _renderConvTabs();
