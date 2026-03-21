@@ -16,6 +16,7 @@ import logging
 import requests
 from datetime import datetime
 
+from llm_provider import get_provider, call_llm
 from routes.helpers import strip_think_blocks
 
 logger = logging.getLogger(__name__)
@@ -141,7 +142,7 @@ Return ONLY valid JSON."""
 # ═══════════════════════════════════════════════════════════
 
 def generate_scenario_content(ollama_host, scenario_path, name, genre, description,
-                              model="qwen3.5:9b", progress_callback=None):
+                              model="qwen3.5:9b", progress_callback=None, config=None):
     """Run all 4 generation passes and write files.
 
     This is called when the user creates a new scenario.
@@ -178,7 +179,7 @@ def generate_scenario_content(ollama_host, scenario_path, name, genre, descripti
     logger.info(f"Scenario generation pass 1/4: World for {name}")
     _report(1, "World & rules", "generating")
     world_prompt = PASS_1_WORLD.format(name=name, genre=genre, description=description)
-    world_data = _llm_json_call(ollama_host, world_prompt, model)
+    world_data = _llm_json_call(ollama_host, world_prompt, model, config=config)
 
     start_loc_id = ''
     if world_data:
@@ -218,7 +219,7 @@ def generate_scenario_content(ollama_host, scenario_path, name, genre, descripti
     _report(2, "Characters", "generating")
     setting_summary = world_data.get('setting', '')[:300] if world_data else description
     char_prompt = PASS_2_CHARACTERS.format(name=name, genre=genre, setting_summary=setting_summary)
-    char_data = _llm_json_call(ollama_host, char_prompt, model)
+    char_data = _llm_json_call(ollama_host, char_prompt, model, config=config)
 
     starting_npcs = []
     if char_data:
@@ -269,7 +270,7 @@ def generate_scenario_content(ollama_host, scenario_path, name, genre, descripti
     logger.info(f"Scenario generation pass 3/4: Items for {name}")
     _report(3, "Items", "generating")
     items_prompt = PASS_3_ITEMS.format(name=name, genre=genre)
-    items_data = _llm_json_call(ollama_host, items_prompt, model)
+    items_data = _llm_json_call(ollama_host, items_prompt, model, config=config)
 
     if items_data:
         from processors.scenario_templates import create_item_file
@@ -293,7 +294,7 @@ def generate_scenario_content(ollama_host, scenario_path, name, genre, descripti
         starting_location=start_loc_desc,
         npcs_present=npcs_present_str
     )
-    opening_data = _llm_json_call(ollama_host, opening_prompt, model)
+    opening_data = _llm_json_call(ollama_host, opening_prompt, model, config=config)
 
     if opening_data:
         _write_file(scenario_path, 'scenes/current.md',
@@ -344,9 +345,29 @@ def _haiku_json_call(prompt, max_tokens=2048):
         return None
 
 
-def _llm_json_call(ollama_host, prompt, model, max_retries=2):
-    """Call Haiku first for better quality, fall back to Ollama."""
-    # Try Haiku first
+def _llm_json_call(ollama_host, prompt, model, max_retries=2, config=None):
+    """Call Gemini first, then Haiku, then fall back to Ollama."""
+    # Try Gemini provider first
+    if config and get_provider(config) == 'gemini':
+        try:
+            messages = [{"role": "user", "content": prompt}]
+            raw = call_llm(config, messages,
+                           system="You are a game world designer. Return ONLY valid JSON. No markdown, no explanation.",
+                           max_tokens=2048, temperature=0.4, use_case='default')
+            if raw:
+                raw = re.sub(r'<think>.*?</think>', '', raw, flags=re.DOTALL).strip()
+                raw = re.sub(r'^```(?:json)?\s*', '', raw)
+                raw = re.sub(r'\s*```$', '', raw)
+                brace_start = raw.find('{')
+                brace_end = raw.rfind('}')
+                if brace_start >= 0 and brace_end > brace_start:
+                    result = json.loads(raw[brace_start:brace_end + 1])
+                    logger.info("World gen: used Gemini provider")
+                    return result
+        except Exception as e:
+            logger.debug(f"Gemini world gen failed (will try Haiku/Ollama): {e}")
+
+    # Try Haiku second
     haiku_result = _haiku_json_call(prompt)
     if haiku_result is not None:
         logger.info("World gen: used Haiku API")
