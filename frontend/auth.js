@@ -103,6 +103,9 @@ function _getAuthTheme() {
 }
 const _t = _getAuthTheme();
 
+/* ═══ XSS ESCAPE HELPER (local — app.js esc() may not be loaded yet) ═══ */
+function _esc(t) { if (!t) return ''; const d = document.createElement('div'); d.textContent = t; return d.innerHTML; }
+
 /* ═══ STATE ═══ */
 let _deviceProfiles = [], _allProfiles = [], _showingAll = false;
 let _authMode = 'legacy'; // 'email' or 'legacy'
@@ -318,12 +321,12 @@ function _renderLogin() {
     } else {
         const cards = profiles.map((p, i) => {
             const ac = _CARD_AC, bg = _CARD_BG;
-            const n = p.name.replace(/'/g, "\\'");
+            const n = _esc(p.name).replace(/'/g, "\\'");
             return `<button class="auth-card" style="--ac:${ac};--bg:${bg};" onclick="_selectProfile('${n}',${i})">
                 <div class="auth-card-lock"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></div>
                 <div class="auth-avatar" style="background:${ac}18;border-color:${ac}50;color:${ac};">${_ini(p.name)}</div>
-                <div class="auth-card-name">${p.name}</div>
-                <div class="auth-card-role">${p.role || p.location || ''}</div>
+                <div class="auth-card-name">${_esc(p.name)}</div>
+                <div class="auth-card-role">${_esc(p.role || p.location || '')}</div>
             </button>`;
         }).join('');
         content = `<div class="auth-screen-title">${_showingAll ? 'All profiles' : 'Welcome back'}</div>
@@ -571,7 +574,7 @@ async function _doEmailLogin() {
 function _renderVerify() {
     document.getElementById('auth-body').innerHTML = `
         <div class="auth-screen-title">Verify your email</div>
-        <div class="auth-screen-hint">Enter the 5-digit code sent to<br><strong style="color:${_t.accent};">${_pendingVerifyEmail || 'your email'}</strong></div>
+        <div class="auth-screen-hint">Enter the 5-digit code sent to<br><strong style="color:${_t.accent};">${_esc(_pendingVerifyEmail) || 'your email'}</strong></div>
         <div class="auth-form">
             <div class="auth-field-group">
                 <input id="verify-code" class="auth-input auth-pin-input" type="text" placeholder="00000" maxlength="5" autocomplete="one-time-code"
@@ -745,7 +748,7 @@ async function _doOtpRequest() {
 function _renderOtpVerify() {
     document.getElementById('auth-body').innerHTML = `
         <div class="auth-screen-title">Enter your login code</div>
-        <div class="auth-screen-hint">Enter the 5-digit code sent to<br><strong style="color:${_t.accent};">${_otpEmail || 'your email'}</strong></div>
+        <div class="auth-screen-hint">Enter the 5-digit code sent to<br><strong style="color:${_t.accent};">${_esc(_otpEmail) || 'your email'}</strong></div>
         <div class="auth-form">
             <div class="auth-field-group">
                 <input id="otp-code" class="auth-input auth-pin-input" type="text" placeholder="00000" maxlength="5" autocomplete="one-time-code"
