@@ -332,7 +332,8 @@ class StratOS:
                         line = line.strip()
                         if line and not line.startswith('#') and '=' in line:
                             key, _, value = line.partition('=')
-                            os.environ.setdefault(key.strip(), value.strip())
+                            val = value.strip().strip('"').strip("'")
+                            os.environ.setdefault(key.strip(), val)
             except Exception as e:
                 logger.warning(f"Failed to read .env: {e}")
 
