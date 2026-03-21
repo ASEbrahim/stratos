@@ -321,12 +321,18 @@ function _buildProfileSuggestions() {
 // ═══════════════════════════════════════════════════════════
 
 var _ONBOARDING_CHIPS = [
-    { label: 'Tech & AI', prompt: "I work in tech and want to track AI developments, LLMs, and software trends" },
-    { label: 'Finance & Markets', prompt: "I follow financial markets, stocks, and economic policy" },
-    { label: 'Career & Jobs', prompt: "I want to track job market trends, hiring, and professional development" },
-    { label: 'Energy & Oil', prompt: "I follow oil prices, renewables, OPEC decisions, and energy infrastructure" },
-    { label: 'Regional News', prompt: "I want regional news relevant to my area — Kuwait, GCC, Middle East" },
-    { label: 'Cybersecurity', prompt: "I follow cybersecurity threats, vulnerabilities, and InfoSec developments" },
+    { label: 'Tech & AI', prompt: "I work in tech and want to track AI developments, LLMs, and software trends",
+      category: { label: 'Tech & AI', id: 'tech_ai', items: ['artificial intelligence','machine learning','LLM','GPT','software development','cloud computing','startups','open source'] } },
+    { label: 'Finance & Markets', prompt: "I follow financial markets, stocks, and economic policy",
+      category: { label: 'Finance & Markets', id: 'finance', items: ['stock market','cryptocurrency','federal reserve','interest rates','IPO','earnings','economic policy','inflation'] } },
+    { label: 'Career & Jobs', prompt: "I want to track job market trends, hiring, and professional development",
+      category: { label: 'Career & Jobs', id: 'career', items: ['job market','hiring trends','remote work','layoffs','professional development','salary','recruitment','workforce'] } },
+    { label: 'Energy & Oil', prompt: "I follow oil prices, renewables, OPEC decisions, and energy infrastructure",
+      category: { label: 'Energy & Oil', id: 'energy', items: ['oil prices','OPEC','renewable energy','solar','natural gas','energy policy','electric vehicles','crude oil'] } },
+    { label: 'Regional News', prompt: "I want regional news relevant to my area — Kuwait, GCC, Middle East",
+      category: { label: 'Regional News', id: 'regional', items: ['Kuwait','GCC','Saudi Arabia','UAE','Middle East','Gulf','MENA','Arab'] } },
+    { label: 'Cybersecurity', prompt: "I follow cybersecurity threats, vulnerabilities, and InfoSec developments",
+      category: { label: 'Cybersecurity', id: 'cybersecurity', items: ['cybersecurity','data breach','vulnerability','ransomware','zero day','malware','InfoSec','threat intelligence'] } },
     { label: 'Something else...', prompt: null, action: 'focus_input' },
 ];
 
@@ -363,10 +369,13 @@ function renderOnboardingChips(container) {
     container.insertAdjacentHTML('beforeend', html);
 }
 
+var _onboardingSelectedCategory = null;
+
 function _handleOnboardingChip(btn) {
     if (_onboardingChipClicked) return;
     var action = btn.getAttribute('data-action');
     var prompt = btn.getAttribute('data-prompt');
+    var label = btn.textContent.trim();
     console.log('onboarding: chip clicked', action || (prompt ? prompt.substring(0, 30) : ''));
 
     if (action === 'focus_input') {
@@ -376,6 +385,25 @@ function _handleOnboardingChip(btn) {
     }
 
     _onboardingChipClicked = true;
+
+    // Find the matching chip data to get the category config
+    var chipData = _ONBOARDING_CHIPS.find(function(c) { return c.label === label; });
+    _onboardingSelectedCategory = chipData ? chipData.category : null;
+
+    // Save category to backend so the scan has something to fetch
+    if (_onboardingSelectedCategory) {
+        var token = typeof getAuthToken === 'function' ? getAuthToken() : '';
+        var configPayload = { dynamic_categories: [_onboardingSelectedCategory] };
+        fetch('/api/config', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-Auth-Token': token },
+            body: JSON.stringify(configPayload)
+        }).then(function() {
+            console.log('onboarding: category saved to backend');
+        }).catch(function(e) {
+            console.warn('onboarding: failed to save category', e);
+        });
+    }
 
     // Remove category chips
     var chipContainers = document.querySelectorAll('.agent-onboarding-chips');
