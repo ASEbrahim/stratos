@@ -391,6 +391,9 @@ def handle_auth_routes(handler, method, path, data, db, strat, send_json, email_
             return True
 
         password = data.get("password", "")
+        if len(password) > 128:
+            send_json(handler, {"error": "Password must not exceed 128 characters"}, status=400)
+            return True
         cursor = db.conn.cursor()
         cursor.execute("SELECT password_hash FROM users WHERE id = ?", (user_id,))
         row = cursor.fetchone()
