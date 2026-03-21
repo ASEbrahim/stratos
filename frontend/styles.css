@@ -3687,3 +3687,122 @@ body.perf-mode .agent-mic-btn.stt-processing { animation: none; }
     margin-top: 16px;
     line-height: 1.6;
 }
+
+/* ═══════════════════════════════════════════════════
+   MOBILE OVERHAUL — consolidated mobile-first layout
+   ═══════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+    /* 1. Hide sidebar — bottom nav replaces it */
+    #sidebar {
+        position: fixed !important;
+        left: -280px !important;
+        width: 260px !important;
+        top: 0 !important;
+        bottom: 0 !important;
+        z-index: 60 !important;
+        transition: left 0.25s ease !important;
+    }
+    #sidebar.mobile-open {
+        left: 0 !important;
+    }
+    /* Sidebar resize handle hidden on mobile */
+    #sidebar-resize-handle { display: none !important; }
+
+    /* 2. Main content full width */
+    .flex.h-screen > main {
+        margin-left: 0 !important;
+        width: 100vw !important;
+        max-width: 100vw !important;
+    }
+
+    /* 3. Bottom nav always visible */
+    .bottom-nav {
+        display: flex !important;
+    }
+
+    /* 4. Content padding for bottom nav clearance */
+    #main-content {
+        padding-bottom: calc(66px + env(safe-area-inset-bottom, 0px)) !important;
+    }
+    #settings-panel {
+        padding-bottom: calc(66px + env(safe-area-inset-bottom, 0px)) !important;
+    }
+    #markets-panel {
+        padding-bottom: calc(66px + env(safe-area-inset-bottom, 0px)) !important;
+    }
+
+    /* 5. Feed column full width (no right sidebar) */
+    #feed-column {
+        grid-column: 1 / -1 !important;
+    }
+    /* Hide market overview sidebar column on mobile */
+    #main-content > div.xl\:col-span-1:last-child {
+        display: none !important;
+    }
+    #main-content {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* 6. Compact feed cards */
+    #news-feed .glass-panel {
+        padding: 10px 12px !important;
+        border-radius: 10px !important;
+        margin-bottom: 6px !important;
+    }
+    #news-feed .glass-panel h3 {
+        font-size: 0.85rem !important;
+        line-height: 1.35 !important;
+    }
+    /* Clamp summaries to 2 lines */
+    #news-feed .glass-panel .text-xs.leading-relaxed {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    /* 7. Settings fullscreen */
+    #settings-panel {
+        max-width: 100vw !important;
+        overflow-x: hidden !important;
+    }
+
+    /* 8. Agent onboarding chips scroll horizontally */
+    .agent-onboarding-chips {
+        flex-wrap: nowrap !important;
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+    }
+    .agent-onboarding-chips::-webkit-scrollbar { display: none; }
+
+    /* 9. Hide hue widget on mobile (save space) */
+    #hue-widget-container { display: none !important; }
+
+    /* 10. Agent toggle buttons — smaller on mobile */
+    .agent-toggle-btn {
+        font-size: 9px !important;
+        padding: 2px 5px !important;
+    }
+
+    /* 11. Disable heavy backdrop-filter on cards (GPU perf) */
+    .glass-panel {
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+    }
+
+    /* 12. iOS Safari 100vh fix */
+    .h-screen {
+        height: 100dvh;
+    }
+}
+
+/* Mobile sidebar backdrop */
+#mobile-sidebar-backdrop {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 55;
+}
+#mobile-sidebar-backdrop.visible { display: block; }

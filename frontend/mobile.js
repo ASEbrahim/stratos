@@ -15,6 +15,11 @@ const isSmall  = () => window.innerWidth <= 768;
 document.addEventListener('DOMContentLoaded', () => {
     /* initChartFullscreen() moved to fullscreen-chart.js */
     if (!isTouchDevice()) return;
+    /* Force sidebar collapsed on mobile so bottom nav isn't hidden */
+    if (isSmall() && typeof sidebarCollapsed !== 'undefined' && !sidebarCollapsed) {
+        sidebarCollapsed = true;
+        if (typeof applySidebarState === 'function') applySidebarState();
+    }
     initSidebarSwipe();
     initCardSwipe();
     initPullToRefresh();
