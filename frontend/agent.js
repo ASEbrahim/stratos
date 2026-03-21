@@ -785,9 +785,6 @@ function showAgentPanel(show) {
 function _startAgentOnboarding() {
     console.log('onboarding: starting agent onboarding');
 
-    // Set seen flag immediately — prevents re-render on refresh
-    localStorage.setItem('stratos-onboarding-seen', 'true');
-
     // Navigate to the agent tab (fullscreen)
     if (typeof setActive === 'function') setActive('strat_agent');
 
@@ -800,17 +797,8 @@ function _startAgentOnboarding() {
     const welcome = document.getElementById('agent-welcome');
     if (welcome) welcome.remove();
 
-    // Insert hardcoded greeting (no API call — zero latency)
-    const greeting = 'Intelligence profile initialized. I\'m your StratOS agent.\n\nTell me what you need to stay ahead of \u2014 your role, your industry, the signals that matter to you. I\'ll configure your feed accordingly.\n\nOr start with one of these:';
-    appendAgentMessage('assistant', typeof formatAgentText === 'function' ? formatAgentText(greeting) : greeting);
-
-    // Render onboarding chips below the greeting
-    if (messagesEl && typeof renderOnboardingChips === 'function') {
-        renderOnboardingChips(messagesEl);
-    }
-
-    // Set listener flag for post-scan summary
-    window._onboardingScanListener = true;
+    // Start interactive onboarding flow (hardcoded steps, no LLM)
+    if (typeof _obStep1 === 'function') _obStep1();
 }
 
 async function checkAgentStatus() {
@@ -1922,6 +1910,14 @@ async function sendAgentMessage() {
     const sendBtn = document.getElementById('agent-send-btn');
     const msg = (input?.value || '').trim();
     if (!msg) return;
+
+    // Intercept during interactive onboarding
+    if (window._obExpectingInput && typeof _obHandleUserInput === 'function') {
+        input.value = '';
+        input.style.height = 'auto';
+        appendAgentMessage('user', msg);
+        if (_obHandleUserInput(msg)) return;
+    }
     
     input.value = '';
     input.style.height = 'auto';

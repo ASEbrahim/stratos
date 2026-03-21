@@ -317,139 +317,281 @@ function _buildProfileSuggestions() {
 }
 
 // ═══════════════════════════════════════════════════════════
-// ONBOARDING CHIPS — first-time user category selection + scan trigger
+// INTERACTIVE ONBOARDING — hardcoded multi-step setup flow
+// No LLM dependency. Each step: bot message → chips/input → save → next.
 // ═══════════════════════════════════════════════════════════
 
-var _ONBOARDING_CHIPS = [
-    { label: 'Tech & AI', prompt: "I work in tech and want to track AI developments, LLMs, and software trends",
-      category: { label: 'Tech & AI', id: 'tech_ai', items: ['artificial intelligence','machine learning','LLM','GPT','software development','cloud computing','startups','open source'] } },
-    { label: 'Finance & Markets', prompt: "I follow financial markets, stocks, and economic policy",
-      category: { label: 'Finance & Markets', id: 'finance', items: ['stock market','cryptocurrency','federal reserve','interest rates','IPO','earnings','economic policy','inflation'] } },
-    { label: 'Career & Jobs', prompt: "I want to track job market trends, hiring, and professional development",
-      category: { label: 'Career & Jobs', id: 'career', items: ['job market','hiring trends','remote work','layoffs','professional development','salary','recruitment','workforce'] } },
-    { label: 'Energy & Oil', prompt: "I follow oil prices, renewables, OPEC decisions, and energy infrastructure",
-      category: { label: 'Energy & Oil', id: 'energy', items: ['oil prices','OPEC','renewable energy','solar','natural gas','energy policy','electric vehicles','crude oil'] } },
-    { label: 'Regional News', prompt: "I want regional news relevant to my area — Kuwait, GCC, Middle East",
-      category: { label: 'Regional News', id: 'regional', items: ['Kuwait','GCC','Saudi Arabia','UAE','Middle East','Gulf','MENA','Arab'] } },
-    { label: 'Cybersecurity', prompt: "I follow cybersecurity threats, vulnerabilities, and InfoSec developments",
-      category: { label: 'Cybersecurity', id: 'cybersecurity', items: ['cybersecurity','data breach','vulnerability','ransomware','zero day','malware','InfoSec','threat intelligence'] } },
-    { label: 'Something else...', prompt: null, action: 'focus_input' },
+var _obStep = 0; // current onboarding step
+var _obData = { role: '', location: '', categories: [], tickers: [] };
+
+var _OB_CATEGORIES = [
+    { label: 'Tech & AI', id: 'tech_ai', icon: 'cpu', items: ['artificial intelligence','machine learning','LLM','GPT','software development','cloud computing','startups','open source'], tickers: ['NVDA','MSFT','GOOGL','META'] },
+    { label: 'Finance & Markets', id: 'finance', icon: 'bar-chart-3', items: ['stock market','cryptocurrency','federal reserve','interest rates','IPO','earnings','economic policy','inflation'], tickers: ['SPY','BTC-USD','ETH-USD','GC=F'] },
+    { label: 'Career & Jobs', id: 'career', icon: 'briefcase', items: ['job market','hiring trends','remote work','layoffs','professional development','salary','recruitment','workforce'], tickers: [] },
+    { label: 'Energy & Oil', id: 'energy', icon: 'zap', items: ['oil prices','OPEC','renewable energy','solar','natural gas','energy policy','electric vehicles','crude oil'], tickers: ['CL=F','XOM','TSLA'] },
+    { label: 'Regional News', id: 'regional', icon: 'globe', items: ['Kuwait','GCC','Saudi Arabia','UAE','Middle East','Gulf','MENA','Arab'], tickers: [] },
+    { label: 'Cybersecurity', id: 'cybersecurity', icon: 'shield', items: ['cybersecurity','data breach','vulnerability','ransomware','zero day','malware','InfoSec','threat intelligence'], tickers: ['CRWD','PANW','FTNT'] },
+    { label: 'Science', id: 'science', icon: 'flask-conical', items: ['research','space','physics','biology','climate change','medical research','quantum','NASA'], tickers: [] },
+    { label: 'Gaming & Entertainment', id: 'gaming', icon: 'gamepad-2', items: ['video games','esports','streaming','game development','Nintendo','PlayStation','Xbox','indie games'], tickers: ['NTDOY','SONY','EA'] },
 ];
 
-var _onboardingChipClicked = false;
+var _OB_ROLES = ['Software Engineer','Data Scientist','Product Manager','Financial Analyst','Student','Researcher','Entrepreneur','Journalist','Marketing Manager','Designer'];
+var _OB_LOCATIONS = ['United States','United Kingdom','Kuwait','UAE','Saudi Arabia','Canada','Germany','India','Japan','Australia'];
 
-function renderOnboardingChips(container) {
-    if (_onboardingChipClicked) return;
-    var cats = (window.configData && window.configData.dynamic_categories) ? window.configData.dynamic_categories.slice(0, 6) : [];
-    var chips;
-    if (cats.length >= 3) {
-        chips = cats.map(function(c) {
-            var label = c.label || c.id || '';
-            return { label: label, prompt: "I'm interested in " + label + " — tell me more about tracking this." };
-        });
-        chips.push({ label: 'Something else...', prompt: null, action: 'focus_input' });
-    } else {
-        chips = _ONBOARDING_CHIPS;
-    }
-
-    var html = '<div class="agent-onboarding-chips" style="display:flex;flex-wrap:wrap;gap:8px;padding:12px 0;">';
-    for (var i = 0; i < chips.length; i++) {
-        var chip = chips[i];
-        var safeLabel = chip.label.replace(/</g, '&lt;').replace(/>/g, '&gt;');
-        var dataAction = chip.action ? ' data-action="' + chip.action + '"' : '';
-        var dataPrompt = chip.prompt ? ' data-prompt="' + chip.prompt.replace(/"/g, '&quot;').replace(/</g, '&lt;') + '"' : '';
-        html += '<button onclick="_handleOnboardingChip(this)"' + dataAction + dataPrompt
-            + ' class="text-[13px] px-4 py-2.5 rounded-xl flex items-center gap-2 transition-all cursor-pointer whitespace-nowrap"'
-            + ' style="border:1px solid rgba(52,211,153,0.2); color:var(--text-heading); background:rgba(52,211,153,0.04); font-weight:500;"'
-            + ' onmouseenter="this.style.borderColor=\'rgba(52,211,153,0.5)\';this.style.background=\'rgba(52,211,153,0.1)\';this.style.boxShadow=\'0 0 12px rgba(52,211,153,0.15)\';this.style.transform=\'translateY(-1px)\'"'
-            + ' onmouseleave="this.style.borderColor=\'rgba(52,211,153,0.2)\';this.style.background=\'rgba(52,211,153,0.04)\';this.style.boxShadow=\'none\';this.style.transform=\'none\'">'
-            + safeLabel + '</button>';
-    }
-    html += '</div>';
-    container.insertAdjacentHTML('beforeend', html);
+function _obChipHtml(label, onclick, opts) {
+    var selected = opts && opts.selected;
+    var accent = opts && opts.accent;
+    var bg = selected ? 'rgba(52,211,153,0.15)' : (accent ? 'var(--accent,#10b981)' : 'rgba(52,211,153,0.04)');
+    var color = selected ? 'var(--accent,#34d399)' : (accent ? 'var(--bg-primary,#0f172a)' : 'var(--text-heading)');
+    var border = selected ? 'rgba(52,211,153,0.5)' : (accent ? 'var(--accent,#10b981)' : 'rgba(52,211,153,0.2)');
+    var weight = (selected || accent) ? '600' : '500';
+    var shadow = accent ? 'box-shadow:0 2px 12px rgba(16,185,129,0.25);' : '';
+    return '<button onclick="' + onclick.replace(/"/g, '&quot;') + '"'
+        + ' class="text-[13px] px-4 py-2.5 rounded-xl flex items-center gap-2 transition-all cursor-pointer"'
+        + ' style="border:1px solid ' + border + '; color:' + color + '; background:' + bg + '; font-weight:' + weight + ';' + shadow + '"'
+        + ' onmouseenter="this.style.borderColor=\'rgba(52,211,153,0.5)\';this.style.boxShadow=\'0 0 12px rgba(52,211,153,0.15)\';this.style.transform=\'translateY(-1px)\'"'
+        + ' onmouseleave="this.style.borderColor=\'' + border + '\';this.style.boxShadow=\'' + (accent ? '0 2px 12px rgba(16,185,129,0.25)' : 'none') + '\';this.style.transform=\'none\'">'
+        + label + '</button>';
 }
 
-var _onboardingSelectedCategory = null;
-
-function _handleOnboardingChip(btn) {
-    if (_onboardingChipClicked) return;
-    var action = btn.getAttribute('data-action');
-    var prompt = btn.getAttribute('data-prompt');
-    var label = btn.textContent.trim();
-    console.log('onboarding: chip clicked', action || (prompt ? prompt.substring(0, 30) : ''));
-
-    if (action === 'focus_input') {
-        var input = document.getElementById('agent-input');
-        if (input) { input.focus(); input.placeholder = 'Tell me what topics matter to you...'; }
-        return;
-    }
-
-    _onboardingChipClicked = true;
-
-    // Find the matching chip data to get the category config
-    var chipData = _ONBOARDING_CHIPS.find(function(c) { return c.label === label; });
-    _onboardingSelectedCategory = chipData ? chipData.category : null;
-
-    // Save category to backend so the scan has something to fetch
-    if (_onboardingSelectedCategory) {
-        var token = typeof getAuthToken === 'function' ? getAuthToken() : '';
-        var configPayload = { dynamic_categories: [_onboardingSelectedCategory] };
-        fetch('/api/config', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'X-Auth-Token': token },
-            body: JSON.stringify(configPayload)
-        }).then(function() {
-            console.log('onboarding: category saved to backend');
-        }).catch(function(e) {
-            console.warn('onboarding: failed to save category', e);
-        });
-    }
-
-    // Remove category chips
-    var chipContainers = document.querySelectorAll('.agent-onboarding-chips');
-    for (var i = 0; i < chipContainers.length; i++) chipContainers[i].remove();
-
-    // Send as agent message
-    if (prompt) {
-        var input = document.getElementById('agent-input');
-        if (input) input.value = prompt;
-        if (typeof sendAgentMessage === 'function') sendAgentMessage();
-    }
-
-    // Show "Run first scan" chip after agent responds
-    setTimeout(function() { _showScanChip(); }, 2000);
-}
-
-function _showScanChip() {
-    var messagesEl = document.getElementById('agent-messages');
-    if (!messagesEl) return;
-    var html = '<div class="agent-onboarding-chips" style="display:flex;flex-wrap:wrap;gap:8px;padding:12px 0;">'
-        + '<button onclick="_handleScanChip()"'
-        + ' class="text-[14px] px-5 py-2.5 rounded-xl transition-all cursor-pointer"'
-        + ' style="background:var(--accent,#10b981);color:var(--bg-primary,#0f172a);border:1px solid var(--accent,#10b981);font-weight:600;box-shadow:0 2px 12px rgba(16,185,129,0.25);"'
-        + ' onmouseenter="this.style.opacity=\'0.85\';this.style.transform=\'translateY(-1px)\';this.style.boxShadow=\'0 4px 20px rgba(16,185,129,0.35)\'"'
-        + ' onmouseleave="this.style.opacity=\'1\';this.style.transform=\'none\';this.style.boxShadow=\'0 2px 12px rgba(16,185,129,0.25)\'">'
-        + 'Run First Scan</button>'
-        + '</div>';
-    messagesEl.insertAdjacentHTML('beforeend', html);
-    messagesEl.scrollTop = messagesEl.scrollHeight;
-}
-
-function _handleScanChip() {
-    console.log('onboarding: first scan triggered');
-    // Remove scan chips
-    var chipContainers = document.querySelectorAll('.agent-onboarding-chips');
-    for (var i = 0; i < chipContainers.length; i++) chipContainers[i].remove();
-
-    // Show user message + hardcoded response (don't send to LLM — agent has no scan tool)
+function _obMsg(text) {
     if (typeof appendAgentMessage === 'function') {
-        appendAgentMessage('user', 'Run my first scan');
-        var scanReply = 'Scanning now. I\'ll pull articles matching your profile and score them for relevance. This takes about a minute \u2014 I\'ll summarize the results when it\'s done.';
-        appendAgentMessage('assistant', typeof formatAgentText === 'function' ? formatAgentText(scanReply) : scanReply);
+        appendAgentMessage('assistant', typeof formatAgentText === 'function' ? formatAgentText(text) : text);
     }
+}
 
-    // Trigger the actual scan
-    if (typeof toggleScan === 'function') {
-        toggleScan();
+function _obUserMsg(text) {
+    if (typeof appendAgentMessage === 'function') {
+        appendAgentMessage('user', text);
     }
+}
+
+function _obChips(html) {
+    var el = document.getElementById('agent-messages');
+    if (el) {
+        el.insertAdjacentHTML('beforeend', '<div class="agent-onboarding-chips" style="display:flex;flex-wrap:wrap;gap:8px;padding:12px 0;">' + html + '</div>');
+        el.scrollTop = el.scrollHeight;
+    }
+}
+
+function _obClearChips() {
+    var chips = document.querySelectorAll('.agent-onboarding-chips');
+    for (var i = 0; i < chips.length; i++) chips[i].remove();
+}
+
+function _obToken() {
+    return typeof getAuthToken === 'function' ? getAuthToken() : '';
+}
+
+function _obSaveConfig(payload) {
+    return fetch('/api/config', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Auth-Token': _obToken() },
+        body: JSON.stringify(payload)
+    });
+}
+
+// ── STEP 1: Ask role ──
+function _obStep1() {
+    _obStep = 1;
+    console.log('onboarding: step 1 — role');
+    _obMsg('Intelligence profile initialized. I\'m your StratOS agent.\n\nLet\'s set up your feed. First \u2014 what\'s your role or profession?');
+    var html = '';
+    for (var i = 0; i < _OB_ROLES.length; i++) {
+        html += _obChipHtml(_OB_ROLES[i], '_obSelectRole(\'' + _OB_ROLES[i].replace(/'/g, "\\'") + '\')');
+    }
+    _obChips(html);
+    // Also allow typed input
+    window._obExpectingInput = 'role';
+}
+
+function _obSelectRole(role) {
+    window._obExpectingInput = null;
+    _obClearChips();
+    _obUserMsg(role);
+    _obData.role = role;
+    console.log('onboarding: role =', role);
+    setTimeout(_obStep2, 400);
+}
+
+// ── STEP 2: Ask location ──
+function _obStep2() {
+    _obStep = 2;
+    console.log('onboarding: step 2 — location');
+    _obMsg('Got it, ' + _obData.role + '. Where are you based?');
+    var html = '';
+    for (var i = 0; i < _OB_LOCATIONS.length; i++) {
+        html += _obChipHtml(_OB_LOCATIONS[i], '_obSelectLocation(\'' + _OB_LOCATIONS[i].replace(/'/g, "\\'") + '\')');
+    }
+    _obChips(html);
+    window._obExpectingInput = 'location';
+}
+
+function _obSelectLocation(loc) {
+    window._obExpectingInput = null;
+    _obClearChips();
+    _obUserMsg(loc);
+    _obData.location = loc;
+    console.log('onboarding: location =', loc);
+    // Save role + location now
+    _obSaveConfig({ profile: { role: _obData.role, location: _obData.location } }).then(function() {
+        console.log('onboarding: profile saved');
+    });
+    setTimeout(_obStep3, 400);
+}
+
+// ── STEP 3: Pick interests (multi-select) ──
+function _obStep3() {
+    _obStep = 3;
+    console.log('onboarding: step 3 — categories');
+    _obMsg('What topics do you want to track? Pick as many as you like, then hit **Done**.');
+    _obData.categories = [];
+    _obRenderCategoryChips();
+}
+
+function _obRenderCategoryChips() {
+    _obClearChips();
+    var html = '';
+    for (var i = 0; i < _OB_CATEGORIES.length; i++) {
+        var cat = _OB_CATEGORIES[i];
+        var sel = _obData.categories.indexOf(cat.id) >= 0;
+        html += _obChipHtml((sel ? '\u2713 ' : '') + cat.label, '_obToggleCategory(\'' + cat.id + '\')', { selected: sel });
+    }
+    if (_obData.categories.length > 0) {
+        html += _obChipHtml('Done \u2192', '_obCategoriesDone()', { accent: true });
+    }
+    _obChips(html);
+}
+
+function _obToggleCategory(id) {
+    var idx = _obData.categories.indexOf(id);
+    if (idx >= 0) {
+        _obData.categories.splice(idx, 1);
+    } else {
+        _obData.categories.push(id);
+    }
+    _obRenderCategoryChips();
+}
+
+function _obCategoriesDone() {
+    _obClearChips();
+    var labels = _obData.categories.map(function(id) {
+        var cat = _OB_CATEGORIES.find(function(c) { return c.id === id; });
+        return cat ? cat.label : id;
+    });
+    _obUserMsg(labels.join(', '));
+
+    // Build and save categories
+    var cats = [];
+    var tickers = [];
+    for (var i = 0; i < _obData.categories.length; i++) {
+        var cat = _OB_CATEGORIES.find(function(c) { return c.id === _obData.categories[i]; });
+        if (cat) {
+            cats.push({ label: cat.label, id: cat.id, icon: cat.icon, items: cat.items, enabled: true });
+            tickers = tickers.concat(cat.tickers || []);
+        }
+    }
+    // Dedupe tickers
+    _obData.tickers = tickers.filter(function(t, i) { return tickers.indexOf(t) === i; });
+
+    _obSaveConfig({ dynamic_categories: cats }).then(function() {
+        console.log('onboarding: categories saved');
+    });
+
+    setTimeout(_obStep4, 400);
+}
+
+// ── STEP 4: Market tickers ──
+function _obStep4() {
+    _obStep = 4;
+    console.log('onboarding: step 4 — tickers');
+    if (_obData.tickers.length > 0) {
+        _obMsg('Based on your interests, I\'d suggest tracking these markets:\n\n**' + _obData.tickers.join(', ') + '**\n\nWant to add these to your watchlist?');
+        var html = _obChipHtml('Yes, add them', '_obTickersAccept()', { accent: true });
+        html += _obChipHtml('Skip for now', '_obTickersSkip()');
+        html += _obChipHtml('Let me choose', '_obTickersCustom()');
+        _obChips(html);
+    } else {
+        _obMsg('Want to track any market tickers? (stocks, crypto, commodities)');
+        var html = _obChipHtml('Skip for now', '_obTickersSkip()');
+        html += _obChipHtml('Let me choose', '_obTickersCustom()');
+        _obChips(html);
+    }
+}
+
+function _obTickersAccept() {
+    _obClearChips();
+    _obUserMsg('Add ' + _obData.tickers.join(', '));
+    _obSaveTickers(_obData.tickers);
+    setTimeout(_obStep5, 400);
+}
+
+function _obTickersSkip() {
+    _obClearChips();
+    _obUserMsg('Skip tickers');
+    _obMsg('No problem \u2014 you can add tickers anytime from the Markets tab.');
+    setTimeout(_obStep5, 600);
+}
+
+function _obTickersCustom() {
+    _obClearChips();
+    _obMsg('Type ticker symbols separated by commas (e.g. NVDA, BTC-USD, TSLA):');
+    window._obExpectingInput = 'tickers';
+}
+
+function _obSaveTickers(symbols) {
+    var tickerObjs = symbols.map(function(s) { return { symbol: s.trim().toUpperCase() }; });
+    _obSaveConfig({ market: { tickers: tickerObjs } }).then(function() {
+        console.log('onboarding: tickers saved');
+    });
+}
+
+// ── STEP 5: Run scan ──
+function _obStep5() {
+    _obStep = 5;
+    console.log('onboarding: step 5 — scan');
+    _obMsg('Your profile is set up:\n\n- **Role:** ' + (_obData.role || 'Not set') + '\n- **Location:** ' + (_obData.location || 'Not set') + '\n- **Categories:** ' + (_obData.categories.length || 0) + ' topics\n- **Tickers:** ' + (_obData.tickers.length > 0 ? _obData.tickers.join(', ') : 'None') + '\n\nReady to run your first scan? This will fetch and score articles matching your interests.');
+    var html = _obChipHtml('Run First Scan', '_obRunScan()', { accent: true });
+    _obChips(html);
+}
+
+function _obRunScan() {
+    _obClearChips();
+    _obUserMsg('Run my first scan');
+    _obMsg('Scanning now. I\'ll pull articles matching your profile and score them for relevance. This takes about a minute \u2014 I\'ll summarize the results when it\'s done.');
+    window._onboardingScanListener = true;
+    if (typeof toggleScan === 'function') toggleScan();
+    // Mark onboarding seen (scan listener handles completion)
+    localStorage.setItem('stratos-onboarding-seen', 'true');
+}
+
+// ── Handle typed input during onboarding ──
+function _obHandleUserInput(msg) {
+    if (!window._obExpectingInput) return false;
+    var field = window._obExpectingInput;
+    window._obExpectingInput = null;
+
+    if (field === 'role') {
+        _obData.role = msg;
+        _obClearChips();
+        console.log('onboarding: role (typed) =', msg);
+        setTimeout(_obStep2, 400);
+        return true;
+    }
+    if (field === 'location') {
+        _obData.location = msg;
+        _obClearChips();
+        console.log('onboarding: location (typed) =', msg);
+        _obSaveConfig({ profile: { role: _obData.role, location: _obData.location } });
+        setTimeout(_obStep3, 400);
+        return true;
+    }
+    if (field === 'tickers') {
+        var symbols = msg.split(/[,\s]+/).filter(function(s) { return s.length >= 1; });
+        _obData.tickers = symbols.map(function(s) { return s.toUpperCase(); });
+        _obSaveTickers(_obData.tickers);
+        setTimeout(_obStep5, 400);
+        return true;
+    }
+    return false;
 }
