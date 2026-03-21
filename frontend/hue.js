@@ -135,6 +135,9 @@ function _toggleHueExpand() {
     _renderHue();
 }
 
+// Clean up timer on page unload
+window.addEventListener('beforeunload', () => { if (_hueFreshnessTimer) clearInterval(_hueFreshnessTimer); });
+
 function _startFreshnessDecay() {
     if (_hueFreshnessTimer) clearInterval(_hueFreshnessTimer);
     _hueFreshnessTimer = setInterval(() => {
