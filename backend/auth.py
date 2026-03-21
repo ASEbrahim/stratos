@@ -280,22 +280,31 @@ class AuthManager:
             return False
 
     def get_session_profile(self, token):
-        """Get the profile name associated with a session token."""
+        """Get a unique profile identifier associated with a session token.
+        Returns 'pid_{id}' for DB-auth users to avoid name collisions
+        (many users share the profile name 'default')."""
         session = self._active_sessions.get(token)
         if session:
-            return session["profile"]
-        # Fallback: check DB sessions for profile name
+            name = session.get("profile", "")
+            # For legacy profiles with unique names, return as-is
+            if name and name != 'default':
+                return name
+        # DB lookup: use profile_id as unique key
         try:
             from database import get_database
             db = get_database()
             cursor = db.conn.cursor()
             cursor.execute("""
-                SELECT p.name FROM sessions s
+                SELECT s.profile_id, p.name FROM sessions s
                 JOIN profiles p ON s.profile_id = p.id
                 WHERE s.token = ?
             """, (token,))
             row = cursor.fetchone()
-            return row[0] if row else ""
+            if row:
+                pid, name = row
+                # Use pid-based key to avoid 'default' name collision
+                return f'pid_{pid}' if name == 'default' else name
+            return ""
         except Exception:
             return ""
 

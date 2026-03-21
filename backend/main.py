@@ -239,22 +239,33 @@ class StratOS:
             self.active_profile = profile_name
             # Update active_profile_id from DB
             try:
-                row = self.db.conn.execute(
-                    "SELECT id FROM profiles WHERE name = ?", (profile_name,)
-                ).fetchone()
-                if row:
-                    self.active_profile_id = row[0]
+                if profile_name.startswith('pid_'):
+                    self.active_profile_id = int(profile_name[4:])
+                else:
+                    row = self.db.conn.execute(
+                        "SELECT id FROM profiles WHERE name = ?", (profile_name,)
+                    ).fetchone()
+                    if row:
+                        self.active_profile_id = row[0]
             except Exception as e:
                 logger.warning(f"Failed to resolve profile_id for '{profile_name}': {e}")
             logger.info(f"Profile switched to: {profile_name} (id={self.active_profile_id})")
 
     def _load_profile_from_db(self, profile_name: str):
-        """Load a profile's config_overlay from DB into the in-memory cache."""
+        """Load a profile's config_overlay from DB into the in-memory cache.
+        Supports 'pid_N' format for DB-auth users (avoids 'default' name collision)."""
         try:
-            row = self.db.conn.execute(
-                "SELECT config_overlay FROM profiles WHERE name = ?",
-                (profile_name,)
-            ).fetchone()
+            if profile_name.startswith('pid_'):
+                pid = int(profile_name[4:])
+                row = self.db.conn.execute(
+                    "SELECT config_overlay FROM profiles WHERE id = ?",
+                    (pid,)
+                ).fetchone()
+            else:
+                row = self.db.conn.execute(
+                    "SELECT config_overlay FROM profiles WHERE name = ?",
+                    (profile_name,)
+                ).fetchone()
             if not row:
                 return  # Profile doesn't exist in DB
             # Start from base config, apply overlay (if any)
