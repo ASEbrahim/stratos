@@ -306,6 +306,9 @@ async function _gamesActivateScenario(name) {
         _gamesActiveScenario = deselecting ? null : name;
         _renderScenarioBar();
         _refreshFileBrowserIfOpen();
+        // Clear conversation context so the new scenario starts fresh
+        if (typeof agentHistory !== 'undefined') agentHistory.length = 0;
+        if (typeof clearAgentChat === 'function') clearAgentChat();
         if (typeof showToast === 'function') showToast(deselecting ? 'Scenario deselected' : `Switched to "${name}"`, 'success');
     } catch (e) {
         if (typeof showToast === 'function') showToast('Failed to activate scenario', 'error');
