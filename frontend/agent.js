@@ -1642,20 +1642,20 @@ function formatAgentText(text) {
 
     let html = processed
         .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-        // Bold
-        .replace(/\*\*(.+?)\*\*/g, '<strong style="color:var(--text-heading,#f1f5f9);font-weight:600;">$1</strong>')
-        // Italics (single * or _) — accent-tinted for narrative emphasis
-        .replace(/(?<!\w)\*([^*\n]+?)\*(?!\w)/g, '<em style="color:var(--accent,#34d399);font-style:italic;opacity:0.85;">$1</em>')
-        .replace(/(?<!\w)_([^_\n]+?)_(?!\w)/g, '<em style="color:var(--accent,#34d399);font-style:italic;opacity:0.85;">$1</em>')
+        // Bold — no inline color, let CSS .agent-response strong handle it
+        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+        // Italics (single * or _)
+        .replace(/(?<!\w)\*([^*\n]+?)\*(?!\w)/g, '<em>$1</em>')
+        .replace(/(?<!\w)_([^_\n]+?)_(?!\w)/g, '<em>$1</em>')
         // Inline code
-        .replace(/`([^`]+)`/g, '<code class="px-1 py-0.5 bg-slate-800 rounded text-emerald-300 text-[10px]">$1</code>')
+        .replace(/`([^`]+)`/g, '<code>$1</code>')
         // Headers (### or ---TITLE)
-        .replace(/^#{1,3}\s+(.+)$/gm, '<div class="text-slate-200 font-semibold mt-3 mb-1">$1</div>')
-        .replace(/^---(.+?)---?\s*$/gm, '<div class="text-slate-200 font-semibold mt-3 mb-1">$1</div>')
+        .replace(/^#{1,3}\s+(.+)$/gm, '<h3>$1</h3>')
+        .replace(/^---(.+?)---?\s*$/gm, '<h3>$1</h3>')
         // Numbered lists: "1. text" or "1) text"
-        .replace(/^(\d+)[.)]\s+(.+)$/gm, '<div class="pl-3 mb-1"><span class="text-emerald-400/70 mr-1">$1.</span> $2</div>')
+        .replace(/^(\d+)[.)]\s+(.+)$/gm, '<div class="pl-3 mb-1"><span class="agent-list-num">$1.</span> $2</div>')
         // Bullet lists: "- text"
-        .replace(/^[-•]\s+(.+)$/gm, '<div class="pl-3 mb-1"><span class="text-slate-500 mr-1">·</span> $1</div>')
+        .replace(/^[-•]\s+(.+)$/gm, '<div class="pl-3 mb-1"><span class="agent-list-bullet">·</span> $1</div>')
         // Double newlines → paragraph break (spacing)
         .replace(/\n\n+/g, '<div class="h-2"></div>')
         // Single newlines → line break
@@ -1666,9 +1666,9 @@ function formatAgentText(text) {
     // Percentages: green for positive, red for negative
     html = html.replace(/([+-]?\d+\.?\d*)%/g, (match, num) => {
         const val = parseFloat(num);
-        if (val > 0) return `<span class="text-emerald-400 font-semibold">+${Math.abs(val)}%</span>`;
-        if (val < 0) return `<span class="text-red-400 font-semibold">${val}%</span>`;
-        return `<span class="text-slate-400">0%</span>`;
+        if (val > 0) return `<span class="agent-pct-pos">+${Math.abs(val)}%</span>`;
+        if (val < 0) return `<span class="agent-pct-neg">${val}%</span>`;
+        return `<span class="agent-pct-zero">0%</span>`;
     });
 
     // Money amounts: $XXX or KD XXX
@@ -2056,7 +2056,7 @@ async function sendAgentMessage() {
             _streamRenderTimer = setTimeout(() => {
                 _streamRenderPending = false;
                 if (respDiv) {
-                    respDiv.innerHTML = formatAgentText(fullResponse);
+                    respDiv.innerHTML = formatAgentText(fullResponse) + '<span class="agent-cursor"></span>';
                     const msgs = document.getElementById('agent-messages');
                     if (msgs) msgs.scrollTop = msgs.scrollHeight;
                     if (typeof _onAgentStreamChunkHook === 'function') _onAgentStreamChunkHook();

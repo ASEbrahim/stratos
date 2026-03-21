@@ -3629,6 +3629,65 @@ body.perf-mode .agent-mic-btn.stt-processing { animation: none; }
     font-family: 'JetBrains Mono', 'SF Mono', monospace !important;
 }
 
+/* ═══ Agent Response Formatting — applies to all personas ═══ */
+.agent-response strong {
+    color: var(--accent-light, #34d399);
+    text-shadow: 0 0 6px var(--accent-bg, rgba(52,211,153,0.15));
+    font-weight: 700;
+}
+.agent-response em {
+    color: var(--accent, #10b981);
+    font-style: italic;
+    opacity: 0.85;
+}
+.agent-response code {
+    color: var(--accent-light, #34d399);
+    background: var(--accent-bg, rgba(52,211,153,0.08));
+    padding: 1px 5px;
+    border-radius: 4px;
+    font-size: 0.85em;
+    font-family: 'JetBrains Mono', 'SF Mono', monospace;
+}
+.agent-response h3 {
+    color: var(--accent-light, #34d399) !important;
+    text-shadow: 0 0 8px var(--accent-bg, rgba(52,211,153,0.15));
+    font-weight: 700;
+    font-size: 1.05em;
+    margin: 12px 0 4px;
+}
+.agent-response a {
+    color: var(--accent-light, #34d399);
+    text-decoration: underline;
+    text-decoration-color: var(--accent-border, rgba(52,211,153,0.3));
+}
+.agent-response .agent-list-num {
+    color: var(--accent, #10b981);
+    opacity: 0.7;
+    margin-right: 4px;
+    font-weight: 600;
+}
+.agent-response .agent-list-bullet {
+    color: var(--text-muted, #64748b);
+    margin-right: 4px;
+}
+.agent-response .agent-pct-pos { color: var(--accent-light, #34d399); font-weight: 600; }
+.agent-response .agent-pct-neg { color: #f87171; font-weight: 600; }
+.agent-response .agent-pct-zero { color: var(--text-muted, #64748b); }
+
+/* Blinking cursor at end of streaming response */
+.agent-cursor {
+    display: inline-block;
+    width: 8px;
+    height: 1.1em;
+    background: var(--accent-light, #34d399);
+    margin-left: 2px;
+    animation: agentBlink 1s step-end infinite;
+    vertical-align: text-bottom;
+    box-shadow: 0 0 6px var(--accent-bg, rgba(52,211,153,0.3));
+    border-radius: 1px;
+}
+@keyframes agentBlink { 50% { opacity: 0; } }
+
 /* ═══ Intelligence Persona — Terminal Code Style (includes mobile agent) ═══ */
 #agent-panel.agent-intel .agent-response {
     font-family: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace !important;
