@@ -873,33 +873,44 @@ function _shake(el) { el.style.animation='none'; el.offsetHeight; el.style.anima
 /* ═══ GOOGLE OAUTH ═══ */
 var _googleClientId = ''; // Set from /api/auth/google-client-id
 
+var _googleInitialized = false;
 function _initGoogleSignIn(containerId) {
     // Fetch client ID from backend (avoids hardcoding in frontend)
+    if (_googleClientId) {
+        _renderGoogleBtn(containerId);
+        return;
+    }
     _originalFetch('/api/auth/google-client-id').then(r => r.ok ? r.json() : null).then(d => {
-        if (!d || !d.client_id) return; // Google OAuth not configured
+        if (!d || !d.client_id) return;
         _googleClientId = d.client_id;
-        if (typeof google === 'undefined' || !google.accounts) {
-            // GIS script not loaded yet — retry after short delay
-            setTimeout(() => _initGoogleSignIn(containerId), 500);
-            return;
-        }
+        _renderGoogleBtn(containerId);
+    }).catch(() => {});
+}
+function _renderGoogleBtn(containerId) {
+    if (typeof google === 'undefined' || !google.accounts) {
+        setTimeout(() => _renderGoogleBtn(containerId), 500);
+        return;
+    }
+    // Only initialize once to avoid GIS warning
+    if (!_googleInitialized) {
         google.accounts.id.initialize({
             client_id: _googleClientId,
             callback: _handleGoogleCredential,
             auto_select: false,
         });
-        var container = document.getElementById(containerId);
-        if (container) {
-            google.accounts.id.renderButton(container, {
-                type: 'standard',
-                theme: 'filled_black',
-                size: 'large',
-                text: 'continue_with',
-                shape: 'pill',
-                width: 280,
-            });
-        }
-    }).catch(() => {});
+        _googleInitialized = true;
+    }
+    var container = document.getElementById(containerId);
+    if (container) {
+        google.accounts.id.renderButton(container, {
+            type: 'standard',
+            theme: 'filled_black',
+            size: 'large',
+            text: 'continue_with',
+            shape: 'pill',
+            width: 280,
+        });
+    }
 }
 
 async function _handleGoogleCredential(response) {

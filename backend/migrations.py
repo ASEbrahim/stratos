@@ -959,15 +959,15 @@ def migration_033(cursor):
 def migration_034(cursor):
     """Add Google OAuth columns to users table."""
     try:
-        cursor.execute("ALTER TABLE users ADD COLUMN google_id TEXT UNIQUE")
+        cursor.execute("ALTER TABLE users ADD COLUMN google_id TEXT")
     except sqlite3.OperationalError:
         pass
     try:
         cursor.execute("ALTER TABLE users ADD COLUMN auth_method TEXT DEFAULT 'password'")
     except sqlite3.OperationalError:
         pass
-    # Index for fast Google ID lookups
-    cursor.execute("CREATE INDEX IF NOT EXISTS idx_users_google_id ON users(google_id)")
+    # Unique index for Google ID lookups (can't use UNIQUE in ALTER TABLE)
+    cursor.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_users_google_id ON users(google_id)")
 
 
 # =========================================================================

@@ -216,7 +216,7 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                     if handle_auth_routes(self, "GET", self.path, {}, strat.db, strat, _send_json, email_service):
                         return
                 except Exception as e:
-                    logger.error(f"Auth route error: {e}")
+                    logger.error(f"Auth route error: {e}", exc_info=True)
                     _send_json(self, {"error": "Server busy, please try again."}, 503)
                     return
 
@@ -390,7 +390,7 @@ def create_handler(strat, auth, frontend_dir, output_dir):
                     # Auth handler declined — stash parsed body for downstream handlers
                     self._stashed_post_data = data
                 except Exception as e:
-                    logger.error(f"Auth route error: {e}")
+                    logger.error(f"Auth route error: {e}", exc_info=True)
                     _send_json(self, {"error": "Server busy, please try again."}, 503)
                     return
 
