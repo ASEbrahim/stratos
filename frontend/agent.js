@@ -140,13 +140,23 @@ async function newAgentChat() {
             _agentActiveConvId = d.id;
             agentHistory = [];
             await _loadConversations(currentPersona);
-            // Clear UI
+            // Clear UI and show welcome with suggestions
             const msgs = document.getElementById('agent-messages');
-            if (msgs) msgs.innerHTML = '';
-            _updatePersonaWelcome();
+            if (msgs) {
+                const theme = PERSONA_THEMES[currentPersona] || PERSONA_THEMES.intelligence;
+                const w = PERSONA_WELCOMES[currentPersona] || PERSONA_WELCOMES.intelligence;
+                msgs.innerHTML = '<div id="agent-welcome" class="flex flex-col items-center py-6 px-2">'
+                    + '<div class="w-12 h-12 rounded-2xl flex items-center justify-center mb-4" style="background:' + theme.bg + '; border:1px solid ' + theme.border + ';">'
+                    + '<i data-lucide="' + theme.icon + '" class="w-6 h-6" style="color:' + theme.color + ';"></i></div>'
+                    + '<p class="text-sm font-semibold mb-1" style="color:var(--text-heading);">' + (w.title || 'New Chat') + '</p>'
+                    + '<p class="text-[11px] mb-5 text-center" style="color:var(--text-muted);">' + (w.desc || 'Try one of these to get started:') + '</p>'
+                    + '<div id="agent-suggestions" class="flex flex-wrap gap-1.5 justify-center max-w-md"></div>'
+                    + '</div>';
+                lucide.createIcons();
+                renderAgentSuggestions();
+            }
             _renderConvTabs();
             if (_agentFullscreen) _refreshFsSidebar();
-            renderAgentSuggestions();
         }
     } catch(e) {}
 }

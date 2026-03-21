@@ -27,7 +27,7 @@ function _gamesHeaders() {
 function updateScenarioBar() {
     const bar = document.getElementById('games-scenario-bar');
     if (!bar) return;
-    if (currentPersona === 'gaming' || currentPersona === 'games' || currentPersona === 'roleplay' || currentPersona === 'scholarly') {
+    if (currentPersona === 'gaming' || currentPersona === 'games' || currentPersona === 'roleplay') {
         bar.classList.remove('hidden');
         _loadScenarios();
     } else {
