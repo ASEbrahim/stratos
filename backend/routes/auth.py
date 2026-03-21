@@ -989,6 +989,11 @@ def _delete_user_data(db, user_id: int):
             'persona_context', 'user_preference_signals', 'user_files',
             'video_insights', 'youtube_videos', 'youtube_channels',
             'narration_sources', 'prompt_templates',
+            # RP expansion tables (Sprint 1-6)
+            'rp_messages', 'rp_edits', 'rp_suggestions', 'rp_feedback',
+            'rp_session_context', 'rp_conversation_scores',
+            'character_cards', 'character_card_stats', 'character_card_ratings',
+            'generated_images',
         ])
         for table in _CLEANUP_TABLES:
             try:
