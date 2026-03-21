@@ -89,9 +89,9 @@ window._switchConversation = _switchConversation;
 
 function _setToggleStyle(btn, active) {
     if (!btn) return;
-    btn.style.background = active ? 'rgba(52,211,153,0.1)' : 'rgba(255,255,255,0.03)';
-    btn.style.color = active ? 'var(--accent,#34d399)' : 'var(--text-muted)';
-    btn.style.borderColor = active ? 'rgba(52,211,153,0.25)' : 'rgba(255,255,255,0.1)';
+    btn.style.background = active ? 'var(--accent-bg, rgba(52,211,153,0.1))' : 'var(--bg-hover, rgba(255,255,255,0.03))';
+    btn.style.color = active ? 'var(--accent-light, #34d399)' : 'var(--text-muted)';
+    btn.style.borderColor = active ? 'var(--accent-border, rgba(52,211,153,0.25))' : 'var(--border, rgba(255,255,255,0.1))';
 }
 
 function _toggleFreeLength() {
