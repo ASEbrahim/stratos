@@ -25,6 +25,7 @@ import logging
 import json
 import os
 import tempfile
+import threading
 from pathlib import Path
 from datetime import datetime, date
 from typing import List, Dict, Any, Optional, Tuple
@@ -55,6 +56,7 @@ class QueryTracker:
 
     def __init__(self):
         self.tracker_file = QUERY_TRACKER_FILE
+        self._lock = threading.Lock()
         self._ensure_data_dir()
         self._load()
 
@@ -121,41 +123,44 @@ class QueryTracker:
         Returns:
             (can_query, remaining, status_message)
         """
-        # Reload to check for new day
-        self._load()
+        with self._lock:
+            # Reload to check for new day
+            self._load()
 
-        remaining = DAILY_LIMIT - self.count
+            remaining = DAILY_LIMIT - self.count
 
-        if remaining <= 0:
-            return False, 0, f"Daily limit reached ({DAILY_LIMIT} queries). Resets at midnight PT."
+            if remaining <= 0:
+                return False, 0, f"Daily limit reached ({DAILY_LIMIT} queries). Resets at midnight PT."
 
-        if self.count >= WARNING_THRESHOLD:
-            return True, remaining, f"Warning: {remaining} queries remaining today"
+            if self.count >= WARNING_THRESHOLD:
+                return True, remaining, f"Warning: {remaining} queries remaining today"
 
-        return True, remaining, "ok"
+            return True, remaining, "ok"
 
     def increment(self, query: str):
         """Record a query."""
-        self.count += 1
-        self.queries.append({
-            'query': query[:100],  # Truncate for storage
-            'time': datetime.now().isoformat()
-        })
-        self._save()
+        with self._lock:
+            self.count += 1
+            self.queries.append({
+                'query': query[:100],  # Truncate for storage
+                'time': datetime.now().isoformat()
+            })
+            self._save()
 
     def get_status(self) -> Dict[str, Any]:
         """Get current usage status."""
-        self._load()
-        remaining = DAILY_LIMIT - self.count
-        return {
-            'date': self.date,
-            'used': self.count,
-            'remaining': remaining,
-            'limit': DAILY_LIMIT,
-            'percentage': round((self.count / DAILY_LIMIT) * 100, 1),
-            'warning': self.count >= WARNING_THRESHOLD,
-            'limit_reached': remaining <= 0
-        }
+        with self._lock:
+            self._load()
+            remaining = DAILY_LIMIT - self.count
+            return {
+                'date': self.date,
+                'used': self.count,
+                'remaining': remaining,
+                'limit': DAILY_LIMIT,
+                'percentage': round((self.count / DAILY_LIMIT) * 100, 1),
+                'warning': self.count >= WARNING_THRESHOLD,
+                'limit_reached': remaining <= 0
+            }
 
 
 class GoogleSearchClient:
