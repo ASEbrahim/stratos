@@ -69,8 +69,19 @@ def _run_git(*args, cwd=None):
         return ''
 
 
+def _validate_path(path):
+    """Validate that a file path resolves within the project directory."""
+    if not path:
+        return False
+    resolved = os.path.realpath(path)
+    return resolved.startswith(_PROJECT_ROOT + os.sep) or resolved == _PROJECT_ROOT
+
+
 def _read_file_tail(path, lines=80):
-    """Read last N lines of a file."""
+    """Read last N lines of a file (restricted to project directory)."""
+    if not _validate_path(path):
+        logger.warning(f"Path validation failed (tail): {path}")
+        return ''
     try:
         with open(path, 'r', encoding='utf-8', errors='replace') as f:
             all_lines = f.readlines()
@@ -81,7 +92,10 @@ def _read_file_tail(path, lines=80):
 
 
 def _read_file_head(path, lines=50):
-    """Read first N lines of a file."""
+    """Read first N lines of a file (restricted to project directory)."""
+    if not _validate_path(path):
+        logger.warning(f"Path validation failed (head): {path}")
+        return ''
     try:
         with open(path, 'r', encoding='utf-8', errors='replace') as f:
             result = []
