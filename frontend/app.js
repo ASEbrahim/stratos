@@ -509,6 +509,16 @@ async function init() {
         console.warn('Could not load config for nav:', e);
     }
 
+    // Onboarding fallback: if status API is slow, trigger onboarding anyway
+    window._onboardingFallbackTimer = setTimeout(function() {
+        if (!window._statusData && localStorage.getItem('stratos-onboarded') !== 'true'
+            && !localStorage.getItem('stratos-onboarding-seen') && !window._onboardingActive) {
+            console.log('onboarding: fallback triggered — status API slow');
+            window._onboardingActive = true;
+            if (typeof _startAgentOnboarding === 'function') _startAgentOnboarding();
+        }
+    }, 3000);
+
     // Prevent status polling from triggering auto-reload during initial load
     isAutoLoading = true;
 
@@ -535,10 +545,23 @@ async function init() {
     // Show notification bell if permission not yet granted
     _updateNotifBellState();
 
-    // Auto-start guided tour for new users (after a delay so page settles)
-    setTimeout(function() {
-        if (typeof maybeStartTour === 'function') maybeStartTour();
-    }, 1200);
+    // Onboarding: detect first-time user from status data
+    // Status was fetched in loadData() — check recent_scans
+    const _isFirstUser = (!window._statusData || !window._statusData.recent_scans || window._statusData.recent_scans.length === 0)
+                         && localStorage.getItem('stratos-onboarded') !== 'true';
+
+    if (_isFirstUser && !localStorage.getItem('stratos-onboarding-seen')) {
+        window._onboardingActive = true;
+        console.log('onboarding: triggered — first-time user detected');
+        setTimeout(function() {
+            if (typeof _startAgentOnboarding === 'function') _startAgentOnboarding();
+        }, 800);
+    } else {
+        // Normal flow — maybe show tour for returning users
+        setTimeout(function() {
+            if (typeof maybeStartTour === 'function') maybeStartTour();
+        }, 1200);
+    }
 
     // Pulse help button for empty profiles
     _pulseHelpIfNew();
@@ -1108,6 +1131,8 @@ async function loadData() {
         const statusResp = await fetch('/api/status', {signal: AbortSignal.timeout(8000)});
         if (!statusResp.ok) { console.error('/api/status failed:', statusResp.status); return; }
         const status = await statusResp.json();
+        window._statusData = status;
+        clearTimeout(window._onboardingFallbackTimer);
         currentDataVersion = status.data_version || data.meta?.generated_at || Date.now().toString();
 
         // Sync avatar from backend (cross-device)
@@ -1493,6 +1518,41 @@ async function _handleSSEComplete(d) {
 
     // Refresh Intelligence Hue (behavioral data changed after scan)
     if (typeof initHue === 'function') initHue();
+
+    // Onboarding: post-scan summary for first-time users
+    if (window._onboardingScanListener) {
+        window._onboardingScanListener = false;
+        console.log('onboarding: scan complete, building summary');
+        var _authToken = typeof getAuthToken === 'function' ? getAuthToken() : '';
+        fetch('/api/data', { headers: { 'X-Auth-Token': _authToken }, signal: AbortSignal.timeout(5000) })
+            .then(function(r) { return r.ok ? r.json() : null; })
+            .then(function(apiData) {
+                var items = apiData && apiData.news ? apiData.news : [];
+                var count = items.length;
+                var high = items.filter(function(n) { return n.score >= 7; }).length;
+                var topArticle = items.length > 0 ? items.reduce(function(a, b) { return (a.score || 0) >= (b.score || 0) ? a : b; }) : null;
+
+                var msg = 'First scan complete';
+                if (count > 0) msg += ' — ' + count + ' signals found';
+                if (high > 0) msg += ', ' + high + ' scored 7+';
+                msg += '.';
+                if (topArticle && topArticle.title) {
+                    msg += '\n\nTop signal: "' + topArticle.title + '"';
+                    if (topArticle.score != null) msg += ' (score: ' + topArticle.score.toFixed(1) + '/10)';
+                }
+                msg += '\n\nSave the articles that matter to you. I\'ll learn your preferences and sharpen future scans.';
+                if (typeof appendAgentMessage === 'function') appendAgentMessage('assistant', typeof formatAgentText === 'function' ? formatAgentText(msg) : msg);
+                localStorage.setItem('stratos-onboarded', 'true');
+                window._onboardingActive = false;
+                console.log('onboarding: complete');
+            })
+            .catch(function(err) {
+                console.warn('onboarding: post-scan fetch failed', err);
+                if (typeof appendAgentMessage === 'function') appendAgentMessage('assistant', typeof formatAgentText === 'function' ? formatAgentText('First scan complete. Check your feed for scored articles — save the ones that matter to you.') : 'First scan complete. Check your feed for scored articles — save the ones that matter to you.');
+                localStorage.setItem('stratos-onboarded', 'true');
+                window._onboardingActive = false;
+            });
+    }
 }
 
 async function _handleSSECancelled(d) {
