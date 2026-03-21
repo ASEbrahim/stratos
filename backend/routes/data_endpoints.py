@@ -1012,9 +1012,15 @@ def handle_post(handler, strat, auth, path):
                 return True
 
             if action == "save":
-                # Save current full config as a preset (no security data)
+                # Save the requesting user's config as a preset (not the global strat.config,
+                # which may belong to a different user in multi-profile scenarios)
                 import copy
-                preset = copy.deepcopy(strat.config)
+                user_profile_file = auth.profiles_dir() / f"{auth.safe_name(current_user)}.yaml"
+                if user_profile_file.exists():
+                    with open(user_profile_file) as _upf:
+                        preset = yaml.safe_load(_upf) or {}
+                else:
+                    preset = copy.deepcopy(strat.config)
                 preset.pop("cache", None)
                 preset.pop("security", None)
                 with open(filepath, "w") as f:
