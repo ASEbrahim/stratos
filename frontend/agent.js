@@ -2289,9 +2289,12 @@ function _buildFsSidebar() {
 
     return `
     <div class="agent-fs-sidebar" style="width:300px;min-width:300px;height:100%;display:flex;flex-direction:column;border-right:1px solid rgba(255,255,255,0.05);">
-        <!-- New Chat button -->
-        <div class="px-4 pt-4 pb-2">
-            <button onclick="newAgentChat()" class="w-full flex items-center gap-2.5 px-4 py-3 rounded-xl text-[14px] font-medium transition-all" style="border:1px solid var(--border-strong);color:var(--text-heading);background:rgba(255,255,255,0.02);" onmouseenter="this.style.borderColor='${theme.color}';this.style.background='${theme.bg}'" onmouseleave="this.style.borderColor='var(--border-strong)';this.style.background='rgba(255,255,255,0.02)'">
+        <!-- Back + New Chat buttons -->
+        <div class="px-4 pt-4 pb-2 flex gap-2">
+            <button onclick="var t=(typeof _previousTab!=='undefined'&&_previousTab)?_previousTab:'dashboard';if(typeof setActive==='function')setActive(t);" class="flex items-center gap-2 px-4 py-3 rounded-xl text-[14px] font-medium transition-all" style="border:1px solid rgba(52,211,153,0.25);color:var(--accent,#34d399);background:rgba(52,211,153,0.06);" onmouseenter="this.style.background='rgba(52,211,153,0.15)';this.style.borderColor='rgba(52,211,153,0.5)'" onmouseleave="this.style.background='rgba(52,211,153,0.06)';this.style.borderColor='rgba(52,211,153,0.25)'" title="Back to previous tab">
+                <i data-lucide="arrow-left" class="w-5 h-5"></i> Back
+            </button>
+            <button onclick="newAgentChat()" class="flex-1 flex items-center gap-2.5 px-4 py-3 rounded-xl text-[14px] font-medium transition-all" style="border:1px solid var(--border-strong);color:var(--text-heading);background:rgba(255,255,255,0.02);" onmouseenter="this.style.borderColor='${theme.color}';this.style.background='${theme.bg}'" onmouseleave="this.style.borderColor='var(--border-strong)';this.style.background='rgba(255,255,255,0.02)'">
                 <i data-lucide="plus" class="w-5 h-5"></i> New Chat
             </button>
         </div>
@@ -2385,9 +2388,12 @@ function toggleAgentFullscreen() {
 
         if (msgs) { msgs.style.height = ''; msgs.style.maxHeight = 'none'; }
 
-        // Show back button, hide chevron and collapse in fullscreen
+        // Hide redundant header buttons in fullscreen (back + new chat are in sidebar)
         var _fsBtn = document.getElementById('agent-fs-btn');
-        if (_fsBtn) _fsBtn.style.display = '';
+        if (_fsBtn) _fsBtn.style.display = 'none';
+        // Hide the + new chat button from card header
+        var _headerBtns = panel.querySelectorAll('button[onclick*="newAgentChat"]');
+        _headerBtns.forEach(function(b) { if (b.closest('.agent-fs-sidebar')) return; b.style.display = 'none'; });
         var _chevron = document.getElementById('agent-chevron');
         if (_chevron) _chevron.style.display = 'none';
         // Hide the divider before chevron
@@ -2435,6 +2441,9 @@ function toggleAgentFullscreen() {
 
         if (msgs) { msgs.style.height = '280px'; msgs.style.maxHeight = '600px'; }
         if (btn) { btn.style.display = 'none'; }
+        // Restore header buttons
+        var _headerNewChat = panel.querySelectorAll('button[onclick*="newAgentChat"]');
+        _headerNewChat.forEach(function(b) { b.style.display = ''; });
         // Restore chevron, divider, and resize handle
         var _chevron = document.getElementById('agent-chevron');
         if (_chevron) _chevron.style.display = '';
