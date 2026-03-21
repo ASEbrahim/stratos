@@ -985,22 +985,33 @@ class NewsFetcher:
         return entity_counts
 
 
+_cached_fetcher: Optional[NewsFetcher] = None
+_cached_fetcher_config_id: Optional[int] = None
+
+
 def fetch_news(config: Dict[str, Any]) -> List[Dict[str, Any]]:
     """
     Convenience function to fetch news from config.
-    
+    Reuses a module-level NewsFetcher instance to preserve cache across calls.
+
     Args:
         config: Full configuration dict
-        
+
     Returns:
         List of news item dicts
     """
+    global _cached_fetcher, _cached_fetcher_config_id
     news_config = config.get("news", {})
     cache_ttl = config.get("cache", {}).get("news_ttl_seconds", 900)
-    
-    fetcher = NewsFetcher(news_config)
-    items = fetcher.fetch_all(cache_ttl_seconds=cache_ttl)
-    
+
+    # Reuse fetcher if config hasn't changed (by identity)
+    config_id = id(config)
+    if _cached_fetcher is None or _cached_fetcher_config_id != config_id:
+        _cached_fetcher = NewsFetcher(news_config)
+        _cached_fetcher_config_id = config_id
+
+    items = _cached_fetcher.fetch_all(cache_ttl_seconds=cache_ttl)
+
     return [item.to_dict() for item in items]
 
 
