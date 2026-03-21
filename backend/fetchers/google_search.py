@@ -23,6 +23,8 @@ Setup required:
 
 import logging
 import json
+import os
+import tempfile
 from pathlib import Path
 from datetime import datetime, date
 from typing import List, Dict, Any, Optional, Tuple
@@ -89,14 +91,26 @@ class QueryTracker:
         self._save()
 
     def _save(self):
-        """Save tracker to file."""
+        """Save tracker to file atomically."""
         try:
-            with open(self.tracker_file, 'w') as f:
-                json.dump({
-                    'date': self.date,
-                    'count': self.count,
-                    'queries': self.queries[-50:]  # Keep last 50 for debugging
-                }, f, indent=2)
+            data = json.dumps({
+                'date': self.date,
+                'count': self.count,
+                'queries': self.queries[-50:]  # Keep last 50 for debugging
+            }, indent=2).encode('utf-8')
+            tracker_dir = str(self.tracker_file.parent)
+            fd, tmp = tempfile.mkstemp(dir=tracker_dir, suffix='.tmp')
+            try:
+                os.write(fd, data)
+                os.close(fd)
+                fd = -1
+                os.replace(tmp, str(self.tracker_file))
+            except BaseException:
+                if fd >= 0:
+                    os.close(fd)
+                if os.path.exists(tmp):
+                    os.unlink(tmp)
+                raise
         except Exception as e:
             logger.warning(f"Failed to save query tracker: {e}")
 
