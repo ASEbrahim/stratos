@@ -349,7 +349,7 @@ async function switchPersona(name) {
         }, 400);
     }
     _renderConvTabs();
-    if (_agentFullscreen) _refreshFsSidebar();
+    if (_agentFullscreen) setTimeout(_refreshFsSidebar, 50);
     renderAgentSuggestions();
     // Update context indicator
     _updateContextBadge(name);
@@ -2387,10 +2387,15 @@ function toggleAgentFullscreen() {
 
         if (msgs) { msgs.style.height = ''; msgs.style.maxHeight = 'none'; }
 
-        // Hide redundant header buttons in fullscreen (back + new chat are in sidebar)
-        // Hide the + new chat button from card header
-        var _headerBtns = panel.querySelectorAll('button[onclick*="newAgentChat"]');
-        _headerBtns.forEach(function(b) { if (b.closest('.agent-fs-sidebar')) return; b.style.display = 'none'; });
+        // Hide redundant header buttons in fullscreen (these exist in the sidebar)
+        var _redundant = ['newAgentChat', 'toggleContextEditor', 'toggleFileBrowser', 'importAgentChat'];
+        _redundant.forEach(function(fn) {
+            panel.querySelectorAll('button[onclick*="' + fn + '"]').forEach(function(b) {
+                if (b.closest('.agent-fs-sidebar')) return;
+                b.dataset.fsHidden = '1';
+                b.style.display = 'none';
+            });
+        });
         var _chevron = document.getElementById('agent-chevron');
         if (_chevron) _chevron.style.display = 'none';
         // Hide the divider before chevron
@@ -2437,9 +2442,11 @@ function toggleAgentFullscreen() {
         }
 
         if (msgs) { msgs.style.height = '280px'; msgs.style.maxHeight = '600px'; }
-        // Restore header buttons
-        var _headerNewChat = panel.querySelectorAll('button[onclick*="newAgentChat"]');
-        _headerNewChat.forEach(function(b) { b.style.display = ''; });
+        // Restore header buttons hidden during fullscreen
+        panel.querySelectorAll('[data-fs-hidden]').forEach(function(b) {
+            delete b.dataset.fsHidden;
+            b.style.display = '';
+        });
         // Restore chevron, divider, and resize handle
         var _chevron = document.getElementById('agent-chevron');
         if (_chevron) _chevron.style.display = '';
