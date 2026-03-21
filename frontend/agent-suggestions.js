@@ -180,10 +180,11 @@ function renderAgentSuggestions() {
                 if (lower.includes(key)) { icon = iconMap[key]; break; }
             }
         }
+        var safeS = s.replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/</g, '&lt;').replace(/>/g, '&gt;');
         var onclick = isDynamic
-            ? "document.getElementById('agent-input').value='" + s.replace(/'/g,"\\'") + "';sendAgentMessage()"
+            ? "document.getElementById('agent-input').value='" + safeS + "';sendAgentMessage()"
             : "sendSuggestion(this)";
-        return '<button onclick="' + onclick + '" class="text-[10px] px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap" style="border:1px solid var(--border-strong); color:var(--text-muted); background:rgba(255,255,255,0.02);" onmouseenter="this.style.borderColor=\'var(--accent,#34d399)\';this.style.color=\'var(--accent,#34d399)\';this.style.background=\'rgba(16,185,129,0.06)\'" onmouseleave="this.style.borderColor=\'var(--border-strong)\';this.style.color=\'var(--text-muted)\';this.style.background=\'rgba(255,255,255,0.02)\'"><i data-lucide="' + icon + '" class="w-3 h-3 opacity-60"></i>' + s + '</button>';
+        return '<button onclick="' + onclick + '" class="text-[10px] px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap" style="border:1px solid var(--border-strong); color:var(--text-muted); background:rgba(255,255,255,0.02);" onmouseenter="this.style.borderColor=\'var(--accent,#34d399)\';this.style.color=\'var(--accent,#34d399)\';this.style.background=\'rgba(16,185,129,0.06)\'" onmouseleave="this.style.borderColor=\'var(--border-strong)\';this.style.color=\'var(--text-muted)\';this.style.background=\'rgba(255,255,255,0.02)\'"><i data-lucide="' + icon + '" class="w-3 h-3 opacity-60"></i>' + safeS + '</button>';
     }).join('');
     lucide.createIcons();
 }
