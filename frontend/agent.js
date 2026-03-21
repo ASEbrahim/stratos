@@ -2385,29 +2385,17 @@ function toggleAgentFullscreen() {
 
         if (msgs) { msgs.style.height = ''; msgs.style.maxHeight = 'none'; }
 
-        // Show back button in header (next to New chat)
-        var _backBtn = document.getElementById('agent-fs-back');
-        if (!_backBtn) {
-            var headerBtns = panel.querySelector('.flex.items-center.gap-0\\.5');
-            if (headerBtns) {
-                _backBtn = document.createElement('button');
-                _backBtn.id = 'agent-fs-back';
-                _backBtn.className = 'flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-medium transition-all cursor-pointer';
-                _backBtn.style.cssText = 'color:var(--accent,#34d399);border:1px solid rgba(52,211,153,0.25);background:rgba(52,211,153,0.06);margin-right:4px;';
-                _backBtn.innerHTML = '<i data-lucide="arrow-left" class="w-3 h-3"></i> Back';
-                _backBtn.title = 'Back to previous tab';
-                _backBtn.onmouseenter = function() { this.style.background = 'rgba(52,211,153,0.15)'; this.style.borderColor = 'rgba(52,211,153,0.5)'; };
-                _backBtn.onmouseleave = function() { this.style.background = 'rgba(52,211,153,0.06)'; this.style.borderColor = 'rgba(52,211,153,0.25)'; };
-                _backBtn.onclick = function(e) {
-                    e.stopPropagation();
-                    var target = (typeof _previousTab !== 'undefined' && _previousTab) ? _previousTab : 'dashboard';
-                    if (typeof setActive === 'function') setActive(target);
-                };
-                headerBtns.insertBefore(_backBtn, headerBtns.firstChild);
-                lucide.createIcons();
-            }
-        }
-        if (_backBtn) _backBtn.style.display = '';
+        // Show back button, hide chevron and collapse in fullscreen
+        var _fsBtn = document.getElementById('agent-fs-btn');
+        if (_fsBtn) _fsBtn.style.display = '';
+        var _chevron = document.getElementById('agent-chevron');
+        if (_chevron) _chevron.style.display = 'none';
+        // Hide the divider before chevron
+        var _divider = _chevron?.previousElementSibling;
+        if (_divider && _divider.classList.contains('w-px')) _divider.style.display = 'none';
+        // Hide drag resize handle in fullscreen
+        var _resizeHandle = document.getElementById('agent-resize-handle');
+        if (_resizeHandle) _resizeHandle.style.display = 'none';
         const tabs = document.getElementById('agent-conv-tabs');
         if (tabs) tabs.style.display = 'none';
         // Apply saved fullscreen customizations
@@ -2446,9 +2434,14 @@ function toggleAgentFullscreen() {
         }
 
         if (msgs) { msgs.style.height = '280px'; msgs.style.maxHeight = '600px'; }
-        if (btn) { btn.style.display = 'none'; btn.title = 'Fullscreen'; }
-        var _backBtn = document.getElementById('agent-fs-back');
-        if (_backBtn) _backBtn.style.display = 'none';
+        if (btn) { btn.style.display = 'none'; }
+        // Restore chevron, divider, and resize handle
+        var _chevron = document.getElementById('agent-chevron');
+        if (_chevron) _chevron.style.display = '';
+        var _divider = _chevron?.previousElementSibling;
+        if (_divider && _divider.classList.contains('w-px')) _divider.style.display = '';
+        var _resizeHandle = document.getElementById('agent-resize-handle');
+        if (_resizeHandle) _resizeHandle.style.display = '';
         const tabs = document.getElementById('agent-conv-tabs');
         if (tabs) tabs.style.display = '';
         _renderConvTabs();
