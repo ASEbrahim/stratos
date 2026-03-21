@@ -42,6 +42,8 @@ class AuthManager:
         '/api/auth/otp-verify': (5, 300),
         '/api/auth/forgot-password': (3, 300),
         '/api/auth/reset-password': (5, 300),
+        '/api/auth/google': (5, 300),
+        '/api/auth/set-password': (3, 300),
         '/api/auth/resend-verification': (3, 300),
         # Wizard rate limits (Ollama resource protection)
         '/api/wizard-preselect': (5, 60),

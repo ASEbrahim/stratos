@@ -426,19 +426,18 @@ def handle_auth_routes(handler, method, path, data, db, strat, send_json, email_
         # Verify Google ID token
         google_client_id = os.environ.get('GOOGLE_OAUTH_CLIENT_ID', '')
         if not google_client_id:
-            send_json(handler, {"error": "Google OAuth not configured"}, status=503)
+            send_json(handler, {"error": "Google OAuth not configured on this server"}, status=503)
             return True
 
         try:
             import requests as req
-            # Verify with Google's tokeninfo endpoint
             r = req.get(f'https://oauth2.googleapis.com/tokeninfo?id_token={id_token}', timeout=5)
             if r.status_code != 200:
+                logger.warning(f"Google tokeninfo returned {r.status_code}")
                 send_json(handler, {"error": "Invalid Google token"}, status=401)
                 return True
             gdata = r.json()
 
-            # Validate audience matches our client ID
             if gdata.get('aud') != google_client_id:
                 send_json(handler, {"error": "Token audience mismatch"}, status=401)
                 return True
@@ -446,7 +445,6 @@ def handle_auth_routes(handler, method, path, data, db, strat, send_json, email_
             google_id = gdata.get('sub', '')
             email = gdata.get('email', '').lower()
             name = gdata.get('name', '') or email.split('@')[0]
-            email_verified = gdata.get('email_verified', 'false') == 'true'
 
             if not google_id or not email:
                 send_json(handler, {"error": "Incomplete Google profile"}, status=400)
@@ -454,7 +452,7 @@ def handle_auth_routes(handler, method, path, data, db, strat, send_json, email_
 
         except Exception as e:
             logger.error(f"Google token verification failed: {e}")
-            send_json(handler, {"error": "Token verification failed"}, status=500)
+            send_json(handler, {"error": "Could not verify Google token. Please try again."}, status=500)
             return True
 
         cursor = db.conn.cursor()
@@ -474,30 +472,38 @@ def handle_auth_routes(handler, method, path, data, db, strat, send_json, email_
             email_row = cursor.fetchone()
             if email_row:
                 user_id, display_name, is_admin = email_row
-                cursor.execute("UPDATE users SET google_id = ?, auth_method = 'google', last_login = ? WHERE id = ?",
+                cursor.execute("UPDATE users SET google_id = ?, auth_method = 'both', last_login = ? WHERE id = ?",
                                (google_id, datetime.now().isoformat(), user_id))
                 logger.info(f"Linked Google account to existing user {user_id} ({email})")
             else:
-                # New user — create account (no password needed)
+                # First user becomes admin
+                cursor.execute("SELECT COUNT(*) FROM users")
+                _user_count = cursor.fetchone()[0]
+
+                # New user — sentinel password hash (never matches any real password)
                 cursor.execute("""
                     INSERT INTO users (email, password_hash, display_name, google_id, auth_method,
-                                       email_verified, created_at, last_login)
-                    VALUES (?, '', ?, ?, 'google', 1, ?, ?)
-                """, (email, name, google_id, datetime.now().isoformat(), datetime.now().isoformat()))
+                                       is_admin, email_verified, created_at, last_login)
+                    VALUES (?, 'GOOGLE_OAUTH', ?, ?, 'google', ?, 1, ?, ?)
+                """, (email, name, google_id, _user_count == 0,
+                      datetime.now().isoformat(), datetime.now().isoformat()))
                 user_id = cursor.lastrowid
                 display_name = name
-                is_admin = False
+                is_admin = (_user_count == 0)
 
                 # Create default profile
                 cursor.execute("""
                     INSERT INTO profiles (user_id, name, is_default, created_at)
                     VALUES (?, 'default', 1, ?)
                 """, (user_id, datetime.now().isoformat()))
-                logger.info(f"New Google user created: {user_id} ({email})")
 
-        # Create session
+                # Create user data directory
+                user_data.ensure_dir(user_id)
+                logger.info(f"New Google user created: {user_id} ({email}), admin={is_admin}")
+
+        # Create session (same TTL as email login)
         token = _generate_token()
-        expires = (datetime.now() + timedelta(days=30)).isoformat()
+        expires = (datetime.now() + timedelta(days=7)).isoformat()
         profile_row = cursor.execute("""
             SELECT id, name, config_overlay FROM profiles WHERE user_id = ?
             ORDER BY is_default DESC, last_active DESC NULLS LAST LIMIT 1
@@ -516,6 +522,10 @@ def handle_auth_routes(handler, method, path, data, db, strat, send_json, email_
             overlay = json.loads(profile_row[2]) if profile_row[2] else {}
             _apply_config_overlay(strat, overlay, profile_name=profile_row[1])
 
+        # Get profile list
+        cursor.execute("SELECT id, name, last_active FROM profiles WHERE user_id = ?", (user_id,))
+        profiles = [{"id": r[0], "name": r[1], "last_active": r[2]} for r in cursor.fetchall()]
+
         send_json(handler, {
             "status": "authenticated",
             "token": token,
@@ -524,6 +534,7 @@ def handle_auth_routes(handler, method, path, data, db, strat, send_json, email_
             "is_admin": bool(is_admin),
             "email_verified": True,
             "active_profile_id": profile_id,
+            "profiles": profiles,
             "ui_state": db.get_ui_state(profile_id),
         })
         return True
@@ -540,9 +551,16 @@ def handle_auth_routes(handler, method, path, data, db, strat, send_json, email_
             send_json(handler, {"error": "Password must not exceed 128 characters"}, status=400)
             return True
         cursor = db.conn.cursor()
-        cursor.execute("SELECT password_hash FROM users WHERE id = ?", (user_id,))
+        cursor.execute("SELECT password_hash, google_id FROM users WHERE id = ?", (user_id,))
         row = cursor.fetchone()
-        if not row or not _verify_password(password, row[0]):
+        if not row:
+            send_json(handler, {"error": "User not found"}, status=404)
+            return True
+        pw_hash, g_id = row
+        # Google-only users (no password set) — allow deletion without password
+        if pw_hash == 'GOOGLE_OAUTH' and g_id:
+            pass  # Authenticated via session token, no password to verify
+        elif not _verify_password(password, pw_hash):
             send_json(handler, {"error": "Incorrect password"}, status=403)
             return True
 
@@ -567,7 +585,7 @@ def handle_auth_routes(handler, method, path, data, db, strat, send_json, email_
             return True
         cursor = db.conn.cursor()
         cursor.execute("""
-            SELECT s.user_id, s.profile_id, s.expires_at, u.display_name, u.is_admin, u.email_verified
+            SELECT s.user_id, s.profile_id, s.expires_at, u.display_name, u.is_admin, u.email_verified, u.auth_method
             FROM sessions s JOIN users u ON s.user_id = u.id
             WHERE s.token = ?
         """, (token,))
@@ -576,7 +594,7 @@ def handle_auth_routes(handler, method, path, data, db, strat, send_json, email_
             send_json(handler, {"authenticated": False}, status=401)
             return True
 
-        user_id, profile_id, _, display_name, is_admin, email_verified = row
+        user_id, profile_id, _, display_name, is_admin, email_verified, auth_method = row
 
         # Sliding expiry
         new_expires = (datetime.now() + timedelta(days=7)).isoformat()
@@ -594,6 +612,7 @@ def handle_auth_routes(handler, method, path, data, db, strat, send_json, email_
             "display_name": display_name,
             "is_admin": bool(is_admin),
             "email_verified": bool(email_verified),
+            "auth_method": auth_method or "password",
             "active_profile_id": profile_id,
             "profiles": profiles,
             "ui_state": db.get_ui_state(profile_id),
@@ -627,6 +646,41 @@ def handle_auth_routes(handler, method, path, data, db, strat, send_json, email_
         cursor.execute("UPDATE users SET password_hash = ? WHERE id = ?", (new_hash, user_id))
         db._commit()
         send_json(handler, {"status": "password_changed"})
+        return True
+
+    if path == "/api/auth/set-password" and method == "POST":
+        # For Google-only users who want to add email+password login
+        token = handler.headers.get("X-Auth-Token", "")
+        user_id = _get_user_from_token(db, token)
+        if not user_id:
+            send_json(handler, {"error": "Not authenticated"}, status=401)
+            return True
+
+        new_password = data.get("new_password", "")
+        if not new_password or len(new_password) < 8:
+            send_json(handler, {"error": "Password must be at least 8 characters"}, status=400)
+            return True
+        if len(new_password) > 128:
+            send_json(handler, {"error": "Password must not exceed 128 characters"}, status=400)
+            return True
+
+        cursor = db.conn.cursor()
+        cursor.execute("SELECT password_hash, auth_method FROM users WHERE id = ?", (user_id,))
+        row = cursor.fetchone()
+        if not row:
+            send_json(handler, {"error": "User not found"}, status=404)
+            return True
+
+        if row[0] and row[0] != 'GOOGLE_OAUTH':
+            send_json(handler, {"error": "Password already set. Use change-password instead."}, status=400)
+            return True
+
+        new_hash = _hash_password(new_password)
+        cursor.execute("UPDATE users SET password_hash = ?, auth_method = 'both' WHERE id = ?",
+                       (new_hash, user_id))
+        db._commit()
+        logger.info(f"Google user {user_id} set a password (now auth_method=both)")
+        send_json(handler, {"status": "password_set"})
         return True
 
     if path == "/api/auth/forgot-password" and method == "POST":
