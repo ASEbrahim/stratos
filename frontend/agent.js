@@ -721,6 +721,13 @@ function toggleAgentChat() {
     } else {
         body.classList.add('hidden');
         chevron.style.transform = '';
+        // Dismiss onboarding if panel is closed during it
+        if (window._onboardingActive) {
+            console.log('onboarding: dismissed via panel close');
+            localStorage.setItem('stratos-onboarded', 'true');
+            window._onboardingActive = false;
+            window._onboardingScanListener = false;
+        }
     }
 }
 
@@ -752,6 +759,38 @@ function showAgentPanel(show) {
     } else {
         panel.classList.add('hidden');
     }
+}
+
+function _startAgentOnboarding() {
+    console.log('onboarding: starting agent onboarding');
+
+    // Set seen flag immediately — prevents re-render on refresh
+    localStorage.setItem('stratos-onboarding-seen', 'true');
+
+    // Open agent panel
+    showAgentPanel(true);
+    _openAgentPanel();
+
+    // Clear existing conversation for fresh onboarding
+    agentHistory = [];
+    const messagesEl = document.getElementById('agent-messages');
+    if (messagesEl) messagesEl.innerHTML = '';
+
+    // Remove welcome suggestions (they're for returning users)
+    const welcome = document.getElementById('agent-welcome');
+    if (welcome) welcome.remove();
+
+    // Insert hardcoded greeting (no API call — zero latency)
+    const greeting = 'Intelligence profile initialized. I\'m your StratOS agent.\n\nTell me what you need to stay ahead of \u2014 your role, your industry, the signals that matter to you. I\'ll configure your feed accordingly.\n\nOr start with one of these:';
+    appendAgentMessage('assistant', typeof formatAgentText === 'function' ? formatAgentText(greeting) : greeting);
+
+    // Render onboarding chips below the greeting
+    if (messagesEl && typeof renderOnboardingChips === 'function') {
+        renderOnboardingChips(messagesEl);
+    }
+
+    // Set listener flag for post-scan summary
+    window._onboardingScanListener = true;
 }
 
 async function checkAgentStatus() {
