@@ -401,6 +401,21 @@ def handle_agent_chat(handler, strat, output_file, profile_id=0):
         role = profile.get("role", "user")
         location = profile.get("location", "")
 
+        # Guard against inheriting stale config.yaml profile for new accounts
+        # A new account with no config_overlay loads base config.yaml which may
+        # have another user's role/location. Check if this profile has its own overlay.
+        if profile_id and profile_id > 0:
+            try:
+                _overlay_row = strat.db.conn.execute(
+                    "SELECT config_overlay FROM profiles WHERE id = ?", (profile_id,)
+                ).fetchone()
+                _overlay = _overlay_row[0] if _overlay_row else None
+                if not _overlay or _overlay in ('{}', 'null', ''):
+                    role = "new user"
+                    location = ""
+            except Exception:
+                pass
+
         serper_available = bool(strat.config.get("search", {}).get("serper_api_key", ""))
         search_note = "You have a web_search tool for real-time Google search." if serper_available else "Web search not configured — feed data only."
 
