@@ -567,9 +567,11 @@ When the user asks what you can do or how to use a feature, reference these natu
                 system_prompt += """
 
 NEW USER CONTEXT: This user just joined. Be welcoming and help them:
-1. Understand their interests so you can configure their feed
-2. Encourage them to run a scan if they haven't yet
-3. Keep it conversational — don't list all features at once"""
+1. Ask about their role/job and location, then use configure_profile to save it
+2. Create categories with keywords using manage_categories (action: create)
+3. Run a scan once categories are set up using run_scan
+4. Keep it conversational — don't list all features at once
+IMPORTANT: Always use configure_profile when the user tells you about themselves."""
         except Exception:
             pass
 
