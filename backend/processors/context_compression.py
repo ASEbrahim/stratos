@@ -15,6 +15,8 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Dict, Any, List, Optional
 
+from llm_provider import get_provider, call_llm
+
 logger = logging.getLogger(__name__)
 
 
@@ -22,6 +24,7 @@ class ContextCompressor:
     """Manages conversation logging and context compression for all personas."""
 
     def __init__(self, config: dict, db=None):
+        self.config = config
         self.base_dir = Path(config.get("system", {}).get("data_dir", "data")) / "users"
         self.db = db
         self.ollama_host = config.get("scoring", {}).get("ollama_host", "http://localhost:11434")
@@ -137,6 +140,20 @@ Write a concise state.md that captures:
 
 Keep it under 500 words. Use markdown headers. Be factual, not creative."""
 
+        # Gemini provider path
+        if get_provider(self.config) == 'gemini':
+            try:
+                messages = [
+                    {"role": "user", "content": f"Update state based on this conversation:\n\n{conv_text}"}
+                ]
+                result = call_llm(self.config, messages, system=system,
+                                  max_tokens=1024, temperature=0.3, use_case='default')
+                if result and result.strip():
+                    self.save_state(profile_id, persona_name, result.strip())
+                    return result.strip()
+            except Exception as e:
+                logger.warning(f"State update Gemini call failed, falling back to Ollama: {e}")
+
         try:
             r = requests.post(
                 f"{self.ollama_host}/api/chat",
@@ -203,13 +220,29 @@ Keep it under 500 words. Use markdown headers. Be factual, not creative."""
         # Truncate for LLM context
         combined = "\n".join(all_text)[:6000]
 
+        compress_system = f"Summarize this week's {persona_name} conversations into a concise weekly digest. Include key topics, decisions, and outcomes. Under 300 words. Use markdown."
+
+        # Gemini provider path
+        if get_provider(self.config) == 'gemini':
+            try:
+                messages = [{"role": "user", "content": combined}]
+                summary = call_llm(self.config, messages, system=compress_system,
+                                   max_tokens=512, temperature=0.3, use_case='default')
+                if summary and summary.strip():
+                    header = f"# Week of {week_start}\n\n"
+                    full = header + summary.strip()
+                    summary_file.write_text(full)
+                    return full
+            except Exception as e:
+                logger.warning(f"Week compression Gemini failed, falling back to Ollama: {e}")
+
         try:
             r = requests.post(
                 f"{self.ollama_host}/api/chat",
                 json={
                     "model": self.model,
                     "messages": [
-                        {"role": "system", "content": f"Summarize this week's {persona_name} conversations into a concise weekly digest. Include key topics, decisions, and outcomes. Under 300 words. Use markdown."},
+                        {"role": "system", "content": compress_system},
                         {"role": "user", "content": combined}
                     ],
                     "stream": False,
