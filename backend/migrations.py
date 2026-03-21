@@ -921,7 +921,7 @@ def migration_030(cursor):
     ]:
         try:
             cursor.execute(f"ALTER TABLE character_cards ADD COLUMN {col} TEXT DEFAULT NULL")
-        except Exception:
+        except sqlite3.OperationalError:
             pass  # column already exists
 
 
@@ -931,7 +931,7 @@ def migration_031(cursor):
     _safe_table('character_cards')
     try:
         cursor.execute("ALTER TABLE character_cards ADD COLUMN narration_style TEXT DEFAULT NULL")
-    except Exception:
+    except sqlite3.OperationalError:
         pass  # column already exists
 
 
@@ -941,7 +941,7 @@ def migration_032(cursor):
     _safe_table('character_cards')
     try:
         cursor.execute("ALTER TABLE character_cards ADD COLUMN personality_tags TEXT DEFAULT NULL")
-    except Exception:
+    except sqlite3.OperationalError:
         pass  # column already exists
 
 
@@ -951,7 +951,7 @@ def migration_033(cursor):
     _safe_table('youtube_videos')
     try:
         cursor.execute("ALTER TABLE youtube_videos ADD COLUMN pinned INTEGER DEFAULT 0")
-    except Exception:
+    except sqlite3.OperationalError:
         pass  # column already exists
 
 
