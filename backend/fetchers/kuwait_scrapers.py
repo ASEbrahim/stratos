@@ -497,17 +497,20 @@ class KuwaitIntelligenceFetcher:
             category_items = []
             with ThreadPoolExecutor(max_workers=3) as executor:
                 futures = {executor.submit(_do_query, q): q for q in queries}
-                for future in as_completed(futures, timeout=120):
-                    try:
-                        results = future.result(timeout=30)
-                        for item in results:
-                            with lock:
-                                if item['url'] not in seen_urls:
-                                    seen_urls.add(item['url'])
-                                    category_items.append(item)
-                    except Exception as e:
-                        q = futures[future]
-                        logger.warning(f"Parallel query failed for '{q[:40]}': {e}")
+                try:
+                    for future in as_completed(futures, timeout=120):
+                        try:
+                            results = future.result(timeout=30)
+                            for item in results:
+                                with lock:
+                                    if item['url'] not in seen_urls:
+                                        seen_urls.add(item['url'])
+                                        category_items.append(item)
+                        except Exception as e:
+                            q = futures[future]
+                            logger.warning(f"Parallel query failed for '{q[:40]}': {e}")
+                except TimeoutError:
+                    logger.warning(f"Category '{category}' timed out after 120s")
 
             all_items.extend(category_items)
             count = len(category_items)
@@ -538,18 +541,21 @@ class KuwaitIntelligenceFetcher:
             with ThreadPoolExecutor(max_workers=3) as executor:
                 futures = {executor.submit(_do_evergreen, q): q for q in evergreen_queries}
                 evergreen_count = 0
-                for future in as_completed(futures, timeout=120):
-                    try:
-                        results = future.result(timeout=30)
-                        for item in results:
-                            with lock:
-                                if item['url'] not in seen_urls:
-                                    seen_urls.add(item['url'])
-                                    all_items.append(item)
-                                    evergreen_count += 1
-                    except Exception as e:
-                        q = futures[future]
-                        logger.warning(f"Evergreen query failed for '{q[:40]}': {e}")
+                try:
+                    for future in as_completed(futures, timeout=120):
+                        try:
+                            results = future.result(timeout=30)
+                            for item in results:
+                                with lock:
+                                    if item['url'] not in seen_urls:
+                                        seen_urls.add(item['url'])
+                                        all_items.append(item)
+                                        evergreen_count += 1
+                        except Exception as e:
+                            q = futures[future]
+                            logger.warning(f"Evergreen query failed for '{q[:40]}': {e}")
+                except TimeoutError:
+                    logger.warning(f"Evergreen queries timed out after 120s")
             logger.info(f"  -> {evergreen_count} K-sector career portal items collected")
         else:
             if not is_kuwait_user:
