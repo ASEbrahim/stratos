@@ -211,17 +211,30 @@ Return ONLY a JSON object:
         from datetime import datetime
         now = datetime.now().strftime("%Y-%m-%d %H:%M")
 
-        # Append to memory
+        # Max characters per entity field — prevents unbounded growth
+        _MAX_ENTITY_FIELD = 8000
+
+        # Append to memory (trim oldest entries if over limit)
         memory = entity.get('memory_md', '') or ''
         summary = update.get('interaction_summary', '')
         if summary:
             memory += f"\n- [{now}] {summary}"
+        if len(memory) > _MAX_ENTITY_FIELD:
+            lines = memory.strip().split('\n')
+            while len('\n'.join(lines)) > _MAX_ENTITY_FIELD and len(lines) > 5:
+                lines.pop(0)
+            memory = '\n'.join(lines)
 
         # Update relationship if changed
         relationship = entity.get('relationship_md', '') or ''
         rel_change = update.get('relationship_change', 'unchanged')
         if rel_change and rel_change != 'unchanged':
             relationship += f"\n- [{now}] {rel_change}"
+        if len(relationship) > _MAX_ENTITY_FIELD:
+            lines = relationship.strip().split('\n')
+            while len('\n'.join(lines)) > _MAX_ENTITY_FIELD and len(lines) > 5:
+                lines.pop(0)
+            relationship = '\n'.join(lines)
 
         # Update knowledge
         knowledge = entity.get('knowledge_md', '') or ''
@@ -230,6 +243,11 @@ Return ONLY a JSON object:
             for item in new_knowledge:
                 if isinstance(item, str) and item.strip():
                     knowledge += f"\n- {item.strip()}"
+        if len(knowledge) > _MAX_ENTITY_FIELD:
+            lines = knowledge.strip().split('\n')
+            while len('\n'.join(lines)) > _MAX_ENTITY_FIELD and len(lines) > 5:
+                lines.pop(0)
+            knowledge = '\n'.join(lines)
 
         cursor.execute(
             "UPDATE persona_entities SET memory_md = ?, relationship_md = ?, knowledge_md = ?, updated_at = ? "
