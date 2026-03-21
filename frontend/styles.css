@@ -3762,11 +3762,22 @@ body.perf-mode .agent-mic-btn.stt-processing { animation: none; }
         overflow: hidden;
     }
 
-    /* 7. Settings fullscreen */
+    /* 7. Settings fullscreen + scrollable tab bar */
     #settings-panel {
         max-width: 100vw !important;
         overflow-x: hidden !important;
     }
+    #settings-panel .flex.gap-1 {
+        overflow-x: auto !important;
+        flex-wrap: nowrap !important;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+    }
+    #settings-panel .flex.gap-1::-webkit-scrollbar { display: none; }
+    /* Stack 2-col grids to single column */
+    #settings-panel .grid { grid-template-columns: 1fr !important; }
+    /* Profile avatar + fields stack vertically */
+    .acct-left, .acct-right { width: 100% !important; }
 
     /* 8. Agent onboarding chips scroll horizontally */
     .agent-onboarding-chips {
