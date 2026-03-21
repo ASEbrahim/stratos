@@ -844,12 +844,12 @@ class NewsFetcher:
                     try:
                         # Parse various timestamp formats
                         ts_clean = ts_str.replace('Z', '+00:00')
+                        from datetime import timezone
                         if '+' in ts_clean or ts_clean.endswith('00:00'):
-                            from datetime import timezone
                             ts = datetime.fromisoformat(ts_clean).replace(tzinfo=None)
                         else:
                             ts = datetime.fromisoformat(ts_clean)
-                        age_hours = (datetime.now() - ts).total_seconds() / 3600
+                        age_hours = (datetime.now(timezone.utc).replace(tzinfo=None) - ts).total_seconds() / 3600
                         if age_hours > max_age_hours:
                             stale_killed += 1
                             continue  # Drop stale item
