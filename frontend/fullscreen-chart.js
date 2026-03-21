@@ -602,16 +602,16 @@ function _openFullscreenChartInner(sourceEl, title) {
             e.preventDefault();
             _ipStart(e.clientY);
         });
-        document.addEventListener('mousemove', function(e) { _ipMove(e.clientY); });
+        var _ipMouseMove = function(e) { _ipMove(e.clientY); };
+        var _ipTouchMove = function(e) { if (_ipDragging) _ipMove(e.touches[0].clientY); };
+        document.addEventListener('mousemove', _ipMouseMove);
         document.addEventListener('mouseup', _ipEnd);
 
         /* Touch */
         intelGrip.addEventListener('touchstart', function(e) {
             _ipStart(e.touches[0].clientY);
         }, { passive: true });
-        document.addEventListener('touchmove', function(e) {
-            if (_ipDragging) _ipMove(e.touches[0].clientY);
-        }, { passive: true });
+        document.addEventListener('touchmove', _ipTouchMove, { passive: true });
         document.addEventListener('touchend', _ipEnd);
 
         /* Double-click toggle */
@@ -2341,6 +2341,10 @@ function _openFullscreenChartInner(sourceEl, title) {
         window.removeEventListener('popstate', onPop);
         document.removeEventListener('keydown', onEsc);
         if (_fsKeysHandler) document.removeEventListener('keydown', _fsKeysHandler);
+        document.removeEventListener('mousemove', _ipMouseMove);
+        document.removeEventListener('mouseup', _ipEnd);
+        document.removeEventListener('touchmove', _ipTouchMove);
+        document.removeEventListener('touchend', _ipEnd);
         window._fs = null;
         _fs = null;
         /* Sync main chart with latest data from focus mode */
