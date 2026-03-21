@@ -1640,7 +1640,8 @@ function formatAgentText(text) {
     // Re-inject fenced code blocks
     codeBlocks.forEach((block, i) => {
         const escaped = block.code.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-        const langBadge = block.lang ? `<span class="absolute top-1.5 right-2 text-[9px] font-mono" style="color:var(--text-muted);opacity:0.5;">${block.lang}</span>` : '';
+        const safeLang = block.lang ? block.lang.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;') : '';
+        const langBadge = safeLang ? `<span class="absolute top-1.5 right-2 text-[9px] font-mono" style="color:var(--text-muted);opacity:0.5;">${safeLang}</span>` : '';
         html = html.replace(`\x00CODEBLOCK_${i}\x00`,
             `<div class="relative my-2 rounded-lg overflow-hidden" style="background:rgba(0,0,0,0.3);border:1px solid var(--border-strong);">${langBadge}<pre class="p-3 overflow-x-auto text-[11px] leading-relaxed font-mono" style="color:#e2e8f0;"><code>${escaped}</code></pre></div>`);
     });
@@ -1662,7 +1663,7 @@ function formatAgentText(text) {
             .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
             .replace(/\*\*(.+?)\*\*/g, '<strong class="text-slate-100">$1</strong>');
         const buttonsHtml = block.options.map((opt, j) => {
-            const safeText = opt.text.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+            const safeText = opt.text.replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
             return `<button onclick="sendAgentOption(this, '${safeText}')" class="agent-option-btn flex items-center gap-2 w-full text-left px-3 py-2 rounded-lg text-[11px] transition-all" style="background:rgba(255,255,255,0.03);border:1px solid var(--border-strong);color:var(--text-secondary);animation:fadeIn ${0.15 + j * 0.08}s ease;" onmouseenter="this.style.borderColor='${theme.color}';this.style.background='${theme.bg}';this.style.color='${theme.color}'" onmouseleave="this.style.borderColor='var(--border-strong)';this.style.background='rgba(255,255,255,0.03)';this.style.color='var(--text-secondary)'">
                 <span class="flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold" style="background:${theme.bg};color:${theme.color};border:1px solid ${theme.color}40;">${opt.num}</span>
                 <span>${opt.text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')}</span>
