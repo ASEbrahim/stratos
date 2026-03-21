@@ -176,6 +176,14 @@ def handle_post(handler, strat, auth, path):
             filename = os.path.basename(filename).replace('\x00', '')
             if not filename or filename.startswith('.'):
                 filename = 'upload.txt'
+            # File type allowlist — block executable/dangerous extensions
+            _BLOCKED_EXT = {'.py', '.pyc', '.pyo', '.sh', '.bash', '.bat', '.cmd', '.exe',
+                           '.dll', '.so', '.php', '.jsp', '.cgi', '.pl', '.rb', '.js',
+                           '.mjs', '.htm', '.html', '.xhtml', '.svg', '.swf'}
+            ext = os.path.splitext(filename)[1].lower()
+            if ext in _BLOCKED_EXT:
+                _send_json(handler, {"error": f"File type '{ext}' not allowed"}, 400)
+                return True
             persona = handler.headers.get('X-Persona', '')
             fh = FileHandler(strat.config, db=strat.db)
             result = fh.save_file(handler._profile_id, filename, file_data, persona=persona)
