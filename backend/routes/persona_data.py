@@ -14,6 +14,18 @@ logger = logging.getLogger("STRAT_OS")
 
 MAX_TITLE_LEN = 200    # Max length for conversation titles, scenario names
 MAX_CONTENT_LEN = 50000  # Max length for message content, entity markdown fields
+MAX_BODY_SIZE = 2 * 1024 * 1024  # 2 MB max request body for persona data endpoints
+
+
+def _read_body(handler, max_size=MAX_BODY_SIZE):
+    """Read and parse JSON body with size validation. Returns dict or empty dict."""
+    content_length = int(handler.headers.get('Content-Length', 0))
+    if content_length <= 0:
+        return {}
+    if content_length > max_size:
+        return None  # Caller should return 413
+    raw = handler.rfile.read(content_length)
+    return json.loads(raw.decode()) if raw else {}
 
 
 def _sanitize_name(name):
@@ -241,7 +253,10 @@ def handle_post(handler, strat, auth, path):
     if path.startswith("/api/persona-context"):
         from processors.persona_context import PersonaContextManager
         pcm = PersonaContextManager(strat.config, db=strat.db)
-        body = json.loads(handler.rfile.read(int(handler.headers.get('Content-Length', 0))).decode()) if int(handler.headers.get('Content-Length', 0)) > 0 else {}
+        body = _read_body(handler)
+        if body is None:
+            _send_json(handler, {"error": "Request body too large"}, 413)
+            return True
 
         if path == '/api/persona-context':
             persona = body.get('persona', '')
@@ -266,8 +281,10 @@ def handle_post(handler, strat, auth, path):
         from urllib.parse import urlparse
         parsed_url = urlparse(handler.path)
         path_parts = parsed_url.path.rstrip('/').split('/')
-        content_length = int(handler.headers.get('Content-Length', 0))
-        body = json.loads(handler.rfile.read(content_length).decode()) if content_length > 0 else {}
+        body = _read_body(handler)
+        if body is None:
+            _send_json(handler, {"error": "Request body too large"}, 413)
+            return True
         cursor = strat.db.conn.cursor()
 
         # POST /api/conversations — create new
@@ -347,7 +364,7 @@ def handle_post(handler, strat, auth, path):
             messages.append({
                 "id": f"msg_{len(messages)+1}",
                 "role": body.get('role', 'user'),
-                "content": body.get('content', ''),
+                "content": body.get('content', '')[:MAX_CONTENT_LEN],
                 "timestamp": datetime.now().isoformat()
             })
             cursor.execute("UPDATE conversations SET messages = ?, updated_at = ? WHERE id = ?",
@@ -363,7 +380,10 @@ def handle_post(handler, strat, auth, path):
     if path.startswith("/api/scenarios"):
         from processors.scenarios import ScenarioManager
         sm = ScenarioManager(strat.config, db=strat.db)
-        body = json.loads(handler.rfile.read(int(handler.headers.get('Content-Length', 0))).decode()) if int(handler.headers.get('Content-Length', 0)) > 0 else {}
+        body = _read_body(handler)
+        if body is None:
+            _send_json(handler, {"error": "Request body too large"}, 413)
+            return True
 
         if path == "/api/scenarios/create":
             name_raw = body.get('name', '')[:MAX_TITLE_LEN]
@@ -497,7 +517,10 @@ def handle_post(handler, strat, auth, path):
         parts = path.split("/")
         if len(parts) >= 5:
             persona = parts[3]
-            body = json.loads(handler.rfile.read(int(handler.headers.get('Content-Length', 0))).decode()) if int(handler.headers.get('Content-Length', 0)) > 0 else {}
+            body = _read_body(handler)
+            if body is None:
+                _send_json(handler, {"error": "Request body too large"}, 413)
+                return True
             scenario = body.get('scenario', '')
             name = body.get('name', '').strip().lower().replace(' ', '_')
             display_name = body.get('display_name', body.get('name', '')).strip()
@@ -558,7 +581,10 @@ def handle_post(handler, strat, auth, path):
     # ── Context compression POST ────────────────────
     if path == "/api/conversation-log":
         from processors.context_compression import ContextCompressor
-        body = json.loads(handler.rfile.read(int(handler.headers.get('Content-Length', 0))).decode()) if int(handler.headers.get('Content-Length', 0)) > 0 else {}
+        body = _read_body(handler)
+        if body is None:
+            _send_json(handler, {"error": "Request body too large"}, 413)
+            return True
         try:
             cc = ContextCompressor(strat.config, db=strat.db)
             persona = body.get('persona', 'intelligence')
@@ -571,7 +597,10 @@ def handle_post(handler, strat, auth, path):
 
     if path == "/api/update-state":
         from processors.context_compression import ContextCompressor
-        body = json.loads(handler.rfile.read(int(handler.headers.get('Content-Length', 0))).decode()) if int(handler.headers.get('Content-Length', 0)) > 0 else {}
+        body = _read_body(handler)
+        if body is None:
+            _send_json(handler, {"error": "Request body too large"}, 413)
+            return True
         try:
             cc = ContextCompressor(strat.config, db=strat.db)
             persona = body.get('persona', 'intelligence')
@@ -634,7 +663,10 @@ def handle_post(handler, strat, auth, path):
 
     # ── Preference signals POST ─────────────────────
     if path == "/api/preference-signals":
-        body = json.loads(handler.rfile.read(int(handler.headers.get('Content-Length', 0))).decode()) if int(handler.headers.get('Content-Length', 0)) > 0 else {}
+        body = _read_body(handler)
+        if body is None:
+            _send_json(handler, {"error": "Request body too large"}, 413)
+            return True
         try:
             cursor = strat.db.conn.cursor()
             cursor.execute(
