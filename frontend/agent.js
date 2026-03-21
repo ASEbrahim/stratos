@@ -2345,11 +2345,32 @@ function _refreshFsSidebar() {
     if (!_agentFullscreen) return;
     const existing = document.querySelector('.agent-fs-sidebar');
     if (!existing) return;
-    // Rebuild sidebar from current _agentConvList (already loaded by caller)
-    const wrapper = existing.parentElement;
-    if (wrapper) {
-        existing.remove();
-        wrapper.insertAdjacentHTML('afterbegin', _buildFsSidebar());
+
+    // Update persona highlights in-place (no DOM rebuild)
+    const theme = PERSONA_THEMES[currentPersona] || PERSONA_THEMES.intelligence;
+    existing.querySelectorAll('button[onclick^="switchPersona"]').forEach(function(btn) {
+        var key = btn.getAttribute('onclick').match(/'([^']+)'/);
+        if (!key) return;
+        key = key[1];
+        var t = PERSONA_THEMES[key] || PERSONA_THEMES.intelligence;
+        var active = key === currentPersona;
+        btn.style.background = active ? t.bg : 'transparent';
+        btn.style.color = active ? t.color : 'var(--text-muted)';
+    });
+
+    // Rebuild only the conversation list (lightweight)
+    var chatsContainer = existing.querySelector('.overflow-y-auto > div:last-child');
+    if (chatsContainer) {
+        var convItems = _agentConvList.map(function(c) {
+            var active = c.id === _agentActiveConvId;
+            var title = (c.title || 'New Chat').length > 28 ? (c.title || 'New Chat').slice(0, 26) + '…' : (c.title || 'New Chat');
+            var safeTitle = title.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            return '<div class="group flex items-center gap-2.5 px-3 py-2.5 rounded-lg cursor-pointer transition-all" style="background:' + (active ? 'rgba(255,255,255,0.06)' : 'transparent') + ';" onclick="_switchConversation(' + c.id + ')" ondblclick="event.stopPropagation();_renameConversation(' + c.id + ')" title="Double-click to rename">'
+                + '<i data-lucide="message-square" class="w-4 h-4 flex-shrink-0" style="color:' + (active ? theme.color : 'var(--text-muted)') + ';"></i>'
+                + '<span class="flex-1 text-[13px] truncate" style="color:' + (active ? 'var(--text-heading)' : 'var(--text-muted)') + ';">' + safeTitle + '</span>'
+                + '</div>';
+        }).join('');
+        chatsContainer.innerHTML = convItems;
         lucide.createIcons();
     }
 }
