@@ -2384,9 +2384,28 @@ function toggleAgentFullscreen() {
         }
 
         if (msgs) { msgs.style.height = ''; msgs.style.maxHeight = 'none'; }
-        if (btn) btn.title = 'Exit fullscreen (Esc)';
-        const icon = btn?.querySelector('[data-lucide]');
-        if (icon) { icon.setAttribute('data-lucide', 'minimize-2'); lucide.createIcons(); }
+
+        // Add prominent back button at top of fullscreen
+        var _backBtn = document.getElementById('agent-fs-back');
+        if (!_backBtn) {
+            _backBtn = document.createElement('button');
+            _backBtn.id = 'agent-fs-back';
+            _backBtn.className = 'flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all cursor-pointer';
+            _backBtn.style.cssText = 'position:fixed;top:16px;left:16px;z-index:10001;background:var(--accent,#10b981);color:var(--bg-primary,#0f172a);border:none;box-shadow:0 4px 16px rgba(16,185,129,0.3);';
+            _backBtn.innerHTML = '<i data-lucide="arrow-left" class="w-4 h-4"></i> Back';
+            _backBtn.onmouseenter = function() { this.style.opacity = '0.85'; this.style.transform = 'scale(1.05)'; };
+            _backBtn.onmouseleave = function() { this.style.opacity = '1'; this.style.transform = 'scale(1)'; };
+            _backBtn.onclick = function() {
+                if (typeof activeRoot !== 'undefined' && activeRoot === 'strat_agent') {
+                    setActive('dashboard');
+                } else if (typeof toggleAgentFullscreen === 'function') {
+                    toggleAgentFullscreen();
+                }
+            };
+            document.body.appendChild(_backBtn);
+            lucide.createIcons();
+        }
+        _backBtn.style.display = '';
         const tabs = document.getElementById('agent-conv-tabs');
         if (tabs) tabs.style.display = 'none';
         // Apply saved fullscreen customizations
@@ -2425,9 +2444,9 @@ function toggleAgentFullscreen() {
         }
 
         if (msgs) { msgs.style.height = '280px'; msgs.style.maxHeight = '600px'; }
-        if (btn) btn.title = 'Fullscreen';
-        const icon = btn?.querySelector('[data-lucide]');
-        if (icon) { icon.setAttribute('data-lucide', 'maximize-2'); lucide.createIcons(); }
+        if (btn) { btn.style.display = 'none'; btn.title = 'Fullscreen'; }
+        var _backBtn = document.getElementById('agent-fs-back');
+        if (_backBtn) _backBtn.style.display = 'none';
         const tabs = document.getElementById('agent-conv-tabs');
         if (tabs) tabs.style.display = '';
         _renderConvTabs();

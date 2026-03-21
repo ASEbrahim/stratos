@@ -370,10 +370,9 @@ function renderFeed() {
     // Render top movers (dashboard only)
     if (typeof renderAlerts === 'function') renderAlerts();
     
-    // Agent panel now has its own nav tab — hide from dashboard feed
-    // (keep the panel visible only when strat_agent tab is active)
-    if (typeof showAgentPanel === 'function' && activeRoot !== 'strat_agent') {
-        showAgentPanel(false);
+    // Show agent panel on dashboard (full width) and strat_agent tab
+    if (typeof showAgentPanel === 'function') {
+        showAgentPanel(activeRoot === 'dashboard' || activeRoot === 'strat_agent');
     }
     
     // Show/hide controls appropriately
