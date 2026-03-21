@@ -35,6 +35,7 @@ class BriefingGenerator:
 
         self.model = scoring_config.get("wizard_model") or scoring_config.get("inference_model", "qwen3.5:9b")
         self.host = scoring_config.get("ollama_host", "http://localhost:11434")
+        self.config = config  # Full config for llm_provider
         self._available = None
         self._session = requests.Session()  # Connection pooling for Ollama
 
@@ -157,12 +158,30 @@ Do NOT include items just because they scored high — they must be relevant to 
     
     def _call_ollama(self, prompt: str, max_tokens: int = 500,
                      strip_reasoning: bool = True) -> Optional[str]:
-        """Make a request to Ollama.
+        """Make a request to Ollama (or Gemini via llm_provider).
 
         Args:
             strip_reasoning: If True, strip reasoning preamble (for natural language).
                 If False, skip reasoning stripping (for JSON responses).
+
+        Tries llm_provider first (supports Gemini on VPS); falls back to Ollama.
         """
+        # Try provider abstraction first (supports Gemini on VPS)
+        try:
+            from llm_provider import call_llm, get_provider
+            if get_provider(self.config) == 'gemini':
+                result = call_llm(self.config, prompt, system=self.system_prompt,
+                                  max_tokens=max_tokens, temperature=0.7,
+                                  timeout=150, use_case='chat')
+                if result is not None:
+                    result = strip_think_blocks(result)
+                    if strip_reasoning:
+                        result = strip_reasoning_preamble(result)
+                    return result
+        except Exception:
+            pass  # Fall through to Ollama
+
+        # Original Ollama implementation
         try:
             response = self._session.post(
                 f"{self.host}/api/chat",
