@@ -702,10 +702,6 @@ def handle_post(handler, strat, auth, path):
             with _sq.connect(_db_path) as _rc:
                 _rc.row_factory = _sq.Row
                 _rc.execute("PRAGMA busy_timeout = 5000")
-                _rc.execute(
-                    "SELECT id, video_id, title, profile_id FROM youtube_videos WHERE id = ? AND profile_id = ?",
-                    (int(video_id), handler._profile_id)
-                )
                 vrow = _rc.execute(
                     "SELECT id, video_id, title, profile_id FROM youtube_videos WHERE id = ? AND profile_id = ?",
                     (int(video_id), handler._profile_id)
