@@ -102,14 +102,14 @@ AGENT_TOOLS = [
         "type": "function",
         "function": {
             "name": "manage_categories",
-            "description": "View, modify, or toggle the user's news feed categories and their search keywords. Use when the user asks about categories, wants to add/remove search terms, or enable/disable a category. Understand natural language: 'what topics am I tracking' = list, 'add Ethereum to crypto' = add_keyword, 'turn off oil and gas' = disable.",
+            "description": "View, create, modify, or toggle the user's news feed categories and their search keywords. Use when the user asks about categories, wants to add/remove search terms, create a new category, or enable/disable a category. Understand natural language: 'what topics am I tracking' = list, 'add Ethereum to crypto' = add_keyword, 'turn off oil and gas' = disable, 'create a tech category' = create.",
             "parameters": {
                 "type": "object",
                 "properties": {
                     "action": {
                         "type": "string",
-                        "enum": ["list", "show_keywords", "add_keyword", "remove_keyword", "enable", "disable"],
-                        "description": "list = all categories, show_keywords = keywords in one category, add/remove_keyword = modify keywords, enable/disable = toggle"
+                        "enum": ["list", "show_keywords", "add_keyword", "remove_keyword", "enable", "disable", "create"],
+                        "description": "list = all categories, show_keywords = keywords in one category, add/remove_keyword = modify keywords, enable/disable = toggle, create = create new category"
                     },
                     "category": {
                         "type": "string",
@@ -268,6 +268,43 @@ AGENT_TOOLS = [
     {
         "type": "function",
         "function": {
+            "name": "configure_profile",
+            "description": "Set or update the user's profile information: role, location, and context. Use when the user tells you about themselves, their job, where they live, or what they do. Examples: 'I'm a software engineer in Kuwait' = set role and location, 'I work in finance' = set role. Always use this when the user describes themselves during onboarding.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "role": {
+                        "type": "string",
+                        "description": "User's job title or role (e.g. 'Software Engineer', 'Data Analyst', 'Student')"
+                    },
+                    "location": {
+                        "type": "string",
+                        "description": "User's location (e.g. 'Kuwait', 'New York', 'London')"
+                    },
+                    "context": {
+                        "type": "string",
+                        "description": "Additional context about the user's interests or responsibilities"
+                    }
+                },
+                "required": []
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "run_scan",
+            "description": "Trigger a news scan to fetch and score articles based on the user's categories and keywords. Use when the user asks to scan, refresh their feed, or get new articles. The scan runs in the background and takes about a minute.",
+            "parameters": {
+                "type": "object",
+                "properties": {},
+                "required": []
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
             "name": "analyze_image",
             "description": "Analyze an uploaded image or PDF using OCR/vision. Extracts text from the image and provides analysis. Use when the user asks to read, analyze, extract text from, or describe an uploaded image or document. The user must have uploaded the file first via the file manager.",
             "parameters": {
@@ -328,6 +365,10 @@ def execute_tool(tool_name, args, strat, profile_id=0, persona=''):
             return _tool_read_url(args, strat)
         elif tool_name == "import_canon_world":
             return _tool_import_canon_world(args, strat, profile_id=profile_id)
+        elif tool_name == "configure_profile":
+            return _tool_configure_profile(args, strat, profile_id=profile_id)
+        elif tool_name == "run_scan":
+            return _tool_run_scan(args, strat, profile_id=profile_id)
         elif tool_name == "analyze_image":
             return _tool_analyze_image(args, strat, profile_id=profile_id, persona=persona)
         else:
@@ -544,10 +585,24 @@ def _tool_manage_categories(args, strat, profile_id=0):
         lines = [f"- {c.get('label','?')} ({'on' if c.get('enabled',True) else 'off'}, {len(c.get('items',[]))} kw)" for c in categories]
         return f"Categories ({len(categories)}):\n" + "\n".join(lines)
 
+    if action == "create":
+        if not cat_query:
+            return "Provide a category name to create."
+        # Check if already exists
+        existing = _fuzzy_find_category(categories, cat_query)
+        if existing:
+            return f"Category '{existing.get('label','')}' already exists with {len(existing.get('items',[]))} keywords."
+        cat_id = re.sub(r'[^a-z0-9_]', '_', cat_query.lower().strip())
+        new_cat = {"label": cat_query.strip(), "id": cat_id, "enabled": True, "items": keywords or []}
+        categories.append(new_cat)
+        _save_categories(strat, categories, profile_id)
+        kw_note = f" with keywords: {', '.join(keywords)}" if keywords else " (no keywords yet — use add_keyword to add some)"
+        return f"Created category '{cat_query}'{kw_note}."
+
     cat = _fuzzy_find_category(categories, cat_query)
     if not cat:
         names = ", ".join(c.get("label", "?") for c in categories)
-        return f"No category matching '{cat_query}'. Available: {names}"
+        return f"No category matching '{cat_query}'. Available: {names}" if names else f"No categories exist yet. Use action='create' to create one."
 
     if action == "show_keywords":
         items = cat.get("items", [])
@@ -610,6 +665,51 @@ def _save_tickers(strat, symbols, profile_id=0):
 def _save_categories(strat, categories, profile_id=0):
     strat.config["dynamic_categories"] = categories
     _sync_profile_overlay(strat, profile_id)
+
+
+def _tool_configure_profile(args, strat, profile_id=0):
+    """Set user's role, location, and/or context."""
+    role = args.get("role", "").strip()
+    location = args.get("location", "").strip()
+    context = args.get("context", "").strip()
+
+    if not role and not location and not context:
+        # Return current profile
+        p = strat.config.get("profile", {})
+        return f"Current profile: role='{p.get('role','')}', location='{p.get('location','')}', context='{p.get('context','')}'."
+
+    if "profile" not in strat.config:
+        strat.config["profile"] = {}
+    changes = []
+    if role:
+        strat.config["profile"]["role"] = role
+        changes.append(f"role='{role}'")
+    if location:
+        strat.config["profile"]["location"] = location
+        changes.append(f"location='{location}'")
+    if context:
+        strat.config["profile"]["context"] = context
+        changes.append(f"context='{context}'")
+
+    _sync_profile_overlay(strat, profile_id)
+    return f"Profile updated: {', '.join(changes)}."
+
+
+def _tool_run_scan(args, strat, profile_id=0):
+    """Trigger a news scan in the background."""
+    import threading
+    try:
+        def _bg_scan():
+            try:
+                strat.run_scan(profile_id=profile_id)
+            except Exception as e:
+                logger.error(f"Agent-triggered scan failed: {e}")
+        t = threading.Thread(target=_bg_scan, daemon=True)
+        t.start()
+        return "Scan started in the background. It will take about a minute to fetch and score articles. The feed will update automatically when done."
+    except Exception as e:
+        logger.error(f"Failed to start scan: {e}")
+        return f"Failed to start scan: check server logs."
 
 
 def _sync_profile_overlay(strat, profile_id=0):

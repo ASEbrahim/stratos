@@ -259,6 +259,14 @@ class StratOS:
                 return  # Profile doesn't exist in DB
             # Start from base config, apply overlay (if any)
             base = self._load_config()
+            # Inject env var secrets (serper, google keys) — _load_config only reads YAML
+            _search = base.setdefault('search', {})
+            if os.environ.get('SERPER_API_KEY'):
+                _search['serper_api_key'] = os.environ['SERPER_API_KEY']
+            if os.environ.get('GOOGLE_API_KEY'):
+                _search['google_api_key'] = os.environ['GOOGLE_API_KEY']
+            if os.environ.get('GOOGLE_CSE_ID'):
+                _search['google_cx'] = os.environ['GOOGLE_CSE_ID']
             if row[0]:
                 import json as _json
                 overlay = _json.loads(row[0])
