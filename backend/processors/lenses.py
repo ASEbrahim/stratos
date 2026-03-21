@@ -17,6 +17,8 @@ import re
 import requests
 from typing import Dict, Any, Optional, List
 
+from llm_provider import get_provider, call_llm
+
 logger = logging.getLogger(__name__)
 
 # Max transcript chars to send per lens call (prevents context overflow for 9B)
@@ -141,7 +143,8 @@ def _build_language_instruction(target_language: str) -> str:
 
 def extract_lens(transcript: str, lens_name: str, video_title: str,
                  ollama_host: str, model: str,
-                 target_language: str = 'en') -> Optional[Any]:
+                 target_language: str = 'en',
+                 config: dict = None) -> Optional[Any]:
     """Run a single lens extraction against a transcript.
 
     Args:
@@ -151,6 +154,7 @@ def extract_lens(transcript: str, lens_name: str, video_title: str,
         ollama_host: Ollama API host
         model: Model name (e.g., 'qwen3.5:9b')
         target_language: Language to extract in ('en', 'ar', 'ja', etc.)
+        config: StratOS config dict (enables Gemini fallback when provider is gemini)
 
     Returns:
         Parsed JSON result (dict or list) or None on failure
@@ -163,13 +167,24 @@ def extract_lens(transcript: str, lens_name: str, video_title: str,
 
     # Chunk transcript if too long
     if len(transcript) > MAX_TRANSCRIPT_CHUNK:
-        return _extract_lens_chunked(transcript, lens_name, video_title, ollama_host, model, target_language)
+        return _extract_lens_chunked(transcript, lens_name, video_title, ollama_host, model, target_language, config)
 
     # Build language instruction
     lang_instruction = _build_language_instruction(target_language)
     user_prompt = lens['user'].format(title=video_title, transcript=transcript)
     if lang_instruction:
         user_prompt += f'\n\n{lang_instruction}'
+
+    # Gemini provider path
+    if config and get_provider(config) == 'gemini':
+        try:
+            messages = [{"role": "user", "content": user_prompt}]
+            result = call_llm(config, messages, system=lens['system'],
+                              max_tokens=2000, temperature=0.2, use_case='default')
+            if result:
+                return _parse_json_response(result, lens_name)
+        except Exception as e:
+            logger.warning(f"Lens '{lens_name}' Gemini failed, falling back to Ollama: {e}")
 
     try:
         resp = requests.post(
@@ -201,14 +216,15 @@ def extract_lens(transcript: str, lens_name: str, video_title: str,
 
 def _extract_lens_chunked(transcript: str, lens_name: str, video_title: str,
                           ollama_host: str, model: str,
-                          target_language: str = 'en') -> Optional[Any]:
+                          target_language: str = 'en',
+                          config: dict = None) -> Optional[Any]:
     """Process long transcripts in chunks, then merge results."""
     chunks = _split_transcript(transcript, MAX_TRANSCRIPT_CHUNK)
     all_results = []
 
     for i, chunk in enumerate(chunks):
         chunk_title = f"{video_title} (part {i+1}/{len(chunks)})"
-        result = extract_lens(chunk, lens_name, chunk_title, ollama_host, model, target_language)
+        result = extract_lens(chunk, lens_name, chunk_title, ollama_host, model, target_language, config=config)
         if result:
             if isinstance(result, list):
                 all_results.extend(result)
