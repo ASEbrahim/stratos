@@ -329,5 +329,5 @@ tickers:
 - ^GSPC
 ui_preferences:
   density: comfortable
-  font_size: medium
+  font_size: small
   auto_refresh: 0
