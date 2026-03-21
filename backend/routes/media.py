@@ -14,6 +14,19 @@ import requests
 
 logger = logging.getLogger("STRAT_OS")
 
+_MAX_JSON_BODY = 2 * 1024 * 1024  # 2 MB max for JSON body reads
+
+
+def _read_json_body(handler, max_size=_MAX_JSON_BODY):
+    """Read and parse JSON body with size validation."""
+    content_length = int(handler.headers.get('Content-Length', 0))
+    if content_length <= 0:
+        return {}
+    if content_length > max_size:
+        return None  # Caller should return 413
+    raw = handler.rfile.read(content_length)
+    return json.loads(raw.decode()) if raw else {}
+
 
 def _pcm_to_wav(pcm_data: bytes, sample_rate: int = 22050,
                 channels: int = 1, bits_per_sample: int = 16) -> bytes:
@@ -184,7 +197,10 @@ def handle_post(handler, strat, auth, path):
     if path == "/api/files/list":
         try:
             from processors.file_handler import FileHandler
-            body = json.loads(handler.rfile.read(int(handler.headers.get('Content-Length', 0))).decode()) if int(handler.headers.get('Content-Length', 0)) > 0 else {}
+            body = _read_json_body(handler)
+            if body is None:
+                _send_json(handler, {"error": "Request body too large"}, 413)
+                return True
             fh = FileHandler(strat.config, db=strat.db)
             query = body.get("query", "")
             persona = body.get("persona", "")
@@ -201,7 +217,10 @@ def handle_post(handler, strat, auth, path):
     # ── TTS — Dual-engine Text-to-Speech ──────────────
     if path == "/api/tts":
         try:
-            body = json.loads(handler.rfile.read(int(handler.headers.get('Content-Length', 0))).decode()) if int(handler.headers.get('Content-Length', 0)) > 0 else {}
+            body = _read_json_body(handler)
+            if body is None:
+                _send_json(handler, {"error": "Request body too large"}, 413)
+                return True
             text = (body.get('text') or '')[:5000].strip()
             if not text:
                 _send_json(handler, {"error": "No text provided"}, 400)
@@ -253,7 +272,10 @@ def handle_post(handler, strat, auth, path):
     # ── TTS Preview ──────────────────────────────────
     if path == "/api/tts/preview":
         try:
-            body = json.loads(handler.rfile.read(int(handler.headers.get('Content-Length', 0))).decode()) if int(handler.headers.get('Content-Length', 0)) > 0 else {}
+            body = _read_json_body(handler)
+            if body is None:
+                _send_json(handler, {"error": "Request body too large"}, 413)
+                return True
             from processors.tts import TTSProcessor, KOKORO_VOICES, EDGE_TTS_VOICES
 
             voice = body.get('voice', 'af_heart')
@@ -373,7 +395,10 @@ def handle_post(handler, strat, auth, path):
     if path in ('/api/persona-files/write', '/api/persona-files/mkdir'):
         from processors.persona_context import PersonaContextManager
         pcm = PersonaContextManager(strat.config, db=strat.db)
-        body = json.loads(handler.rfile.read(int(handler.headers.get('Content-Length', 0))).decode()) if int(handler.headers.get('Content-Length', 0)) > 0 else {}
+        body = _read_json_body(handler)
+        if body is None:
+            _send_json(handler, {"error": "Request body too large"}, 413)
+            return True
 
         if path == '/api/persona-files/write':
             persona = body.get('persona', '')
