@@ -13,6 +13,7 @@ import json
 import logging
 import requests as req
 
+from llm_provider import get_provider, stream_llm
 from routes.helpers import sse_event, strip_think_blocks
 
 logger = logging.getLogger("rp_stream")
@@ -87,8 +88,18 @@ def select_rp_model(session_id: str, config: dict) -> str:
 
 
 def _stream_ollama(handler, ollama_host: str, model: str, messages: list,
-                   temperature: float = 0.85, num_predict: int = 350) -> str:
+                   temperature: float = 0.85, num_predict: int = 350,
+                   config: dict = None) -> str:
     """Stream Ollama response via SSE. Returns the full accumulated text."""
+    # Gemini fallback for VPS — RP quality will differ from Cydonia
+    if config and get_provider(config) == 'gemini':
+        try:
+            full_text = stream_llm(config, messages, handler, max_tokens=num_predict,
+                                   temperature=temperature, use_case='chat')
+            return full_text or ""
+        except Exception as e:
+            logger.warning(f"Gemini RP stream failed, falling back to Ollama: {e}")
+
     try:
         r = req.post(
             f"{ollama_host}/api/chat",

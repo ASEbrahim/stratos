@@ -270,7 +270,7 @@ def handle_post(handler, strat, auth, path) -> bool:
         # Stream response
         start_sse(handler)
         start_time = time.time()
-        full_text = _stream_ollama(handler, ollama_host, model, messages, temperature=_temp, num_predict=_np)
+        full_text = _stream_ollama(handler, ollama_host, model, messages, temperature=_temp, num_predict=_np, config=strat.config)
         elapsed_ms = int((time.time() - start_time) * 1000)
 
         asst_msg_id = None
@@ -453,7 +453,7 @@ def handle_post(handler, strat, auth, path) -> bool:
 
         start_sse(handler)
         start_time = time.time()
-        full_text = _stream_ollama(handler, ollama_host, model, messages, num_predict=_np)
+        full_text = _stream_ollama(handler, ollama_host, model, messages, num_predict=_np, config=strat.config)
         elapsed_ms = int((time.time() - start_time) * 1000)
 
         new_msg_id = None
@@ -613,7 +613,7 @@ def handle_post(handler, strat, auth, path) -> bool:
 
         start_sse(handler)
         start_time = time.time()
-        full_text = _stream_ollama(handler, ollama_host, model, messages, num_predict=_np)
+        full_text = _stream_ollama(handler, ollama_host, model, messages, num_predict=_np, config=strat.config)
         elapsed_ms = int((time.time() - start_time) * 1000)
 
         if full_text:
