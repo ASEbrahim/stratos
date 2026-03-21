@@ -264,6 +264,12 @@ class StratOS:
                 overlay = _json.loads(row[0])
                 if overlay:  # Non-empty overlay
                     self._apply_overlay(base, overlay)
+            else:
+                # New profile with no overlay — clear user-specific fields
+                # so stale config.yaml data doesn't bleed into new accounts
+                base['profile'] = {'role': '', 'location': '', 'context': ''}
+                base['dynamic_categories'] = []
+                base.get('market', {}).pop('tickers', None)
             self._profile_configs[profile_name] = base
             logger.info(f"Profile '{profile_name}' loaded from DB into cache "
                        f"(role={base.get('profile',{}).get('role','?')}, "
