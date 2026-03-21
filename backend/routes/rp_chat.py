@@ -549,6 +549,24 @@ def handle_post(handler, strat, auth, path) -> bool:
             error_response(handler, f"Content too long (max {MAX_MESSAGE_LENGTH} chars)", 400)
             return True
 
+        # ── Defense-in-depth: enforce MAX_BRANCH_DEPTH before creating ──
+        MAX_BRANCH_DEPTH = 15
+        branch_depth = 0
+        walk_branch = from_branch
+        while walk_branch and walk_branch != 'main' and branch_depth < MAX_BRANCH_DEPTH + 1:
+            parent_row = db.conn.execute(
+                "SELECT DISTINCT parent_branch_id FROM rp_messages "
+                "WHERE session_id = ? AND branch_id = ? LIMIT 1",
+                (session_id, walk_branch)
+            ).fetchone()
+            if not parent_row or not parent_row['parent_branch_id']:
+                break
+            walk_branch = parent_row['parent_branch_id']
+            branch_depth += 1
+        if branch_depth >= MAX_BRANCH_DEPTH:
+            error_response(handler, f"Maximum branch depth ({MAX_BRANCH_DEPTH}) exceeded", 400)
+            return True
+
         new_branch_id = f"branch_{uuid.uuid4().hex[:8]}"
         result = db.create_branch(session_id, from_branch, at_turn, new_branch_id)
 
