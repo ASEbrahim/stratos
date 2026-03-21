@@ -87,16 +87,19 @@ async function _switchConversation(convId) {
 }
 window._switchConversation = _switchConversation;
 
+function _setToggleStyle(btn, active) {
+    if (!btn) return;
+    btn.style.background = active ? 'rgba(52,211,153,0.1)' : 'rgba(255,255,255,0.03)';
+    btn.style.color = active ? 'var(--accent,#34d399)' : 'var(--text-muted)';
+    btn.style.borderColor = active ? 'rgba(52,211,153,0.25)' : 'rgba(255,255,255,0.1)';
+}
+
 function _toggleFreeLength() {
     _agentFreeLength = !_agentFreeLength;
     window._agentFreeLength = _agentFreeLength;
     const btn = document.getElementById('agent-free-length-btn');
-    if (btn) {
-        btn.textContent = _agentFreeLength ? 'Long' : 'Short';
-        btn.style.background = _agentFreeLength ? 'rgba(52,211,153,0.12)' : 'rgba(255,255,255,0.03)';
-        btn.style.color = _agentFreeLength ? 'var(--accent,#34d399)' : 'var(--text-muted)';
-        btn.style.borderColor = _agentFreeLength ? 'rgba(52,211,153,0.3)' : 'rgba(255,255,255,0.1)';
-    }
+    if (btn) btn.textContent = _agentFreeLength ? 'Long' : 'Short';
+    _setToggleStyle(btn, _agentFreeLength);
 }
 window._toggleFreeLength = _toggleFreeLength;
 
@@ -104,12 +107,8 @@ function _toggleAllScans() {
     _agentAllScans = !_agentAllScans;
     window._agentAllScans = _agentAllScans;
     const btn = document.getElementById('agent-all-scans-btn');
-    if (btn) {
-        btn.textContent = _agentAllScans ? 'All Scans' : 'Current';
-        btn.style.background = _agentAllScans ? 'rgba(96,165,250,0.12)' : 'rgba(255,255,255,0.03)';
-        btn.style.color = _agentAllScans ? '#60a5fa' : 'var(--text-muted)';
-        btn.style.borderColor = _agentAllScans ? 'rgba(96,165,250,0.3)' : 'rgba(255,255,255,0.1)';
-    }
+    if (btn) btn.textContent = _agentAllScans ? 'All Scans' : 'Current';
+    _setToggleStyle(btn, _agentAllScans);
 }
 window._toggleAllScans = _toggleAllScans;
 
@@ -117,14 +116,18 @@ function _toggleSignalInjection() {
     _agentInjectSignals = !_agentInjectSignals;
     window._agentInjectSignals = _agentInjectSignals;
     const btn = document.getElementById('agent-signal-toggle-btn');
-    if (btn) {
-        btn.textContent = _agentInjectSignals ? 'Signals: ON' : 'Signals: OFF';
-        btn.style.background = _agentInjectSignals ? 'rgba(251,191,36,0.12)' : 'rgba(255,255,255,0.03)';
-        btn.style.color = _agentInjectSignals ? '#fbbf24' : 'var(--text-muted)';
-        btn.style.borderColor = _agentInjectSignals ? 'rgba(251,191,36,0.3)' : 'rgba(255,255,255,0.1)';
-    }
+    if (btn) btn.textContent = _agentInjectSignals ? 'Signals: ON' : 'Signals: OFF';
+    _setToggleStyle(btn, _agentInjectSignals);
 }
 window._toggleSignalInjection = _toggleSignalInjection;
+
+function _toggleShowMore() {
+    if (typeof toggleAgentShowMore === 'function') toggleAgentShowMore();
+    const btn = document.getElementById('agent-showmore-btn');
+    if (btn) btn.textContent = window._agentShowMoreEnabled ? 'Expand: ON' : 'Expand: OFF';
+    _setToggleStyle(btn, window._agentShowMoreEnabled);
+}
+window._toggleShowMore = _toggleShowMore;
 
 async function newAgentChat() {
     if (agentStreaming) return;
