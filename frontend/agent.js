@@ -2385,27 +2385,29 @@ function toggleAgentFullscreen() {
 
         if (msgs) { msgs.style.height = ''; msgs.style.maxHeight = 'none'; }
 
-        // Add prominent back button at top of fullscreen
+        // Show back button in header (next to New chat)
         var _backBtn = document.getElementById('agent-fs-back');
         if (!_backBtn) {
-            _backBtn = document.createElement('button');
-            _backBtn.id = 'agent-fs-back';
-            _backBtn.className = 'flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all cursor-pointer';
-            _backBtn.style.cssText = 'position:fixed;top:16px;left:16px;z-index:10001;background:var(--accent,#10b981);color:var(--bg-primary,#0f172a);border:none;box-shadow:0 4px 16px rgba(16,185,129,0.3);';
-            _backBtn.innerHTML = '<i data-lucide="arrow-left" class="w-4 h-4"></i> Back';
-            _backBtn.onmouseenter = function() { this.style.opacity = '0.85'; this.style.transform = 'scale(1.05)'; };
-            _backBtn.onmouseleave = function() { this.style.opacity = '1'; this.style.transform = 'scale(1)'; };
-            _backBtn.onclick = function() {
-                if (typeof activeRoot !== 'undefined' && activeRoot === 'strat_agent') {
-                    setActive('dashboard');
-                } else if (typeof toggleAgentFullscreen === 'function') {
-                    toggleAgentFullscreen();
-                }
-            };
-            document.body.appendChild(_backBtn);
-            lucide.createIcons();
+            var headerBtns = panel.querySelector('.flex.items-center.gap-0\\.5');
+            if (headerBtns) {
+                _backBtn = document.createElement('button');
+                _backBtn.id = 'agent-fs-back';
+                _backBtn.className = 'flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-medium transition-all cursor-pointer';
+                _backBtn.style.cssText = 'color:var(--accent,#34d399);border:1px solid rgba(52,211,153,0.25);background:rgba(52,211,153,0.06);margin-right:4px;';
+                _backBtn.innerHTML = '<i data-lucide="arrow-left" class="w-3 h-3"></i> Back';
+                _backBtn.title = 'Back to previous tab';
+                _backBtn.onmouseenter = function() { this.style.background = 'rgba(52,211,153,0.15)'; this.style.borderColor = 'rgba(52,211,153,0.5)'; };
+                _backBtn.onmouseleave = function() { this.style.background = 'rgba(52,211,153,0.06)'; this.style.borderColor = 'rgba(52,211,153,0.25)'; };
+                _backBtn.onclick = function(e) {
+                    e.stopPropagation();
+                    var target = (typeof _previousTab !== 'undefined' && _previousTab) ? _previousTab : 'dashboard';
+                    if (typeof setActive === 'function') setActive(target);
+                };
+                headerBtns.insertBefore(_backBtn, headerBtns.firstChild);
+                lucide.createIcons();
+            }
         }
-        _backBtn.style.display = '';
+        if (_backBtn) _backBtn.style.display = '';
         const tabs = document.getElementById('agent-conv-tabs');
         if (tabs) tabs.style.display = 'none';
         // Apply saved fullscreen customizations

@@ -196,7 +196,12 @@ function toggleNavSection(storageKey) {
     renderNav();
 }
 
+var _previousTab = 'dashboard';
+
 function setActive(id) {
+    if (id !== activeRoot && activeRoot !== 'strat_agent') {
+        _previousTab = activeRoot;
+    }
     activeRoot = id;
     const nav = (window.navItems || navItems).find(n => n.id === id);
     if (nav) {
