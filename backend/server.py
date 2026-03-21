@@ -694,7 +694,13 @@ def create_handler(strat, auth, frontend_dir, output_dir):
             _send_json(self, {"error": "Not found"}, 404)
 
         def do_PUT(self):
-            """Route PUT requests through do_POST (conversations use PUT for updates)."""
+            """Route PUT requests through do_POST (conversations use PUT for updates).
+            Block auth/registration endpoints which are POST-only."""
+            path = urlparse(self.path).path
+            if path in ('/api/auth', '/api/auth/login', '/api/auth/register',
+                        '/api/register', '/api/auth/verify', '/api/auth/resend-verification'):
+                _send_json(self, {"error": "Method not allowed"}, 405)
+                return
             self.do_POST()
 
         def do_OPTIONS(self):
