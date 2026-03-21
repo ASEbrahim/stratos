@@ -838,6 +838,12 @@ def handle_auth_routes(handler, method, path, data, db, strat, send_json, email_
             send_json(handler, {"error": "Profile not found"}, status=404)
             return True
 
+        # Prevent deleting the last profile — user would be locked out
+        cursor.execute("SELECT COUNT(*) FROM profiles WHERE user_id = ?", (user_id,))
+        if cursor.fetchone()[0] <= 1:
+            send_json(handler, {"error": "Cannot delete your last profile"}, status=400)
+            return True
+
         cursor.execute("DELETE FROM profiles WHERE id = ?", (profile_id,))
         db._commit()
         send_json(handler, {"status": "deleted"})
