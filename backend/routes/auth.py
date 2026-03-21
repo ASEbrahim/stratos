@@ -92,6 +92,15 @@ def _hash_code(code: str) -> str:
     return hashlib.sha256(code.encode('utf-8')).hexdigest()
 
 
+def _deep_merge(base: dict, overlay: dict):
+    """Recursively merge overlay into base, preserving nested keys."""
+    for key, val in overlay.items():
+        if isinstance(val, dict) and isinstance(base.get(key), dict):
+            _deep_merge(base[key], val)
+        else:
+            base[key] = val
+
+
 def _apply_config_overlay(strat, overlay: dict, profile_name: str = ""):
     """Apply a DB profile's config_overlay into strat.config.
 
@@ -122,7 +131,7 @@ def _apply_config_overlay(strat, overlay: dict, profile_name: str = ""):
             # without nuking scoring.model)
             existing = strat.config.get(key)
             if isinstance(existing, dict) and isinstance(val, dict):
-                existing.update(val)
+                _deep_merge(existing, val)
             else:
                 strat.config[key] = val
         else:
