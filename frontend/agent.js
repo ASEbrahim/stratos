@@ -860,15 +860,17 @@ async function checkAgentStatus() {
 function appendAgentMessage(role, content) {
     const msgs = document.getElementById('agent-messages');
     if (!msgs) return null;
-    
+
     const wrapper = document.createElement('div');
     const time = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
-    
+    const _theme = PERSONA_THEMES[currentPersona] || PERSONA_THEMES.intelligence;
+    const _c = _theme.color || '#34d399';
+
     if (role === 'user') {
         wrapper.className = 'flex justify-end mb-3 group/usermsg';
         wrapper.innerHTML = `
             <div class="max-w-[82%]">
-                <div class="agent-bubble-user rounded-2xl rounded-br-sm px-4 py-2.5 text-xs leading-relaxed" style="color:var(--text-heading); background:rgba(59,130,246,0.12); border:1px solid rgba(59,130,246,0.18); backdrop-filter:blur(6px);">
+                <div class="agent-bubble-user rounded-2xl rounded-br-sm px-4 py-2.5 text-xs leading-relaxed" style="color:var(--text-heading); background:${_theme.bg}; border:1px solid ${_c}22; backdrop-filter:blur(6px);">
                     ${escAgent(content)}
                 </div>
                 <div class="flex items-center justify-end gap-1.5 mt-1">
@@ -881,11 +883,11 @@ function appendAgentMessage(role, content) {
     } else {
         wrapper.className = 'flex gap-3 mb-3 group/msg';
         wrapper.innerHTML = `
-            <div class="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5" style="background:rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.15);">
-                <i data-lucide="bot" class="w-3.5 h-3.5 text-emerald-400"></i>
+            <div class="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5" style="background:${_theme.bg}; border:1px solid ${_c}25; box-shadow:0 0 8px ${_c}15;">
+                <i data-lucide="${_theme.icon}" class="w-3.5 h-3.5" style="color:${_c};"></i>
             </div>
             <div class="flex-1 min-w-0">
-                <div class="agent-response text-sm leading-relaxed" style="color:var(--text-body,#cbd5e1);">${content}</div><!-- content is pre-sanitized via formatAgentText() which HTML-escapes before markdown formatting -->
+                <div class="agent-response text-sm leading-relaxed" style="color:var(--text-body,#cbd5e1); padding:10px 14px; background:${_c}08; border:1px solid ${_c}10; border-radius:12px; border-top-left-radius:2px;">${content}</div>
                 <div class="flex items-center gap-2 mt-1 agent-msg-actions">
                     <span class="text-[9px]" style="color:var(--text-muted); opacity:0.4;">${time}</span>
                     <button onclick="_copyAgentMessage(this)" class="p-0.5 rounded" title="Copy message">
