@@ -18,6 +18,7 @@ from routes.helpers import (json_response, error_response, read_json_body, sse_e
                            strip_think_blocks, strip_reasoning_preamble)
 from routes.agent_tools import AGENT_TOOLS, execute_tool, parse_text_tool_calls
 from routes.gpu_manager import ensure_model_ready
+from llm_provider import call_llm, stream_llm, get_provider
 
 logger = logging.getLogger("STRAT_OS")
 
@@ -74,19 +75,9 @@ def _generate_suggestions(handler, ollama_host, model, user_msg, agent_response,
             f"Return ONLY a JSON array of 3 strings. No explanation.\n"
             f'Example: ["What does this mean for Q2 earnings?", "How does this compare to last month?", "Which sectors are most affected?"]'
         )
-        r = req.post(
-            f"{ollama_host}/api/chat",
-            json={
-                "model": model,
-                "messages": [{"role": "user", "content": prompt}],
-                "stream": False,
-                "options": {"temperature": 0.7, "num_predict": 120},
-                "think": False,
-            },
-            timeout=8,
-        )
-        if r.status_code == 200:
-            raw = r.json().get("message", {}).get("content", "").strip()
+
+        def _parse_suggestions_array(raw):
+            """Parse JSON array from raw LLM response text."""
             raw = strip_think_blocks(raw)
             bracket_start = raw.find("[")
             bracket_end = raw.rfind("]")
@@ -96,7 +87,32 @@ def _generate_suggestions(handler, ollama_host, model, user_msg, agent_response,
                     suggestions = [s.strip() for s in arr if isinstance(s, str) and 2 < len(s.strip()) < 80][:3]
                     if suggestions:
                         sse_event(handler, {"suggestions": suggestions})
-                        return
+                        return True
+            return False
+
+        # ── Provider-aware call ──
+        if get_provider(None) == 'gemini':
+            raw = call_llm(None, [{"role": "user", "content": prompt}],
+                          max_tokens=120, temperature=0.7, timeout=8, use_case='chat')
+            if raw:
+                _parse_suggestions_array(raw)
+                return
+        else:
+            r = req.post(
+                f"{ollama_host}/api/chat",
+                json={
+                    "model": model,
+                    "messages": [{"role": "user", "content": prompt}],
+                    "stream": False,
+                    "options": {"temperature": 0.7, "num_predict": 120},
+                    "think": False,
+                },
+                timeout=8,
+            )
+            if r.status_code == 200:
+                raw = r.json().get("message", {}).get("content", "").strip()
+                if _parse_suggestions_array(raw):
+                    return
     except Exception as e:
         logger.debug(f"Suggestion generation failed: {e}")
 
@@ -123,19 +139,8 @@ def _generate_gaming_suggestions(handler, ollama_host, model, user_msg, agent_re
             f"- IMPORTANT: Write labels and prompts in the SAME language as the player's last message. If the player wrote in Japanese, suggestions must be in Japanese. If Arabic, in Arabic.\n"
             f"Return ONLY the JSON array."
         )
-        r = req.post(
-            f"{ollama_host}/api/chat",
-            json={
-                "model": model,
-                "messages": [{"role": "user", "content": prompt}],
-                "stream": False,
-                "options": {"temperature": 0.7, "num_predict": 300},
-                "think": False,
-            },
-            timeout=10,
-        )
-        if r.status_code == 200:
-            raw = r.json().get("message", {}).get("content", "").strip()
+        def _parse_gaming_suggestions(raw):
+            """Parse gaming suggestion objects from raw LLM response text."""
             raw = strip_think_blocks(raw)
             bracket_start = raw.find("[")
             bracket_end = raw.rfind("]")
@@ -150,7 +155,32 @@ def _generate_gaming_suggestions(handler, ollama_host, model, user_msg, agent_re
                             suggestions.append(s.strip())
                     if suggestions:
                         sse_event(handler, {"suggestions": suggestions})
-                        return
+                        return True
+            return False
+
+        # ── Provider-aware call ──
+        if get_provider(None) == 'gemini':
+            raw = call_llm(None, [{"role": "user", "content": prompt}],
+                          max_tokens=300, temperature=0.7, timeout=10, use_case='chat')
+            if raw:
+                _parse_gaming_suggestions(raw)
+                return
+        else:
+            r = req.post(
+                f"{ollama_host}/api/chat",
+                json={
+                    "model": model,
+                    "messages": [{"role": "user", "content": prompt}],
+                    "stream": False,
+                    "options": {"temperature": 0.7, "num_predict": 300},
+                    "think": False,
+                },
+                timeout=10,
+            )
+            if r.status_code == 200:
+                raw = r.json().get("message", {}).get("content", "").strip()
+                if _parse_gaming_suggestions(raw):
+                    return
     except Exception as e:
         logger.debug(f"Gaming suggestion generation failed: {e}")
 
@@ -192,16 +222,23 @@ Return ONLY a JSON object:
 "relationship_change": "unchanged" or "description of change",
 "new_knowledge": ["list of new things they learned"] or []}}"""
 
-        r = req.post(
-            f"{ollama_host}/api/chat",
-            json={"model": model, "messages": [{"role": "user", "content": prompt}],
-                  "stream": False, "options": {"temperature": 0.3, "num_predict": 200}, "think": False},
-            timeout=15)
+        # ── Provider-aware call ──
+        if get_provider(None) == 'gemini':
+            raw = call_llm(None, [{"role": "user", "content": prompt}],
+                          max_tokens=200, temperature=0.3, timeout=15, use_case='chat')
+            if not raw:
+                return
+        else:
+            r = req.post(
+                f"{ollama_host}/api/chat",
+                json={"model": model, "messages": [{"role": "user", "content": prompt}],
+                      "stream": False, "options": {"temperature": 0.3, "num_predict": 200}, "think": False},
+                timeout=15)
 
-        if r.status_code != 200:
-            return
+            if r.status_code != 200:
+                return
 
-        raw = strip_think_blocks(r.json().get("message", {}).get("content", "").strip())
+            raw = strip_think_blocks(r.json().get("message", {}).get("content", "").strip())
         brace_start = raw.find("{")
         brace_end = raw.rfind("}")
         if brace_start < 0 or brace_end <= brace_start:
@@ -505,7 +542,7 @@ def handle_agent_chat(handler, strat, output_file, profile_id=0):
         # TODO: consolidate with scorer_base._call_ollama — agent.py has its own streaming impl
         if free_mode:
             free_system = f"You are a helpful AI assistant. The user is a {role} in {location}. Be conversational, helpful, and concise."
-            messages = [{"role": "system", "content": free_system}]
+            messages = []
             for h in history[:-1]:
                 if isinstance(h, dict) and h.get("role") in ("user", "assistant") and h.get("content"):
                     messages.append({"role": h["role"], "content": h["content"]})
@@ -513,39 +550,50 @@ def handle_agent_chat(handler, strat, output_file, profile_id=0):
 
             start_sse(handler)
             try:
-                r = req.post(
-                    f"{ollama_host}/api/chat",
-                    json={"model": model, "messages": messages, "stream": True,
-                          "options": {"temperature": 0.7, "num_predict": _num_predict}},
-                    timeout=180, stream=True
-                )
-                if r.status_code != 200:
-                    sse_event(handler, {"error": f"Ollama returned {r.status_code}"})
-                    return
-                full_text = ""
-                in_think = False
-                for line in r.iter_lines():
-                    if not line:
-                        continue
-                    try:
-                        chunk = json.loads(line)
-                        token = chunk.get("message", {}).get("content", "")
-                        if token:
-                            full_text += token
-                            # Track <think> blocks without stripping whitespace from tokens
-                            if '<think>' in token:
-                                in_think = True
-                            if '</think>' in token:
-                                in_think = False
-                                continue
-                            if not in_think:
-                                sse_event(handler, {"token": token})
-                        if chunk.get("done"):
-                            break
-                    except json.JSONDecodeError:
-                        continue
-                full_text = strip_think_blocks(full_text)
-                full_text = strip_reasoning_preamble(full_text)
+                # ── Provider-aware streaming ──
+                if get_provider(strat.config) == 'gemini':
+                    full_text = stream_llm(strat.config, messages, handler,
+                                           system=free_system, max_tokens=_num_predict,
+                                           temperature=0.7, timeout=180, use_case='chat')
+                    if full_text is None:
+                        sse_event(handler, {"error": "Gemini streaming failed"})
+                        return
+                    full_text = strip_reasoning_preamble(full_text)
+                else:
+                    messages.insert(0, {"role": "system", "content": free_system})
+                    r = req.post(
+                        f"{ollama_host}/api/chat",
+                        json={"model": model, "messages": messages, "stream": True,
+                              "options": {"temperature": 0.7, "num_predict": _num_predict}},
+                        timeout=180, stream=True
+                    )
+                    if r.status_code != 200:
+                        sse_event(handler, {"error": f"Ollama returned {r.status_code}"})
+                        return
+                    full_text = ""
+                    in_think = False
+                    for line in r.iter_lines():
+                        if not line:
+                            continue
+                        try:
+                            chunk = json.loads(line)
+                            token = chunk.get("message", {}).get("content", "")
+                            if token:
+                                full_text += token
+                                # Track <think> blocks without stripping whitespace from tokens
+                                if '<think>' in token:
+                                    in_think = True
+                                if '</think>' in token:
+                                    in_think = False
+                                    continue
+                                if not in_think:
+                                    sse_event(handler, {"token": token})
+                            if chunk.get("done"):
+                                break
+                        except json.JSONDecodeError:
+                            continue
+                    full_text = strip_think_blocks(full_text)
+                    full_text = strip_reasoning_preamble(full_text)
                 _post_response_tasks(handler, strat, ollama_host, model, user_msg, full_text,
                                      persona_name, profile_id, rp_mode, active_npc, active_scenario)
                 sse_event(handler, {"done": True})
@@ -573,38 +621,49 @@ def handle_agent_chat(handler, strat, output_file, profile_id=0):
         _stream_temp = 0.85 if _is_rp else 0.5
         if not tools:
             try:
-                r = req.post(
-                    f"{ollama_host}/api/chat",
-                    json={"model": model, "messages": messages, "stream": True,
-                          "options": {"temperature": _stream_temp, "num_predict": _num_predict},
-                          "think": False},
-                    timeout=180, stream=True
-                )
-                if r.status_code != 200:
-                    sse_event(handler, {"error": f"Ollama returned {r.status_code}"})
-                    return
-                in_think = False
-                full_text = ""
-                for line in r.iter_lines():
-                    if not line:
-                        continue
-                    try:
-                        chunk = json.loads(line)
-                        token = chunk.get("message", {}).get("content", "")
-                        if token:
-                            full_text += token
-                            if '<think>' in token:
-                                in_think = True
-                            if '</think>' in token:
-                                in_think = False
-                                continue
-                            if not in_think:
-                                sse_event(handler, {"token": token})
-                        if chunk.get("done"):
-                            break
-                    except json.JSONDecodeError:
-                        continue
-                full_text = strip_think_blocks(full_text)
+                # ── Provider-aware streaming ──
+                if get_provider(strat.config) == 'gemini':
+                    # Pass non-system messages; system_prompt goes via system= kwarg
+                    _chat_msgs = [m for m in messages if m.get("role") != "system"]
+                    full_text = stream_llm(strat.config, _chat_msgs, handler,
+                                           system=system_prompt, max_tokens=_num_predict,
+                                           temperature=_stream_temp, timeout=180, use_case='chat')
+                    if full_text is None:
+                        sse_event(handler, {"error": "Gemini streaming failed"})
+                        return
+                else:
+                    r = req.post(
+                        f"{ollama_host}/api/chat",
+                        json={"model": model, "messages": messages, "stream": True,
+                              "options": {"temperature": _stream_temp, "num_predict": _num_predict},
+                              "think": False},
+                        timeout=180, stream=True
+                    )
+                    if r.status_code != 200:
+                        sse_event(handler, {"error": f"Ollama returned {r.status_code}"})
+                        return
+                    in_think = False
+                    full_text = ""
+                    for line in r.iter_lines():
+                        if not line:
+                            continue
+                        try:
+                            chunk = json.loads(line)
+                            token = chunk.get("message", {}).get("content", "")
+                            if token:
+                                full_text += token
+                                if '<think>' in token:
+                                    in_think = True
+                                if '</think>' in token:
+                                    in_think = False
+                                    continue
+                                if not in_think:
+                                    sse_event(handler, {"token": token})
+                            if chunk.get("done"):
+                                break
+                        except json.JSONDecodeError:
+                            continue
+                    full_text = strip_think_blocks(full_text)
                 _post_response_tasks(handler, strat, ollama_host, model, user_msg, full_text,
                                      persona_name, profile_id, rp_mode, active_npc, active_scenario)
                 sse_event(handler, {"done": True})
@@ -613,6 +672,8 @@ def handle_agent_chat(handler, strat, output_file, profile_id=0):
             return
 
         # ── Tool-call loop (max 8 rounds) ──
+        # TODO: Wire Gemini provider into tool-loop. Requires Gemini function-calling API
+        # (different schema from Ollama tools). For now, tool-loop always uses Ollama.
         _tool_temp = 0.85 if _is_rp else 0.4
         for round_num in range(8):
             try:
