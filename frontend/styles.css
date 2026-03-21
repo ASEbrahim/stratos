@@ -3708,11 +3708,12 @@ body.perf-mode .agent-mic-btn.stt-processing { animation: none; }
     /* Sidebar resize handle hidden on mobile */
     #sidebar-resize-handle { display: none !important; }
 
-    /* 2. Main content full width */
+    /* 2. Main content full width, compact padding */
     .flex.h-screen > main {
         margin-left: 0 !important;
         width: 100vw !important;
         max-width: 100vw !important;
+        padding: 12px 10px !important;
     }
 
     /* 3. Bottom nav always visible */
@@ -3785,7 +3786,16 @@ body.perf-mode .agent-mic-btn.stt-processing { animation: none; }
         padding: 2px 5px !important;
     }
 
-    /* 11. Disable heavy backdrop-filter on cards (GPU perf) */
+    /* 11. Compact mobile header — hide desktop header bar */
+    main > .flex.justify-between.items-end {
+        display: none !important;
+    }
+    /* Hide floating sidebar toggle on mobile (bottom nav replaces it) */
+    #sidebar-float-toggle { display: none !important; }
+    /* Hide scanning banner (use toast on mobile instead) */
+    #scanning-banner { position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; z-index: 45 !important; border-radius: 0 !important; }
+
+    /* 12. Disable heavy backdrop-filter on cards (GPU perf) */
     .glass-panel {
         backdrop-filter: none !important;
         -webkit-backdrop-filter: none !important;
