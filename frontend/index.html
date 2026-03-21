@@ -10,6 +10,10 @@
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><text y='14' font-size='14'>📡</text></svg>">
     <link rel="manifest" href="/manifest.json">
     <link rel="apple-touch-icon" href="/icon-192.png">
+    <script>
+    // Apply saved theme BEFORE CSS loads to prevent flash
+    (function(){var t=localStorage.getItem('stratos-theme');if(t)document.documentElement.setAttribute('data-theme',t);})();
+    </script>
     <link rel="stylesheet" href="tailwind-built.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap">
     <script src="https://accounts.google.com/gsi/client" async defer></script>
