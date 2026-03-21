@@ -141,6 +141,30 @@ Per-user profiles stored as YAML in `profiles/`. Each has: role, location, conte
 ### Configuration
 `config.yaml` — Central config. Key sections: `scoring` (model names, Ollama host, score thresholds), `news` (categories with keywords), `market` (tickers), `search` (API keys/provider), `profile` (role/location/context), `discovery`, `cache` TTLs.
 
+## Agent Onboarding
+
+First-time users (0 scans + no `stratos-onboarded` localStorage flag) get an agent-driven onboarding instead of the guided tour.
+
+**Frontend globals:**
+- `window._onboardingActive` — true while onboarding flow is active
+- `window._onboardingScanListener` — true while waiting for first scan completion
+- `window._statusData` — cached `/api/status` response (set in `loadData()`)
+- `window._onboardingFallbackTimer` — 3s fallback if status API is slow
+
+**localStorage keys:**
+- `stratos-onboarding-seen` — prevents greeting re-render on refresh
+- `stratos-onboarded` — permanent "done" flag, prevents re-trigger
+
+**Functions:**
+- `_startAgentOnboarding()` (agent.js) — opens panel, inserts greeting, renders chips
+- `renderOnboardingChips(container)` (agent-suggestions.js) — renders category chips
+- `_handleOnboardingChip(btn)` — handles category chip click, shows scan chip after
+- `_handleScanChip()` — sends "Run my first scan" as agent message + triggers `toggleScan()`
+
+**Flow:** detect first-time user → auto-open agent → greeting + category chips → user picks category → agent responds → "Run First Scan" chip → scan completes → post-scan summary → `stratos-onboarded=true`
+
+**Backend:** `agent.py` always includes PLATFORM CAPABILITIES block (~150 tokens). Users with ≤2 scans get additional NEW USER CONTEXT nudge.
+
 ## Key Design Decisions
 
 - **Think mode strategy**: For JSON-only endpoints (wizard, generate-profile, enrichment), set `"think": False` to skip reasoning — all `num_predict` tokens go to output, making responses 3-5x faster. For endpoints needing reasoning (agent chat, market analysis, briefings), leave thinking enabled (omit the `think` parameter). Always strip `<think>...</think>` blocks from content as a safety net regardless.
