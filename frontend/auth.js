@@ -162,7 +162,13 @@ async function checkAuthAndInit() {
         _authMode = _hasDbUsers ? 'email' : (_allProfiles.length > 0 ? 'legacy' : 'email');
         _showingAll = false;
         _showLanding();
-    } catch (e) { console.error('Auth check failed:', e); init(); }
+    } catch (e) {
+        console.error('Auth check failed:', e);
+        // Show app with fade-in as fallback
+        const _app = document.querySelector('.flex.h-screen');
+        if (_app) { _app.style.display = ''; requestAnimationFrame(() => { _app.style.opacity = '1'; }); }
+        init();
+    }
 }
 function showLoginScreen() { checkAuthAndInit(); }
 
