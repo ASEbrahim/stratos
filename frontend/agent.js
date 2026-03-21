@@ -346,11 +346,12 @@ async function switchPersona(name) {
             } else {
                 _updatePersonaWelcome();
             }
+            // Render suggestions after welcome container exists
+            renderAgentSuggestions();
         }, 400);
     }
     _renderConvTabs();
     if (_agentFullscreen) setTimeout(_refreshFsSidebar, 50);
-    renderAgentSuggestions();
     // Update context indicator
     _updateContextBadge(name);
     if (typeof _onPersonaChanged === 'function') _onPersonaChanged(name);
