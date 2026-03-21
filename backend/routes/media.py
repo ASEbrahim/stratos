@@ -316,7 +316,9 @@ def handle_post(handler, strat, auth, path):
                 _send_json(handler, {"error": "Invalid audio format (expected WAV, OGG, or MP3)"}, 400)
                 return True
 
-            voices_dir = os.path.join(os.path.dirname(__file__), '..', 'data', 'tts_voices')
+            # Scope custom voices per profile to prevent cross-user overwrites
+            profile_id = getattr(handler, '_profile_id', 0)
+            voices_dir = os.path.join(os.path.dirname(__file__), '..', 'data', 'tts_voices', str(profile_id))
             os.makedirs(voices_dir, exist_ok=True)
 
             voice_path = os.path.join(voices_dir, f"{voice_name}.wav")
