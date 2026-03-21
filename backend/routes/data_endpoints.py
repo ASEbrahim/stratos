@@ -672,7 +672,8 @@ def handle_post(handler, strat, auth, path):
             _send_json(handler, {"ok": True})
         except Exception as e:
             logger.error(f"Failed to unsave signal: {e}")
-            _send_json(handler, {"error": str(e)}, 500)
+            logger.error(f"Unsave signal failed: {e}", exc_info=True)
+            _send_json(handler, {"error": "Internal server error"}, 500)
         return True
 
     # User feedback: click, dismiss, rate

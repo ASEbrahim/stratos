@@ -357,9 +357,11 @@ def handle_post(handler, strat, auth, path):
             result = STTProcessor.transcribe(audio_bytes, language_hint=language_hint)
             _send_json(handler, result)
         except ValueError as e:
-            _send_json(handler, {"error": str(e)}, 400)
+            logger.error(f"STT validation error: {e}", exc_info=True)
+            _send_json(handler, {"error": "Invalid audio input"}, 400)
         except RuntimeError as e:
-            _send_json(handler, {"error": str(e)}, 500)
+            logger.error(f"STT runtime error: {e}", exc_info=True)
+            _send_json(handler, {"error": "Internal server error"}, 500)
         except Exception as e:
             logger.error(f"STT error: {e}", exc_info=True)
             _send_json(handler, {"error": "Transcription failed. Please try again."}, 500)
