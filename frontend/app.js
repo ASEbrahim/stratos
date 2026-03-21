@@ -512,10 +512,14 @@ async function init() {
     // Onboarding fallback: if status API is slow, trigger onboarding anyway
     window._onboardingFallbackTimer = setTimeout(function() {
         if (!window._statusData && localStorage.getItem('stratos-onboarded') !== 'true'
-            && !localStorage.getItem('stratos-onboarding-seen') && !window._onboardingActive) {
+            && !window._onboardingActive) {
             console.log('onboarding: fallback triggered — status API slow');
             window._onboardingActive = true;
-            if (typeof _startAgentOnboarding === 'function') _startAgentOnboarding();
+            if (!localStorage.getItem('stratos-onboarding-seen')) {
+                if (typeof _startAgentOnboarding === 'function') _startAgentOnboarding();
+            } else {
+                window._onboardingScanListener = true;
+            }
         }
     }, 3000);
 
@@ -550,12 +554,19 @@ async function init() {
     const _isFirstUser = (!window._statusData || !window._statusData.recent_scans || window._statusData.recent_scans.length === 0)
                          && localStorage.getItem('stratos-onboarded') !== 'true';
 
-    if (_isFirstUser && !localStorage.getItem('stratos-onboarding-seen')) {
+    if (_isFirstUser) {
         window._onboardingActive = true;
-        console.log('onboarding: triggered — first-time user detected');
-        setTimeout(function() {
-            if (typeof _startAgentOnboarding === 'function') _startAgentOnboarding();
-        }, 800);
+        // Only show greeting + chips if not already seen (prevents re-render on refresh)
+        if (!localStorage.getItem('stratos-onboarding-seen')) {
+            console.log('onboarding: triggered — first-time user detected');
+            setTimeout(function() {
+                if (typeof _startAgentOnboarding === 'function') _startAgentOnboarding();
+            }, 800);
+        } else {
+            // Already saw greeting — keep onboarding active for scan listener
+            console.log('onboarding: resuming — greeting already seen');
+            window._onboardingScanListener = true;
+        }
     } else {
         // Normal flow — maybe show tour for returning users
         setTimeout(function() {

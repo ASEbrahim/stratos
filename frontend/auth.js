@@ -842,7 +842,7 @@ function _dismiss() {
     const ov = document.getElementById('auth-overlay');
     if (!ov) return;
     ov.style.transition = 'opacity 0.35s ease'; ov.style.opacity = '0';
-    setTimeout(() => { ov.remove(); const app = document.querySelector('.flex.h-screen'); if (app) app.style.display = ''; init(); }, 360);
+    setTimeout(() => { ov.remove(); const app = document.querySelector('.flex.h-screen'); if (app) { app.style.display = ''; requestAnimationFrame(() => { app.style.opacity = '1'; }); } init(); }, 360);
 }
 function _shake(el) { el.style.animation='none'; el.offsetHeight; el.style.animation='authShake .4s ease'; }
 
