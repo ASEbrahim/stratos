@@ -837,6 +837,9 @@ def handle_post(handler, strat, auth, path):
                     new_avatar = data.get("avatar", "").strip()[:3]
                     avatar_image = data.get("avatar_image", "")
                     if avatar_image and avatar_image.startswith("data:image/"):
+                        if len(avatar_image) > 512000:
+                            _send_json(handler, {"error": "Avatar too large (max 500KB)"}, 400)
+                            return True
                         avatar_state["avatar_image"] = avatar_image
                         changes.append("avatar_image")
                     if new_avatar:
@@ -887,6 +890,9 @@ def handle_post(handler, strat, auth, path):
             # Update avatar image (base64 data URL for cross-device sync)
             avatar_image = data.get("avatar_image", "")
             if avatar_image and avatar_image.startswith("data:image/"):
+                if len(avatar_image) > 512000:
+                    _send_json(handler, {"error": "Avatar too large (max 500KB)"}, 400)
+                    return True
                 profile_data.setdefault("profile", {})["avatar_image"] = avatar_image
                 changes.append("avatar_image")
 
