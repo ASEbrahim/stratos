@@ -19,6 +19,9 @@
         var m=localStorage.getItem('stratos-theme-mode');
         if(m==='bright')document.documentElement.setAttribute('data-bright','true');
         else if(m==='dark')document.documentElement.setAttribute('data-dark','true');
+        // Restore font style
+        var fs=localStorage.getItem('stratos_fontstyle');
+        if(fs)document.documentElement.setAttribute('data-fontstyle',fs);
         // Hide page until BOTH themes.css loaded AND auth resolves
         document.documentElement.style.visibility='hidden';
         window._themesLoaded=false;
@@ -875,6 +878,13 @@
                                     <option value="compact">Compact</option>
                                     <option value="small">Small</option>
                                     <option value="medium" selected>Medium</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="text-xs text-slate-400 block mb-1.5 font-medium">Font Style</label>
+                                <select id="cfg-font-style" onchange="_applyFontStyle(this.value)" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:border-emerald-500 focus:outline-none">
+                                    <option value="default">Default</option>
+                                    <option value="terminal">Terminal</option>
                                 </select>
                             </div>
                             <div>

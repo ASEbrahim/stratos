@@ -98,6 +98,11 @@ async function loadConfig() {
             if (fsEl) fsEl.value = uiPrefs.font_size;
             if (typeof _applyFontSize === 'function') _applyFontSize(uiPrefs.font_size);
         }
+        if (uiPrefs.font_style) {
+            var fstEl = document.getElementById('cfg-font-style');
+            if (fstEl) fstEl.value = uiPrefs.font_style;
+            if (typeof _applyFontStyle === 'function') _applyFontStyle(uiPrefs.font_style);
+        }
         if (uiPrefs.chart_type) {
             var ctEl = document.getElementById('cfg-chart-type');
             if (ctEl) ctEl.value = uiPrefs.chart_type;

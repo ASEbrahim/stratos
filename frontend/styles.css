@@ -3584,6 +3584,51 @@ body.perf-mode .agent-mic-btn.stt-processing { animation: none; }
     .cx-search { width: 120px; }
 }
 
+/* ═══ Terminal Font Style — site-wide monospace option ═══ */
+[data-fontstyle="terminal"] {
+    font-family: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace !important;
+}
+[data-fontstyle="terminal"] body,
+[data-fontstyle="terminal"] input,
+[data-fontstyle="terminal"] textarea,
+[data-fontstyle="terminal"] select,
+[data-fontstyle="terminal"] button {
+    font-family: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace !important;
+}
+[data-fontstyle="terminal"] .glass-panel h3 {
+    color: var(--accent-light) !important;
+    text-shadow: 0 0 6px var(--accent-bg);
+}
+[data-fontstyle="terminal"] .glass-panel {
+    border-color: var(--accent-border) !important;
+}
+[data-fontstyle="terminal"] .glass-panel:hover {
+    border-color: var(--accent) !important;
+    box-shadow: 0 0 12px var(--accent-bg) !important;
+}
+[data-fontstyle="terminal"] strong,
+[data-fontstyle="terminal"] b {
+    color: var(--accent-light);
+    text-shadow: 0 0 4px var(--accent-bg);
+}
+[data-fontstyle="terminal"] a {
+    color: var(--accent-light);
+}
+[data-fontstyle="terminal"] h1,
+[data-fontstyle="terminal"] h2,
+[data-fontstyle="terminal"] h3 {
+    text-shadow: 0 0 6px var(--accent-bg);
+}
+[data-fontstyle="terminal"] #sidebar {
+    font-family: 'JetBrains Mono', 'SF Mono', monospace !important;
+}
+[data-fontstyle="terminal"] .sidebar-label {
+    letter-spacing: 0.5px;
+}
+[data-fontstyle="terminal"] .bnav-item {
+    font-family: 'JetBrains Mono', 'SF Mono', monospace !important;
+}
+
 /* ═══ Intelligence Persona — Terminal Code Style ═══ */
 #agent-panel.agent-intel .agent-response {
     font-family: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace !important;

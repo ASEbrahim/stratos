@@ -920,6 +920,11 @@ function _applyFontSize(val, skipPersist) {
     localStorage.setItem('stratos_fontsize', val);
     if (!skipPersist) _persistUIPref('font_size', val);
 }
+function _applyFontStyle(val) {
+    document.documentElement.setAttribute('data-fontstyle', val || 'default');
+    localStorage.setItem('stratos_fontstyle', val);
+    _persistUIPref('font_style', val);
+}
 function _setDefaultChartType(val) {
     localStorage.setItem('stratos_chart_type', val);
     if (typeof setChartType === 'function' && val) setChartType(val);
@@ -1020,6 +1025,8 @@ function _restoreDisplaySettings() {
     if (density) { _applyDensity(density); var el = document.getElementById('cfg-density'); if (el) el.value = density; }
     var fontSize = localStorage.getItem('stratos_fontsize') || 'medium';
     _applyFontSize(fontSize); var el2 = document.getElementById('cfg-font-size'); if (el2) el2.value = fontSize;
+    var fontStyle = localStorage.getItem('stratos_fontstyle') || 'default';
+    _applyFontStyle(fontStyle); var el2b = document.getElementById('cfg-font-style'); if (el2b) el2b.value = fontStyle;
     var chartType = localStorage.getItem('stratos_chart_type');
     if (chartType) { var el3 = document.getElementById('cfg-chart-type'); if (el3) el3.value = chartType; if (typeof setChartType === 'function') setChartType(chartType); }
     var autoRefresh = localStorage.getItem('stratos_auto_refresh');
