@@ -74,6 +74,8 @@ def create_handler(strat, auth, frontend_dir, output_dir):
         return row[0] if row else None
 
     # Cache: device_id → profile_id (avoid DB lookup on every request)
+    # Bounded to prevent unbounded memory growth from many devices
+    _MAX_DEVICE_CACHE = 500
     _device_profile_cache = {}
 
     def _resolve_device_profile(db, device_id: str) -> int:
@@ -84,6 +86,12 @@ def create_handler(strat, auth, frontend_dir, output_dir):
         """
         if device_id in _device_profile_cache:
             return _device_profile_cache[device_id]
+
+        # Evict oldest entries if cache is full
+        if len(_device_profile_cache) >= _MAX_DEVICE_CACHE:
+            _keys = list(_device_profile_cache.keys())
+            for _k in _keys[:len(_keys) // 2]:
+                del _device_profile_cache[_k]
 
         import time as _time
         for _attempt in range(3):
