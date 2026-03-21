@@ -15,9 +15,15 @@
     (function(){
         var t=localStorage.getItem('stratos-theme');
         if(t)document.documentElement.setAttribute('data-theme',t);
-        // Hide page until auth resolves with correct theme
+        // Hide page until BOTH themes.css loaded AND auth resolves
         document.documentElement.style.visibility='hidden';
-        // Safety: unhide after 3s if auth hasn't resolved
+        window._themesLoaded=false;
+        window._authResolved=false;
+        window._unhidePage=function(){
+            if(window._themesLoaded&&window._authResolved)
+                document.documentElement.style.visibility='';
+        };
+        // Safety: unhide after 3s no matter what
         setTimeout(function(){document.documentElement.style.visibility='';},3000);
     })();
     </script>
@@ -26,7 +32,7 @@
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <script src="https://unpkg.com/lucide@0.460.0" integrity="sha384-ieG+IKD0d/ZPXyCBTMVAbqsQdns8QGJR/e26WMw7M4fkaI/rHcS/YIoi+ah9WGge" crossorigin="anonymous"></script>
     <script src="https://unpkg.com/lightweight-charts@4.2.2/dist/lightweight-charts.standalone.production.js" integrity="sha384-qQnpH1Chlwm0r93GZ6NgZoEehIelWkhwbBtJMWh0P5wPqySGEt8UjETGKMF0GUdn" crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="themes.css" onload="window._themesLoaded=true">
+    <link rel="stylesheet" href="themes.css" onload="window._themesLoaded=true;if(window._unhidePage)window._unhidePage()">
     <link rel="stylesheet" href="styles.css">
 </head>
 <body class="min-h-screen font-sans" style="selection-color: var(--accent); background:#030305;">
