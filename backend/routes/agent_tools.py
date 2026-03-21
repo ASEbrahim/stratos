@@ -814,6 +814,14 @@ def _tool_read_url(args, strat):
     url = args.get("url", "").strip()
     if not url or not url.startswith("http"):
         return "Invalid URL. Must start with http:// or https://."
+
+    # SSRF protection: block private/internal IPs before fetching
+    from routes.url_validation import validate_url
+    is_safe, err_msg = validate_url(url)
+    if not is_safe:
+        logger.warning(f"read_url SSRF blocked: {err_msg} — url={url}")
+        return "This URL cannot be accessed."
+
     try:
         from fetchers.news import NewsFetcher
         fetcher = NewsFetcher(strat.config)
