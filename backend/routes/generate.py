@@ -251,10 +251,10 @@ Generate the optimal STRAT_OS configuration for this person. Remember:
         error_response(handler, "AI returned invalid JSON", 500)
     except ValueError as e:
         logger.warning(f"Generate validation error: {e}")
-        error_response(handler, str(e), 400)
+        logger.error(f"Request error: {e}"); error_response(handler, "Invalid request", 400)
     except RuntimeError as e:
         logger.warning(f"Generate runtime error: {e}")
-        error_response(handler, str(e), 503)
+        logger.error(f"Service error: {e}"); error_response(handler, "Service temporarily unavailable", 503)
     except Exception as e:
         logger.error(f"Generate error: {e}")
         error_response(handler, "Internal server error", 500)

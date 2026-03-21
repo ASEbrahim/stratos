@@ -687,7 +687,7 @@ def handle_post(handler, strat, auth, path):
                 else:
                     _send_json(handler, {"error": "Video not found or not in cancellable state"}, 404)
         except Exception as e:
-            _send_json(handler, {"error": str(e)}, 500)
+            logger.error(f"YouTube endpoint error: {e}", exc_info=True); _send_json(handler, {"error": "Internal server error"}, 500)
         return True
 
     if path == "/api/youtube/retranscribe":
@@ -714,7 +714,7 @@ def handle_post(handler, strat, auth, path):
                 _rc.execute("DELETE FROM video_insights WHERE video_id = ? AND profile_id = ?", (video['id'], handler._profile_id))
                 _rc.commit()
         except Exception as e:
-            _send_json(handler, {"error": str(e)}, 500)
+            logger.error(f"YouTube endpoint error: {e}", exc_info=True); _send_json(handler, {"error": "Internal server error"}, 500)
             return True
         _send_json(handler, {"ok": True, "status": "queued"})
 
@@ -779,7 +779,7 @@ def handle_post(handler, strat, auth, path):
             _send_json(handler, {"translated_text": translated, "source_language": source_lang, "target_language": target_lang})
         except Exception as e:
             logger.error(f"Text translation error: {e}")
-            _send_json(handler, {"error": str(e)}, 500)
+            logger.error(f"YouTube endpoint error: {e}", exc_info=True); _send_json(handler, {"error": "Internal server error"}, 500)
         return True
 
     if path == "/api/youtube/pin-video":
@@ -936,7 +936,7 @@ def handle_post(handler, strat, auth, path):
                 _send_json(handler, {"error": "Translation failed"}, 500)
         except Exception as e:
             logger.error(f"Translation error: {e}")
-            _send_json(handler, {"error": str(e)}, 500)
+            logger.error(f"YouTube endpoint error: {e}", exc_info=True); _send_json(handler, {"error": "Internal server error"}, 500)
         return True
 
     if len(path_parts) == 5 and path_parts[2] == 'channels' and path_parts[4] == 'lenses':
@@ -990,5 +990,5 @@ def handle_delete(handler, strat, auth, path):
         _send_json(handler, {"ok": True})
     except Exception as e:
         logger.error(f"Delete channel failed: {e}")
-        _send_json(handler, {"error": str(e)}, 500)
+        logger.error(f"YouTube endpoint error: {e}", exc_info=True); _send_json(handler, {"error": "Internal server error"}, 500)
     return True

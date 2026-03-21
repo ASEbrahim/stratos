@@ -209,7 +209,7 @@ def handle_get(handler, strat, auth, path):
             summaries = cc.get_summaries(handler._profile_id, persona)
             _send_json(handler, {"state": state, "summaries": summaries})
         except Exception as e:
-            _send_json(handler, {"error": str(e)}, 500)
+            logger.error(f"Endpoint error: {e}", exc_info=True); _send_json(handler, {"error": "Internal server error"}, 500)
         return True
 
     # ── Profile workspace GET ───────────────────────
@@ -219,7 +219,7 @@ def handle_get(handler, strat, auth, path):
             stats = get_workspace_stats(strat, handler._profile_id)
             _send_json(handler, stats)
         except Exception as e:
-            _send_json(handler, {"error": str(e)}, 500)
+            logger.error(f"Endpoint error: {e}", exc_info=True); _send_json(handler, {"error": "Internal server error"}, 500)
         return True
 
     # ── Preference signals GET ──────────────────────
@@ -240,7 +240,7 @@ def handle_get(handler, strat, auth, path):
                 )
             _send_json(handler, {"signals": [dict(r) for r in cursor.fetchall()]})
         except Exception as e:
-            _send_json(handler, {"error": str(e)}, 500)
+            logger.error(f"Endpoint error: {e}", exc_info=True); _send_json(handler, {"error": "Internal server error"}, 500)
         return True
 
     return False
@@ -592,7 +592,7 @@ def handle_post(handler, strat, auth, path):
             cc.log_conversation(handler._profile_id, persona, messages)
             _send_json(handler, {"ok": True})
         except Exception as e:
-            _send_json(handler, {"error": str(e)}, 500)
+            logger.error(f"Endpoint error: {e}", exc_info=True); _send_json(handler, {"error": "Internal server error"}, 500)
         return True
 
     if path == "/api/update-state":
@@ -608,7 +608,7 @@ def handle_post(handler, strat, auth, path):
             state = cc.update_state(handler._profile_id, persona, messages)
             _send_json(handler, {"ok": True, "state": state})
         except Exception as e:
-            _send_json(handler, {"error": str(e)}, 500)
+            logger.error(f"Endpoint error: {e}", exc_info=True); _send_json(handler, {"error": "Internal server error"}, 500)
         return True
 
     # ── Profile workspace POST ──────────────────────
@@ -628,7 +628,7 @@ def handle_post(handler, strat, auth, path):
             handler.end_headers()
             handler.wfile.write(zip_data)
         except Exception as e:
-            _send_json(handler, {"error": str(e)}, 500)
+            logger.error(f"Endpoint error: {e}", exc_info=True); _send_json(handler, {"error": "Internal server error"}, 500)
         return True
 
     if path.startswith("/api/profile/import"):
@@ -658,7 +658,7 @@ def handle_post(handler, strat, auth, path):
             status = 200 if result.get("ok") else 400
             _send_json(handler, result, status)
         except Exception as e:
-            _send_json(handler, {"error": str(e)}, 500)
+            logger.error(f"Endpoint error: {e}", exc_info=True); _send_json(handler, {"error": "Internal server error"}, 500)
         return True
 
     # ── Preference signals POST ─────────────────────
@@ -681,7 +681,7 @@ def handle_post(handler, strat, auth, path):
             strat.db._commit()
             _send_json(handler, {"ok": True, "id": cursor.lastrowid})
         except Exception as e:
-            _send_json(handler, {"error": str(e)}, 500)
+            logger.error(f"Endpoint error: {e}", exc_info=True); _send_json(handler, {"error": "Internal server error"}, 500)
         return True
 
     return False
@@ -735,7 +735,7 @@ def handle_delete(handler, strat, auth, path):
                 strat.db._commit()
                 _send_json(handler, {"ok": cursor.rowcount > 0})
             except Exception as e:
-                _send_json(handler, {"error": str(e)}, 500)
+                logger.error(f"Endpoint error: {e}", exc_info=True); _send_json(handler, {"error": "Internal server error"}, 500)
             return True
 
     # ── Scenario Delete ──

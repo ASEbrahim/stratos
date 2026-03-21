@@ -717,7 +717,7 @@ def handle_agent_chat(handler, strat, output_file, profile_id=0):
 
     except ValueError as e:
         logger.warning(f"Agent chat validation error: {e}")
-        error_response(handler, str(e), 400)
+        logger.error(f"Request error: {e}"); error_response(handler, "Invalid request", 400)
     except Exception as e:
         logger.error(f"Agent chat error: {e}")
         error_response(handler, "Internal server error", 500)
@@ -873,7 +873,7 @@ def handle_file_assist(handler, strat):
         json_response(handler, {"result": answer, "action": action})
     except Exception as e:
         logger.error(f"file-assist error: {e}")
-        error_response(handler, str(e), 500)
+        logger.error(f"Internal error: {e}", exc_info=True); error_response(handler, "Internal server error", 500)
 
 
 # ═══════════════════════════════════════════════════════════
