@@ -352,17 +352,17 @@ function renderOnboardingChips(container) {
         chips = _ONBOARDING_CHIPS;
     }
 
-    var html = '<div class="agent-onboarding-chips" style="display:flex;flex-wrap:wrap;gap:6px;padding:8px 0;">';
+    var html = '<div class="agent-onboarding-chips" style="display:flex;flex-wrap:wrap;gap:8px;padding:12px 0;">';
     for (var i = 0; i < chips.length; i++) {
         var chip = chips[i];
         var safeLabel = chip.label.replace(/</g, '&lt;').replace(/>/g, '&gt;');
         var dataAction = chip.action ? ' data-action="' + chip.action + '"' : '';
         var dataPrompt = chip.prompt ? ' data-prompt="' + chip.prompt.replace(/"/g, '&quot;').replace(/</g, '&lt;') + '"' : '';
         html += '<button onclick="_handleOnboardingChip(this)"' + dataAction + dataPrompt
-            + ' class="text-[10px] px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap"'
-            + ' style="border:1px solid var(--border-strong); color:var(--text-muted); background:rgba(255,255,255,0.02);"'
-            + ' onmouseenter="this.style.borderColor=\'var(--accent,#34d399)\';this.style.color=\'var(--accent,#34d399)\';this.style.background=\'rgba(16,185,129,0.06)\'"'
-            + ' onmouseleave="this.style.borderColor=\'var(--border-strong)\';this.style.color=\'var(--text-muted)\';this.style.background=\'rgba(255,255,255,0.02)\'">'
+            + ' class="text-[13px] px-4 py-2.5 rounded-xl flex items-center gap-2 transition-all cursor-pointer whitespace-nowrap"'
+            + ' style="border:1px solid rgba(52,211,153,0.2); color:var(--text-heading); background:rgba(52,211,153,0.04); font-weight:500;"'
+            + ' onmouseenter="this.style.borderColor=\'rgba(52,211,153,0.5)\';this.style.background=\'rgba(52,211,153,0.1)\';this.style.boxShadow=\'0 0 12px rgba(52,211,153,0.15)\';this.style.transform=\'translateY(-1px)\'"'
+            + ' onmouseleave="this.style.borderColor=\'rgba(52,211,153,0.2)\';this.style.background=\'rgba(52,211,153,0.04)\';this.style.boxShadow=\'none\';this.style.transform=\'none\'">'
             + safeLabel + '</button>';
     }
     html += '</div>';
@@ -423,11 +423,12 @@ function _handleOnboardingChip(btn) {
 function _showScanChip() {
     var messagesEl = document.getElementById('agent-messages');
     if (!messagesEl) return;
-    var html = '<div class="agent-onboarding-chips" style="display:flex;flex-wrap:wrap;gap:6px;padding:8px 0;">'
+    var html = '<div class="agent-onboarding-chips" style="display:flex;flex-wrap:wrap;gap:8px;padding:12px 0;">'
         + '<button onclick="_handleScanChip()"'
-        + ' class="text-[11px] px-3 py-1.5 rounded-full transition-all cursor-pointer"'
-        + ' style="background:var(--accent,#10b981);color:var(--bg-primary,#0f172a);border:1px solid var(--accent,#10b981);font-weight:600;"'
-        + ' onmouseenter="this.style.opacity=\'0.8\'" onmouseleave="this.style.opacity=\'1\'">'
+        + ' class="text-[14px] px-5 py-2.5 rounded-xl transition-all cursor-pointer"'
+        + ' style="background:var(--accent,#10b981);color:var(--bg-primary,#0f172a);border:1px solid var(--accent,#10b981);font-weight:600;box-shadow:0 2px 12px rgba(16,185,129,0.25);"'
+        + ' onmouseenter="this.style.opacity=\'0.85\';this.style.transform=\'translateY(-1px)\';this.style.boxShadow=\'0 4px 20px rgba(16,185,129,0.35)\'"'
+        + ' onmouseleave="this.style.opacity=\'1\';this.style.transform=\'none\';this.style.boxShadow=\'0 2px 12px rgba(16,185,129,0.25)\'">'
         + 'Run First Scan</button>'
         + '</div>';
     messagesEl.insertAdjacentHTML('beforeend', html);
