@@ -767,9 +767,8 @@ function _startAgentOnboarding() {
     // Set seen flag immediately — prevents re-render on refresh
     localStorage.setItem('stratos-onboarding-seen', 'true');
 
-    // Open agent panel
-    showAgentPanel(true);
-    _openAgentPanel();
+    // Navigate to the agent tab (fullscreen)
+    if (typeof setActive === 'function') setActive('strat_agent');
 
     // Clear existing conversation for fresh onboarding
     agentHistory = [];

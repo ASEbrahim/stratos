@@ -229,13 +229,32 @@ function setActive(id) {
     const marketsPanel = document.getElementById('markets-panel');
     const sibylPanel = document.getElementById('sibyl-panel');
 
+    // Exit agent fullscreen when navigating away
+    if (id !== 'strat_agent' && typeof _agentFullscreen !== 'undefined' && _agentFullscreen) {
+        if (typeof toggleAgentFullscreen === 'function') toggleAgentFullscreen();
+    }
+
     // Hide sibyl panel by default (shown only on sibyl_hue tab)
     if (sibylPanel && id !== 'sibyl_hue') {
         sibylPanel.classList.add('hidden');
         if (typeof hideSibylPanel === 'function') hideSibylPanel();
     }
 
-    if (id === 'sibyl_hue') {
+    if (id === 'strat_agent') {
+        // Fullscreen agent view
+        mainContent.classList.add('hidden');
+        settingsPanel.classList.add('hidden');
+        if (marketsPanel) marketsPanel.classList.add('hidden');
+        const ytPanelA = document.getElementById('youtube-kb-panel');
+        if (ytPanelA) ytPanelA.classList.add('hidden');
+        if (sibylPanel) sibylPanel.classList.add('hidden');
+        // Show agent panel and enter fullscreen if not already
+        if (typeof showAgentPanel === 'function') showAgentPanel(true);
+        if (typeof _openAgentPanel === 'function') _openAgentPanel();
+        if (typeof toggleAgentFullscreen === 'function' && !_agentFullscreen) {
+            toggleAgentFullscreen();
+        }
+    } else if (id === 'sibyl_hue') {
         // Sibyl Intelligence Hue panel
         mainContent.classList.add('hidden');
         settingsPanel.classList.add('hidden');
