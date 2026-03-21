@@ -314,11 +314,11 @@ def handle_delete(handler, strat, auth, path) -> bool:
         if not image_id.isalnum():
             error_response(handler, "Invalid image ID", 400)
             return True
-        # Verify image exists
+        # Verify image exists AND belongs to requesting user
         row = strat.db.conn.execute(
             "SELECT profile_id FROM generated_images WHERE id = ?", (image_id,)
         ).fetchone()
-        if not row:
+        if not row or row[0] != profile_id:
             error_response(handler, "Image not found", 404)
             return True
         matches = list(OUTPUT_DIR.glob(f"{image_id}.*"))
