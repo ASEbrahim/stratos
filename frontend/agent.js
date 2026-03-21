@@ -794,6 +794,25 @@ function showAgentPanel(show) {
     }
 }
 
+function _rerunOnboarding() {
+    // Clear onboarding flags so the flow can re-trigger
+    localStorage.removeItem('stratos-onboarded');
+    localStorage.removeItem('stratos-onboarding-seen');
+    window._onboardingActive = true;
+    // Reset onboarding state
+    if (typeof _obStep !== 'undefined') { _obStep = 0; _obData = { role: '', location: '', categories: [], tickers: [] }; }
+    if (typeof _onboardingChipClicked !== 'undefined') _onboardingChipClicked = false;
+    window._obExpectingInput = null;
+    // Clear chat and start onboarding
+    agentHistory = [];
+    var msgs = document.getElementById('agent-messages');
+    if (msgs) msgs.innerHTML = '';
+    if (typeof _obStep1 === 'function') _obStep1();
+    // Refresh sidebar to show updated state
+    if (_agentFullscreen) setTimeout(_refreshFsSidebar, 100);
+}
+window._rerunOnboarding = _rerunOnboarding;
+
 function _startAgentOnboarding() {
     console.log('onboarding: starting agent onboarding');
 
@@ -2361,6 +2380,9 @@ function _buildFsSidebar() {
             </div>
             <button onclick="clearAgentChat()" class="w-full flex items-center gap-2 px-3 py-2.5 rounded-lg text-[13px] transition-all" style="color:var(--text-muted);" title="Clear current chat" onmouseenter="this.style.color='#f87171';this.style.background='rgba(239,68,68,0.06)'" onmouseleave="this.style.color='var(--text-muted)';this.style.background='transparent'">
                 <i data-lucide="trash-2" class="w-4.5 h-4.5"></i> Clear Chat
+            </button>
+            <button onclick="_rerunOnboarding()" class="w-full flex items-center gap-2 px-3 py-2.5 rounded-lg text-[13px] transition-all" style="color:var(--text-muted);" title="Re-run the setup wizard" onmouseenter="this.style.color='var(--accent)';this.style.background='rgba(16,185,129,0.06)'" onmouseleave="this.style.color='var(--text-muted)';this.style.background='transparent'">
+                <i data-lucide="rocket" class="w-4.5 h-4.5"></i> Re-run Setup
             </button>
             <button onclick="_toggleFsCustomizer()" class="w-full flex items-center gap-2 px-3 py-2.5 rounded-lg text-[13px] transition-all" style="color:var(--accent);" title="Customize fullscreen appearance" onmouseenter="this.style.background='rgba(255,255,255,0.04)'" onmouseleave="this.style.background='transparent'">
                 <i data-lucide="palette" class="w-4.5 h-4.5"></i> Customize
