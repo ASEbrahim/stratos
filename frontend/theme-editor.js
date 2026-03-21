@@ -196,17 +196,13 @@
         localStorage.removeItem(getStorageKey());
     }
 
-    // ── Per-theme element default positions (shared with ui.js) ──
-    const _themeElementDefaults = {
-        midnight: { cx: 0.32, cy: 0.06 },
-        coffee:   { cx: 0.32, cy: 0.06 },
-        noir:     { cx: 0.55, cy: 0.05 },
-        rose:     { cx: 0.55, cy: 0.05 },
-        aurora:   { cx: 0.87, cy: 0.84 },
-        cosmos:   { cx: 0.79, cy: 0.88 },
-        sakura:   { cx: 0.09, cy: 0.87 },
-        nebula:   { cx: 0.92, cy: 0.91 },
-        sibyl:    { cx: 0.33, cy: 0.06, scale: 0.3, glow: 3.0, opacity: 1.0 },
+    // ── Per-theme element default positions (source of truth: ui.js → window._themeElementDefaults) ──
+    const _themeElementDefaults = window._themeElementDefaults || {
+        midnight: { cx: 0.32, cy: 0.06 }, coffee: { cx: 0.32, cy: 0.06 },
+        noir: { cx: 0.55, cy: 0.05 }, rose: { cx: 0.55, cy: 0.05 },
+        aurora: { cx: 0.87, cy: 0.84 }, cosmos: { cx: 0.79, cy: 0.88 },
+        sakura: { cx: 0.09, cy: 0.87 }, nebula: { cx: 0.92, cy: 0.91 },
+        sibyl: { cx: 0.33, cy: 0.06, scale: 0.3, glow: 3.0, opacity: 1.0 },
     };
 
     // ── Layout data helpers (canvas element positions/scale/blur) ──
