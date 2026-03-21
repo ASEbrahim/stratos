@@ -1490,6 +1490,9 @@ async function _handleSSEComplete(d) {
 
     // Show notification bell button (user must click to grant permission)
     _updateNotifBellState();
+
+    // Refresh Intelligence Hue (behavioral data changed after scan)
+    if (typeof initHue === 'function') initHue();
 }
 
 async function _handleSSECancelled(d) {
