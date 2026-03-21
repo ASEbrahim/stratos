@@ -921,11 +921,14 @@ def handle_post(handler, strat, auth, path):
                 )
                 strat.db._commit()
 
+                # Google Translate (Tier 1) only processes first 5000 chars;
+                # Argos and LLM process full text
+                _chars_translated = min(5000, len(transcript_text)) if _method == 'google' else len(transcript_text)
                 _send_json(handler, {
                     "translated_text": translated,
                     "source_language": source_lang,
                     "target_language": target_lang,
-                    "chars_translated": len(transcript_text),
+                    "chars_translated": _chars_translated,
                     "total_chars": len(transcript_text),
                     "method": _method,
                 })
