@@ -315,3 +315,110 @@ function _buildProfileSuggestions() {
     } catch(e) {}
     return sugs;
 }
+
+// ═══════════════════════════════════════════════════════════
+// ONBOARDING CHIPS — first-time user category selection + scan trigger
+// ═══════════════════════════════════════════════════════════
+
+var _ONBOARDING_CHIPS = [
+    { label: 'Tech & AI', prompt: "I work in tech and want to track AI developments, LLMs, and software trends" },
+    { label: 'Finance & Markets', prompt: "I follow financial markets, stocks, and economic policy" },
+    { label: 'Career & Jobs', prompt: "I want to track job market trends, hiring, and professional development" },
+    { label: 'Energy & Oil', prompt: "I follow oil prices, renewables, OPEC decisions, and energy infrastructure" },
+    { label: 'Regional News', prompt: "I want regional news relevant to my area — Kuwait, GCC, Middle East" },
+    { label: 'Cybersecurity', prompt: "I follow cybersecurity threats, vulnerabilities, and InfoSec developments" },
+    { label: 'Something else...', prompt: null, action: 'focus_input' },
+];
+
+var _onboardingChipClicked = false;
+
+function renderOnboardingChips(container) {
+    if (_onboardingChipClicked) return;
+    var cats = (window.configData && window.configData.dynamic_categories) ? window.configData.dynamic_categories.slice(0, 6) : [];
+    var chips;
+    if (cats.length >= 3) {
+        chips = cats.map(function(c) {
+            var label = c.label || c.id || '';
+            return { label: label, prompt: "I'm interested in " + label + " — tell me more about tracking this." };
+        });
+        chips.push({ label: 'Something else...', prompt: null, action: 'focus_input' });
+    } else {
+        chips = _ONBOARDING_CHIPS;
+    }
+
+    var html = '<div class="agent-onboarding-chips" style="display:flex;flex-wrap:wrap;gap:6px;padding:8px 0;">';
+    for (var i = 0; i < chips.length; i++) {
+        var chip = chips[i];
+        var safeLabel = chip.label.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        var dataAction = chip.action ? ' data-action="' + chip.action + '"' : '';
+        var dataPrompt = chip.prompt ? ' data-prompt="' + chip.prompt.replace(/"/g, '&quot;').replace(/</g, '&lt;') + '"' : '';
+        html += '<button onclick="_handleOnboardingChip(this)"' + dataAction + dataPrompt
+            + ' class="text-[10px] px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap"'
+            + ' style="border:1px solid var(--border-strong); color:var(--text-muted); background:rgba(255,255,255,0.02);"'
+            + ' onmouseenter="this.style.borderColor=\'var(--accent,#34d399)\';this.style.color=\'var(--accent,#34d399)\';this.style.background=\'rgba(16,185,129,0.06)\'"'
+            + ' onmouseleave="this.style.borderColor=\'var(--border-strong)\';this.style.color=\'var(--text-muted)\';this.style.background=\'rgba(255,255,255,0.02)\'">'
+            + safeLabel + '</button>';
+    }
+    html += '</div>';
+    container.insertAdjacentHTML('beforeend', html);
+}
+
+function _handleOnboardingChip(btn) {
+    if (_onboardingChipClicked) return;
+    var action = btn.getAttribute('data-action');
+    var prompt = btn.getAttribute('data-prompt');
+    console.log('onboarding: chip clicked', action || (prompt ? prompt.substring(0, 30) : ''));
+
+    if (action === 'focus_input') {
+        var input = document.getElementById('agent-input');
+        if (input) { input.focus(); input.placeholder = 'Tell me what topics matter to you...'; }
+        return;
+    }
+
+    _onboardingChipClicked = true;
+
+    // Remove category chips
+    var chipContainers = document.querySelectorAll('.agent-onboarding-chips');
+    for (var i = 0; i < chipContainers.length; i++) chipContainers[i].remove();
+
+    // Send as agent message
+    if (prompt) {
+        var input = document.getElementById('agent-input');
+        if (input) input.value = prompt;
+        if (typeof sendAgentMessage === 'function') sendAgentMessage();
+    }
+
+    // Show "Run first scan" chip after agent responds
+    setTimeout(function() { _showScanChip(); }, 2000);
+}
+
+function _showScanChip() {
+    var messagesEl = document.getElementById('agent-messages');
+    if (!messagesEl) return;
+    var html = '<div class="agent-onboarding-chips" style="display:flex;flex-wrap:wrap;gap:6px;padding:8px 0;">'
+        + '<button onclick="_handleScanChip()"'
+        + ' class="text-[11px] px-3 py-1.5 rounded-full transition-all cursor-pointer"'
+        + ' style="background:var(--accent,#10b981);color:var(--bg-primary,#0f172a);border:1px solid var(--accent,#10b981);font-weight:600;"'
+        + ' onmouseenter="this.style.opacity=\'0.8\'" onmouseleave="this.style.opacity=\'1\'">'
+        + 'Run First Scan</button>'
+        + '</div>';
+    messagesEl.insertAdjacentHTML('beforeend', html);
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+}
+
+function _handleScanChip() {
+    console.log('onboarding: first scan triggered');
+    // Remove scan chips
+    var chipContainers = document.querySelectorAll('.agent-onboarding-chips');
+    for (var i = 0; i < chipContainers.length; i++) chipContainers[i].remove();
+
+    // Send as agent message for conversation coherence
+    var input = document.getElementById('agent-input');
+    if (input) input.value = 'Run my first scan';
+    if (typeof sendAgentMessage === 'function') sendAgentMessage();
+
+    // Also trigger the actual scan
+    if (typeof toggleScan === 'function') {
+        setTimeout(function() { toggleScan(); }, 500);
+    }
+}
