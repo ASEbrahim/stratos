@@ -98,6 +98,32 @@ def handle_config_save(handler, strat, auth_helpers):
         if not isinstance(new_config, dict):
             error_response(handler, "Invalid config format", 400)
             return
+
+        # Validate: only accept known top-level keys to prevent config injection
+        _ALLOWED_KEYS = frozenset({
+            "profile", "market", "news", "search", "tickers", "scoring",
+            "tts", "ui_preferences", "dynamic_categories",
+            "extra_feeds_finance", "extra_feeds_politics", "extra_feeds_jobs",
+            "custom_feeds_finance", "custom_feeds_politics",
+            "custom_feeds", "custom_tab_name",
+        })
+        unknown_keys = set(new_config.keys()) - _ALLOWED_KEYS
+        if unknown_keys:
+            logger.warning(f"Config save rejected unknown keys: {unknown_keys}")
+            error_response(handler, f"Unknown config keys: {', '.join(sorted(unknown_keys))}", 400)
+            return
+
+        # Type validation for critical nested fields
+        if "profile" in new_config and not isinstance(new_config["profile"], dict):
+            error_response(handler, "profile must be an object", 400)
+            return
+        if "tickers" in new_config and not isinstance(new_config["tickers"], list):
+            error_response(handler, "tickers must be an array", 400)
+            return
+        if "dynamic_categories" in new_config and not isinstance(new_config["dynamic_categories"], list):
+            error_response(handler, "dynamic_categories must be an array", 400)
+            return
+
         config = strat.config
 
         # Profile (merge, don't replace)
