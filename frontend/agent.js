@@ -2357,7 +2357,6 @@ function _refreshFsSidebar() {
 function toggleAgentFullscreen() {
     const panel = document.getElementById('agent-panel');
     const msgs = document.getElementById('agent-messages');
-    const btn = document.getElementById('agent-fs-btn');
     if (!panel) return;
 
     _agentFullscreen = !_agentFullscreen;
@@ -2389,8 +2388,6 @@ function toggleAgentFullscreen() {
         if (msgs) { msgs.style.height = ''; msgs.style.maxHeight = 'none'; }
 
         // Hide redundant header buttons in fullscreen (back + new chat are in sidebar)
-        var _fsBtn = document.getElementById('agent-fs-btn');
-        if (_fsBtn) _fsBtn.style.display = 'none';
         // Hide the + new chat button from card header
         var _headerBtns = panel.querySelectorAll('button[onclick*="newAgentChat"]');
         _headerBtns.forEach(function(b) { if (b.closest('.agent-fs-sidebar')) return; b.style.display = 'none'; });
@@ -2440,7 +2437,6 @@ function toggleAgentFullscreen() {
         }
 
         if (msgs) { msgs.style.height = '280px'; msgs.style.maxHeight = '600px'; }
-        if (btn) { btn.style.display = 'none'; }
         // Restore header buttons
         var _headerNewChat = panel.querySelectorAll('button[onclick*="newAgentChat"]');
         _headerNewChat.forEach(function(b) { b.style.display = ''; });
