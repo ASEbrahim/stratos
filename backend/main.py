@@ -5,6 +5,7 @@ The central brain that coordinates all modules and generates the final output.
 
 import copy
 import hashlib
+import itertools
 import json
 import logging
 import logging.handlers
@@ -186,6 +187,7 @@ class StratOS:
 
         # Deferred briefing thread tracking (BUG-2 fix)
         self._briefing_thread = None
+        self._briefing_gen_counter = itertools.count(1)
         self._briefing_generation = 0
         self._briefing_done = threading.Event()
         self._briefing_done.set()  # Initially "done" (no pending briefing)
@@ -1348,8 +1350,8 @@ class StratOS:
 
     def _spawn_deferred_briefing(self, market_data, market_alerts, scored_items, discoveries, profile_id=0):
         """Generate briefing in a background thread and patch the output when done."""
-        self._briefing_generation += 1
-        current_gen = self._briefing_generation
+        current_gen = next(self._briefing_gen_counter)
+        self._briefing_generation = current_gen
         self._briefing_done.clear()
 
         def _briefing_worker():
