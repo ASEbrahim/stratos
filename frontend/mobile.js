@@ -455,18 +455,18 @@ function _openMobileAgent() {
     const personaRow = typeof _mavBuildPersonaRow === 'function' ? _mavBuildPersonaRow() : '';
     view.innerHTML = `
         <div class="mav-header">
-            <div class="mav-title">
+            <div style="display:flex;align-items:center;gap:8px;">
+                <button onclick="_closeMobileAgent()" style="display:flex;align-items:center;gap:4px;padding:5px 10px;border-radius:8px;font-size:11px;font-weight:600;color:var(--accent,#34d399);border:1px solid rgba(52,211,153,0.25);background:rgba(52,211,153,0.06);cursor:pointer;" onmouseenter="this.style.background='rgba(52,211,153,0.12)'" onmouseleave="this.style.background='rgba(52,211,153,0.06)'">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Back
+                </button>
+                <button onclick="_mavNewChat()" style="display:flex;align-items:center;gap:4px;padding:5px 10px;border-radius:8px;font-size:11px;font-weight:500;color:var(--text-heading);border:1px solid var(--border-strong);background:rgba(255,255,255,0.02);cursor:pointer;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> New Chat
+                </button>
+            </div>
+            <div class="mav-title" style="flex:1;text-align:right;">
                 <div class="mav-dot" id="mav-status-dot"></div>
                 STRAT AGENT
                 <span id="mav-model-badge" style="font-size:10px;font-weight:500;color:var(--text-muted);"></span>
-            </div>
-            <div class="mav-actions">
-                <button onclick="_mavNewChat()" title="New chat"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
-                <button onclick="_mavToggleConvs()" id="mav-convs-btn" title="Conversations"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></button>
-                <button onclick="_mavToggleContext()" title="Context"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></button>
-                <button onclick="_mavToggleFiles()" title="Files"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg></button>
-                <button onclick="_mavClear()" title="Clear" style="color:#f87171;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg></button>
-                <button class="mav-close" onclick="_closeMobileAgent()" title="Close"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
             </div>
         </div>
         ${personaRow}
