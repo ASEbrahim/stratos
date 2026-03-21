@@ -127,7 +127,9 @@ async function checkAuthAndInit() {
                 if (d.authenticated) {
                     setActiveProfile(d.display_name || '');
                     if (d.ui_state && typeof _applyUiStateFromServer === 'function') _applyUiStateFromServer(d.ui_state);
-                    // Show app with fade-in to prevent flash
+                    // Unhide page (was hidden by head script to prevent theme flash)
+                    document.documentElement.style.visibility = '';
+                    // Show app with fade-in
                     const _app = document.querySelector('.flex.h-screen');
                     if (_app) { _app.style.display = ''; requestAnimationFrame(() => { _app.style.opacity = '1'; }); }
                     init();
@@ -153,7 +155,7 @@ async function checkAuthAndInit() {
         }
         if (authResult.status === 'fulfilled' && authResult.value.ok) {
             const d = await authResult.value.json();
-            if (d.authenticated && d.active_profile) { setActiveProfile(d.active_profile); const _app = document.querySelector('.flex.h-screen'); if (_app) { _app.style.display = ''; requestAnimationFrame(() => { _app.style.opacity = '1'; }); } init(); return; }
+            if (d.authenticated && d.active_profile) { setActiveProfile(d.active_profile); document.documentElement.style.visibility=''; const _app = document.querySelector('.flex.h-screen'); if (_app) { _app.style.display = ''; requestAnimationFrame(() => { _app.style.opacity = '1'; }); } init(); return; }
             _deviceProfiles = (d.profiles || []).filter(p => p.has_pin);
             _allProfiles = (d.all_profiles || d.profiles || []).filter(p => p.has_pin);
         }
@@ -161,9 +163,11 @@ async function checkAuthAndInit() {
         // 4. Determine auth mode
         _authMode = _hasDbUsers ? 'email' : (_allProfiles.length > 0 ? 'legacy' : 'email');
         _showingAll = false;
+        document.documentElement.style.visibility = '';
         _showLanding();
     } catch (e) {
         console.error('Auth check failed:', e);
+        document.documentElement.style.visibility = '';
         // Show app with fade-in as fallback
         const _app = document.querySelector('.flex.h-screen');
         if (_app) { _app.style.display = ''; requestAnimationFrame(() => { _app.style.opacity = '1'; }); }
