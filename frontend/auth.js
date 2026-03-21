@@ -904,6 +904,11 @@ function _initGoogleSignIn(containerId) {
 
 async function _handleGoogleCredential(response) {
     if (!response || !response.credential) return;
+
+    // Show loading state
+    var _gBtns = document.querySelectorAll('#google-landing-btn, #google-signin-btn-container');
+    _gBtns.forEach(function(el) { el.innerHTML = '<div style="color:rgba(255,255,255,0.5);font-size:12px;padding:10px;text-align:center;">Signing in with Google...</div>'; });
+
     try {
         const r = await _originalFetch('/api/auth/google', {
             method: 'POST',
@@ -919,13 +924,29 @@ async function _handleGoogleCredential(response) {
             if (typeof loadUiSettingsFromServer === 'function') await loadUiSettingsFromServer();
             _dismiss();
         } else {
-            // Show error on current screen
-            var err = document.getElementById('login-error') || document.getElementById('register-error');
-            if (err) err.textContent = d.error || 'Google sign-in failed';
-            else if (typeof showToast === 'function') showToast(d.error || 'Google sign-in failed', 'error');
+            _showGoogleError(d.error || 'Google sign-in failed');
         }
     } catch (e) {
         console.error('Google auth error:', e);
+        _showGoogleError('Connection error. Please try again.');
+    }
+}
+
+function _showGoogleError(msg) {
+    // Re-render Google buttons (they were replaced with loading text)
+    var landing = document.getElementById('google-landing-btn');
+    if (landing && _googleClientId) { landing.innerHTML = ''; _initGoogleSignIn('google-landing-btn'); }
+    var signin = document.getElementById('google-signin-btn-container');
+    if (signin && _googleClientId) { signin.innerHTML = ''; _initGoogleSignIn('google-signin-btn-container'); }
+
+    // Show error toast on auth overlay
+    var overlay = document.getElementById('auth-overlay');
+    if (overlay) {
+        var toast = document.createElement('div');
+        toast.style.cssText = 'position:fixed;bottom:32px;left:50%;transform:translateX(-50%);background:#ef4444;color:white;padding:12px 24px;border-radius:10px;font-size:13px;z-index:10001;box-shadow:0 4px 20px rgba(239,68,68,0.3);';
+        toast.textContent = msg;
+        overlay.appendChild(toast);
+        setTimeout(function() { toast.remove(); }, 4000);
     }
 }
 

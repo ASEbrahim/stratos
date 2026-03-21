@@ -725,6 +725,21 @@ function _initProfileSettings() {
     if (emailInput && typeof configData !== 'undefined' && configData?.profile?.email) {
         emailInput.value = configData.profile.email;
     }
+    /* Detect auth method for password section labeling */
+    _originalFetch('/api/auth/check', { headers: { 'X-Auth-Token': getAuthToken() } })
+        .then(function(r) { return r.ok ? r.json() : null; })
+        .then(function(d) {
+            if (!d) return;
+            window._userAuthMethod = d.auth_method || 'password';
+            var pinLabel = document.querySelector('#pin-change-fields')?.closest('.mt-4')?.querySelector('.font-medium');
+            var currentField = document.getElementById('profile-current-pin');
+            if (d.auth_method === 'google') {
+                if (pinLabel) pinLabel.textContent = 'Set Password';
+                if (currentField) currentField.closest('.auth-field-group, div')?.style.setProperty('display', 'none');
+            } else {
+                if (pinLabel) pinLabel.textContent = 'Change Password';
+            }
+        }).catch(function() {});
 }
 
 function _togglePinChange() {
@@ -741,27 +756,39 @@ async function _updatePin() {
     const confirmPin = document.getElementById('profile-confirm-pin')?.value.trim();
     const errEl = document.getElementById('profile-error-msg');
     if (errEl) { errEl.classList.add('hidden'); errEl.textContent = ''; }
-    if (!currentPin || !newPin) {
-        if (errEl) { errEl.textContent = 'Enter current and new PIN'; errEl.classList.remove('hidden'); }
+
+    const isGoogleOnly = window._userAuthMethod === 'google';
+
+    if (!isGoogleOnly && !currentPin) {
+        if (errEl) { errEl.textContent = 'Enter current password'; errEl.classList.remove('hidden'); }
+        return;
+    }
+    if (!newPin || newPin.length < 8) {
+        if (errEl) { errEl.textContent = 'New password must be at least 8 characters'; errEl.classList.remove('hidden'); }
         return;
     }
     if (newPin !== confirmPin) {
-        if (errEl) { errEl.textContent = 'New PINs do not match'; errEl.classList.remove('hidden'); }
+        if (errEl) { errEl.textContent = 'Passwords do not match'; errEl.classList.remove('hidden'); }
         return;
     }
     try {
-        const r = await fetch('/api/update-profile', {
+        const endpoint = isGoogleOnly ? '/api/auth/set-password' : '/api/auth/change-password';
+        const body = isGoogleOnly
+            ? { new_password: newPin }
+            : { old_password: currentPin, new_password: newPin };
+        const r = await fetch(endpoint, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ current_pin: currentPin, new_pin: newPin })
+            body: JSON.stringify(body)
         });
         const data = await r.json();
-        if (!r.ok) throw new Error(data.error || 'PIN update failed');
+        if (!r.ok) throw new Error(data.error || 'Password update failed');
         document.getElementById('profile-current-pin').value = '';
         document.getElementById('profile-new-pin').value = '';
         document.getElementById('profile-confirm-pin').value = '';
         const statusEl = document.getElementById('profile-save-status');
-        if (statusEl) { statusEl.textContent = 'PIN updated'; statusEl.style.opacity = '1'; setTimeout(() => statusEl.style.opacity = '0', 2000); }
+        if (statusEl) { statusEl.textContent = isGoogleOnly ? 'Password set!' : 'Password updated'; statusEl.style.opacity = '1'; setTimeout(() => statusEl.style.opacity = '0', 2000); }
+        if (isGoogleOnly) window._userAuthMethod = 'both';
     } catch (e) {
         if (errEl) { errEl.textContent = e.message; errEl.classList.remove('hidden'); }
     }
