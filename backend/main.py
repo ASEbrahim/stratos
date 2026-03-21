@@ -10,6 +10,7 @@ import json
 import logging
 import logging.handlers
 import os
+import tempfile
 import yaml
 import time
 import threading
@@ -369,8 +370,20 @@ class StratOS:
                 with open(self.config_path, 'r') as f:
                     raw = yaml.safe_load(f)
                 raw.setdefault('search', {})['serper_credits'] = actual_remaining
-                with open(self.config_path, 'w') as f:
-                    yaml.dump(raw, f, default_flow_style=False, sort_keys=False)
+                config_dir = os.path.dirname(os.path.abspath(self.config_path))
+                data = yaml.dump(raw, default_flow_style=False, sort_keys=False).encode('utf-8')
+                fd, tmp = tempfile.mkstemp(dir=config_dir, suffix='.yaml.tmp')
+                try:
+                    os.write(fd, data)
+                    os.close(fd)
+                    fd = -1
+                    os.replace(tmp, self.config_path)
+                except BaseException:
+                    if fd >= 0:
+                        os.close(fd)
+                    if os.path.exists(tmp):
+                        os.unlink(tmp)
+                    raise
                 logger.info(f"Serper credits synced: {config_remaining} -> {actual_remaining} (tracker)")
         except Exception as e:
             logger.debug(f"Could not sync Serper credits: {e}")
