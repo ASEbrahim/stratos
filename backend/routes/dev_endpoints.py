@@ -14,6 +14,9 @@ from pathlib import Path
 
 logger = logging.getLogger("STRAT_OS")
 
+# Dev mode guard: set STRATOS_DEV_MODE=1 to enable dev endpoints
+_DEV_MODE = os.environ.get("STRATOS_DEV_MODE", "1") == "1"
+
 # Project root (two levels up from this file)
 _PROJECT_ROOT = str(Path(__file__).resolve().parent.parent.parent)
 _BACKEND_DIR = str(Path(__file__).resolve().parent.parent)
@@ -30,8 +33,21 @@ def _send_json(handler, data, status=200):
 
 
 def _is_admin(handler):
-    """Check if the current request is from an admin user (profile_id 1 = admin)."""
+    """Check if the current request is from an admin user via is_admin column."""
     profile_id = getattr(handler, '_profile_id', 0)
+    if not profile_id:
+        return False
+    try:
+        from database import get_database
+        db = get_database()
+        cursor = db.conn.cursor()
+        cursor.execute("SELECT is_admin FROM profiles WHERE id = ?", (profile_id,))
+        row = cursor.fetchone()
+        if row:
+            return bool(row[0] if isinstance(row, tuple) else row['is_admin'])
+    except Exception:
+        pass
+    # Fallback: profile_id 1 is admin (for legacy profile-based auth)
     return profile_id == 1
 
 
@@ -190,6 +206,10 @@ def _build_context():
 def handle_get(handler, strat, auth, path):
     """Handle GET requests for dev endpoints. Returns True if handled."""
 
+    if not _DEV_MODE and path.startswith("/api/dev/"):
+        _send_json(handler, {"error": "Dev endpoints disabled"}, 403)
+        return True
+
     if path == "/api/dev/context":
         if not _is_admin(handler):
             _send_json(handler, {"error": "Admin access required"}, 403)
@@ -284,6 +304,10 @@ def handle_get(handler, strat, auth, path):
 
 def handle_post(handler, strat, auth, path):
     """Handle POST requests for dev endpoints. Returns True if handled."""
+
+    if not _DEV_MODE and (path.startswith("/api/dev/") or path == "/api/prompt-builder/generate"):
+        _send_json(handler, {"error": "Dev endpoints disabled"}, 403)
+        return True
 
     if path == "/api/prompt-builder/generate":
         if not _is_admin(handler):
