@@ -306,7 +306,7 @@ def handle_auth_routes(handler, method, path, data, db, strat, send_json, email_
         pending_id, display_name = row
         code = _generate_code()
         cursor.execute("""
-            UPDATE pending_registrations SET verification_code_hash = ?, verification_expires = ? WHERE id = ?
+            UPDATE pending_registrations SET verification_code_hash = ?, verification_expires = ?, verify_attempts = 0 WHERE id = ?
         """, (_hash_code(code), (datetime.now() + timedelta(minutes=15)).isoformat(), pending_id))
         db._commit()
 
