@@ -41,14 +41,18 @@ def _is_admin(handler):
         from database import get_database
         db = get_database()
         cursor = db.conn.cursor()
-        cursor.execute("SELECT is_admin FROM profiles WHERE id = ?", (profile_id,))
+        cursor.execute(
+            "SELECT u.is_admin FROM users u "
+            "JOIN sessions s ON s.user_id = u.id "
+            "WHERE s.profile_id = ?",
+            (profile_id,)
+        )
         row = cursor.fetchone()
         if row:
             return bool(row[0] if isinstance(row, tuple) else row['is_admin'])
     except Exception:
         pass
-    # Fallback: profile_id 1 is admin (for legacy profile-based auth)
-    return profile_id == 1
+    return False
 
 
 def _run_git(*args, cwd=None):
