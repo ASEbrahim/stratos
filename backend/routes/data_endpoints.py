@@ -186,20 +186,19 @@ def handle_get(handler, strat, auth, path, output_dir=None):
                     if "avatar" not in status and ui_state.get("avatar"):
                         status["avatar"] = ui_state["avatar"]
                     status["ui_state"] = ui_state
-                    # DB fallback for email (DB-auth users have no YAML)
-                    if "email" not in status:
-                        try:
-                            cursor = strat.db.conn.cursor()
-                            cursor.execute("""
-                                SELECT u.email FROM users u
-                                JOIN profiles p ON p.user_id = u.id
-                                WHERE p.id = ? LIMIT 1
-                            """, (_status_pid,))
-                            email_row = cursor.fetchone()
-                            if email_row and email_row[0]:
-                                status["email"] = email_row[0]
-                        except Exception as e:
-                            logger.debug(f"Failed to fetch email for profile {_status_pid}: {e}")
+                    # Fetch email from DB (authoritative for DB-auth users, overrides YAML)
+                    try:
+                        cursor = strat.db.conn.cursor()
+                        cursor.execute("""
+                            SELECT u.email FROM users u
+                            JOIN profiles p ON p.user_id = u.id
+                            WHERE p.id = ? LIMIT 1
+                        """, (_status_pid,))
+                        email_row = cursor.fetchone()
+                        if email_row and email_row[0]:
+                            status["email"] = email_row[0]
+                    except Exception as e:
+                        logger.debug(f"Failed to fetch email for profile {_status_pid}: {e}")
         handler.wfile.write(json.dumps(status).encode())
         return True
 
