@@ -174,53 +174,74 @@ Generate the optimal STRAT_OS configuration for this person. Remember:
 
         # Retry loop — LLM sometimes returns malformed JSON on first try
         raw = ""
-        for attempt in range(2):
-            messages = [
-                {"role": "system", "content": GENERATE_SYSTEM_PROMPT},
-                {"role": "user", "content": prompt},
-            ]
-            if attempt > 0:
-                # Reinforce JSON-only output on retry
-                messages.append({"role": "assistant", "content": "{"})
-                messages.append({"role": "user", "content": "Respond ONLY with valid JSON. No explanation, no reasoning, no markdown. Just the JSON object starting with {"})
+        profile_data = None
 
-            response = req.post(
-                f"{scorer.host}/api/chat",
-                json={
-                    "model": wiz_model,
-                    "messages": messages,
-                    "stream": False,
-                    "think": False,  # JSON-only output — no reasoning needed
-                    "options": {
-                        "temperature": 0.3 if attempt == 0 else 0.2,
-                        "num_predict": 2000 if attempt == 0 else 3000,
-                        "num_ctx": 6144 if attempt == 0 else 8192,
-                    }
-                },
-                timeout=60 if attempt == 0 else 90
-            )
+        # Try provider abstraction first (supports Gemini on VPS)
+        try:
+            from llm_provider import call_llm, get_provider
+            if get_provider(strat.config) == 'gemini':
+                result = call_llm(strat.config, prompt, system=GENERATE_SYSTEM_PROMPT,
+                                  max_tokens=2000, temperature=0.3, timeout=60,
+                                  think=False, use_case='chat')
+                if result:
+                    result = strip_think_blocks(result)
+                    json_str = extract_json(result)
+                    try:
+                        profile_data = json.loads(json_str)
+                        raw = result
+                    except json.JSONDecodeError:
+                        logger.warning(f"Generate: Gemini JSON decode failed, falling back to Ollama")
+        except Exception:
+            pass  # Fall through to Ollama
 
-            if response.status_code != 200:
-                if attempt == 0:
-                    continue
-                raise RuntimeError(f"Ollama returned {response.status_code}")
+        if profile_data is None:
+            for attempt in range(2):
+                messages = [
+                    {"role": "system", "content": GENERATE_SYSTEM_PROMPT},
+                    {"role": "user", "content": prompt},
+                ]
+                if attempt > 0:
+                    # Reinforce JSON-only output on retry
+                    messages.append({"role": "assistant", "content": "{"})
+                    messages.append({"role": "user", "content": "Respond ONLY with valid JSON. No explanation, no reasoning, no markdown. Just the JSON object starting with {"})
 
-            resp_data = response.json()
-            raw = resp_data.get("message", {}).get("content", "")
-            raw = strip_think_blocks(raw)  # safety net
+                response = req.post(
+                    f"{scorer.host}/api/chat",
+                    json={
+                        "model": wiz_model,
+                        "messages": messages,
+                        "stream": False,
+                        "think": False,  # JSON-only output — no reasoning needed
+                        "options": {
+                            "temperature": 0.3 if attempt == 0 else 0.2,
+                            "num_predict": 2000 if attempt == 0 else 3000,
+                            "num_ctx": 6144 if attempt == 0 else 8192,
+                        }
+                    },
+                    timeout=60 if attempt == 0 else 90
+                )
 
-            logger.info(f"Generate: raw response ({len(raw)} chars): {raw[:200]}...")
+                if response.status_code != 200:
+                    if attempt == 0:
+                        continue
+                    raise RuntimeError(f"Ollama returned {response.status_code}")
 
-            # Extract and parse JSON (handles reasoning text wrapping JSON)
-            json_str = extract_json(raw)
-            try:
-                profile_data = json.loads(json_str)
-                break  # Success
-            except json.JSONDecodeError:
-                if attempt == 0:
-                    logger.warning(f"Generate: JSON decode failed, retrying... raw: {raw[:300]}")
-                    continue
-                raise ValueError(f"No valid JSON in AI response after retry. Raw: {raw[:300]}")
+                resp_data = response.json()
+                raw = resp_data.get("message", {}).get("content", "")
+                raw = strip_think_blocks(raw)  # safety net
+
+                logger.info(f"Generate: raw response ({len(raw)} chars): {raw[:200]}...")
+
+                # Extract and parse JSON (handles reasoning text wrapping JSON)
+                json_str = extract_json(raw)
+                try:
+                    profile_data = json.loads(json_str)
+                    break  # Success
+                except json.JSONDecodeError:
+                    if attempt == 0:
+                        logger.warning(f"Generate: JSON decode failed, retrying... raw: {raw[:300]}")
+                        continue
+                    raise ValueError(f"No valid JSON in AI response after retry. Raw: {raw[:300]}")
 
         # Validate structure
         categories = profile_data.get("categories", [])
