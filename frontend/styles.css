@@ -190,10 +190,19 @@ select:hover { border-color: var(--text-muted) !important; }
     min-height: var(--fs-input-height, 52px);
     border-radius: var(--fs-bubble-radius, 16px) !important;
 }
-.agent-fullscreen #agent-send-btn {
+.agent-fullscreen #agent-send-btn,
+.agent-fullscreen #agent-upload-btn,
+.agent-fullscreen #rp-director-btn,
+.agent-fullscreen #agent-mic-btn {
     width: var(--fs-send-size, 44px) !important;
     height: var(--fs-send-size, 44px) !important;
     border-radius: 14px !important;
+}
+.agent-fullscreen #agent-upload-btn svg,
+.agent-fullscreen #rp-director-btn svg,
+.agent-fullscreen #agent-mic-btn svg {
+    width: calc(var(--fs-send-size, 44px) * 0.4) !important;
+    height: calc(var(--fs-send-size, 44px) * 0.4) !important;
 }
 .agent-fullscreen #agent-welcome .text-sm { font-size: calc(var(--fs-font-size, 15px) + 3px) !important; }
 .agent-fullscreen #agent-welcome .text-\\[11px\\] { font-size: calc(var(--fs-font-size, 15px) - 2px) !important; }
