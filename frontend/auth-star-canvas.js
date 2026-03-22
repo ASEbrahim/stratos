@@ -402,12 +402,12 @@ function _initStarParallax() {
             ctx.restore();
         }
 
-        // Gears — smooth watchlike rotation, clearly visible
-        const gs = time * 1.8;
-        _noirDrawGear(pivotX - 16, pivotY - 8, 11, 15, 8, gs, 0.5 + mBoost);
-        _noirDrawGear(pivotX + 14, pivotY - 6, 8, 11, 6, -gs * 1.33, 0.45 + mBoost);
-        _noirDrawGear(pivotX + 4, pivotY - 20, 6, 9, 7, gs * 1.14, 0.4 + mBoost);
-        _noirDrawGear(pivotX - 8, pivotY + 12, 5, 8, 5, -gs * 1.6, 0.35 + mBoost);
+        // Gears — smooth fluid rotation, clearly visible
+        const gs = time * 4;
+        _noirDrawGear(pivotX - 16, pivotY - 8, 11, 15, 8, gs, 0.55 + mBoost);
+        _noirDrawGear(pivotX + 14, pivotY - 6, 8, 11, 6, -gs * 1.33, 0.5 + mBoost);
+        _noirDrawGear(pivotX + 4, pivotY - 20, 6, 9, 7, gs * 1.14, 0.45 + mBoost);
+        _noirDrawGear(pivotX - 8, pivotY + 12, 5, 8, 5, -gs * 1.6, 0.4 + mBoost);
 
         // Ripples at swing extremes
         if (Math.abs(angVel) < 0.08 && _noirRipples.length < 6) {
