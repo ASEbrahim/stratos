@@ -131,34 +131,38 @@ Industry-specific employers (oil/gas companies, construction firms, etc.) are ON
 They are NOT relevant for: unrelated professions in the same location. A teacher in Kuwait doesn't need K-Sector oil companies. A nurse in Riyadh doesn't need Saudi Aramco."""
 
 
-def handle_generate_profile(handler, strat):
-    """POST /api/generate-profile — AI-powered category generation."""
-    try:
-        data = read_json_body(handler)
-        role = data.get("role", "").strip()[:MAX_INPUT_LEN]
-        location = data.get("location", "").strip()[:MAX_INPUT_LEN]
-        user_context = data.get("context", "").strip()[:MAX_CONTEXT_LEN]
-        deep = data.get("deep", False)
+def _run_generate_profile(strat, role, location="", context="", deep=False):
+    """Core profile generation logic — callable without HTTP handler.
 
-        if not role:
-            error_response(handler, "Role is required", 400)
-            return
+    Args:
+        strat: StratOS instance
+        role: User's job title/profession
+        location: Geographic location
+        context: Additional interests/context
+        deep: Use inference model (slower, better) vs wizard model
 
-        scorer = strat.scorer
-        scoring_cfg = strat.config.get('scoring', {})
-        # Deep mode uses the full inference model; quick uses the lighter wizard model
-        if deep:
-            wiz_model = getattr(scorer, 'inference_model', None) or scorer.model
-            logger.info(f"Generate: DEEP mode — using {wiz_model}")
-        else:
-            wiz_model = scoring_cfg.get('wizard_model') or getattr(scorer, 'inference_model', None) or scorer.model
-            logger.info(f"Generate: QUICK mode — using {wiz_model}")
-        # VRAM safety: ensure Ollama running + model fits
-        if not ensure_model_ready(wiz_model):
-            raise RuntimeError("Ollama is not available")
+    Returns:
+        dict: {categories: [...], tickers: [...], timelimit: str, context: str}
 
-        # Build user prompt
-        prompt = f"""Role: {role}
+    Raises:
+        ValueError, RuntimeError, json.JSONDecodeError on failure
+    """
+    if not role:
+        raise ValueError("Role is required")
+
+    user_context = context
+    scorer = strat.scorer
+    scoring_cfg = strat.config.get('scoring', {})
+    if deep:
+        wiz_model = getattr(scorer, 'inference_model', None) or scorer.model
+        logger.info(f"Generate: DEEP mode — using {wiz_model}")
+    else:
+        wiz_model = scoring_cfg.get('wizard_model') or getattr(scorer, 'inference_model', None) or scorer.model
+        logger.info(f"Generate: QUICK mode — using {wiz_model}")
+    if not ensure_model_ready(wiz_model):
+        raise RuntimeError("Ollama is not available")
+
+    prompt = f"""Role: {role}
 Location: {location or 'Not specified'}
 Additional context: {user_context or 'None provided'}
 
@@ -172,110 +176,117 @@ Generate the optimal STRAT_OS configuration for this person. Remember:
 - Use the correct scorer_type for each category
 - Every category must be something this person would check DAILY in their job"""
 
-        # Retry loop — LLM sometimes returns malformed JSON on first try
-        raw = ""
-        profile_data = None
+    raw = ""
+    profile_data = None
 
-        # Try provider abstraction first (supports Gemini on VPS)
-        try:
-            from llm_provider import call_llm, get_provider
-            if get_provider(strat.config) == 'gemini':
-                result = call_llm(strat.config, prompt, system=GENERATE_SYSTEM_PROMPT,
-                                  max_tokens=2000, temperature=0.3, timeout=60,
-                                  think=False, use_case='chat')
-                if result:
-                    result = strip_think_blocks(result)
-                    json_str = extract_json(result)
-                    try:
-                        profile_data = json.loads(json_str)
-                        raw = result
-                    except json.JSONDecodeError:
-                        logger.warning(f"Generate: Gemini JSON decode failed, falling back to Ollama")
-        except Exception:
-            pass  # Fall through to Ollama
-
-        if profile_data is None:
-            for attempt in range(2):
-                messages = [
-                    {"role": "system", "content": GENERATE_SYSTEM_PROMPT},
-                    {"role": "user", "content": prompt},
-                ]
-                if attempt > 0:
-                    # Reinforce JSON-only output on retry
-                    messages.append({"role": "assistant", "content": "{"})
-                    messages.append({"role": "user", "content": "Respond ONLY with valid JSON. No explanation, no reasoning, no markdown. Just the JSON object starting with {"})
-
-                response = req.post(
-                    f"{scorer.host}/api/chat",
-                    json={
-                        "model": wiz_model,
-                        "messages": messages,
-                        "stream": False,
-                        "think": False,  # JSON-only output — no reasoning needed
-                        "options": {
-                            "temperature": 0.3 if attempt == 0 else 0.2,
-                            "num_predict": 2000 if attempt == 0 else 3000,
-                            "num_ctx": 6144 if attempt == 0 else 8192,
-                        }
-                    },
-                    timeout=60 if attempt == 0 else 90
-                )
-
-                if response.status_code != 200:
-                    if attempt == 0:
-                        continue
-                    raise RuntimeError(f"Ollama returned {response.status_code}")
-
-                resp_data = response.json()
-                raw = resp_data.get("message", {}).get("content", "")
-                raw = strip_think_blocks(raw)  # safety net
-
-                logger.info(f"Generate: raw response ({len(raw)} chars): {raw[:200]}...")
-
-                # Extract and parse JSON (handles reasoning text wrapping JSON)
-                json_str = extract_json(raw)
+    # Try provider abstraction first (supports Gemini on VPS)
+    try:
+        from llm_provider import call_llm, get_provider
+        if get_provider(strat.config) == 'gemini':
+            result = call_llm(strat.config, prompt, system=GENERATE_SYSTEM_PROMPT,
+                              max_tokens=2000, temperature=0.3, timeout=60,
+                              think=False, use_case='chat')
+            if result:
+                result = strip_think_blocks(result)
+                json_str = extract_json(result)
                 try:
                     profile_data = json.loads(json_str)
-                    break  # Success
+                    raw = result
                 except json.JSONDecodeError:
-                    if attempt == 0:
-                        logger.warning(f"Generate: JSON decode failed, retrying... raw: {raw[:300]}")
-                        continue
-                    raise ValueError(f"No valid JSON in AI response after retry. Raw: {raw[:300]}")
+                    logger.warning("Generate: Gemini JSON decode failed, falling back to Ollama")
+    except Exception:
+        pass
 
-        # Validate structure
-        categories = profile_data.get("categories", [])
-        tickers = profile_data.get("tickers", [])
-        if not isinstance(categories, list):
-            categories = []
-        if not isinstance(tickers, list):
-            tickers = []
+    if profile_data is None:
+        for attempt in range(2):
+            messages = [
+                {"role": "system", "content": GENERATE_SYSTEM_PROMPT},
+                {"role": "user", "content": prompt},
+            ]
+            if attempt > 0:
+                messages.append({"role": "assistant", "content": "{"})
+                messages.append({"role": "user", "content": "Respond ONLY with valid JSON. No explanation, no reasoning, no markdown. Just the JSON object starting with {"})
 
-        # Run the full post-processing pipeline
-        categories, tickers = run_pipeline(
-            categories=categories,
-            tickers=tickers,
-            role=role,
-            location=location,
-            context=user_context or profile_data.get("context", ""),
-            ollama_host=scorer.host,
-            model=wiz_model
+            response = req.post(
+                f"{scorer.host}/api/chat",
+                json={
+                    "model": wiz_model,
+                    "messages": messages,
+                    "stream": False,
+                    "think": False,
+                    "options": {
+                        "temperature": 0.3 if attempt == 0 else 0.2,
+                        "num_predict": 2000 if attempt == 0 else 3000,
+                        "num_ctx": 6144 if attempt == 0 else 8192,
+                    }
+                },
+                timeout=60 if attempt == 0 else 90
+            )
+
+            if response.status_code != 200:
+                if attempt == 0:
+                    continue
+                raise RuntimeError(f"Ollama returned {response.status_code}")
+
+            resp_data = response.json()
+            raw = resp_data.get("message", {}).get("content", "")
+            raw = strip_think_blocks(raw)
+
+            logger.info(f"Generate: raw response ({len(raw)} chars): {raw[:200]}...")
+
+            json_str = extract_json(raw)
+            try:
+                profile_data = json.loads(json_str)
+                break
+            except json.JSONDecodeError:
+                if attempt == 0:
+                    logger.warning(f"Generate: JSON decode failed, retrying... raw: {raw[:300]}")
+                    continue
+                raise ValueError(f"No valid JSON in AI response after retry. Raw: {raw[:300]}")
+
+    categories = profile_data.get("categories", [])
+    tickers = profile_data.get("tickers", [])
+    if not isinstance(categories, list):
+        categories = []
+    if not isinstance(tickers, list):
+        tickers = []
+
+    categories, tickers = run_pipeline(
+        categories=categories,
+        tickers=tickers,
+        role=role,
+        location=location,
+        context=user_context or profile_data.get("context", ""),
+        ollama_host=scorer.host,
+        model=wiz_model
+    )
+
+    profile_data["categories"] = categories
+    profile_data["tickers"] = tickers
+    return profile_data
+
+
+def handle_generate_profile(handler, strat):
+    """POST /api/generate-profile — thin HTTP wrapper around _run_generate_profile."""
+    try:
+        data = read_json_body(handler)
+        profile_data = _run_generate_profile(
+            strat=strat,
+            role=data.get("role", "").strip()[:MAX_INPUT_LEN],
+            location=data.get("location", "").strip()[:MAX_INPUT_LEN],
+            context=data.get("context", "").strip()[:MAX_CONTEXT_LEN],
+            deep=data.get("deep", False)
         )
-
-        profile_data["categories"] = categories
-        profile_data["tickers"] = tickers
-
         json_response(handler, profile_data)
-
+    except ValueError as e:
+        logger.warning(f"Generate validation error: {e}")
+        error_response(handler, str(e), 400)
+    except RuntimeError as e:
+        logger.warning(f"Generate runtime error: {e}")
+        error_response(handler, "Service temporarily unavailable", 503)
     except json.JSONDecodeError as e:
         logger.error(f"Generate: JSON parse error: {e}")
         error_response(handler, "AI returned invalid JSON", 500)
-    except ValueError as e:
-        logger.warning(f"Generate validation error: {e}")
-        logger.error(f"Request error: {e}"); error_response(handler, "Invalid request", 400)
-    except RuntimeError as e:
-        logger.warning(f"Generate runtime error: {e}")
-        logger.error(f"Service error: {e}"); error_response(handler, "Service temporarily unavailable", 503)
     except Exception as e:
         logger.error(f"Generate error: {e}")
         error_response(handler, "Internal server error", 500)

@@ -293,6 +293,32 @@ AGENT_TOOLS = [
     {
         "type": "function",
         "function": {
+            "name": "submit_onboarding",
+            "description": "Set up the user's complete intelligence feed by generating personalized categories with targeted keywords and relevant market tickers. Call this ONCE when you've collected their role, location, and interests from conversation. Takes ~15 seconds — tell the user you're setting up their feed. Returns a summary of what was configured for you to present to the user.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "role": {
+                        "type": "string",
+                        "description": "User's job title or profession (e.g., 'pediatric allergist', 'software engineer')"
+                    },
+                    "location": {
+                        "type": "string",
+                        "description": "User's location (e.g., 'Kuwait', 'San Francisco')"
+                    },
+                    "interests": {
+                        "type": "array",
+                        "items": {"type": "string"},
+                        "description": "Topics/fields they want to track (e.g., ['immunotherapy', 'AI in healthcare'])"
+                    }
+                },
+                "required": ["role", "location", "interests"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
             "name": "run_scan",
             "description": "Trigger a news scan to fetch and score articles based on the user's categories and keywords. Use when the user asks to scan, refresh their feed, or get new articles. The scan runs in the background and takes about a minute.",
             "parameters": {
@@ -365,6 +391,8 @@ def execute_tool(tool_name, args, strat, profile_id=0, persona=''):
             return _tool_read_url(args, strat)
         elif tool_name == "import_canon_world":
             return _tool_import_canon_world(args, strat, profile_id=profile_id)
+        elif tool_name == "submit_onboarding":
+            return _tool_submit_onboarding(args, strat, profile_id=profile_id)
         elif tool_name == "configure_profile":
             return _tool_configure_profile(args, strat, profile_id=profile_id)
         elif tool_name == "run_scan":
@@ -665,6 +693,71 @@ def _save_tickers(strat, symbols, profile_id=0):
 def _save_categories(strat, categories, profile_id=0):
     strat.config["dynamic_categories"] = categories
     _sync_profile_overlay(strat, profile_id)
+
+
+def _tool_submit_onboarding(args, strat, profile_id=0):
+    """Run the full generate_profile pipeline and apply results."""
+    role = args.get("role", "").strip()
+    location = args.get("location", "").strip()
+    interests = args.get("interests", [])
+
+    if not role or not location or not interests:
+        return "Need role, location, and at least one interest to set up the feed."
+
+    # 1. Save role + location immediately
+    if "profile" not in strat.config:
+        strat.config["profile"] = {}
+    strat.config["profile"]["role"] = role
+    strat.config["profile"]["location"] = location
+    context = f"{role} in {location}. Interested in: {', '.join(interests)}"
+    strat.config["profile"]["context"] = context
+    _sync_profile_overlay(strat, profile_id)
+
+    # 2. Call the purpose-built generate_profile pipeline
+    try:
+        from routes.generate import _run_generate_profile
+        result = _run_generate_profile(strat, role, location, context)
+    except Exception as e:
+        logger.error(f"submit_onboarding: generate_profile failed: {e}")
+        # FALLBACK: create basic categories from interests
+        cats = strat.config.get("dynamic_categories", [])
+        for interest in interests[:4]:
+            cat_id = re.sub(r'[^a-z0-9_]', '_', interest.lower())
+            cats.append({"label": interest.title(), "id": cat_id, "items": [interest], "enabled": True})
+        strat.config["dynamic_categories"] = cats
+        _sync_profile_overlay(strat, profile_id)
+        return f"Profile saved (role: {role}, location: {location}). Created {len(interests[:4])} basic categories from your interests. The full generation failed — you can refine categories in Settings."
+
+    # 3. Apply generated categories + tickers
+    if result.get("categories"):
+        strat.config["dynamic_categories"] = result["categories"]
+    if result.get("tickers"):
+        from routes.config import _parse_ticker_objects
+        strat.config.setdefault("market", {})["tickers"] = _parse_ticker_objects(result["tickers"])
+    if result.get("context"):
+        strat.config["profile"]["context"] = result["context"]
+    _sync_profile_overlay(strat, profile_id)
+
+    # Reinitialize MarketFetcher with new tickers
+    if result.get("tickers"):
+        try:
+            from fetchers.market import MarketFetcher
+            strat.market_fetcher = MarketFetcher(strat.config.get("market", {}))
+        except Exception:
+            pass
+
+    # 4. Format summary for the agent to present
+    cats = result.get("categories", [])
+    tickers = result.get("tickers", [])
+    summary = f"Profile configured: {role} in {location}\n\n"
+    summary += f"Categories ({len(cats)}):\n"
+    for c in cats:
+        kw = c.get("items", c.get("keywords", []))
+        summary += f"  - {c.get('label', '?')} — {len(kw)} keywords ({', '.join(kw[:5])}{'...' if len(kw) > 5 else ''})\n"
+    if tickers:
+        summary += f"\nTickers ({len(tickers)}): {', '.join(str(t) for t in tickers[:10])}\n"
+    summary += "\nPresent these results to the user. Ask if they want to adjust anything or run their first scan."
+    return summary
 
 
 def _tool_configure_profile(args, strat, profile_id=0):
