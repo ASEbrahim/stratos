@@ -714,11 +714,11 @@ function renderStars() {
         }
         ctx.beginPath(); ctx.arc(pivotX, pivotY, clockR + 2, 0, Math.PI * 2);
         ctx.strokeStyle = `rgba(167,139,250,${0.08 + mBoost * 0.5})`; ctx.lineWidth = 0.6; ctx.stroke();
-        const gs = t * 3.5;
-        _noirDrawGear(pivotX - 16, pivotY - 8, 11, 15, 8, gs, 0.3 + mBoost);
-        _noirDrawGear(pivotX + 14, pivotY - 6, 8, 11, 6, -gs * 1.33, 0.25 + mBoost);
-        _noirDrawGear(pivotX + 4, pivotY - 20, 6, 9, 7, gs * 1.14, 0.2 + mBoost);
-        _noirDrawGear(pivotX - 8, pivotY + 12, 5, 8, 5, -gs * 1.6, 0.18 + mBoost);
+        const gs = t * 1.8;
+        _noirDrawGear(pivotX - 16, pivotY - 8, 11, 15, 8, gs, 0.5 + mBoost);
+        _noirDrawGear(pivotX + 14, pivotY - 6, 8, 11, 6, -gs * 1.33, 0.45 + mBoost);
+        _noirDrawGear(pivotX + 4, pivotY - 20, 6, 9, 7, gs * 1.14, 0.4 + mBoost);
+        _noirDrawGear(pivotX - 8, pivotY + 12, 5, 8, 5, -gs * 1.6, 0.35 + mBoost);
         if (Math.abs(angVel) < 0.08 && _noirRipples.length < 6) {
             if (!_noirRipples.length || _noirRipples[_noirRipples.length - 1].radius > 12)
                 _noirRipples.push({ x: bobX, y: bobY, radius: 4, alpha: 0.2 });
