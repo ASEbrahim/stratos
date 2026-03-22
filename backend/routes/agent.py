@@ -558,22 +558,28 @@ PLATFORM CAPABILITIES (reference when users ask for help or seem lost):
 - Save/dismiss articles to train the relevance model over time
 When the user asks what you can do or how to use a feature, reference these naturally."""
 
-        # ── New user nudge (≤2 scans) ──
-        try:
-            _scan_count = strat.db.conn.cursor().execute(
-                "SELECT COUNT(*) FROM scan_log WHERE profile_id = ?", (profile_id,)
-            ).fetchone()[0]
-            if _scan_count <= 2:
-                system_prompt += """
+        # ── Dynamic onboarding (from config state, not scan count) ──
+        _ob_profile = strat.config.get('profile', {})
+        _ob_role = _ob_profile.get('role', '').strip()
+        _ob_location = _ob_profile.get('location', '').strip()
+        _ob_cats = strat.config.get('dynamic_categories', [])
+        _ob_needs = (not _ob_role or _ob_role == 'new user') or not _ob_location or len(_ob_cats) == 0
 
-NEW USER CONTEXT: This user just joined. Be welcoming and help them:
-1. Ask about their role/job and location, then use configure_profile to save it
-2. Create categories with keywords using manage_categories (action: create)
-3. Run a scan once categories are set up using run_scan
-4. Keep it conversational — don't list all features at once
-IMPORTANT: Always use configure_profile when the user tells you about themselves."""
-        except Exception:
-            pass
+        if _ob_needs:
+            system_prompt += """
+
+ONBOARDING: This user is new. Have a natural conversation to learn:
+- Their role/profession
+- Their location
+- What topics they need to track
+
+When you have all three, call submit_onboarding with the structured data.
+Don't ask redundant questions — if they give everything in one message, call the tool immediately.
+After results are presented, use manage_categories or manage_watchlist for any adjustments the user requests.
+When they're happy with the setup, offer to run their first scan with run_scan.
+
+Example: User says "I'm a pediatric allergist in Kuwait interested in immunotherapy and AI"
+→ call submit_onboarding(role="pediatric allergist", location="Kuwait", interests=["immunotherapy", "allergy research", "AI in healthcare"])"""
 
         # ── Behavioral context injection ──
         try:
