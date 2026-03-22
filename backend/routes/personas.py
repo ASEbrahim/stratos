@@ -606,7 +606,7 @@ from routes.persona_prompts import build_persona_prompt  # noqa: E402
 
 # Tool names available per persona
 PERSONA_TOOLS = {
-    'intelligence': ['web_search', 'search_feed', 'manage_categories', 'search_files', 'read_document'],
+    'intelligence': ['web_search', 'search_feed', 'manage_categories', 'manage_watchlist', 'search_files', 'read_document', 'configure_profile', 'submit_onboarding', 'run_scan'],
     'market': ['manage_watchlist', 'search_feed', 'web_search'],
     'scholarly': ['search_insights', 'list_channels', 'get_video_summary', 'search_narrations', 'search_files', 'read_document', 'web_search', 'read_url'],
     'gaming': ['search_files', 'read_document', 'import_canon_world'],
