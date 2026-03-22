@@ -2317,6 +2317,14 @@ function handleAgentImport(event) {
     event.target.value = '';
 }
 
+function _toggleFsSidebarSection(section) {
+    var key = 'agent-sb-' + section + '-collapsed';
+    var collapsed = localStorage.getItem(key) === 'true';
+    localStorage.setItem(key, collapsed ? 'false' : 'true');
+    if (_agentFullscreen) setTimeout(_refreshFsSidebar, 50);
+}
+window._toggleFsSidebarSection = _toggleFsSidebarSection;
+
 function _openAgentPanel() {
     const body = document.getElementById('agent-body');
     const chevron = document.getElementById('agent-chevron');
@@ -2352,9 +2360,13 @@ function _buildFsSidebar() {
         </button>`;
     }).join('');
 
+    // Collapsible section state (persisted in localStorage)
+    const _pCollapsed = localStorage.getItem('agent-sb-persona-collapsed') === 'true';
+    const _tCollapsed = localStorage.getItem('agent-sb-tools-collapsed') === 'true';
+
     return `
     <div class="agent-fs-sidebar" style="width:300px;min-width:300px;height:100%;display:flex;flex-direction:column;border-right:1px solid rgba(255,255,255,0.05);">
-        <!-- Back + New Chat buttons -->
+        <!-- Back + New Chat -->
         <div class="px-4 pt-4 pb-2 flex gap-2">
             <button onclick="var t=(typeof _previousTab!=='undefined'&&_previousTab)?_previousTab:'dashboard';if(typeof setActive==='function')setActive(t);" class="flex items-center gap-2 px-4 py-3 rounded-xl text-[14px] font-medium transition-all" style="border:1px solid rgba(52,211,153,0.25);color:var(--accent,#34d399);background:rgba(52,211,153,0.06);" onmouseenter="this.style.background='rgba(52,211,153,0.15)';this.style.borderColor='rgba(52,211,153,0.5)'" onmouseleave="this.style.background='rgba(52,211,153,0.06)';this.style.borderColor='rgba(52,211,153,0.25)'" title="Back to previous tab">
                 <i data-lucide="arrow-left" class="w-5 h-5"></i> Back
@@ -2363,45 +2375,65 @@ function _buildFsSidebar() {
                 <i data-lucide="plus" class="w-5 h-5"></i> New Chat
             </button>
         </div>
-        <!-- Persona selector -->
-        <div class="px-4 pb-2">
-            <div class="text-[11px] font-bold uppercase tracking-wider mb-2 px-1" style="color:var(--text-muted);">Persona</div>
-            <div class="space-y-0.5">${personaItems}</div>
+
+        <!-- Persona (collapsible) -->
+        <div class="px-4 pb-1">
+            <button onclick="_toggleFsSidebarSection('persona')" class="w-full flex items-center justify-between py-1.5 px-1 cursor-pointer" style="color:var(--text-muted);">
+                <span class="text-[11px] font-bold uppercase tracking-wider">Persona</span>
+                <i data-lucide="chevron-down" class="w-3.5 h-3.5 transition-transform" style="${_pCollapsed ? '' : 'transform:rotate(180deg)'}"></i>
+            </button>
+            <div class="space-y-0.5 overflow-hidden transition-all" style="${_pCollapsed ? 'max-height:0;opacity:0;' : 'max-height:500px;opacity:1;'}">${personaItems}</div>
         </div>
-        <div class="mx-4 mb-2" style="height:1px;background:var(--border-strong);"></div>
-        <!-- Conversation list -->
+        <div class="mx-4 mb-1" style="height:1px;background:var(--border-strong);"></div>
+
+        <!-- Chats -->
         <div class="flex-1 overflow-y-auto px-3" style="scrollbar-width:thin;">
             <div class="text-[11px] font-bold uppercase tracking-wider mb-2 px-1" style="color:var(--text-muted);">Chats</div>
             <div class="space-y-0.5">${convItems}</div>
         </div>
         <div class="mx-4 my-1" style="height:1px;background:var(--border-strong);"></div>
-        <!-- Bottom actions -->
-        <div class="px-4 pb-4 pt-2 space-y-1.5">
-            <div class="flex items-center gap-1.5">
-                <button onclick="importAgentChat()" class="flex-1 flex items-center gap-2 px-3 py-2.5 rounded-lg text-[13px] transition-all" style="color:var(--text-muted);border:1px solid transparent;" title="Import chat" onmouseenter="this.style.background='rgba(255,255,255,0.04)'" onmouseleave="this.style.background='transparent'">
-                    <i data-lucide="upload" class="w-4.5 h-4.5"></i> Import
-                </button>
-                <button onclick="exportAgentChat()" class="flex-1 flex items-center gap-2 px-3 py-2.5 rounded-lg text-[13px] transition-all" style="color:var(--text-muted);border:1px solid transparent;" title="Export chat" onmouseenter="this.style.background='rgba(255,255,255,0.04)'" onmouseleave="this.style.background='transparent'">
-                    <i data-lucide="download" class="w-4.5 h-4.5"></i> Export
-                </button>
+
+        <!-- Tools (collapsible) -->
+        <div class="px-4 pb-2 pt-1">
+            <button onclick="_toggleFsSidebarSection('tools')" class="w-full flex items-center justify-between py-1.5 px-1 cursor-pointer" style="color:var(--text-muted);">
+                <span class="text-[11px] font-bold uppercase tracking-wider">Tools</span>
+                <i data-lucide="chevron-down" class="w-3.5 h-3.5 transition-transform" style="${_tCollapsed ? '' : 'transform:rotate(180deg)'}"></i>
+            </button>
+            <div class="overflow-hidden transition-all" style="${_tCollapsed ? 'max-height:0;opacity:0;padding:0;' : 'max-height:500px;opacity:1;padding-top:4px;'}">
+                <div class="space-y-1.5">
+                    <!-- Import / Export row -->
+                    <div class="flex items-center gap-1.5">
+                        <button onclick="importAgentChat()" class="flex-1 flex items-center gap-2 px-3 py-2 rounded-lg text-[12px] transition-all" style="color:var(--text-muted);" title="Import chat" onmouseenter="this.style.background='rgba(255,255,255,0.04)'" onmouseleave="this.style.background='transparent'">
+                            <i data-lucide="upload" class="w-4 h-4"></i> Import
+                        </button>
+                        <button onclick="exportAgentChat()" class="flex-1 flex items-center gap-2 px-3 py-2 rounded-lg text-[12px] transition-all" style="color:var(--text-muted);" title="Export chat" onmouseenter="this.style.background='rgba(255,255,255,0.04)'" onmouseleave="this.style.background='transparent'">
+                            <i data-lucide="download" class="w-4 h-4"></i> Export
+                        </button>
+                    </div>
+                    <!-- Context / Files row -->
+                    <div class="flex items-center gap-1.5">
+                        <button onclick="toggleContextEditor()" class="flex-1 flex items-center gap-2 px-3 py-2 rounded-lg text-[12px] font-medium transition-all" style="color:var(--text-heading);border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.03);" title="Edit persona context" onmouseenter="this.style.background='rgba(16,185,129,0.08)';this.style.borderColor='rgba(52,211,153,0.3)';this.style.color='var(--accent)'" onmouseleave="this.style.background='rgba(255,255,255,0.03)';this.style.borderColor='rgba(255,255,255,0.1)';this.style.color='var(--text-heading)'">
+                            <i data-lucide="file-cog" class="w-4 h-4"></i> Context
+                        </button>
+                        <button onclick="toggleFileBrowser()" class="flex-1 flex items-center gap-2 px-3 py-2 rounded-lg text-[12px] font-medium transition-all" style="color:var(--text-heading);border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.03);" title="Browse persona files" onmouseenter="this.style.background='rgba(16,185,129,0.08)';this.style.borderColor='rgba(52,211,153,0.3)';this.style.color='var(--accent)'" onmouseleave="this.style.background='rgba(255,255,255,0.03)';this.style.borderColor='rgba(255,255,255,0.1)';this.style.color='var(--text-heading)'">
+                            <i data-lucide="folder-open" class="w-4 h-4"></i> Files
+                        </button>
+                    </div>
+                    <!-- Clear Chat / Customize row -->
+                    <div class="flex items-center gap-1.5">
+                        <button onclick="clearAgentChat()" class="flex-1 flex items-center gap-2 px-3 py-2 rounded-lg text-[12px] transition-all" style="color:var(--text-muted);" title="Clear chat" onmouseenter="this.style.color='#f87171';this.style.background='rgba(239,68,68,0.06)'" onmouseleave="this.style.color='var(--text-muted)';this.style.background='transparent'">
+                            <i data-lucide="trash-2" class="w-4 h-4"></i> Clear
+                        </button>
+                        <button onclick="_toggleFsCustomizer()" class="flex-1 flex items-center gap-2 px-3 py-2 rounded-lg text-[12px] transition-all" style="color:var(--accent);" title="Customize appearance" onmouseenter="this.style.background='rgba(255,255,255,0.04)'" onmouseleave="this.style.background='transparent'">
+                            <i data-lucide="palette" class="w-4 h-4"></i> Customize
+                        </button>
+                    </div>
+                    <!-- Re-run Setup (glowing, full width) -->
+                    <button onclick="_rerunOnboarding()" class="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl text-[12px] font-semibold transition-all" style="color:var(--accent,#34d399);border:1px solid rgba(52,211,153,0.25);background:rgba(52,211,153,0.06);box-shadow:0 0 12px rgba(52,211,153,0.1);" title="Re-run the setup wizard" onmouseenter="this.style.background='rgba(52,211,153,0.15)';this.style.borderColor='rgba(52,211,153,0.5)';this.style.boxShadow='0 0 20px rgba(52,211,153,0.2)'" onmouseleave="this.style.background='rgba(52,211,153,0.06)';this.style.borderColor='rgba(52,211,153,0.25)';this.style.boxShadow='0 0 12px rgba(52,211,153,0.1)'">
+                        <i data-lucide="rocket" class="w-4 h-4"></i> Re-run Setup
+                    </button>
+                </div>
             </div>
-            <div class="flex items-center gap-1.5">
-                <button onclick="toggleContextEditor()" class="flex-1 flex items-center gap-2 px-3 py-2.5 rounded-lg text-[13px] font-medium transition-all" style="color:var(--text-heading);border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.03);" title="Edit persona context — custom instructions" onmouseenter="this.style.background='rgba(16,185,129,0.08)';this.style.borderColor='rgba(52,211,153,0.3)';this.style.color='var(--accent)'" onmouseleave="this.style.background='rgba(255,255,255,0.03)';this.style.borderColor='rgba(255,255,255,0.1)';this.style.color='var(--text-heading)'">
-                    <i data-lucide="file-cog" class="w-4.5 h-4.5"></i> Context
-                </button>
-                <button onclick="toggleFileBrowser()" class="flex-1 flex items-center gap-2 px-3 py-2.5 rounded-lg text-[13px] font-medium transition-all" style="color:var(--text-heading);border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.03);" title="Browse persona files — uploads, notes" onmouseenter="this.style.background='rgba(16,185,129,0.08)';this.style.borderColor='rgba(52,211,153,0.3)';this.style.color='var(--accent)'" onmouseleave="this.style.background='rgba(255,255,255,0.03)';this.style.borderColor='rgba(255,255,255,0.1)';this.style.color='var(--text-heading)'">
-                    <i data-lucide="folder-open" class="w-4.5 h-4.5"></i> Files
-                </button>
-            </div>
-            <button onclick="clearAgentChat()" class="w-full flex items-center gap-2 px-3 py-2.5 rounded-lg text-[13px] transition-all" style="color:var(--text-muted);" title="Clear current chat" onmouseenter="this.style.color='#f87171';this.style.background='rgba(239,68,68,0.06)'" onmouseleave="this.style.color='var(--text-muted)';this.style.background='transparent'">
-                <i data-lucide="trash-2" class="w-4.5 h-4.5"></i> Clear Chat
-            </button>
-            <button onclick="_rerunOnboarding()" class="w-full flex items-center gap-2 px-3 py-2.5 rounded-lg text-[13px] transition-all" style="color:var(--text-muted);" title="Re-run the setup wizard" onmouseenter="this.style.color='var(--accent)';this.style.background='rgba(16,185,129,0.06)'" onmouseleave="this.style.color='var(--text-muted)';this.style.background='transparent'">
-                <i data-lucide="rocket" class="w-4.5 h-4.5"></i> Re-run Setup
-            </button>
-            <button onclick="_toggleFsCustomizer()" class="w-full flex items-center gap-2 px-3 py-2.5 rounded-lg text-[13px] transition-all" style="color:var(--accent);" title="Customize fullscreen appearance" onmouseenter="this.style.background='rgba(255,255,255,0.04)'" onmouseleave="this.style.background='transparent'">
-                <i data-lucide="palette" class="w-4.5 h-4.5"></i> Customize
-            </button>
         </div>
     </div>`;
 }
