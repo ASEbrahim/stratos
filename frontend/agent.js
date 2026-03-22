@@ -990,7 +990,7 @@ async function speakMessage(text, btn) {
     btn.disabled = true;
 
     // Determine voice from persona + user preferences
-    const persona = typeof _currentPersona !== 'undefined' ? _currentPersona : '';
+    const persona = typeof currentPersona !== 'undefined' ? currentPersona : '';
     const voice = localStorage.getItem(`stratos_tts_voice_${persona}`)
                 || localStorage.getItem('stratos_tts_voice')
                 || null;
