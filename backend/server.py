@@ -147,16 +147,18 @@ def create_handler(strat, auth, frontend_dir, output_dir):
         def __init__(self, *args, **kwargs):
             super().__init__(*args, directory=str(frontend_dir), **kwargs)
 
+        _dev_mode = os.environ.get('STRATOS_DEV', '') == '1'
+
         def end_headers(self):
             # Cache static assets (JS/CSS/fonts) at browser + CDN edge for 24h
-            # HTML and API responses are never cached (always fresh)
+            # In dev mode (STRATOS_DEV=1), disable caching for instant iteration
             if hasattr(self, 'path'):
                 if self.path.endswith('.html') or self.path == '/' or self.path == '':
                     self.send_header("Cache-Control", "no-cache, no-store, must-revalidate")
                     self.send_header("Pragma", "no-cache")
                     self.send_header("Expires", "0")
                 elif self.path.endswith('.js') or self.path.endswith('.css') or self.path.endswith('.woff2') or self.path.endswith('.png') or self.path.endswith('.svg'):
-                    self.send_header("Cache-Control", "public, max-age=86400")
+                    self.send_header("Cache-Control", "no-cache" if _dev_mode else "public, max-age=86400")
             # CORS: reflect origin if in allowlist, or wildcard if ["*"] (default)
             # TODO(production): Restrict cors_origins in config.yaml to specific
             # domains instead of ["*"]. Wildcard allows any origin to make
