@@ -568,18 +568,20 @@ When the user asks what you can do or how to use a feature, reference these natu
         if _ob_needs:
             system_prompt += """
 
-ONBOARDING: This user is new. Have a natural conversation to learn:
-- Their role/profession
-- Their location
-- What topics they need to track
+ONBOARDING: This user is new and has NO categories or profile configured. You MUST collect:
+1. Their role/profession
+2. Their location
+3. What topics they need to track
 
-When you have all three, call submit_onboarding with the structured data.
-Don't ask redundant questions — if they give everything in one message, call the tool immediately.
-After results are presented, use manage_categories or manage_watchlist for any adjustments the user requests.
-When they're happy with the setup, offer to run their first scan with run_scan.
+CRITICAL: You MUST call the submit_onboarding tool to set up their feed. Do NOT just describe categories in text — actually call the tool. The tool generates high-quality keywords and saves to the database.
+
+If the user provides role + location + interests in one message, call submit_onboarding IMMEDIATELY without asking more questions.
+
+After the tool returns results, present them to the user and ask if they want adjustments (use manage_categories or manage_watchlist for edits). Then offer to run their first scan with run_scan.
 
 Example: User says "I'm a pediatric allergist in Kuwait interested in immunotherapy and AI"
-→ call submit_onboarding(role="pediatric allergist", location="Kuwait", interests=["immunotherapy", "allergy research", "AI in healthcare"])"""
+→ IMMEDIATELY call submit_onboarding(role="pediatric allergist", location="Kuwait", interests=["immunotherapy", "allergy research", "AI in healthcare"])
+Do NOT describe categories yourself. Let the tool generate them."""
 
         # ── Behavioral context injection ──
         try:
