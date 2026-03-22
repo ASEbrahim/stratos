@@ -794,11 +794,13 @@ function showAgentPanel(show) {
     }
 }
 
-function _rerunOnboarding() {
+async function _rerunOnboarding() {
     localStorage.removeItem('stratos-onboarded');
     localStorage.removeItem('stratos-onboarding-seen');
     window._onboardingActive = true;
-    agentHistory = [];
+    // Create a new DB-backed conversation so the onboarding chat persists
+    currentPersona = 'intelligence';
+    await newAgentChat();
     var msgs = document.getElementById('agent-messages');
     if (msgs) msgs.innerHTML = '';
     _showOnboardingGreeting();
@@ -825,11 +827,13 @@ function _showOnboardingGreeting() {
     el.scrollTop = el.scrollHeight;
 }
 
-function _startAgentOnboarding() {
+async function _startAgentOnboarding() {
     console.log('onboarding: starting agent onboarding');
     localStorage.setItem('stratos-onboarding-seen', 'true');
     if (typeof setActive === 'function') setActive('strat_agent');
-    agentHistory = [];
+    // Create a new DB-backed conversation so the onboarding persists
+    currentPersona = 'intelligence';
+    await newAgentChat();
     var messagesEl = document.getElementById('agent-messages');
     if (messagesEl) messagesEl.innerHTML = '';
     var welcome = document.getElementById('agent-welcome');
@@ -2147,7 +2151,18 @@ async function sendAgentMessage() {
         }
 
         agentHistory.push({ role: 'assistant', content: fullResponse });
-        
+
+        // Refresh config + nav after tool calls may have modified categories/tickers
+        if (fullResponse && (fullResponse.includes('ategories') || fullResponse.includes('icker') || fullResponse.includes('rofile'))) {
+            try {
+                var _cfgResp = await fetch('/api/config');
+                if (_cfgResp.ok) {
+                    configData = await _cfgResp.json();
+                    if (typeof rebuildNavFromConfig === 'function') rebuildNavFromConfig();
+                }
+            } catch(e2) {}
+        }
+
     } catch(e) {
         const respDiv = typingEl?.querySelector('.agent-response');
         const raw = e.message || 'Failed to reach agent';
