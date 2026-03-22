@@ -157,6 +157,16 @@ def handle_get(handler, strat, auth, path, output_dir=None):
         # Resolve profile_id from token (status is AUTH_EXEMPT so _profile_id may be 0)
         token = handler.headers.get('X-Auth-Token', '')
         _status_pid = handler._profile_id or (_get_profile_id(strat, token) if token else 0) or 0
+        # Public fields always returned; private fields only with valid token
+        if not token or not _status_pid:
+            # Unauthenticated — return minimal public status only
+            handler.wfile.write(json.dumps({
+                "scanning": strat.scan_status.get("scanning", False),
+                "data_version": strat.scan_status.get("data_version", ""),
+                "recent_scans": [],
+                "my_profile_id": 0,
+            }).encode())
+            return True
         status = {**strat.scan_status, "my_profile_id": _status_pid,
                   "recent_scans": strat.db.get_scan_log(5, profile_id=_status_pid)}
         if token:
