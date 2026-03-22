@@ -77,3 +77,12 @@ cloudflare-proxy/node_modules/
 node_modules/
 test-results/
 tools/ComfyUI/
+
+# Training artifacts (regenerated, not versioned)
+*.jsonl
+*.gguf
+backend/data/rp_pipeline/training_data/
+backend/data/models/
+
+# Mobile app (lives in stratos-mobile repo)
+mobile/
