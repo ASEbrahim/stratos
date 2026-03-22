@@ -669,10 +669,10 @@ Do NOT describe categories yourself. Let the tool generate them."""
         allowed_tools = persona_config['tools']
         if not serper_available and 'web_search' in allowed_tools:
             allowed_tools = [t for t in allowed_tools if t != 'web_search']
-        # During onboarding, reduce tools to only onboarding-relevant ones
-        # (too many tools overwhelms the model and it skips tool calls entirely)
+        # During onboarding, prioritize onboarding tools but keep web_search + search_feed
+        # (users still need to search while setting up their profile)
         if _ob_needs:
-            _onboarding_tools = ['submit_onboarding', 'configure_profile', 'manage_categories', 'manage_watchlist', 'run_scan']
+            _onboarding_tools = ['submit_onboarding', 'configure_profile', 'manage_categories', 'manage_watchlist', 'run_scan', 'web_search', 'search_feed']
             allowed_tools = [t for t in allowed_tools if t in _onboarding_tools]
         tools = [t for t in AGENT_TOOLS if t["function"]["name"] in allowed_tools]
 
