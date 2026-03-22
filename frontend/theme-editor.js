@@ -281,7 +281,8 @@
         allVars.forEach(key => style.removeProperty(key));
         // Also clear derived
         ['--accent-bg','--accent-border','--chart-fill-top','--chart-fill-bottom',
-         '--bg-panel','--bg-input','--bg-hover','--border',
+         '--bg-primary','--bg-secondary','--bg-panel','--bg-panel-solid','--bg-input','--bg-hover',
+         '--border','--sidebar-bg','--text-primary','--text-secondary','--text-muted',
          '--card-opacity','--radius-lg','--radius-xl','--glow-intensity','--glass-blur'].forEach(k => style.removeProperty(k));
         updateChart();
     }
