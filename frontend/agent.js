@@ -1079,7 +1079,7 @@ function _copyAgentMessage(btn) {
 
 function _editUserMessage(btn) {
     if (agentStreaming) return;
-    const wrapper = btn.closest('[class*="group/usermsg"]');
+    const wrapper = btn.closest('[class~="group/usermsg"]');
     if (!wrapper) return;
     const bubble = wrapper.querySelector('.agent-bubble-user');
     if (!bubble) return;
@@ -1328,7 +1328,7 @@ function _editAssistantMessage(btn) {
     const contentDiv = actionsRow?.parentElement?.querySelector('.agent-response');
     if (!contentDiv) return;
     const originalText = contentDiv.innerText || '';
-    const wrapper = btn.closest('[class*="group/msg"]');
+    const wrapper = btn.closest('[class~="group/msg"]');
     if (!wrapper) return;
 
     // Create inline edit UI
@@ -1432,7 +1432,7 @@ function _rpThumbsFeedback(btn, type) {
     lucide.createIcons();
 
     // Send to backend (fire and forget)
-    const msgId = btn.closest('[class*="group/msg"]')?.dataset?.messageId || 0;
+    const msgId = btn.closest('[class~="group/msg"]')?.dataset?.messageId || 0;
     fetch('/api/rp/feedback', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', ..._agentHeaders() },
@@ -1453,7 +1453,7 @@ function _rpRegenerateMessage(btn) {
     }
     // Also pop the user message — sendAgentMessage will re-add it
     agentHistory.pop();
-    const msgWrapper = btn.closest('[class*="group/msg"]');
+    const msgWrapper = btn.closest('[class~="group/msg"]');
     if (msgWrapper) msgWrapper.remove();
 
     // Remove the user message bubble above this one too
@@ -1506,7 +1506,7 @@ function _rpSaveEdit(btn) {
     const reason = editArea.querySelector('select').value || undefined;
     const newContent = textarea.value.trim();
     const resp = editArea.parentElement.querySelector('.agent-response');
-    const msgId = editArea.closest('[class*="group/msg"]')?.dataset?.messageId || 0;
+    const msgId = editArea.closest('[class~="group/msg"]')?.dataset?.messageId || 0;
 
     if (!newContent) return;
 
