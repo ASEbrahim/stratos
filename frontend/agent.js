@@ -2320,8 +2320,20 @@ function handleAgentImport(event) {
 function _toggleFsSidebarSection(section) {
     var key = 'agent-sb-' + section + '-collapsed';
     var collapsed = localStorage.getItem(key) === 'true';
-    localStorage.setItem(key, collapsed ? 'false' : 'true');
-    if (_agentFullscreen) setTimeout(_refreshFsSidebar, 50);
+    var newState = !collapsed;
+    localStorage.setItem(key, newState ? 'true' : 'false');
+    // Full sidebar rebuild for collapse state change
+    if (_agentFullscreen) {
+        var existing = document.querySelector('.agent-fs-sidebar');
+        if (existing) {
+            var wrapper = existing.parentElement;
+            if (wrapper) {
+                existing.remove();
+                wrapper.insertAdjacentHTML('afterbegin', _buildFsSidebar());
+                if (typeof lucide !== 'undefined') lucide.createIcons();
+            }
+        }
+    }
 }
 window._toggleFsSidebarSection = _toggleFsSidebarSection;
 

@@ -3584,6 +3584,11 @@ body.perf-mode .agent-mic-btn.stt-processing { animation: none; }
     .cx-search { width: 120px; }
 }
 
+/* ═══ Sibyl panel card scaling — connected to font size setting ═══ */
+[data-fontsize="compact"] { --sibyl-card-font: 11px; }
+[data-fontsize="small"] { --sibyl-card-font: 13px; }
+[data-fontsize="medium"] { --sibyl-card-font: 15px; }
+
 /* ═══ Terminal Font Style — site-wide monospace option ═══ */
 [data-fontstyle="terminal"] {
     font-family: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace !important;

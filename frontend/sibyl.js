@@ -65,28 +65,28 @@
 #sibyl-panel .sibyl-sys-id .sibyl-brand{color:rgba(79,195,247,0.7);font-weight:400}
 #sibyl-panel .sibyl-clock{font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:2px;color:rgba(138,156,184,0.4)}
 #sibyl-panel .sibyl-divider{height:1px;flex-shrink:0;background:rgba(79,195,247,0.04)}
-#sibyl-panel .sibyl-main{flex:1;display:flex;gap:28px;padding:18px 0;min-height:0}
-#sibyl-panel .sibyl-col-side{width:300px;flex-shrink:0;display:flex;flex-direction:column;gap:10px;overflow-y:auto;scrollbar-width:none}
+#sibyl-panel .sibyl-main{flex:1;display:flex;gap:28px;padding:14px 0;min-height:0;overflow:hidden}
+#sibyl-panel .sibyl-col-side{width:300px;flex-shrink:0;display:flex;flex-direction:column;gap:8px;overflow:hidden}
 #sibyl-panel .sibyl-col-side::-webkit-scrollbar{display:none}
 #sibyl-panel .sibyl-col-center{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:280px;gap:12px}
-#sibyl-panel .sibyl-bottom-bar{display:flex;justify-content:space-between;align-items:flex-end;padding-top:12px;flex-shrink:0}
+#sibyl-panel .sibyl-bottom-bar{display:flex;justify-content:space-between;align-items:flex-end;padding-top:8px;flex-shrink:0}
 #sibyl-panel .sibyl-status-line{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;color:rgba(79,195,247,0.2)}
 #sibyl-panel .sibyl-stats{display:flex;gap:36px}
 #sibyl-panel .sibyl-stat{text-align:right}
 #sibyl-panel .sibyl-stat-val{font-size:26px;font-weight:600;line-height:1;color:rgba(79,195,247,0.7)}
 #sibyl-panel .sibyl-stat-lbl{font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:2px;text-transform:uppercase;margin-top:2px;color:rgba(138,156,184,0.35)}
-#sibyl-panel .sibyl-panel-card{background:rgba(8,14,30,0.65);border:1px solid rgba(79,195,247,0.05);border-radius:10px;padding:18px 20px;position:relative;backdrop-filter:blur(24px)}
+#sibyl-panel .sibyl-panel-card{background:rgba(8,14,30,0.65);border:1px solid rgba(79,195,247,0.05);border-radius:10px;padding:14px 16px;position:relative;backdrop-filter:blur(24px);font-size:var(--sibyl-card-font, 13px)}
 #sibyl-panel .sibyl-panel-card .sibyl-edge{position:absolute;top:-1px;left:16px;right:16px;height:1px;background:linear-gradient(90deg,transparent,rgba(79,195,247,0.08),transparent);border-radius:1px}
-#sibyl-panel .sibyl-panel-title{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;text-transform:uppercase;margin-bottom:14px;color:rgba(79,195,247,0.4)}
-#sibyl-panel .sibyl-p-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0}
-#sibyl-panel .sibyl-p-label{font-size:14px;font-weight:400;color:rgba(138,156,184,0.7)}
-#sibyl-panel .sibyl-p-value{font-family:'Share Tech Mono',monospace;font-size:12px;color:rgba(220,232,244,0.8)}
+#sibyl-panel .sibyl-panel-title{font-family:'Share Tech Mono',monospace;font-size:calc(var(--sibyl-card-font, 13px) * 0.7);letter-spacing:3px;text-transform:uppercase;margin-bottom:10px;color:rgba(79,195,247,0.4)}
+#sibyl-panel .sibyl-p-row{display:flex;justify-content:space-between;align-items:center;padding:4px 0}
+#sibyl-panel .sibyl-p-label{font-size:var(--sibyl-card-font, 13px);font-weight:400;color:rgba(138,156,184,0.7)}
+#sibyl-panel .sibyl-p-value{font-family:'Share Tech Mono',monospace;font-size:calc(var(--sibyl-card-font, 13px) * 0.9);color:rgba(220,232,244,0.8)}
 #sibyl-panel .sibyl-p-bar{width:100%;height:3px;background:rgba(79,195,247,0.04);border-radius:2px;margin-top:4px;overflow:hidden}
 #sibyl-panel .sibyl-p-fill{height:100%;border-radius:2px;transition:width 2s cubic-bezier(0.23,1,0.32,1)}
 #sibyl-panel .sibyl-fill-hi{background:linear-gradient(90deg,rgba(79,195,247,0.15),#4fc3f7)}
 #sibyl-panel .sibyl-fill-mid{background:linear-gradient(90deg,rgba(129,199,132,0.15),#81c784)}
 #sibyl-panel .sibyl-fill-lo{background:linear-gradient(90deg,rgba(255,183,77,0.15),#ffb74d)}
-#sibyl-panel .sibyl-insight{font-size:13px;line-height:1.7;color:rgba(138,156,184,0.5)}
+#sibyl-panel .sibyl-insight{font-size:var(--sibyl-card-font, 13px);line-height:1.6;color:rgba(138,156,184,0.5);max-height:4.8em;overflow:hidden;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical}
 #sibyl-panel .sibyl-insight em{font-style:normal;font-weight:500;color:rgba(79,195,247,0.7)}
 #sibyl-panel .sibyl-hue-block{text-align:center}
 #sibyl-panel .sibyl-hue-outer{position:relative;display:inline-block;width:340px;height:340px}
@@ -623,8 +623,8 @@
         }
         rightHTML += '</div>';
 
-        // Inspector Note (from nudges)
-        rightHTML += '<div class="sibyl-panel-card" style="flex:1"><span class="sibyl-edge"></span><div class="sibyl-panel-title">Inspector note</div>';
+        // Inspector Note (from nudges — constrained height, no flex grow)
+        rightHTML += '<div class="sibyl-panel-card"><span class="sibyl-edge"></span><div class="sibyl-panel-title">Inspector note</div>';
         if (nudges.length > 0) {
             var noteHTML = nudges.map(function(n) {
                 var msg = esc(n.message || '');
