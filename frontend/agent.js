@@ -795,41 +795,46 @@ function showAgentPanel(show) {
 }
 
 function _rerunOnboarding() {
-    // Clear onboarding flags so the flow can re-trigger
     localStorage.removeItem('stratos-onboarded');
     localStorage.removeItem('stratos-onboarding-seen');
     window._onboardingActive = true;
-    // Reset onboarding state
-    if (typeof _obStep !== 'undefined') { _obStep = 0; _obData = { role: '', location: '', categories: [], tickers: [] }; }
-    if (typeof _onboardingChipClicked !== 'undefined') _onboardingChipClicked = false;
-    window._obExpectingInput = null;
-    // Clear chat and start onboarding
     agentHistory = [];
     var msgs = document.getElementById('agent-messages');
     if (msgs) msgs.innerHTML = '';
-    if (typeof _obStep1 === 'function') _obStep1();
-    // Refresh sidebar to show updated state
+    _showOnboardingGreeting();
     if (_agentFullscreen) setTimeout(_refreshFsSidebar, 100);
 }
 window._rerunOnboarding = _rerunOnboarding;
 
+function _showOnboardingGreeting() {
+    var el = document.getElementById('agent-messages');
+    if (!el) return;
+    // Terminal greeting (hardcoded, instant, no LLM)
+    var greetHtml = '<div class="flex gap-3 mb-3">'
+        + '<div class="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5" style="background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.15);">'
+        + '<i data-lucide="bot" class="w-3.5 h-3.5 text-emerald-400"></i></div>'
+        + '<div class="flex-1 min-w-0"><div class="ob-greeting">'
+        + '<div class="ob-line1">Intelligence profile initialized.</div>'
+        + '<div class="ob-line2">I\'m your StratOS agent.<span class="ob-cursor"></span></div>'
+        + '<div class="ob-body">Tell me about yourself \u2014 what\'s your role and what do you need to stay ahead of?</div>'
+        + '</div></div></div>';
+    el.insertAdjacentHTML('beforeend', greetHtml);
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+    // Render category chips as suggestions
+    if (typeof renderOnboardingChips === 'function') renderOnboardingChips(el);
+    el.scrollTop = el.scrollHeight;
+}
+
 function _startAgentOnboarding() {
     console.log('onboarding: starting agent onboarding');
-
-    // Navigate to the agent tab (fullscreen)
+    localStorage.setItem('stratos-onboarding-seen', 'true');
     if (typeof setActive === 'function') setActive('strat_agent');
-
-    // Clear existing conversation for fresh onboarding
     agentHistory = [];
-    const messagesEl = document.getElementById('agent-messages');
+    var messagesEl = document.getElementById('agent-messages');
     if (messagesEl) messagesEl.innerHTML = '';
-
-    // Remove welcome suggestions (they're for returning users)
-    const welcome = document.getElementById('agent-welcome');
+    var welcome = document.getElementById('agent-welcome');
     if (welcome) welcome.remove();
-
-    // Start interactive onboarding flow (hardcoded steps, no LLM)
-    if (typeof _obStep1 === 'function') _obStep1();
+    _showOnboardingGreeting();
 }
 
 async function checkAgentStatus() {
@@ -1944,13 +1949,8 @@ async function sendAgentMessage() {
     const msg = (input?.value || '').trim();
     if (!msg) return;
 
-    // Intercept during interactive onboarding
-    if (window._obExpectingInput && typeof _obHandleUserInput === 'function') {
-        input.value = '';
-        input.style.height = 'auto';
-        appendAgentMessage('user', msg);
-        if (_obHandleUserInput(msg)) return;
-    }
+    // Remove onboarding chips if still showing (user typed instead of clicking)
+    document.querySelectorAll('.agent-onboarding-chips').forEach(function(el) { el.remove(); });
     
     input.value = '';
     input.style.height = 'auto';
